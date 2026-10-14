@@ -52384,13 +52384,13 @@
       "kind": "odoo",
       "op": "write",
       "tables": [
-        "sale_order_line"
+        "sale_order_discount"
       ],
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/sale/wizard/sale_order_discount.py",
         "lines": [
@@ -52405,8 +52405,7 @@
       },
       "routine": "SaleOrderDiscount.action_apply_discount",
       "verb": "update",
-      "note": "warm: transactional write; discount wizard writes discount on the order lines returned by _get_discountable_order_lines (addons/sale/wizard/sale_order_discount.py:170). tables corrected from scanner attribution sale_order_discount to sale_order_line and pinned.",
-      "pinned": true
+      "note": "not confirmed: scanner misattribution. `self._get_discountable_order_lines().write({discount: ...})` (addons/sale/wizard/sale_order_discount.py:170) is a warm transactional write on sale_order_line, not on sale_order_discount; tables left as scanned for the design step to correct (would need tables=[sale_order_line] + pinned)."
     },
     {
       "id": "ap-4dc58f140a",
