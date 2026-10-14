@@ -14553,8 +14553,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -14570,7 +14570,7 @@
         "side": "child",
         "owns": false
       },
-      "note": "product.template.product_variant_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_template.py:184-184"
+      "note": "product.template.product_variant_id (Many2one): non-stored computed Many2one (addons/product/models/product_template.py:184); no column or join edge exists, derived in Python from other fields; not a storage access"
     },
     {
       "id": "ap-605db7954d",
@@ -15018,8 +15018,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -15035,7 +15035,7 @@
         "side": "parent",
         "owns": true
       },
-      "note": "product.product.pricelist_rule_ids (One2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_product.py:107-107"
+      "note": "product.product.pricelist_rule_ids (One2many): non-stored computed One2many (addons/product/models/product_product.py:107); no column or join edge exists, derived in Python from other fields; not a storage access"
     },
     {
       "id": "ap-39cb0db405",
@@ -45412,8 +45412,8 @@
         }
       ],
       "sort": [],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/product/models/product_pricelist.py",
         "lines": [
@@ -45427,7 +45427,7 @@
         "method": "browse"
       },
       "routine": "ProductPricelist._get_country_pricelist_multi",
-      "note": "_get_country_pricelist_multi browse of ir.config_parameter pricelist id; read_hot; cite addons/product/models/product_pricelist.py:404-404"
+      "note": "_get_country_pricelist_multi self.browse(get_icp_id(...)) only builds a recordset; the `or` chain tests truthiness without fetching, so no product_pricelist query runs here (addons/product/models/product_pricelist.py:404); the real read is the search(pl_domain) fallback pattern"
     },
     {
       "id": "ap-5c4e0ffeee",
