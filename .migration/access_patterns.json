@@ -2822,8 +2822,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "odoo/orm/model_classes.py",
         "lines": [
@@ -2831,7 +2831,8 @@
           584
         ]
       },
-      "statement": "SELECT *, name->>? AS name FROM ir_model WHERE state = ?"
+      "statement": "SELECT *, name->>? AS name FROM ir_model WHERE state = ?",
+      "note": "registry load reads ir_model once per registry build (framework table); cite odoo/orm/model_classes.py:584-584"
     },
     {
       "id": "ap-f332bc10b1",
@@ -2852,8 +2853,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "odoo/orm/models.py",
         "lines": [
@@ -2861,7 +2862,8 @@
           657
         ]
       },
-      "statement": "SELECT res_id, module, name FROM ir_model_data WHERE model = %s AND res_id IN %s"
+      "statement": "SELECT res_id, module, name FROM ir_model_data WHERE model = %s AND res_id IN %s",
+      "note": "__export__ xmlid lookup, export path only; cite odoo/orm/models.py:653-657"
     },
     {
       "id": "ap-f5901aafe8",
@@ -2882,8 +2884,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "odoo/orm/models.py",
         "lines": [
@@ -2891,7 +2893,8 @@
           3724
         ]
       },
-      "statement": "SELECT id FROM ir_attachment WHERE res_model=%s AND res_id IN %s"
+      "statement": "SELECT id FROM ir_attachment WHERE res_model=%s AND res_id IN %s",
+      "note": "attachment cleanup on every BaseModel.unlink; transactional; cite odoo/orm/models.py:3724-3724"
     },
     {
       "id": "ap-586bd59ace",
@@ -2910,8 +2913,8 @@
       "sort": [
         "ir_module_module.state"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "odoo/orm/registry.py",
         "lines": [
@@ -2919,7 +2922,8 @@
           200
         ]
       },
-      "statement": "SELECT name, state FROM ir_module_module WHERE state IN (?, ?, ?) ORDER BY state = ? DESC"
+      "statement": "SELECT name, state FROM ir_module_module WHERE state IN (?, ?, ?) ORDER BY state = ? DESC",
+      "note": "registry load reads installed modules once per registry build (framework table); cite odoo/orm/registry.py:195-200"
     },
     {
       "id": "ap-1fa3b54bba",
@@ -2931,8 +2935,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "odoo/orm/registry.py",
         "lines": [
@@ -2940,7 +2944,8 @@
           1138
         ]
       },
-      "statement": "INSERT INTO orm_signaling_registry DEFAULT VALUES"
+      "statement": "INSERT INTO orm_signaling_registry DEFAULT VALUES",
+      "note": "registry-change signaling insert, fires only on registry invalidation (framework table); cite odoo/orm/registry.py:1138-1138"
     },
     {
       "id": "ap-4d1ac77912",
@@ -13910,8 +13915,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_category.py",
         "lines": [
@@ -13927,7 +13932,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "product.category.parent_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_category.py:23-23"
     },
     {
       "id": "ap-9dc9a8254c",
@@ -13945,8 +13951,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_category.py",
         "lines": [
@@ -13961,7 +13967,8 @@
         "field": "child_id",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "product.category.child_id (One2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_category.py:25-25"
     },
     {
       "id": "ap-ce60576bf0",
@@ -13979,8 +13986,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_category.py",
         "lines": [
@@ -13995,7 +14002,8 @@
         "field": "company_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.category.company_id (Many2one); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_category.py:30-30"
     },
     {
       "id": "ap-18906d46a8",
@@ -14246,8 +14254,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -14263,7 +14271,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_combo_product_template_rel"
-      }
+      },
+      "note": "product.template.combo_ids (Many2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_template.py:75-75"
     },
     {
       "id": "ap-e6aa259d29",
@@ -14281,8 +14290,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -14297,7 +14306,8 @@
         "field": "categ_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.template.categ_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_template.py:90-90"
     },
     {
       "id": "ap-0d07167feb",
@@ -14315,8 +14325,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -14331,7 +14341,8 @@
         "field": "uom_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.template.uom_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_template.py:156-156"
     },
     {
       "id": "ap-18169b672b",
@@ -14354,8 +14365,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -14371,7 +14382,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_template_uom_uom_rel"
-      }
+      },
+      "note": "product.template.uom_ids (Many2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_template.py:160-160"
     },
     {
       "id": "ap-208468f358",
@@ -14389,8 +14401,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -14405,7 +14417,8 @@
         "field": "company_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.template.company_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_template.py:162-162"
     },
     {
       "id": "ap-063c725798",
@@ -14423,8 +14436,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -14439,7 +14452,8 @@
         "field": "seller_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "product.template.seller_ids (One2many); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id. Purchase reaches it from the stored computes on purchase.order.line: _compute_price_unit_and_date_planned_and_name (addons/purchase/models/purchase_order_line.py:545-550, compute of the stored name/price_unit/date_planned/discount fields, so it runs on every PO line create or product/qty/partner change) and _compute_selected_seller_id (:342), both via _get_seller_info (:924-931); also purchase_order.py:482/749 (date_planned) and the procurement path purchase_order_line.py:819; read_hot; cite addons/product/models/product_template.py:164-164"
     },
     {
       "id": "ap-407841e642",
@@ -14457,8 +14471,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -14473,7 +14487,8 @@
         "field": "variant_seller_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "product.template.variant_seller_ids (One2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_template.py:165-165"
     },
     {
       "id": "ap-e2b16ec21d",
@@ -14491,8 +14506,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -14507,7 +14522,8 @@
         "field": "attribute_line_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "product.template.attribute_line_ids (One2many); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_template.py:171-171"
     },
     {
       "id": "ap-3aae33d3de",
@@ -14525,8 +14541,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -14541,7 +14557,8 @@
         "field": "product_variant_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "product.template.product_variant_ids (One2many); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_template.py:182-182"
     },
     {
       "id": "ap-776d0bbbf3",
@@ -14575,7 +14592,8 @@
         "field": "product_variant_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.template.product_variant_id (Many2one): non-stored computed Many2one (addons/product/models/product_template.py:184); no column or join edge exists, derived in Python from other fields; not a storage access"
     },
     {
       "id": "ap-605db7954d",
@@ -14593,8 +14611,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -14609,7 +14627,8 @@
         "field": "pricelist_rule_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "product.template.pricelist_rule_ids (One2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_template.py:202-202"
     },
     {
       "id": "ap-fe3667af03",
@@ -14627,8 +14646,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -14643,7 +14662,8 @@
         "field": "fixed_pricelist_rule_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "product.template.fixed_pricelist_rule_ids (One2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_template.py:208-208"
     },
     {
       "id": "ap-68917ef55c",
@@ -14666,8 +14686,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -14683,7 +14703,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_tag_product_template_rel"
-      }
+      },
+      "note": "product.template.product_tag_ids (Many2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_template.py:233-233"
     },
     {
       "id": "ap-25578204b7",
@@ -14701,8 +14722,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -14717,7 +14738,8 @@
         "field": "base_unit_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.template.base_unit_id (Many2one); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_template.py:254-254"
     },
     {
       "id": "ap-e5fce74a4b",
@@ -14862,8 +14884,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -14878,7 +14900,8 @@
         "field": "product_uom_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "product.product.product_uom_ids (One2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_product.py:57-57"
     },
     {
       "id": "ap-c3fa909af5",
@@ -14901,8 +14924,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -14918,7 +14941,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_variant_combination"
-      }
+      },
+      "note": "product.product.product_template_attribute_value_ids (Many2many); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_product.py:58-58"
     },
     {
       "id": "ap-b83e865412",
@@ -14941,8 +14965,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -14958,7 +14982,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_variant_combination"
-      }
+      },
+      "note": "product.product.product_template_variant_value_ids (Many2many); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_product.py:65-65"
     },
     {
       "id": "ap-f377ed6b24",
@@ -14981,8 +15006,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -14998,7 +15023,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_product_uom_uom_rel"
-      }
+      },
+      "note": "product.product.extra_uom_ids (Many2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_product.py:81-81"
     },
     {
       "id": "ap-a5827552e3",
@@ -15032,7 +15058,8 @@
         "field": "pricelist_rule_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "product.product.pricelist_rule_ids (One2many): non-stored computed One2many (addons/product/models/product_product.py:107); no column or join edge exists, derived in Python from other fields; not a storage access"
     },
     {
       "id": "ap-39cb0db405",
@@ -15055,8 +15082,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -15072,7 +15099,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_tag_product_product_rel"
-      }
+      },
+      "note": "product.product.additional_product_tag_ids (Many2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_product.py:124-124"
     },
     {
       "id": "ap-46ad6c17d8",
@@ -15090,8 +15118,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -15106,7 +15134,8 @@
         "field": "base_unit_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.product.base_unit_id (Many2one); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_product.py:168-168"
     },
     {
       "id": "ap-55558b3d91",
@@ -15334,8 +15363,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/res_country_group.py",
         "lines": [
@@ -15351,7 +15380,8 @@
         "side": "junction",
         "owns": false,
         "junction": "res_country_group_pricelist_rel"
-      }
+      },
+      "note": "res.country.group.pricelist_ids (Many2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/res_country_group.py:10-10"
     },
     {
       "id": "ap-a5eb764a6e",
@@ -15437,8 +15467,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/uom_uom.py",
         "lines": [
@@ -15453,7 +15483,8 @@
         "field": "product_uom_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "uom.uom.product_uom_ids (One2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/uom_uom.py:19-19"
     },
     {
       "id": "ap-1cf7a6f5d8",
@@ -15505,8 +15536,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/uom/models/uom_uom.py",
         "lines": [
@@ -15522,7 +15553,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "uom.uom.relative_uom_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/uom/models/uom_uom.py:40-40"
     },
     {
       "id": "ap-b01fa060c2",
@@ -15540,8 +15572,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/uom/models/uom_uom.py",
         "lines": [
@@ -15556,7 +15588,8 @@
         "field": "related_uom_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "uom.uom.related_uom_ids (One2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/uom/models/uom_uom.py:41-41"
     },
     {
       "id": "ap-f5ccdfb295",
@@ -16853,8 +16886,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_attribute.py",
         "lines": [
@@ -16869,7 +16902,8 @@
         "field": "value_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "product.attribute.value_ids (One2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_attribute.py:52-52"
     },
     {
       "id": "ap-f53933865b",
@@ -16887,8 +16921,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_attribute.py",
         "lines": [
@@ -16903,7 +16937,8 @@
         "field": "template_value_ids",
         "side": "parent",
         "owns": false
-      }
+      },
+      "note": "product.attribute.template_value_ids (One2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_attribute.py:56-56"
     },
     {
       "id": "ap-aaa24799a6",
@@ -16921,8 +16956,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_attribute.py",
         "lines": [
@@ -16937,7 +16972,8 @@
         "field": "attribute_line_ids",
         "side": "parent",
         "owns": false
-      }
+      },
+      "note": "product.attribute.attribute_line_ids (One2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_attribute.py:60-60"
     },
     {
       "id": "ap-facb78bc10",
@@ -16960,8 +16996,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_attribute.py",
         "lines": [
@@ -16977,7 +17013,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_attribute_product_template_rel"
-      }
+      },
+      "note": "product.attribute.product_tmpl_ids (Many2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_attribute.py:64-64"
     },
     {
       "id": "ap-c54fa9f527",
@@ -16995,8 +17032,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_attribute_custom_value.py",
         "lines": [
@@ -17012,7 +17049,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "restrict"
-      }
+      },
+      "note": "product.attribute.custom.value.custom_product_template_attribute_value_id (Many2one); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_attribute_custom_value.py:12-12"
     },
     {
       "id": "ap-1ee18bf8d7",
@@ -17066,8 +17104,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_attribute_value.py",
         "lines": [
@@ -17083,7 +17121,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "product.attribute.value.attribute_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_attribute_value.py:21-21"
     },
     {
       "id": "ap-2bc8ccc4d0",
@@ -17106,8 +17145,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_attribute_value.py",
         "lines": [
@@ -17123,7 +17162,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_attribute_value_product_template_attribute_line_rel"
-      }
+      },
+      "note": "product.attribute.value.pav_attribute_line_ids (Many2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_attribute_value.py:29-29"
     },
     {
       "id": "ap-789a077fed",
@@ -17141,8 +17181,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_combo.py",
         "lines": [
@@ -17157,7 +17197,8 @@
         "field": "company_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.combo.company_id (Many2one); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_combo.py:15-15"
     },
     {
       "id": "ap-e34ba2f308",
@@ -17175,8 +17216,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_combo.py",
         "lines": [
@@ -17191,7 +17232,8 @@
         "field": "combo_item_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "product.combo.combo_item_ids (One2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_combo.py:16-16"
     },
     {
       "id": "ap-add0bc7e94",
@@ -17209,8 +17251,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_combo_item.py",
         "lines": [
@@ -17226,7 +17268,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "product.combo.item.combo_id (Many2one); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_combo_item.py:13-13"
     },
     {
       "id": "ap-9a34cfab1d",
@@ -17244,8 +17287,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_combo_item.py",
         "lines": [
@@ -17261,7 +17304,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "restrict"
-      }
+      },
+      "note": "product.combo.item.product_id (Many2one); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_combo_item.py:14-14"
     },
     {
       "id": "ap-3d1fa4a56e",
@@ -17279,8 +17323,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist.py",
         "lines": [
@@ -17295,7 +17339,8 @@
         "field": "currency_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.pricelist.currency_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_pricelist.py:34-34"
     },
     {
       "id": "ap-968d45940b",
@@ -17313,8 +17358,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist.py",
         "lines": [
@@ -17329,7 +17374,8 @@
         "field": "company_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.pricelist.company_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_pricelist.py:41-41"
     },
     {
       "id": "ap-593c4f672e",
@@ -17352,8 +17398,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist.py",
         "lines": [
@@ -17369,7 +17415,8 @@
         "side": "junction",
         "owns": false,
         "junction": "res_country_group_pricelist_rel"
-      }
+      },
+      "note": "product.pricelist.country_group_ids (Many2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_pricelist.py:47-47"
     },
     {
       "id": "ap-86d9cb7cb3",
@@ -17391,8 +17438,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist.py",
         "lines": [
@@ -17407,7 +17454,8 @@
         "field": "item_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "product.pricelist.item_ids (One2many); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_pricelist.py:56-56"
     },
     {
       "id": "ap-8b331b1140",
@@ -17429,8 +17477,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist_item.py",
         "lines": [
@@ -17446,7 +17494,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "product.pricelist.item.pricelist_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_pricelist_item.py:20-20"
     },
     {
       "id": "ap-2b93b7d216",
@@ -17464,8 +17513,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist_item.py",
         "lines": [
@@ -17480,7 +17529,8 @@
         "field": "company_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.pricelist.item.company_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_pricelist_item.py:32-32"
     },
     {
       "id": "ap-f4f55799c2",
@@ -17498,8 +17548,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist_item.py",
         "lines": [
@@ -17514,7 +17564,8 @@
         "field": "currency_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.pricelist.item.currency_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_pricelist_item.py:33-33"
     },
     {
       "id": "ap-4c6de7d1bd",
@@ -17532,8 +17583,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist_item.py",
         "lines": [
@@ -17549,7 +17600,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "product.pricelist.item.categ_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_pricelist_item.py:67-67"
     },
     {
       "id": "ap-819c7cb2e0",
@@ -17567,8 +17619,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist_item.py",
         "lines": [
@@ -17584,7 +17636,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "product.pricelist.item.product_tmpl_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_pricelist_item.py:75-75"
     },
     {
       "id": "ap-52459efaa9",
@@ -17602,8 +17655,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist_item.py",
         "lines": [
@@ -17619,7 +17672,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "product.pricelist.item.product_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_pricelist_item.py:80-80"
     },
     {
       "id": "ap-8734e7a4b9",
@@ -17637,8 +17691,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist_item.py",
         "lines": [
@@ -17653,7 +17707,8 @@
         "field": "uom_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.pricelist.item.uom_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_pricelist_item.py:88-88"
     },
     {
       "id": "ap-ab172da28c",
@@ -17675,8 +17730,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist_item.py",
         "lines": [
@@ -17691,7 +17746,8 @@
         "field": "base_pricelist_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.pricelist.item.base_pricelist_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_pricelist_item.py:105-105"
     },
     {
       "id": "ap-77d48b526e",
@@ -17709,8 +17765,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_supplierinfo.py",
         "lines": [
@@ -17726,7 +17782,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "product.supplierinfo.partner_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id. Purchase reaches it from the stored computes on purchase.order.line: _compute_price_unit_and_date_planned_and_name (addons/purchase/models/purchase_order_line.py:545-550, compute of the stored name/price_unit/date_planned/discount fields, so it runs on every PO line create or product/qty/partner change) and _compute_selected_seller_id (:342), both via _get_seller_info (:924-931); also purchase_order.py:482/749 (date_planned) and the procurement path purchase_order_line.py:819; read_hot; cite addons/product/models/product_supplierinfo.py:14-14"
     },
     {
       "id": "ap-6dddb2dac1",
@@ -17744,8 +17801,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_supplierinfo.py",
         "lines": [
@@ -17760,7 +17817,8 @@
         "field": "uom_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.supplierinfo.uom_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id. Purchase reaches it from the stored computes on purchase.order.line: _compute_price_unit_and_date_planned_and_name (addons/purchase/models/purchase_order_line.py:545-550, compute of the stored name/price_unit/date_planned/discount fields, so it runs on every PO line create or product/qty/partner change) and _compute_selected_seller_id (:342), both via _get_seller_info (:924-931); also purchase_order.py:482/749 (date_planned) and the procurement path purchase_order_line.py:819; read_hot; cite addons/product/models/product_supplierinfo.py:26-26"
     },
     {
       "id": "ap-f72ce54de5",
@@ -17778,8 +17836,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_supplierinfo.py",
         "lines": [
@@ -17794,7 +17852,8 @@
         "field": "company_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.supplierinfo.company_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id. Purchase reaches it from the stored computes on purchase.order.line: _compute_price_unit_and_date_planned_and_name (addons/purchase/models/purchase_order_line.py:545-550, compute of the stored name/price_unit/date_planned/discount fields, so it runs on every PO line create or product/qty/partner change) and _compute_selected_seller_id (:342), both via _get_seller_info (:924-931); also purchase_order.py:482/749 (date_planned) and the procurement path purchase_order_line.py:819; read_hot; cite addons/product/models/product_supplierinfo.py:34-34"
     },
     {
       "id": "ap-6e5851d49d",
@@ -17812,8 +17871,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_supplierinfo.py",
         "lines": [
@@ -17828,7 +17887,8 @@
         "field": "currency_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.supplierinfo.currency_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id. Purchase reaches it from the stored computes on purchase.order.line: _compute_price_unit_and_date_planned_and_name (addons/purchase/models/purchase_order_line.py:545-550, compute of the stored name/price_unit/date_planned/discount fields, so it runs on every PO line create or product/qty/partner change) and _compute_selected_seller_id (:342), both via _get_seller_info (:924-931); also purchase_order.py:482/749 (date_planned) and the procurement path purchase_order_line.py:819; read_hot; cite addons/product/models/product_supplierinfo.py:37-37"
     },
     {
       "id": "ap-5153a228c6",
@@ -17846,8 +17906,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_supplierinfo.py",
         "lines": [
@@ -17862,7 +17922,8 @@
         "field": "product_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.supplierinfo.product_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id. Purchase reaches it from the stored computes on purchase.order.line: _compute_price_unit_and_date_planned_and_name (addons/purchase/models/purchase_order_line.py:545-550, compute of the stored name/price_unit/date_planned/discount fields, so it runs on every PO line create or product/qty/partner change) and _compute_selected_seller_id (:342), both via _get_seller_info (:924-931); also purchase_order.py:482/749 (date_planned) and the procurement path purchase_order_line.py:819; read_hot; cite addons/product/models/product_supplierinfo.py:43-43"
     },
     {
       "id": "ap-58053a8885",
@@ -17880,8 +17941,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_supplierinfo.py",
         "lines": [
@@ -17897,7 +17958,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "product.supplierinfo.product_tmpl_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id. Purchase reaches it from the stored computes on purchase.order.line: _compute_price_unit_and_date_planned_and_name (addons/purchase/models/purchase_order_line.py:545-550, compute of the stored name/price_unit/date_planned/discount fields, so it runs on every PO line create or product/qty/partner change) and _compute_selected_seller_id (:342), both via _get_seller_info (:924-931); also purchase_order.py:482/749 (date_planned) and the procurement path purchase_order_line.py:819; read_hot; cite addons/product/models/product_supplierinfo.py:48-48"
     },
     {
       "id": "ap-12618aa65d",
@@ -17920,8 +17982,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_tag.py",
         "lines": [
@@ -17937,7 +17999,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_tag_product_template_rel"
-      }
+      },
+      "note": "product.tag.product_template_ids (Many2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_tag.py:21-21"
     },
     {
       "id": "ap-c15729c1e9",
@@ -17960,8 +18023,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_tag.py",
         "lines": [
@@ -17977,7 +18040,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_tag_product_product_rel"
-      }
+      },
+      "note": "product.tag.product_product_ids (Many2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_tag.py:27-27"
     },
     {
       "id": "ap-6bcc69fd0a",
@@ -17995,8 +18059,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_line.py",
         "lines": [
@@ -18012,7 +18076,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "product.template.attribute.line.product_tmpl_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_template_attribute_line.py:19-19"
     },
     {
       "id": "ap-7667fc56c1",
@@ -18030,8 +18095,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_line.py",
         "lines": [
@@ -18047,7 +18112,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "restrict"
-      }
+      },
+      "note": "product.template.attribute.line.attribute_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_template_attribute_line.py:26-26"
     },
     {
       "id": "ap-68ba15015d",
@@ -18070,8 +18136,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_line.py",
         "lines": [
@@ -18087,7 +18153,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_attribute_value_product_template_attribute_line_rel"
-      }
+      },
+      "note": "product.template.attribute.line.value_ids (Many2many); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_template_attribute_line.py:32-32"
     },
     {
       "id": "ap-21517768d1",
@@ -18105,8 +18172,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_line.py",
         "lines": [
@@ -18121,7 +18188,8 @@
         "field": "product_template_value_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "product.template.attribute.line.product_template_value_ids (One2many); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_template_attribute_line.py:39-39"
     },
     {
       "id": "ap-5bb5f0b8ed",
@@ -18139,8 +18207,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_value.py",
         "lines": [
@@ -18156,7 +18224,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "product.template.attribute.value.product_attribute_value_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_template_attribute_value.py:29-29"
     },
     {
       "id": "ap-938315e2b0",
@@ -18174,8 +18243,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_value.py",
         "lines": [
@@ -18191,7 +18260,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "product.template.attribute.value.attribute_line_id (Many2one); traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_template_attribute_value.py:33-33"
     },
     {
       "id": "ap-1ef128505b",
@@ -18222,8 +18292,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_value.py",
         "lines": [
@@ -18239,7 +18309,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_template_attribute_excluded_value_ids_rel"
-      }
+      },
+      "note": "product.template.attribute.value.excluded_value_ids (Many2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_template_attribute_value.py:50-50"
     },
     {
       "id": "ap-147781703a",
@@ -18262,8 +18333,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_value.py",
         "lines": [
@@ -18279,7 +18350,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_variant_combination"
-      }
+      },
+      "note": "product.template.attribute.value.ptav_product_variant_ids (Many2many); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_template_attribute_value.py:65-65"
     },
     {
       "id": "ap-a49e12419e",
@@ -18297,8 +18369,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_uom.py",
         "lines": [
@@ -18314,7 +18386,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "product.uom.uom_id (Many2one); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_uom.py:13-13"
     },
     {
       "id": "ap-1da4db7aa4",
@@ -18332,8 +18405,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_uom.py",
         "lines": [
@@ -18349,7 +18422,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "product.uom.product_id (Many2one); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_uom.py:14-14"
     },
     {
       "id": "ap-61b0a49c0c",
@@ -18367,8 +18441,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_uom.py",
         "lines": [
@@ -18383,7 +18457,8 @@
         "field": "company_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.uom.company_id (Many2one); traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_uom.py:16-16"
     },
     {
       "id": "ap-ff80fcca4f",
@@ -18406,8 +18481,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/wizard/product_label_layout.py",
         "lines": [
@@ -18423,7 +18498,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_label_layout_product_product_rel"
-      }
+      },
+      "note": "product.label.layout.product_ids (Many2many); transient wizard model; batch/admin only; cite addons/product/wizard/product_label_layout.py:37-37"
     },
     {
       "id": "ap-ae60115135",
@@ -18446,8 +18522,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/wizard/product_label_layout.py",
         "lines": [
@@ -18463,7 +18539,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_label_layout_product_template_rel"
-      }
+      },
+      "note": "product.label.layout.product_tmpl_ids (Many2many); transient wizard model; batch/admin only; cite addons/product/wizard/product_label_layout.py:38-38"
     },
     {
       "id": "ap-5e39467563",
@@ -18486,8 +18563,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/wizard/product_label_layout.py",
         "lines": [
@@ -18503,7 +18580,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_label_layout_product_uom_rel"
-      }
+      },
+      "note": "product.label.layout.product_uom_ids (Many2many); transient wizard model; batch/admin only; cite addons/product/wizard/product_label_layout.py:39-39"
     },
     {
       "id": "ap-4e33b0a47b",
@@ -18521,8 +18599,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/wizard/product_label_layout.py",
         "lines": [
@@ -18537,7 +18615,8 @@
         "field": "packaging_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.label.layout.packaging_id (Many2one); transient wizard model; batch/admin only; cite addons/product/wizard/product_label_layout.py:41-41"
     },
     {
       "id": "ap-6ecec12915",
@@ -18555,8 +18634,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/wizard/product_label_layout.py",
         "lines": [
@@ -18571,7 +18650,8 @@
         "field": "pricelist_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "product.label.layout.pricelist_id (Many2one); transient wizard model; batch/admin only; cite addons/product/wizard/product_label_layout.py:49-49"
     },
     {
       "id": "ap-f0fca041d6",
@@ -18629,8 +18709,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/wizard/update_product_attribute_value.py",
         "lines": [
@@ -18645,7 +18725,8 @@
         "field": "attribute_value_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "update.product.attribute.value.attribute_value_id (Many2one); transient wizard model; batch/admin only; cite addons/product/wizard/update_product_attribute_value.py:11-11"
     },
     {
       "id": "ap-2c782191fc",
@@ -29786,8 +29867,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -29802,7 +29883,8 @@
         "side": "child",
         "owns": true,
         "delegates": "product.template"
-      }
+      },
+      "note": "product.product delegates product.template; _inherits delegation: every product_product read/write resolves product_template columns through the delegate; traversed on every product/variant/pricing read (prefetch, domain joins); read_hot; cite addons/product/models/product_product.py:51-51"
     },
     {
       "id": "ap-2b4870e33e",
@@ -29854,8 +29936,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_document.py",
         "lines": [
@@ -29870,7 +29952,8 @@
         "side": "child",
         "owns": true,
         "delegates": "ir.attachment"
-      }
+      },
+      "note": "product.document delegates ir.attachment; _inherits delegation: every product_document read/write resolves ir_attachment columns through the delegate; traversed on form/transactional paths, not on the pricing hot path; transactional; cite addons/product/models/product_document.py:17-17"
     },
     {
       "id": "ap-2f64eccc7a",
@@ -44811,8 +44894,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/ir_attachment.py",
         "lines": [
@@ -44826,7 +44909,8 @@
         "method": "create"
       },
       "routine": "IrAttachment.create",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "IrAttachment.create auto-creates product_document for product attachments; transactional; cite addons/product/models/ir_attachment.py:20-25"
     },
     {
       "id": "ap-33c0dc5d40",
@@ -44853,8 +44937,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_attribute.py",
         "lines": [
@@ -44870,7 +44954,8 @@
       "routine": "ProductAttribute._compute_number_related_products",
       "compute_by": [
         "product_template_attribute_line.attribute_id"
-      ]
+      ],
+      "note": "ProductAttribute._compute_number_related_products read_group; transactional; cite addons/product/models/product_attribute.py:77-81"
     },
     {
       "id": "ap-3df1aac51f",
@@ -44887,8 +44972,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_attribute.py",
         "lines": [
@@ -44904,7 +44989,8 @@
       "routine": "ProductAttribute._compute_products",
       "compute_by": [
         "product_template_attribute_line.attribute_id"
-      ]
+      ],
+      "note": "ProductAttribute._compute_products read_group; transactional; cite addons/product/models/product_attribute.py:90-94"
     },
     {
       "id": "ap-ad74c5fa25",
@@ -44926,8 +45012,8 @@
         "product_template_attribute_value.product_attribute_value_id",
         "product_template_attribute_value.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_attribute_value.py",
         "lines": [
@@ -44940,7 +45026,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ProductAttributeValue._compute_default_extra_price_changed"
+      "routine": "ProductAttributeValue._compute_default_extra_price_changed",
+      "note": "ProductAttributeValue._compute_default_extra_price_changed; transactional; cite addons/product/models/product_attribute_value.py:84-87"
     },
     {
       "id": "ap-e3dc988af2",
@@ -44962,8 +45049,8 @@
         "product_template_attribute_value.product_attribute_value_id",
         "product_template_attribute_value.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_attribute_value.py",
         "lines": [
@@ -44976,7 +45063,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductAttributeValue.unlink"
+      "routine": "ProductAttributeValue.unlink",
+      "note": "ProductAttributeValue.unlink ptav lookup; transactional; cite addons/product/models/product_attribute_value.py:135-137"
     },
     {
       "id": "ap-27aa073b22",
@@ -44993,8 +45081,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_catalog_mixin.py",
         "lines": [
@@ -45007,7 +45095,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductCatalogMixin._get_product_catalog_order_line_info"
+      "routine": "ProductCatalogMixin._get_product_catalog_order_line_info",
+      "note": "ProductCatalogMixin product browse for catalog order-line info; read_hot; cite addons/product/models/product_catalog_mixin.py:68-68"
     },
     {
       "id": "ap-9ec2270a41",
@@ -45027,8 +45116,8 @@
         "product_category.parent_id",
         "product_category.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_category.py",
         "lines": [
@@ -45041,7 +45130,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductCategory._search_complete_name"
+      "routine": "ProductCategory._search_complete_name",
+      "note": "ProductCategory._search_complete_name import_file branch; batch; cite addons/product/models/product_category.py:48-48"
     },
     {
       "id": "ap-e38608d4bf",
@@ -45056,8 +45146,8 @@
         "product_category.parent_id",
         "product_category.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_category.py",
         "lines": [
@@ -45070,7 +45160,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductCategory._search_complete_name"
+      "routine": "ProductCategory._search_complete_name",
+      "note": "ProductCategory._search_complete_name child_of search; transactional; cite addons/product/models/product_category.py:53-53"
     },
     {
       "id": "ap-1a59b72823",
@@ -45087,8 +45178,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_category.py",
         "lines": [
@@ -45101,7 +45192,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "ProductCategory._compute_product_count"
+      "routine": "ProductCategory._compute_product_count",
+      "note": "ProductCategory._compute_product_count child_of read_group; transactional; cite addons/product/models/product_category.py:57-57"
     },
     {
       "id": "ap-3de10e7abf",
@@ -45125,8 +45217,8 @@
         "product_template.is_favorite",
         "product_template.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_category.py",
         "lines": [
@@ -45139,7 +45231,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductCategory._check_company_id"
+      "routine": "ProductCategory._check_company_id",
+      "note": "ProductCategory._check_company_id constraint; transactional; cite addons/product/models/product_category.py:81-84"
     },
     {
       "id": "ap-6f931b80d9",
@@ -45151,8 +45244,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_category.py",
         "lines": [
@@ -45166,7 +45259,8 @@
         "method": "create"
       },
       "routine": "ProductCategory.name_create",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "ProductCategory.name_create quick-create; transactional; cite addons/product/models/product_category.py:102-102"
     },
     {
       "id": "ap-bbdd0dbb55",
@@ -45183,8 +45277,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_combo.py",
         "lines": [
@@ -45200,7 +45294,8 @@
       "routine": "ProductCombo._compute_combo_item_count",
       "compute_by": [
         "product_combo_item.combo_id"
-      ]
+      ],
+      "note": "ProductCombo._compute_combo_item_count; transactional; cite addons/product/models/product_combo.py:38-42"
     },
     {
       "id": "ap-7f59ca579c",
@@ -45215,8 +45310,8 @@
         "product_template.is_favorite",
         "product_template.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_combo.py",
         "lines": [
@@ -45229,7 +45324,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductCombo._check_company_id"
+      "routine": "ProductCombo._check_company_id",
+      "note": "ProductCombo._check_company_id constraint; transactional; cite addons/product/models/product_combo.py:82-82"
     },
     {
       "id": "ap-835a985a2b",
@@ -45246,8 +45342,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_document.py",
         "lines": [
@@ -45260,7 +45356,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductDocument._compute_variant_attribute_value_ids"
+      "routine": "ProductDocument._compute_variant_attribute_value_ids",
+      "note": "ProductDocument._compute_variant_attribute_value_ids product browse; transactional; cite addons/product/models/product_document.py:37-37"
     },
     {
       "id": "ap-f01f76317c",
@@ -45272,8 +45369,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_document.py",
         "lines": [
@@ -45287,7 +45384,8 @@
         "method": "unlink"
       },
       "routine": "ProductDocument.unlink",
-      "verb": "delete"
+      "verb": "delete",
+      "note": "ProductDocument.unlink deletes delegated ir_attachment rows; transactional; cite addons/product/models/product_document.py:75-75"
     },
     {
       "id": "ap-1b37098133",
@@ -45304,8 +45402,8 @@
         "product_pricelist_item.categ_id",
         "product_pricelist_item.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist.py",
         "lines": [
@@ -45318,7 +45416,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductPricelist._get_applicable_rules"
+      "routine": "ProductPricelist._get_applicable_rules",
+      "note": "ProductPricelist._get_applicable_rules: rule search on every price computation; read_hot; cite addons/product/models/product_pricelist.py:289-293"
     },
     {
       "id": "ap-02f15f126e",
@@ -45334,8 +45433,8 @@
         "product_pricelist.id",
         "product_pricelist.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist.py",
         "lines": [
@@ -45348,7 +45447,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductPricelist._compute_price_rule_multi"
+      "routine": "ProductPricelist._compute_price_rule_multi",
+      "note": "_compute_price_rule_multi loads all pricelists when none given; read_hot; cite addons/product/models/product_pricelist.py:364-364"
     },
     {
       "id": "ap-a40cd56d28",
@@ -45364,8 +45464,8 @@
         "product_pricelist.id",
         "product_pricelist.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist.py",
         "lines": [
@@ -45378,7 +45478,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductPricelist._get_country_pricelist_multi"
+      "routine": "ProductPricelist._get_country_pricelist_multi",
+      "note": "_get_country_pricelist_multi fallback search; partner pricelist resolution; read_hot; cite addons/product/models/product_pricelist.py:394-394"
     },
     {
       "id": "ap-4cd6930e24",
@@ -45409,7 +45510,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductPricelist._get_country_pricelist_multi"
+      "routine": "ProductPricelist._get_country_pricelist_multi",
+      "note": "_get_country_pricelist_multi self.browse(get_icp_id(...)) only builds a recordset; the `or` chain tests truthiness without fetching, so no product_pricelist query runs here (addons/product/models/product_pricelist.py:404); the real read is the search(pl_domain) fallback pattern"
     },
     {
       "id": "ap-5c4e0ffeee",
@@ -45440,7 +45542,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductPricelist._get_country_pricelist_multi"
+      "routine": "ProductPricelist._get_country_pricelist_multi",
+      "note": "_get_country_pricelist_multi second self.browse(get_icp_id(...)) in the `or` chain only builds a recordset; truthiness is tested without fetching, so no product_pricelist query runs here (addons/product/models/product_pricelist.py:405); same as ap-4cd6930e24 on line 404, the real read is the search(pl_domain, limit=1) fallback pattern"
     },
     {
       "id": "ap-89613f7659",
@@ -45456,8 +45559,8 @@
         "product_pricelist.id",
         "product_pricelist.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist.py",
         "lines": [
@@ -45470,7 +45573,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductPricelist._get_country_pricelist_multi"
+      "routine": "ProductPricelist._get_country_pricelist_multi",
+      "note": "_get_country_pricelist_multi company pricelist search; read_hot; cite addons/product/models/product_pricelist.py:406-406"
     },
     {
       "id": "ap-5f42aed216",
@@ -45486,8 +45590,8 @@
         "product_pricelist.id",
         "product_pricelist.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist.py",
         "lines": [
@@ -45500,7 +45604,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductPricelist._get_country_pricelist_multi"
+      "routine": "ProductPricelist._get_country_pricelist_multi",
+      "note": "_get_country_pricelist_multi country-group pricelist search; read_hot; cite addons/product/models/product_pricelist.py:411-414"
     },
     {
       "id": "ap-e0ff6aa544",
@@ -45517,8 +45622,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist.py",
         "lines": [
@@ -45531,7 +45636,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductPricelist._get_partner_pricelist_multi"
+      "routine": "ProductPricelist._get_partner_pricelist_multi",
+      "note": "_get_partner_pricelist_multi partner browse (property_product_pricelist compute); read_hot; cite addons/product/models/product_pricelist.py:444-444"
     },
     {
       "id": "ap-a1d432fcbb",
@@ -45548,8 +45654,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist.py",
         "lines": [
@@ -45562,7 +45668,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductPricelist._get_partner_pricelist_multi"
+      "routine": "ProductPricelist._get_partner_pricelist_multi",
+      "note": "_get_partner_pricelist_multi partner browse (property_product_pricelist compute); read_hot; cite addons/product/models/product_pricelist.py:452-452"
     },
     {
       "id": "ap-d1871192d3",
@@ -45592,8 +45699,8 @@
         "product_pricelist_item.categ_id",
         "product_pricelist_item.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist.py",
         "lines": [
@@ -45606,7 +45713,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductPricelist._unlink_except_used_as_rule_base"
+      "routine": "ProductPricelist._unlink_except_used_as_rule_base",
+      "note": "_unlink_except_used_as_rule_base: rule search on pricelist unlink; transactional; cite addons/product/models/product_pricelist.py:480-484"
     },
     {
       "id": "ap-6d30561534",
@@ -45623,8 +45731,8 @@
         "product_pricelist_item.categ_id",
         "product_pricelist_item.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist.py",
         "lines": [
@@ -45637,7 +45745,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ProductPricelist._get_related_uoms"
+      "routine": "ProductPricelist._get_related_uoms",
+      "note": "_get_related_uoms: pricelist-item UoM lookup on product form; transactional; cite addons/product/models/product_pricelist.py:514-514"
     },
     {
       "id": "ap-181f222428",
@@ -45658,8 +45767,8 @@
         "product_pricelist.id",
         "product_pricelist.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist_item.py",
         "lines": [
@@ -45672,7 +45781,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductPricelistItem._default_pricelist_id"
+      "routine": "ProductPricelistItem._default_pricelist_id",
+      "note": "ProductPricelistItem._default_pricelist_id on item create; transactional; cite addons/product/models/product_pricelist_item.py:16-18"
     },
     {
       "id": "ap-1e3c46692a",
@@ -45693,8 +45803,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist_item.py",
         "lines": [
@@ -45710,7 +45820,8 @@
       "routine": "ProductPricelistItem._check_pricelist_recursion",
       "compute_by": [
         "product_pricelist_item.base_pricelist_id"
-      ]
+      ],
+      "note": "_check_pricelist_recursion constraint read_group on item write; transactional; cite addons/product/models/product_pricelist_item.py:361-365"
     },
     {
       "id": "ap-89040b8f3f",
@@ -45727,8 +45838,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist_item.py",
         "lines": [
@@ -45741,7 +45852,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductPricelistItem.create"
+      "routine": "ProductPricelistItem.create",
+      "note": "ProductPricelistItem.create browse of product_id; transactional; cite addons/product/models/product_pricelist_item.py:476-478"
     },
     {
       "id": "ap-8d251368b5",
@@ -45758,8 +45870,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_pricelist_item.py",
         "lines": [
@@ -45772,7 +45884,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductPricelistItem._compute_price_before_discount"
+      "routine": "ProductPricelistItem._compute_price_before_discount",
+      "note": "_compute_price_before_discount rule browse on item form; transactional; cite addons/product/models/product_pricelist_item.py:671-671"
     },
     {
       "id": "ap-05dd7a2a6b",
@@ -45793,8 +45906,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -45807,7 +45920,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "ProductProduct._set_template_field"
+      "routine": "ProductProduct._set_template_field",
+      "note": "_set_template_field active-variant count on variant write; transactional; cite addons/product/models/product_product.py:220-223"
     },
     {
       "id": "ap-3403fc869b",
@@ -45819,8 +45933,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -45833,7 +45947,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "ProductProduct._check_duplicated_product_barcodes"
+      "routine": "ProductProduct._check_duplicated_product_barcodes",
+      "note": "_check_duplicated_product_barcodes constraint; transactional; cite addons/product/models/product_product.py:373-375"
     },
     {
       "id": "ap-f35d814dbb",
@@ -45845,8 +45960,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -45859,7 +45974,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "ProductProduct._check_duplicated_template_barcodes"
+      "routine": "ProductProduct._check_duplicated_template_barcodes",
+      "note": "_check_duplicated_template_barcodes constraint; transactional; cite addons/product/models/product_product.py:402-404"
     },
     {
       "id": "ap-ca2fb3bbd0",
@@ -45871,8 +45987,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -45885,7 +46001,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "ProductProduct._check_duplicated_packaging_barcodes"
+      "routine": "ProductProduct._check_duplicated_packaging_barcodes",
+      "note": "_check_duplicated_packaging_barcodes constraint; transactional; cite addons/product/models/product_product.py:417-417"
     },
     {
       "id": "ap-57461be406",
@@ -45902,8 +46019,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -45916,7 +46033,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct._check_company_id"
+      "routine": "ProductProduct._check_company_id",
+      "note": "ProductProduct._check_company_id combo-item lookup; transactional; cite addons/product/models/product_product.py:437-437"
     },
     {
       "id": "ap-3a530ae0c5",
@@ -45930,8 +46048,8 @@
       "sort": [
         "product_product.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -45944,7 +46062,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ProductProduct._search_product_quantity"
+      "routine": "ProductProduct._search_product_quantity",
+      "note": "_search_product_quantity full search_fetch then python filter on computed qty; transactional; cite addons/product/models/product_product.py:551-551"
     },
     {
       "id": "ap-77698cb470",
@@ -45956,8 +46075,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -45970,7 +46089,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "ProductProduct._compute_product_document_count"
+      "routine": "ProductProduct._compute_product_document_count",
+      "note": "_compute_product_document_count on product form; transactional; cite addons/product/models/product_product.py:556-567"
     },
     {
       "id": "ap-73c256e7d5",
@@ -45987,8 +46107,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46001,7 +46121,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "ProductProduct._onchange_default_code"
+      "routine": "ProductProduct._onchange_default_code",
+      "note": "_onchange_default_code duplicate warning; transactional; cite addons/product/models/product_product.py:595-595"
     },
     {
       "id": "ap-4213cc2fef",
@@ -46016,8 +46137,8 @@
         "product_attribute.sequence",
         "product_attribute.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46030,7 +46151,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct._load_records_create"
+      "routine": "ProductProduct._load_records_create",
+      "note": "_load_records_create import attribute lookup; batch; cite addons/product/models/product_product.py:725-725"
     },
     {
       "id": "ap-9d5238cabd",
@@ -46042,8 +46164,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46057,7 +46179,8 @@
         "method": "create"
       },
       "routine": "ProductProduct._load_records_create",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "_load_records_create import attribute create; batch; cite addons/product/models/product_product.py:737-737"
     },
     {
       "id": "ap-69e3ab8a76",
@@ -46073,8 +46196,8 @@
         "product_attribute_value.sequence",
         "product_attribute_value.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46087,7 +46210,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct._load_records_create"
+      "routine": "ProductProduct._load_records_create",
+      "note": "_load_records_create import attribute-value lookup; batch; cite addons/product/models/product_product.py:746-746"
     },
     {
       "id": "ap-a9e1d46e7d",
@@ -46099,8 +46223,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46114,7 +46238,8 @@
         "method": "create"
       },
       "routine": "ProductProduct._load_records_create",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "_load_records_create import attribute-value create; batch; cite addons/product/models/product_product.py:761-761"
     },
     {
       "id": "ap-03f55932a6",
@@ -46129,8 +46254,8 @@
         "product_template.is_favorite",
         "product_template.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46143,7 +46268,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct._load_records_create"
+      "routine": "ProductProduct._load_records_create",
+      "note": "_load_records_create import template lookup; batch; cite addons/product/models/product_product.py:768-770"
     },
     {
       "id": "ap-a8a011faa6",
@@ -46155,8 +46281,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46170,7 +46296,8 @@
         "method": "create"
       },
       "routine": "ProductProduct._load_records_create",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "_load_records_create import template create; batch; cite addons/product/models/product_product.py:781-781"
     },
     {
       "id": "ap-f9c1f96046",
@@ -46192,8 +46319,8 @@
         "product_template.name",
         "product_product.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46206,7 +46333,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct._load_records_create"
+      "routine": "ProductProduct._load_records_create",
+      "note": "_load_records_create import variant lookup; batch; cite addons/product/models/product_product.py:794-794"
     },
     {
       "id": "ap-1082fbf44c",
@@ -46222,8 +46350,8 @@
         "product_template_attribute_line.attribute_id",
         "product_template_attribute_line.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46236,7 +46364,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct._load_records_create"
+      "routine": "ProductProduct._load_records_create",
+      "note": "_load_records_create import attribute-line lookup; batch; cite addons/product/models/product_product.py:814-814"
     },
     {
       "id": "ap-84b6ab3523",
@@ -46248,8 +46377,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46263,7 +46392,8 @@
         "method": "create"
       },
       "routine": "ProductProduct._load_records_create",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "_load_records_create import attribute-line create; batch; cite addons/product/models/product_product.py:829-829"
     },
     {
       "id": "ap-1a05d7f9bd",
@@ -46285,8 +46415,8 @@
         "product_template.name",
         "product_product.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46299,7 +46429,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct.load"
+      "routine": "ProductProduct.load",
+      "note": "ProductProduct.load import; batch; cite addons/product/models/product_product.py:880-880"
     },
     {
       "id": "ap-2de9fac9ad",
@@ -46316,8 +46447,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46330,7 +46461,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct.action_archive"
+      "routine": "ProductProduct.action_archive",
+      "note": "ProductProduct.action_archive combo-item lookup; transactional; cite addons/product/models/product_product.py:903-903"
     },
     {
       "id": "ap-59fbba1974",
@@ -46347,8 +46479,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46364,7 +46496,8 @@
       "routine": "ProductProduct.unlink",
       "compute_by": [
         "product_product.product_tmpl_id"
-      ]
+      ],
+      "note": "ProductProduct.unlink variants-per-template read_group; transactional; cite addons/product/models/product_product.py:934-938"
     },
     {
       "id": "ap-eb9cc51396",
@@ -46381,8 +46514,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46395,7 +46528,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductProduct.unlink"
+      "routine": "ProductProduct.unlink",
+      "note": "ProductProduct.unlink variant browse; transactional; cite addons/product/models/product_product.py:950-950"
     },
     {
       "id": "ap-61d908b916",
@@ -46412,8 +46546,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46426,7 +46560,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductProduct.unlink"
+      "routine": "ProductProduct.unlink",
+      "note": "ProductProduct.unlink orphan template browse; transactional; cite addons/product/models/product_product.py:954-954"
     },
     {
       "id": "ap-bf95878df6",
@@ -46438,8 +46573,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46453,7 +46588,8 @@
         "method": "unlink"
       },
       "routine": "ProductProduct.unlink",
-      "verb": "delete"
+      "verb": "delete",
+      "note": "ProductProduct.unlink deletes templates left without variants; transactional; cite addons/product/models/product_product.py:955-955"
     },
     {
       "id": "ap-695a35204d",
@@ -46465,8 +46601,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46480,7 +46616,8 @@
         "method": "unlink"
       },
       "routine": "ProductProduct._unlink_or_archive",
-      "verb": "delete"
+      "verb": "delete",
+      "note": "_unlink_or_archive delete; transactional; cite addons/product/models/product_product.py:983-983"
     },
     {
       "id": "ap-3ac6510bdb",
@@ -46492,8 +46629,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46507,7 +46644,8 @@
         "method": "write"
       },
       "routine": "ProductProduct._unlink_or_archive",
-      "verb": "update"
+      "verb": "update",
+      "note": "_unlink_or_archive fallback archive write; transactional; cite addons/product/models/product_product.py:995-995"
     },
     {
       "id": "ap-47bdf9727e",
@@ -46519,8 +46657,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46534,7 +46672,8 @@
         "method": "copy"
       },
       "routine": "ProductProduct.copy",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "ProductProduct.copy copies template; transactional; cite addons/product/models/product_product.py:1012-1012"
     },
     {
       "id": "ap-a9c3365cdf",
@@ -46551,8 +46690,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46565,7 +46704,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductProduct._compute_display_name"
+      "routine": "ProductProduct._compute_display_name",
+      "note": "_compute_display_name partner browse with partner_id context; transactional; cite addons/product/models/product_product.py:1038-1038"
     },
     {
       "id": "ap-09c47bf055",
@@ -46591,8 +46731,8 @@
         "product_supplierinfo.price",
         "product_supplierinfo.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46605,7 +46745,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ProductProduct._compute_display_name"
+      "routine": "ProductProduct._compute_display_name",
+      "note": "_compute_display_name supplierinfo search_fetch with partner_id context; transactional; cite addons/product/models/product_product.py:1051-1054"
     },
     {
       "id": "ap-ad4c0ff60e",
@@ -46622,8 +46763,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46636,7 +46777,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductProduct._compute_display_name"
+      "routine": "ProductProduct._compute_display_name",
+      "note": "_compute_display_name supplierinfo browse from context; transactional; cite addons/product/models/product_product.py:1063-1063"
     },
     {
       "id": "ap-90179736db",
@@ -46658,8 +46800,8 @@
         "product_template.name",
         "product_product.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46672,7 +46814,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ProductProduct.name_search"
+      "routine": "ProductProduct.name_search",
+      "note": "ProductProduct.name_search favorite products; read_hot; cite addons/product/models/product_product.py:1151-1153"
     },
     {
       "id": "ap-3b8ccb7030",
@@ -46694,8 +46837,8 @@
         "product_template.name",
         "product_product.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46708,7 +46851,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ProductProduct.name_search"
+      "routine": "ProductProduct.name_search",
+      "note": "ProductProduct.name_search non-favorite products; read_hot; cite addons/product/models/product_product.py:1157-1161"
     },
     {
       "id": "ap-11320966b7",
@@ -46739,7 +46883,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductProduct.name_search"
+      "routine": "ProductProduct.name_search",
+      "note": "empty self.browse(): no read; cite addons/product/models/product_product.py:1166-1166"
     },
     {
       "id": "ap-0beae7dfd4",
@@ -46761,8 +46906,8 @@
         "product_template.name",
         "product_product.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46775,7 +46920,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ProductProduct.name_search"
+      "routine": "ProductProduct.name_search",
+      "note": "ProductProduct.name_search by default_code; read_hot; cite addons/product/models/product_product.py:1170-1170"
     },
     {
       "id": "ap-7916c8ca8f",
@@ -46797,8 +46943,8 @@
         "product_template.name",
         "product_product.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46811,7 +46957,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ProductProduct.name_search"
+      "routine": "ProductProduct.name_search",
+      "note": "ProductProduct.name_search by barcode; read_hot; cite addons/product/models/product_product.py:1171-1171"
     },
     {
       "id": "ap-54e24431aa",
@@ -46833,8 +46980,8 @@
         "product_template.name",
         "product_product.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46847,7 +46994,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ProductProduct.name_search"
+      "routine": "ProductProduct.name_search",
+      "note": "ProductProduct.name_search by name; read_hot; cite addons/product/models/product_product.py:1178-1178"
     },
     {
       "id": "ap-c515b8d421",
@@ -46869,8 +47017,8 @@
         "product_template.name",
         "product_product.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46883,7 +47031,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ProductProduct.name_search"
+      "routine": "ProductProduct.name_search",
+      "note": "ProductProduct.name_search rest by name excluding found; read_hot; cite addons/product/models/product_product.py:1182-1182"
     },
     {
       "id": "ap-ef6cae09da",
@@ -46905,8 +47054,8 @@
         "product_template.name",
         "product_product.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46919,7 +47068,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ProductProduct.name_search"
+      "routine": "ProductProduct.name_search",
+      "note": "ProductProduct.name_search negative operator; read_hot; cite addons/product/models/product_product.py:1187-1187"
     },
     {
       "id": "ap-1a0c9acaeb",
@@ -46941,8 +47091,8 @@
         "product_template.name",
         "product_product.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46955,7 +47105,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ProductProduct.name_search"
+      "routine": "ProductProduct.name_search",
+      "note": "ProductProduct.name_search [code] name pattern; read_hot; cite addons/product/models/product_product.py:1190-1190"
     },
     {
       "id": "ap-a9dfcda0c2",
@@ -46977,8 +47128,8 @@
         "product_template.name",
         "product_product.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -46991,7 +47142,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ProductProduct.name_search"
+      "routine": "ProductProduct.name_search",
+      "note": "ProductProduct.name_search supplier code/name match; read_hot; cite addons/product/models/product_product.py:1200-1200"
     },
     {
       "id": "ap-65a32e2d52",
@@ -47008,8 +47160,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -47022,7 +47174,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductProduct.view_header_get"
+      "routine": "ProductProduct.view_header_get",
+      "note": "ProductProduct.view_header_get category browse; transactional; cite addons/product/models/product_product.py:1208-1208"
     },
     {
       "id": "ap-797443f35e",
@@ -47039,8 +47192,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_supplierinfo.py",
         "lines": [
@@ -47053,7 +47206,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductSupplierinfo._sanitize_vals"
+      "routine": "ProductSupplierinfo._sanitize_vals",
+      "note": "ProductSupplierinfo._sanitize_vals product browse on create/write; transactional; cite addons/product/models/product_supplierinfo.py:130-130"
     },
     {
       "id": "ap-19ffc087d0",
@@ -47070,8 +47224,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_tag.py",
         "lines": [
@@ -47084,7 +47238,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductTag._get_default_template_id"
+      "routine": "ProductTag._get_default_template_id",
+      "note": "ProductTag._get_default_template_id browse from context; transactional; cite addons/product/models/product_tag.py:13-13"
     },
     {
       "id": "ap-80f3e51ea0",
@@ -47101,8 +47256,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_tag.py",
         "lines": [
@@ -47115,7 +47270,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductTag._get_default_variant_id"
+      "routine": "ProductTag._get_default_variant_id",
+      "note": "ProductTag._get_default_variant_id browse from context; transactional; cite addons/product/models/product_tag.py:16-16"
     },
     {
       "id": "ap-fdcdc0d572",
@@ -47127,8 +47283,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47141,7 +47297,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "ProductTemplate._compute_product_document_count"
+      "routine": "ProductTemplate._compute_product_document_count",
+      "note": "ProductTemplate._compute_product_document_count on template form; transactional; cite addons/product/models/product_template.py:278-280"
     },
     {
       "id": "ap-c025ad4b3c",
@@ -47153,8 +47310,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47167,7 +47324,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "ProductTemplate._check_duplicated_template_barcodes"
+      "routine": "ProductTemplate._check_duplicated_template_barcodes",
+      "note": "ProductTemplate._check_duplicated_template_barcodes constraint; transactional; cite addons/product/models/product_template.py:337-339"
     },
     {
       "id": "ap-a811dbce0d",
@@ -47179,8 +47337,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47193,7 +47351,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "ProductTemplate._check_duplicated_variant_barcodes"
+      "routine": "ProductTemplate._check_duplicated_variant_barcodes",
+      "note": "ProductTemplate._check_duplicated_variant_barcodes constraint; transactional; cite addons/product/models/product_template.py:368-370"
     },
     {
       "id": "ap-a01c9c81f8",
@@ -47224,7 +47383,8 @@
         "framework": "odoo",
         "method": "read"
       },
-      "routine": "ProductTemplate._compute_quantities_dict"
+      "routine": "ProductTemplate._compute_quantities_dict",
+      "note": "reads computed non-stored qty fields (stock); not a column read, filter is not a predicate; cite addons/product/models/product_template.py:497-497"
     },
     {
       "id": "ap-f42536e912",
@@ -47241,8 +47401,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47255,7 +47415,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "ProductTemplate._onchange_default_code"
+      "routine": "ProductTemplate._onchange_default_code",
+      "note": "ProductTemplate._onchange_default_code duplicate warning; transactional; cite addons/product/models/product_template.py:640-640"
     },
     {
       "id": "ap-c7ac28e566",
@@ -47272,8 +47433,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47286,7 +47447,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductTemplate._onchange_type"
+      "routine": "ProductTemplate._onchange_type",
+      "note": "ProductTemplate._onchange_type combo-item lookup; transactional; cite addons/product/models/product_template.py:676-678"
     },
     {
       "id": "ap-638ecc8f00",
@@ -47303,8 +47465,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47317,7 +47479,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductTemplate.load"
+      "routine": "ProductTemplate.load",
+      "note": "ProductTemplate.load import; batch; cite addons/product/models/product_template.py:808-808"
     },
     {
       "id": "ap-b2403a333c",
@@ -47329,8 +47492,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47344,7 +47507,8 @@
         "method": "write"
       },
       "routine": "ProductTemplate.write",
-      "verb": "update"
+      "verb": "update",
+      "note": "ProductTemplate.write propagates to variants; transactional; cite addons/product/models/product_template.py:844-844"
     },
     {
       "id": "ap-0fef61c9f1",
@@ -47361,8 +47525,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47375,7 +47539,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductTemplate.action_archive"
+      "routine": "ProductTemplate.action_archive",
+      "note": "ProductTemplate.action_archive combo-item lookup; transactional; cite addons/product/models/product_template.py:862-862"
     },
     {
       "id": "ap-1d484eb616",
@@ -47394,8 +47559,8 @@
       "sort": [
         "product_pricelist_item.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47408,7 +47573,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductTemplate.copy"
+      "routine": "ProductTemplate.copy",
+      "note": "ProductTemplate.copy pricelist-item search; transactional; cite addons/product/models/product_template.py:899-901"
     },
     {
       "id": "ap-cf5fa98d08",
@@ -47420,8 +47586,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47435,7 +47601,8 @@
         "method": "write"
       },
       "routine": "ProductTemplate._create_variant_ids",
-      "verb": "update"
+      "verb": "update",
+      "note": "_create_variant_ids reactivates variants on attribute change; transactional; cite addons/product/models/product_template.py:1193-1193"
     },
     {
       "id": "ap-784009c1e5",
@@ -47447,8 +47614,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47462,7 +47629,8 @@
         "method": "create"
       },
       "routine": "ProductTemplate._create_variant_ids",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "_create_variant_ids creates missing variants on attribute change; transactional; cite addons/product/models/product_template.py:1195-1195"
     },
     {
       "id": "ap-f010b1e3bf",
@@ -47479,8 +47647,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47493,7 +47661,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductTemplate._create_variant_ids"
+      "routine": "ProductTemplate._create_variant_ids",
+      "note": "_create_variant_ids combo-item lookup for archived variants; transactional; cite addons/product/models/product_template.py:1211-1213"
     },
     {
       "id": "ap-a2d9131b51",
@@ -47505,8 +47674,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47520,7 +47689,8 @@
         "method": "unlink"
       },
       "routine": "ProductTemplate._create_variant_ids",
-      "verb": "delete"
+      "verb": "delete",
+      "note": "_create_variant_ids unlinks combo items of archived variants; transactional; cite addons/product/models/product_template.py:1215-1215"
     },
     {
       "id": "ap-f1a0c81054",
@@ -47537,8 +47707,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47551,7 +47721,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductTemplate._get_variant_for_combination"
+      "routine": "ProductTemplate._get_variant_for_combination",
+      "note": "_get_variant_for_combination variant browse; read_hot; cite addons/product/models/product_template.py:1467-1467"
     },
     {
       "id": "ap-37c5f3562f",
@@ -47563,8 +47734,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47578,7 +47749,8 @@
         "method": "create"
       },
       "routine": "ProductTemplate._create_product_variant",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "_create_product_variant on-demand variant create (dynamic attributes); transactional; cite addons/product/models/product_template.py:1511-1514"
     },
     {
       "id": "ap-c00a67babe",
@@ -47592,8 +47764,8 @@
       "sort": [
         "product_product.active"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47606,7 +47778,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductTemplate._get_variant_id_for_combination"
+      "routine": "ProductTemplate._get_variant_id_for_combination",
+      "note": "_get_variant_id_for_combination search by combination_indices; read_hot; cite addons/product/models/product_template.py:1544-1544"
     },
     {
       "id": "ap-4d1cf6b20d",
@@ -47623,8 +47796,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47637,7 +47810,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductTemplate._cartesian_product"
+      "routine": "ProductTemplate._cartesian_product",
+      "note": "_cartesian_product ptav browse during variant generation; transactional; cite addons/product/models/product_template.py:1606-1606"
     },
     {
       "id": "ap-a5cc88a9e5",
@@ -47654,8 +47828,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47668,7 +47842,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductTemplate._cartesian_product"
+      "routine": "ProductTemplate._cartesian_product",
+      "note": "_cartesian_product ptav browse during variant generation; transactional; cite addons/product/models/product_template.py:1607-1607"
     },
     {
       "id": "ap-2055bcff71",
@@ -47685,8 +47860,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47699,7 +47874,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductTemplate._get_contextual_price"
+      "routine": "ProductTemplate._get_contextual_price",
+      "note": "_get_contextual_price UoM browse from context; read_hot; cite addons/product/models/product_template.py:1820-1820"
     },
     {
       "id": "ap-f592a48822",
@@ -47716,8 +47892,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -47730,7 +47906,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductTemplate._get_contextual_pricelist"
+      "routine": "ProductTemplate._get_contextual_pricelist",
+      "note": "_get_contextual_pricelist pricelist browse from context; read_hot; cite addons/product/models/product_template.py:1829-1829"
     },
     {
       "id": "ap-75bbb6e4eb",
@@ -47751,8 +47928,8 @@
         "product_attribute_value.sequence",
         "product_attribute_value.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_line.py",
         "lines": [
@@ -47765,7 +47942,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductTemplateAttributeLine._onchange_attribute_id"
+      "routine": "ProductTemplateAttributeLine._onchange_attribute_id",
+      "note": "ProductTemplateAttributeLine._onchange_attribute_id; transactional; cite addons/product/models/product_template_attribute_line.py:52-54"
     },
     {
       "id": "ap-feca970d5f",
@@ -47794,8 +47972,8 @@
         "product_template_attribute_line.attribute_id",
         "product_template_attribute_line.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_line.py",
         "lines": [
@@ -47808,7 +47986,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductTemplateAttributeLine.create"
+      "routine": "ProductTemplateAttributeLine.create",
+      "note": "ProductTemplateAttributeLine.create archived-line lookup; transactional; cite addons/product/models/product_template_attribute_line.py:98-102"
     },
     {
       "id": "ap-5ca05f058d",
@@ -47820,8 +47999,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_line.py",
         "lines": [
@@ -47835,7 +48014,8 @@
         "method": "write"
       },
       "routine": "ProductTemplateAttributeLine.create",
-      "verb": "update"
+      "verb": "update",
+      "note": "ProductTemplateAttributeLine.create reactivates archived line; transactional; cite addons/product/models/product_template_attribute_line.py:108-108"
     },
     {
       "id": "ap-35cd6eeb48",
@@ -47847,8 +48027,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_line.py",
         "lines": [
@@ -47862,7 +48042,8 @@
         "method": "unlink"
       },
       "routine": "ProductTemplateAttributeLine.unlink",
-      "verb": "delete"
+      "verb": "delete",
+      "note": "ProductTemplateAttributeLine.unlink cascades to ptav; transactional; cite addons/product/models/product_template_attribute_line.py:174-174"
     },
     {
       "id": "ap-5c011cc646",
@@ -47883,8 +48064,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_line.py",
         "lines": [
@@ -47900,7 +48081,8 @@
       "routine": "ProductTemplateAttributeLine._update_product_template_attribute_values",
       "compute_by": [
         "product_template_attribute_value.product_attribute_value_id"
-      ]
+      ],
+      "note": "_update_product_template_attribute_values ptav read_group on line write; transactional; cite addons/product/models/product_template_attribute_line.py:225-230"
     },
     {
       "id": "ap-1649e720f8",
@@ -47917,8 +48099,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_line.py",
         "lines": [
@@ -47931,7 +48113,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductTemplateAttributeLine._update_product_template_attribute_values"
+      "routine": "ProductTemplateAttributeLine._update_product_template_attribute_values",
+      "note": "_update_product_template_attribute_values pav browse; transactional; cite addons/product/models/product_template_attribute_line.py:239-239"
     },
     {
       "id": "ap-3378f9ad2b",
@@ -47943,8 +48126,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_line.py",
         "lines": [
@@ -47958,7 +48141,8 @@
         "method": "write"
       },
       "routine": "ProductTemplateAttributeLine._update_product_template_attribute_values",
-      "verb": "update"
+      "verb": "update",
+      "note": "_update_product_template_attribute_values ptav activate; transactional; cite addons/product/models/product_template_attribute_line.py:249-249"
     },
     {
       "id": "ap-221dac1a9e",
@@ -47970,8 +48154,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_line.py",
         "lines": [
@@ -47985,7 +48169,8 @@
         "method": "write"
       },
       "routine": "ProductTemplateAttributeLine._update_product_template_attribute_values",
-      "verb": "update"
+      "verb": "update",
+      "note": "_update_product_template_attribute_values ptav archive; transactional; cite addons/product/models/product_template_attribute_line.py:250-250"
     },
     {
       "id": "ap-bcb23f730e",
@@ -47997,8 +48182,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_line.py",
         "lines": [
@@ -48012,7 +48197,8 @@
         "method": "unlink"
       },
       "routine": "ProductTemplateAttributeLine._update_product_template_attribute_values",
-      "verb": "delete"
+      "verb": "delete",
+      "note": "_update_product_template_attribute_values ptav delete; transactional; cite addons/product/models/product_template_attribute_line.py:252-252"
     },
     {
       "id": "ap-b5d86681ee",
@@ -48024,8 +48210,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_line.py",
         "lines": [
@@ -48039,7 +48225,8 @@
         "method": "create"
       },
       "routine": "ProductTemplateAttributeLine._update_product_template_attribute_values",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "_update_product_template_attribute_values ptav create; transactional; cite addons/product/models/product_template_attribute_line.py:253-253"
     },
     {
       "id": "ap-ef310fb750",
@@ -48051,8 +48238,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template_attribute_value.py",
         "lines": [
@@ -48066,7 +48253,8 @@
         "method": "write"
       },
       "routine": "ProductTemplateAttributeValue.unlink",
-      "verb": "update"
+      "verb": "update",
+      "note": "ProductTemplateAttributeValue.unlink archives in-use values; transactional; cite addons/product/models/product_template_attribute_value.py:158-158"
     },
     {
       "id": "ap-8e656468c6",
@@ -48083,8 +48271,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_uom.py",
         "lines": [
@@ -48097,7 +48285,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "ProductUom._check_barcode_uniqueness"
+      "routine": "ProductUom._check_barcode_uniqueness",
+      "note": "ProductUom._check_barcode_uniqueness constraint; transactional; cite addons/product/models/product_uom.py:26-26"
     },
     {
       "id": "ap-824f5d4d75",
@@ -48109,8 +48298,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/res_company.py",
         "lines": [
@@ -48123,7 +48312,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ResCompany._activate_or_create_pricelists"
+      "routine": "ResCompany._activate_or_create_pricelists",
+      "note": "ResCompany._activate_or_create_pricelists company list (setup); batch; cite addons/product/models/res_company.py:21-21"
     },
     {
       "id": "ap-99e984ee87",
@@ -48144,8 +48334,8 @@
         "product_pricelist.id",
         "product_pricelist.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/res_company.py",
         "lines": [
@@ -48158,7 +48348,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ResCompany._activate_or_create_pricelists"
+      "routine": "ResCompany._activate_or_create_pricelists",
+      "note": "ResCompany._activate_or_create_pricelists pricelist lookup (setup); batch; cite addons/product/models/res_company.py:24-26"
     },
     {
       "id": "ap-b919689e22",
@@ -48170,8 +48361,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/res_company.py",
         "lines": [
@@ -48185,7 +48376,8 @@
         "method": "create"
       },
       "routine": "ResCompany._activate_or_create_pricelists",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "ResCompany._activate_or_create_pricelists default pricelist create (setup); batch; cite addons/product/models/res_company.py:32-34"
     },
     {
       "id": "ap-0023627143",
@@ -48216,7 +48408,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ResCompany.write"
+      "routine": "ResCompany.write",
+      "note": "empty self.browse(): no read; cite addons/product/models/res_company.py:67-67"
     },
     {
       "id": "ap-c9b3ae1b68",
@@ -48233,8 +48426,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/res_config_settings.py",
         "lines": [
@@ -48247,7 +48440,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "ResConfigSettings._onchange_group_sale_pricelist"
+      "routine": "ResConfigSettings._onchange_group_sale_pricelist",
+      "note": "ResConfigSettings onchange pricelist count; admin; cite addons/product/models/res_config_settings.py:28-30"
     },
     {
       "id": "ap-027d2096a3",
@@ -48263,8 +48457,8 @@
         "product_pricelist.id",
         "product_pricelist.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/res_config_settings.py",
         "lines": [
@@ -48277,7 +48471,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ResConfigSettings.set_values"
+      "routine": "ResConfigSettings.set_values",
+      "note": "ResConfigSettings.set_values pricelist list; admin; cite addons/product/models/res_config_settings.py:45-45"
     },
     {
       "id": "ap-73bbf8291f",
@@ -48298,8 +48493,8 @@
         "product_pricelist.id",
         "product_pricelist.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/res_currency.py",
         "lines": [
@@ -48312,7 +48507,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ResCurrency.write"
+      "routine": "ResCurrency.write",
+      "note": "ResCurrency.write pricelist lookup; admin; cite addons/product/models/res_currency.py:23-23"
     },
     {
       "id": "ap-5f05e97474",
@@ -48329,8 +48525,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/report/product_pricelist_report.py",
         "lines": [
@@ -48343,7 +48539,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductPricelistReport._get_report_data"
+      "routine": "ProductPricelistReport._get_report_data",
+      "note": "ProductPricelistReport pricelist browse; report; cite addons/product/report/product_pricelist_report.py:23-23"
     },
     {
       "id": "ap-3d88114fcc",
@@ -48359,8 +48556,8 @@
         "product_pricelist.id",
         "product_pricelist.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/report/product_pricelist_report.py",
         "lines": [
@@ -48373,7 +48570,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductPricelistReport._get_report_data"
+      "routine": "ProductPricelistReport._get_report_data",
+      "note": "ProductPricelistReport pricelist search; report; cite addons/product/report/product_pricelist_report.py:25-25"
     },
     {
       "id": "ap-5ec0a0a4e3",
@@ -48390,8 +48588,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/wizard/product_label_layout.py",
         "lines": [
@@ -48404,7 +48602,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductLabelLayout._get_available_packagings"
+      "routine": "ProductLabelLayout._get_available_packagings",
+      "note": "ProductLabelLayout wizard UoM browse; wizard; cite addons/product/wizard/product_label_layout.py:54-54"
     },
     {
       "id": "ap-308c52a978",
@@ -48430,7 +48629,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductLabelLayout._get_available_packagings"
+      "routine": "ProductLabelLayout._get_available_packagings",
+      "note": "mrp.bom search misattributed to product_label_layout (self.env.get(\"mrp.bom\")); not a product table read; cite addons/product/wizard/product_label_layout.py:72-78"
     },
     {
       "id": "ap-537f1dade4",
@@ -48453,8 +48653,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/wizard/update_product_attribute_value.py",
         "lines": [
@@ -48467,7 +48667,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "UpdateProductAttributeValue._compute_product_count"
+      "routine": "UpdateProductAttributeValue._compute_product_count",
+      "note": "UpdateProductAttributeValue wizard count; wizard; cite addons/product/wizard/update_product_attribute_value.py:44-46"
     },
     {
       "id": "ap-524241d304",
@@ -48479,8 +48680,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/wizard/update_product_attribute_value.py",
         "lines": [
@@ -48493,7 +48694,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "UpdateProductAttributeValue._compute_product_count"
+      "routine": "UpdateProductAttributeValue._compute_product_count",
+      "note": "UpdateProductAttributeValue wizard count; wizard; cite addons/product/wizard/update_product_attribute_value.py:48-50"
     },
     {
       "id": "ap-7ede40a9d8",
@@ -48524,8 +48726,8 @@
         "product_template_attribute_line.attribute_id",
         "product_template_attribute_line.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/wizard/update_product_attribute_value.py",
         "lines": [
@@ -48538,7 +48740,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "UpdateProductAttributeValue._add_value_to_existing_attribute_lines"
+      "routine": "UpdateProductAttributeValue._add_value_to_existing_attribute_lines",
+      "note": "UpdateProductAttributeValue wizard line search; wizard; cite addons/product/wizard/update_product_attribute_value.py:60-64"
     },
     {
       "id": "ap-237d335993",
@@ -48550,8 +48753,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/wizard/update_product_attribute_value.py",
         "lines": [
@@ -48565,7 +48768,8 @@
         "method": "write"
       },
       "routine": "UpdateProductAttributeValue._add_value_to_existing_attribute_lines",
-      "verb": "update"
+      "verb": "update",
+      "note": "UpdateProductAttributeValue wizard line write; wizard; cite addons/product/wizard/update_product_attribute_value.py:65-65"
     },
     {
       "id": "ap-2fb14a1a3e",
@@ -48587,8 +48791,8 @@
         "product_template_attribute_value.product_attribute_value_id",
         "product_template_attribute_value.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/wizard/update_product_attribute_value.py",
         "lines": [
@@ -48601,7 +48805,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "UpdateProductAttributeValue._update_extra_price_on_existing_products"
+      "routine": "UpdateProductAttributeValue._update_extra_price_on_existing_products",
+      "note": "UpdateProductAttributeValue wizard ptav search; wizard; cite addons/product/wizard/update_product_attribute_value.py:68-72"
     },
     {
       "id": "ap-b4a3fa4a72",
@@ -48613,8 +48818,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/product/wizard/update_product_attribute_value.py",
         "lines": [
@@ -48628,7 +48833,8 @@
         "method": "write"
       },
       "routine": "UpdateProductAttributeValue._update_extra_price_on_existing_products",
-      "verb": "update"
+      "verb": "update",
+      "note": "UpdateProductAttributeValue wizard ptav write; wizard; cite addons/product/wizard/update_product_attribute_value.py:73-73"
     },
     {
       "id": "ap-ff3b8e3be4",
@@ -69620,7 +69826,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "UomUom._filter_protected_uoms"
+      "routine": "UomUom._filter_protected_uoms",
+      "note": "empty self.browse(): no read; cite addons/uom/models/uom_uom.py:207-207"
     },
     {
       "id": "ap-5f5fa44602",
@@ -69637,8 +69844,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/uom/models/uom_uom.py",
         "lines": [
@@ -69651,7 +69858,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "UomUom._filter_protected_uoms"
+      "routine": "UomUom._filter_protected_uoms",
+      "note": "UomUom._filter_protected_uoms on unlink of reference UoMs; admin; cite addons/uom/models/uom_uom.py:209-209"
     }
   ],
   "findings": []
