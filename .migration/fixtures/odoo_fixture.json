@@ -4,7 +4,7 @@
   "method": "synthetic",
   "masked_columns": [],
   "masking": "none: Odoo demo data is synthetic, the fixture holds no customer rows",
-  "produced_at": "2026-10-14T23:07:45Z",
+  "produced_at": "2026-10-14T23:13:16Z",
   "produced_by": "s2.4-fixture (.migration/fixtures/build_fixture.sh)",
   "fixture": {
     "family": "postgresql",
@@ -17,6 +17,7 @@
       "key": "migration.fixture",
       "value": "1"
     },
+    "source_database_uuid": "99180dc6-c823-11f1-8fa2-0b3e1f661030",
     "dsn_env": "ODOO_PG_FIXTURE_DSN",
     "dsn_derivation": "ODOO_PG_RO_DSN JSON with \"database\" replaced by odoo_fixture (same read-only role); exported per shell, never stored",
     "recon": "recon run --mode fixture --family postgresql --source-dsn-secret ODOO_PG_FIXTURE_DSN",

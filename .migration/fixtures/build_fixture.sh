@@ -2,8 +2,10 @@
 # Build the recon fixture database odoo_fixture (s2.4-fixture): a clone of the read-only
 # source odoo_src plus one synthetic outlier template (60 variants against a source max of
 # 5), then write .migration/fixtures/odoo_fixture.json from the live fixture.
-# Idempotent: when the fixture marker is current nothing is rebuilt and only the manifest
-# is rewritten. odoo_src is never written; the fixture is a separate database.
+# Idempotent: when the fixture marker is current and the fixture still carries the live
+# source's database.uuid (a rebuilt odoo_src gets a new one) nothing is rebuilt and only
+# the manifest is rewritten. odoo_src is never written; the fixture is a separate database.
+# The Odoo filestore is copied alongside the database, as Odoo's own duplicate does.
 #
 # Needs the secret ODOO_PG_RO_DSN (plugin JSON shape). The fixture DSN is the same JSON
 # with "database" swapped to odoo_fixture, exported as ODOO_PG_FIXTURE_DSN for the
@@ -28,17 +30,26 @@ export ODOO_PG_FIXTURE_DSN
 
 sudo -n pg_ctlcluster 16 main status >/dev/null 2>&1 || sudo -n pg_ctlcluster 16 main start
 
-src_marker="$(psql -X -v ON_ERROR_STOP=1 -d "$SRC" -tAc "SELECT value FROM ir_config_parameter WHERE key='migration.fixture_source'")"
-[ "$src_marker" = "$SRC_MARKER_VERSION" ] || { echo "$SRC marker is '$src_marker', expected $SRC_MARKER_VERSION: run $HERE/build_source.sh first" >&2; exit 1; }
+param() { psql -X -v ON_ERROR_STOP=1 -d "$1" -tAc "SELECT value FROM ir_config_parameter WHERE key='$2'"; }
 
-built=
+src_marker="$(param "$SRC" migration.fixture_source)"
+[ "$src_marker" = "$SRC_MARKER_VERSION" ] || { echo "$SRC marker is '$src_marker', expected $SRC_MARKER_VERSION: run $HERE/build_source.sh first" >&2; exit 1; }
+src_uuid="$(param "$SRC" database.uuid)"   # new on every odoo_src rebuild; the clone inherits it
+
+FILESTORE="$("$PY" -c 'import sys; sys.path.insert(0, sys.argv[1]); from odoo.tools import config; print(config.filestore(sys.argv[2]))' "$REPO" "$DB")"
+SRC_FILESTORE="$(dirname "$FILESTORE")/$SRC"
+
+built= fixture_uuid=
 exists="$(psql -X -v ON_ERROR_STOP=1 -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DB'")"
 if [ "$exists" = 1 ]; then
-  built="$(psql -X -v ON_ERROR_STOP=1 -d "$DB" -tAc "SELECT value FROM ir_config_parameter WHERE key='$MARKER'")"
+  built="$(param "$DB" "$MARKER")"
+  fixture_uuid="$(param "$DB" database.uuid)"
 fi
-if [ "$built" != "$MARKER_VERSION" ]; then
+if [ "$built" != "$MARKER_VERSION" ] || [ "$fixture_uuid" != "$src_uuid" ]; then
   dropdb --if-exists "$DB"
+  rm -rf "$FILESTORE"
   createdb -T "$SRC" "$DB"   # clone; schema and table grants (odoo_ro SELECT) come with the template
+  [ -d "$SRC_FILESTORE" ] && cp -a "$SRC_FILESTORE" "$FILESTORE"   # attachments live outside the database
   "$PY" "$REPO/odoo-bin" shell --addons-path="$REPO/addons,$REPO/odoo/addons" \
     -d "$DB" --db_port="$PGPORT" --log-level=warn < "$HERE/fixture_outlier.py"
 fi

@@ -103,9 +103,11 @@ ODOO_PG_RO_DSN=... .migration/fixtures/build_fixture.sh   # secret ODOO_PG_RO_DS
 `odoo_fixture` is `CREATE DATABASE odoo_fixture TEMPLATE odoo_src` on the same cluster plus
 one synthetic outlier parent (`fixture_outlier.py`, `odoo-bin shell -d odoo_fixture`): template
 `__migration__.fixture_outlier_tee` with three attribute lines (6 x 5 x 2 values) = 60 variants
-against the source profile's max of 5 per template. `odoo_src` is never written. The script is
-idempotent on `ir_config_parameter` `migration.fixture = 1` (`MARKER_VERSION`) and rewrites the
-manifest from the live fixture on every run (`fixture_manifest.py`).
+against the source profile's max of 5 per template. The Odoo filestore of `odoo_src` is copied to
+the fixture's (attachments live outside the database). `odoo_src` is never written. The script is
+idempotent on `ir_config_parameter` `migration.fixture = 1` (`MARKER_VERSION`) plus the cloned
+`database.uuid`: a rebuilt `odoo_src` carries a new uuid, so the next run re-clones. The manifest
+is rewritten from the live fixture on every run (`fixture_manifest.py`).
 
 Sizing: for all 48 fan-outs whose parent and child are both migrate-bucket tables
 (`table_buckets.json`), the manifest records the profile's p50/p99/max next to the fixture's and

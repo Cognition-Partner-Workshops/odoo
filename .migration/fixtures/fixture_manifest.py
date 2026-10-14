@@ -75,7 +75,7 @@ def main():
         dbname = conn.execute("SELECT current_database()").fetchone()[0]
         markers = dict(conn.execute(
             "SELECT key, value FROM ir_config_parameter WHERE key IN "
-            "('migration.fixture', 'migration.fixture_source')").fetchall())
+            "('migration.fixture', 'migration.fixture_source', 'database.uuid')").fetchall())
         if markers.get("migration.fixture") is None:
             sys.exit(f"{dbname} carries no migration.fixture marker; run build_fixture.sh")
 
@@ -151,6 +151,7 @@ def main():
             "family": "postgresql", "database": dbname, "host": params["host"],
             "port": params["port"], "schema": "public", "role": params["user"],
             "marker": {"key": "migration.fixture", "value": markers["migration.fixture"]},
+            "source_database_uuid": markers.get("database.uuid"),
             "dsn_env": args.dsn_env,
             "dsn_derivation": "ODOO_PG_RO_DSN JSON with \"database\" replaced by "
                               f"{dbname} (same read-only role); exported per shell, never stored",
