@@ -2527,8 +2527,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -2536,7 +2536,8 @@
           848
         ]
       },
-      "statement": "SELECT array_agg(so.id) FROM sale_order so JOIN sale_order_line sol ON sol.order_id = so.id JOIN sale_order_line_invoice_rel soli_rel ON soli_rel.order_line_id = sol.id JOIN account_move_line aml ON aml.id = soli_rel.invoice_line_id JOIN account_move am ON am.id = aml.move_id WHERE am.move_type IN ("
+      "statement": "SELECT array_agg(so.id) FROM sale_order so JOIN sale_order_line sol ON sol.order_id = so.id JOIN sale_order_line_invoice_rel soli_rel ON soli_rel.order_line_id = sol.id JOIN account_move_line aml ON aml.id = soli_rel.invoice_line_id JOIN account_move am ON am.id = aml.move_id WHERE am.move_type IN (",
+      "note": "warm: raw SQL in _search_invoice_ids joins sale_order -> sale_order_line -> sale_order_line_invoice_rel -> account_move_line -> account_move (addons/sale/models/sale_order.py:836-852); used by invoice_ids search/filters. Order->lines->invoice-lines traversal; favors storing invoice_line refs on the embedded line."
     },
     {
       "id": "ap-9a70dc2092",
@@ -2557,8 +2558,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -2566,7 +2567,8 @@
           1077
         ]
       },
-      "statement": "SELECT sale_order.id AS order_id, array_agg(duplicate_order.id) AS duplicate_ids FROM sale_order JOIN sale_order AS duplicate_order ON sale_order.company_id = duplicate_order.company_id AND sale_order.id != duplicate_order.id AND duplicate_order.state != ? AND sale_order.partner_id = duplicate_order"
+      "statement": "SELECT sale_order.id AS order_id, array_agg(duplicate_order.id) AS duplicate_ids FROM sale_order JOIN sale_order AS duplicate_order ON sale_order.company_id = duplicate_order.company_id AND sale_order.id != duplicate_order.id AND duplicate_order.state != ? AND sale_order.partner_id = duplicate_order",
+      "note": "warm: self-join on sale_order by company_id/partner_id/client_order_ref/origin in _fetch_duplicate_orders (addons/sale/models/sale_order.py:1042-1082); runs when client_order_ref/origin/partner change (addons/sale/models/sale_order.py:1034-1040)."
     },
     {
       "id": "ap-df4935887a",
@@ -2602,8 +2604,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/utm_campaign.py",
         "lines": [
@@ -2611,7 +2613,8 @@
           78
         ]
       },
-      "statement": "SELECT move.campaign_id, SUM(line.price_total / COALESCE(currency_rate.rate, ?)) AS price_total_converted_sum FROM account_move_line line INNER JOIN account_move move ON line.move_id = move.id /* To use the exchange rate effective at the creation of the invoice. */ LEFT JOIN LATERAL ( SELECT rate FR"
+      "statement": "SELECT move.campaign_id, SUM(line.price_total / COALESCE(currency_rate.rate, ?)) AS price_total_converted_sum FROM account_move_line line INNER JOIN account_move move ON line.move_id = move.id /* To use the exchange rate effective at the creation of the invoice. */ LEFT JOIN LATERAL ( SELECT rate FR",
+      "note": "cold: campaign invoiced-amount SQL over account_move_line (addons/sale/models/utm_campaign.py:57-78)."
     },
     {
       "id": "ap-83892b6d03",
@@ -3478,8 +3481,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/account_analytic_line.py",
         "lines": [
@@ -3494,7 +3497,8 @@
         "field": "reinvoice_move_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "warm: analytic line -> so_line/order/reinvoice_move links read for timesheet/expense re-invoicing (addons/sale/models/account_analytic_line.py:11-29)."
     },
     {
       "id": "ap-01a846fa62",
@@ -3512,8 +3516,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/account_analytic_line.py",
         "lines": [
@@ -3528,7 +3532,8 @@
         "field": "so_line",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "warm: analytic line -> so_line/order/reinvoice_move links read for timesheet/expense re-invoicing (addons/sale/models/account_analytic_line.py:11-29)."
     },
     {
       "id": "ap-1dd4989e61",
@@ -3546,8 +3551,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/account_analytic_line.py",
         "lines": [
@@ -3562,7 +3567,8 @@
         "field": "order_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "warm: analytic line -> so_line/order/reinvoice_move links read for timesheet/expense re-invoicing (addons/sale/models/account_analytic_line.py:11-29)."
     },
     {
       "id": "ap-e54ad20873",
@@ -5403,8 +5409,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/account_move.py",
         "lines": [
@@ -5420,7 +5426,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "set null"
-      }
+      },
+      "note": "warm: team_id copied from order onto the invoice (addons/sale/models/account_move.py:11)."
     },
     {
       "id": "ap-df576b6fb0",
@@ -7096,8 +7103,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/account_move_line.py",
         "lines": [
@@ -7113,7 +7120,8 @@
         "side": "junction",
         "owns": false,
         "junction": "sale_order_line_invoice_rel"
-      }
+      },
+      "note": "warm: inverse of invoice_lines read from the invoice side (addons/sale/models/account_move_line.py:12); used in _search_invoice_ids and reinvoicing."
     },
     {
       "id": "ap-b1d7cbeb84",
@@ -12828,8 +12836,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/res_company.py",
         "lines": [
@@ -12844,7 +12852,8 @@
         "field": "account_invoices_to_issue_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "cold: company-level configuration defaults (addons/sale/models/res_company.py:16-70); read once per invoice/discount flow."
     },
     {
       "id": "ap-5acb9d3e9d",
@@ -12930,8 +12939,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/res_company.py",
         "lines": [
@@ -12946,7 +12955,8 @@
         "field": "account_invoiced_not_delivered_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "cold: company-level configuration defaults (addons/sale/models/res_company.py:16-70); read once per invoice/discount flow."
     },
     {
       "id": "ap-4f615ca45b",
@@ -12964,8 +12974,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/res_company.py",
         "lines": [
@@ -12980,7 +12990,8 @@
         "field": "sale_discount_product_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "cold: company-level configuration defaults (addons/sale/models/res_company.py:16-70); read once per invoice/discount flow."
     },
     {
       "id": "ap-39eb765642",
@@ -13066,8 +13077,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/res_company.py",
         "lines": [
@@ -13082,7 +13093,8 @@
         "field": "downpayment_account_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "cold: company-level configuration defaults (addons/sale/models/res_company.py:16-70); read once per invoice/discount flow."
     },
     {
       "id": "ap-c9b9a6177f",
@@ -13824,8 +13836,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/res_partner.py",
         "lines": [
@@ -13840,7 +13852,8 @@
         "field": "sale_order_ids",
         "side": "parent",
         "owns": false
-      }
+      },
+      "note": "warm: partner form smart button / counts read sale_order by partner (addons/sale/models/res_partner.py:18, 38-48)."
     },
     {
       "id": "ap-ef85b9e83a",
@@ -13862,8 +13875,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/res_partner.py",
         "lines": [
@@ -13878,7 +13891,8 @@
         "field": "incoterm_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "cold: partner default incoterm (addons/sale/models/res_partner.py:20)."
     },
     {
       "id": "ap-55ec1f23a9",
@@ -14734,8 +14748,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/product_template.py",
         "lines": [
@@ -14751,7 +14765,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_optional_rel"
-      }
+      },
+      "note": "warm: optional products read for upsell/option lines (addons/sale/models/product_template.py:55)."
     },
     {
       "id": "ap-6173f72e94",
@@ -15279,8 +15294,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/wizard/res_config_settings.py",
         "lines": [
@@ -15295,7 +15310,8 @@
         "field": "invoice_mail_template_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "cold: settings wizard field (addons/sale/wizard/res_config_settings.py:29)."
     },
     {
       "id": "ap-638a5bbff3",
@@ -17014,8 +17030,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/product_product.py",
         "lines": [
@@ -17031,7 +17047,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "warm: inverse of custom attribute values (addons/sale/models/product_product.py:173, ondelete cascade)."
     },
     {
       "id": "ap-23d2452c49",
@@ -19429,8 +19446,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/payment_transaction.py",
         "lines": [
@@ -19446,7 +19463,8 @@
         "side": "junction",
         "owns": false,
         "junction": "sale_order_transaction_rel"
-      }
+      },
+      "note": "warm: inverse of transaction_ids from payment side (addons/sale/models/payment_transaction.py:13); read in _compute_reference_prefix and post-payment flows."
     },
     {
       "id": "ap-0ce76669f5",
@@ -19464,8 +19482,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -19480,7 +19498,8 @@
         "field": "company_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "hot: company_id read by every tax/price compute (addons/sale/models/sale_order.py:726-741; addons/sale/models/sale_order_line.py:708-741, 1070-1079); stored related on lines (addons/sale/models/sale_order_line.py:54)."
     },
     {
       "id": "ap-a9a72f8664",
@@ -19506,8 +19525,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -19522,7 +19541,8 @@
         "field": "partner_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "hot: partner_id read in display_name, pricelist/payment-term/fiscal-position defaults and per-line tax base (addons/sale/models/sale_order.py:501-516, 592-650; addons/sale/models/sale_order_line.py:1049); stored related order_partner_id on lines (addons/sale/models/sale_order_line.py:63)."
     },
     {
       "id": "ap-9cfc83e371",
@@ -19540,8 +19560,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -19557,7 +19577,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "set null"
-      }
+      },
+      "note": "cold: pending_email_template_id read by the same cron (addons/sale/models/sale_order.py:131, 1741-1758)."
     },
     {
       "id": "ap-7fb2274f5f",
@@ -19575,8 +19596,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -19591,7 +19612,8 @@
         "field": "journal_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "warm: journal_id read into the invoice at create (addons/sale/models/sale_order.py:1836-1890)."
     },
     {
       "id": "ap-94e28b9892",
@@ -19617,8 +19639,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -19633,7 +19655,8 @@
         "field": "partner_invoice_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "warm: partner_invoice_id read at invoice create (addons/sale/models/sale_order.py:1836-1890, 2047-2049); computed from partner (addons/sale/models/sale_order.py:592-597)."
     },
     {
       "id": "ap-3b5452bb93",
@@ -19659,8 +19682,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -19675,7 +19698,8 @@
         "field": "partner_shipping_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "warm: partner_shipping_id read for fiscal position and invoice (addons/sale/models/sale_order.py:608-625, 1836-1890)."
     },
     {
       "id": "ap-e85f9278c2",
@@ -19693,8 +19717,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -19709,7 +19733,8 @@
         "field": "fiscal_position_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "hot: fiscal_position_id.map_tax per line in _compute_tax_ids (addons/sale/models/sale_order_line.py:729-735); computed from partner (addons/sale/models/sale_order.py:608-625)."
     },
     {
       "id": "ap-4ef3dc1eed",
@@ -19727,8 +19752,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -19743,7 +19768,8 @@
         "field": "payment_term_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "warm: payment_term_id read in _compute_amounts for early-payment discount (addons/sale/models/sale_order.py:725-741, 743-790) and copied to the invoice (addons/sale/models/sale_order.py:1836-1890)."
     },
     {
       "id": "ap-152d7bea23",
@@ -19761,8 +19787,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -19777,7 +19803,8 @@
         "field": "preferred_payment_method_line_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "cold: preferred_payment_method_line_id copied to invoice (addons/sale/models/sale_order.py:254, 632-639)."
     },
     {
       "id": "ap-0595b8aab2",
@@ -19795,8 +19822,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -19811,7 +19838,8 @@
         "field": "pricelist_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "hot: pricelist_id drives every line price compute (addons/sale/models/sale_order_line.py:750-760, 883-943, 1006-1036); write guard on confirmed orders (addons/sale/models/sale_order.py:1497-1500)."
     },
     {
       "id": "ap-f8b4b59ef9",
@@ -19829,8 +19857,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -19846,7 +19874,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "restrict"
-      }
+      },
+      "note": "hot: currency_id read in _compute_amounts/_compute_tax_totals and per-line tax base (addons/sale/models/sale_order.py:726-741, 1178-1190; addons/sale/models/sale_order_line.py:1050)."
     },
     {
       "id": "ap-e9ad917c5b",
@@ -19872,8 +19901,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -19888,7 +19917,8 @@
         "field": "user_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "warm: user_id (salesperson) defaults from partner (addons/sale/models/sale_order.py:676-688), stored related salesman_id on lines (addons/sale/models/sale_order_line.py:66), grouped by in list views and sale.report (addons/sale/report/sale_report.py:166)."
     },
     {
       "id": "ap-5488e096ec",
@@ -19906,8 +19936,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -19923,7 +19953,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "set null"
-      }
+      },
+      "note": "warm: team_id computed from user_id (addons/sale/models/sale_order.py:689-708) and read by dashboards/reports (sale_report.py:168, crm_team.py:13-15)."
     },
     {
       "id": "ap-715fb44fc8",
@@ -19941,8 +19972,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -19957,7 +19988,8 @@
         "field": "incoterm",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "cold: incoterm read for invoice/report (addons/sale/models/sale_order.py:320, 709-717)."
     },
     {
       "id": "ap-8c623bead4",
@@ -19975,8 +20007,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -19991,7 +20023,8 @@
         "field": "order_line",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "hot: the dominant reads load order and lines together; owns=True (ondelete cascade on order_id addons/sale/models/sale_order_line.py:42); _compute_amounts/_compute_tax_totals iterate order_line per order (addons/sale/models/sale_order.py:726-741, 1178-1190); _get_invoiceable_lines walks order_line (addons/sale/models/sale_order.py:1963-2013); copy_data copies lines (addons/sale/models/sale_order.py:1473-1485). Lines are also read without their order, by product_id (product forecast/guards ap-2dd0228bc2, ap-25d437007c, ap-46e97a52fc, ap-d3ee1897b7, ap-53c3ebf6d2, ap-3ed8589952; re-invoicing ap-2c6738953b, ap-733cb83598; sale.report groups by product), and orders without lines by dashboards/partner counts (ap-4579c39ab5.., ap-c434136bfc). Favors embedding sale_order_line in sale_order with a multikey index on order_line.product_id; the by-product aggregates become $unwind queries."
     },
     {
       "id": "ap-fa9cad8cb5",
@@ -20014,8 +20047,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -20031,7 +20064,8 @@
         "side": "junction",
         "owns": false,
         "junction": "sale_order_transaction_rel"
-      }
+      },
+      "note": "warm: transaction_ids read for amount_paid/authorized/portal payment (addons/sale/models/sale_order.py:804-810, 919-953, 2316-2318)."
     },
     {
       "id": "ap-4cba00f058",
@@ -20049,8 +20083,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -20065,7 +20099,8 @@
         "field": "analytic_account_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "warm: analytic_account_id read/created at confirm (addons/sale/models/sale_order.py:2672-2681) and for line analytic distribution (addons/sale/models/sale_order_line.py:1655-1665)."
     },
     {
       "id": "ap-9269702715",
@@ -20083,8 +20118,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -20100,7 +20135,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "hot: every line compute dereferences order_id for pricelist_id, fiscal_position_id, currency_id, partner_id, date_order, company_id, document_tax_mode (addons/sale/models/sale_order_line.py:708-741, 750-760, 1038-1061); stored related columns company_id/order_partner_id/salesman_id/state (addons/sale/models/sale_order_line.py:54-69)."
     },
     {
       "id": "ap-9f57896b13",
@@ -20118,8 +20154,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -20135,7 +20171,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "restrict"
-      }
+      },
+      "note": "hot: product read at line creation and on every product_id-dependent compute. sale reads product data on every line compute (candidates for a product snapshot inside the order line): uom_id (_compute_product_uom_id addons/sale/models/sale_order_line.py:684-692); taxes_id + type (_compute_tax_ids addons/sale/models/sale_order_line.py:708-741); pricelist rule/list price via order_id.pricelist_id (_compute_pricelist_item_id/_compute_price_unit/_reset_price_unit addons/sale/models/sale_order_line.py:750-840, _get_pricelist_price addons/sale/models/sale_order_line.py:883-943, _compute_discount addons/sale/models/sale_order_line.py:1006-1036); description_sale/display_name (_compute_name addons/sale/models/sale_order_line.py:523-570, _compute_label addons/sale/models/sale_order_line.py:652-665); sale_delay (_compute_customer_lead addons/sale/models/sale_order_line.py:1096-1098); type/service_type/invoice_policy/reinvoice_policy (_compute_qty_delivered_method addons/sale/models/sale_order_line.py:1101-1127, _compute_invoice_policy addons/sale/models/sale_order_line.py:1250-1253, _compute_qty_to_invoice addons/sale/models/sale_order_line.py:1348-1358, _compute_invoice_status addons/sale/models/sale_order_line.py:1402, _compute_price_unit addons/sale/models/sale_order_line.py:778); categ_id (_compute_analytic_distribution addons/sale/models/sale_order_line.py:1655-1660); non-stored related/computed fields product_template_id, product_template_attribute_value_ids, is_storable, categ_id, product_type, service_tracking (addons/sale/models/sale_order_line.py:107-122,177,190,396-398) carry no stored copy and are fetched from product_product/product_template once per request/transaction (ORM cache + prefetch), so a snapshot removes one product fetch per line batch, not one per access; invoice line copies product type/name/uom (_prepare_invoice_line addons/sale/models/sale_order_line.py:2049-2097); sale.report joins product_product/product_template/uom_uom per row for uom factor, categ_id, product_tmpl_id, weight, volume (addons/sale/report/sale_report.py:136-186). Price, discount, tax_ids and name are already stored on the line (an existing snapshot); uom factor/rounding, product_tmpl_id, categ_id, type, service_tracking, is_storable, invoice/reinvoice policies, sale_delay, weight and volume are not."
     },
     {
       "id": "ap-501963510f",
@@ -20153,8 +20190,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -20169,7 +20206,8 @@
         "field": "product_custom_attribute_value_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "warm: custom attribute values owns=True; read for description (addons/sale/models/sale_order_line.py:124, 494-506, 571-616). Embed candidate inside the line."
     },
     {
       "id": "ap-579fad14ad",
@@ -20192,8 +20230,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -20209,7 +20247,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_template_attribute_value_sale_order_line_rel"
-      }
+      },
+      "note": "warm: no-variant attribute values feed price context and description (addons/sale/models/sale_order_line.py:137, 571-616, 905-915)."
     },
     {
       "id": "ap-4368efbeb3",
@@ -20231,8 +20270,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -20248,7 +20287,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "restrict"
-      }
+      },
+      "note": "hot: product_uom_id read in price/qty computes (addons/sale/models/sale_order_line.py:750-760, 897-902, 1303, 1328) and sale.report uom_ratio (addons/sale/report/sale_report.py:137); defaults from product_id.uom_id (addons/sale/models/sale_order_line.py:692). Candidate for a uom snapshot (factor, rounding) on the line."
     },
     {
       "id": "ap-12a7901415",
@@ -20266,8 +20306,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -20283,7 +20323,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "warm: linked_line_id (option/combo parent) read in _compute_name and _compute_discount (addons/sale/models/sale_order_line.py:559-566, 1016-1018) and set in create (addons/sale/models/sale_order_line.py:1826-1829)."
     },
     {
       "id": "ap-b055f1ae04",
@@ -20301,8 +20342,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -20317,7 +20358,8 @@
         "field": "linked_line_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "warm: linked_line_ids owns=True (cascade); child option/combo lines of a line (addons/sale/models/sale_order_line.py:187, 2284-2320). Self-reference inside the embedded line array."
     },
     {
       "id": "ap-e7eca60a63",
@@ -20335,8 +20377,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -20351,7 +20393,8 @@
         "field": "combo_item_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "warm: combo_item_id read in discount/price/name computes (addons/sale/models/sale_order_line.py:199, 945-1003, 1016, 1749-1768)."
     },
     {
       "id": "ap-2610191490",
@@ -20374,8 +20417,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -20391,7 +20434,8 @@
         "side": "junction",
         "owns": false,
         "junction": "account_tax_sale_order_line_rel"
-      }
+      },
+      "note": "hot: tax_ids read by _compute_amount per line (addons/sale/models/sale_order_line.py:1038-1079) and by order _compute_amounts/_compute_tax_totals (addons/sale/models/sale_order.py:726-741, 1178-1190); set from product_id.taxes_id mapped by fiscal position (addons/sale/models/sale_order_line.py:708-741). Copied onto invoice lines (addons/sale/models/sale_order_line.py:2087)."
     },
     {
       "id": "ap-8b7567057e",
@@ -20409,8 +20453,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -20425,7 +20469,8 @@
         "field": "analytic_line_ids",
         "side": "parent",
         "owns": false
-      }
+      },
+      "note": "warm: analytic lines read for delivered qty on timesheet/expense lines (addons/sale/models/sale_order_line.py:324, 1205-1240); owns=False."
     },
     {
       "id": "ap-aadcf0fad7",
@@ -20448,8 +20493,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -20465,7 +20510,8 @@
         "side": "junction",
         "owns": false,
         "junction": "sale_order_line_invoice_rel"
-      }
+      },
+      "note": "warm: invoice_lines read in qty_invoiced/amount_invoiced computes (addons/sale/models/sale_order_line.py:1269-1335, 1469-1486); junction sale_order_line_invoice_rel written at invoice create (addons/sale/models/sale_order_line.py:2088)."
     },
     {
       "id": "ap-bd6f06c82f",
@@ -20488,8 +20534,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -20505,7 +20551,8 @@
         "side": "junction",
         "owns": false,
         "junction": "sale_order_line_accrual_move_rel"
-      }
+      },
+      "note": "cold: accrual_move_ids read only by accrual reporting (addons/sale/models/sale_order_line.py:367)."
     },
     {
       "id": "ap-8dc59a3855",
@@ -20523,8 +20570,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -20539,7 +20586,8 @@
         "field": "parent_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "warm: parent_id section/subsection link computed from sequence (addons/sale/models/sale_order_line.py:413, 1687-1707)."
     },
     {
       "id": "ap-0479d8d8ff",
@@ -20561,8 +20609,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -20577,7 +20625,8 @@
         "field": "section_uom_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "cold: section_uom_id on section lines only (addons/sale/models/sale_order_line.py:435, 1738-1747)."
     },
     {
       "id": "ap-2ae9a43cce",
@@ -20634,8 +20683,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/wizard/mass_cancel_orders.py",
         "lines": [
@@ -20651,7 +20700,8 @@
         "side": "junction",
         "owns": false,
         "junction": "sale_order_mass_cancel_wizard_rel"
-      }
+      },
+      "note": "cold: mass cancel wizard (addons/sale/wizard/mass_cancel_orders.py:10)."
     },
     {
       "id": "ap-856d13d935",
@@ -20674,8 +20724,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/wizard/sale_make_invoice_advance.py",
         "lines": [
@@ -20691,7 +20741,8 @@
         "side": "junction",
         "owns": false,
         "junction": "sale_advance_payment_inv_sale_order_rel"
-      }
+      },
+      "note": "warm: down-payment invoice wizard reads its orders/currency/company (addons/sale/wizard/sale_make_invoice_advance.py:27-52)."
     },
     {
       "id": "ap-e8af38e31e",
@@ -20709,8 +20760,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/wizard/sale_make_invoice_advance.py",
         "lines": [
@@ -20725,7 +20776,8 @@
         "field": "currency_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "warm: down-payment invoice wizard reads its orders/currency/company (addons/sale/wizard/sale_make_invoice_advance.py:27-52)."
     },
     {
       "id": "ap-9937c31cea",
@@ -20743,8 +20795,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/wizard/sale_make_invoice_advance.py",
         "lines": [
@@ -20759,7 +20811,8 @@
         "field": "company_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "warm: down-payment invoice wizard reads its orders/currency/company (addons/sale/wizard/sale_make_invoice_advance.py:27-52)."
     },
     {
       "id": "ap-8ae504af15",
@@ -20777,8 +20830,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/wizard/sale_order_discount.py",
         "lines": [
@@ -20793,7 +20846,8 @@
         "field": "sale_order_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "warm: discount wizard reads its order (addons/sale/wizard/sale_order_discount.py:13)."
     },
     {
       "id": "ap-33706928ce",
@@ -50421,8 +50475,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/account_analytic_line.py",
         "lines": [
@@ -50436,7 +50490,8 @@
         "method": "create"
       },
       "routine": "AccountAnalyticLine._create_so_line",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "warm: transactional write; re-invoiced expense creates a sale_order_line (addons/sale/models/account_analytic_line.py:192)."
     },
     {
       "id": "ap-7f4990fdd6",
@@ -50448,8 +50503,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/account_move.py",
         "lines": [
@@ -50463,7 +50518,8 @@
         "method": "unlink"
       },
       "routine": "AccountMove.unlink",
-      "verb": "delete"
+      "verb": "delete",
+      "note": "cold: deleting a down-payment invoice unlinks its order lines (addons/sale/models/account_move.py:42)."
     },
     {
       "id": "ap-ff0861756a",
@@ -50475,8 +50531,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/account_move.py",
         "lines": [
@@ -50489,7 +50545,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "AccountMove._compute_service_line_count"
+      "routine": "AccountMove._compute_service_line_count",
+      "note": "cold: invoice-side service line count / reinvoiced analytic line lookups (addons/sale/models/account_move.py:68-70, 296-299)."
     },
     {
       "id": "ap-48197f0a6a",
@@ -50501,8 +50558,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/account_move.py",
         "lines": [
@@ -50515,7 +50572,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "AccountMove._get_reinvoiced_analytic_lines_to_link"
+      "routine": "AccountMove._get_reinvoiced_analytic_lines_to_link",
+      "note": "cold: invoice-side service line count / reinvoiced analytic line lookups (addons/sale/models/account_move.py:68-70, 296-299)."
     },
     {
       "id": "ap-2c6738953b",
@@ -50548,8 +50606,8 @@
         "sale_order_line.sequence",
         "sale_order_line.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/account_move_line.py",
         "lines": [
@@ -50562,7 +50620,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "AccountMoveLine._sale_create_reinvoice_sale_line"
+      "routine": "AccountMoveLine._sale_create_reinvoice_sale_line",
+      "note": "warm: re-invoicing searches sale_order_line by order_id/product/price (addons/sale/models/account_move_line.py:169-177, 230-232)."
     },
     {
       "id": "ap-219d3d75dd",
@@ -50574,8 +50633,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/account_move_line.py",
         "lines": [
@@ -50589,7 +50648,8 @@
         "method": "create"
       },
       "routine": "AccountMoveLine._sale_create_reinvoice_sale_line",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "warm: transactional write; vendor-bill re-invoicing creates a sale_order_line (addons/sale/models/account_move_line.py:206)."
     },
     {
       "id": "ap-733cb83598",
@@ -50608,8 +50668,8 @@
       "sort": [
         "sale_order_line.sequence"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/account_move_line.py",
         "lines": [
@@ -50622,7 +50682,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "AccountMoveLine._sale_prepare_sale_line_values"
+      "routine": "AccountMoveLine._sale_prepare_sale_line_values",
+      "note": "warm: re-invoicing searches sale_order_line by order_id/product/price (addons/sale/models/account_move_line.py:169-177, 230-232)."
     },
     {
       "id": "ap-ed4ff849d8",
@@ -50639,8 +50700,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/account_move_line.py",
         "lines": [
@@ -50653,7 +50714,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "AccountMoveLine._get_discount_lines"
+      "routine": "AccountMoveLine._get_discount_lines",
+      "note": "cold: discount invoice lines browse (addons/sale/models/account_move_line.py:307)."
     },
     {
       "id": "ap-b3636f5cd4",
@@ -50674,8 +50736,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/crm_team.py",
         "lines": [
@@ -50688,7 +50750,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "CrmTeam._compute_sale_order_count"
+      "routine": "CrmTeam._compute_sale_order_count",
+      "note": "warm: sales-team dashboard _read_group sale_order by team_id/state (addons/sale/models/crm_team.py:13-15)."
     },
     {
       "id": "ap-6209bc23d1",
@@ -50705,8 +50768,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/ir_actions_report.py",
         "lines": [
@@ -50719,7 +50782,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "IrActionsReport._render_qweb_pdf_prepare_streams"
+      "routine": "IrActionsReport._render_qweb_pdf_prepare_streams",
+      "note": "warm: quotation PDF render browses orders (addons/sale/models/ir_actions_report.py:22)."
     },
     {
       "id": "ap-3f1c69a45d",
@@ -50744,8 +50808,8 @@
         "account_journal.type",
         "account_journal.code"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/payment_transaction.py",
         "lines": [
@@ -50758,7 +50822,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "PaymentTransaction._compute_sale_order_reference"
+      "routine": "PaymentTransaction._compute_sale_order_reference",
+      "note": "warm: sale journal lookup per company for the payment reference (addons/sale/models/payment_transaction.py:37-39)."
     },
     {
       "id": "ap-7a85506669",
@@ -50775,8 +50840,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/payment_transaction.py",
         "lines": [
@@ -50789,7 +50854,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "PaymentTransaction._send_invoice"
+      "routine": "PaymentTransaction._send_invoice",
+      "note": "cold: invoice mail template browse in the same cron (addons/sale/models/payment_transaction.py:180)."
     },
     {
       "id": "ap-388f378eeb",
@@ -50817,8 +50883,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/payment_transaction.py",
         "lines": [
@@ -50831,7 +50897,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "PaymentTransaction._cron_send_invoice"
+      "routine": "PaymentTransaction._cron_send_invoice",
+      "note": "cold: cron _cron_send_invoice searches transactions whose orders are confirmed (addons/sale/models/payment_transaction.py:191-205)."
     },
     {
       "id": "ap-809799fea1",
@@ -50862,7 +50929,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "PaymentTransaction._compute_reference_prefix"
+      "routine": "PaymentTransaction._compute_reference_prefix",
+      "note": "not confirmed: scanner false positive. `self.browse()` (addons/sale/models/payment_transaction.py:254) builds an empty recordset for convert_to_cache; no payment_transaction row is read."
     },
     {
       "id": "ap-63fbe48895",
@@ -50879,8 +50947,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/payment_transaction.py",
         "lines": [
@@ -50893,7 +50961,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "PaymentTransaction._compute_reference_prefix"
+      "routine": "PaymentTransaction._compute_reference_prefix",
+      "note": "warm: _compute_reference_prefix browses the transaction's orders by id (addons/sale/models/payment_transaction.py:255)."
     },
     {
       "id": "ap-2dd0228bc2",
@@ -50909,8 +50978,8 @@
         "sale_order_line.sequence",
         "sale_order_line.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/product_product.py",
         "lines": [
@@ -50923,7 +50992,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct._compute_forecasted_without_stock"
+      "routine": "ProductProduct._compute_forecasted_without_stock",
+      "note": "warm: product form forecast reads sale lines by product and _read_group by product/uom (addons/sale/models/product_product.py:62-78)."
     },
     {
       "id": "ap-25d437007c",
@@ -50935,8 +51005,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/product_product.py",
         "lines": [
@@ -50949,7 +51019,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "ProductProduct._compute_forecasted_without_stock"
+      "routine": "ProductProduct._compute_forecasted_without_stock",
+      "note": "warm: product form forecast reads sale lines by product and _read_group by product/uom (addons/sale/models/product_product.py:62-78)."
     },
     {
       "id": "ap-46e97a52fc",
@@ -50966,8 +51037,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/product_product.py",
         "lines": [
@@ -50980,7 +51051,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "ProductProduct._filter_to_unlink"
+      "routine": "ProductProduct._filter_to_unlink",
+      "note": "cold: product unlink guard _read_group sale_order_line by product_id (addons/sale/models/product_product.py:135-137)."
     },
     {
       "id": "ap-a88cdd1f7a",
@@ -50997,8 +51069,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/product_product.py",
         "lines": [
@@ -51011,7 +51083,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "ProductProduct._filter_to_unlink"
+      "routine": "ProductProduct._filter_to_unlink",
+      "note": "cold: product unlink guard _read_group sale_order_line by product_id (addons/sale/models/product_product.py:135-137)."
     },
     {
       "id": "ap-d3ee1897b7",
@@ -51028,8 +51101,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/product_product.py",
         "lines": [
@@ -51042,7 +51115,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "ProductProduct._update_uom"
+      "routine": "ProductProduct._update_uom",
+      "note": "cold: product uom change guards over sale_order_line by product_id (addons/sale/models/product_product.py:140-165)."
     },
     {
       "id": "ap-53c3ebf6d2",
@@ -51059,8 +51133,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/product_product.py",
         "lines": [
@@ -51073,7 +51147,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "ProductProduct._trigger_uom_warning"
+      "routine": "ProductProduct._trigger_uom_warning",
+      "note": "cold: product uom change guards over sale_order_line by product_id (addons/sale/models/product_product.py:140-165)."
     },
     {
       "id": "ap-3ed8589952",
@@ -51094,8 +51169,8 @@
         "sale_order_line.sequence",
         "sale_order_line.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/product_template.py",
         "lines": [
@@ -51108,7 +51183,8 @@
         "framework": "odoo",
         "method": "search_read"
       },
-      "routine": "ProductTemplate._check_sale_product_company"
+      "routine": "ProductTemplate._check_sale_product_company",
+      "note": "cold: product company/type constraint checks (addons/sale/models/product_template.py:151-161, 259)."
     },
     {
       "id": "ap-67233a0273",
@@ -51120,8 +51196,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/product_template.py",
         "lines": [
@@ -51134,7 +51210,8 @@
         "framework": "odoo",
         "method": "read"
       },
-      "routine": "ProductTemplate._check_incompatible_types"
+      "routine": "ProductTemplate._check_incompatible_types",
+      "note": "cold: product company/type constraint checks (addons/sale/models/product_template.py:151-161, 259)."
     },
     {
       "id": "ap-a9e2d72a57",
@@ -51151,8 +51228,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/res_company.py",
         "lines": [
@@ -51165,7 +51242,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "ResCompany._sync_automatic_invoice_cron"
+      "routine": "ResCompany._sync_automatic_invoice_cron",
+      "note": "cold: settings sync counts companies with automatic invoicing (addons/sale/models/res_company.py:122)."
     },
     {
       "id": "ap-dc6b4775fa",
@@ -51182,8 +51260,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/res_partner.py",
         "lines": [
@@ -51196,7 +51274,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ResPartner._compute_sale_order_count"
+      "routine": "ResPartner._compute_sale_order_count",
+      "note": "warm: _compute_sale_order_count: partner tree fetch then _read_group sale_order by partner_id (addons/sale/models/res_partner.py:32-48)."
     },
     {
       "id": "ap-c434136bfc",
@@ -51208,8 +51287,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/res_partner.py",
         "lines": [
@@ -51225,7 +51304,8 @@
       "routine": "ResPartner._compute_sale_order_count",
       "compute_by": [
         "sale_order.partner_id"
-      ]
+      ],
+      "note": "warm: _compute_sale_order_count: partner tree fetch then _read_group sale_order by partner_id (addons/sale/models/res_partner.py:32-48)."
     },
     {
       "id": "ap-1f46e682a6",
@@ -51240,8 +51320,8 @@
         "sale_order.date_order",
         "sale_order.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/res_partner.py",
         "lines": [
@@ -51254,7 +51334,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ResPartner._has_order"
+      "routine": "ResPartner._has_order",
+      "note": "cold: _has_order existence check for partner archive/merge (addons/sale/models/res_partner.py:69-75)."
     },
     {
       "id": "ap-74ba152ac5",
@@ -51286,8 +51367,8 @@
         "sale_order.date_order",
         "sale_order.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/res_partner.py",
         "lines": [
@@ -51300,7 +51381,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ResPartner._compute_credit_to_invoice"
+      "routine": "ResPartner._compute_credit_to_invoice",
+      "note": "warm: credit warning searches confirmed, not-closed orders by company/partner_invoice_id (addons/sale/models/res_partner.py:93-115); triggered from _compute_partner_credit_warning on amount_total change."
     },
     {
       "id": "ap-e97cc21ad5",
@@ -51325,8 +51407,8 @@
         "product_pricelist.id",
         "product_pricelist.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51339,7 +51421,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "SaleOrder._compute_has_active_pricelist"
+      "routine": "SaleOrder._compute_has_active_pricelist",
+      "note": "warm: pricelist existence search per order in _compute_has_active_pricelist (addons/sale/models/sale_order.py:666-674)."
     },
     {
       "id": "ap-61a99239cd",
@@ -51351,8 +51434,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51365,7 +51448,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "SaleOrder._compute_invoice_status"
+      "routine": "SaleOrder._compute_invoice_status",
+      "note": "warm: _read_group sale_order_line by order_id/invoice_status in _compute_invoice_status (addons/sale/models/sale_order.py:865-917); per-parent aggregate over lines."
     },
     {
       "id": "ap-17e27b42d0",
@@ -51377,8 +51461,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51392,7 +51476,8 @@
         "method": "write"
       },
       "routine": "SaleOrder.action_draft",
-      "verb": "update"
+      "verb": "update",
+      "note": "warm: transactional write; action_draft resets state/signature (addons/sale/models/sale_order.py:1516-1523)."
     },
     {
       "id": "ap-b00706269a",
@@ -51409,8 +51494,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51423,7 +51508,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "SaleOrder._get_confirmation_template"
+      "routine": "SaleOrder._get_confirmation_template",
+      "note": "warm: confirmation mail template browse at confirm (addons/sale/models/sale_order.py:1593-1607)."
     },
     {
       "id": "ap-a4a8fc4a2f",
@@ -51435,8 +51521,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51450,7 +51536,8 @@
         "method": "write"
       },
       "routine": "SaleOrder.action_quotation_sent",
-      "verb": "update"
+      "verb": "update",
+      "note": "warm: transactional write; action_quotation_sent sets state=sent (addons/sale/models/sale_order.py:1609-1617)."
     },
     {
       "id": "ap-9abff83642",
@@ -51462,8 +51549,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51477,7 +51564,8 @@
         "method": "write"
       },
       "routine": "SaleOrder.action_confirm",
-      "verb": "update"
+      "verb": "update",
+      "note": "warm: transactional write; SaleOrder.action_confirm writes state/date_order (addons/sale/models/sale_order.py:1619-1650, values addons/sale/models/sale_order.py:1664-1672)."
     },
     {
       "id": "ap-ee1a81b457",
@@ -51504,7 +51592,8 @@
         "method": "copy"
       },
       "routine": "SaleOrder.action_confirm",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "not confirmed: scanner false positive. `self.env.context.copy()` (addons/sale/models/sale_order.py:1639) copies the context dict, not a sale_order record; no insert happens here."
     },
     {
       "id": "ap-3c8b1e4acb",
@@ -51524,8 +51613,8 @@
         "sale_order.date_order",
         "sale_order.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51538,7 +51627,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "SaleOrder._cron_send_pending_emails"
+      "routine": "SaleOrder._cron_send_pending_emails",
+      "note": "cold: cron _cron_send_pending_emails searches orders with a pending template (addons/sale/models/sale_order.py:1741-1758)."
     },
     {
       "id": "ap-b920e9be6d",
@@ -51550,8 +51640,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51565,7 +51655,8 @@
         "method": "write"
       },
       "routine": "SaleOrder._action_cancel",
-      "verb": "update"
+      "verb": "update",
+      "note": "warm: transactional write; _action_cancel sets state=cancel (addons/sale/models/sale_order.py:1797-1801)."
     },
     {
       "id": "ap-9ee3d3fad2",
@@ -51582,8 +51673,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51596,7 +51687,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "SaleOrder._get_invoiceable_lines"
+      "routine": "SaleOrder._get_invoiceable_lines",
+      "note": "warm: invoicing read; _get_invoiceable_lines browses the selected order lines (addons/sale/models/sale_order.py:1963-2013)."
     },
     {
       "id": "ap-ddfed5b353",
@@ -51627,7 +51719,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "SaleOrder._create_account_invoices"
+      "routine": "SaleOrder._create_account_invoices",
+      "note": "not confirmed: scanner false positive. `AccountMoveSudo.browse()` (addons/sale/models/sale_order.py:2023) builds an empty recordset as an accumulator; no account_move row is read."
     },
     {
       "id": "ap-6dc7b1aa3b",
@@ -51639,8 +51732,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51654,7 +51747,8 @@
         "method": "create"
       },
       "routine": "SaleOrder._create_account_invoices",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "warm: transactional write; _create_invoices builds account_move + invoice_line_ids from order lines (addons/sale/models/sale_order.py:2031-2100) and creates per company in _create_account_invoices (addons/sale/models/sale_order.py:2015-2029). Cross-unit write (account) routed through the account.move API, not a sale table."
     },
     {
       "id": "ap-5de4ebc84e",
@@ -51666,8 +51760,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51681,7 +51775,8 @@
         "method": "write"
       },
       "routine": "SaleOrder.message_post",
-      "verb": "update"
+      "verb": "update",
+      "note": "warm: transactional write; message_post on a draft order flips state to sent (addons/sale/models/sale_order.py:2200-2206)."
     },
     {
       "id": "ap-1198cf57cd",
@@ -51698,8 +51793,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51712,7 +51807,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "SaleOrder.create_document_from_attachment"
+      "routine": "SaleOrder.create_document_from_attachment",
+      "note": "cold: EDI import browses uploaded attachments (addons/sale/models/sale_order.py:2364-2381)."
     },
     {
       "id": "ap-30fe2cdd3d",
@@ -51724,8 +51820,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51739,7 +51835,8 @@
         "method": "create"
       },
       "routine": "SaleOrder._create_down_payment_lines_from_base_lines",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "warm: transactional write; down-payment lines created on the order during invoicing (addons/sale/models/sale_order.py:2541-2561)."
     },
     {
       "id": "ap-2a858961c8",
@@ -51751,8 +51848,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51766,7 +51863,8 @@
         "method": "create"
       },
       "routine": "SaleOrder._create_down_payment_section_line_if_needed",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "warm: transactional write; down-payment section line created when needed (addons/sale/models/sale_order.py:2563-2580)."
     },
     {
       "id": "ap-69007dfc80",
@@ -51778,8 +51876,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51793,7 +51891,8 @@
         "method": "create"
       },
       "routine": "SaleOrder._generate_downpayment_invoices",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "warm: transactional write; wizard record created per order in _generate_downpayment_invoices (addons/sale/models/sale_order.py:2635-2651)."
     },
     {
       "id": "ap-17f5d29b39",
@@ -51805,8 +51904,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51820,7 +51919,8 @@
         "method": "create"
       },
       "routine": "SaleOrder._get_or_create_analytic_account",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "warm: transactional write at confirm; analytic account created once per order (addons/sale/models/sale_order.py:2672-2681). Cross-unit write (account)."
     },
     {
       "id": "ap-cf7adcda60",
@@ -51837,8 +51937,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51851,7 +51951,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "SaleOrder.batch_onchange_sol"
+      "routine": "SaleOrder.batch_onchange_sol",
+      "note": "hot: batch_onchange_sol browses edited lines on every form edit (addons/sale/models/sale_order.py:2807-2828)."
     },
     {
       "id": "ap-4579c39ab5",
@@ -51863,8 +51964,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51877,7 +51978,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "SaleOrder.retrieve_sale_dashboard"
+      "routine": "SaleOrder.retrieve_sale_dashboard",
+      "note": "warm: sales dashboard search_counts on sale_order (invoice_status/is_unfulfilled/state) (addons/sale/models/sale_order.py:2836-2871); period totals come from the sale.report view _read_group (addons/sale/models/sale_order.py:2906-2920), not emitted by the scanner (sale.report is _auto=False)."
     },
     {
       "id": "ap-ef7900dfb7",
@@ -51889,8 +51991,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51903,7 +52005,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "SaleOrder.retrieve_sale_dashboard"
+      "routine": "SaleOrder.retrieve_sale_dashboard",
+      "note": "warm: sales dashboard search_counts on sale_order (invoice_status/is_unfulfilled/state) (addons/sale/models/sale_order.py:2836-2871); period totals come from the sale.report view _read_group (addons/sale/models/sale_order.py:2906-2920), not emitted by the scanner (sale.report is _auto=False)."
     },
     {
       "id": "ap-850c73624d",
@@ -51915,8 +52018,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51929,7 +52032,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "SaleOrder.retrieve_sale_dashboard"
+      "routine": "SaleOrder.retrieve_sale_dashboard",
+      "note": "warm: sales dashboard search_counts on sale_order (invoice_status/is_unfulfilled/state) (addons/sale/models/sale_order.py:2836-2871); period totals come from the sale.report view _read_group (addons/sale/models/sale_order.py:2906-2920), not emitted by the scanner (sale.report is _auto=False)."
     },
     {
       "id": "ap-4773be7884",
@@ -51941,8 +52045,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51955,7 +52059,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "SaleOrder.retrieve_sale_dashboard"
+      "routine": "SaleOrder.retrieve_sale_dashboard",
+      "note": "warm: sales dashboard search_counts on sale_order (invoice_status/is_unfulfilled/state) (addons/sale/models/sale_order.py:2836-2871); period totals come from the sale.report view _read_group (addons/sale/models/sale_order.py:2906-2920), not emitted by the scanner (sale.report is _auto=False)."
     },
     {
       "id": "ap-bcfdabc4e0",
@@ -51967,8 +52072,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -51981,7 +52086,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "SaleOrderLine._get_delivered_quantity_by_analytic"
+      "routine": "SaleOrderLine._get_delivered_quantity_by_analytic",
+      "note": "warm: _read_group account_analytic_line by so_line in _get_delivered_quantity_by_analytic (addons/sale/models/sale_order_line.py:1205-1240)."
     },
     {
       "id": "ap-6425e63a06",
@@ -51997,8 +52103,8 @@
         "sale_order_line.sequence",
         "sale_order_line.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -52011,7 +52117,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "SaleOrderLine._get_accrual_line_ids"
+      "routine": "SaleOrderLine._get_accrual_line_ids",
+      "note": "cold: accrual (deferred revenue) line search (addons/sale/models/sale_order_line.py:1629-1652)."
     },
     {
       "id": "ap-441dc773d9",
@@ -52028,8 +52135,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order_line.py",
         "lines": [
@@ -52042,7 +52149,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "SaleOrderLine.action_add_from_catalog"
+      "routine": "SaleOrderLine.action_add_from_catalog",
+      "note": "warm: product catalog browses the order from context (addons/sale/models/sale_order_line.py:1998-2001)."
     },
     {
       "id": "ap-a4b805a50e",
@@ -52059,8 +52167,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/utm_campaign.py",
         "lines": [
@@ -52073,7 +52181,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "UtmCampaign._compute_quotation_count"
+      "routine": "UtmCampaign._compute_quotation_count",
+      "note": "cold: UTM campaign statistics and redirects (addons/sale/models/utm_campaign.py:39-104)."
     },
     {
       "id": "ap-3c99c9aaf8",
@@ -52104,7 +52213,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "UtmCampaign._compute_sale_invoiced_amount"
+      "routine": "UtmCampaign._compute_sale_invoiced_amount",
+      "note": "not confirmed: scanner false positive. `self.browse()` (addons/sale/models/utm_campaign.py:86) builds an empty recordset as an accumulator; no utm_campaign row is read."
     },
     {
       "id": "ap-98863b7997",
@@ -52121,8 +52231,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/utm_campaign.py",
         "lines": [
@@ -52135,7 +52245,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "UtmCampaign._compute_sale_invoiced_amount"
+      "routine": "UtmCampaign._compute_sale_invoiced_amount",
+      "note": "cold: UTM campaign statistics and redirects (addons/sale/models/utm_campaign.py:39-104)."
     },
     {
       "id": "ap-f6f0425c6c",
@@ -52152,8 +52263,8 @@
         "account_move.invoice_date",
         "account_move.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/utm_campaign.py",
         "lines": [
@@ -52166,7 +52277,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "UtmCampaign.action_redirect_to_invoiced"
+      "routine": "UtmCampaign.action_redirect_to_invoiced",
+      "note": "cold: UTM campaign statistics and redirects (addons/sale/models/utm_campaign.py:39-104)."
     },
     {
       "id": "ap-ebf2c1b383",
@@ -52183,8 +52295,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/report/sale_report.py",
         "lines": [
@@ -52197,7 +52309,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "SaleReport._get_order_reference"
+      "routine": "SaleReport._get_order_reference",
+      "note": "cold: sale.report row -> order line browse for drill-down (addons/sale/report/sale_report.py:209-215)."
     },
     {
       "id": "ap-56c1965ef9",
@@ -52214,8 +52327,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/wizard/base_document_layout.py",
         "lines": [
@@ -52228,7 +52341,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "BaseDocumentLayout._get_render_information"
+      "routine": "BaseDocumentLayout._get_render_information",
+      "note": "warm: document layout preview browses the order (addons/sale/wizard/base_document_layout.py:21)."
     },
     {
       "id": "ap-09352ae3df",
@@ -52245,8 +52359,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/wizard/payment_link_wizard.py",
         "lines": [
@@ -52259,7 +52373,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "PaymentLinkWizard._compute_confirmation_message"
+      "routine": "PaymentLinkWizard._compute_confirmation_message",
+      "note": "warm: payment link wizard browses the order (addons/sale/wizard/payment_link_wizard.py:22, 39)."
     },
     {
       "id": "ap-886e2c1929",
@@ -52276,8 +52391,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/wizard/payment_link_wizard.py",
         "lines": [
@@ -52290,7 +52405,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "PaymentLinkWizard._compute_warning_message"
+      "routine": "PaymentLinkWizard._compute_warning_message",
+      "note": "warm: payment link wizard browses the order (addons/sale/wizard/payment_link_wizard.py:22, 39)."
     },
     {
       "id": "ap-35a36f6a0c",
@@ -52302,8 +52418,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/wizard/sale_make_invoice_advance.py",
         "lines": [
@@ -52317,7 +52433,8 @@
         "method": "create"
       },
       "routine": "SaleAdvancePaymentInv._create_invoices",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "warm: transactional write; down-payment invoice create in SaleAdvancePaymentInv._create_invoices (addons/sale/wizard/sale_make_invoice_advance.py:215). Cross-unit write (account)."
     },
     {
       "id": "ap-99978f7266",
@@ -52329,8 +52446,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/wizard/sale_order_discount.py",
         "lines": [
@@ -52344,7 +52461,8 @@
         "method": "create"
       },
       "routine": "SaleOrderDiscount._get_discount_product",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "cold: discount product created once per company (addons/sale/wizard/sale_order_discount.py:116-118)."
     },
     {
       "id": "ap-77d32ac267",
@@ -52371,7 +52489,8 @@
         "method": "write"
       },
       "routine": "SaleOrderDiscount.action_apply_discount",
-      "verb": "update"
+      "verb": "update",
+      "note": "not confirmed: scanner misattribution. `self._get_discountable_order_lines().write({discount: ...})` (addons/sale/wizard/sale_order_discount.py:170) is a warm transactional write on sale_order_line, not on sale_order_discount; tables left as scanned for the design step to correct (would need tables=[sale_order_line] + pinned)."
     },
     {
       "id": "ap-4dc58f140a",
