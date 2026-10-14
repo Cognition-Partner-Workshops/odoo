@@ -1,0 +1,2971 @@
+{
+  "buckets_version": 1,
+  "source": {
+    "family": "postgresql",
+    "secret": "ODOO_PG_RO_DSN",
+    "schema": "public"
+  },
+  "in_scope_modules": [
+    "product",
+    "uom"
+  ],
+  "rules": {
+    "orm_framework": "table name starts with ir_ or orm_signaling_",
+    "in_scope": "every module registering the model (ir_model_data model=ir.model) or the relation field (ir_model_data model=ir.model.fields) is an in-scope module",
+    "shared_postgresql": "any other registering module"
+  },
+  "counts": {
+    "in_scope": 33,
+    "shared_postgresql": 167,
+    "orm_framework": 62
+  },
+  "tables": [
+    {
+      "table": "activity_attachment_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_activity__attachment_ids"
+    },
+    {
+      "table": "auth_passkey_key",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "auth.passkey.key",
+      "transient": false,
+      "modules": [
+        "auth_passkey"
+      ],
+      "cite": "auth_passkey.model_auth_passkey_key"
+    },
+    {
+      "table": "auth_passkey_key_create",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "auth.passkey.key.create",
+      "transient": true,
+      "modules": [
+        "auth_passkey"
+      ],
+      "cite": "auth_passkey.model_auth_passkey_key_create"
+    },
+    {
+      "table": "auth_totp_device",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "auth_totp.device",
+      "transient": false,
+      "modules": [
+        "auth_totp",
+        "auth_totp_mail"
+      ],
+      "cite": "auth_totp.model_auth_totp_device"
+    },
+    {
+      "table": "auth_totp_rate_limit_log",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "auth.totp.rate.limit.log",
+      "transient": true,
+      "modules": [
+        "auth_totp"
+      ],
+      "cite": "auth_totp.model_auth_totp_rate_limit_log"
+    },
+    {
+      "table": "auth_totp_wizard",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "auth_totp.wizard",
+      "transient": true,
+      "modules": [
+        "auth_totp"
+      ],
+      "cite": "auth_totp.model_auth_totp_wizard"
+    },
+    {
+      "table": "base_document_layout",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "base.document.layout",
+      "transient": true,
+      "modules": [
+        "web"
+      ],
+      "cite": "web.model_base_document_layout"
+    },
+    {
+      "table": "base_enable_profiling_wizard",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "base.enable.profiling.wizard",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_base_enable_profiling_wizard"
+    },
+    {
+      "table": "base_import_import",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "base_import.import",
+      "transient": true,
+      "modules": [
+        "base_import"
+      ],
+      "cite": "base_import.model_base_import_import"
+    },
+    {
+      "table": "base_import_mapping",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "base_import.mapping",
+      "transient": false,
+      "modules": [
+        "base_import"
+      ],
+      "cite": "base_import.model_base_import_mapping"
+    },
+    {
+      "table": "base_import_module",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "base.import.module",
+      "transient": true,
+      "modules": [
+        "base_import_module"
+      ],
+      "cite": "base_import_module.model_base_import_module"
+    },
+    {
+      "table": "base_language_export",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "base.language.export",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_base_language_export"
+    },
+    {
+      "table": "base_language_import",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "base.language.import",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_base_language_import"
+    },
+    {
+      "table": "base_language_install",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "base.language.install",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_base_language_install"
+    },
+    {
+      "table": "base_module_install_request",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "base.module.install.request",
+      "transient": true,
+      "modules": [
+        "base_install_request"
+      ],
+      "cite": "base_install_request.model_base_module_install_request"
+    },
+    {
+      "table": "base_module_install_review",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "base.module.install.review",
+      "transient": true,
+      "modules": [
+        "base_install_request"
+      ],
+      "cite": "base_install_request.model_base_module_install_review"
+    },
+    {
+      "table": "base_module_uninstall",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "base.module.uninstall",
+      "transient": true,
+      "modules": [
+        "base",
+        "mail"
+      ],
+      "cite": "base.model_base_module_uninstall"
+    },
+    {
+      "table": "base_module_uninstall_ir_module_module_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_base_module_uninstall__module_ids"
+    },
+    {
+      "table": "base_module_update",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "base.module.update",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_base_module_update"
+    },
+    {
+      "table": "base_module_upgrade",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "base.module.upgrade",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_base_module_upgrade"
+    },
+    {
+      "table": "base_partner_merge_automatic_wizard",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "base.partner.merge.automatic.wizard",
+      "transient": true,
+      "modules": [
+        "base",
+        "mail"
+      ],
+      "cite": "base.model_base_partner_merge_automatic_wizard"
+    },
+    {
+      "table": "base_partner_merge_automatic_wizard_res_partner_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_base_partner_merge_automatic_wizard__partner_ids"
+    },
+    {
+      "table": "base_partner_merge_line",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "base.partner.merge.line",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_base_partner_merge_line"
+    },
+    {
+      "table": "bus_bus",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "bus.bus",
+      "transient": false,
+      "modules": [
+        "bus",
+        "mail"
+      ],
+      "cite": "bus.model_bus_bus"
+    },
+    {
+      "table": "change_password_own",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "change.password.own",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_change_password_own"
+    },
+    {
+      "table": "change_password_user",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "change.password.user",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_change_password_user"
+    },
+    {
+      "table": "change_password_wizard",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "change.password.wizard",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_change_password_wizard"
+    },
+    {
+      "table": "clearing_label",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "clearing.label",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_clearing_label"
+    },
+    {
+      "table": "decimal_precision",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "decimal.precision",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_decimal_precision"
+    },
+    {
+      "table": "discuss_call_history",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "discuss.call.history",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_discuss_call_history"
+    },
+    {
+      "table": "discuss_category",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "discuss.category",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_discuss_category"
+    },
+    {
+      "table": "discuss_channel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "discuss.channel",
+      "transient": false,
+      "modules": [
+        "mail",
+        "mail_bot"
+      ],
+      "cite": "mail.model_discuss_channel"
+    },
+    {
+      "table": "discuss_channel_last_interest_update",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "discuss.channel.last.interest.update",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_discuss_channel_last_interest_update"
+    },
+    {
+      "table": "discuss_channel_member",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "discuss.channel.member",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_discuss_channel_member"
+    },
+    {
+      "table": "discuss_channel_res_groups_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_discuss_channel__group_ids"
+    },
+    {
+      "table": "discuss_channel_rtc_session",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "discuss.channel.rtc.session",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_discuss_channel_rtc_session"
+    },
+    {
+      "table": "discuss_gif_favorite",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "discuss.gif.favorite",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_discuss_gif_favorite"
+    },
+    {
+      "table": "discuss_voice_metadata",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "discuss.voice.metadata",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_discuss_voice_metadata"
+    },
+    {
+      "table": "email_template_attachment_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_template__attachment_ids"
+    },
+    {
+      "table": "fetchmail_server",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "fetchmail.server",
+      "transient": false,
+      "modules": [
+        "google_gmail",
+        "mail",
+        "microsoft_outlook"
+      ],
+      "cite": "mail.model_fetchmail_server"
+    },
+    {
+      "table": "html_editor_converter_test",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "html_editor.converter.test",
+      "transient": false,
+      "modules": [
+        "html_editor"
+      ],
+      "cite": "html_editor.model_html_editor_converter_test"
+    },
+    {
+      "table": "html_editor_converter_test_sub",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "html_editor.converter.test.sub",
+      "transient": false,
+      "modules": [
+        "html_editor"
+      ],
+      "cite": "html_editor.model_html_editor_converter_test_sub"
+    },
+    {
+      "table": "iap_account",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "iap.account",
+      "transient": false,
+      "modules": [
+        "iap",
+        "iap_mail",
+        "sms"
+      ],
+      "cite": "iap.model_iap_account"
+    },
+    {
+      "table": "iap_account_res_company_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "iap",
+        "iap_mail"
+      ],
+      "cite": "iap.field_iap_account__company_ids"
+    },
+    {
+      "table": "iap_account_res_users_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "iap",
+        "iap_mail"
+      ],
+      "cite": "iap.field_iap_account__warning_user_ids"
+    },
+    {
+      "table": "iap_service",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "iap.service",
+      "transient": false,
+      "modules": [
+        "iap"
+      ],
+      "cite": "iap.model_iap_service"
+    },
+    {
+      "table": "iap_service_pack",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "iap.service.pack",
+      "transient": false,
+      "modules": [
+        "iap"
+      ],
+      "cite": "iap.model_iap_service_pack"
+    },
+    {
+      "table": "ir_access",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.access",
+      "transient": false,
+      "modules": [
+        "base",
+        "mail"
+      ],
+      "cite": "base.model_ir_access"
+    },
+    {
+      "table": "ir_act_client",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [],
+      "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
+    },
+    {
+      "table": "ir_act_report_xml",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [],
+      "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
+    },
+    {
+      "table": "ir_act_server",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [],
+      "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
+    },
+    {
+      "table": "ir_act_server_group_rel",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_ir_actions_server__group_ids"
+    },
+    {
+      "table": "ir_act_server_mail_message_subtype_rel",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_ir_actions_server__subtype_ids"
+    },
+    {
+      "table": "ir_act_server_res_partner_rel",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_ir_actions_server__partner_ids"
+    },
+    {
+      "table": "ir_act_server_webhook_field_rel",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_ir_actions_server__webhook_field_ids"
+    },
+    {
+      "table": "ir_act_url",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [],
+      "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
+    },
+    {
+      "table": "ir_act_window",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [],
+      "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
+    },
+    {
+      "table": "ir_act_window_group_rel",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_ir_actions_act_window__group_ids"
+    },
+    {
+      "table": "ir_act_window_view",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [],
+      "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
+    },
+    {
+      "table": "ir_actions",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [],
+      "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
+    },
+    {
+      "table": "ir_actions_server_history",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.actions.server.history",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_actions_server_history"
+    },
+    {
+      "table": "ir_actions_todo",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.actions.todo",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_actions_todo"
+    },
+    {
+      "table": "ir_asset",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.asset",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_asset"
+    },
+    {
+      "table": "ir_attachment",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.attachment",
+      "transient": false,
+      "modules": [
+        "api_doc",
+        "base",
+        "bus",
+        "html_editor",
+        "mail",
+        "product",
+        "web",
+        "web_unsplash"
+      ],
+      "cite": "base.model_ir_attachment"
+    },
+    {
+      "table": "ir_config_parameter",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.config_parameter",
+      "transient": false,
+      "modules": [
+        "base",
+        "mail"
+      ],
+      "cite": "base.model_ir_config_parameter"
+    },
+    {
+      "table": "ir_cron",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.cron",
+      "transient": false,
+      "modules": [
+        "base",
+        "mail"
+      ],
+      "cite": "base.model_ir_cron"
+    },
+    {
+      "table": "ir_cron_progress",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.cron.progress",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_cron_progress"
+    },
+    {
+      "table": "ir_cron_trigger",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.cron.trigger",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_cron_trigger"
+    },
+    {
+      "table": "ir_default",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.default",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_default"
+    },
+    {
+      "table": "ir_demo",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.demo",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_demo"
+    },
+    {
+      "table": "ir_demo_failure",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.demo_failure",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_demo_failure"
+    },
+    {
+      "table": "ir_demo_failure_wizard",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.demo_failure.wizard",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_demo_failure_wizard"
+    },
+    {
+      "table": "ir_embedded_actions",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.embedded.actions",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_embedded_actions"
+    },
+    {
+      "table": "ir_embedded_actions_res_groups_rel",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_ir_embedded_actions__groups_ids"
+    },
+    {
+      "table": "ir_exports",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.exports",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_exports"
+    },
+    {
+      "table": "ir_exports_line",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.exports.line",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_exports_line"
+    },
+    {
+      "table": "ir_exports_res_lang_rel",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_ir_exports__export_language_ids"
+    },
+    {
+      "table": "ir_filters",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.filters",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_filters"
+    },
+    {
+      "table": "ir_filters_res_users_rel",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_ir_filters__user_ids"
+    },
+    {
+      "table": "ir_logging",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.logging",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_logging"
+    },
+    {
+      "table": "ir_mail_server",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.mail_server",
+      "transient": false,
+      "modules": [
+        "base",
+        "google_gmail",
+        "mail",
+        "microsoft_outlook"
+      ],
+      "cite": "base.model_ir_mail_server"
+    },
+    {
+      "table": "ir_model",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.model",
+      "transient": false,
+      "modules": [
+        "base",
+        "bus",
+        "mail",
+        "sms",
+        "web"
+      ],
+      "cite": "base.model_ir_model"
+    },
+    {
+      "table": "ir_model_constraint",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.model.constraint",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_model_constraint"
+    },
+    {
+      "table": "ir_model_data",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.model.data",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_model_data"
+    },
+    {
+      "table": "ir_model_fields",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.model.fields",
+      "transient": false,
+      "modules": [
+        "base",
+        "mail"
+      ],
+      "cite": "base.model_ir_model_fields"
+    },
+    {
+      "table": "ir_model_fields_group_rel",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_ir_model_fields__groups"
+    },
+    {
+      "table": "ir_model_fields_selection",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.model.fields.selection",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_model_fields_selection"
+    },
+    {
+      "table": "ir_model_inherit",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.model.inherit",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_model_inherit"
+    },
+    {
+      "table": "ir_model_relation",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.model.relation",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_model_relation"
+    },
+    {
+      "table": "ir_module_category",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.module.category",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_module_category"
+    },
+    {
+      "table": "ir_module_module",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.module.module",
+      "transient": false,
+      "modules": [
+        "base",
+        "base_import_module",
+        "base_install_request"
+      ],
+      "cite": "base.model_ir_module_module"
+    },
+    {
+      "table": "ir_module_module_dependency",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.module.module.dependency",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_module_module_dependency"
+    },
+    {
+      "table": "ir_module_module_exclusion",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.module.module.exclusion",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_module_module_exclusion"
+    },
+    {
+      "table": "ir_profile",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.profile",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_profile"
+    },
+    {
+      "table": "ir_profile_query",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.profile.query",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_profile_query"
+    },
+    {
+      "table": "ir_sequence",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.sequence",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_sequence"
+    },
+    {
+      "table": "ir_sequence_date_range",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.sequence.date_range",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_sequence_date_range"
+    },
+    {
+      "table": "ir_ui_menu",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.ui.menu",
+      "transient": false,
+      "modules": [
+        "base",
+        "mail",
+        "web"
+      ],
+      "cite": "base.model_ir_ui_menu"
+    },
+    {
+      "table": "ir_ui_menu_group_rel",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_ir_ui_menu__group_ids"
+    },
+    {
+      "table": "ir_ui_view",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.ui.view",
+      "transient": false,
+      "modules": [
+        "base",
+        "base_import_module",
+        "html_editor",
+        "mail",
+        "web"
+      ],
+      "cite": "base.model_ir_ui_view"
+    },
+    {
+      "table": "ir_ui_view_custom",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": "ir.ui.view.custom",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_ir_ui_view_custom"
+    },
+    {
+      "table": "ir_ui_view_group_rel",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_ir_ui_view__group_ids"
+    },
+    {
+      "table": "mail_activity",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.activity",
+      "transient": false,
+      "modules": [
+        "mail",
+        "phone_validation"
+      ],
+      "cite": "mail.model_mail_activity"
+    },
+    {
+      "table": "mail_activity_plan",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.activity.plan",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_activity_plan"
+    },
+    {
+      "table": "mail_activity_plan_mail_activity_schedule_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_activity_schedule__plan_available_ids"
+    },
+    {
+      "table": "mail_activity_plan_template",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.activity.plan.template",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_activity_plan_template"
+    },
+    {
+      "table": "mail_activity_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_activity_type__previous_type_ids"
+    },
+    {
+      "table": "mail_activity_schedule",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.activity.schedule",
+      "transient": true,
+      "modules": [
+        "mail",
+        "phone_validation"
+      ],
+      "cite": "mail.model_mail_activity_schedule"
+    },
+    {
+      "table": "mail_activity_schedule_line",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.activity.schedule.line",
+      "transient": true,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_activity_schedule_line"
+    },
+    {
+      "table": "mail_activity_type",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.activity.type",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_activity_type"
+    },
+    {
+      "table": "mail_activity_type_mail_template_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_activity_type__mail_template_ids"
+    },
+    {
+      "table": "mail_alias",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.alias",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_alias"
+    },
+    {
+      "table": "mail_alias_domain",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.alias.domain",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_alias_domain"
+    },
+    {
+      "table": "mail_blacklist",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.blacklist",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_blacklist"
+    },
+    {
+      "table": "mail_blacklist_remove",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.blacklist.remove",
+      "transient": true,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_blacklist_remove"
+    },
+    {
+      "table": "mail_call_artifact",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.call.artifact",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_call_artifact"
+    },
+    {
+      "table": "mail_canned_response",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.canned.response",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_canned_response"
+    },
+    {
+      "table": "mail_canned_response_res_groups_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_canned_response__group_ids"
+    },
+    {
+      "table": "mail_compose_message",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.compose.message",
+      "transient": true,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_compose_message"
+    },
+    {
+      "table": "mail_compose_message_ir_attachments_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_compose_message__attachment_ids"
+    },
+    {
+      "table": "mail_compose_message_res_partner_cc_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_compose_message__partner_cc_ids"
+    },
+    {
+      "table": "mail_compose_message_res_partner_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_compose_message__partner_ids"
+    },
+    {
+      "table": "mail_followers",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.followers",
+      "transient": false,
+      "modules": [
+        "mail",
+        "sms"
+      ],
+      "cite": "mail.model_mail_followers"
+    },
+    {
+      "table": "mail_followers_edit",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.followers.edit",
+      "transient": true,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_followers_edit"
+    },
+    {
+      "table": "mail_followers_edit_res_partner_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_followers_edit__partner_ids"
+    },
+    {
+      "table": "mail_followers_mail_message_subtype_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_followers__subtype_ids"
+    },
+    {
+      "table": "mail_gateway_allowed",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.gateway.allowed",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_gateway_allowed"
+    },
+    {
+      "table": "mail_guest",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.guest",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_guest"
+    },
+    {
+      "table": "mail_ice_server",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.ice.server",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_ice_server"
+    },
+    {
+      "table": "mail_link_preview",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.link.preview",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_link_preview"
+    },
+    {
+      "table": "mail_mail",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.mail",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_mail"
+    },
+    {
+      "table": "mail_mail_res_partner_cc_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_mail__recipient_cc_ids"
+    },
+    {
+      "table": "mail_mail_res_partner_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_mail__recipient_ids"
+    },
+    {
+      "table": "mail_message",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.message",
+      "transient": false,
+      "modules": [
+        "mail",
+        "sms"
+      ],
+      "cite": "mail.model_mail_message"
+    },
+    {
+      "table": "mail_message_link_preview",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.message.link.preview",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_message_link_preview"
+    },
+    {
+      "table": "mail_message_reaction",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.message.reaction",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_message_reaction"
+    },
+    {
+      "table": "mail_message_res_partner_bookmarked_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_message__bookmarked_partner_ids"
+    },
+    {
+      "table": "mail_message_res_partner_cc_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_message__partner_cc_ids"
+    },
+    {
+      "table": "mail_message_res_partner_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_message__partner_ids"
+    },
+    {
+      "table": "mail_message_schedule",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.message.schedule",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_message_schedule"
+    },
+    {
+      "table": "mail_message_subtype",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.message.subtype",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_message_subtype"
+    },
+    {
+      "table": "mail_message_translation",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.message.translation",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_message_translation"
+    },
+    {
+      "table": "mail_notification",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.notification",
+      "transient": false,
+      "modules": [
+        "mail",
+        "sms"
+      ],
+      "cite": "mail.model_mail_notification"
+    },
+    {
+      "table": "mail_poll",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.poll",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_poll"
+    },
+    {
+      "table": "mail_poll_option",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.poll.option",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_poll_option"
+    },
+    {
+      "table": "mail_poll_vote",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.poll.vote",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_poll_vote"
+    },
+    {
+      "table": "mail_presence",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.presence",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_presence"
+    },
+    {
+      "table": "mail_push",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.push",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_push"
+    },
+    {
+      "table": "mail_push_device",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.push.device",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_push_device"
+    },
+    {
+      "table": "mail_scheduled_message",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.scheduled.message",
+      "transient": false,
+      "modules": [
+        "mail",
+        "sms"
+      ],
+      "cite": "mail.model_mail_scheduled_message"
+    },
+    {
+      "table": "mail_scheduled_message_res_partner_cc_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_scheduled_message__partner_cc_ids"
+    },
+    {
+      "table": "mail_scheduled_message_res_partner_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_scheduled_message__partner_ids"
+    },
+    {
+      "table": "mail_template",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.template",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_template"
+    },
+    {
+      "table": "mail_template_ir_actions_report_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_template__report_template_ids"
+    },
+    {
+      "table": "mail_template_mail_template_reset_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_template_reset__template_ids"
+    },
+    {
+      "table": "mail_template_preview",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.template.preview",
+      "transient": true,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_template_preview"
+    },
+    {
+      "table": "mail_template_reset",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "mail.template.reset",
+      "transient": true,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_mail_template_reset"
+    },
+    {
+      "table": "message_attachment_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_message__attachment_ids"
+    },
+    {
+      "table": "module_country",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_ir_module_module__country_ids"
+    },
+    {
+      "table": "orm_signaling_assets",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [],
+      "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
+    },
+    {
+      "table": "orm_signaling_default",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [],
+      "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
+    },
+    {
+      "table": "orm_signaling_groups",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [],
+      "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
+    },
+    {
+      "table": "orm_signaling_registry",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [],
+      "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
+    },
+    {
+      "table": "orm_signaling_routing",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [],
+      "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
+    },
+    {
+      "table": "orm_signaling_stable",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [],
+      "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
+    },
+    {
+      "table": "orm_signaling_templates",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "modules": [],
+      "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
+    },
+    {
+      "table": "phone_blacklist",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "phone.blacklist",
+      "transient": false,
+      "modules": [
+        "phone_validation"
+      ],
+      "cite": "phone_validation.model_phone_blacklist"
+    },
+    {
+      "table": "phone_blacklist_remove",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "phone.blacklist.remove",
+      "transient": true,
+      "modules": [
+        "phone_validation"
+      ],
+      "cite": "phone_validation.model_phone_blacklist_remove"
+    },
+    {
+      "table": "privacy_log",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "privacy.log",
+      "transient": false,
+      "modules": [
+        "privacy_lookup"
+      ],
+      "cite": "privacy_lookup.model_privacy_log"
+    },
+    {
+      "table": "privacy_lookup_wizard",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "privacy.lookup.wizard",
+      "transient": true,
+      "modules": [
+        "privacy_lookup"
+      ],
+      "cite": "privacy_lookup.model_privacy_lookup_wizard"
+    },
+    {
+      "table": "privacy_lookup_wizard_line",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "privacy.lookup.wizard.line",
+      "transient": true,
+      "modules": [
+        "privacy_lookup"
+      ],
+      "cite": "privacy_lookup.model_privacy_lookup_wizard_line"
+    },
+    {
+      "table": "product_attribute",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.attribute",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_attribute"
+    },
+    {
+      "table": "product_attribute_custom_value",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.attribute.custom.value",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_attribute_custom_value"
+    },
+    {
+      "table": "product_attribute_product_template_rel",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.field_product_attribute__product_tmpl_ids"
+    },
+    {
+      "table": "product_attribute_value",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.attribute.value",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_attribute_value"
+    },
+    {
+      "table": "product_attribute_value_product_template_attribute_line_rel",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.field_product_attribute_value__pav_attribute_line_ids"
+    },
+    {
+      "table": "product_base_unit",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.base.unit",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_base_unit"
+    },
+    {
+      "table": "product_category",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.category",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_category"
+    },
+    {
+      "table": "product_combo",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.combo",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_combo"
+    },
+    {
+      "table": "product_combo_item",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.combo.item",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_combo_item"
+    },
+    {
+      "table": "product_combo_product_template_rel",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.field_product_template__combo_ids"
+    },
+    {
+      "table": "product_document",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.document",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_document"
+    },
+    {
+      "table": "product_label_layout",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.label.layout",
+      "transient": true,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_label_layout"
+    },
+    {
+      "table": "product_label_layout_product_product_rel",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.field_product_label_layout__product_ids"
+    },
+    {
+      "table": "product_label_layout_product_template_rel",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.field_product_label_layout__product_tmpl_ids"
+    },
+    {
+      "table": "product_label_layout_product_uom_rel",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.field_product_label_layout__product_uom_ids"
+    },
+    {
+      "table": "product_pricelist",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.pricelist",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_pricelist"
+    },
+    {
+      "table": "product_pricelist_item",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.pricelist.item",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_pricelist_item"
+    },
+    {
+      "table": "product_product",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.product",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_product"
+    },
+    {
+      "table": "product_product_uom_uom_rel",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.field_product_product__extra_uom_ids"
+    },
+    {
+      "table": "product_supplierinfo",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.supplierinfo",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_supplierinfo"
+    },
+    {
+      "table": "product_tag",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.tag",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_tag"
+    },
+    {
+      "table": "product_tag_product_product_rel",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.field_product_product__additional_product_tag_ids"
+    },
+    {
+      "table": "product_tag_product_template_rel",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.field_product_template__product_tag_ids"
+    },
+    {
+      "table": "product_template",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.template",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_template"
+    },
+    {
+      "table": "product_template_attribute_excluded_value_ids_rel",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.field_product_template_attribute_value__excluded_value_ids"
+    },
+    {
+      "table": "product_template_attribute_line",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.template.attribute.line",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_template_attribute_line"
+    },
+    {
+      "table": "product_template_attribute_value",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.template.attribute.value",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_template_attribute_value"
+    },
+    {
+      "table": "product_template_uom_uom_rel",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.field_product_template__uom_ids"
+    },
+    {
+      "table": "product_uom",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "product.uom",
+      "transient": false,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_product_uom"
+    },
+    {
+      "table": "product_variant_combination",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.field_product_product__product_template_attribute_value_ids"
+    },
+    {
+      "table": "properties_base_definition",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "properties.base.definition",
+      "transient": false,
+      "modules": [
+        "base",
+        "web"
+      ],
+      "cite": "base.model_properties_base_definition"
+    },
+    {
+      "table": "rel_modules_langexport",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_base_language_export__modules"
+    },
+    {
+      "table": "report_layout",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "report.layout",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_report_layout"
+    },
+    {
+      "table": "report_paperformat",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "report.paperformat",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_report_paperformat"
+    },
+    {
+      "table": "res_company",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.company",
+      "transient": false,
+      "modules": [
+        "base",
+        "mail",
+        "partner_autocomplete",
+        "product",
+        "sms",
+        "web"
+      ],
+      "cite": "base.model_res_company"
+    },
+    {
+      "table": "res_company_users_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_res_company__user_ids"
+    },
+    {
+      "table": "res_config",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.config",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_config"
+    },
+    {
+      "table": "res_config_settings",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.config.settings",
+      "transient": true,
+      "modules": [
+        "auth_signup",
+        "auth_totp_mail",
+        "base",
+        "base_setup",
+        "google_gmail",
+        "mail",
+        "microsoft_outlook",
+        "partner_autocomplete",
+        "product",
+        "web",
+        "web_unsplash"
+      ],
+      "cite": "base.model_res_config_settings"
+    },
+    {
+      "table": "res_country",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.country",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_country"
+    },
+    {
+      "table": "res_country_group",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.country.group",
+      "transient": false,
+      "modules": [
+        "base",
+        "product"
+      ],
+      "cite": "base.model_res_country_group"
+    },
+    {
+      "table": "res_country_group_pricelist_rel",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.field_product_pricelist__country_group_ids"
+    },
+    {
+      "table": "res_country_res_country_group_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_res_country__country_group_ids"
+    },
+    {
+      "table": "res_country_state",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.country.state",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_country_state"
+    },
+    {
+      "table": "res_currency",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.currency",
+      "transient": false,
+      "modules": [
+        "base",
+        "product"
+      ],
+      "cite": "base.model_res_currency"
+    },
+    {
+      "table": "res_currency_rate",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.currency.rate",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_currency_rate"
+    },
+    {
+      "table": "res_device",
+      "kind": "view",
+      "bucket": "shared_postgresql",
+      "model": "res.device",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_device"
+    },
+    {
+      "table": "res_device_log",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.device.log",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_device_log"
+    },
+    {
+      "table": "res_groups",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.groups",
+      "transient": false,
+      "modules": [
+        "base",
+        "bus",
+        "mail",
+        "product",
+        "uom"
+      ],
+      "cite": "base.model_res_groups"
+    },
+    {
+      "table": "res_groups_implied_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_res_groups__implied_ids"
+    },
+    {
+      "table": "res_groups_privilege",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.groups.privilege",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_groups_privilege"
+    },
+    {
+      "table": "res_groups_report_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_ir_actions_report__group_ids"
+    },
+    {
+      "table": "res_groups_users_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_res_groups__user_ids"
+    },
+    {
+      "table": "res_lang",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.lang",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_lang"
+    },
+    {
+      "table": "res_lang_install_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_base_language_install__lang_ids"
+    },
+    {
+      "table": "res_partner",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.partner",
+      "transient": false,
+      "modules": [
+        "auth_signup",
+        "base",
+        "bus",
+        "mail",
+        "partner_autocomplete",
+        "phone_validation",
+        "privacy_lookup",
+        "product",
+        "web"
+      ],
+      "cite": "base.model_res_partner"
+    },
+    {
+      "table": "res_partner_bank",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.partner.bank",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_partner_bank"
+    },
+    {
+      "table": "res_partner_category",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.partner.category",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_partner_category"
+    },
+    {
+      "table": "res_partner_industry",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.partner.industry",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_partner_industry"
+    },
+    {
+      "table": "res_partner_res_partner_category_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.field_res_partner_category__partner_ids"
+    },
+    {
+      "table": "res_role",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.role",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_res_role"
+    },
+    {
+      "table": "res_role_res_users_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_res_role__user_ids"
+    },
+    {
+      "table": "res_session",
+      "kind": "view",
+      "bucket": "shared_postgresql",
+      "model": "res.session",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_session"
+    },
+    {
+      "table": "res_users",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.users",
+      "transient": false,
+      "modules": [
+        "auth_passkey",
+        "auth_signup",
+        "auth_totp",
+        "auth_totp_mail",
+        "base",
+        "base_import",
+        "base_setup",
+        "bus",
+        "google_gmail",
+        "mail",
+        "mail_bot",
+        "microsoft_outlook",
+        "phone_validation",
+        "web",
+        "web_tour",
+        "web_unsplash"
+      ],
+      "cite": "base.model_res_users"
+    },
+    {
+      "table": "res_users_apikeys",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.users.apikeys",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_users_apikeys"
+    },
+    {
+      "table": "res_users_apikeys_description",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.users.apikeys.description",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_users_apikeys_description"
+    },
+    {
+      "table": "res_users_deletion",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.users.deletion",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_users_deletion"
+    },
+    {
+      "table": "res_users_identitycheck",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.users.identitycheck",
+      "transient": true,
+      "modules": [
+        "auth_passkey",
+        "base"
+      ],
+      "cite": "base.model_res_users_identitycheck"
+    },
+    {
+      "table": "res_users_log",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.users.log",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_res_users_log"
+    },
+    {
+      "table": "res_users_settings",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.users.settings",
+      "transient": false,
+      "modules": [
+        "base",
+        "bus",
+        "mail",
+        "web"
+      ],
+      "cite": "base.model_res_users_settings"
+    },
+    {
+      "table": "res_users_settings_embedded_action",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.users.settings.embedded.action",
+      "transient": false,
+      "modules": [
+        "web"
+      ],
+      "cite": "web.model_res_users_settings_embedded_action"
+    },
+    {
+      "table": "res_users_settings_volumes",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.users.settings.volumes",
+      "transient": false,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.model_res_users_settings_volumes"
+    },
+    {
+      "table": "res_users_web_tour_tour_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "web_tour"
+      ],
+      "cite": "web_tour.field_web_tour_tour__user_consumed_ids"
+    },
+    {
+      "table": "reset_view_arch_wizard",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "reset.view.arch.wizard",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_reset_view_arch_wizard"
+    },
+    {
+      "table": "scheduled_message_attachment_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "mail"
+      ],
+      "cite": "mail.field_mail_scheduled_message__attachment_ids"
+    },
+    {
+      "table": "server_action_history_wizard",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "server.action.history.wizard",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_server_action_history_wizard"
+    },
+    {
+      "table": "sms_account_code",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "sms.account.code",
+      "transient": true,
+      "modules": [
+        "sms"
+      ],
+      "cite": "sms.model_sms_account_code"
+    },
+    {
+      "table": "sms_account_phone",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "sms.account.phone",
+      "transient": true,
+      "modules": [
+        "sms"
+      ],
+      "cite": "sms.model_sms_account_phone"
+    },
+    {
+      "table": "sms_account_sender",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "sms.account.sender",
+      "transient": true,
+      "modules": [
+        "sms"
+      ],
+      "cite": "sms.model_sms_account_sender"
+    },
+    {
+      "table": "sms_composer",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "sms.composer",
+      "transient": true,
+      "modules": [
+        "sms"
+      ],
+      "cite": "sms.model_sms_composer"
+    },
+    {
+      "table": "sms_sms",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "sms.sms",
+      "transient": false,
+      "modules": [
+        "sms"
+      ],
+      "cite": "sms.model_sms_sms"
+    },
+    {
+      "table": "sms_template",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "sms.template",
+      "transient": false,
+      "modules": [
+        "sms"
+      ],
+      "cite": "sms.model_sms_template"
+    },
+    {
+      "table": "sms_template_preview",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "sms.template.preview",
+      "transient": true,
+      "modules": [
+        "sms"
+      ],
+      "cite": "sms.model_sms_template_preview"
+    },
+    {
+      "table": "sms_template_reset",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "sms.template.reset",
+      "transient": true,
+      "modules": [
+        "sms"
+      ],
+      "cite": "sms.model_sms_template_reset"
+    },
+    {
+      "table": "sms_template_sms_template_reset_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "modules": [
+        "sms"
+      ],
+      "cite": "sms.field_sms_template_reset__template_ids"
+    },
+    {
+      "table": "sms_tracker",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "sms.tracker",
+      "transient": false,
+      "modules": [
+        "sms"
+      ],
+      "cite": "sms.model_sms_tracker"
+    },
+    {
+      "table": "uom_uom",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "uom.uom",
+      "transient": false,
+      "modules": [
+        "product",
+        "uom"
+      ],
+      "cite": "uom.model_uom_uom"
+    },
+    {
+      "table": "update_product_attribute_value",
+      "kind": "table",
+      "bucket": "in_scope",
+      "model": "update.product.attribute.value",
+      "transient": true,
+      "modules": [
+        "product"
+      ],
+      "cite": "product.model_update_product_attribute_value"
+    },
+    {
+      "table": "web_tour_tour",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "web_tour.tour",
+      "transient": false,
+      "modules": [
+        "web_tour"
+      ],
+      "cite": "web_tour.model_web_tour_tour"
+    },
+    {
+      "table": "web_tour_tour_step",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "web_tour.tour.step",
+      "transient": false,
+      "modules": [
+        "web_tour"
+      ],
+      "cite": "web_tour.model_web_tour_tour_step"
+    },
+    {
+      "table": "website",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "website",
+      "transient": false,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_website"
+    },
+    {
+      "table": "wizard_ir_model_menu_create",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "wizard.ir.model.menu.create",
+      "transient": true,
+      "modules": [
+        "base"
+      ],
+      "cite": "base.model_wizard_ir_model_menu_create"
+    }
+  ]
+}
