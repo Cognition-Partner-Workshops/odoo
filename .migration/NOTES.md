@@ -80,13 +80,13 @@ this register.
 | stock_package_type (model_only, stock) | uom_uom.package_type_id | D2+D3 |
 | sale_order_line (model_only, sale) | product_attribute_custom_value.sale_order_line_id (`addons/sale/models/product_attribute_custom_value.py`) | D2+D3 — reverse dependency: slice row points into sale |
 
-## C. Stored fields added to slice models by other modules (`ir_model_fields` ⋈ `ir_model_data`, 54 fields excl. `id` = 48 document fields D2 + 6 One2many inverses D1; `*` = company-dependent JSONB)
+## C. Stored fields added to slice models by other modules (`ir_model_fields` ⋈ `ir_model_data`, 54 fields excl. `id` = 47 document fields D2 + 7 One2many inverses D1; `*` = company-dependent JSONB)
 
 | module | fields | disp. |
 |---|---|---|
 | account | product.category: property_account_expense_categ_id*, property_account_income_categ_id*, property_cost_method*, property_price_difference_account_id*, property_stock_journal*, property_stock_valuation_account_id*, property_valuation*; product.template: property_account_expense_id*, property_account_income_id*, taxes_id, supplier_taxes_id, account_tag_ids (`addons/account/models/product.py`) | D2 (m2m rel tables are D1, see A) |
-| stock | product.category: packaging_reserve_method, putaway_rule_ids, removal_strategy_id, route_ids; product.template: tracking, responsible_id*, property_stock_inventory*, property_stock_production*, description_picking, description_pickingin, description_pickingout, route_ids, lot_sequence_id; product.product: lot_properties_definition; product.label.layout: move_ids, move_quantity, print_packaging; uom.uom.package_type_id (`addons/stock/models/product.py`, `addons/stock/models/product_strategy.py`) | D2 |
-| stock (one2many) | product.product: orderpoint_ids, putaway_rule_ids, stock_move_ids, stock_quant_ids, storage_category_capacity_ids — not document fields; the inverse FK lives on the stock table (see A) | D1 |
+| stock | product.category: packaging_reserve_method, removal_strategy_id, route_ids; product.template: tracking, responsible_id*, property_stock_inventory*, property_stock_production*, description_picking, description_pickingin, description_pickingout, route_ids, lot_sequence_id; product.product: lot_properties_definition; product.label.layout: move_ids, move_quantity, print_packaging; uom.uom.package_type_id (`addons/stock/models/product.py`, `addons/stock/models/product_strategy.py`) | D2 |
+| stock (one2many) | product.category.putaway_rule_ids; product.product: orderpoint_ids, putaway_rule_ids, stock_move_ids, stock_quant_ids, storage_category_capacity_ids — not document fields; the inverse FK lives on the stock table (see A) | D1 |
 | stock_account | product.template.lot_valuated, product.category.property_cost_method* (override of the `account` field, `addons/stock_account/models/product.py`) | D2 |
 | sale | product.template: invoice_policy, reinvoice_policy, service_type, sale_delay*, optional_product_ids, sale_line_warn_msg (`addons/sale/models/product_template.py`); product.category: property_account_invoiced_not_delivered_id*, property_account_invoices_to_issue_id*; product.document.attached_on_sale; product.attribute.custom.value.sale_order_line_id | D2 |
 | purchase | product.template: purchase_method, purchase_line_warn_msg; product.category: property_account_billed_not_received_id*, property_account_bills_to_receive_id* (`addons/purchase/models/product.py`) | D2 |
@@ -174,7 +174,7 @@ No cron targets a `product.*` or `uom.*` model. Indirect readers/writers of slic
 
 - 53 inbound FK columns from 36 out-of-scope tables → D1 (keep integer ids, id-shadow in PG).
 - 58 outbound Many2one columns → D3 references; 2 point *into* model-only addons (sale/stock).
-- 54 foreign-module stored fields: 48 are document fields (17 company-dependent) + 37 JSONB columns → D2, must be honoured by the ORM storage path; the other 6 are One2many inverses whose FK lives on a stock/purchase table → D1.
+- 54 foreign-module stored fields: 47 are document fields (17 company-dependent) + 37 JSONB columns → D2, must be honoured by the ORM storage path; the other 7 are One2many inverses whose FK lives on a stock/purchase table → D1.
 - 5 ORM writers in stock_account/stock/account/purchase → D5, add to recon scenarios.
 - 3 PG views + 3 `_table_query` reports + 2 raw-SQL paths (account uom constraint, stock lifecycle hooks) → D6, rewrite or full shadow.
 - ~530 `ir_model_data`/`ir_attachment`/`mail_message`/`ir_default` rows → D4.
