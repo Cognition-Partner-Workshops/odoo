@@ -80,7 +80,7 @@ this register.
 | stock_package_type (model_only, stock) | uom_uom.package_type_id | D2+D3 |
 | sale_order_line (model_only, sale) | product_attribute_custom_value.sale_order_line_id (`addons/sale/models/product_attribute_custom_value.py`) | D2+D3 — reverse dependency: slice row points into sale |
 
-## C. Stored fields added to slice models by other modules (`ir_model_fields` ⋈ `ir_model_data`, 54 fields excl. `id`; `*` = company-dependent JSONB)
+## C. Stored fields added to slice models by other modules (`ir_model_fields` ⋈ `ir_model_data`, 54 fields excl. `id` = 48 document fields D2 + 6 One2many inverses D1; `*` = company-dependent JSONB)
 
 | module | fields | disp. |
 |---|---|---|
@@ -174,7 +174,7 @@ No cron targets a `product.*` or `uom.*` model. Indirect readers/writers of slic
 
 - 53 inbound FK columns from 36 out-of-scope tables → D1 (keep integer ids, id-shadow in PG).
 - 58 outbound Many2one columns → D3 references; 2 point *into* model-only addons (sale/stock).
-- 54 foreign-module stored fields (19 company-dependent) + 37 JSONB columns → D2, must be honoured by the ORM storage path.
+- 54 foreign-module stored fields: 48 are document fields (17 company-dependent) + 37 JSONB columns → D2, must be honoured by the ORM storage path; the other 6 are One2many inverses whose FK lives on a stock/purchase table → D1.
 - 5 ORM writers in stock_account/stock/account/purchase → D5, add to recon scenarios.
 - 3 PG views + 3 `_table_query` reports + 2 raw-SQL paths (account uom constraint, stock lifecycle hooks) → D6, rewrite or full shadow.
 - ~530 `ir_model_data`/`ir_attachment`/`mail_message`/`ir_default` rows → D4.
