@@ -1,35 +1,1397 @@
 {
-  "buckets_version": 1,
+  "buckets_version": 2,
   "source": {
     "family": "postgresql",
     "secret": "ODOO_PG_RO_DSN",
     "schema": "public"
   },
-  "in_scope_modules": [
+  "migrate_modules": [
     "product",
     "uom"
   ],
+  "model_only_modules": [
+    "sale",
+    "purchase",
+    "stock",
+    "account"
+  ],
   "rules": {
+    "owner": "module of the first ir_model_data row (lowest id) registering the model (model=ir.model) or the relation field (model=ir.model.fields); every other registering module must depend on it transitively (ir_module_module_dependency)",
     "orm_framework": "table name starts with ir_ or orm_signaling_",
-    "in_scope": "every module registering the model (ir_model_data model=ir.model) or the relation field (ir_model_data model=ir.model.fields) is an in-scope module",
-    "shared_postgresql": "any other registering module"
+    "migrate": "owner in migrate_modules",
+    "model_only": "owner in model_only_modules",
+    "shared_postgresql": "any other owner",
+    "exclude_tables": "shared_postgresql + orm_framework objects of kind table, passed to pipeline.py as --exclude-table"
   },
   "counts": {
-    "in_scope": 33,
-    "shared_postgresql": 167,
-    "orm_framework": 62
+    "migrate": 33,
+    "model_only": 183,
+    "shared_postgresql": 247,
+    "orm_framework": 63
   },
+  "exclude_tables": [
+    "account_analytic_account",
+    "account_analytic_applicability",
+    "account_analytic_distribution_model",
+    "account_analytic_line",
+    "account_analytic_line_stock_move_rel",
+    "account_analytic_plan",
+    "account_invoice_transaction_rel",
+    "activity_attachment_rel",
+    "auth_passkey_key",
+    "auth_passkey_key_create",
+    "auth_totp_device",
+    "auth_totp_rate_limit_log",
+    "auth_totp_wizard",
+    "barcode_nomenclature",
+    "barcode_rule",
+    "base_document_layout",
+    "base_enable_profiling_wizard",
+    "base_import_import",
+    "base_import_mapping",
+    "base_import_module",
+    "base_language_export",
+    "base_language_import",
+    "base_language_install",
+    "base_module_install_request",
+    "base_module_install_review",
+    "base_module_uninstall",
+    "base_module_uninstall_ir_module_module_rel",
+    "base_module_update",
+    "base_module_upgrade",
+    "base_partner_merge_automatic_wizard",
+    "base_partner_merge_automatic_wizard_res_partner_rel",
+    "base_partner_merge_line",
+    "bus_bus",
+    "change_password_own",
+    "change_password_user",
+    "change_password_wizard",
+    "clearing_label",
+    "confirm_stock_sms",
+    "crm_tag",
+    "crm_team",
+    "crm_team_member",
+    "customer_product_reference",
+    "decimal_precision",
+    "digest_digest",
+    "digest_digest_res_users_rel",
+    "digest_test",
+    "digest_test_res_users_rel",
+    "digest_tip",
+    "digest_tip_res_users_rel",
+    "discuss_call_history",
+    "discuss_category",
+    "discuss_channel",
+    "discuss_channel_last_interest_update",
+    "discuss_channel_member",
+    "discuss_channel_res_groups_rel",
+    "discuss_channel_rtc_session",
+    "discuss_gif_favorite",
+    "discuss_voice_metadata",
+    "email_template_attachment_rel",
+    "fetchmail_server",
+    "html_editor_converter_test",
+    "html_editor_converter_test_sub",
+    "iap_account",
+    "iap_account_res_company_rel",
+    "iap_account_res_users_rel",
+    "iap_service",
+    "iap_service_pack",
+    "ir_access",
+    "ir_act_client",
+    "ir_act_report_xml",
+    "ir_act_server",
+    "ir_act_server_group_rel",
+    "ir_act_server_mail_message_subtype_rel",
+    "ir_act_server_res_partner_rel",
+    "ir_act_server_webhook_field_rel",
+    "ir_act_url",
+    "ir_act_window",
+    "ir_act_window_group_rel",
+    "ir_act_window_view",
+    "ir_actions",
+    "ir_actions_server_history",
+    "ir_actions_todo",
+    "ir_asset",
+    "ir_attachment",
+    "ir_config_parameter",
+    "ir_cron",
+    "ir_cron_progress",
+    "ir_cron_trigger",
+    "ir_default",
+    "ir_demo",
+    "ir_demo_failure",
+    "ir_demo_failure_wizard",
+    "ir_embedded_actions",
+    "ir_embedded_actions_res_groups_rel",
+    "ir_exports",
+    "ir_exports_line",
+    "ir_exports_res_lang_rel",
+    "ir_filters",
+    "ir_filters_res_users_rel",
+    "ir_logging",
+    "ir_mail_server",
+    "ir_model",
+    "ir_model_constraint",
+    "ir_model_data",
+    "ir_model_fields",
+    "ir_model_fields_group_rel",
+    "ir_model_fields_selection",
+    "ir_model_inherit",
+    "ir_model_relation",
+    "ir_model_spreadsheet_dashboard_rel",
+    "ir_module_category",
+    "ir_module_module",
+    "ir_module_module_dependency",
+    "ir_module_module_exclusion",
+    "ir_profile",
+    "ir_profile_query",
+    "ir_sequence",
+    "ir_sequence_date_range",
+    "ir_ui_menu",
+    "ir_ui_menu_group_rel",
+    "ir_ui_view",
+    "ir_ui_view_custom",
+    "ir_ui_view_group_rel",
+    "l10n_us_res_county",
+    "mail_activity",
+    "mail_activity_plan",
+    "mail_activity_plan_mail_activity_schedule_rel",
+    "mail_activity_plan_template",
+    "mail_activity_rel",
+    "mail_activity_schedule",
+    "mail_activity_schedule_line",
+    "mail_activity_type",
+    "mail_activity_type_mail_template_rel",
+    "mail_alias",
+    "mail_alias_domain",
+    "mail_blacklist",
+    "mail_blacklist_remove",
+    "mail_call_artifact",
+    "mail_canned_response",
+    "mail_canned_response_res_groups_rel",
+    "mail_compose_message",
+    "mail_compose_message_ir_attachments_rel",
+    "mail_compose_message_res_partner_cc_rel",
+    "mail_compose_message_res_partner_rel",
+    "mail_followers",
+    "mail_followers_edit",
+    "mail_followers_edit_res_partner_rel",
+    "mail_followers_mail_message_subtype_rel",
+    "mail_gateway_allowed",
+    "mail_guest",
+    "mail_ice_server",
+    "mail_link_preview",
+    "mail_mail",
+    "mail_mail_res_partner_cc_rel",
+    "mail_mail_res_partner_rel",
+    "mail_message",
+    "mail_message_link_preview",
+    "mail_message_reaction",
+    "mail_message_res_partner_bookmarked_rel",
+    "mail_message_res_partner_cc_rel",
+    "mail_message_res_partner_rel",
+    "mail_message_schedule",
+    "mail_message_subtype",
+    "mail_message_translation",
+    "mail_notification",
+    "mail_poll",
+    "mail_poll_option",
+    "mail_poll_vote",
+    "mail_presence",
+    "mail_push",
+    "mail_push_device",
+    "mail_scheduled_message",
+    "mail_scheduled_message_res_partner_cc_rel",
+    "mail_scheduled_message_res_partner_rel",
+    "mail_template",
+    "mail_template_ir_actions_report_rel",
+    "mail_template_mail_template_reset_rel",
+    "mail_template_preview",
+    "mail_template_reset",
+    "message_attachment_rel",
+    "module_country",
+    "onboarding_onboarding",
+    "onboarding_onboarding_onboarding_onboarding_step_rel",
+    "onboarding_onboarding_step",
+    "onboarding_progress",
+    "onboarding_progress_onboarding_progress_step_rel",
+    "onboarding_progress_step",
+    "orm_signaling_assets",
+    "orm_signaling_default",
+    "orm_signaling_groups",
+    "orm_signaling_registry",
+    "orm_signaling_routing",
+    "orm_signaling_stable",
+    "orm_signaling_templates",
+    "payment_capture_wizard",
+    "payment_capture_wizard_payment_transaction_rel",
+    "payment_country_rel",
+    "payment_currency_rel",
+    "payment_data",
+    "payment_link_wizard",
+    "payment_method",
+    "payment_method_res_country_rel",
+    "payment_method_res_currency_rel",
+    "payment_provider",
+    "payment_provider_product_pricelist_rel",
+    "payment_refund_wizard",
+    "payment_token",
+    "payment_transaction",
+    "phone_blacklist",
+    "phone_blacklist_remove",
+    "portal_entry",
+    "portal_share",
+    "portal_share_res_partner_rel",
+    "portal_wizard",
+    "portal_wizard_res_partner_rel",
+    "portal_wizard_user",
+    "privacy_log",
+    "privacy_lookup_wizard",
+    "privacy_lookup_wizard_line",
+    "product_supplierinfo_stock_replenishment_info_rel",
+    "product_value",
+    "properties_base_definition",
+    "purchase_order_stock_picking_rel",
+    "rel_modules_langexport",
+    "report_layout",
+    "report_paperformat",
+    "res_city",
+    "res_company",
+    "res_company_spreadsheet_dashboard_rel",
+    "res_company_users_rel",
+    "res_config",
+    "res_config_settings",
+    "res_country",
+    "res_country_group",
+    "res_country_res_country_group_rel",
+    "res_country_state",
+    "res_currency",
+    "res_currency_rate",
+    "res_device_log",
+    "res_groups",
+    "res_groups_implied_rel",
+    "res_groups_privilege",
+    "res_groups_report_rel",
+    "res_groups_spreadsheet_dashboard_rel",
+    "res_groups_users_rel",
+    "res_lang",
+    "res_lang_install_rel",
+    "res_partner",
+    "res_partner_bank",
+    "res_partner_category",
+    "res_partner_industry",
+    "res_partner_res_partner_category_rel",
+    "res_role",
+    "res_role_res_users_rel",
+    "res_users",
+    "res_users_apikeys",
+    "res_users_apikeys_description",
+    "res_users_deletion",
+    "res_users_identitycheck",
+    "res_users_log",
+    "res_users_settings",
+    "res_users_settings_embedded_action",
+    "res_users_settings_volumes",
+    "res_users_spreadsheet_dashboard_favorite_filters_rel",
+    "res_users_spreadsheet_dashboard_rel",
+    "res_users_web_tour_tour_rel",
+    "reset_view_arch_wizard",
+    "resource_calendar",
+    "resource_calendar_attendance",
+    "resource_calendar_leaves",
+    "resource_resource",
+    "return_reason",
+    "sale_order_line_stock_route_rel",
+    "scheduled_message_attachment_rel",
+    "server_action_history_wizard",
+    "sms_account_code",
+    "sms_account_phone",
+    "sms_account_sender",
+    "sms_composer",
+    "sms_sms",
+    "sms_template",
+    "sms_template_preview",
+    "sms_template_reset",
+    "sms_template_sms_template_reset_rel",
+    "sms_tracker",
+    "spreadsheet_dashboard",
+    "spreadsheet_dashboard_allowed_users_rel",
+    "spreadsheet_dashboard_favorite_filters",
+    "spreadsheet_dashboard_group",
+    "spreadsheet_dashboard_share",
+    "stock_move_created_purchase_line_rel",
+    "stock_picking_sms_rel",
+    "stock_reference_purchase_rel",
+    "stock_reference_sale_rel",
+    "stock_route_stock_rules_report_rel",
+    "team_favorite_user_rel",
+    "utm_campaign",
+    "utm_medium",
+    "utm_source",
+    "utm_stage",
+    "utm_tag",
+    "utm_tag_rel",
+    "web_tour_tour",
+    "web_tour_tour_step",
+    "website",
+    "wizard_ir_model_menu_create"
+  ],
   "tables": [
+    {
+      "table": "account_account",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.account",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account",
+        "spreadsheet_account"
+      ],
+      "cite": "account.model_account_account"
+    },
+    {
+      "table": "account_account_account_merge_wizard_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_merge_wizard__account_ids"
+    },
+    {
+      "table": "account_account_account_tag",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_account__tag_ids"
+    },
+    {
+      "table": "account_account_res_company_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_account__company_ids"
+    },
+    {
+      "table": "account_account_tag",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.account.tag",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_account_tag"
+    },
+    {
+      "table": "account_account_tag_account_move_line_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_move_line__tax_tag_ids"
+    },
+    {
+      "table": "account_account_tag_account_tax_repartition_line_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_tax_repartition_line__tag_ids"
+    },
+    {
+      "table": "account_account_tag_product_template_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_product_template__account_tag_ids"
+    },
+    {
+      "table": "account_account_tax_default_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_account__tax_ids"
+    },
+    {
+      "table": "account_accrued_orders_wizard",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.accrued.orders.wizard",
+      "transient": true,
+      "owner": "account",
+      "modules": [
+        "account",
+        "purchase",
+        "sale"
+      ],
+      "cite": "account.model_account_accrued_orders_wizard"
+    },
+    {
+      "table": "account_analytic_account",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "account.analytic.account",
+      "transient": false,
+      "owner": "analytic",
+      "modules": [
+        "account",
+        "analytic",
+        "purchase",
+        "stock_account"
+      ],
+      "cite": "analytic.model_account_analytic_account"
+    },
+    {
+      "table": "account_analytic_applicability",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "account.analytic.applicability",
+      "transient": false,
+      "owner": "analytic",
+      "modules": [
+        "account",
+        "analytic",
+        "purchase",
+        "sale"
+      ],
+      "cite": "analytic.model_account_analytic_applicability"
+    },
+    {
+      "table": "account_analytic_distribution_model",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "account.analytic.distribution.model",
+      "transient": false,
+      "owner": "analytic",
+      "modules": [
+        "account",
+        "analytic"
+      ],
+      "cite": "analytic.model_account_analytic_distribution_model"
+    },
+    {
+      "table": "account_analytic_line",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "account.analytic.line",
+      "transient": false,
+      "owner": "analytic",
+      "modules": [
+        "account",
+        "analytic",
+        "sale"
+      ],
+      "cite": "analytic.model_account_analytic_line"
+    },
+    {
+      "table": "account_analytic_line_stock_move_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "stock_account",
+      "modules": [
+        "stock_account"
+      ],
+      "cite": "stock_account.field_stock_move__analytic_account_line_ids"
+    },
+    {
+      "table": "account_analytic_plan",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "account.analytic.plan",
+      "transient": false,
+      "owner": "analytic",
+      "modules": [
+        "analytic",
+        "stock_account"
+      ],
+      "cite": "analytic.model_account_analytic_plan"
+    },
+    {
+      "table": "account_automatic_entry_wizard",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.automatic.entry.wizard",
+      "transient": true,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_automatic_entry_wizard"
+    },
+    {
+      "table": "account_automatic_entry_wizard_account_move_line_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_automatic_entry_wizard__move_line_ids"
+    },
+    {
+      "table": "account_autopost_bills_wizard",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.autopost.bills.wizard",
+      "transient": true,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_autopost_bills_wizard"
+    },
+    {
+      "table": "account_bank_statement",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.bank.statement",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_bank_statement"
+    },
+    {
+      "table": "account_bank_statement_ir_attachment_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_bank_statement__attachment_ids"
+    },
+    {
+      "table": "account_bank_statement_line",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.bank.statement.line",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account",
+        "account_payment"
+      ],
+      "cite": "account.model_account_bank_statement_line"
+    },
+    {
+      "table": "account_cash_rounding",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.cash.rounding",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_cash_rounding"
+    },
+    {
+      "table": "account_cash_rounding_account_payment_method_line_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_cash_rounding__payment_method_line_ids"
+    },
+    {
+      "table": "account_cash_rounding_res_currency_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_cash_rounding__currency_ids"
+    },
+    {
+      "table": "account_cash_rounding_res_partner_category_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_cash_rounding__partner_category_ids"
+    },
+    {
+      "table": "account_financial_year_op",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.financial.year.op",
+      "transient": true,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_financial_year_op"
+    },
+    {
+      "table": "account_fiscal_position",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.fiscal.position",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_fiscal_position"
+    },
+    {
+      "table": "account_fiscal_position_account",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.fiscal.position.account",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_fiscal_position_account"
+    },
+    {
+      "table": "account_fiscal_position_account_tax_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_fiscal_position__tax_ids"
+    },
+    {
+      "table": "account_fiscal_position_res_country_state_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_fiscal_position__state_ids"
+    },
+    {
+      "table": "account_full_reconcile",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.full.reconcile",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_full_reconcile"
+    },
+    {
+      "table": "account_incoterms",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.incoterms",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_incoterms"
+    },
+    {
+      "table": "account_invoice_transaction_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "account_payment",
+      "modules": [
+        "account_payment"
+      ],
+      "cite": "account_payment.field_account_move__transaction_ids"
+    },
+    {
+      "table": "account_journal",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.journal",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account",
+        "account_payment"
+      ],
+      "cite": "account.model_account_journal"
+    },
+    {
+      "table": "account_journal_account_reconcile_model_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_reconcile_model__match_journal_ids"
+    },
+    {
+      "table": "account_journal_group",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.journal.group",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_journal_group"
+    },
+    {
+      "table": "account_lock_exception",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.lock_exception",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_lock_exception"
+    },
+    {
+      "table": "account_merge_wizard",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.merge.wizard",
+      "transient": true,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_merge_wizard"
+    },
+    {
+      "table": "account_merge_wizard_line",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.merge.wizard.line",
+      "transient": true,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_merge_wizard_line"
+    },
+    {
+      "table": "account_move",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.move",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account",
+        "account_edi_ubl_cii",
+        "account_payment",
+        "purchase",
+        "purchase_edi_ubl_bis3",
+        "sale",
+        "sale_stock",
+        "stock_account"
+      ],
+      "cite": "account.model_account_move"
+    },
+    {
+      "table": "account_move__account_payment",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_move__matched_payment_ids"
+    },
+    {
+      "table": "account_move_account_move_send_batch_wizard_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_move_send_batch_wizard__move_ids"
+    },
+    {
+      "table": "account_move_account_resequence_wizard_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_resequence_wizard__move_ids"
+    },
+    {
+      "table": "account_move_line",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.move.line",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account",
+        "purchase",
+        "purchase_stock",
+        "sale",
+        "sale_stock",
+        "stock_account"
+      ],
+      "cite": "account.model_account_move_line"
+    },
+    {
+      "table": "account_move_line_account_tax_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_tax__account_move_line_ids"
+    },
+    {
+      "table": "account_move_purchase_order_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "purchase",
+      "modules": [
+        "purchase"
+      ],
+      "cite": "purchase.field_purchase_order__invoice_ids"
+    },
+    {
+      "table": "account_move_reversal",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.move.reversal",
+      "transient": true,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_move_reversal"
+    },
+    {
+      "table": "account_move_reversal_move",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_move_reversal__move_ids"
+    },
+    {
+      "table": "account_move_reversal_new_move",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_move_reversal__new_move_ids"
+    },
+    {
+      "table": "account_move_send_batch_wizard",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.move.send.batch.wizard",
+      "transient": true,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_move_send_batch_wizard"
+    },
+    {
+      "table": "account_move_send_wizard",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.move.send.wizard",
+      "transient": true,
+      "owner": "account",
+      "modules": [
+        "account",
+        "account_edi_ubl_cii"
+      ],
+      "cite": "account.model_account_move_send_wizard"
+    },
+    {
+      "table": "account_move_send_wizard_res_partner_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_move_send_wizard__mail_partner_ids"
+    },
+    {
+      "table": "account_move_validate_account_move_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_validate_account_move__move_ids"
+    },
+    {
+      "table": "account_partial_reconcile",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.partial.reconcile",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_partial_reconcile"
+    },
+    {
+      "table": "account_payment",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.payment",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account",
+        "account_payment"
+      ],
+      "cite": "account.model_account_payment"
+    },
+    {
+      "table": "account_payment_account_bank_statement_line_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_bank_statement_line__payment_ids"
+    },
+    {
+      "table": "account_payment_method",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.payment.method",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account",
+        "account_payment"
+      ],
+      "cite": "account.model_account_payment_method"
+    },
+    {
+      "table": "account_payment_method_line",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.payment.method.line",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account",
+        "account_payment"
+      ],
+      "cite": "account.model_account_payment_method_line"
+    },
+    {
+      "table": "account_payment_register",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.payment.register",
+      "transient": true,
+      "owner": "account",
+      "modules": [
+        "account",
+        "account_payment"
+      ],
+      "cite": "account.model_account_payment_register"
+    },
+    {
+      "table": "account_payment_register_move_line_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_payment_register__line_ids"
+    },
+    {
+      "table": "account_payment_term",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.payment.term",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_payment_term"
+    },
+    {
+      "table": "account_payment_term_line",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.payment.term.line",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_payment_term_line"
+    },
+    {
+      "table": "account_reconcile_model",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.reconcile.model",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_reconcile_model"
+    },
+    {
+      "table": "account_reconcile_model_line",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.reconcile.model.line",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_reconcile_model_line"
+    },
+    {
+      "table": "account_reconcile_model_line_account_tax_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_tax__account_reconcile_model_line_ids"
+    },
+    {
+      "table": "account_reconcile_model_res_partner_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_reconcile_model__match_partner_ids"
+    },
+    {
+      "table": "account_report",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.report",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_report"
+    },
+    {
+      "table": "account_report_column",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.report.column",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_report_column"
+    },
+    {
+      "table": "account_report_expression",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.report.expression",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_report_expression"
+    },
+    {
+      "table": "account_report_external_value",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.report.external.value",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_report_external_value"
+    },
+    {
+      "table": "account_report_line",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.report.line",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_report_line"
+    },
+    {
+      "table": "account_report_section_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_report__section_report_ids"
+    },
+    {
+      "table": "account_resequence_wizard",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.resequence.wizard",
+      "transient": true,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_resequence_wizard"
+    },
+    {
+      "table": "account_secure_entries_wizard",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.secure.entries.wizard",
+      "transient": true,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_secure_entries_wizard"
+    },
+    {
+      "table": "account_setup_bank_manual_config",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.setup.bank.manual.config",
+      "transient": true,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_setup_bank_manual_config"
+    },
+    {
+      "table": "account_tax",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.tax",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account",
+        "account_edi_ubl_cii",
+        "l10n_us_account",
+        "purchase"
+      ],
+      "cite": "account.model_account_tax"
+    },
+    {
+      "table": "account_tax_alternatives",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_tax__original_tax_ids"
+    },
+    {
+      "table": "account_tax_filiation_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_tax__children_tax_ids"
+    },
+    {
+      "table": "account_tax_group",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.tax.group",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_tax_group"
+    },
+    {
+      "table": "account_tax_purchase_order_line_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "purchase",
+      "modules": [
+        "purchase"
+      ],
+      "cite": "purchase.field_account_tax__purchase_order_line_ids"
+    },
+    {
+      "table": "account_tax_repartition_line",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "account.tax.repartition.line",
+      "transient": false,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_account_tax_repartition_line"
+    },
+    {
+      "table": "account_tax_sale_order_line_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "sale",
+      "modules": [
+        "sale"
+      ],
+      "cite": "sale.field_sale_order_line__tax_ids"
+    },
     {
       "table": "activity_attachment_rel",
       "kind": "table",
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
       "cite": "mail.field_mail_activity__attachment_ids"
+    },
+    {
+      "table": "adjusting_entries__account_move",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_account_move__adjusting_entry_origin_move_ids"
     },
     {
       "table": "auth_passkey_key",
@@ -37,6 +1399,7 @@
       "bucket": "shared_postgresql",
       "model": "auth.passkey.key",
       "transient": false,
+      "owner": "auth_passkey",
       "modules": [
         "auth_passkey"
       ],
@@ -48,6 +1411,7 @@
       "bucket": "shared_postgresql",
       "model": "auth.passkey.key.create",
       "transient": true,
+      "owner": "auth_passkey",
       "modules": [
         "auth_passkey"
       ],
@@ -59,6 +1423,7 @@
       "bucket": "shared_postgresql",
       "model": "auth_totp.device",
       "transient": false,
+      "owner": "auth_totp",
       "modules": [
         "auth_totp",
         "auth_totp_mail"
@@ -71,6 +1436,7 @@
       "bucket": "shared_postgresql",
       "model": "auth.totp.rate.limit.log",
       "transient": true,
+      "owner": "auth_totp",
       "modules": [
         "auth_totp"
       ],
@@ -82,10 +1448,38 @@
       "bucket": "shared_postgresql",
       "model": "auth_totp.wizard",
       "transient": true,
+      "owner": "auth_totp",
       "modules": [
         "auth_totp"
       ],
       "cite": "auth_totp.model_auth_totp_wizard"
+    },
+    {
+      "table": "barcode_nomenclature",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "barcode.nomenclature",
+      "transient": false,
+      "owner": "barcodes",
+      "modules": [
+        "barcodes",
+        "barcodes_gs1_nomenclature"
+      ],
+      "cite": "barcodes.model_barcode_nomenclature"
+    },
+    {
+      "table": "barcode_rule",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "barcode.rule",
+      "transient": false,
+      "owner": "barcodes",
+      "modules": [
+        "barcodes",
+        "barcodes_gs1_nomenclature",
+        "stock"
+      ],
+      "cite": "barcodes.model_barcode_rule"
     },
     {
       "table": "base_document_layout",
@@ -93,7 +1487,10 @@
       "bucket": "shared_postgresql",
       "model": "base.document.layout",
       "transient": true,
+      "owner": "web",
       "modules": [
+        "account",
+        "sale",
         "web"
       ],
       "cite": "web.model_base_document_layout"
@@ -104,6 +1501,7 @@
       "bucket": "shared_postgresql",
       "model": "base.enable.profiling.wizard",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -115,6 +1513,7 @@
       "bucket": "shared_postgresql",
       "model": "base_import.import",
       "transient": true,
+      "owner": "base_import",
       "modules": [
         "base_import"
       ],
@@ -126,6 +1525,7 @@
       "bucket": "shared_postgresql",
       "model": "base_import.mapping",
       "transient": false,
+      "owner": "base_import",
       "modules": [
         "base_import"
       ],
@@ -137,6 +1537,7 @@
       "bucket": "shared_postgresql",
       "model": "base.import.module",
       "transient": true,
+      "owner": "base_import_module",
       "modules": [
         "base_import_module"
       ],
@@ -148,6 +1549,7 @@
       "bucket": "shared_postgresql",
       "model": "base.language.export",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -159,6 +1561,7 @@
       "bucket": "shared_postgresql",
       "model": "base.language.import",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -170,6 +1573,7 @@
       "bucket": "shared_postgresql",
       "model": "base.language.install",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -181,6 +1585,7 @@
       "bucket": "shared_postgresql",
       "model": "base.module.install.request",
       "transient": true,
+      "owner": "base_install_request",
       "modules": [
         "base_install_request"
       ],
@@ -192,6 +1597,7 @@
       "bucket": "shared_postgresql",
       "model": "base.module.install.review",
       "transient": true,
+      "owner": "base_install_request",
       "modules": [
         "base_install_request"
       ],
@@ -203,6 +1609,7 @@
       "bucket": "shared_postgresql",
       "model": "base.module.uninstall",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base",
         "mail"
@@ -215,6 +1622,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -226,6 +1634,7 @@
       "bucket": "shared_postgresql",
       "model": "base.module.update",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -237,6 +1646,7 @@
       "bucket": "shared_postgresql",
       "model": "base.module.upgrade",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -248,7 +1658,9 @@
       "bucket": "shared_postgresql",
       "model": "base.partner.merge.automatic.wizard",
       "transient": true,
+      "owner": "base",
       "modules": [
+        "account",
         "base",
         "mail"
       ],
@@ -260,6 +1672,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -271,10 +1684,23 @@
       "bucket": "shared_postgresql",
       "model": "base.partner.merge.line",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
       "cite": "base.model_base_partner_merge_line"
+    },
+    {
+      "table": "bill_to_po_wizard",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "bill.to.po.wizard",
+      "transient": true,
+      "owner": "purchase",
+      "modules": [
+        "purchase"
+      ],
+      "cite": "purchase.model_bill_to_po_wizard"
     },
     {
       "table": "bus_bus",
@@ -282,6 +1708,7 @@
       "bucket": "shared_postgresql",
       "model": "bus.bus",
       "transient": false,
+      "owner": "bus",
       "modules": [
         "bus",
         "mail"
@@ -294,6 +1721,7 @@
       "bucket": "shared_postgresql",
       "model": "change.password.own",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -305,6 +1733,7 @@
       "bucket": "shared_postgresql",
       "model": "change.password.user",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -316,6 +1745,7 @@
       "bucket": "shared_postgresql",
       "model": "change.password.wizard",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -327,10 +1757,72 @@
       "bucket": "shared_postgresql",
       "model": "clearing.label",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
       "cite": "base.model_clearing_label"
+    },
+    {
+      "table": "confirm_stock_sms",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "confirm.stock.sms",
+      "transient": true,
+      "owner": "stock_sms",
+      "modules": [
+        "stock_sms"
+      ],
+      "cite": "stock_sms.model_confirm_stock_sms"
+    },
+    {
+      "table": "crm_tag",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "crm.tag",
+      "transient": false,
+      "owner": "sales_team",
+      "modules": [
+        "sales_team"
+      ],
+      "cite": "sales_team.model_crm_tag"
+    },
+    {
+      "table": "crm_team",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "crm.team",
+      "transient": false,
+      "owner": "sales_team",
+      "modules": [
+        "sale",
+        "sales_team"
+      ],
+      "cite": "sales_team.model_crm_team"
+    },
+    {
+      "table": "crm_team_member",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "crm.team.member",
+      "transient": false,
+      "owner": "sales_team",
+      "modules": [
+        "sales_team"
+      ],
+      "cite": "sales_team.model_crm_team_member"
+    },
+    {
+      "table": "customer_product_reference",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "customer.product.reference",
+      "transient": false,
+      "owner": "sale_edi_ubl",
+      "modules": [
+        "sale_edi_ubl"
+      ],
+      "cite": "sale_edi_ubl.model_customer_product_reference"
     },
     {
       "table": "decimal_precision",
@@ -338,10 +1830,86 @@
       "bucket": "shared_postgresql",
       "model": "decimal.precision",
       "transient": false,
+      "owner": "base",
       "modules": [
+        "account",
         "base"
       ],
       "cite": "base.model_decimal_precision"
+    },
+    {
+      "table": "digest_digest",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "digest.digest",
+      "transient": false,
+      "owner": "digest",
+      "modules": [
+        "account",
+        "digest",
+        "stock"
+      ],
+      "cite": "digest.model_digest_digest"
+    },
+    {
+      "table": "digest_digest_res_users_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "digest",
+      "modules": [
+        "digest"
+      ],
+      "cite": "digest.field_digest_digest__user_ids"
+    },
+    {
+      "table": "digest_test",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "digest.test",
+      "transient": true,
+      "owner": "digest",
+      "modules": [
+        "digest"
+      ],
+      "cite": "digest.model_digest_test"
+    },
+    {
+      "table": "digest_test_res_users_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "digest",
+      "modules": [
+        "digest"
+      ],
+      "cite": "digest.field_digest_test__user_ids"
+    },
+    {
+      "table": "digest_tip",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "digest.tip",
+      "transient": false,
+      "owner": "digest",
+      "modules": [
+        "digest"
+      ],
+      "cite": "digest.model_digest_tip"
+    },
+    {
+      "table": "digest_tip_res_users_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "digest",
+      "modules": [
+        "digest"
+      ],
+      "cite": "digest.field_digest_tip__user_ids"
     },
     {
       "table": "discuss_call_history",
@@ -349,6 +1917,7 @@
       "bucket": "shared_postgresql",
       "model": "discuss.call.history",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -360,6 +1929,7 @@
       "bucket": "shared_postgresql",
       "model": "discuss.category",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -371,9 +1941,11 @@
       "bucket": "shared_postgresql",
       "model": "discuss.channel",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail",
-        "mail_bot"
+        "mail_bot",
+        "portal_discuss"
       ],
       "cite": "mail.model_discuss_channel"
     },
@@ -383,6 +1955,7 @@
       "bucket": "shared_postgresql",
       "model": "discuss.channel.last.interest.update",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -394,6 +1967,7 @@
       "bucket": "shared_postgresql",
       "model": "discuss.channel.member",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -405,6 +1979,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -416,6 +1991,7 @@
       "bucket": "shared_postgresql",
       "model": "discuss.channel.rtc.session",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -427,6 +2003,7 @@
       "bucket": "shared_postgresql",
       "model": "discuss.gif.favorite",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -438,6 +2015,7 @@
       "bucket": "shared_postgresql",
       "model": "discuss.voice.metadata",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -449,6 +2027,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -460,6 +2039,7 @@
       "bucket": "shared_postgresql",
       "model": "fetchmail.server",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "google_gmail",
         "mail",
@@ -473,6 +2053,7 @@
       "bucket": "shared_postgresql",
       "model": "html_editor.converter.test",
       "transient": false,
+      "owner": "html_editor",
       "modules": [
         "html_editor"
       ],
@@ -484,6 +2065,7 @@
       "bucket": "shared_postgresql",
       "model": "html_editor.converter.test.sub",
       "transient": false,
+      "owner": "html_editor",
       "modules": [
         "html_editor"
       ],
@@ -495,6 +2077,7 @@
       "bucket": "shared_postgresql",
       "model": "iap.account",
       "transient": false,
+      "owner": "iap",
       "modules": [
         "iap",
         "iap_mail",
@@ -508,6 +2091,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "iap",
       "modules": [
         "iap",
         "iap_mail"
@@ -520,6 +2104,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "iap",
       "modules": [
         "iap",
         "iap_mail"
@@ -532,6 +2117,7 @@
       "bucket": "shared_postgresql",
       "model": "iap.service",
       "transient": false,
+      "owner": "iap",
       "modules": [
         "iap"
       ],
@@ -543,6 +2129,7 @@
       "bucket": "shared_postgresql",
       "model": "iap.service.pack",
       "transient": false,
+      "owner": "iap",
       "modules": [
         "iap"
       ],
@@ -554,6 +2141,7 @@
       "bucket": "orm_framework",
       "model": "ir.access",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base",
         "mail"
@@ -566,6 +2154,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": null,
       "modules": [],
       "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
     },
@@ -575,6 +2164,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": null,
       "modules": [],
       "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
     },
@@ -584,6 +2174,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": null,
       "modules": [],
       "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
     },
@@ -593,6 +2184,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -604,6 +2196,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -615,6 +2208,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -626,6 +2220,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -637,6 +2232,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": null,
       "modules": [],
       "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
     },
@@ -646,6 +2242,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": null,
       "modules": [],
       "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
     },
@@ -655,6 +2252,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -666,6 +2264,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": null,
       "modules": [],
       "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
     },
@@ -675,6 +2274,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": null,
       "modules": [],
       "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
     },
@@ -684,6 +2284,7 @@
       "bucket": "orm_framework",
       "model": "ir.actions.server.history",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -695,6 +2296,7 @@
       "bucket": "orm_framework",
       "model": "ir.actions.todo",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -706,6 +2308,7 @@
       "bucket": "orm_framework",
       "model": "ir.asset",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -717,7 +2320,9 @@
       "bucket": "orm_framework",
       "model": "ir.attachment",
       "transient": false,
+      "owner": "base",
       "modules": [
+        "account",
         "api_doc",
         "base",
         "bus",
@@ -735,9 +2340,12 @@
       "bucket": "orm_framework",
       "model": "ir.config_parameter",
       "transient": false,
+      "owner": "base",
       "modules": [
+        "analytic",
         "base",
-        "mail"
+        "mail",
+        "sale"
       ],
       "cite": "base.model_ir_config_parameter"
     },
@@ -747,6 +2355,7 @@
       "bucket": "orm_framework",
       "model": "ir.cron",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base",
         "mail"
@@ -759,6 +2368,7 @@
       "bucket": "orm_framework",
       "model": "ir.cron.progress",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -770,6 +2380,7 @@
       "bucket": "orm_framework",
       "model": "ir.cron.trigger",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -781,6 +2392,7 @@
       "bucket": "orm_framework",
       "model": "ir.default",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -792,6 +2404,7 @@
       "bucket": "orm_framework",
       "model": "ir.demo",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -803,6 +2416,7 @@
       "bucket": "orm_framework",
       "model": "ir.demo_failure",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -814,6 +2428,7 @@
       "bucket": "orm_framework",
       "model": "ir.demo_failure.wizard",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -825,6 +2440,7 @@
       "bucket": "orm_framework",
       "model": "ir.embedded.actions",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -836,6 +2452,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -847,6 +2464,7 @@
       "bucket": "orm_framework",
       "model": "ir.exports",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -858,6 +2476,7 @@
       "bucket": "orm_framework",
       "model": "ir.exports.line",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -869,6 +2488,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -880,6 +2500,7 @@
       "bucket": "orm_framework",
       "model": "ir.filters",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -891,6 +2512,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -902,6 +2524,7 @@
       "bucket": "orm_framework",
       "model": "ir.logging",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -913,6 +2536,7 @@
       "bucket": "orm_framework",
       "model": "ir.mail_server",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base",
         "google_gmail",
@@ -927,11 +2551,13 @@
       "bucket": "orm_framework",
       "model": "ir.model",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base",
         "bus",
         "mail",
         "sms",
+        "spreadsheet",
         "web"
       ],
       "cite": "base.model_ir_model"
@@ -942,6 +2568,7 @@
       "bucket": "orm_framework",
       "model": "ir.model.constraint",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -953,6 +2580,7 @@
       "bucket": "orm_framework",
       "model": "ir.model.data",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -964,6 +2592,7 @@
       "bucket": "orm_framework",
       "model": "ir.model.fields",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base",
         "mail"
@@ -976,6 +2605,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -987,6 +2617,7 @@
       "bucket": "orm_framework",
       "model": "ir.model.fields.selection",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -998,6 +2629,7 @@
       "bucket": "orm_framework",
       "model": "ir.model.inherit",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -1009,10 +2641,23 @@
       "bucket": "orm_framework",
       "model": "ir.model.relation",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
       "cite": "base.model_ir_model_relation"
+    },
+    {
+      "table": "ir_model_spreadsheet_dashboard_rel",
+      "kind": "table",
+      "bucket": "orm_framework",
+      "model": null,
+      "transient": null,
+      "owner": "spreadsheet_dashboard",
+      "modules": [
+        "spreadsheet_dashboard"
+      ],
+      "cite": "spreadsheet_dashboard.field_spreadsheet_dashboard__main_data_model_ids"
     },
     {
       "table": "ir_module_category",
@@ -1020,6 +2665,7 @@
       "bucket": "orm_framework",
       "model": "ir.module.category",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -1031,7 +2677,9 @@
       "bucket": "orm_framework",
       "model": "ir.module.module",
       "transient": false,
+      "owner": "base",
       "modules": [
+        "account",
         "base",
         "base_import_module",
         "base_install_request"
@@ -1044,6 +2692,7 @@
       "bucket": "orm_framework",
       "model": "ir.module.module.dependency",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -1055,6 +2704,7 @@
       "bucket": "orm_framework",
       "model": "ir.module.module.exclusion",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -1066,6 +2716,7 @@
       "bucket": "orm_framework",
       "model": "ir.profile",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -1077,6 +2728,7 @@
       "bucket": "orm_framework",
       "model": "ir.profile.query",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -1088,6 +2740,7 @@
       "bucket": "orm_framework",
       "model": "ir.sequence",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -1099,6 +2752,7 @@
       "bucket": "orm_framework",
       "model": "ir.sequence.date_range",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -1110,6 +2764,7 @@
       "bucket": "orm_framework",
       "model": "ir.ui.menu",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base",
         "mail",
@@ -1123,6 +2778,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -1134,11 +2790,13 @@
       "bucket": "orm_framework",
       "model": "ir.ui.view",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base",
         "base_import_module",
         "html_editor",
         "mail",
+        "portal",
         "web"
       ],
       "cite": "base.model_ir_ui_view"
@@ -1149,6 +2807,7 @@
       "bucket": "orm_framework",
       "model": "ir.ui.view.custom",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -1160,10 +2819,59 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
       "cite": "base.field_ir_ui_view__group_ids"
+    },
+    {
+      "table": "l10n_us_res_county",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "l10n_us.res.county",
+      "transient": false,
+      "owner": "l10n_us",
+      "modules": [
+        "l10n_us"
+      ],
+      "cite": "l10n_us.model_l10n_us_res_county"
+    },
+    {
+      "table": "lot_label_layout",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "lot.label.layout",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_lot_label_layout"
+    },
+    {
+      "table": "lot_label_layout_stock_lot_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_lot_label_layout__lot_ids"
+    },
+    {
+      "table": "lot_label_layout_stock_move_line_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_lot_label_layout__move_line_ids"
     },
     {
       "table": "mail_activity",
@@ -1171,6 +2879,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.activity",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail",
         "phone_validation"
@@ -1183,6 +2892,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.activity.plan",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1194,6 +2904,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1205,6 +2916,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.activity.plan.template",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1216,6 +2928,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1227,6 +2940,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.activity.schedule",
       "transient": true,
+      "owner": "mail",
       "modules": [
         "mail",
         "phone_validation"
@@ -1239,6 +2953,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.activity.schedule.line",
       "transient": true,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1250,6 +2965,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.activity.type",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1261,6 +2977,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1272,6 +2989,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.alias",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1283,6 +3001,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.alias.domain",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1294,6 +3013,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.blacklist",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1305,6 +3025,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.blacklist.remove",
       "transient": true,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1316,6 +3037,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.call.artifact",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1327,6 +3049,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.canned.response",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1338,6 +3061,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1349,7 +3073,9 @@
       "bucket": "shared_postgresql",
       "model": "mail.compose.message",
       "transient": true,
+      "owner": "mail",
       "modules": [
+        "account",
         "mail"
       ],
       "cite": "mail.model_mail_compose_message"
@@ -1360,6 +3086,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1371,6 +3098,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1382,6 +3110,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1393,6 +3122,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.followers",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail",
         "sms"
@@ -1405,6 +3135,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.followers.edit",
       "transient": true,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1416,6 +3147,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1427,6 +3159,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1438,6 +3171,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.gateway.allowed",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1449,6 +3183,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.guest",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1460,6 +3195,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.ice.server",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1471,6 +3207,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.link.preview",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1482,6 +3219,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.mail",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1493,6 +3231,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1504,6 +3243,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1515,8 +3255,11 @@
       "bucket": "shared_postgresql",
       "model": "mail.message",
       "transient": false,
+      "owner": "mail",
       "modules": [
+        "account",
         "mail",
+        "portal",
         "sms"
       ],
       "cite": "mail.model_mail_message"
@@ -1527,6 +3270,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.message.link.preview",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1538,6 +3282,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.message.reaction",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1549,6 +3294,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1560,6 +3306,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1571,6 +3318,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1582,6 +3330,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.message.schedule",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1593,6 +3342,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.message.subtype",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1604,6 +3354,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.message.translation",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1615,6 +3366,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.notification",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail",
         "sms"
@@ -1627,6 +3379,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.poll",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1638,6 +3391,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.poll.option",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1649,6 +3403,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.poll.vote",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1660,6 +3415,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.presence",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1671,6 +3427,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.push",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1682,6 +3439,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.push.device",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1693,6 +3451,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.scheduled.message",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail",
         "sms"
@@ -1705,6 +3464,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1716,6 +3476,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1727,7 +3488,9 @@
       "bucket": "shared_postgresql",
       "model": "mail.template",
       "transient": false,
+      "owner": "mail",
       "modules": [
+        "account",
         "mail"
       ],
       "cite": "mail.model_mail_template"
@@ -1738,6 +3501,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1749,6 +3513,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1760,6 +3525,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.template.preview",
       "transient": true,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1771,6 +3537,7 @@
       "bucket": "shared_postgresql",
       "model": "mail.template.reset",
       "transient": true,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1782,6 +3549,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -1793,10 +3561,84 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
       "cite": "base.field_ir_module_module__country_ids"
+    },
+    {
+      "table": "onboarding_onboarding",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "onboarding.onboarding",
+      "transient": false,
+      "owner": "onboarding",
+      "modules": [
+        "onboarding"
+      ],
+      "cite": "onboarding.model_onboarding_onboarding"
+    },
+    {
+      "table": "onboarding_onboarding_onboarding_onboarding_step_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "onboarding",
+      "modules": [
+        "onboarding"
+      ],
+      "cite": "onboarding.field_onboarding_onboarding__step_ids"
+    },
+    {
+      "table": "onboarding_onboarding_step",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "onboarding.onboarding.step",
+      "transient": false,
+      "owner": "onboarding",
+      "modules": [
+        "account",
+        "onboarding"
+      ],
+      "cite": "onboarding.model_onboarding_onboarding_step"
+    },
+    {
+      "table": "onboarding_progress",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "onboarding.progress",
+      "transient": false,
+      "owner": "onboarding",
+      "modules": [
+        "onboarding"
+      ],
+      "cite": "onboarding.model_onboarding_progress"
+    },
+    {
+      "table": "onboarding_progress_onboarding_progress_step_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "onboarding",
+      "modules": [
+        "onboarding"
+      ],
+      "cite": "onboarding.field_onboarding_progress__progress_step_ids"
+    },
+    {
+      "table": "onboarding_progress_step",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "onboarding.progress.step",
+      "transient": false,
+      "owner": "onboarding",
+      "modules": [
+        "onboarding"
+      ],
+      "cite": "onboarding.model_onboarding_progress_step"
     },
     {
       "table": "orm_signaling_assets",
@@ -1804,6 +3646,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": null,
       "modules": [],
       "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
     },
@@ -1813,6 +3656,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": null,
       "modules": [],
       "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
     },
@@ -1822,6 +3666,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": null,
       "modules": [],
       "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
     },
@@ -1831,6 +3676,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": null,
       "modules": [],
       "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
     },
@@ -1840,6 +3686,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": null,
       "modules": [],
       "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
     },
@@ -1849,6 +3696,7 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": null,
       "modules": [],
       "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
     },
@@ -1858,8 +3706,183 @@
       "bucket": "orm_framework",
       "model": null,
       "transient": null,
+      "owner": null,
       "modules": [],
       "cite": "odoo/orm/registry.py (orm_signaling_* tables); odoo/addons/base/models/ir_*.py"
+    },
+    {
+      "table": "payment_capture_wizard",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "payment.capture.wizard",
+      "transient": true,
+      "owner": "payment",
+      "modules": [
+        "payment"
+      ],
+      "cite": "payment.model_payment_capture_wizard"
+    },
+    {
+      "table": "payment_capture_wizard_payment_transaction_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "payment",
+      "modules": [
+        "payment"
+      ],
+      "cite": "payment.field_payment_capture_wizard__transaction_ids"
+    },
+    {
+      "table": "payment_country_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "payment",
+      "modules": [
+        "payment"
+      ],
+      "cite": "payment.field_payment_provider__available_country_ids"
+    },
+    {
+      "table": "payment_currency_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "payment",
+      "modules": [
+        "payment"
+      ],
+      "cite": "payment.field_payment_provider__available_currency_ids"
+    },
+    {
+      "table": "payment_data",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "payment.data",
+      "transient": false,
+      "owner": "payment",
+      "modules": [
+        "payment"
+      ],
+      "cite": "payment.model_payment_data"
+    },
+    {
+      "table": "payment_link_wizard",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "payment.link.wizard",
+      "transient": true,
+      "owner": "payment",
+      "modules": [
+        "account_payment",
+        "payment",
+        "sale"
+      ],
+      "cite": "payment.model_payment_link_wizard"
+    },
+    {
+      "table": "payment_method",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "payment.method",
+      "transient": false,
+      "owner": "payment",
+      "modules": [
+        "payment"
+      ],
+      "cite": "payment.model_payment_method"
+    },
+    {
+      "table": "payment_method_res_country_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "payment",
+      "modules": [
+        "payment"
+      ],
+      "cite": "payment.field_payment_method__supported_country_ids"
+    },
+    {
+      "table": "payment_method_res_currency_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "payment",
+      "modules": [
+        "payment"
+      ],
+      "cite": "payment.field_payment_method__supported_currency_ids"
+    },
+    {
+      "table": "payment_provider",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "payment.provider",
+      "transient": false,
+      "owner": "payment",
+      "modules": [
+        "account_payment",
+        "payment",
+        "sale"
+      ],
+      "cite": "payment.model_payment_provider"
+    },
+    {
+      "table": "payment_provider_product_pricelist_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "account_payment",
+      "modules": [
+        "account_payment"
+      ],
+      "cite": "account_payment.field_payment_provider__available_pricelist_ids"
+    },
+    {
+      "table": "payment_refund_wizard",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "payment.refund.wizard",
+      "transient": true,
+      "owner": "account_payment",
+      "modules": [
+        "account_payment"
+      ],
+      "cite": "account_payment.model_payment_refund_wizard"
+    },
+    {
+      "table": "payment_token",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "payment.token",
+      "transient": false,
+      "owner": "payment",
+      "modules": [
+        "payment"
+      ],
+      "cite": "payment.model_payment_token"
+    },
+    {
+      "table": "payment_transaction",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "payment.transaction",
+      "transient": false,
+      "owner": "payment",
+      "modules": [
+        "account_payment",
+        "payment",
+        "sale"
+      ],
+      "cite": "payment.model_payment_transaction"
     },
     {
       "table": "phone_blacklist",
@@ -1867,6 +3890,7 @@
       "bucket": "shared_postgresql",
       "model": "phone.blacklist",
       "transient": false,
+      "owner": "phone_validation",
       "modules": [
         "phone_validation"
       ],
@@ -1878,10 +3902,121 @@
       "bucket": "shared_postgresql",
       "model": "phone.blacklist.remove",
       "transient": true,
+      "owner": "phone_validation",
       "modules": [
         "phone_validation"
       ],
       "cite": "phone_validation.model_phone_blacklist_remove"
+    },
+    {
+      "table": "picking_label_type",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "picking.label.type",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_picking_label_type"
+    },
+    {
+      "table": "picking_label_type_stock_picking_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_picking_label_type__picking_ids"
+    },
+    {
+      "table": "picking_type_favorite_user_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_picking_type__favorite_user_ids"
+    },
+    {
+      "table": "portal_entry",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "portal.entry",
+      "transient": false,
+      "owner": "portal",
+      "modules": [
+        "payment",
+        "portal",
+        "portal_discuss"
+      ],
+      "cite": "portal.model_portal_entry"
+    },
+    {
+      "table": "portal_share",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "portal.share",
+      "transient": true,
+      "owner": "portal",
+      "modules": [
+        "portal"
+      ],
+      "cite": "portal.model_portal_share"
+    },
+    {
+      "table": "portal_share_res_partner_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "portal",
+      "modules": [
+        "portal"
+      ],
+      "cite": "portal.field_portal_share__partner_ids"
+    },
+    {
+      "table": "portal_wizard",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "portal.wizard",
+      "transient": true,
+      "owner": "portal",
+      "modules": [
+        "portal"
+      ],
+      "cite": "portal.model_portal_wizard"
+    },
+    {
+      "table": "portal_wizard_res_partner_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "portal",
+      "modules": [
+        "portal"
+      ],
+      "cite": "portal.field_portal_wizard__partner_ids"
+    },
+    {
+      "table": "portal_wizard_user",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "portal.wizard.user",
+      "transient": true,
+      "owner": "portal",
+      "modules": [
+        "portal"
+      ],
+      "cite": "portal.model_portal_wizard_user"
     },
     {
       "table": "privacy_log",
@@ -1889,6 +4024,7 @@
       "bucket": "shared_postgresql",
       "model": "privacy.log",
       "transient": false,
+      "owner": "privacy_lookup",
       "modules": [
         "privacy_lookup"
       ],
@@ -1900,6 +4036,7 @@
       "bucket": "shared_postgresql",
       "model": "privacy.lookup.wizard",
       "transient": true,
+      "owner": "privacy_lookup",
       "modules": [
         "privacy_lookup"
       ],
@@ -1911,6 +4048,7 @@
       "bucket": "shared_postgresql",
       "model": "privacy.lookup.wizard.line",
       "transient": true,
+      "owner": "privacy_lookup",
       "modules": [
         "privacy_lookup"
       ],
@@ -1919,9 +4057,10 @@
     {
       "table": "product_attribute",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.attribute",
       "transient": false,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -1930,20 +4069,23 @@
     {
       "table": "product_attribute_custom_value",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.attribute.custom.value",
       "transient": false,
+      "owner": "product",
       "modules": [
-        "product"
+        "product",
+        "sale"
       ],
       "cite": "product.model_product_attribute_custom_value"
     },
     {
       "table": "product_attribute_product_template_rel",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": null,
       "transient": null,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -1952,9 +4094,10 @@
     {
       "table": "product_attribute_value",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.attribute.value",
       "transient": false,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -1963,9 +4106,10 @@
     {
       "table": "product_attribute_value_product_template_attribute_line_rel",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": null,
       "transient": null,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -1974,9 +4118,10 @@
     {
       "table": "product_base_unit",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.base.unit",
       "transient": false,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -1985,20 +4130,39 @@
     {
       "table": "product_category",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.category",
       "transient": false,
+      "owner": "product",
       "modules": [
-        "product"
+        "account",
+        "product",
+        "purchase",
+        "sale",
+        "stock",
+        "stock_account"
       ],
       "cite": "product.model_product_category"
     },
     {
+      "table": "product_category_stock_picking_type_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_picking_type__wave_category_ids"
+    },
+    {
       "table": "product_combo",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.combo",
       "transient": false,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -2007,9 +4171,10 @@
     {
       "table": "product_combo_item",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.combo.item",
       "transient": false,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -2018,9 +4183,10 @@
     {
       "table": "product_combo_product_template_rel",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": null,
       "transient": null,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -2029,31 +4195,36 @@
     {
       "table": "product_document",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.document",
       "transient": false,
+      "owner": "product",
       "modules": [
-        "product"
+        "product",
+        "sale"
       ],
       "cite": "product.model_product_document"
     },
     {
       "table": "product_label_layout",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.label.layout",
       "transient": true,
+      "owner": "product",
       "modules": [
-        "product"
+        "product",
+        "stock"
       ],
       "cite": "product.model_product_label_layout"
     },
     {
       "table": "product_label_layout_product_product_rel",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": null,
       "transient": null,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -2062,9 +4233,10 @@
     {
       "table": "product_label_layout_product_template_rel",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": null,
       "transient": null,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -2073,20 +4245,46 @@
     {
       "table": "product_label_layout_product_uom_rel",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": null,
       "transient": null,
+      "owner": "product",
       "modules": [
         "product"
       ],
       "cite": "product.field_product_label_layout__product_uom_ids"
     },
     {
+      "table": "product_label_layout_stock_move_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_product_label_layout__move_ids"
+    },
+    {
+      "table": "product_optional_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "sale",
+      "modules": [
+        "sale"
+      ],
+      "cite": "sale.field_product_template__optional_product_ids"
+    },
+    {
       "table": "product_pricelist",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.pricelist",
       "transient": false,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -2095,53 +4293,117 @@
     {
       "table": "product_pricelist_item",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.pricelist.item",
       "transient": false,
+      "owner": "product",
       "modules": [
-        "product"
+        "product",
+        "sale"
       ],
       "cite": "product.model_product_pricelist_item"
     },
     {
       "table": "product_product",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.product",
       "transient": false,
+      "owner": "product",
       "modules": [
-        "product"
+        "account",
+        "product",
+        "purchase",
+        "purchase_stock",
+        "sale",
+        "sale_edi_ubl",
+        "stock",
+        "stock_account"
       ],
       "cite": "product.model_product_product"
     },
     {
       "table": "product_product_uom_uom_rel",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": null,
       "transient": null,
+      "owner": "product",
       "modules": [
         "product"
       ],
       "cite": "product.field_product_product__extra_uom_ids"
     },
     {
+      "table": "product_removal",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "product.removal",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_product_removal"
+    },
+    {
+      "table": "product_replenish",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "product.replenish",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "purchase_stock",
+        "stock"
+      ],
+      "cite": "stock.model_product_replenish"
+    },
+    {
+      "table": "product_supplier_taxes_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_product_template__supplier_taxes_id"
+    },
+    {
       "table": "product_supplierinfo",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.supplierinfo",
       "transient": false,
+      "owner": "product",
       "modules": [
-        "product"
+        "product",
+        "purchase",
+        "purchase_stock"
       ],
       "cite": "product.model_product_supplierinfo"
     },
     {
+      "table": "product_supplierinfo_stock_replenishment_info_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "purchase_stock",
+      "modules": [
+        "purchase_stock"
+      ],
+      "cite": "purchase_stock.field_stock_replenishment_info__supplierinfo_ids"
+    },
+    {
       "table": "product_tag",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.tag",
       "transient": false,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -2150,9 +4412,10 @@
     {
       "table": "product_tag_product_product_rel",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": null,
       "transient": null,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -2161,31 +4424,54 @@
     {
       "table": "product_tag_product_template_rel",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": null,
       "transient": null,
+      "owner": "product",
       "modules": [
         "product"
       ],
       "cite": "product.field_product_template__product_tag_ids"
     },
     {
+      "table": "product_taxes_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_product_template__taxes_id"
+    },
+    {
       "table": "product_template",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.template",
       "transient": false,
+      "owner": "product",
       "modules": [
-        "product"
+        "account",
+        "product",
+        "purchase",
+        "purchase_stock",
+        "sale",
+        "sale_purchase",
+        "sale_stock",
+        "stock",
+        "stock_account"
       ],
       "cite": "product.model_product_template"
     },
     {
       "table": "product_template_attribute_excluded_value_ids_rel",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": null,
       "transient": null,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -2194,9 +4480,10 @@
     {
       "table": "product_template_attribute_line",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.template.attribute.line",
       "transient": false,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -2205,20 +4492,46 @@
     {
       "table": "product_template_attribute_value",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.template.attribute.value",
       "transient": false,
+      "owner": "product",
       "modules": [
         "product"
       ],
       "cite": "product.model_product_template_attribute_value"
     },
     {
-      "table": "product_template_uom_uom_rel",
+      "table": "product_template_attribute_value_purchase_order_line_rel",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "model_only",
       "model": null,
       "transient": null,
+      "owner": "purchase",
+      "modules": [
+        "purchase"
+      ],
+      "cite": "purchase.field_purchase_order_line__product_no_variant_attribute_value_ids"
+    },
+    {
+      "table": "product_template_attribute_value_sale_order_line_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "sale",
+      "modules": [
+        "sale"
+      ],
+      "cite": "sale.field_sale_order_line__product_no_variant_attribute_value_ids"
+    },
+    {
+      "table": "product_template_uom_uom_rel",
+      "kind": "table",
+      "bucket": "migrate",
+      "model": null,
+      "transient": null,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -2227,20 +4540,34 @@
     {
       "table": "product_uom",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "product.uom",
       "transient": false,
+      "owner": "product",
       "modules": [
         "product"
       ],
       "cite": "product.model_product_uom"
     },
     {
+      "table": "product_value",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "product.value",
+      "transient": false,
+      "owner": "stock_account",
+      "modules": [
+        "stock_account"
+      ],
+      "cite": "stock_account.model_product_value"
+    },
+    {
       "table": "product_variant_combination",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": null,
       "transient": null,
+      "owner": "product",
       "modules": [
         "product"
       ],
@@ -2252,6 +4579,7 @@
       "bucket": "shared_postgresql",
       "model": "properties.base.definition",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base",
         "web"
@@ -2259,11 +4587,67 @@
       "cite": "base.model_properties_base_definition"
     },
     {
+      "table": "purchase_order",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "purchase.order",
+      "transient": false,
+      "owner": "purchase",
+      "modules": [
+        "purchase",
+        "purchase_edi_ubl_bis3",
+        "purchase_stock",
+        "sale_purchase",
+        "sale_purchase_stock"
+      ],
+      "cite": "purchase.model_purchase_order"
+    },
+    {
+      "table": "purchase_order_line",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "purchase.order.line",
+      "transient": false,
+      "owner": "purchase",
+      "modules": [
+        "purchase",
+        "purchase_stock",
+        "sale_purchase",
+        "sale_purchase_stock"
+      ],
+      "cite": "purchase.model_purchase_order_line"
+    },
+    {
+      "table": "purchase_order_line_accrual_move_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "purchase",
+      "modules": [
+        "purchase"
+      ],
+      "cite": "purchase.field_purchase_order_line__accrual_move_ids"
+    },
+    {
+      "table": "purchase_order_stock_picking_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "purchase_stock",
+      "modules": [
+        "purchase_stock"
+      ],
+      "cite": "purchase_stock.field_purchase_order__picking_ids"
+    },
+    {
       "table": "rel_modules_langexport",
       "kind": "table",
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2275,6 +4659,7 @@
       "bucket": "shared_postgresql",
       "model": "report.layout",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2286,10 +4671,36 @@
       "bucket": "shared_postgresql",
       "model": "report.paperformat",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
       "cite": "base.model_report_paperformat"
+    },
+    {
+      "table": "report_stock_quantity",
+      "kind": "view",
+      "bucket": "model_only",
+      "model": "report.stock.quantity",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_report_stock_quantity"
+    },
+    {
+      "table": "res_city",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "res.city",
+      "transient": false,
+      "owner": "base_address_extended",
+      "modules": [
+        "base_address_extended",
+        "l10n_us"
+      ],
+      "cite": "base_address_extended.model_res_city"
     },
     {
       "table": "res_company",
@@ -2297,15 +4708,41 @@
       "bucket": "shared_postgresql",
       "model": "res.company",
       "transient": false,
+      "owner": "base",
       "modules": [
+        "account",
+        "account_edi_ubl_cii",
+        "barcodes",
         "base",
         "mail",
         "partner_autocomplete",
+        "payment",
         "product",
+        "purchase",
+        "purchase_stock",
+        "resource",
+        "sale",
+        "sale_stock",
         "sms",
+        "spreadsheet_account",
+        "stock",
+        "stock_account",
+        "stock_sms",
         "web"
       ],
       "cite": "base.model_res_company"
+    },
+    {
+      "table": "res_company_spreadsheet_dashboard_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "spreadsheet_dashboard",
+      "modules": [
+        "spreadsheet_dashboard"
+      ],
+      "cite": "spreadsheet_dashboard.field_spreadsheet_dashboard__company_ids"
     },
     {
       "table": "res_company_users_rel",
@@ -2313,6 +4750,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2324,6 +4762,7 @@
       "bucket": "shared_postgresql",
       "model": "res.config",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2335,16 +4774,31 @@
       "bucket": "shared_postgresql",
       "model": "res.config.settings",
       "transient": true,
+      "owner": "base",
       "modules": [
+        "account",
+        "account_payment",
+        "analytic",
         "auth_signup",
         "auth_totp_mail",
         "base",
         "base_setup",
+        "digest",
         "google_gmail",
+        "l10n_us_account",
         "mail",
         "microsoft_outlook",
         "partner_autocomplete",
+        "payment",
+        "portal",
         "product",
+        "purchase",
+        "purchase_stock",
+        "sale",
+        "sale_stock",
+        "stock",
+        "stock_account",
+        "stock_sms",
         "web",
         "web_unsplash"
       ],
@@ -2356,8 +4810,12 @@
       "bucket": "shared_postgresql",
       "model": "res.country",
       "transient": false,
+      "owner": "base",
       "modules": [
-        "base"
+        "base",
+        "base_address_extended",
+        "payment",
+        "portal"
       ],
       "cite": "base.model_res_country"
     },
@@ -2367,7 +4825,9 @@
       "bucket": "shared_postgresql",
       "model": "res.country.group",
       "transient": false,
+      "owner": "base",
       "modules": [
+        "account",
         "base",
         "product"
       ],
@@ -2376,13 +4836,26 @@
     {
       "table": "res_country_group_pricelist_rel",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": null,
       "transient": null,
+      "owner": "product",
       "modules": [
         "product"
       ],
       "cite": "product.field_product_pricelist__country_group_ids"
+    },
+    {
+      "table": "res_country_group_res_country_state_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.field_res_country_group__exclude_state_ids"
     },
     {
       "table": "res_country_res_country_group_rel",
@@ -2390,6 +4863,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2401,6 +4875,7 @@
       "bucket": "shared_postgresql",
       "model": "res.country.state",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2412,9 +4887,12 @@
       "bucket": "shared_postgresql",
       "model": "res.currency",
       "transient": false,
+      "owner": "base",
       "modules": [
+        "account",
         "base",
-        "product"
+        "product",
+        "spreadsheet"
       ],
       "cite": "base.model_res_currency"
     },
@@ -2424,8 +4902,11 @@
       "bucket": "shared_postgresql",
       "model": "res.currency.rate",
       "transient": false,
+      "owner": "base",
       "modules": [
-        "base"
+        "account",
+        "base",
+        "spreadsheet"
       ],
       "cite": "base.model_res_currency_rate"
     },
@@ -2435,6 +4916,7 @@
       "bucket": "shared_postgresql",
       "model": "res.device",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2446,6 +4928,7 @@
       "bucket": "shared_postgresql",
       "model": "res.device.log",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2457,11 +4940,18 @@
       "bucket": "shared_postgresql",
       "model": "res.groups",
       "transient": false,
+      "owner": "base",
       "modules": [
+        "account",
+        "analytic",
         "base",
         "bus",
         "mail",
         "product",
+        "purchase",
+        "sale",
+        "stock",
+        "stock_account",
         "uom"
       ],
       "cite": "base.model_res_groups"
@@ -2472,6 +4962,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2483,6 +4974,7 @@
       "bucket": "shared_postgresql",
       "model": "res.groups.privilege",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2494,10 +4986,23 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
       "cite": "base.field_ir_actions_report__group_ids"
+    },
+    {
+      "table": "res_groups_spreadsheet_dashboard_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "spreadsheet_dashboard",
+      "modules": [
+        "spreadsheet_dashboard"
+      ],
+      "cite": "spreadsheet_dashboard.field_spreadsheet_dashboard__group_ids"
     },
     {
       "table": "res_groups_users_rel",
@@ -2505,6 +5010,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2516,8 +5022,11 @@
       "bucket": "shared_postgresql",
       "model": "res.lang",
       "transient": false,
+      "owner": "base",
       "modules": [
-        "base"
+        "base",
+        "http_routing",
+        "spreadsheet"
       ],
       "cite": "base.model_res_lang"
     },
@@ -2527,6 +5036,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2538,15 +5048,25 @@
       "bucket": "shared_postgresql",
       "model": "res.partner",
       "transient": false,
+      "owner": "base",
       "modules": [
+        "account",
+        "account_edi_ubl_cii",
         "auth_signup",
         "base",
+        "base_address_extended",
         "bus",
         "mail",
         "partner_autocomplete",
+        "payment",
         "phone_validation",
+        "portal",
         "privacy_lookup",
         "product",
+        "purchase",
+        "purchase_stock",
+        "sale",
+        "stock",
         "web"
       ],
       "cite": "base.model_res_partner"
@@ -2557,8 +5077,13 @@
       "bucket": "shared_postgresql",
       "model": "res.partner.bank",
       "transient": false,
+      "owner": "base",
       "modules": [
-        "base"
+        "account",
+        "account_qr_code_sepa",
+        "base",
+        "l10n_us",
+        "l10n_us_account"
       ],
       "cite": "base.model_res_partner_bank"
     },
@@ -2568,6 +5093,7 @@
       "bucket": "shared_postgresql",
       "model": "res.partner.category",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2579,6 +5105,7 @@
       "bucket": "shared_postgresql",
       "model": "res.partner.industry",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2590,10 +5117,23 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "base",
       "modules": [
         "base"
       ],
       "cite": "base.field_res_partner_category__partner_ids"
+    },
+    {
+      "table": "res_partner_stock_lot_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_lot__partner_ids"
     },
     {
       "table": "res_role",
@@ -2601,6 +5141,7 @@
       "bucket": "shared_postgresql",
       "model": "res.role",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -2612,6 +5153,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -2623,6 +5165,7 @@
       "bucket": "shared_postgresql",
       "model": "res.session",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2634,20 +5177,27 @@
       "bucket": "shared_postgresql",
       "model": "res.users",
       "transient": false,
+      "owner": "base",
       "modules": [
         "auth_passkey",
         "auth_signup",
         "auth_totp",
         "auth_totp_mail",
+        "auth_totp_portal",
         "base",
         "base_import",
         "base_setup",
         "bus",
+        "digest",
         "google_gmail",
         "mail",
         "mail_bot",
         "microsoft_outlook",
         "phone_validation",
+        "resource",
+        "sale_stock",
+        "sales_team",
+        "stock",
         "web",
         "web_tour",
         "web_unsplash"
@@ -2660,6 +5210,7 @@
       "bucket": "shared_postgresql",
       "model": "res.users.apikeys",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2671,8 +5222,10 @@
       "bucket": "shared_postgresql",
       "model": "res.users.apikeys.description",
       "transient": true,
+      "owner": "base",
       "modules": [
-        "base"
+        "base",
+        "portal"
       ],
       "cite": "base.model_res_users_apikeys_description"
     },
@@ -2682,6 +5235,7 @@
       "bucket": "shared_postgresql",
       "model": "res.users.deletion",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2693,6 +5247,7 @@
       "bucket": "shared_postgresql",
       "model": "res.users.identitycheck",
       "transient": true,
+      "owner": "base",
       "modules": [
         "auth_passkey",
         "base"
@@ -2705,6 +5260,7 @@
       "bucket": "shared_postgresql",
       "model": "res.users.log",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2716,6 +5272,7 @@
       "bucket": "shared_postgresql",
       "model": "res.users.settings",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base",
         "bus",
@@ -2730,6 +5287,7 @@
       "bucket": "shared_postgresql",
       "model": "res.users.settings.embedded.action",
       "transient": false,
+      "owner": "web",
       "modules": [
         "web"
       ],
@@ -2741,10 +5299,35 @@
       "bucket": "shared_postgresql",
       "model": "res.users.settings.volumes",
       "transient": false,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
       "cite": "mail.model_res_users_settings_volumes"
+    },
+    {
+      "table": "res_users_spreadsheet_dashboard_favorite_filters_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "spreadsheet_dashboard",
+      "modules": [
+        "spreadsheet_dashboard"
+      ],
+      "cite": "spreadsheet_dashboard.field_spreadsheet_dashboard_favorite_filters__user_ids"
+    },
+    {
+      "table": "res_users_spreadsheet_dashboard_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "spreadsheet_dashboard",
+      "modules": [
+        "spreadsheet_dashboard"
+      ],
+      "cite": "spreadsheet_dashboard.field_spreadsheet_dashboard__favorite_user_ids"
     },
     {
       "table": "res_users_web_tour_tour_rel",
@@ -2752,6 +5335,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "web_tour",
       "modules": [
         "web_tour"
       ],
@@ -2763,10 +5347,223 @@
       "bucket": "shared_postgresql",
       "model": "reset.view.arch.wizard",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
       "cite": "base.model_reset_view_arch_wizard"
+    },
+    {
+      "table": "resource_calendar",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "resource.calendar",
+      "transient": false,
+      "owner": "resource",
+      "modules": [
+        "resource"
+      ],
+      "cite": "resource.model_resource_calendar"
+    },
+    {
+      "table": "resource_calendar_attendance",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "resource.calendar.attendance",
+      "transient": false,
+      "owner": "resource",
+      "modules": [
+        "resource"
+      ],
+      "cite": "resource.model_resource_calendar_attendance"
+    },
+    {
+      "table": "resource_calendar_leaves",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "resource.calendar.leaves",
+      "transient": false,
+      "owner": "resource",
+      "modules": [
+        "resource"
+      ],
+      "cite": "resource.model_resource_calendar_leaves"
+    },
+    {
+      "table": "resource_resource",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "resource.resource",
+      "transient": false,
+      "owner": "resource",
+      "modules": [
+        "resource",
+        "resource_mail"
+      ],
+      "cite": "resource.model_resource_resource"
+    },
+    {
+      "table": "return_reason",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "return.reason",
+      "transient": false,
+      "owner": "sale_stock",
+      "modules": [
+        "sale_stock"
+      ],
+      "cite": "sale_stock.model_return_reason"
+    },
+    {
+      "table": "sale_advance_payment_inv",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "sale.advance.payment.inv",
+      "transient": true,
+      "owner": "sale",
+      "modules": [
+        "sale"
+      ],
+      "cite": "sale.model_sale_advance_payment_inv"
+    },
+    {
+      "table": "sale_advance_payment_inv_sale_order_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "sale",
+      "modules": [
+        "sale"
+      ],
+      "cite": "sale.field_sale_advance_payment_inv__sale_order_ids"
+    },
+    {
+      "table": "sale_mass_cancel_orders",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "sale.mass.cancel.orders",
+      "transient": true,
+      "owner": "sale",
+      "modules": [
+        "sale"
+      ],
+      "cite": "sale.model_sale_mass_cancel_orders"
+    },
+    {
+      "table": "sale_order",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "sale.order",
+      "transient": false,
+      "owner": "sale",
+      "modules": [
+        "sale",
+        "sale_edi_ubl",
+        "sale_purchase",
+        "sale_purchase_stock",
+        "sale_stock"
+      ],
+      "cite": "sale.model_sale_order"
+    },
+    {
+      "table": "sale_order_discount",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "sale.order.discount",
+      "transient": true,
+      "owner": "sale",
+      "modules": [
+        "sale"
+      ],
+      "cite": "sale.model_sale_order_discount"
+    },
+    {
+      "table": "sale_order_line",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "sale.order.line",
+      "transient": false,
+      "owner": "sale",
+      "modules": [
+        "sale",
+        "sale_edi_ubl",
+        "sale_purchase",
+        "sale_stock"
+      ],
+      "cite": "sale.model_sale_order_line"
+    },
+    {
+      "table": "sale_order_line_accrual_move_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "sale",
+      "modules": [
+        "sale"
+      ],
+      "cite": "sale.field_sale_order_line__accrual_move_ids"
+    },
+    {
+      "table": "sale_order_line_invoice_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "sale",
+      "modules": [
+        "sale"
+      ],
+      "cite": "sale.field_account_move_line__sale_line_ids"
+    },
+    {
+      "table": "sale_order_line_stock_route_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "sale_stock",
+      "modules": [
+        "sale_stock"
+      ],
+      "cite": "sale_stock.field_sale_order_line__route_ids"
+    },
+    {
+      "table": "sale_order_mass_cancel_wizard_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "sale",
+      "modules": [
+        "sale"
+      ],
+      "cite": "sale.field_sale_mass_cancel_orders__sale_order_ids"
+    },
+    {
+      "table": "sale_order_tag_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "sale",
+      "modules": [
+        "sale"
+      ],
+      "cite": "sale.field_sale_order__tag_ids"
+    },
+    {
+      "table": "sale_order_transaction_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "sale",
+      "modules": [
+        "sale"
+      ],
+      "cite": "sale.field_payment_transaction__sale_order_ids"
     },
     {
       "table": "scheduled_message_attachment_rel",
@@ -2774,6 +5571,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "mail",
       "modules": [
         "mail"
       ],
@@ -2785,6 +5583,7 @@
       "bucket": "shared_postgresql",
       "model": "server.action.history.wizard",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2796,6 +5595,7 @@
       "bucket": "shared_postgresql",
       "model": "sms.account.code",
       "transient": true,
+      "owner": "sms",
       "modules": [
         "sms"
       ],
@@ -2807,6 +5607,7 @@
       "bucket": "shared_postgresql",
       "model": "sms.account.phone",
       "transient": true,
+      "owner": "sms",
       "modules": [
         "sms"
       ],
@@ -2818,6 +5619,7 @@
       "bucket": "shared_postgresql",
       "model": "sms.account.sender",
       "transient": true,
+      "owner": "sms",
       "modules": [
         "sms"
       ],
@@ -2829,6 +5631,7 @@
       "bucket": "shared_postgresql",
       "model": "sms.composer",
       "transient": true,
+      "owner": "sms",
       "modules": [
         "sms"
       ],
@@ -2840,6 +5643,7 @@
       "bucket": "shared_postgresql",
       "model": "sms.sms",
       "transient": false,
+      "owner": "sms",
       "modules": [
         "sms"
       ],
@@ -2851,6 +5655,7 @@
       "bucket": "shared_postgresql",
       "model": "sms.template",
       "transient": false,
+      "owner": "sms",
       "modules": [
         "sms"
       ],
@@ -2862,6 +5667,7 @@
       "bucket": "shared_postgresql",
       "model": "sms.template.preview",
       "transient": true,
+      "owner": "sms",
       "modules": [
         "sms"
       ],
@@ -2873,6 +5679,7 @@
       "bucket": "shared_postgresql",
       "model": "sms.template.reset",
       "transient": true,
+      "owner": "sms",
       "modules": [
         "sms"
       ],
@@ -2884,6 +5691,7 @@
       "bucket": "shared_postgresql",
       "model": null,
       "transient": null,
+      "owner": "sms",
       "modules": [
         "sms"
       ],
@@ -2895,19 +5703,1062 @@
       "bucket": "shared_postgresql",
       "model": "sms.tracker",
       "transient": false,
+      "owner": "sms",
       "modules": [
         "sms"
       ],
       "cite": "sms.model_sms_tracker"
     },
     {
+      "table": "spreadsheet_dashboard",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "spreadsheet.dashboard",
+      "transient": false,
+      "owner": "spreadsheet_dashboard",
+      "modules": [
+        "spreadsheet_dashboard"
+      ],
+      "cite": "spreadsheet_dashboard.model_spreadsheet_dashboard"
+    },
+    {
+      "table": "spreadsheet_dashboard_allowed_users_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "spreadsheet_dashboard",
+      "modules": [
+        "spreadsheet_dashboard"
+      ],
+      "cite": "spreadsheet_dashboard.field_spreadsheet_dashboard__allowed_user_ids"
+    },
+    {
+      "table": "spreadsheet_dashboard_favorite_filters",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "spreadsheet.dashboard.favorite.filters",
+      "transient": false,
+      "owner": "spreadsheet_dashboard",
+      "modules": [
+        "spreadsheet_dashboard"
+      ],
+      "cite": "spreadsheet_dashboard.model_spreadsheet_dashboard_favorite_filters"
+    },
+    {
+      "table": "spreadsheet_dashboard_group",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "spreadsheet.dashboard.group",
+      "transient": false,
+      "owner": "spreadsheet_dashboard",
+      "modules": [
+        "spreadsheet_dashboard"
+      ],
+      "cite": "spreadsheet_dashboard.model_spreadsheet_dashboard_group"
+    },
+    {
+      "table": "spreadsheet_dashboard_share",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "spreadsheet.dashboard.share",
+      "transient": false,
+      "owner": "spreadsheet_dashboard",
+      "modules": [
+        "spreadsheet_dashboard"
+      ],
+      "cite": "spreadsheet_dashboard.model_spreadsheet_dashboard_share"
+    },
+    {
+      "table": "stock_add_to_wave",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.add.to.wave",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_add_to_wave"
+    },
+    {
+      "table": "stock_add_to_wave_stock_move_line_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_add_to_wave__line_ids"
+    },
+    {
+      "table": "stock_add_to_wave_stock_picking_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_add_to_wave__picking_ids"
+    },
+    {
+      "table": "stock_avco_report",
+      "kind": "view",
+      "bucket": "shared_postgresql",
+      "model": "stock.avco.report",
+      "transient": false,
+      "owner": "stock_account",
+      "modules": [
+        "stock_account"
+      ],
+      "cite": "stock_account.model_stock_avco_report"
+    },
+    {
+      "table": "stock_backorder_confirmation",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.backorder.confirmation",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_backorder_confirmation"
+    },
+    {
+      "table": "stock_backorder_confirmation_line",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.backorder.confirmation.line",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_backorder_confirmation_line"
+    },
+    {
+      "table": "stock_conflict_quant_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_inventory_conflict__quant_ids"
+    },
+    {
+      "table": "stock_inventory_adjustment_name",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.inventory.adjustment.name",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock",
+        "stock_account"
+      ],
+      "cite": "stock.model_stock_inventory_adjustment_name"
+    },
+    {
+      "table": "stock_inventory_adjustment_name_stock_quant_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_inventory_adjustment_name__quant_ids"
+    },
+    {
+      "table": "stock_inventory_conflict",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.inventory.conflict",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_inventory_conflict"
+    },
+    {
+      "table": "stock_inventory_conflict_stock_quant_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_inventory_conflict__quant_to_fix_ids"
+    },
+    {
+      "table": "stock_inventory_warning",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.inventory.warning",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_inventory_warning"
+    },
+    {
+      "table": "stock_inventory_warning_stock_quant_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_inventory_warning__quant_ids"
+    },
+    {
+      "table": "stock_location",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.location",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "stock",
+        "stock_account"
+      ],
+      "cite": "stock.model_stock_location"
+    },
+    {
+      "table": "stock_location_label_layout",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.location.label.layout",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_location_label_layout"
+    },
+    {
+      "table": "stock_location_stock_picking_type_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_picking_type__wave_location_ids"
+    },
+    {
+      "table": "stock_lot",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.lot",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "purchase_stock",
+        "sale_stock",
+        "stock",
+        "stock_account"
+      ],
+      "cite": "stock.model_stock_lot"
+    },
+    {
+      "table": "stock_move",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.move",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "purchase_stock",
+        "sale_purchase_stock",
+        "sale_stock",
+        "stock",
+        "stock_account"
+      ],
+      "cite": "stock.model_stock_move"
+    },
+    {
+      "table": "stock_move_created_purchase_line_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "purchase_stock",
+      "modules": [
+        "purchase_stock"
+      ],
+      "cite": "purchase_stock.field_purchase_order_line__move_dest_ids"
+    },
+    {
+      "table": "stock_move_line",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.move.line",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "sale_stock",
+        "stock",
+        "stock_account"
+      ],
+      "cite": "stock.model_stock_move_line"
+    },
+    {
+      "table": "stock_move_line_consume_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_move_line__consume_line_ids"
+    },
+    {
+      "table": "stock_move_line_stock_package_destination_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_package_destination__move_line_ids"
+    },
+    {
+      "table": "stock_move_line_stock_put_in_pack_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_put_in_pack__move_line_ids"
+    },
+    {
+      "table": "stock_move_move_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_move__move_dest_ids"
+    },
+    {
+      "table": "stock_move_stock_scrap_reason_tag_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_move__scrap_reason_tag_ids"
+    },
+    {
+      "table": "stock_orderpoint_snooze",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.orderpoint.snooze",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_orderpoint_snooze"
+    },
+    {
+      "table": "stock_orderpoint_snooze_stock_warehouse_orderpoint_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_orderpoint_snooze__orderpoint_ids"
+    },
+    {
+      "table": "stock_orderpoint_suggest",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.orderpoint.suggest",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_orderpoint_suggest"
+    },
+    {
+      "table": "stock_orderpoint_suggest_stock_warehouse_orderpoint_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_orderpoint_suggest__orderpoint_ids"
+    },
+    {
+      "table": "stock_package",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.package",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_package"
+    },
+    {
+      "table": "stock_package_destination",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.package.destination",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_package_destination"
+    },
+    {
+      "table": "stock_package_history",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.package.history",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_package_history"
+    },
+    {
+      "table": "stock_package_history_stock_picking_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_package_history__picking_ids"
+    },
+    {
+      "table": "stock_package_label_layout",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.package.label.layout",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_package_label_layout"
+    },
+    {
+      "table": "stock_package_stock_put_in_pack_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_put_in_pack__package_ids"
+    },
+    {
+      "table": "stock_package_type",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.package.type",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_package_type"
+    },
+    {
+      "table": "stock_package_type_stock_putaway_rule_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_putaway_rule__package_type_ids"
+    },
+    {
+      "table": "stock_package_type_stock_route_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_package_type__route_ids"
+    },
+    {
+      "table": "stock_picking",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.picking",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "purchase_stock",
+        "sale_stock",
+        "stock",
+        "stock_account",
+        "stock_sms"
+      ],
+      "cite": "stock.model_stock_picking"
+    },
+    {
+      "table": "stock_picking_backorder_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_backorder_confirmation__pick_ids"
+    },
+    {
+      "table": "stock_picking_batch",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.picking.batch",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_picking_batch"
+    },
+    {
+      "table": "stock_picking_sms_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "stock_sms",
+      "modules": [
+        "stock_sms"
+      ],
+      "cite": "stock_sms.field_confirm_stock_sms__pick_ids"
+    },
+    {
+      "table": "stock_picking_stock_zero_demand_confirmation_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_zero_demand_confirmation__picking_ids"
+    },
+    {
+      "table": "stock_picking_to_batch",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.picking.to.batch",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_picking_to_batch"
+    },
+    {
+      "table": "stock_picking_type",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.picking.type",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "stock",
+        "stock_account"
+      ],
+      "cite": "stock.model_stock_picking_type"
+    },
+    {
+      "table": "stock_picking_type_label_layout",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.picking.type.label.layout",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_picking_type_label_layout"
+    },
+    {
+      "table": "stock_put_in_pack",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.put.in.pack",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_put_in_pack"
+    },
+    {
+      "table": "stock_putaway_rule",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.putaway.rule",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_putaway_rule"
+    },
+    {
+      "table": "stock_quant",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.quant",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "stock",
+        "stock_account"
+      ],
+      "cite": "stock.model_stock_quant"
+    },
+    {
+      "table": "stock_quant_relocate",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.quant.relocate",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_quant_relocate"
+    },
+    {
+      "table": "stock_quant_stock_quant_relocate_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_quant_relocate__quant_ids"
+    },
+    {
+      "table": "stock_quant_stock_request_count_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_request_count__quant_ids"
+    },
+    {
+      "table": "stock_reference",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.reference",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "purchase_stock",
+        "sale_stock",
+        "stock"
+      ],
+      "cite": "stock.model_stock_reference"
+    },
+    {
+      "table": "stock_reference_move_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_move__reference_ids"
+    },
+    {
+      "table": "stock_reference_purchase_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "purchase_stock",
+      "modules": [
+        "purchase_stock"
+      ],
+      "cite": "purchase_stock.field_purchase_order__reference_ids"
+    },
+    {
+      "table": "stock_reference_sale_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "sale_stock",
+      "modules": [
+        "sale_stock"
+      ],
+      "cite": "sale_stock.field_sale_order__stock_reference_ids"
+    },
+    {
+      "table": "stock_replenishment_info",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.replenishment.info",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "purchase_stock",
+        "sale_stock",
+        "stock"
+      ],
+      "cite": "stock.model_stock_replenishment_info"
+    },
+    {
+      "table": "stock_replenishment_option",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.replenishment.option",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "purchase_stock",
+        "stock"
+      ],
+      "cite": "stock.model_stock_replenishment_option"
+    },
+    {
+      "table": "stock_request_count",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.request.count",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_request_count"
+    },
+    {
+      "table": "stock_route",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.route",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "purchase_stock",
+        "sale_stock",
+        "stock"
+      ],
+      "cite": "stock.model_stock_route"
+    },
+    {
+      "table": "stock_route_categ",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_route__categ_ids"
+    },
+    {
+      "table": "stock_route_move",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_move__route_ids"
+    },
+    {
+      "table": "stock_route_product",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_route__product_ids"
+    },
+    {
+      "table": "stock_route_stock_rules_report_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "sale_stock",
+      "modules": [
+        "sale_stock"
+      ],
+      "cite": "sale_stock.field_stock_rules_report__so_route_ids"
+    },
+    {
+      "table": "stock_route_warehouse",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_route__warehouse_ids"
+    },
+    {
+      "table": "stock_rule",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.rule",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "purchase_stock",
+        "sale_purchase_stock",
+        "sale_stock",
+        "stock"
+      ],
+      "cite": "stock.model_stock_rule"
+    },
+    {
+      "table": "stock_rules_report",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.rules.report",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "sale_stock",
+        "stock"
+      ],
+      "cite": "stock.model_stock_rules_report"
+    },
+    {
+      "table": "stock_rules_report_stock_warehouse_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_rules_report__warehouse_ids"
+    },
+    {
+      "table": "stock_scrap_reason_tag",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.scrap.reason.tag",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_scrap_reason_tag"
+    },
+    {
+      "table": "stock_storage_category",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.storage.category",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_storage_category"
+    },
+    {
+      "table": "stock_storage_category_capacity",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.storage.category.capacity",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_storage_category_capacity"
+    },
+    {
+      "table": "stock_traceability_report",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.traceability.report",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_traceability_report"
+    },
+    {
+      "table": "stock_warehouse",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.warehouse",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "purchase_stock",
+        "stock"
+      ],
+      "cite": "stock.model_stock_warehouse"
+    },
+    {
+      "table": "stock_warehouse_orderpoint",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.warehouse.orderpoint",
+      "transient": false,
+      "owner": "stock",
+      "modules": [
+        "purchase_stock",
+        "stock"
+      ],
+      "cite": "stock.model_stock_warehouse_orderpoint"
+    },
+    {
+      "table": "stock_warn_insufficient_qty_scrap",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.warn.insufficient.qty.scrap",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_warn_insufficient_qty_scrap"
+    },
+    {
+      "table": "stock_wh_resupply_table",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_warehouse__resupply_wh_ids"
+    },
+    {
+      "table": "stock_zero_demand_confirmation",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "stock.zero.demand.confirmation",
+      "transient": true,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.model_stock_zero_demand_confirmation"
+    },
+    {
+      "table": "team_favorite_user_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "sales_team",
+      "modules": [
+        "sales_team"
+      ],
+      "cite": "sales_team.field_crm_team__favorite_user_ids"
+    },
+    {
+      "table": "template_attribute_value_stock_move_rel",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": null,
+      "transient": null,
+      "owner": "stock",
+      "modules": [
+        "stock"
+      ],
+      "cite": "stock.field_stock_move__never_product_template_attribute_value_ids"
+    },
+    {
       "table": "uom_uom",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "uom.uom",
       "transient": false,
+      "owner": "uom",
       "modules": [
+        "account",
+        "account_edi_ubl_cii",
         "product",
+        "stock",
         "uom"
       ],
       "cite": "uom.model_uom_uom"
@@ -2915,13 +6766,111 @@
     {
       "table": "update_product_attribute_value",
       "kind": "table",
-      "bucket": "in_scope",
+      "bucket": "migrate",
       "model": "update.product.attribute.value",
       "transient": true,
+      "owner": "product",
       "modules": [
         "product"
       ],
       "cite": "product.model_update_product_attribute_value"
+    },
+    {
+      "table": "utm_campaign",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "utm.campaign",
+      "transient": false,
+      "owner": "utm",
+      "modules": [
+        "sale",
+        "utm"
+      ],
+      "cite": "utm.model_utm_campaign"
+    },
+    {
+      "table": "utm_medium",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "utm.medium",
+      "transient": false,
+      "owner": "utm",
+      "modules": [
+        "utm"
+      ],
+      "cite": "utm.model_utm_medium"
+    },
+    {
+      "table": "utm_source",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "utm.source",
+      "transient": false,
+      "owner": "utm",
+      "modules": [
+        "utm"
+      ],
+      "cite": "utm.model_utm_source"
+    },
+    {
+      "table": "utm_stage",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "utm.stage",
+      "transient": false,
+      "owner": "utm",
+      "modules": [
+        "utm"
+      ],
+      "cite": "utm.model_utm_stage"
+    },
+    {
+      "table": "utm_tag",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": "utm.tag",
+      "transient": false,
+      "owner": "utm",
+      "modules": [
+        "utm"
+      ],
+      "cite": "utm.model_utm_tag"
+    },
+    {
+      "table": "utm_tag_rel",
+      "kind": "table",
+      "bucket": "shared_postgresql",
+      "model": null,
+      "transient": null,
+      "owner": "utm",
+      "modules": [
+        "utm"
+      ],
+      "cite": "utm.field_utm_campaign__tag_ids"
+    },
+    {
+      "table": "validate_account_move",
+      "kind": "table",
+      "bucket": "model_only",
+      "model": "validate.account.move",
+      "transient": true,
+      "owner": "account",
+      "modules": [
+        "account"
+      ],
+      "cite": "account.model_validate_account_move"
+    },
+    {
+      "table": "vendor_delay_report",
+      "kind": "view",
+      "bucket": "shared_postgresql",
+      "model": "vendor.delay.report",
+      "transient": false,
+      "owner": "purchase_stock",
+      "modules": [
+        "purchase_stock"
+      ],
+      "cite": "purchase_stock.model_vendor_delay_report"
     },
     {
       "table": "web_tour_tour",
@@ -2929,6 +6878,7 @@
       "bucket": "shared_postgresql",
       "model": "web_tour.tour",
       "transient": false,
+      "owner": "web_tour",
       "modules": [
         "web_tour"
       ],
@@ -2940,6 +6890,7 @@
       "bucket": "shared_postgresql",
       "model": "web_tour.tour.step",
       "transient": false,
+      "owner": "web_tour",
       "modules": [
         "web_tour"
       ],
@@ -2951,6 +6902,7 @@
       "bucket": "shared_postgresql",
       "model": "website",
       "transient": false,
+      "owner": "base",
       "modules": [
         "base"
       ],
@@ -2962,6 +6914,7 @@
       "bucket": "shared_postgresql",
       "model": "wizard.ir.model.menu.create",
       "transient": true,
+      "owner": "base",
       "modules": [
         "base"
       ],
