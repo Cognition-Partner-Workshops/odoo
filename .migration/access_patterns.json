@@ -15133,7 +15133,7 @@
         "side": "parent",
         "owns": false
       },
-      "note": "hot: product.product.stock_quant_ids feeds _compute_quantities_dict (product.py:370-532); stock_quant_ids (addons/stock/models/product.py:48-48). Reviewed s2.7-access-stock."
+      "note": "hot: inverse of stock_quant.product_id; _compute_quantities_dict _read_groups stock.quant by product_id (product.py:370-532), it does not traverse the One2many; stock_quant_ids (addons/stock/models/product.py:48-48). Reviewed s2.7-access-stock."
     },
     {
       "id": "ap-39e1d2884a",
@@ -15168,7 +15168,7 @@
         "side": "parent",
         "owns": true
       },
-      "note": "hot: product.product.stock_move_ids feeds _compute_quantities_dict (product.py:370-532); stock_move_ids (addons/stock/models/product.py:49-49). Reviewed s2.7-access-stock."
+      "note": "hot: inverse of stock_move.product_id; _compute_quantities_dict _read_groups stock.move by product_id (product.py:370-532), it does not traverse the One2many; stock_move_ids (addons/stock/models/product.py:49-49). Reviewed s2.7-access-stock."
     },
     {
       "id": "ap-0b688128d3",
