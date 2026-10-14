@@ -1,0 +1,5 @@
+{
+  "databases": ["odoo_migration"],
+  "catalogs": ["odoo_migration"],
+  "guard_mode": "warn"
+}
