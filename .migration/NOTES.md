@@ -85,7 +85,8 @@ this register.
 | module | fields | disp. |
 |---|---|---|
 | account | product.category: property_account_expense_categ_id*, property_account_income_categ_id*, property_cost_method*, property_price_difference_account_id*, property_stock_journal*, property_stock_valuation_account_id*, property_valuation*; product.template: property_account_expense_id*, property_account_income_id*, taxes_id, supplier_taxes_id, account_tag_ids (`addons/account/models/product.py`) | D2 (m2m rel tables are D1, see A) |
-| stock | product.category: packaging_reserve_method, putaway_rule_ids, removal_strategy_id, route_ids; product.template: tracking, responsible_id*, property_stock_inventory*, property_stock_production*, description_picking, description_pickingin, description_pickingout, route_ids, lot_sequence_id; product.product: lot_properties_definition, orderpoint_ids, putaway_rule_ids, stock_move_ids, stock_quant_ids, storage_category_capacity_ids (one2many — inverse FK lives on the stock table, D1); product.label.layout: move_ids, move_quantity, print_packaging; uom.uom.package_type_id (`addons/stock/models/product.py`, `addons/stock/models/product_strategy.py`) | D2 |
+| stock | product.category: packaging_reserve_method, putaway_rule_ids, removal_strategy_id, route_ids; product.template: tracking, responsible_id*, property_stock_inventory*, property_stock_production*, description_picking, description_pickingin, description_pickingout, route_ids, lot_sequence_id; product.product: lot_properties_definition; product.label.layout: move_ids, move_quantity, print_packaging; uom.uom.package_type_id (`addons/stock/models/product.py`, `addons/stock/models/product_strategy.py`) | D2 |
+| stock (one2many) | product.product: orderpoint_ids, putaway_rule_ids, stock_move_ids, stock_quant_ids, storage_category_capacity_ids — not document fields; the inverse FK lives on the stock table (see A) | D1 |
 | stock_account | product.template.lot_valuated, product.category.property_cost_method* (override of the `account` field, `addons/stock_account/models/product.py`) | D2 |
 | sale | product.template: invoice_policy, reinvoice_policy, service_type, sale_delay*, optional_product_ids, sale_line_warn_msg (`addons/sale/models/product_template.py`); product.category: property_account_invoiced_not_delivered_id*, property_account_invoices_to_issue_id*; product.document.attached_on_sale; product.attribute.custom.value.sale_order_line_id | D2 |
 | purchase | product.template: purchase_method, purchase_line_warn_msg; product.category: property_account_billed_not_received_id*, property_account_bills_to_receive_id* (`addons/purchase/models/product.py`) | D2 |
@@ -93,10 +94,11 @@ this register.
 | sale_purchase | product.template.service_tracking | D2 |
 | account_edi_ubl_cii | uom.uom.unece_code | D2 |
 
-19 of these are `company_dependent=True` and are physically JSONB columns in PostgreSQL (37 JSONB columns
-on slice tables in total; the rest are translated `name`/`description*` and
-`properties`/`properties_definition`, plus `product_product.qty_available`/`standard_price` which
-`product` itself declares company-dependent). There is **no `ir_property` and no
+17 distinct foreign fields are `company_dependent=True` (18 registrations: `property_cost_method` is
+declared by `account` and re-declared by `stock_account`) and are physically JSONB columns in
+PostgreSQL; with `product`'s own `standard_price` and `qty_available` that is 19 company-dependent
+fields on the slice. 37 JSONB columns on slice tables in total; the rest are translated
+`name`/`description*` and `properties`/`properties_definition`. There is **no `ir_property` and no
 `ir_translation` table** in Odoo 20: both live inside the row as JSONB, so they travel
 with the document (D2) — nothing to join.
 
