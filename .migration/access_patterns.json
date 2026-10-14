@@ -77,7 +77,7 @@
         }
       ],
       "sort": [],
-      "frequency": "warm",
+      "frequency": "cold",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_account.py",
@@ -87,7 +87,7 @@
         ]
       },
       "statement": "SELECT account.id, journal.id FROM account_journal journal JOIN res_company company ON company.id = journal.company_id JOIN account_account account ON account.id = journal.default_account_id WHERE journal.currency_id IS NOT NULL AND journal.currency_id != company.currency_id AND account.currency_id ",
-      "note": "s2.7-access-account: ; reference/config lookup [addons/account/models/account_account.py:191-234]"
+      "note": "s2.7-access-account: AccountAccount._check_journal_consistency (raw cr.execute); constraint on account/journal configuration changes [addons/account/models/account_account.py:191-234]"
     },
     {
       "id": "ap-8715cf63dd",
@@ -118,7 +118,7 @@
         }
       ],
       "sort": [],
-      "frequency": "warm",
+      "frequency": "cold",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_account.py",
@@ -128,7 +128,7 @@
         ]
       },
       "statement": "SELECT account.id FROM account_account account JOIN account_journal journal ON journal.default_account_id = account.id WHERE account.id IN %s AND account.account_type IN (?, ?) AND journal.type IN (?, ?) LIMIT ?;",
-      "note": "s2.7-access-account: ; reference/config lookup [addons/account/models/account_account.py:275-283]"
+      "note": "s2.7-access-account: AccountAccount._check_account_type_sales_purchase_journal (raw cr.execute); constraint on account/journal configuration changes [addons/account/models/account_account.py:275-283]"
     },
     {
       "id": "ap-b350c6f1cc",
@@ -155,7 +155,7 @@
         }
       ],
       "sort": [],
-      "frequency": "warm",
+      "frequency": "cold",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_account.py",
@@ -165,7 +165,7 @@
         ]
       },
       "statement": "SELECT journal.id FROM account_journal journal JOIN account_account account ON journal.default_account_id = account.id WHERE account.account_type IN (?, ?) AND account.id IN %s LIMIT ?;",
-      "note": "s2.7-access-account: ; reference/config lookup [addons/account/models/account_account.py:301-308]"
+      "note": "s2.7-access-account: AccountAccount._check_account_is_bank_journal_bank_account (raw cr.execute); constraint on account/journal configuration changes [addons/account/models/account_account.py:301-308]"
     },
     {
       "id": "ap-78b6334b16",
@@ -196,7 +196,7 @@
         ]
       },
       "statement": "SELECT line.account_id, SUM(line.balance) AS balance, SUM(line.debit) AS debit, SUM(line.credit) AS credit FROM account_move_line line WHERE line.move_id = %(opening_move_id)s AND line.account_id IN %(account_ids)s GROUP BY line.account_id",
-      "note": "s2.7-access-account: ; reference/config lookup [addons/account/models/account_account.py:624-633]"
+      "note": "s2.7-access-account: AccountAccount._compute_opening_debit_credit (raw cr.execute); opening-balance screen aggregate over move lines [addons/account/models/account_account.py:624-633]"
     },
     {
       "id": "ap-5e6328cc85",
@@ -221,7 +221,7 @@
         }
       ],
       "sort": [],
-      "frequency": "warm",
+      "frequency": "cold",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_account.py",
@@ -231,7 +231,7 @@
         ]
       },
       "statement": "UPDATE ir_model_data SET res_id = ( %(account_id_by_company_id_json)s::jsonb->> substring(name, %(xmlid_regex)s) )::int WHERE module = ? AND model = ? AND res_id = %(account_id)s AND name ~ %(xmlid_regex)s",
-      "note": "s2.7-access-account: ; reference/config lookup [addons/account/models/account_account.py:1491-1501]"
+      "note": "s2.7-access-account: AccountAccount._action_unmerge (raw cr.execute); one-off xmlid rewrite when an account is split per company [addons/account/models/account_account.py:1491-1501]"
     },
     {
       "id": "ap-df74fea794",
@@ -265,7 +265,7 @@
         ]
       },
       "statement": "UPDATE account_account_tag tag SET name = tag.name || jsonb_build_object(%(lang)s, substring(tag.name->>? FOR ?) || (report_line.name->>%(lang)s)) FROM account_report_line report_line JOIN account_report report ON report.id = report_line.report_id WHERE tag.applicability = ? AND tag.country_id = rep",
-      "note": "s2.7-access-account: ; setup/wizard/report path, run on demand [addons/account/models/account_account_tag.py:126-136]"
+      "note": "s2.7-access-account: AccountAccountTag._translate_tax_tags (raw cr.execute); tax-report tag translation maintenance [addons/account/models/account_account_tag.py:126-136]"
     },
     {
       "id": "ap-67c225acdb",
@@ -307,7 +307,7 @@
         "res_currency.decimal_places",
         "res_company.currency_id"
       ],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_bank_statement.py",
@@ -317,7 +317,7 @@
         ]
       },
       "statement": "WITH statements AS ( SELECT st.id, st.balance_start, st.journal_id, LAG(st.balance_end_real) OVER ( PARTITION BY st.journal_id ORDER BY st.first_line_index ) AS prev_balance_end_real, currency.decimal_places FROM account_bank_statement st LEFT JOIN res_company co ON st.company_id = co.id LEFT JOIN a",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_bank_statement.py:331-353]"
+      "note": "s2.7-access-account: AccountBankStatement._get_invalid_statement_ids (raw cr.execute); statement-balance continuity check from the bank dashboard [addons/account/models/account_bank_statement.py:331-353]"
     },
     {
       "id": "ap-db3acd193b",
@@ -350,7 +350,7 @@
         ]
       },
       "statement": "SELECT first_line_index, COALESCE(balance_start, ?) FROM account_bank_statement WHERE first_line_index < %s AND journal_id = %s ORDER BY first_line_index DESC LIMIT ?",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_bank_statement_line.py:202-210]"
+      "note": "s2.7-access-account: AccountBankStatementLine._compute_running_balance (raw cr.execute); recomputed for every bank statement line [addons/account/models/account_bank_statement_line.py:202-210]"
     },
     {
       "id": "ap-df503eb9d4",
@@ -398,7 +398,7 @@
         ]
       },
       "statement": "SELECT st_line.id, st_line.amount, st.first_line_index = st_line.internal_index AS is_anchor, COALESCE(st.balance_start, ?), move.state FROM account_bank_statement_line st_line JOIN account_move move ON move.id = st_line.move_id LEFT JOIN account_bank_statement st ON st.id = st_line.statement_id WHE",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_bank_statement_line.py:224-240]"
+      "note": "s2.7-access-account: AccountBankStatementLine._compute_running_balance (raw cr.execute); recomputed for every bank statement line [addons/account/models/account_bank_statement_line.py:224-240]"
     },
     {
       "id": "ap-51a9b57993",
@@ -425,7 +425,7 @@
         ]
       },
       "statement": "UPDATE account_move_line line SET full_reconcile_id = source.full_id FROM (VALUES %s) AS source(full_id, line_ids) WHERE line.id = ANY(source.line_ids)",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_full_reconcile.py:30-35]"
+      "note": "s2.7-access-account: AccountFullReconcile.create (raw cr.execute); bulk stamp of full_reconcile_id on every full reconciliation [addons/account/models/account_full_reconcile.py:30-35]"
     },
     {
       "id": "ap-a64e670e35",
@@ -452,7 +452,7 @@
         ]
       },
       "statement": "UPDATE account_partial_reconcile partial SET full_reconcile_id = source.full_id FROM (VALUES %s) AS source(full_id, partial_ids) WHERE partial.id = ANY(source.partial_ids)",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_full_reconcile.py:39-44]"
+      "note": "s2.7-access-account: AccountFullReconcile.create (raw cr.execute); bulk stamp of full_reconcile_id on every full reconciliation [addons/account/models/account_full_reconcile.py:39-44]"
     },
     {
       "id": "ap-6985970a8f",
@@ -490,7 +490,7 @@
         ]
       },
       "statement": "SELECT apm.id, journal.company_id, journal.id, {? if manage_providers else ?} FROM account_payment_method_line apml JOIN account_journal journal ON journal.id = apml.journal_id JOIN account_payment_method apm ON apm.id = apml.payment_method_id WHERE apm.id IN %s",
-      "note": "s2.7-access-account: ; reference/config lookup [addons/account/models/account_journal.py:365-375]"
+      "note": "s2.7-access-account: AccountJournal._get_journals_payment_method_information (raw cr.execute); payment-method lookup per journal when registering payments [addons/account/models/account_journal.py:365-375]"
     },
     {
       "id": "ap-7b9ebed604",
@@ -529,7 +529,7 @@
         ]
       },
       "statement": "SELECT journal.id, statement.id FROM account_journal journal LEFT JOIN LATERAL ( SELECT id, company_id FROM account_bank_statement WHERE journal_id = journal.id AND first_line_index IS NOT NULL ORDER BY first_line_index DESC LIMIT ? ) statement ON TRUE WHERE journal.id = ANY(%s) AND statement.compan",
-      "note": "s2.7-access-account: ; accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:47-60]"
+      "note": "s2.7-access-account: AccountJournal._compute_last_bank_statement (raw cr.execute); accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:47-60]"
     },
     {
       "id": "ap-9fd3f6752b",
@@ -584,7 +584,7 @@
         ]
       },
       "statement": "SELECT activity.id, activity.res_id, activity.res_model, activity.summary, CASE WHEN activity.date_deadline < %(today)s THEN ? ELSE ? END AS status, act_type.id AS act_type_id, %(act_type_name)s AS act_type_name, act_type.category AS activity_category, activity.date_deadline, move.journal_id FROM ac",
-      "note": "s2.7-access-account: ; accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:287-323]"
+      "note": "s2.7-access-account: AccountJournal._get_json_activity_data (raw cr.execute); accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:287-323]"
     },
     {
       "id": "ap-23f7865a21",
@@ -623,7 +623,7 @@
         ]
       },
       "statement": "SELECT move.journal_id, move.sequence_prefix FROM account_move move WHERE move.journal_id = ANY(%(journal_ids)s) AND move.company_id = ANY(%(company_ids)s) AND move.made_sequence_gap IS TRUE AND move.date > %(lock_date)s GROUP BY move.journal_id, move.sequence_prefix",
-      "note": "s2.7-access-account: ; accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:350-359]"
+      "note": "s2.7-access-account: AccountJournal._query_has_sequence_holes (raw cr.execute); accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:350-359]"
     },
     {
       "id": "ap-ff7470c3a4",
@@ -660,7 +660,7 @@
         ]
       },
       "statement": "SELECT j.id, has_posted_entries.val, has_entries.val FROM account_journal j LEFT JOIN LATERAL ( SELECT bool(m.id) AS val FROM account_move m WHERE m.journal_id = j.id AND m.state = ? LIMIT ? ) AS has_posted_entries ON true LEFT JOIN LATERAL ( SELECT bool(m.id) AS val FROM account_move m WHERE m.jour",
-      "note": "s2.7-access-account: ; accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:399-418]"
+      "note": "s2.7-access-account: AccountJournal._compute_has_entries (raw cr.execute); accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:399-418]"
     },
     {
       "id": "ap-cd6a99a3d0",
@@ -703,7 +703,7 @@
         ]
       },
       "statement": "SELECT move.journal_id, move.date, SUM(st_line.amount) AS amount FROM account_bank_statement_line st_line JOIN account_move move ON move.id = st_line.move_id WHERE move.journal_id = ANY(%s) AND move.date > %s AND move.company_id = ANY(%s) GROUP BY move.date, move.journal_id ORDER BY move.date DESC",
-      "note": "s2.7-access-account: ; accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:465-476]"
+      "note": "s2.7-access-account: AccountJournal._get_bank_cash_graph_data (raw cr.execute); accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:465-476]"
     },
     {
       "id": "ap-2db32f42d3",
@@ -746,7 +746,7 @@
         ]
       },
       "statement": "SELECT move.journal_id, move.company_id, move.currency_id, date_trunc(?, move.invoice_date)::date AS invoice_month, COALESCE(SUM(move.amount_total_signed), ?) AS total_amount_company, COALESCE(SUM( (CASE WHEN move.move_type = ? THEN -? ELSE ? END) * move.amount_total ), ?) AS total_amount FROM accou",
-      "note": "s2.7-access-account: ; accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:524-542]"
+      "note": "s2.7-access-account: AccountJournal._get_sale_purchase_graph_data (raw cr.execute); accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:524-542]"
     },
     {
       "id": "ap-610fbca23c",
@@ -795,7 +795,7 @@
         ]
       },
       "statement": "SELECT st_line.journal_id, COUNT(st_line.id) FROM account_bank_statement_line st_line JOIN account_move st_line_move ON st_line_move.id = st_line.move_id WHERE st_line.journal_id IN %s AND st_line.company_id IN %s AND st_line.is_reconciled IS NOT TRUE AND (st_line_move.review_state IS NULL OR st_lin",
-      "note": "s2.7-access-account: ; accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:646-657]"
+      "note": "s2.7-access-account: AccountJournal._fill_bank_cash_dashboard_data (raw cr.execute); accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:646-657]"
     },
     {
       "id": "ap-f29213c245",
@@ -836,7 +836,7 @@
         ]
       },
       "statement": "SELECT id, moves_exists FROM account_journal journal LEFT JOIN LATERAL ( SELECT EXISTS(SELECT ? FROM account_move move WHERE move.journal_id = journal.id AND move.company_id = ANY (%(companies_ids)s) AND move.journal_id = ANY (%(journal_ids)s)) AS moves_exists ) moves ON TRUE WHERE journal.id = ANY ",
-      "note": "s2.7-access-account: ; accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:784-795]"
+      "note": "s2.7-access-account: AccountJournal._fill_sale_purchase_dashboard_data (raw cr.execute); accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:784-795]"
     },
     {
       "id": "ap-c3b35d5596",
@@ -895,7 +895,7 @@
         ]
       },
       "statement": "SELECT journal.id AS journal_id, statement.id AS statement_id, COALESCE(statement.balance_end_real, ?) AS balance_end_real, without_statement.amount AS unlinked_amount, without_statement.count AS unlinked_count FROM account_journal journal LEFT JOIN LATERAL ( -- SELECT latest statement based ON the ",
-      "note": "s2.7-access-account: ; accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:1005-1036]"
+      "note": "s2.7-access-account: AccountJournal._get_journal_dashboard_bank_running_balance (raw cr.execute); accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:1005-1036]"
     },
     {
       "id": "ap-a1e7b18fab",
@@ -945,7 +945,7 @@
         ]
       },
       "statement": "SELECT move.journal_id AS journal_id, move.company_id AS company_id, move.currency_id AS currency, SUM(CASE WHEN payment.payment_type = ? THEN -payment.amount ELSE payment.amount END) AS amount_total, SUM(amount_company_currency_signed) AS amount_total_company FROM account_payment payment JOIN accou",
-      "note": "s2.7-access-account: ; accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:1048-1066]"
+      "note": "s2.7-access-account: AccountJournal._get_direct_bank_payments (raw cr.execute); accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:1048-1066]"
     },
     {
       "id": "ap-bb84dddb66",
@@ -990,7 +990,7 @@
         ]
       },
       "statement": "SELECT payment.journal_id AS journal_id, payment.company_id AS company_id, payment.currency_id AS currency, SUM(CASE WHEN payment.payment_type = ? THEN -payment.amount ELSE payment.amount END) AS amount_total, SUM(amount_company_currency_signed) AS amount_total_company FROM account_payment payment J",
-      "note": "s2.7-access-account: ; accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:1076-1092]"
+      "note": "s2.7-access-account: AccountJournal._get_journal_dashboard_outstanding_payments (raw cr.execute); accounting dashboard aggregate per journal [addons/account/models/account_journal_dashboard.py:1076-1092]"
     },
     {
       "id": "ap-7a016c696d",
@@ -1042,7 +1042,7 @@
         ]
       },
       "statement": "SELECT source_line.id AS source_line_id, source_line.move_id AS source_move_id, account.account_type AS source_line_account_type, ARRAY_AGG(counterpart_move.move_type) AS counterpart_move_types, COALESCE(BOOL_AND(COALESCE(pay.is_matched, FALSE)) FILTER (WHERE counterpart_move.origin_payment_id IS NO",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move.py:1293-1311]"
+      "note": "s2.7-access-account: AccountMove._compute_payment_state (raw cr.execute); payment-state recompute on every reconciliation [addons/account/models/account_move.py:1293-1311]"
     },
     {
       "id": "ap-1c6e5e7db3",
@@ -1073,7 +1073,7 @@
         ]
       },
       "statement": "SELECT move.id AS move_id, array_agg(duplicate_move.id) AS duplicate_ids FROM %(move_table_and_alias)s JOIN account_move AS duplicate_move ON move.company_id = duplicate_move.company_id AND move.id != duplicate_move.id AND duplicate_move.state IN %(matching_states)s AND ( move.move_type = duplicate_",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move.py:2218-2235]"
+      "note": "s2.7-access-account: AccountMove._fetch_duplicate_reference (raw cr.execute); duplicate-reference check on every invoice create/write [addons/account/models/account_move.py:2218-2235]"
     },
     {
       "id": "ap-ed2145faeb",
@@ -1100,7 +1100,7 @@
       "sort": [
         "account_move.invoice_date"
       ],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
@@ -1110,7 +1110,7 @@
         ]
       },
       "statement": "WITH previous_invoices AS ( SELECT this.id, other.invoice_date, other.amount_total, LAG(other.invoice_date) OVER invoice - other.invoice_date AS date_diff FROM account_move this JOIN account_move other USING (partner_id, move_type, company_id, currency_id) WHERE other.state = ? AND other.invoice_dat",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move.py:2388-2416]"
+      "note": "s2.7-access-account: AccountMove._compute_abnormal_warnings (raw cr.execute); invoice-form warning over the partner history [addons/account/models/account_move.py:2388-2416]"
     },
     {
       "id": "ap-edadd0c846",
@@ -1162,7 +1162,7 @@
         ]
       },
       "statement": "SELECT invoice.id, ARRAY_AGG(DISTINCT payment.id) AS payment_ids FROM account_payment payment JOIN account_move move ON move.id = payment.move_id JOIN account_move_line line ON line.move_id = move.id JOIN account_partial_reconcile part ON part.debit_move_id = line.id OR part.credit_move_id = line.id",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move.py:2509-2530]"
+      "note": "s2.7-access-account: AccountMove._compute_reconciled_payment_ids (raw cr.execute); reconciled-payment recompute on every reconciliation [addons/account/models/account_move.py:2509-2530]"
     },
     {
       "id": "ap-a130618f01",
@@ -1205,7 +1205,7 @@
         ]
       },
       "statement": "SELECT line.move_id, ROUND(SUM(line.debit), currency.decimal_places) debit, ROUND(SUM(line.credit), currency.decimal_places) credit FROM account_move_line line JOIN account_move move ON move.id = line.move_id JOIN res_company company ON company.id = move.company_id JOIN res_currency currency ON curr",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move.py:2954-2965]"
+      "note": "s2.7-access-account: AccountMove._get_unbalanced_moves (raw cr.execute); balance check on every post [addons/account/models/account_move.py:2954-2965]"
     },
     {
       "id": "ap-abad15d997",
@@ -1222,7 +1222,7 @@
         }
       ],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
@@ -1232,7 +1232,7 @@
         ]
       },
       "statement": "SELECT COUNT(foo.id), foo.account_id, foo.taxes FROM ( SELECT account_move_line__account_id.id AS account_id, %(account_code)s AS code, account_move_line.id, ARRAY_AGG(tax_rel.account_tax_id) FILTER (WHERE tax_rel.account_tax_id IS NOT NULL) AS taxes FROM %(from_clause)s LEFT JOIN account_move_line_",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move.py:4548-4565]"
+      "note": "s2.7-access-account: AccountMove._get_frequent_account_and_taxes (raw cr.execute); quick-edit suggestion from the invoice form [addons/account/models/account_move.py:4548-4565]"
     },
     {
       "id": "ap-b2d176d8f7",
@@ -1253,7 +1253,7 @@
         }
       ],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
@@ -1263,7 +1263,7 @@
         ]
       },
       "statement": "SELECT current_move.id, EXISTS ( SELECT ? FROM account_move AS next_move WHERE next_move.auto_post_origin_id = current_move.auto_post_origin_id AND next_move.date = current_move.next_date ) FROM (VALUES %(values)s) AS current_move(id, auto_post_origin_id, next_date)",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move.py:4948-4957]"
+      "note": "s2.7-access-account: AccountMove._copy_recurring_entries (raw cr.execute); recurring-entry copy on post of auto_post moves [addons/account/models/account_move.py:4948-4957]"
     },
     {
       "id": "ap-26541a49e3",
@@ -1304,7 +1304,7 @@
         ]
       },
       "statement": "SELECT part.id AS partial_id, counterpart_line.id AS aml_id, counterpart_line.move_id AS aml_move_id, ? AS is_exchange, FALSE AS is_caba, part.exchange_move_id, part.amount AS part_amount, part.debit_amount_currency AS part_amount_currency, part.debit_currency_id AS part_currency_id, counterpart_lin",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move.py:5541-5619]"
+      "note": "s2.7-access-account: AccountMove._get_all_reconciled_invoice_partials (raw cr.execute); reconciliation widget data on every invoice read [addons/account/models/account_move.py:5541-5619]"
     },
     {
       "id": "ap-d62ff6e982",
@@ -1345,7 +1345,7 @@
         ]
       },
       "statement": "SELECT part.id AS partial_id, counterpart_line.id AS aml_id, counterpart_line.move_id AS aml_move_id, ? AS is_exchange, TRUE AS is_caba, part.exchange_move_id, part.amount AS part_amount, part.debit_amount_currency AS part_amount_currency, part.debit_currency_id AS part_currency_id, counterpart_line",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move.py:5627-5705]"
+      "note": "s2.7-access-account: AccountMove._get_all_reconciled_invoice_partials (raw cr.execute); reconciliation widget data on every invoice read [addons/account/models/account_move.py:5627-5705]"
     },
     {
       "id": "ap-883de01e1e",
@@ -1369,7 +1369,7 @@
         "account_move.sequence_number",
         "account_move.id"
       ],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
@@ -1379,7 +1379,7 @@
         ]
       },
       "statement": "SELECT ARRAY( SELECT other.id FROM account_move other WHERE other.journal_id = move.journal_id AND other.sequence_prefix = move.sequence_prefix AND other.sequence_number < move.sequence_number AND other.name LIKE ? || other.sequence_number || ms.suffix ORDER BY other.sequence_number DESC LIMIT ? ), ",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move.py:6457-6482]"
+      "note": "s2.7-access-account: AccountMove._update_sequence_made_gap (raw cr.execute); sequence-gap check when name/date of a posted move changes [addons/account/models/account_move.py:6457-6482]"
     },
     {
       "id": "ap-aa37b28f6d",
@@ -1399,7 +1399,7 @@
         "account_move.date",
         "account_move.id"
       ],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
@@ -1409,7 +1409,7 @@
         ]
       },
       "statement": "SELECT next_move.id FROM account_move AS current_move JOIN LATERAL ( SELECT move.id, move.state FROM account_move move WHERE move.auto_post_origin_id = current_move.auto_post_origin_id AND move.date > current_move.date ORDER BY move.date, move.id LIMIT ? ) AS next_move ON TRUE WHERE current_move.id ",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move.py:7023-7036]"
+      "note": "s2.7-access-account: AccountMove._unlink_next_draft_auto_post_moves (raw cr.execute); draft cleanup from button_draft [addons/account/models/account_move.py:7023-7036]"
     },
     {
       "id": "ap-0819621820",
@@ -1426,7 +1426,7 @@
         }
       ],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
@@ -1436,7 +1436,7 @@
         ]
       },
       "statement": "SELECT DISTINCT exchange_move_id FROM account_partial_reconcile WHERE exchange_move_id IN %s",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move.py:7046-7050]"
+      "note": "s2.7-access-account: AccountMove._check_draftable (raw cr.execute); exchange-move check from button_draft [addons/account/models/account_move.py:7046-7050]"
     },
     {
       "id": "ap-a544c22975",
@@ -1490,7 +1490,7 @@
         ]
       },
       "statement": "WITH previous AS ( SELECT DISTINCT ON (line.move_id) ? AS model, line.move_id AS id, NULL AS account_type, line.account_id AS account_id FROM account_move_line line WHERE line.move_id = ANY(%(move_ids)s) AND line.display_type = ? AND line.id != ANY(%(current_ids)s) ), fallback AS ( SELECT DISTINCT O",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move_line.py:729-757]"
+      "note": "s2.7-access-account: AccountMoveLine._compute_account_id (raw cr.execute); default account lookup on every new invoice line [addons/account/models/account_move_line.py:729-757]"
     },
     {
       "id": "ap-8eda2da30f",
@@ -1527,7 +1527,7 @@
         ]
       },
       "statement": "SELECT part.debit_move_id AS line_id, ? AS flag, COALESCE(SUM(part.amount), ?) AS amount, ROUND(SUM(part.debit_amount_currency), curr.decimal_places) AS amount_currency FROM account_partial_reconcile part JOIN res_currency curr ON curr.id = part.debit_currency_id WHERE part.debit_move_id IN %s GROUP",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move_line.py:1176-1196]"
+      "note": "s2.7-access-account: AccountMoveLine._compute_amount_residual (raw cr.execute); residual recompute on every reconciliation [addons/account/models/account_move_line.py:1176-1196]"
     },
     {
       "id": "ap-bd2b5ba705",
@@ -1554,7 +1554,7 @@
         ]
       },
       "statement": "SELECT id, analytic_distribution FROM account_move_line WHERE id = ANY(%s)",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move_line.py:1803-1803]"
+      "note": "s2.7-access-account: AccountMoveLine._inverse_analytic_distribution (raw cr.execute); analytic distribution write-back on line edit [addons/account/models/account_move_line.py:1803-1803]"
     },
     {
       "id": "ap-88ec676b2a",
@@ -1618,7 +1618,7 @@
         "res_currency.decimal_places",
         "account_tax_repartition_line.tax_id"
       ],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move_line_tax_details.py",
@@ -1628,7 +1628,7 @@
         ]
       },
       "statement": "WITH filtered_aml AS MATERIALIZED ( SELECT account_move_line.* FROM %(table_references)s WHERE %(search_condition)s ), base_lines AS ( SELECT %(aml_fields_select)s, ARRAY_AGG(tax.id ORDER BY tax.sequence, tax.id) AS direct_tax_ids, ARRAY_AGG(tax.id) FILTER (WHERE tax.amount_type = ?) AS group_tax_id",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_move_line_tax_details.py:49-218]"
+      "note": "s2.7-access-account: AccountMoveLine._get_query_tax_details (raw cr.execute); tax-details CTE for tax reports and cash-basis entries [addons/account/models/account_move_line_tax_details.py:49-218]"
     },
     {
       "id": "ap-6bfbd24c53",
@@ -1655,7 +1655,7 @@
         ]
       },
       "statement": "UPDATE ir_attachment SET res_id = NULL WHERE id IN %s",
-      "note": "s2.7-access-account: ; reference/config lookup [addons/account/models/account_move_send.py:578-578]"
+      "note": "s2.7-access-account: AccountMoveSend._send_mail (raw cr.execute); attachment detach when sending invoices [addons/account/models/account_move_send.py:578-578]"
     },
     {
       "id": "ap-4c17725b5c",
@@ -1682,7 +1682,7 @@
         ]
       },
       "statement": "UPDATE account_move_line l SET matching_number = CASE WHEN l.full_reconcile_id IS NOT NULL THEN l.full_reconcile_id::text ELSE ? || source.number END FROM (VALUES %s) AS source(number, ids) WHERE l.id = ANY(source.ids)",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_partial_reconcile.py:226-234]"
+      "note": "s2.7-access-account: AccountPartialReconcile._update_matching_number (raw cr.execute); matching-number stamp on every partial reconciliation [addons/account/models/account_partial_reconcile.py:226-234]"
     },
     {
       "id": "ap-a4c6850d29",
@@ -1738,7 +1738,7 @@
         ]
       },
       "statement": "SELECT payment.id, ARRAY_AGG(DISTINCT invoice.id) AS invoice_ids, invoice.move_type FROM account_payment payment JOIN account_move move ON move.id = payment.move_id JOIN account_move_line line ON line.move_id = move.id JOIN account_partial_reconcile part ON part.debit_move_id = line.id OR part.credi",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_payment.py:761-784]"
+      "note": "s2.7-access-account: AccountPayment._compute_stat_buttons_from_reconciliation (raw cr.execute); payment stat buttons recomputed on every reconciliation [addons/account/models/account_payment.py:761-784]"
     },
     {
       "id": "ap-49ad6ad0c7",
@@ -1794,7 +1794,7 @@
         ]
       },
       "statement": "SELECT payment.id, ARRAY_AGG(DISTINCT counterpart_line.statement_line_id) AS statement_line_ids FROM account_payment payment JOIN account_move move ON move.id = payment.move_id JOIN account_move_line line ON line.move_id = move.id JOIN account_account account ON account.id = line.account_id JOIN acc",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_payment.py:804-825]"
+      "note": "s2.7-access-account: AccountPayment._compute_stat_buttons_from_reconciliation (raw cr.execute); payment stat buttons recomputed on every reconciliation [addons/account/models/account_payment.py:804-825]"
     },
     {
       "id": "ap-951168c9cc",
@@ -1811,7 +1811,7 @@
         }
       ],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_payment.py",
@@ -1821,7 +1821,7 @@
         ]
       },
       "statement": "SELECT payment.id AS payment_id, ARRAY_AGG(DISTINCT duplicate_payment.id) AS duplicate_payment_ids FROM %(payment_table_and_alias)s JOIN account_payment AS duplicate_payment ON payment.id != duplicate_payment.id AND payment.company_id = duplicate_payment.company_id AND payment.commercial_partner_id ",
-      "note": "s2.7-access-account: ; on the move/line/payment/reconcile write path [addons/account/models/account_payment.py:901-914]"
+      "note": "s2.7-access-account: AccountPayment._fetch_duplicate_reference (raw cr.execute); duplicate-payment check on payment form [addons/account/models/account_payment.py:901-914]"
     },
     {
       "id": "ap-1291877fbc",
@@ -1848,7 +1848,7 @@
         ]
       },
       "statement": "SELECT ARRAY_AGG(DISTINCT move_id) FROM account_move_line WHERE reconcile_model_id = %s",
-      "note": "s2.7-access-account: ; reference/config lookup [addons/account/models/account_reconcile_model.py:219-223]"
+      "note": "s2.7-access-account: AccountReconcileModel.action_reconcile_stat (raw cr.execute); reconcile-model stat button [addons/account/models/account_reconcile_model.py:219-223]"
     },
     {
       "id": "ap-d4f04ba601",
@@ -1875,7 +1875,7 @@
         ]
       },
       "statement": "UPDATE ir_model_data SET noupdate = TRUE WHERE id IN %s",
-      "note": "s2.7-access-account: ; setup/wizard/report path, run on demand [addons/account/models/chart_template.py:50-50]"
+      "note": "s2.7-access-account: preserve_existing_tags_on_taxes (raw cr.execute); chart-template upgrade hook [addons/account/models/chart_template.py:50-50]"
     },
     {
       "id": "ap-ac28540116",
@@ -1902,7 +1902,7 @@
         ]
       },
       "statement": "SELECT %(model)s AS model, model_data.name AS xmlid, model_data.module AS module, json_build_object(%(translatable_field_column_args)s) AS fields FROM %(from_clause)s JOIN ir_model_data model_data ON model_data.model = %(model)s AND %(model_id)s = model_data.res_id WHERE %(where_clause)s AND (%(miss",
-      "note": "s2.7-access-account: ; setup/wizard/report path, run on demand [addons/account/models/chart_template.py:1467-1477]"
+      "note": "s2.7-access-account: AccountChartTemplate._get_untranslated_translatable_template_model_records (raw cr.execute); chart-template translation load [addons/account/models/chart_template.py:1467-1477]"
     },
     {
       "id": "ap-c01ddf3fe8",
@@ -1976,7 +1976,7 @@
         ]
       },
       "statement": "WITH journal_type_selection AS ( SELECT selection.value, COALESCE(selection.name->>p.lang, selection.name->>?) name FROM ir_model_fields_selection selection JOIN ir_model_fields field ON selection.field_id = field.id JOIN res_users u ON u.id = %(uid)s JOIN res_partner p ON u.partner_id = p.id WHERE ",
-      "note": "s2.7-access-account: ; setup/wizard/report path, run on demand [addons/account/models/kpi_provider.py:49-74]"
+      "note": "s2.7-access-account: get_kpi_summary (raw cr.execute); KPI provider summary [addons/account/models/kpi_provider.py:49-74]"
     },
     {
       "id": "ap-94cb591b8b",
@@ -2003,7 +2003,7 @@
         ]
       },
       "statement": "SELECT account_move_line.partner_id, a.account_type, SUM(account_move_line.amount_residual) FROM %s LEFT JOIN account_account a ON (account_move_line.account_id=a.id) WHERE a.account_type IN (?,?) AND account_move_line.partner_id IN %s AND account_move_line.reconciled IS NOT TRUE AND %s GROUP BY acc",
-      "note": "s2.7-access-account: ; reference/config lookup [addons/account/models/partner.py:404-413]"
+      "note": "s2.7-access-account: ResPartner._credit_debit_get (raw cr.execute); partner credit/debit totals on partner form and credit limit [addons/account/models/partner.py:404-413]"
     },
     {
       "id": "ap-82a0dfa223",
@@ -2055,7 +2055,7 @@
         ]
       },
       "statement": "SELECT aml.partner_id FROM res_partner partner LEFT JOIN account_move_line aml ON aml.partner_id = partner.id JOIN account_move move ON move.id = aml.move_id JOIN res_company line_company ON line_company.id = aml.company_id RIGHT JOIN account_account acc ON aml.account_id = acc.id WHERE acc.account_",
-      "note": "s2.7-access-account: ; reference/config lookup [addons/account/models/partner.py:449-461]"
+      "note": "s2.7-access-account: ResPartner._asset_difference_search (raw cr.execute); partner search on credit/debit [addons/account/models/partner.py:449-461]"
     },
     {
       "id": "ap-6035eebd4c",
@@ -2102,7 +2102,7 @@
         ]
       },
       "statement": "SELECT move.partner_id, SUM(move.amount_total_signed * COALESCE(currency_rate.rate, ?)) FROM account_move move LEFT JOIN res_partner partner ON partner.id = move.partner_id LEFT JOIN res_company company ON company.id = COALESCE(partner.company_id, %(default_company_id)s) /* To use the exchange rate ",
-      "note": "s2.7-access-account: ; reference/config lookup [addons/account/models/partner.py:480-501]"
+      "note": "s2.7-access-account: ResPartner._invoice_total (raw cr.execute); partner invoiced total stat [addons/account/models/partner.py:480-501]"
     },
     {
       "id": "ap-771c049161",
@@ -2115,7 +2115,7 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": "warm",
+      "frequency": "cold",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/partner.py",
@@ -2125,7 +2125,7 @@
         ]
       },
       "statement": "UPDATE res_partner SET invoice_edi_format_store = invoice_edi_format_store - res_company.id::char FROM res_company WHERE res_partner.invoice_edi_format_store ->> res_company.id::char IN %s",
-      "note": "s2.7-access-account: ; reference/config lookup [addons/account/models/partner.py:1241-1246]"
+      "note": "s2.7-access-account: ResPartner._clear_removed_edi_formats (raw cr.execute); EDI format cleanup when a company setting is removed [addons/account/models/partner.py:1241-1246]"
     },
     {
       "id": "ap-de84cbf457",
@@ -2166,7 +2166,7 @@
         }
       ],
       "sort": [],
-      "frequency": "warm",
+      "frequency": "cold",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/product.py",
@@ -2176,7 +2176,7 @@
         ]
       },
       "statement": "SELECT prod_template.id FROM account_move_line line JOIN product_product prod_variant ON line.product_id = prod_variant.id JOIN product_template prod_template ON prod_variant.product_tmpl_id = prod_template.id JOIN uom_uom template_uom ON prod_template.uom_id = template_uom.id JOIN uom_uom line_uom ",
-      "note": "s2.7-access-account: ; reference/config lookup [addons/account/models/product.py:246-257]"
+      "note": "s2.7-access-account: ProductTemplate._check_uom_not_in_invoice (raw cr.execute); constraint when a product UoM changes [addons/account/models/product.py:246-257]"
     },
     {
       "id": "ap-a631d88c65",
@@ -2203,7 +2203,7 @@
         ]
       },
       "statement": "SELECT source_company.id, date.date, %(target_rate)s / %(source_rate)s AS rate FROM (SELECT generate_series(%(date_from)s::timestamp, %(date_to)s::timestamp, ?)::date AS date) AS date, res_company source_company, res_company target_company JOIN res_company target_root_company ON target_root_company.",
-      "note": "s2.7-access-account: ; reference/config lookup [addons/account/models/res_currency.py:52-62]"
+      "note": "s2.7-access-account: ResCurrency._get_raw_rates (raw cr.execute); currency rate series for consolidation [addons/account/models/res_currency.py:52-62]"
     },
     {
       "id": "ap-c9120ba8bd",
@@ -2242,7 +2242,7 @@
         ]
       },
       "statement": "SELECT this.id, ARRAY_AGG(other.partner_id) FROM res_partner_bank this LEFT JOIN res_partner_bank other ON this.account_number = other.account_number AND this.id != other.id AND other.active = TRUE WHERE this.id = ANY(%(ids)s) AND other.partner_id IS NOT NULL AND this.active = TRUE AND ( ((this.comp",
-      "note": "s2.7-access-account: ; reference/config lookup [addons/account/models/res_partner_bank.py:73-89]"
+      "note": "s2.7-access-account: ResPartnerBank._compute_duplicate_bank_partner_ids (raw cr.execute); duplicate bank account check on partner bank form [addons/account/models/res_partner_bank.py:73-89]"
     },
     {
       "id": "ap-b835ae223a",
@@ -2323,7 +2323,7 @@
         ]
       },
       "statement": "SELECT jsonb_object_agg(key, value) FROM account_account, jsonb_each_text(account_account.code_store) WHERE account_account.id IN %(account_ids)s",
-      "note": "s2.7-access-account: ; setup/wizard/report path, run on demand [addons/account/wizard/account_merge_wizard.py:145-149]"
+      "note": "s2.7-access-account: AccountMergeWizard._action_merge (raw cr.execute); account merge wizard, run on demand [addons/account/wizard/account_merge_wizard.py:145-149]"
     },
     {
       "id": "ap-3b2048348c",
@@ -2350,7 +2350,7 @@
         ]
       },
       "statement": "SELECT id, name FROM account_account WHERE id IN %(account_ids)s",
-      "note": "s2.7-access-account: ; setup/wizard/report path, run on demand [addons/account/wizard/account_merge_wizard.py:171-175]"
+      "note": "s2.7-access-account: AccountMergeWizard._action_merge (raw cr.execute); account merge wizard, run on demand [addons/account/wizard/account_merge_wizard.py:171-175]"
     },
     {
       "id": "ap-c1912c1a61",
@@ -2377,7 +2377,7 @@
         ]
       },
       "statement": "UPDATE account_account SET name = %(account_name_json)s WHERE id = %(account_to_merge_into_id)s",
-      "note": "s2.7-access-account: ; setup/wizard/report path, run on demand [addons/account/wizard/account_merge_wizard.py:186-190]"
+      "note": "s2.7-access-account: AccountMergeWizard._action_merge (raw cr.execute); account merge wizard, run on demand [addons/account/wizard/account_merge_wizard.py:186-190]"
     },
     {
       "id": "ap-3beb7783a5",
@@ -2404,7 +2404,7 @@
         ]
       },
       "statement": "DELETE FROM account_account WHERE id IN %(account_ids_to_delete)s",
-      "note": "s2.7-access-account: ; setup/wizard/report path, run on demand [addons/account/wizard/account_merge_wizard.py:198-201]"
+      "note": "s2.7-access-account: AccountMergeWizard._action_merge (raw cr.execute); account merge wizard, run on demand [addons/account/wizard/account_merge_wizard.py:198-201]"
     },
     {
       "id": "ap-72d64f6304",
@@ -2431,7 +2431,7 @@
         ]
       },
       "statement": "UPDATE account_account SET code_store = %(code_by_company_json)s WHERE id = %(account_to_merge_into_id)s",
-      "note": "s2.7-access-account: ; setup/wizard/report path, run on demand [addons/account/wizard/account_merge_wizard.py:210-214]"
+      "note": "s2.7-access-account: AccountMergeWizard._action_merge (raw cr.execute); account merge wizard, run on demand [addons/account/wizard/account_merge_wizard.py:210-214]"
     },
     {
       "id": "ap-d66e054f0a",
@@ -31267,7 +31267,7 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": "warm",
+      "frequency": "cold",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_account.py",
@@ -31283,7 +31283,7 @@
       },
       "routine": "AccountAccount._action_unmerge",
       "verb": "insert",
-      "note": "s2.7-access-account: AccountAccount._action_unmerge; reference/config lookup [addons/account/models/account_account.py:1299-1306]"
+      "note": "s2.7-access-account: AccountAccount._action_unmerge; constraint/setup/maintenance path [addons/account/models/account_account.py:1299-1306]"
     },
     {
       "id": "ap-1729f1829d",
@@ -31295,7 +31295,7 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": "warm",
+      "frequency": "cold",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_account.py",
@@ -31311,7 +31311,7 @@
       },
       "routine": "AccountAccount._action_unmerge",
       "verb": "update",
-      "note": "s2.7-access-account: AccountAccount._action_unmerge; reference/config lookup [addons/account/models/account_account.py:1518-1518]"
+      "note": "s2.7-access-account: AccountAccount._action_unmerge; constraint/setup/maintenance path [addons/account/models/account_account.py:1518-1518]"
     },
     {
       "id": "ap-0080d1349d",
@@ -37066,7 +37066,7 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
@@ -37082,7 +37082,7 @@
       },
       "routine": "AccountMove._unlink_next_draft_auto_post_moves",
       "verb": "delete",
-      "note": "s2.7-access-account: AccountMove._unlink_next_draft_auto_post_moves; on the move/line/payment/reconcile write path [addons/account/models/account_move.py:7039-7039]"
+      "note": "s2.7-access-account: AccountMove._unlink_next_draft_auto_post_moves; user-driven maintenance on posted/draft entries [addons/account/models/account_move.py:7039-7039]"
     },
     {
       "id": "ap-f2abb1beec",
@@ -37099,7 +37099,7 @@
         }
       ],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
@@ -37114,7 +37114,7 @@
         "method": "browse"
       },
       "routine": "AccountMove._unlink_next_draft_auto_post_moves",
-      "note": "s2.7-access-account: AccountMove._unlink_next_draft_auto_post_moves; on the move/line/payment/reconcile write path [addons/account/models/account_move.py:7039-7039]"
+      "note": "s2.7-access-account: AccountMove._unlink_next_draft_auto_post_moves; user-driven maintenance on posted/draft entries [addons/account/models/account_move.py:7039-7039]"
     },
     {
       "id": "ap-69217d8ab8",
