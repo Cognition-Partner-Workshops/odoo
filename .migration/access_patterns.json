@@ -2687,7 +2687,7 @@
         }
       ],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/stock/models/stock_quant.py",
@@ -2697,7 +2697,7 @@
         ]
       },
       "statement": "SELECT id FROM stock_quant WHERE (round(quantity::numeric, %s) = ? OR quantity IS NULL) AND round(reserved_quantity::numeric, %s) = ? AND (round(inventory_quantity::numeric, %s) = ? OR inventory_quantity IS NULL) AND user_id IS NULL;",
-      "note": "hot: raw SELECT in StockQuant._unlink_zero_quants, called from stock_move._action_done (stock_move.py:2396) on every validation; sql (addons/stock/models/stock_quant.py:1164-1167). Reviewed s2.7-access-stock."
+      "note": "warm: raw SELECT in StockQuant._unlink_zero_quants; from stock_move._action_done only when a move line keeps its package (stock_move.py:2395-2396) and from _quant_tasks; sql (addons/stock/models/stock_quant.py:1164-1167). Reviewed s2.7-access-stock."
     },
     {
       "id": "ap-728ff0f0ee",
@@ -14006,7 +14006,7 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/stock/models/product.py",
@@ -14024,7 +14024,7 @@
         "owns": false,
         "junction": "stock_route_categ"
       },
-      "note": "hot: product/category/uom links to stock tables read by quantity computes; route_ids (addons/stock/models/product.py:1282-1282). Reviewed s2.7-access-stock."
+      "note": "warm: category routes read by stock.rule._search_rule during procurement; route_ids (addons/stock/models/product.py:1282-1282). Reviewed s2.7-access-stock."
     },
     {
       "id": "ap-67a8e0e084",
@@ -14042,7 +14042,7 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/stock/models/product.py",
@@ -14059,7 +14059,7 @@
         "side": "child",
         "owns": false
       },
-      "note": "hot: product/category/uom links to stock tables read by quantity computes; removal_strategy_id (addons/stock/models/product.py:1285-1285). Reviewed s2.7-access-stock."
+      "note": "warm: removal strategy read by quant._gather; removal_strategy_id (addons/stock/models/product.py:1285-1285). Reviewed s2.7-access-stock."
     },
     {
       "id": "ap-ebc662da53",
@@ -14077,7 +14077,7 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/stock/models/product.py",
@@ -14094,7 +14094,7 @@
         "side": "parent",
         "owns": true
       },
-      "note": "hot: product/category/uom links to stock tables read by quantity computes; putaway_rule_ids (addons/stock/models/product.py:1301-1301). Reviewed s2.7-access-stock."
+      "note": "warm: category putaway rules read per move line destination (stock_location._get_putaway_strategy); putaway_rule_ids (addons/stock/models/product.py:1301-1301). Reviewed s2.7-access-stock."
     },
     {
       "id": "ap-5a12732219",
@@ -14778,7 +14778,7 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "cold",
       "confirmed": true,
       "source": {
         "file": "addons/stock/models/product.py",
@@ -14795,7 +14795,7 @@
         "side": "child",
         "owns": false
       },
-      "note": "hot: product/category/uom links to stock tables read by quantity computes; responsible_id (addons/stock/models/product.py:824-824). Reviewed s2.7-access-stock."
+      "note": "cold: responsible user, form/activity only; responsible_id (addons/stock/models/product.py:824-824). Reviewed s2.7-access-stock."
     },
     {
       "id": "ap-506d0e6f7e",
@@ -14818,7 +14818,7 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/stock/models/product.py",
@@ -14836,7 +14836,7 @@
         "owns": false,
         "junction": "stock_route_product"
       },
-      "note": "hot: product/category/uom links to stock tables read by quantity computes; route_ids (addons/stock/models/product.py:870-870). Reviewed s2.7-access-stock."
+      "note": "warm: product routes read by stock.rule._search_rule during procurement; route_ids (addons/stock/models/product.py:870-870). Reviewed s2.7-access-stock."
     },
     {
       "id": "ap-646ceed072",
@@ -15133,7 +15133,7 @@
         "side": "parent",
         "owns": false
       },
-      "note": "hot: product/category/uom links to stock tables read by quantity computes; stock_quant_ids (addons/stock/models/product.py:48-48). Reviewed s2.7-access-stock."
+      "note": "hot: product.product.stock_quant_ids feeds _compute_quantities_dict (product.py:370-532); stock_quant_ids (addons/stock/models/product.py:48-48). Reviewed s2.7-access-stock."
     },
     {
       "id": "ap-39e1d2884a",
@@ -15168,7 +15168,7 @@
         "side": "parent",
         "owns": true
       },
-      "note": "hot: product/category/uom links to stock tables read by quantity computes; stock_move_ids (addons/stock/models/product.py:49-49). Reviewed s2.7-access-stock."
+      "note": "hot: product.product.stock_move_ids feeds _compute_quantities_dict (product.py:370-532); stock_move_ids (addons/stock/models/product.py:49-49). Reviewed s2.7-access-stock."
     },
     {
       "id": "ap-0b688128d3",
@@ -15186,7 +15186,7 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/stock/models/product.py",
@@ -15203,7 +15203,7 @@
         "side": "parent",
         "owns": true
       },
-      "note": "hot: product/category/uom links to stock tables read by quantity computes; orderpoint_ids (addons/stock/models/product.py:104-104). Reviewed s2.7-access-stock."
+      "note": "warm: orderpoints read by the replenishment scheduler and product form smart button; orderpoint_ids (addons/stock/models/product.py:104-104). Reviewed s2.7-access-stock."
     },
     {
       "id": "ap-ca950031ab",
@@ -15221,7 +15221,7 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/stock/models/product.py",
@@ -15238,7 +15238,7 @@
         "side": "parent",
         "owns": true
       },
-      "note": "hot: product/category/uom links to stock tables read by quantity computes; putaway_rule_ids (addons/stock/models/product.py:113-113). Reviewed s2.7-access-stock."
+      "note": "warm: putaway rules read per move line destination (stock_location._get_putaway_strategy); putaway_rule_ids (addons/stock/models/product.py:113-113). Reviewed s2.7-access-stock."
     },
     {
       "id": "ap-995fc5a9b2",
@@ -15256,7 +15256,7 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/stock/models/product.py",
@@ -15273,7 +15273,7 @@
         "side": "parent",
         "owns": true
       },
-      "note": "hot: product/category/uom links to stock tables read by quantity computes; storage_category_capacity_ids (addons/stock/models/product.py:114-114). Reviewed s2.7-access-stock."
+      "note": "warm: storage capacity read by putaway; storage_category_capacity_ids (addons/stock/models/product.py:114-114). Reviewed s2.7-access-stock."
     },
     {
       "id": "ap-e86fb74772",
@@ -15467,7 +15467,7 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "cold",
       "confirmed": true,
       "source": {
         "file": "addons/stock/models/product.py",
@@ -15484,7 +15484,7 @@
         "side": "child",
         "owns": false
       },
-      "note": "hot: product/category/uom links to stock tables read by quantity computes; package_type_id (addons/stock/models/product.py:1346-1346). Reviewed s2.7-access-stock."
+      "note": "cold: uom package type, packaging configuration; package_type_id (addons/stock/models/product.py:1346-1346). Reviewed s2.7-access-stock."
     },
     {
       "id": "ap-2cce0d45e0",
