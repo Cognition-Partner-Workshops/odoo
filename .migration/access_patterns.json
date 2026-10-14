@@ -19149,7 +19149,7 @@
         "owns": false,
         "ondelete": "cascade"
       },
-      "note": "addons/purchase/models/purchase_order_line.py:66 order_id: required FK, cascade delete; lines are never read without their order"
+      "note": "addons/purchase/models/purchase_order_line.py:66 order_id: required FK, cascade delete; PO form loads lines through the order, but lines are also searched standalone by product_id/state (_update_uom, _has_confirmed_purchase, _search_sold_by_vendor, _get_last_po_line, _compute_show_comparison read_group) so the line needs its own product_id/state/order_id lookups"
     },
     {
       "id": "ap-bfaa3c95dd",
