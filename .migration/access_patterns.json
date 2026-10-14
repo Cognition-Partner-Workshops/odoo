@@ -19994,7 +19994,7 @@
         "side": "parent",
         "owns": true
       },
-      "note": "hot: order and lines are always read together; owns=True (ondelete cascade on order_id addons/sale/models/sale_order_line.py:42); _compute_amounts/_compute_tax_totals iterate order_line per order (addons/sale/models/sale_order.py:726-741, 1178-1190); _get_invoiceable_lines walks order_line (addons/sale/models/sale_order.py:1963-2013); copy_data copies lines (addons/sale/models/sale_order.py:1473-1485). Favors embedding sale_order_line in sale_order."
+      "note": "hot: the dominant reads load order and lines together; owns=True (ondelete cascade on order_id addons/sale/models/sale_order_line.py:42); _compute_amounts/_compute_tax_totals iterate order_line per order (addons/sale/models/sale_order.py:726-741, 1178-1190); _get_invoiceable_lines walks order_line (addons/sale/models/sale_order.py:1963-2013); copy_data copies lines (addons/sale/models/sale_order.py:1473-1485). Lines are also read without their order, by product_id (product forecast/guards ap-2dd0228bc2, ap-25d437007c, ap-46e97a52fc, ap-d3ee1897b7, ap-53c3ebf6d2, ap-3ed8589952; re-invoicing ap-2c6738953b, ap-733cb83598; sale.report groups by product), and orders without lines by dashboards/partner counts (ap-4579c39ab5.., ap-c434136bfc). Favors embedding sale_order_line in sale_order with a multikey index on order_line.product_id; the by-product aggregates become $unwind queries."
     },
     {
       "id": "ap-fa9cad8cb5",
@@ -20142,7 +20142,7 @@
         "owns": false,
         "ondelete": "restrict"
       },
-      "note": "hot: product read at line creation and on every product_id-dependent compute. sale reads product data on every line compute (candidates for a product snapshot inside the order line): uom_id (_compute_product_uom_id addons/sale/models/sale_order_line.py:684-692); taxes_id + type (_compute_tax_ids addons/sale/models/sale_order_line.py:708-741); pricelist rule/list price via order_id.pricelist_id (_compute_pricelist_item_id/_compute_price_unit/_reset_price_unit addons/sale/models/sale_order_line.py:750-840, _get_pricelist_price addons/sale/models/sale_order_line.py:883-943, _compute_discount addons/sale/models/sale_order_line.py:1006-1036); description_sale/display_name (_compute_name addons/sale/models/sale_order_line.py:523-570, _compute_label addons/sale/models/sale_order_line.py:652-665); sale_delay (_compute_customer_lead addons/sale/models/sale_order_line.py:1096-1098); type/service_type/invoice_policy/reinvoice_policy (_compute_qty_delivered_method addons/sale/models/sale_order_line.py:1101-1127, _compute_invoice_policy addons/sale/models/sale_order_line.py:1250-1253, _compute_qty_to_invoice addons/sale/models/sale_order_line.py:1348-1358, _compute_invoice_status addons/sale/models/sale_order_line.py:1402, _compute_price_unit addons/sale/models/sale_order_line.py:778); categ_id (_compute_analytic_distribution addons/sale/models/sale_order_line.py:1655-1660); related stored columns product_template_id, is_storable, categ_id, product_type, service_tracking (addons/sale/models/sale_order_line.py:107-122,177,190,396-398); invoice line copies product type/name/uom (_prepare_invoice_line addons/sale/models/sale_order_line.py:2049-2097); sale.report joins product_product/product_template/uom_uom per row for uom factor, categ_id, product_tmpl_id, weight, volume (addons/sale/report/sale_report.py:136-186). Price, discount, tax_ids and name are already stored on the line (an existing snapshot); uom factor, categ/tmpl ids, type and policies are not."
+      "note": "hot: product read at line creation and on every product_id-dependent compute. sale reads product data on every line compute (candidates for a product snapshot inside the order line): uom_id (_compute_product_uom_id addons/sale/models/sale_order_line.py:684-692); taxes_id + type (_compute_tax_ids addons/sale/models/sale_order_line.py:708-741); pricelist rule/list price via order_id.pricelist_id (_compute_pricelist_item_id/_compute_price_unit/_reset_price_unit addons/sale/models/sale_order_line.py:750-840, _get_pricelist_price addons/sale/models/sale_order_line.py:883-943, _compute_discount addons/sale/models/sale_order_line.py:1006-1036); description_sale/display_name (_compute_name addons/sale/models/sale_order_line.py:523-570, _compute_label addons/sale/models/sale_order_line.py:652-665); sale_delay (_compute_customer_lead addons/sale/models/sale_order_line.py:1096-1098); type/service_type/invoice_policy/reinvoice_policy (_compute_qty_delivered_method addons/sale/models/sale_order_line.py:1101-1127, _compute_invoice_policy addons/sale/models/sale_order_line.py:1250-1253, _compute_qty_to_invoice addons/sale/models/sale_order_line.py:1348-1358, _compute_invoice_status addons/sale/models/sale_order_line.py:1402, _compute_price_unit addons/sale/models/sale_order_line.py:778); categ_id (_compute_analytic_distribution addons/sale/models/sale_order_line.py:1655-1660); non-stored related/computed fields product_template_id, product_template_attribute_value_ids, is_storable, categ_id, product_type, service_tracking (addons/sale/models/sale_order_line.py:107-122,177,190,396-398) re-read product_product/product_template on every access; invoice line copies product type/name/uom (_prepare_invoice_line addons/sale/models/sale_order_line.py:2049-2097); sale.report joins product_product/product_template/uom_uom per row for uom factor, categ_id, product_tmpl_id, weight, volume (addons/sale/report/sale_report.py:136-186). Price, discount, tax_ids and name are already stored on the line (an existing snapshot); uom factor/rounding, product_tmpl_id, categ_id, type, service_tracking, is_storable, invoice/reinvoice policies, sale_delay, weight and volume are not."
     },
     {
       "id": "ap-501963510f",
@@ -50830,8 +50830,8 @@
         }
       ],
       "sort": [],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/sale/models/payment_transaction.py",
         "lines": [
@@ -50845,7 +50845,7 @@
         "method": "browse"
       },
       "routine": "PaymentTransaction._compute_reference_prefix",
-      "note": "warm: _compute_reference_prefix browses the transaction's orders (addons/sale/models/payment_transaction.py:254-255)."
+      "note": "not confirmed: scanner false positive. `self.browse()` (addons/sale/models/payment_transaction.py:254) builds an empty recordset for convert_to_cache; no payment_transaction row is read."
     },
     {
       "id": "ap-63fbe48895",
@@ -50877,7 +50877,7 @@
         "method": "browse"
       },
       "routine": "PaymentTransaction._compute_reference_prefix",
-      "note": "warm: _compute_reference_prefix browses the transaction's orders (addons/sale/models/payment_transaction.py:254-255)."
+      "note": "warm: _compute_reference_prefix browses the transaction's orders by id (addons/sale/models/payment_transaction.py:255)."
     },
     {
       "id": "ap-2dd0228bc2",
@@ -51620,8 +51620,8 @@
         }
       ],
       "sort": [],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -51635,7 +51635,7 @@
         "method": "browse"
       },
       "routine": "SaleOrder._create_account_invoices",
-      "note": "warm: empty browse() accumulator for created invoices (addons/sale/models/sale_order.py:2023); no row read."
+      "note": "not confirmed: scanner false positive. `AccountMoveSudo.browse()` (addons/sale/models/sale_order.py:2023) builds an empty recordset as an accumulator; no account_move row is read."
     },
     {
       "id": "ap-6dc7b1aa3b",
@@ -52114,8 +52114,8 @@
         }
       ],
       "sort": [],
-      "frequency": "cold",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/sale/models/utm_campaign.py",
         "lines": [
@@ -52129,7 +52129,7 @@
         "method": "browse"
       },
       "routine": "UtmCampaign._compute_sale_invoiced_amount",
-      "note": "cold: UTM campaign statistics and redirects (addons/sale/models/utm_campaign.py:39-104)."
+      "note": "not confirmed: scanner false positive. `self.browse()` (addons/sale/models/utm_campaign.py:86) builds an empty recordset as an accumulator; no utm_campaign row is read."
     },
     {
       "id": "ap-98863b7997",
@@ -52384,7 +52384,7 @@
       "kind": "odoo",
       "op": "write",
       "tables": [
-        "sale_order_discount"
+        "sale_order_line"
       ],
       "join_edges": [],
       "filter": [],
@@ -52405,7 +52405,8 @@
       },
       "routine": "SaleOrderDiscount.action_apply_discount",
       "verb": "update",
-      "note": "warm: transactional write; discount wizard writes discount on order lines (addons/sale/wizard/sale_order_discount.py:170). Scanner attributes the table as sale_order_discount; the written recordset is sale_order_line (_get_discountable_order_lines)."
+      "note": "warm: transactional write; discount wizard writes discount on the order lines returned by _get_discountable_order_lines (addons/sale/wizard/sale_order_discount.py:170). tables corrected from scanner attribution sale_order_discount to sale_order_line and pinned.",
+      "pinned": true
     },
     {
       "id": "ap-4dc58f140a",
