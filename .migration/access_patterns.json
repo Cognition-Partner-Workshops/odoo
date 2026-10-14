@@ -2403,8 +2403,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_bill_line_match.py",
         "lines": [
@@ -2412,7 +2412,8 @@
           124
         ]
       },
-      "statement": "SELECT pol.id, pol.id AS pol_id, pol.id AS matching_id, NULL AS aml_id, pol.company_id AS company_id, pol.partner_id AS partner_id, pol.product_id AS product_id, pol.product_qty AS line_qty, pol.uom_id AS line_uom_id, pol.qty_invoiced AS qty_invoiced, pol.qty_to_invoice AS qty_to_invoice, pol.qty_to"
+      "statement": "SELECT pol.id, pol.id AS pol_id, pol.id AS matching_id, NULL AS aml_id, pol.company_id AS company_id, pol.partner_id AS partner_id, pol.product_id AS product_id, pol.product_qty AS line_qty, pol.uom_id AS line_uom_id, pol.qty_invoiced AS qty_invoiced, pol.qty_to_invoice AS qty_to_invoice, pol.qty_to",
+      "note": "addons/purchase/models/purchase_bill_line_match.py:98-124 SQL view half: confirmed PO lines for the bill matching screen"
     },
     {
       "id": "ap-1aa74fe987",
@@ -2443,8 +2444,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_bill_line_match.py",
         "lines": [
@@ -2452,7 +2453,8 @@
           154
         ]
       },
-      "statement": "SELECT -aml.id, NULL AS pol_id, aml.purchase_line_id AS matching_id, aml.id AS aml_id, aml.company_id AS company_id, am.partner_id AS partner_id, aml.product_id AS product_id, aml.quantity AS line_qty, aml.product_uom_id AS line_uom_id, NULL AS qty_invoiced, NULL AS qty_to_invoice, NULL AS qty_to_in"
+      "statement": "SELECT -aml.id, NULL AS pol_id, aml.purchase_line_id AS matching_id, aml.id AS aml_id, aml.company_id AS company_id, am.partner_id AS partner_id, aml.product_id AS product_id, aml.quantity AS line_qty, aml.product_uom_id AS line_uom_id, NULL AS qty_invoiced, NULL AS qty_to_invoice, NULL AS qty_to_in",
+      "note": "addons/purchase/models/purchase_bill_line_match.py:128-154 SQL view half: vendor bill lines for the bill matching screen"
     },
     {
       "id": "ap-c7ed2ebc41",
@@ -2473,8 +2475,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -2482,7 +2484,8 @@
           417
         ]
       },
-      "statement": "SELECT po.id AS order_id, array_agg(duplicate_po.id) AS duplicate_ids FROM purchase_order po JOIN purchase_order AS duplicate_po ON po.company_id = duplicate_po.company_id AND po.id != duplicate_po.id AND duplicate_po.state != ? AND po.partner_id = duplicate_po.partner_id AND ( po.origin = duplicate"
+      "statement": "SELECT po.id AS order_id, array_agg(duplicate_po.id) AS duplicate_ids FROM purchase_order po JOIN purchase_order AS duplicate_po ON po.company_id = duplicate_po.company_id AND po.id != duplicate_po.id AND duplicate_po.state != ? AND po.partner_id = duplicate_po.partner_id AND ( po.origin = duplicate",
+      "note": "addons/purchase/models/purchase_order.py:401-417 duplicate-PO detection on PO form, only for orders with partner_ref; self-join on company_id, partner_id, origin/name/partner_ref"
     },
     {
       "id": "ap-7571bfa6e4",
@@ -7052,8 +7055,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/account_invoice.py",
         "lines": [
@@ -7069,7 +7072,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "set null"
-      }
+      },
+      "note": "addons/purchase/models/account_invoice.py:662 account.move.line.purchase_line_id: set on every vendor bill line created from a PO; indexed btree_not_null"
     },
     {
       "id": "ap-7445ec9313",
@@ -9569,8 +9573,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/account_tax.py",
         "lines": [
@@ -9586,7 +9590,8 @@
         "side": "junction",
         "owns": false,
         "junction": "account_tax_purchase_order_line_rel"
-      }
+      },
+      "note": "addons/purchase/models/account_tax.py:7 inverse side of line.tax_ids; read only by _compute_is_used"
     },
     {
       "id": "ap-fd27dbcbc0",
@@ -12617,8 +12622,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/res_company.py",
         "lines": [
@@ -12633,7 +12638,8 @@
         "field": "account_bills_to_receive_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/models/res_company.py:13 account_bills_to_receive_id: settings default read by accrual entries"
     },
     {
       "id": "ap-4623c6d205",
@@ -12719,8 +12725,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/res_company.py",
         "lines": [
@@ -12735,7 +12741,8 @@
         "field": "account_billed_not_received_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/models/res_company.py:20 account_billed_not_received_id: settings default read by accrual entries"
     },
     {
       "id": "ap-9d578598ab",
@@ -13735,8 +13742,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/res_partner.py",
         "lines": [
@@ -13751,7 +13758,8 @@
         "field": "buyer_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/models/res_partner.py:45 buyer_id: partner form field"
     },
     {
       "id": "ap-cd437fb29b",
@@ -13773,8 +13781,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/res_partner.py",
         "lines": [
@@ -13789,7 +13797,8 @@
         "field": "purchase_incoterm_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/models/res_partner.py:48 purchase_incoterm_id: partner form field"
     },
     {
       "id": "ap-cc4390c325",
@@ -18641,8 +18650,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -18657,7 +18666,8 @@
         "field": "partner_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/models/purchase_order.py:94 partner_id: vendor on every PO/RFQ; read on each PO form load and line pricing (_get_seller_info)"
     },
     {
       "id": "ap-cec8d46375",
@@ -18679,8 +18689,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -18695,7 +18705,8 @@
         "field": "dest_address_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/models/purchase_order.py:98 dest_address_id: optional dropship address"
     },
     {
       "id": "ap-16252200d7",
@@ -18713,8 +18724,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -18729,7 +18740,8 @@
         "field": "currency_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/models/purchase_order.py:101 currency_id: read on every line price conversion (_compute_price_unit_and_date_planned_and_name)"
     },
     {
       "id": "ap-f39ad8cae1",
@@ -18747,8 +18759,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -18763,7 +18775,8 @@
         "field": "order_line",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "addons/purchase/models/purchase_order.py:121 order_line One2many, parent owns lines (ondelete cascade on order_id); PO form always loads header+lines together"
     },
     {
       "id": "ap-d802e51a76",
@@ -18786,8 +18799,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -18803,7 +18816,8 @@
         "side": "junction",
         "owns": false,
         "junction": "account_move_purchase_order_rel"
-      }
+      },
+      "note": "addons/purchase/models/purchase_order.py:130 invoice_ids stored compute, refreshed on bill create/post"
     },
     {
       "id": "ap-8535eb79c5",
@@ -18821,8 +18835,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -18837,7 +18851,8 @@
         "field": "fiscal_position_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/models/purchase_order.py:147 fiscal_position_id: optional header field"
     },
     {
       "id": "ap-dc16c66ebb",
@@ -18855,8 +18870,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -18871,7 +18886,8 @@
         "field": "payment_term_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/models/purchase_order.py:168 payment_term_id: optional header field"
     },
     {
       "id": "ap-f718e5f811",
@@ -18889,8 +18905,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -18905,7 +18921,8 @@
         "field": "incoterm_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/models/purchase_order.py:169 incoterm_id: optional header field"
     },
     {
       "id": "ap-c0eb0675ea",
@@ -18931,8 +18948,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -18947,7 +18964,8 @@
         "field": "user_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/models/purchase_order.py:174 user_id: buyer, groupby key of the purchase dashboard (retrieve_dashboard)"
     },
     {
       "id": "ap-d985ab90dc",
@@ -18965,8 +18983,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -18981,7 +18999,8 @@
         "field": "company_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/models/purchase_order.py:177 company_id: required, in every PO domain"
     },
     {
       "id": "ap-98d45243ee",
@@ -19004,8 +19023,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order_line.py",
         "lines": [
@@ -19021,7 +19040,8 @@
         "side": "junction",
         "owns": false,
         "junction": "account_tax_purchase_order_line_rel"
-      }
+      },
+      "note": "addons/purchase/models/purchase_order_line.py:39 tax_ids M2M: set on every line create (_compute_tax_id) and read by _compute_amount"
     },
     {
       "id": "ap-fe36f32789",
@@ -19039,8 +19059,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order_line.py",
         "lines": [
@@ -19056,7 +19076,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "restrict"
-      }
+      },
+      "note": "addons/purchase/models/purchase_order_line.py:49 uom_id: required on accountable lines, read on every line pricing"
     },
     {
       "id": "ap-33fdb29d0a",
@@ -19074,8 +19095,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order_line.py",
         "lines": [
@@ -19091,7 +19112,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "restrict"
-      }
+      },
+      "note": "addons/purchase/models/purchase_order_line.py:50 product_id: product read on line creation (_compute_price_unit_and_date_planned_and_name -> _get_seller_info -> product._select_seller)"
     },
     {
       "id": "ap-23cd668997",
@@ -19109,8 +19131,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order_line.py",
         "lines": [
@@ -19126,7 +19148,8 @@
         "side": "child",
         "owns": false,
         "ondelete": "cascade"
-      }
+      },
+      "note": "addons/purchase/models/purchase_order_line.py:66 order_id: required FK, cascade delete; PO form loads lines through the order, but lines are also searched standalone by product_id/state (_update_uom, _has_confirmed_purchase, _search_sold_by_vendor, _get_last_po_line, _compute_show_comparison read_group) so the line needs its own product_id/state/order_id lookups"
     },
     {
       "id": "ap-bfaa3c95dd",
@@ -19144,8 +19167,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order_line.py",
         "lines": [
@@ -19160,7 +19183,8 @@
         "field": "company_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/models/purchase_order_line.py:68 company_id related stored copy of order_id.company_id, written on every line create"
     },
     {
       "id": "ap-4f2ea0774d",
@@ -19178,8 +19202,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order_line.py",
         "lines": [
@@ -19194,7 +19218,8 @@
         "field": "invoice_lines",
         "side": "parent",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/models/purchase_order_line.py:71 invoice_lines O2M: drives qty_invoiced recompute on every vendor bill line write"
     },
     {
       "id": "ap-4827514c12",
@@ -19217,8 +19242,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order_line.py",
         "lines": [
@@ -19234,7 +19259,8 @@
         "side": "junction",
         "owns": false,
         "junction": "purchase_order_line_accrual_move_rel"
-      }
+      },
+      "note": "addons/purchase/models/purchase_order_line.py:102 accrual_move_ids: accrual wizard only"
     },
     {
       "id": "ap-7dec3023a1",
@@ -19252,8 +19278,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order_line.py",
         "lines": [
@@ -19268,7 +19294,8 @@
         "field": "partner_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/models/purchase_order_line.py:118 partner_id related stored copy of order_id.partner_id, indexed; written on every line create"
     },
     {
       "id": "ap-6c0398e62c",
@@ -19291,8 +19318,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order_line.py",
         "lines": [
@@ -19308,7 +19335,8 @@
         "side": "junction",
         "owns": false,
         "junction": "product_template_attribute_value_purchase_order_line_rel"
-      }
+      },
+      "note": "addons/purchase/models/purchase_order_line.py:141 product_no_variant_attribute_value_ids: only for products with no-variant attributes"
     },
     {
       "id": "ap-4367babe4a",
@@ -19326,8 +19354,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/wizard/bill_to_po_wizard.py",
         "lines": [
@@ -19342,7 +19370,8 @@
         "field": "purchase_order_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/wizard/bill_to_po_wizard.py:10 transient wizard field"
     },
     {
       "id": "ap-7ee47f1d8b",
@@ -19360,8 +19389,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/wizard/bill_to_po_wizard.py",
         "lines": [
@@ -19376,7 +19405,8 @@
         "field": "partner_id",
         "side": "child",
         "owns": false
-      }
+      },
+      "note": "addons/purchase/wizard/bill_to_po_wizard.py:11 transient wizard field"
     },
     {
       "id": "ap-7b8a21d1cc",
@@ -48561,8 +48591,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/account_invoice.py",
         "lines": [
@@ -48575,7 +48605,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "AccountMove._onchange_partner_id"
+      "routine": "AccountMove._onchange_partner_id",
+      "note": "addons/purchase/models/account_invoice.py:127 _onchange_partner_id: default currency by id on vendor bill form"
     },
     {
       "id": "ap-b152379515",
@@ -48600,8 +48631,8 @@
         "account_journal.type",
         "account_journal.code"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/account_invoice.py",
         "lines": [
@@ -48614,7 +48645,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "AccountMove._onchange_partner_id"
+      "routine": "AccountMove._onchange_partner_id",
+      "note": "addons/purchase/models/account_invoice.py:138 _onchange_partner_id: purchase journal by type+currency on vendor bill form"
     },
     {
       "id": "ap-67c5e14f01",
@@ -48629,8 +48661,8 @@
         "purchase_order.priority",
         "purchase_order.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/account_invoice.py",
         "lines": [
@@ -48643,7 +48675,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "AccountMove._match_purchase_orders"
+      "routine": "AccountMove._match_purchase_orders",
+      "note": "addons/purchase/models/account_invoice.py:509-510 _match_purchase_orders: PO by name for EDI/OCR vendor bills (common_domain: company_id, state=purchase, invoice_status)"
     },
     {
       "id": "ap-fdeff92149",
@@ -48658,8 +48691,8 @@
         "purchase_order.priority",
         "purchase_order.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/account_invoice.py",
         "lines": [
@@ -48672,7 +48705,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "AccountMove._match_purchase_orders"
+      "routine": "AccountMove._match_purchase_orders",
+      "note": "addons/purchase/models/account_invoice.py:515-516 _match_purchase_orders: PO by partner_ref fallback"
     },
     {
       "id": "ap-72bf676b4d",
@@ -48687,8 +48721,8 @@
         "purchase_order.priority",
         "purchase_order.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/account_invoice.py",
         "lines": [
@@ -48701,7 +48735,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "AccountMove._match_purchase_orders"
+      "routine": "AccountMove._match_purchase_orders",
+      "note": "addons/purchase/models/account_invoice.py:568 _match_purchase_orders: PO by vendor child_of + amount_total range fallback"
     },
     {
       "id": "ap-ab1b358cc2",
@@ -48721,8 +48756,8 @@
         "account_tax.sequence",
         "account_tax.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/account_tax.py",
         "lines": [
@@ -48735,7 +48770,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "AccountTax._compute_is_used"
+      "routine": "AccountTax._compute_is_used",
+      "note": "addons/purchase/models/account_tax.py:19-22 _compute_is_used: domain also walks purchase_order_line_ids (junction account_tax_purchase_order_line_rel), not captured in tables"
     },
     {
       "id": "ap-6732af92ff",
@@ -48747,8 +48783,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/analytic_account.py",
         "lines": [
@@ -48761,7 +48797,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "AccountAnalyticAccount._compute_purchase_order_count"
+      "routine": "AccountAnalyticAccount._compute_purchase_order_count",
+      "note": "addons/purchase/models/analytic_account.py:15-17 PO count on analytic account form via order_line.invoice_lines.analytic_line_ids"
     },
     {
       "id": "ap-82490324ce",
@@ -48776,8 +48813,8 @@
         "purchase_order.priority",
         "purchase_order.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/analytic_account.py",
         "lines": [
@@ -48790,7 +48827,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "AccountAnalyticAccount.action_view_purchase_orders"
+      "routine": "AccountAnalyticAccount.action_view_purchase_orders",
+      "note": "addons/purchase/models/analytic_account.py:21-23 action_view_purchase_orders smart button"
     },
     {
       "id": "ap-0a6828083d",
@@ -48807,8 +48845,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/ir_actions_report.py",
         "lines": [
@@ -48821,7 +48859,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "IrActionsReport._render_qweb_pdf_prepare_streams"
+      "routine": "IrActionsReport._render_qweb_pdf_prepare_streams",
+      "note": "addons/purchase/models/ir_actions_report.py:20 PO by id when printing the PO PDF (EDI builders)"
     },
     {
       "id": "ap-9aacde08f2",
@@ -48857,8 +48896,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/product.py",
         "lines": [
@@ -48871,7 +48910,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "ProductTemplate._has_confirmed_purchase"
+      "routine": "ProductTemplate._has_confirmed_purchase",
+      "note": "addons/purchase/models/product.py:64-70 ProductTemplate._has_confirmed_purchase: guard on product template edits (uom/type changes)"
     },
     {
       "id": "ap-3909ae44ab",
@@ -48902,8 +48942,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/product.py",
         "lines": [
@@ -48916,7 +48956,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "ProductProduct._compute_purchased_product_qty"
+      "routine": "ProductProduct._compute_purchased_product_qty",
+      "note": "addons/purchase/models/product.py:91 _compute_purchased_product_qty: Purchased smart button on product form, 1-year window"
     },
     {
       "id": "ap-f9ff65cd75",
@@ -48932,8 +48973,8 @@
         "purchase_order_line.sequence",
         "purchase_order_line.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/product.py",
         "lines": [
@@ -48946,7 +48987,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct._compute_forecasted_without_stock"
+      "routine": "ProductProduct._compute_forecasted_without_stock",
+      "note": "addons/purchase/models/product.py:117 _compute_forecasted_without_stock: at-date variant, product forecast"
     },
     {
       "id": "ap-679716d679",
@@ -48958,8 +49000,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/product.py",
         "lines": [
@@ -48972,7 +49014,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "ProductProduct._compute_forecasted_without_stock"
+      "routine": "ProductProduct._compute_forecasted_without_stock",
+      "note": "addons/purchase/models/product.py:127-131 _compute_forecasted_without_stock: read_group by product_id,uom_id on product form forecast"
     },
     {
       "id": "ap-0c808e07ba",
@@ -48984,8 +49027,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/product.py",
         "lines": [
@@ -48998,7 +49041,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct._search_sold_by_vendor"
+      "routine": "ProductProduct._search_sold_by_vendor",
+      "note": "addons/purchase/models/product.py:143 _search_sold_by_vendor: partner lookup for the Vendor product filter"
     },
     {
       "id": "ap-6ed1d4450c",
@@ -49030,8 +49074,8 @@
         "product_template.name",
         "product_product.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/product.py",
         "lines": [
@@ -49044,7 +49088,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct._search_sold_by_vendor"
+      "routine": "ProductProduct._search_sold_by_vendor",
+      "note": "addons/purchase/models/product.py:148-150 _search_sold_by_vendor: products via product_supplierinfo.partner_id (seller_ids); Vendor filter on product search"
     },
     {
       "id": "ap-f47188ce65",
@@ -49079,8 +49124,8 @@
         "purchase_order_line.sequence",
         "purchase_order_line.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/product.py",
         "lines": [
@@ -49093,7 +49138,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct._search_sold_by_vendor"
+      "routine": "ProductProduct._search_sold_by_vendor",
+      "note": "addons/purchase/models/product.py:152-156 _search_sold_by_vendor: products via confirmed PO lines of the vendor"
     },
     {
       "id": "ap-13572587f6",
@@ -49110,8 +49156,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/product.py",
         "lines": [
@@ -49124,7 +49170,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "ProductProduct._update_uom"
+      "routine": "ProductProduct._update_uom",
+      "note": "addons/purchase/models/product.py:170-174 _update_uom: only when a product UoM is changed"
     },
     {
       "id": "ap-755da26882",
@@ -49141,8 +49188,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/product.py",
         "lines": [
@@ -49155,7 +49202,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "ProductProduct._trigger_uom_warning"
+      "routine": "ProductProduct._trigger_uom_warning",
+      "note": "addons/purchase/models/product.py:190-192 _trigger_uom_warning: only when a product UoM is changed"
     },
     {
       "id": "ap-6256822170",
@@ -49186,8 +49234,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/product.py",
         "lines": [
@@ -49200,7 +49248,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "ProductProduct._has_confirmed_purchase"
+      "routine": "ProductProduct._has_confirmed_purchase",
+      "note": "addons/purchase/models/product.py:196-202 ProductProduct._has_confirmed_purchase: guard on product variant edits"
     },
     {
       "id": "ap-aa56dbf814",
@@ -49234,8 +49283,8 @@
         "purchase_order.date_approve",
         "purchase_order.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/product.py",
         "lines": [
@@ -49248,7 +49297,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct._get_last_po_line"
+      "routine": "ProductProduct._get_last_po_line",
+      "note": "addons/purchase/models/product.py:229 _get_last_po_line: last confirmed PO for the product/vendor; product read on line creation when the vendor has no product_supplierinfo (_select_seller fallback)"
     },
     {
       "id": "ap-14b5744bed",
@@ -49271,8 +49321,8 @@
       "sort": [
         "purchase_order_line.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/product.py",
         "lines": [
@@ -49285,7 +49335,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct._get_last_po_line"
+      "routine": "ProductProduct._get_last_po_line",
+      "note": "addons/purchase/models/product.py:230-233 _get_last_po_line: line of that order by order_id+product_id; same line-creation fallback"
     },
     {
       "id": "ap-b40fff4f8f",
@@ -49297,8 +49348,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_bill_line_match.py",
         "lines": [
@@ -49312,7 +49363,8 @@
         "method": "create"
       },
       "routine": "PurchaseBillLineMatch._action_create_bill_from_po_lines",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "addons/purchase/models/purchase_bill_line_match.py:178-182 create draft vendor bill from selected PO lines"
     },
     {
       "id": "ap-94ee96805a",
@@ -49324,8 +49376,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_bill_line_match.py",
         "lines": [
@@ -49339,7 +49391,8 @@
         "method": "unlink"
       },
       "routine": "PurchaseBillLineMatch.action_match_lines",
-      "verb": "delete"
+      "verb": "delete",
+      "note": "addons/purchase/models/purchase_bill_line_match.py:220 unlink unmatched bill lines in action_match_lines"
     },
     {
       "id": "ap-4da774377d",
@@ -49356,8 +49409,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49370,7 +49423,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "PurchaseOrder._compute_show_comparison"
+      "routine": "PurchaseOrder._compute_show_comparison",
+      "note": "addons/purchase/models/purchase_order.py:343 _compute_show_comparison: read_group lines by product_id+state on every PO form load"
     },
     {
       "id": "ap-9e16f9aeda",
@@ -49401,7 +49455,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "PurchaseOrder.create"
+      "routine": "PurchaseOrder.create",
+      "note": "addons/purchase/models/purchase_order.py:456 self.browse() with no ids is an empty recordset accumulator, not a read by id (scanner false positive)"
     },
     {
       "id": "ap-7ed7538a8c",
@@ -49418,8 +49473,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49432,7 +49487,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "PurchaseOrder.action_rfq_send"
+      "routine": "PurchaseOrder.action_rfq_send",
+      "note": "addons/purchase/models/purchase_order.py:651 action_rfq_send: mail template by id when sending an RFQ"
     },
     {
       "id": "ap-91f1536e00",
@@ -49444,8 +49500,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49459,7 +49515,8 @@
         "method": "write"
       },
       "routine": "PurchaseOrder.button_approve",
-      "verb": "update"
+      "verb": "update",
+      "note": "addons/purchase/models/purchase_order.py:700 button_approve: state/date_approve write on every PO confirmation"
     },
     {
       "id": "ap-a6f424be5b",
@@ -49471,8 +49528,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49486,7 +49543,8 @@
         "method": "write"
       },
       "routine": "PurchaseOrder.button_approve",
-      "verb": "update"
+      "verb": "update",
+      "note": "addons/purchase/models/purchase_order.py:701 button_approve: locked write only when company po_lock=lock"
     },
     {
       "id": "ap-2d600b8d65",
@@ -49498,8 +49556,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49513,7 +49571,8 @@
         "method": "write"
       },
       "routine": "PurchaseOrder.button_draft",
-      "verb": "update"
+      "verb": "update",
+      "note": "addons/purchase/models/purchase_order.py:705 button_draft: manual reset"
     },
     {
       "id": "ap-1e9f65f732",
@@ -49525,8 +49584,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49540,7 +49599,8 @@
         "method": "write"
       },
       "routine": "PurchaseOrder.button_cancel",
-      "verb": "update"
+      "verb": "update",
+      "note": "addons/purchase/models/purchase_order.py:731 button_cancel"
     },
     {
       "id": "ap-006cfdf34d",
@@ -49552,8 +49612,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49567,7 +49627,8 @@
         "method": "create"
       },
       "routine": "PurchaseOrder._create_downpayments",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "addons/purchase/models/purchase_order.py:803 _create_downpayments: section line, down payment flow only"
     },
     {
       "id": "ap-dfcac37551",
@@ -49579,8 +49640,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49594,7 +49655,8 @@
         "method": "create"
       },
       "routine": "PurchaseOrder._create_downpayments",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "addons/purchase/models/purchase_order.py:813 _create_downpayments: down payment lines"
     },
     {
       "id": "ap-a9998d7926",
@@ -49606,8 +49668,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49621,7 +49683,8 @@
         "method": "create"
       },
       "routine": "PurchaseOrder.action_create_invoice",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "addons/purchase/models/purchase_order.py:871 action_create_invoice: vendor bill created from PO (Create Bill button)"
     },
     {
       "id": "ap-0bb4971376",
@@ -49638,8 +49701,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49652,7 +49715,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "PurchaseOrder.action_create_invoice"
+      "routine": "PurchaseOrder.action_create_invoice",
+      "note": "addons/purchase/models/purchase_order.py:879 action_create_invoice: uploaded bill attachments by id"
     },
     {
       "id": "ap-efaced241c",
@@ -49664,8 +49728,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49679,7 +49743,8 @@
         "method": "write"
       },
       "routine": "PurchaseOrder.action_create_invoice",
-      "verb": "update"
+      "verb": "update",
+      "note": "addons/purchase/models/purchase_order.py:892 action_create_invoice: re-parent uploaded attachments to the bill"
     },
     {
       "id": "ap-3723c92c42",
@@ -49710,7 +49775,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "PurchaseOrder.retrieve_dashboard"
+      "routine": "PurchaseOrder.retrieve_dashboard",
+      "note": "addons/purchase/models/purchase_order.py:1041 self.browse().check_access() is an access-rights check on an empty recordset, not a read by id (scanner false positive)"
     },
     {
       "id": "ap-d26d88bcda",
@@ -49727,8 +49793,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49741,7 +49807,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "PurchaseOrder.retrieve_dashboard"
+      "routine": "PurchaseOrder.retrieve_dashboard",
+      "note": "addons/purchase/models/purchase_order.py:1079 retrieve_dashboard: state=draft count by priority,user_id on every PO list view load"
     },
     {
       "id": "ap-883ec76177",
@@ -49758,8 +49825,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49772,7 +49839,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "PurchaseOrder.retrieve_dashboard"
+      "routine": "PurchaseOrder.retrieve_dashboard",
+      "note": "addons/purchase/models/purchase_order.py:1083 retrieve_dashboard: state=sent count on every PO list view load"
     },
     {
       "id": "ap-3a7211691d",
@@ -49793,8 +49861,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49807,7 +49875,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "PurchaseOrder.retrieve_dashboard"
+      "routine": "PurchaseOrder.retrieve_dashboard",
+      "note": "addons/purchase/models/purchase_order.py:1087 retrieve_dashboard: late RFQs (state in draft/sent/to approve, date_order < now) on every PO list view load"
     },
     {
       "id": "ap-dfbffc0db7",
@@ -49828,8 +49897,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49842,7 +49911,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "PurchaseOrder.retrieve_dashboard"
+      "routine": "PurchaseOrder.retrieve_dashboard",
+      "note": "addons/purchase/models/purchase_order.py:1091 retrieve_dashboard: not acknowledged POs on every PO list view load"
     },
     {
       "id": "ap-d3df96aa8d",
@@ -49859,8 +49929,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49873,7 +49943,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "PurchaseOrder.retrieve_dashboard"
+      "routine": "PurchaseOrder.retrieve_dashboard",
+      "note": "addons/purchase/models/purchase_order.py:1095 retrieve_dashboard: late receipts (is_late search field -> order_line qty_received < product_qty) on every PO list view load"
     },
     {
       "id": "ap-347d651791",
@@ -49897,8 +49968,8 @@
         "purchase_order.priority",
         "purchase_order.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49911,7 +49982,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "PurchaseOrder.retrieve_dashboard"
+      "routine": "PurchaseOrder.retrieve_dashboard",
+      "note": "addons/purchase/models/purchase_order.py:1100-1102 retrieve_dashboard: confirmed POs of the last 3 months (create_date range, date_approve set) on every PO list view load"
     },
     {
       "id": "ap-1a16de0283",
@@ -49928,8 +50000,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49942,7 +50014,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "PurchaseOrder._send_reminder_open_composer"
+      "routine": "PurchaseOrder._send_reminder_open_composer",
+      "note": "addons/purchase/models/purchase_order.py:1174 _send_reminder_open_composer: mail template by id"
     },
     {
       "id": "ap-d4e4e0d265",
@@ -49974,8 +50047,8 @@
         "purchase_order.priority",
         "purchase_order.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -49988,7 +50061,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "PurchaseOrder._get_orders_to_remind"
+      "routine": "PurchaseOrder._get_orders_to_remind",
+      "note": "addons/purchase/models/purchase_order.py:1194-1199 _get_orders_to_remind: daily receipt reminder cron"
     },
     {
       "id": "ap-644c46ed72",
@@ -50005,8 +50079,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -50019,7 +50093,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "PurchaseOrder.create_document_from_attachment"
+      "routine": "PurchaseOrder.create_document_from_attachment",
+      "note": "addons/purchase/models/purchase_order.py:1428 create_document_from_attachment: attachments by id on upload"
     },
     {
       "id": "ap-855eb392d6",
@@ -50035,8 +50110,8 @@
         "purchase_order_line.sequence",
         "purchase_order_line.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order_line.py",
         "lines": [
@@ -50049,7 +50124,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "PurchaseOrderLine._get_accrual_line_ids"
+      "routine": "PurchaseOrderLine._get_accrual_line_ids",
+      "note": "addons/purchase/models/purchase_order_line.py:403 _get_accrual_line_ids: accrual wizard and prepaid/bill_to_receive search filters"
     },
     {
       "id": "ap-129fd6ff6c",
@@ -50066,8 +50142,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order_line.py",
         "lines": [
@@ -50080,7 +50156,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "PurchaseOrderLine.action_add_from_catalog"
+      "routine": "PurchaseOrderLine.action_add_from_catalog",
+      "note": "addons/purchase/models/purchase_order_line.py:696 action_add_from_catalog: PO by id from context"
     },
     {
       "id": "ap-55d1f95094",
@@ -50097,8 +50174,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/res_partner.py",
         "lines": [
@@ -50111,7 +50188,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ResPartner._compute_purchase_order_count"
+      "routine": "ResPartner._compute_purchase_order_count",
+      "note": "addons/purchase/models/res_partner.py:15-18 _compute_purchase_order_count: child partners for the partner form smart button"
     },
     {
       "id": "ap-a03d3af9af",
@@ -50128,8 +50206,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/res_partner.py",
         "lines": [
@@ -50145,7 +50223,8 @@
       "routine": "ResPartner._compute_purchase_order_count",
       "compute_by": [
         "purchase_order.partner_id"
-      ]
+      ],
+      "note": "addons/purchase/models/res_partner.py:19-22 _compute_purchase_order_count: PO count grouped by partner_id on partner form"
     },
     {
       "id": "ap-3c9d7d3a5e",
@@ -50167,8 +50246,8 @@
         "product_supplierinfo.price",
         "product_supplierinfo.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/res_partner.py",
         "lines": [
@@ -50181,7 +50260,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ResPartner.write"
+      "routine": "ResPartner.write",
+      "note": "addons/purchase/models/res_partner.py:66 ResPartner.write: product_supplierinfo by partner_id, only when property_purchase_currency_id changes"
     },
     {
       "id": "ap-570e4cf5c0",
@@ -50198,8 +50278,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/wizard/bill_to_po_wizard.py",
         "lines": [
@@ -50212,7 +50292,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "BillToPoWizard.action_add_to_po"
+      "routine": "BillToPoWizard.action_add_to_po",
+      "note": "addons/purchase/wizard/bill_to_po_wizard.py:15 bill lines by id from context"
     },
     {
       "id": "ap-bff915a70a",
@@ -50224,8 +50305,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/wizard/bill_to_po_wizard.py",
         "lines": [
@@ -50239,7 +50320,8 @@
         "method": "create"
       },
       "routine": "BillToPoWizard.action_add_to_po",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "addons/purchase/wizard/bill_to_po_wizard.py:20-23 add bill lines to an existing PO"
     },
     {
       "id": "ap-497e5ff8a8",
@@ -50251,8 +50333,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/wizard/bill_to_po_wizard.py",
         "lines": [
@@ -50266,7 +50348,8 @@
         "method": "create"
       },
       "routine": "BillToPoWizard.action_add_to_po",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "addons/purchase/wizard/bill_to_po_wizard.py:26-29 create a PO with lines from a vendor bill"
     },
     {
       "id": "ap-d69e0ab0ba",
@@ -50283,8 +50366,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/wizard/bill_to_po_wizard.py",
         "lines": [
@@ -50297,7 +50380,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "BillToPoWizard.action_add_downpayment"
+      "routine": "BillToPoWizard.action_add_downpayment",
+      "note": "addons/purchase/wizard/bill_to_po_wizard.py:45 bill lines by id from context"
     },
     {
       "id": "ap-d01f53c63b",
@@ -50309,8 +50393,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/wizard/bill_to_po_wizard.py",
         "lines": [
@@ -50324,7 +50408,8 @@
         "method": "create"
       },
       "routine": "BillToPoWizard.action_add_downpayment",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "addons/purchase/wizard/bill_to_po_wizard.py:48-50 create a PO for a down payment"
     },
     {
       "id": "ap-786a41c726",
