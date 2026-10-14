@@ -1,0 +1,1044 @@
+{
+  "manifest_version": 1,
+  "source": "odoo_src (Odoo 20.0 demo data, migration.fixture_source marker 2) cloned with CREATE DATABASE odoo_fixture TEMPLATE odoo_src, plus one synthetic outlier template",
+  "method": "synthetic",
+  "masked_columns": [],
+  "masking": "none: Odoo demo data is synthetic, the fixture holds no customer rows",
+  "produced_at": "2026-10-14T23:17:07Z",
+  "produced_by": "s2.4-fixture (.migration/fixtures/build_fixture.sh)",
+  "fixture": {
+    "family": "postgresql",
+    "database": "odoo_fixture",
+    "host": "localhost",
+    "port": 5433,
+    "schema": "public",
+    "role": "odoo_ro",
+    "marker": {
+      "key": "migration.fixture",
+      "value": "1"
+    },
+    "source_database_uuid": "99180dc6-c823-11f1-8fa2-0b3e1f661030",
+    "dsn_env": "ODOO_PG_FIXTURE_DSN",
+    "dsn_derivation": "ODOO_PG_RO_DSN JSON with \"database\" replaced by odoo_fixture (same read-only role); exported per shell, never stored",
+    "recon": "recon run --mode fixture --family postgresql --source-dsn-secret ODOO_PG_FIXTURE_DSN",
+    "build": ".migration/fixtures/build_fixture.sh (after build_source.sh)"
+  },
+  "scope": {
+    "from": ".migration/table_buckets.json bucket migrate",
+    "tables": [
+      "product_attribute",
+      "product_attribute_custom_value",
+      "product_attribute_product_template_rel",
+      "product_attribute_value",
+      "product_attribute_value_product_template_attribute_line_rel",
+      "product_base_unit",
+      "product_category",
+      "product_combo",
+      "product_combo_item",
+      "product_combo_product_template_rel",
+      "product_document",
+      "product_label_layout",
+      "product_label_layout_product_product_rel",
+      "product_label_layout_product_template_rel",
+      "product_label_layout_product_uom_rel",
+      "product_pricelist",
+      "product_pricelist_item",
+      "product_product",
+      "product_product_uom_uom_rel",
+      "product_supplierinfo",
+      "product_tag",
+      "product_tag_product_product_rel",
+      "product_tag_product_template_rel",
+      "product_template",
+      "product_template_attribute_excluded_value_ids_rel",
+      "product_template_attribute_line",
+      "product_template_attribute_value",
+      "product_template_uom_uom_rel",
+      "product_uom",
+      "product_variant_combination",
+      "res_country_group_pricelist_rel",
+      "uom_uom",
+      "update_product_attribute_value"
+    ]
+  },
+  "row_counts": {
+    "product_attribute": 17,
+    "product_attribute_custom_value": 0,
+    "product_attribute_product_template_rel": 12,
+    "product_attribute_value": 114,
+    "product_attribute_value_product_template_attribute_line_rel": 37,
+    "product_base_unit": 0,
+    "product_category": 8,
+    "product_combo": 3,
+    "product_combo_item": 8,
+    "product_combo_product_template_rel": 3,
+    "product_document": 2,
+    "product_label_layout": 0,
+    "product_label_layout_product_product_rel": 0,
+    "product_label_layout_product_template_rel": 0,
+    "product_label_layout_product_uom_rel": 0,
+    "product_pricelist": 1,
+    "product_pricelist_item": 1,
+    "product_product": 108,
+    "product_product_uom_uom_rel": 0,
+    "product_supplierinfo": 28,
+    "product_tag": 0,
+    "product_tag_product_product_rel": 0,
+    "product_tag_product_template_rel": 0,
+    "product_template": 39,
+    "product_template_attribute_excluded_value_ids_rel": 1,
+    "product_template_attribute_line": 12,
+    "product_template_attribute_value": 37,
+    "product_template_uom_uom_rel": 0,
+    "product_uom": 0,
+    "product_variant_combination": 200,
+    "res_country_group_pricelist_rel": 0,
+    "uom_uom": 30,
+    "update_product_attribute_value": 0
+  },
+  "sizing": {
+    "profile": {
+      "path": ".migration/data_profile.json",
+      "sha256": "f994f831c3888f449e9e8d44036a7f4b6c399f9cdf27013440a82bb5b41096e7",
+      "as_of": "2026-10-14T22:49:20.989238+00:00",
+      "census_sha256": "c50ff5384a5c53d07cd894cf4fb8559d301b48dd6884869aaa45c7d7fc945c49"
+    },
+    "rule": "every fan-out whose parent and child are both migrate-bucket tables keeps parents at the profile's p50, p99 and max (the demo slice is smaller than any subset that would still hold all three, so no row is dropped); the outlier template exceeds the profile's max variants per template",
+    "relationships": [
+      {
+        "id": "fanout:product_product->product_template(product_tmpl_id)",
+        "parent": "product_template",
+        "child": "product_product",
+        "column": "product_tmpl_id",
+        "profile": {
+          "parents": 38,
+          "p50": 1,
+          "p99": 5,
+          "max": 5
+        },
+        "fixture": {
+          "parents": 39,
+          "p50": 1,
+          "p99": 60,
+          "max": 60
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_attribute_value->product_attribute(attribute_id)",
+        "parent": "product_attribute",
+        "child": "product_attribute_value",
+        "column": "attribute_id",
+        "profile": {
+          "parents": 14,
+          "p50": 4,
+          "p99": 40,
+          "max": 40
+        },
+        "fixture": {
+          "parents": 17,
+          "p50": 4,
+          "p99": 40,
+          "max": 40
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_template->uom_uom(uom_id)",
+        "parent": "uom_uom",
+        "child": "product_template",
+        "column": "uom_id",
+        "profile": {
+          "parents": 30,
+          "p50": 0,
+          "p99": 34,
+          "max": 34
+        },
+        "fixture": {
+          "parents": 30,
+          "p50": 0,
+          "p99": 35,
+          "max": 35
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_variant_combination->product_template_attribute_value(product_template_attribute_value_id)",
+        "parent": "product_template_attribute_value",
+        "child": "product_variant_combination",
+        "column": "product_template_attribute_value_id",
+        "profile": {
+          "parents": 24,
+          "p50": 1,
+          "p99": 3,
+          "max": 3
+        },
+        "fixture": {
+          "parents": 37,
+          "p50": 1,
+          "p99": 30,
+          "max": 30
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_template->product_category(categ_id)",
+        "parent": "product_category",
+        "child": "product_template",
+        "column": "categ_id",
+        "profile": {
+          "parents": 8,
+          "p50": 1,
+          "p99": 29,
+          "max": 29
+        },
+        "fixture": {
+          "parents": 8,
+          "p50": 1,
+          "p99": 29,
+          "max": 29
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_supplierinfo->uom_uom(uom_id)",
+        "parent": "uom_uom",
+        "child": "product_supplierinfo",
+        "column": "uom_id",
+        "profile": {
+          "parents": 30,
+          "p50": 0,
+          "p99": 28,
+          "max": 28
+        },
+        "fixture": {
+          "parents": 30,
+          "p50": 0,
+          "p99": 28,
+          "max": 28
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_template_attribute_value->product_template(product_tmpl_id)",
+        "parent": "product_template",
+        "child": "product_template_attribute_value",
+        "column": "product_tmpl_id",
+        "profile": {
+          "parents": 38,
+          "p50": 0,
+          "p99": 5,
+          "max": 5
+        },
+        "fixture": {
+          "parents": 39,
+          "p50": 0,
+          "p99": 13,
+          "max": 13
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_template_attribute_value->product_attribute(attribute_id)",
+        "parent": "product_attribute",
+        "child": "product_template_attribute_value",
+        "column": "attribute_id",
+        "profile": {
+          "parents": 14,
+          "p50": 0,
+          "p99": 8,
+          "max": 8
+        },
+        "fixture": {
+          "parents": 17,
+          "p50": 0,
+          "p99": 8,
+          "max": 8
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_attribute_value_product_template_attribute_line_rel->product_template_attribute_line(product_template_attribute_line_id)",
+        "parent": "product_template_attribute_line",
+        "child": "product_attribute_value_product_template_attribute_line_rel",
+        "column": "product_template_attribute_line_id",
+        "profile": {
+          "parents": 9,
+          "p50": 3,
+          "p99": 4,
+          "max": 4
+        },
+        "fixture": {
+          "parents": 12,
+          "p50": 3,
+          "p99": 6,
+          "max": 6
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_template_attribute_value->product_template_attribute_line(attribute_line_id)",
+        "parent": "product_template_attribute_line",
+        "child": "product_template_attribute_value",
+        "column": "attribute_line_id",
+        "profile": {
+          "parents": 9,
+          "p50": 3,
+          "p99": 4,
+          "max": 4
+        },
+        "fixture": {
+          "parents": 12,
+          "p50": 3,
+          "p99": 6,
+          "max": 6
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_attribute_product_template_rel->product_template(product_template_id)",
+        "parent": "product_template",
+        "child": "product_attribute_product_template_rel",
+        "column": "product_template_id",
+        "profile": {
+          "parents": 38,
+          "p50": 0,
+          "p99": 2,
+          "max": 2
+        },
+        "fixture": {
+          "parents": 39,
+          "p50": 0,
+          "p99": 3,
+          "max": 3
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_combo_item->product_combo(combo_id)",
+        "parent": "product_combo",
+        "child": "product_combo_item",
+        "column": "combo_id",
+        "profile": {
+          "parents": 3,
+          "p50": 3,
+          "p99": 3,
+          "max": 3
+        },
+        "fixture": {
+          "parents": 3,
+          "p50": 3,
+          "p99": 3,
+          "max": 3
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_combo_product_template_rel->product_template(product_template_id)",
+        "parent": "product_template",
+        "child": "product_combo_product_template_rel",
+        "column": "product_template_id",
+        "profile": {
+          "parents": 38,
+          "p50": 0,
+          "p99": 3,
+          "max": 3
+        },
+        "fixture": {
+          "parents": 39,
+          "p50": 0,
+          "p99": 3,
+          "max": 3
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_supplierinfo->product_template(product_tmpl_id)",
+        "parent": "product_template",
+        "child": "product_supplierinfo",
+        "column": "product_tmpl_id",
+        "profile": {
+          "parents": 38,
+          "p50": 0,
+          "p99": 3,
+          "max": 3
+        },
+        "fixture": {
+          "parents": 39,
+          "p50": 0,
+          "p99": 3,
+          "max": 3
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_template_attribute_line->product_template(product_tmpl_id)",
+        "parent": "product_template",
+        "child": "product_template_attribute_line",
+        "column": "product_tmpl_id",
+        "profile": {
+          "parents": 38,
+          "p50": 0,
+          "p99": 2,
+          "max": 2
+        },
+        "fixture": {
+          "parents": 39,
+          "p50": 0,
+          "p99": 3,
+          "max": 3
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_variant_combination->product_product(product_product_id)",
+        "parent": "product_product",
+        "child": "product_variant_combination",
+        "column": "product_product_id",
+        "profile": {
+          "parents": 48,
+          "p50": 0,
+          "p99": 2,
+          "max": 2
+        },
+        "fixture": {
+          "parents": 108,
+          "p50": 3,
+          "p99": 3,
+          "max": 3
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:uom_uom->uom_uom(relative_uom_id)",
+        "parent": "uom_uom",
+        "child": "uom_uom",
+        "column": "relative_uom_id",
+        "profile": {
+          "parents": 30,
+          "p50": 1,
+          "p99": 3,
+          "max": 3
+        },
+        "fixture": {
+          "parents": 30,
+          "p50": 1,
+          "p99": 3,
+          "max": 3
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_attribute_product_template_rel->product_attribute(product_attribute_id)",
+        "parent": "product_attribute",
+        "child": "product_attribute_product_template_rel",
+        "column": "product_attribute_id",
+        "profile": {
+          "parents": 14,
+          "p50": 0,
+          "p99": 2,
+          "max": 2
+        },
+        "fixture": {
+          "parents": 17,
+          "p50": 0,
+          "p99": 2,
+          "max": 2
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_attribute_value_product_template_attribute_line_rel->product_attribute_value(product_attribute_value_id)",
+        "parent": "product_attribute_value",
+        "child": "product_attribute_value_product_template_attribute_line_rel",
+        "column": "product_attribute_value_id",
+        "profile": {
+          "parents": 101,
+          "p50": 0,
+          "p99": 2,
+          "max": 2
+        },
+        "fixture": {
+          "parents": 114,
+          "p50": 0,
+          "p99": 2,
+          "max": 2
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_category->product_category(parent_id)",
+        "parent": "product_category",
+        "child": "product_category",
+        "column": "parent_id",
+        "profile": {
+          "parents": 8,
+          "p50": 0,
+          "p99": 2,
+          "max": 2
+        },
+        "fixture": {
+          "parents": 8,
+          "p50": 0,
+          "p99": 2,
+          "max": 2
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_template_attribute_line->product_attribute(attribute_id)",
+        "parent": "product_attribute",
+        "child": "product_template_attribute_line",
+        "column": "attribute_id",
+        "profile": {
+          "parents": 14,
+          "p50": 0,
+          "p99": 2,
+          "max": 2
+        },
+        "fixture": {
+          "parents": 17,
+          "p50": 0,
+          "p99": 2,
+          "max": 2
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_template_attribute_value->product_attribute_value(product_attribute_value_id)",
+        "parent": "product_attribute_value",
+        "child": "product_template_attribute_value",
+        "column": "product_attribute_value_id",
+        "profile": {
+          "parents": 101,
+          "p50": 0,
+          "p99": 2,
+          "max": 2
+        },
+        "fixture": {
+          "parents": 114,
+          "p50": 0,
+          "p99": 2,
+          "max": 2
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_combo_item->product_product(product_id)",
+        "parent": "product_product",
+        "child": "product_combo_item",
+        "column": "product_id",
+        "profile": {
+          "parents": 48,
+          "p50": 0,
+          "p99": 1,
+          "max": 1
+        },
+        "fixture": {
+          "parents": 108,
+          "p50": 0,
+          "p99": 1,
+          "max": 1
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_combo_product_template_rel->product_combo(product_combo_id)",
+        "parent": "product_combo",
+        "child": "product_combo_product_template_rel",
+        "column": "product_combo_id",
+        "profile": {
+          "parents": 3,
+          "p50": 1,
+          "p99": 1,
+          "max": 1
+        },
+        "fixture": {
+          "parents": 3,
+          "p50": 1,
+          "p99": 1,
+          "max": 1
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_pricelist_item->product_pricelist(pricelist_id)",
+        "parent": "product_pricelist",
+        "child": "product_pricelist_item",
+        "column": "pricelist_id",
+        "profile": {
+          "parents": 1,
+          "p50": 1,
+          "p99": 1,
+          "max": 1
+        },
+        "fixture": {
+          "parents": 1,
+          "p50": 1,
+          "p99": 1,
+          "max": 1
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_pricelist_item->product_template(product_tmpl_id)",
+        "parent": "product_template",
+        "child": "product_pricelist_item",
+        "column": "product_tmpl_id",
+        "profile": {
+          "parents": 38,
+          "p50": 0,
+          "p99": 1,
+          "max": 1
+        },
+        "fixture": {
+          "parents": 39,
+          "p50": 0,
+          "p99": 1,
+          "max": 1
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_template_attribute_excluded_value_ids_rel->product_template_attribute_value(excluded_product_template_attribute_value_id)",
+        "parent": "product_template_attribute_value",
+        "child": "product_template_attribute_excluded_value_ids_rel",
+        "column": "excluded_product_template_attribute_value_id",
+        "profile": {
+          "parents": 24,
+          "p50": 0,
+          "p99": 1,
+          "max": 1
+        },
+        "fixture": {
+          "parents": 37,
+          "p50": 0,
+          "p99": 1,
+          "max": 1
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_template_attribute_excluded_value_ids_rel->product_template_attribute_value(product_template_attribute_value_id)",
+        "parent": "product_template_attribute_value",
+        "child": "product_template_attribute_excluded_value_ids_rel",
+        "column": "product_template_attribute_value_id",
+        "profile": {
+          "parents": 24,
+          "p50": 0,
+          "p99": 1,
+          "max": 1
+        },
+        "fixture": {
+          "parents": 37,
+          "p50": 0,
+          "p99": 1,
+          "max": 1
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_attribute_custom_value->product_template_attribute_value(custom_product_template_attribute_value_id)",
+        "parent": "product_template_attribute_value",
+        "child": "product_attribute_custom_value",
+        "column": "custom_product_template_attribute_value_id",
+        "profile": {
+          "parents": 24,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 37,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_label_layout->product_pricelist(pricelist_id)",
+        "parent": "product_pricelist",
+        "child": "product_label_layout",
+        "column": "pricelist_id",
+        "profile": {
+          "parents": 1,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 1,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_label_layout->uom_uom(packaging_id)",
+        "parent": "uom_uom",
+        "child": "product_label_layout",
+        "column": "packaging_id",
+        "profile": {
+          "parents": 30,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 30,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_label_layout_product_product_rel->product_product(product_product_id)",
+        "parent": "product_product",
+        "child": "product_label_layout_product_product_rel",
+        "column": "product_product_id",
+        "profile": {
+          "parents": 48,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 108,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_label_layout_product_template_rel->product_template(product_template_id)",
+        "parent": "product_template",
+        "child": "product_label_layout_product_template_rel",
+        "column": "product_template_id",
+        "profile": {
+          "parents": 38,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 39,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_pricelist_item->product_category(categ_id)",
+        "parent": "product_category",
+        "child": "product_pricelist_item",
+        "column": "categ_id",
+        "profile": {
+          "parents": 8,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 8,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_pricelist_item->product_pricelist(base_pricelist_id)",
+        "parent": "product_pricelist",
+        "child": "product_pricelist_item",
+        "column": "base_pricelist_id",
+        "profile": {
+          "parents": 1,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 1,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_pricelist_item->product_product(product_id)",
+        "parent": "product_product",
+        "child": "product_pricelist_item",
+        "column": "product_id",
+        "profile": {
+          "parents": 48,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 108,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_pricelist_item->uom_uom(uom_id)",
+        "parent": "uom_uom",
+        "child": "product_pricelist_item",
+        "column": "uom_id",
+        "profile": {
+          "parents": 30,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 30,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_product_uom_uom_rel->product_product(product_product_id)",
+        "parent": "product_product",
+        "child": "product_product_uom_uom_rel",
+        "column": "product_product_id",
+        "profile": {
+          "parents": 48,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 108,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_product_uom_uom_rel->uom_uom(uom_uom_id)",
+        "parent": "uom_uom",
+        "child": "product_product_uom_uom_rel",
+        "column": "uom_uom_id",
+        "profile": {
+          "parents": 30,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 30,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_supplierinfo->product_product(product_id)",
+        "parent": "product_product",
+        "child": "product_supplierinfo",
+        "column": "product_id",
+        "profile": {
+          "parents": 48,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 108,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_tag_product_product_rel->product_product(product_product_id)",
+        "parent": "product_product",
+        "child": "product_tag_product_product_rel",
+        "column": "product_product_id",
+        "profile": {
+          "parents": 48,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 108,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_tag_product_template_rel->product_template(product_template_id)",
+        "parent": "product_template",
+        "child": "product_tag_product_template_rel",
+        "column": "product_template_id",
+        "profile": {
+          "parents": 38,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 39,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_template_uom_uom_rel->product_template(product_template_id)",
+        "parent": "product_template",
+        "child": "product_template_uom_uom_rel",
+        "column": "product_template_id",
+        "profile": {
+          "parents": 38,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 39,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_template_uom_uom_rel->uom_uom(uom_uom_id)",
+        "parent": "uom_uom",
+        "child": "product_template_uom_uom_rel",
+        "column": "uom_uom_id",
+        "profile": {
+          "parents": 30,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 30,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_uom->product_product(product_id)",
+        "parent": "product_product",
+        "child": "product_uom",
+        "column": "product_id",
+        "profile": {
+          "parents": 48,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 108,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:product_uom->uom_uom(uom_id)",
+        "parent": "uom_uom",
+        "child": "product_uom",
+        "column": "uom_id",
+        "profile": {
+          "parents": 30,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 30,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:res_country_group_pricelist_rel->product_pricelist(pricelist_id)",
+        "parent": "product_pricelist",
+        "child": "res_country_group_pricelist_rel",
+        "column": "pricelist_id",
+        "profile": {
+          "parents": 1,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 1,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      },
+      {
+        "id": "fanout:update_product_attribute_value->product_attribute_value(attribute_value_id)",
+        "parent": "product_attribute_value",
+        "child": "update_product_attribute_value",
+        "column": "attribute_value_id",
+        "profile": {
+          "parents": 101,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "fixture": {
+          "parents": 114,
+          "p50": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "covered": true
+      }
+    ],
+    "empty_parent": [
+      "fanout:product_label_layout_product_product_rel->product_label_layout(product_label_layout_id)",
+      "fanout:product_label_layout_product_template_rel->product_label_layout(product_label_layout_id)",
+      "fanout:product_label_layout_product_uom_rel->product_label_layout(product_label_layout_id)",
+      "fanout:product_label_layout_product_uom_rel->product_uom(product_uom_id)",
+      "fanout:product_product->product_base_unit(base_unit_id)",
+      "fanout:product_tag_product_product_rel->product_tag(product_tag_id)",
+      "fanout:product_tag_product_template_rel->product_tag(product_tag_id)",
+      "fanout:product_template->product_base_unit(base_unit_id)"
+    ],
+    "uncovered": []
+  },
+  "outlier": {
+    "table": "product_template",
+    "id": 39,
+    "xmlid": "__migration__.fixture_outlier_tee",
+    "name": "Fixture Outlier Tee",
+    "variants": 60,
+    "attribute_lines": 3,
+    "template_attribute_values": 13,
+    "variant_combinations": 180,
+    "profile_max_variants": 5
+  }
+}

@@ -90,3 +90,36 @@ password from that secret, so every VM gets the same DSN.
 | account_move | 60 |
 | account_move_line | 174 |
 | mail_message | 1282 |
+
+## Recon fixture: `odoo_fixture` (s2.4-fixture)
+
+Manifest: `.migration/fixtures/odoo_fixture.json` (shape checked by the plugin's
+`wave-preflight` `validate_fixture_manifest`). Build, after `build_source.sh`:
+
+```sh
+ODOO_PG_RO_DSN=... .migration/fixtures/build_fixture.sh   # secret ODOO_PG_RO_DSN
+```
+
+`odoo_fixture` is `CREATE DATABASE odoo_fixture TEMPLATE odoo_src` on the same cluster plus
+one synthetic outlier parent (`fixture_outlier.py`, `odoo-bin shell -d odoo_fixture`): template
+`__migration__.fixture_outlier_tee` with three attribute lines (6 x 5 x 2 values) = 60 variants
+against the source profile's max of 5 per template. The Odoo filestore of `odoo_src` is copied to
+the fixture's (attachments live outside the database). `odoo_src` is never written. The script is
+idempotent on `ir_config_parameter` `migration.fixture = 1` (`MARKER_VERSION`) plus the cloned
+`database.uuid`: a rebuilt `odoo_src` carries a new uuid, so the next run re-clones. The manifest
+is rewritten from the live fixture on every run (`fixture_manifest.py`).
+
+Sizing: for all 48 fan-outs whose parent and child are both migrate-bucket tables
+(`table_buckets.json`), the manifest records the profile's p50/p99/max next to the fixture's and
+fails the build if any is below the profile. The demo slice (38 templates, 48 variants) is already
+smaller than any subset that would still hold a p50, p99 and max parent for every fan-out, so no
+row is dropped; the fixture is the slice plus the outlier (33 tables, 661 rows).
+
+Fixture DSN: `odoo_ro` has CONNECT on `odoo_fixture` and the cloned SELECT grants. The harness
+reads an env var *name*, so export the same JSON with the database swapped, per shell, never
+stored (`build_fixture.sh` does the same internally):
+
+```sh
+export ODOO_PG_FIXTURE_DSN="$(python3 -c 'import json,os; d=json.loads(os.environ["ODOO_PG_RO_DSN"]); d["database"]="odoo_fixture"; print(json.dumps(d))')"
+recon run --mode fixture --family postgresql --source-dsn-secret ODOO_PG_FIXTURE_DSN ...
+```
