@@ -14430,7 +14430,7 @@
         "side": "parent",
         "owns": true
       },
-      "note": "product.template.seller_ids (One2many); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id; called on every purchase order line creation (addons/purchase/models/purchase_order_line.py:819, purchase_order.py:1275); read_hot; cite addons/product/models/product_template.py:164-164"
+      "note": "product.template.seller_ids (One2many); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id. Purchase reaches it from the stored computes on purchase.order.line: _compute_price_unit_and_date_planned_and_name (addons/purchase/models/purchase_order_line.py:545-550, compute of the stored name/price_unit/date_planned/discount fields, so it runs on every PO line create or product/qty/partner change) and _compute_selected_seller_id (:342), both via _get_seller_info (:924-931); also purchase_order.py:482/749 (date_planned) and the procurement path purchase_order_line.py:819; read_hot; cite addons/product/models/product_template.py:164-164"
     },
     {
       "id": "ap-407841e642",
@@ -17757,7 +17757,7 @@
         "owns": false,
         "ondelete": "cascade"
       },
-      "note": "product.supplierinfo.partner_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id; called on every purchase order line creation (addons/purchase/models/purchase_order_line.py:819, purchase_order.py:1275); read_hot; cite addons/product/models/product_supplierinfo.py:14-14"
+      "note": "product.supplierinfo.partner_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id. Purchase reaches it from the stored computes on purchase.order.line: _compute_price_unit_and_date_planned_and_name (addons/purchase/models/purchase_order_line.py:545-550, compute of the stored name/price_unit/date_planned/discount fields, so it runs on every PO line create or product/qty/partner change) and _compute_selected_seller_id (:342), both via _get_seller_info (:924-931); also purchase_order.py:482/749 (date_planned) and the procurement path purchase_order_line.py:819; read_hot; cite addons/product/models/product_supplierinfo.py:14-14"
     },
     {
       "id": "ap-6dddb2dac1",
@@ -17792,7 +17792,7 @@
         "side": "child",
         "owns": false
       },
-      "note": "product.supplierinfo.uom_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id; called on every purchase order line creation (addons/purchase/models/purchase_order_line.py:819, purchase_order.py:1275); read_hot; cite addons/product/models/product_supplierinfo.py:26-26"
+      "note": "product.supplierinfo.uom_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id. Purchase reaches it from the stored computes on purchase.order.line: _compute_price_unit_and_date_planned_and_name (addons/purchase/models/purchase_order_line.py:545-550, compute of the stored name/price_unit/date_planned/discount fields, so it runs on every PO line create or product/qty/partner change) and _compute_selected_seller_id (:342), both via _get_seller_info (:924-931); also purchase_order.py:482/749 (date_planned) and the procurement path purchase_order_line.py:819; read_hot; cite addons/product/models/product_supplierinfo.py:26-26"
     },
     {
       "id": "ap-f72ce54de5",
@@ -17827,7 +17827,7 @@
         "side": "child",
         "owns": false
       },
-      "note": "product.supplierinfo.company_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id; called on every purchase order line creation (addons/purchase/models/purchase_order_line.py:819, purchase_order.py:1275); read_hot; cite addons/product/models/product_supplierinfo.py:34-34"
+      "note": "product.supplierinfo.company_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id. Purchase reaches it from the stored computes on purchase.order.line: _compute_price_unit_and_date_planned_and_name (addons/purchase/models/purchase_order_line.py:545-550, compute of the stored name/price_unit/date_planned/discount fields, so it runs on every PO line create or product/qty/partner change) and _compute_selected_seller_id (:342), both via _get_seller_info (:924-931); also purchase_order.py:482/749 (date_planned) and the procurement path purchase_order_line.py:819; read_hot; cite addons/product/models/product_supplierinfo.py:34-34"
     },
     {
       "id": "ap-6e5851d49d",
@@ -17862,7 +17862,7 @@
         "side": "child",
         "owns": false
       },
-      "note": "product.supplierinfo.currency_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id; called on every purchase order line creation (addons/purchase/models/purchase_order_line.py:819, purchase_order.py:1275); read_hot; cite addons/product/models/product_supplierinfo.py:37-37"
+      "note": "product.supplierinfo.currency_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id. Purchase reaches it from the stored computes on purchase.order.line: _compute_price_unit_and_date_planned_and_name (addons/purchase/models/purchase_order_line.py:545-550, compute of the stored name/price_unit/date_planned/discount fields, so it runs on every PO line create or product/qty/partner change) and _compute_selected_seller_id (:342), both via _get_seller_info (:924-931); also purchase_order.py:482/749 (date_planned) and the procurement path purchase_order_line.py:819; read_hot; cite addons/product/models/product_supplierinfo.py:37-37"
     },
     {
       "id": "ap-5153a228c6",
@@ -17897,7 +17897,7 @@
         "side": "child",
         "owns": false
       },
-      "note": "product.supplierinfo.product_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id; called on every purchase order line creation (addons/purchase/models/purchase_order_line.py:819, purchase_order.py:1275); read_hot; cite addons/product/models/product_supplierinfo.py:43-43"
+      "note": "product.supplierinfo.product_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id. Purchase reaches it from the stored computes on purchase.order.line: _compute_price_unit_and_date_planned_and_name (addons/purchase/models/purchase_order_line.py:545-550, compute of the stored name/price_unit/date_planned/discount fields, so it runs on every PO line create or product/qty/partner change) and _compute_selected_seller_id (:342), both via _get_seller_info (:924-931); also purchase_order.py:482/749 (date_planned) and the procurement path purchase_order_line.py:819; read_hot; cite addons/product/models/product_supplierinfo.py:43-43"
     },
     {
       "id": "ap-58053a8885",
@@ -17933,7 +17933,7 @@
         "owns": false,
         "ondelete": "cascade"
       },
-      "note": "product.supplierinfo.product_tmpl_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id; called on every purchase order line creation (addons/purchase/models/purchase_order_line.py:819, purchase_order.py:1275); read_hot; cite addons/product/models/product_supplierinfo.py:48-48"
+      "note": "product.supplierinfo.product_tmpl_id (Many2one); product.product._select_seller -> _get_filtered_sellers -> _prepare_sellers (addons/product/models/product_product.py:1259-1292) reads self.seller_ids and filters each product.supplierinfo on partner_id/parent, product_id, uom_id, company_id, min_qty, dates and currency_id. Purchase reaches it from the stored computes on purchase.order.line: _compute_price_unit_and_date_planned_and_name (addons/purchase/models/purchase_order_line.py:545-550, compute of the stored name/price_unit/date_planned/discount fields, so it runs on every PO line create or product/qty/partner change) and _compute_selected_seller_id (:342), both via _get_seller_info (:924-931); also purchase_order.py:482/749 (date_planned) and the procurement path purchase_order_line.py:819; read_hot; cite addons/product/models/product_supplierinfo.py:48-48"
     },
     {
       "id": "ap-12618aa65d",
@@ -45444,8 +45444,8 @@
         }
       ],
       "sort": [],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/product/models/product_pricelist.py",
         "lines": [
@@ -45459,7 +45459,7 @@
         "method": "browse"
       },
       "routine": "ProductPricelist._get_country_pricelist_multi",
-      "note": "_get_country_pricelist_multi browse of ir.config_parameter pricelist id; read_hot; cite addons/product/models/product_pricelist.py:405-405"
+      "note": "_get_country_pricelist_multi second self.browse(get_icp_id(...)) in the `or` chain only builds a recordset; truthiness is tested without fetching, so no product_pricelist query runs here (addons/product/models/product_pricelist.py:405); same as ap-4cd6930e24 on line 404, the real read is the search(pl_domain, limit=1) fallback pattern"
     },
     {
       "id": "ap-89613f7659",
