@@ -48,8 +48,9 @@ item. These fill `mail_message` with tracking and comment rows.
 `odoo_ro`: LOGIN, NOSUPERUSER, NOCREATEDB, NOCREATEROLE, NOINHERIT,
 `default_transaction_read_only = on`; CONNECT on `odoo_src`, USAGE on schema
 `public`, SELECT on every table in `public`; CREATE on `public` revoked from
-PUBLIC. Its DSN is the secret `ODOO_PG_RO_DSN`
-(`postgresql://odoo_ro:<password>@localhost:5433/odoo_src`); the script reads the
+PUBLIC. Its DSN is the secret `ODOO_PG_RO_DSN` in the plugin's JSON PostgreSQL
+secret shape (`{"user":"odoo_ro","password":"<password>","host":"localhost","port":5433,"database":"odoo_src"}`;
+`parse_postgresql_secret` rejects `postgresql://` URLs); the script reads the
 password from that secret, so every VM gets the same DSN.
 
 ## Row counts (fresh build; a rerun prints the same until someone writes to `odoo_src`)

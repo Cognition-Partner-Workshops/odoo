@@ -3,9 +3,9 @@
 # and the SELECT-only role odoo_ro on the local PostgreSQL 16 cluster (port 5433).
 # Idempotent: a second run leaves the database untouched and prints the same counts.
 #
-# The odoo_ro password comes from the secret ODOO_PG_RO_DSN
-# (postgresql://odoo_ro:<password>@localhost:5433/odoo_src), so every VM gets
-# the same DSN. On the very first build, export ODOO_RO_PASSWORD instead.
+# The odoo_ro password comes from the secret ODOO_PG_RO_DSN, the plugin's JSON
+# PostgreSQL secret {"user","password","host","port","database"}, so every VM
+# gets the same DSN. On the very first build, export ODOO_RO_PASSWORD instead.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -19,7 +19,7 @@ export PGPORT PGHOST=/var/run/postgresql
 
 if [ -z "${ODOO_RO_PASSWORD:-}" ]; then
   [ -n "${ODOO_PG_RO_DSN:-}" ] || { echo "set ODOO_PG_RO_DSN (or ODOO_RO_PASSWORD on first build)" >&2; exit 1; }
-  ODOO_RO_PASSWORD="$("$PY" -c 'import sys, urllib.parse as u; print(u.unquote(u.urlsplit(sys.argv[1]).password or ""))' "$ODOO_PG_RO_DSN")"
+  ODOO_RO_PASSWORD="$("$PY" -c 'import sys, json; print(json.loads(sys.argv[1]).get("password", ""))' "$ODOO_PG_RO_DSN")"
   [ -n "$ODOO_RO_PASSWORD" ] || { echo "ODOO_PG_RO_DSN has no password" >&2; exit 1; }
 fi
 
