@@ -1,0 +1,6837 @@
+{
+  "access_version": 1,
+  "census_sha256": "0966716c647e17cd7b37029e1a57a5f7de763238dbe081e377fae876a15424f9",
+  "patterns": [
+    {
+      "id": "ap-a90bce8ae2",
+      "kind": "sql",
+      "op": "read",
+      "tables": [
+        "ir_model"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "ir_model.state",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "odoo/orm/model_classes.py",
+        "lines": [
+          584,
+          584
+        ]
+      },
+      "statement": "SELECT *, name->>? AS name FROM ir_model WHERE state = ?"
+    },
+    {
+      "id": "ap-f332bc10b1",
+      "kind": "sql",
+      "op": "read",
+      "tables": [
+        "ir_model_data"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "ir_model_data.model",
+          "op": "eq"
+        },
+        {
+          "col": "ir_model_data.res_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "odoo/orm/models.py",
+        "lines": [
+          653,
+          657
+        ]
+      },
+      "statement": "SELECT res_id, module, name FROM ir_model_data WHERE model = %s AND res_id IN %s"
+    },
+    {
+      "id": "ap-f5901aafe8",
+      "kind": "sql",
+      "op": "read",
+      "tables": [
+        "ir_attachment"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "ir_attachment.res_model",
+          "op": "eq"
+        },
+        {
+          "col": "ir_attachment.res_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "odoo/orm/models.py",
+        "lines": [
+          3724,
+          3724
+        ]
+      },
+      "statement": "SELECT id FROM ir_attachment WHERE res_model=%s AND res_id IN %s"
+    },
+    {
+      "id": "ap-586bd59ace",
+      "kind": "sql",
+      "op": "read",
+      "tables": [
+        "ir_module_module"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "ir_module_module.state",
+          "op": "eq"
+        }
+      ],
+      "sort": [
+        "ir_module_module.state"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "odoo/orm/registry.py",
+        "lines": [
+          195,
+          200
+        ]
+      },
+      "statement": "SELECT name, state FROM ir_module_module WHERE state IN (?, ?, ?) ORDER BY state = ? DESC"
+    },
+    {
+      "id": "ap-1fa3b54bba",
+      "kind": "sql",
+      "op": "write",
+      "tables": [
+        "orm_signaling_registry"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "odoo/orm/registry.py",
+        "lines": [
+          1138,
+          1138
+        ]
+      },
+      "statement": "INSERT INTO orm_signaling_registry DEFAULT VALUES"
+    },
+    {
+      "id": "ap-e35e193fc0",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_attribute",
+        "product_attribute_value"
+      ],
+      "join_edges": [
+        [
+          "product_attribute",
+          "product_attribute_value"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_attribute.py",
+        "lines": [
+          52,
+          52
+        ]
+      },
+      "statement": "product.attribute.value_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "value_ids",
+        "side": "parent",
+        "owns": true
+      }
+    },
+    {
+      "id": "ap-f53933865b",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_attribute",
+        "product_template_attribute_value"
+      ],
+      "join_edges": [
+        [
+          "product_attribute",
+          "product_template_attribute_value"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_attribute.py",
+        "lines": [
+          56,
+          56
+        ]
+      },
+      "statement": "product.attribute.template_value_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "template_value_ids",
+        "side": "parent",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-aaa24799a6",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_attribute",
+        "product_template_attribute_line"
+      ],
+      "join_edges": [
+        [
+          "product_attribute",
+          "product_template_attribute_line"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_attribute.py",
+        "lines": [
+          60,
+          60
+        ]
+      },
+      "statement": "product.attribute.attribute_line_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "attribute_line_ids",
+        "side": "parent",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-facb78bc10",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_attribute",
+        "product_attribute_product_template_rel",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_attribute",
+          "product_attribute_product_template_rel"
+        ],
+        [
+          "product_template",
+          "product_attribute_product_template_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_attribute.py",
+        "lines": [
+          64,
+          64
+        ]
+      },
+      "statement": "product.attribute.product_tmpl_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "product_tmpl_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_attribute_product_template_rel"
+      }
+    },
+    {
+      "id": "ap-c54fa9f527",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_attribute_custom_value",
+        "product_template_attribute_value"
+      ],
+      "join_edges": [
+        [
+          "product_template_attribute_value",
+          "product_attribute_custom_value"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_attribute_custom_value.py",
+        "lines": [
+          12,
+          12
+        ]
+      },
+      "statement": "product.attribute.custom.value.custom_product_template_attribute_value_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "custom_product_template_attribute_value_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "restrict"
+      }
+    },
+    {
+      "id": "ap-23d2452c49",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_attribute_value",
+        "product_attribute"
+      ],
+      "join_edges": [
+        [
+          "product_attribute",
+          "product_attribute_value"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_attribute_value.py",
+        "lines": [
+          21,
+          21
+        ]
+      },
+      "statement": "product.attribute.value.attribute_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "attribute_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "cascade"
+      }
+    },
+    {
+      "id": "ap-2bc8ccc4d0",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_attribute_value",
+        "product_attribute_value_product_template_attribute_line_rel",
+        "product_template_attribute_line"
+      ],
+      "join_edges": [
+        [
+          "product_attribute_value",
+          "product_attribute_value_product_template_attribute_line_rel"
+        ],
+        [
+          "product_template_attribute_line",
+          "product_attribute_value_product_template_attribute_line_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_attribute_value.py",
+        "lines": [
+          29,
+          29
+        ]
+      },
+      "statement": "product.attribute.value.pav_attribute_line_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "pav_attribute_line_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_attribute_value_product_template_attribute_line_rel"
+      }
+    },
+    {
+      "id": "ap-55ec1f23a9",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_category",
+        "product_category"
+      ],
+      "join_edges": [
+        [
+          "product_category",
+          "product_category"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_category.py",
+        "lines": [
+          23,
+          23
+        ]
+      },
+      "statement": "product.category.parent_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "parent_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "cascade"
+      }
+    },
+    {
+      "id": "ap-9dc9a8254c",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_category",
+        "product_category"
+      ],
+      "join_edges": [
+        [
+          "product_category",
+          "product_category"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_category.py",
+        "lines": [
+          25,
+          25
+        ]
+      },
+      "statement": "product.category.child_id (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "child_id",
+        "side": "parent",
+        "owns": true
+      }
+    },
+    {
+      "id": "ap-ce60576bf0",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_category",
+        "res_company"
+      ],
+      "join_edges": [
+        [
+          "res_company",
+          "product_category"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_category.py",
+        "lines": [
+          30,
+          30
+        ]
+      },
+      "statement": "product.category.company_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "company_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-789a077fed",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_combo",
+        "res_company"
+      ],
+      "join_edges": [
+        [
+          "res_company",
+          "product_combo"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_combo.py",
+        "lines": [
+          15,
+          15
+        ]
+      },
+      "statement": "product.combo.company_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "company_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-e34ba2f308",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_combo",
+        "product_combo_item"
+      ],
+      "join_edges": [
+        [
+          "product_combo",
+          "product_combo_item"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_combo.py",
+        "lines": [
+          16,
+          16
+        ]
+      },
+      "statement": "product.combo.combo_item_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "combo_item_ids",
+        "side": "parent",
+        "owns": true
+      }
+    },
+    {
+      "id": "ap-add0bc7e94",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_combo_item",
+        "product_combo"
+      ],
+      "join_edges": [
+        [
+          "product_combo",
+          "product_combo_item"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_combo_item.py",
+        "lines": [
+          13,
+          13
+        ]
+      },
+      "statement": "product.combo.item.combo_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "combo_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "cascade"
+      }
+    },
+    {
+      "id": "ap-9a34cfab1d",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_combo_item",
+        "product_product"
+      ],
+      "join_edges": [
+        [
+          "product_product",
+          "product_combo_item"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_combo_item.py",
+        "lines": [
+          14,
+          14
+        ]
+      },
+      "statement": "product.combo.item.product_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "product_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "restrict"
+      }
+    },
+    {
+      "id": "ap-3d1fa4a56e",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_pricelist",
+        "res_currency"
+      ],
+      "join_edges": [
+        [
+          "res_currency",
+          "product_pricelist"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist.py",
+        "lines": [
+          34,
+          34
+        ]
+      },
+      "statement": "product.pricelist.currency_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "currency_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-968d45940b",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_pricelist",
+        "res_company"
+      ],
+      "join_edges": [
+        [
+          "res_company",
+          "product_pricelist"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist.py",
+        "lines": [
+          41,
+          41
+        ]
+      },
+      "statement": "product.pricelist.company_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "company_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-593c4f672e",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_pricelist",
+        "res_country_group_pricelist_rel",
+        "res_country_group"
+      ],
+      "join_edges": [
+        [
+          "product_pricelist",
+          "res_country_group_pricelist_rel"
+        ],
+        [
+          "res_country_group",
+          "res_country_group_pricelist_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist.py",
+        "lines": [
+          47,
+          47
+        ]
+      },
+      "statement": "product.pricelist.country_group_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "country_group_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "res_country_group_pricelist_rel"
+      }
+    },
+    {
+      "id": "ap-86d9cb7cb3",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_pricelist",
+        "product_pricelist_item"
+      ],
+      "join_edges": [
+        [
+          "product_pricelist",
+          "product_pricelist_item"
+        ],
+        [
+          "product_pricelist",
+          "product_pricelist_item"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist.py",
+        "lines": [
+          56,
+          56
+        ]
+      },
+      "statement": "product.pricelist.item_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "item_ids",
+        "side": "parent",
+        "owns": true
+      }
+    },
+    {
+      "id": "ap-8b331b1140",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_pricelist_item",
+        "product_pricelist"
+      ],
+      "join_edges": [
+        [
+          "product_pricelist",
+          "product_pricelist_item"
+        ],
+        [
+          "product_pricelist",
+          "product_pricelist_item"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist_item.py",
+        "lines": [
+          20,
+          20
+        ]
+      },
+      "statement": "product.pricelist.item.pricelist_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "pricelist_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "cascade"
+      }
+    },
+    {
+      "id": "ap-2b93b7d216",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_pricelist_item",
+        "res_company"
+      ],
+      "join_edges": [
+        [
+          "res_company",
+          "product_pricelist_item"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist_item.py",
+        "lines": [
+          32,
+          32
+        ]
+      },
+      "statement": "product.pricelist.item.company_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "company_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-f4f55799c2",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_pricelist_item",
+        "res_currency"
+      ],
+      "join_edges": [
+        [
+          "res_currency",
+          "product_pricelist_item"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist_item.py",
+        "lines": [
+          33,
+          33
+        ]
+      },
+      "statement": "product.pricelist.item.currency_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "currency_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-4c6de7d1bd",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_pricelist_item",
+        "product_category"
+      ],
+      "join_edges": [
+        [
+          "product_category",
+          "product_pricelist_item"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist_item.py",
+        "lines": [
+          67,
+          67
+        ]
+      },
+      "statement": "product.pricelist.item.categ_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "categ_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "cascade"
+      }
+    },
+    {
+      "id": "ap-819c7cb2e0",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_pricelist_item",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_pricelist_item"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist_item.py",
+        "lines": [
+          75,
+          75
+        ]
+      },
+      "statement": "product.pricelist.item.product_tmpl_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "product_tmpl_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "cascade"
+      }
+    },
+    {
+      "id": "ap-52459efaa9",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_pricelist_item",
+        "product_product"
+      ],
+      "join_edges": [
+        [
+          "product_product",
+          "product_pricelist_item"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist_item.py",
+        "lines": [
+          80,
+          80
+        ]
+      },
+      "statement": "product.pricelist.item.product_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "product_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "cascade"
+      }
+    },
+    {
+      "id": "ap-8734e7a4b9",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_pricelist_item",
+        "uom_uom"
+      ],
+      "join_edges": [
+        [
+          "uom_uom",
+          "product_pricelist_item"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist_item.py",
+        "lines": [
+          88,
+          88
+        ]
+      },
+      "statement": "product.pricelist.item.uom_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "uom_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-ab172da28c",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_pricelist_item",
+        "product_pricelist"
+      ],
+      "join_edges": [
+        [
+          "product_pricelist",
+          "product_pricelist_item"
+        ],
+        [
+          "product_pricelist",
+          "product_pricelist_item"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist_item.py",
+        "lines": [
+          105,
+          105
+        ]
+      },
+      "statement": "product.pricelist.item.base_pricelist_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "base_pricelist_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-646ceed072",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_uom"
+      ],
+      "join_edges": [
+        [
+          "product_product",
+          "product_uom"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          57,
+          57
+        ]
+      },
+      "statement": "product.product.product_uom_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "product_uom_ids",
+        "side": "parent",
+        "owns": true
+      }
+    },
+    {
+      "id": "ap-c3fa909af5",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_variant_combination",
+        "product_template_attribute_value"
+      ],
+      "join_edges": [
+        [
+          "product_product",
+          "product_variant_combination"
+        ],
+        [
+          "product_template_attribute_value",
+          "product_variant_combination"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          58,
+          58
+        ]
+      },
+      "statement": "product.product.product_template_attribute_value_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "product_template_attribute_value_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_variant_combination"
+      }
+    },
+    {
+      "id": "ap-b83e865412",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_variant_combination",
+        "product_template_attribute_value"
+      ],
+      "join_edges": [
+        [
+          "product_product",
+          "product_variant_combination"
+        ],
+        [
+          "product_template_attribute_value",
+          "product_variant_combination"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          65,
+          65
+        ]
+      },
+      "statement": "product.product.product_template_variant_value_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "product_template_variant_value_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_variant_combination"
+      }
+    },
+    {
+      "id": "ap-f377ed6b24",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_product_uom_uom_rel",
+        "uom_uom"
+      ],
+      "join_edges": [
+        [
+          "product_product",
+          "product_product_uom_uom_rel"
+        ],
+        [
+          "uom_uom",
+          "product_product_uom_uom_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          81,
+          81
+        ]
+      },
+      "statement": "product.product.extra_uom_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "extra_uom_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_product_uom_uom_rel"
+      }
+    },
+    {
+      "id": "ap-a5827552e3",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_pricelist_item"
+      ],
+      "join_edges": [
+        [
+          "product_product",
+          "product_pricelist_item"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          107,
+          107
+        ]
+      },
+      "statement": "product.product.pricelist_rule_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "pricelist_rule_ids",
+        "side": "parent",
+        "owns": true
+      }
+    },
+    {
+      "id": "ap-39cb0db405",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_tag_product_product_rel",
+        "product_tag"
+      ],
+      "join_edges": [
+        [
+          "product_product",
+          "product_tag_product_product_rel"
+        ],
+        [
+          "product_tag",
+          "product_tag_product_product_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          124,
+          124
+        ]
+      },
+      "statement": "product.product.additional_product_tag_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "additional_product_tag_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_tag_product_product_rel"
+      }
+    },
+    {
+      "id": "ap-46ad6c17d8",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_base_unit"
+      ],
+      "join_edges": [
+        [
+          "product_base_unit",
+          "product_product"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          168,
+          168
+        ]
+      },
+      "statement": "product.product.base_unit_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "base_unit_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-77d48b526e",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_supplierinfo",
+        "res_partner"
+      ],
+      "join_edges": [
+        [
+          "res_partner",
+          "product_supplierinfo"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_supplierinfo.py",
+        "lines": [
+          14,
+          14
+        ]
+      },
+      "statement": "product.supplierinfo.partner_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "partner_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "cascade"
+      }
+    },
+    {
+      "id": "ap-6dddb2dac1",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_supplierinfo",
+        "uom_uom"
+      ],
+      "join_edges": [
+        [
+          "uom_uom",
+          "product_supplierinfo"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_supplierinfo.py",
+        "lines": [
+          26,
+          26
+        ]
+      },
+      "statement": "product.supplierinfo.uom_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "uom_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-f72ce54de5",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_supplierinfo",
+        "res_company"
+      ],
+      "join_edges": [
+        [
+          "res_company",
+          "product_supplierinfo"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_supplierinfo.py",
+        "lines": [
+          34,
+          34
+        ]
+      },
+      "statement": "product.supplierinfo.company_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "company_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-6e5851d49d",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_supplierinfo",
+        "res_currency"
+      ],
+      "join_edges": [
+        [
+          "res_currency",
+          "product_supplierinfo"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_supplierinfo.py",
+        "lines": [
+          37,
+          37
+        ]
+      },
+      "statement": "product.supplierinfo.currency_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "currency_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-5153a228c6",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_supplierinfo",
+        "product_product"
+      ],
+      "join_edges": [
+        [
+          "product_product",
+          "product_supplierinfo"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_supplierinfo.py",
+        "lines": [
+          43,
+          43
+        ]
+      },
+      "statement": "product.supplierinfo.product_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "product_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-58053a8885",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_supplierinfo",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_supplierinfo"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_supplierinfo.py",
+        "lines": [
+          48,
+          48
+        ]
+      },
+      "statement": "product.supplierinfo.product_tmpl_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "product_tmpl_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "cascade"
+      }
+    },
+    {
+      "id": "ap-12618aa65d",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_tag",
+        "product_tag_product_template_rel",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_tag",
+          "product_tag_product_template_rel"
+        ],
+        [
+          "product_template",
+          "product_tag_product_template_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_tag.py",
+        "lines": [
+          21,
+          21
+        ]
+      },
+      "statement": "product.tag.product_template_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "product_template_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_tag_product_template_rel"
+      }
+    },
+    {
+      "id": "ap-c15729c1e9",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_tag",
+        "product_tag_product_product_rel",
+        "product_product"
+      ],
+      "join_edges": [
+        [
+          "product_product",
+          "product_tag_product_product_rel"
+        ],
+        [
+          "product_tag",
+          "product_tag_product_product_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_tag.py",
+        "lines": [
+          27,
+          27
+        ]
+      },
+      "statement": "product.tag.product_product_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "product_product_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_tag_product_product_rel"
+      }
+    },
+    {
+      "id": "ap-0939101630",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template",
+        "product_combo_product_template_rel",
+        "product_combo"
+      ],
+      "join_edges": [
+        [
+          "product_combo",
+          "product_combo_product_template_rel"
+        ],
+        [
+          "product_template",
+          "product_combo_product_template_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          75,
+          75
+        ]
+      },
+      "statement": "product.template.combo_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "combo_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_combo_product_template_rel"
+      }
+    },
+    {
+      "id": "ap-e6aa259d29",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template",
+        "product_category"
+      ],
+      "join_edges": [
+        [
+          "product_category",
+          "product_template"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          90,
+          90
+        ]
+      },
+      "statement": "product.template.categ_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "categ_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-0d07167feb",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template",
+        "uom_uom"
+      ],
+      "join_edges": [
+        [
+          "uom_uom",
+          "product_template"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          156,
+          156
+        ]
+      },
+      "statement": "product.template.uom_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "uom_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-18169b672b",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template",
+        "product_template_uom_uom_rel",
+        "uom_uom"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_template_uom_uom_rel"
+        ],
+        [
+          "uom_uom",
+          "product_template_uom_uom_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          160,
+          160
+        ]
+      },
+      "statement": "product.template.uom_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "uom_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_template_uom_uom_rel"
+      }
+    },
+    {
+      "id": "ap-208468f358",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template",
+        "res_company"
+      ],
+      "join_edges": [
+        [
+          "res_company",
+          "product_template"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          162,
+          162
+        ]
+      },
+      "statement": "product.template.company_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "company_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-063c725798",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template",
+        "product_supplierinfo"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_supplierinfo"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          164,
+          164
+        ]
+      },
+      "statement": "product.template.seller_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "seller_ids",
+        "side": "parent",
+        "owns": true
+      }
+    },
+    {
+      "id": "ap-407841e642",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template",
+        "product_supplierinfo"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_supplierinfo"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          165,
+          165
+        ]
+      },
+      "statement": "product.template.variant_seller_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "variant_seller_ids",
+        "side": "parent",
+        "owns": true
+      }
+    },
+    {
+      "id": "ap-e2b16ec21d",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template",
+        "product_template_attribute_line"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_template_attribute_line"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          171,
+          171
+        ]
+      },
+      "statement": "product.template.attribute_line_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "attribute_line_ids",
+        "side": "parent",
+        "owns": true
+      }
+    },
+    {
+      "id": "ap-3aae33d3de",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template",
+        "product_product"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_product"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          182,
+          182
+        ]
+      },
+      "statement": "product.template.product_variant_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "product_variant_ids",
+        "side": "parent",
+        "owns": true
+      }
+    },
+    {
+      "id": "ap-776d0bbbf3",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template",
+        "product_product"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_product"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          184,
+          184
+        ]
+      },
+      "statement": "product.template.product_variant_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "product_variant_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-605db7954d",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template",
+        "product_pricelist_item"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_pricelist_item"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          202,
+          202
+        ]
+      },
+      "statement": "product.template.pricelist_rule_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "pricelist_rule_ids",
+        "side": "parent",
+        "owns": true
+      }
+    },
+    {
+      "id": "ap-fe3667af03",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template",
+        "product_pricelist_item"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_pricelist_item"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          208,
+          208
+        ]
+      },
+      "statement": "product.template.fixed_pricelist_rule_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "fixed_pricelist_rule_ids",
+        "side": "parent",
+        "owns": true
+      }
+    },
+    {
+      "id": "ap-68917ef55c",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template",
+        "product_tag_product_template_rel",
+        "product_tag"
+      ],
+      "join_edges": [
+        [
+          "product_tag",
+          "product_tag_product_template_rel"
+        ],
+        [
+          "product_template",
+          "product_tag_product_template_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          233,
+          233
+        ]
+      },
+      "statement": "product.template.product_tag_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "product_tag_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_tag_product_template_rel"
+      }
+    },
+    {
+      "id": "ap-25578204b7",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template",
+        "product_base_unit"
+      ],
+      "join_edges": [
+        [
+          "product_base_unit",
+          "product_template"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          254,
+          254
+        ]
+      },
+      "statement": "product.template.base_unit_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "base_unit_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-6bcc69fd0a",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_line",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_template_attribute_line"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_line.py",
+        "lines": [
+          19,
+          19
+        ]
+      },
+      "statement": "product.template.attribute.line.product_tmpl_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "product_tmpl_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "cascade"
+      }
+    },
+    {
+      "id": "ap-7667fc56c1",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_line",
+        "product_attribute"
+      ],
+      "join_edges": [
+        [
+          "product_attribute",
+          "product_template_attribute_line"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_line.py",
+        "lines": [
+          26,
+          26
+        ]
+      },
+      "statement": "product.template.attribute.line.attribute_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "attribute_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "restrict"
+      }
+    },
+    {
+      "id": "ap-68ba15015d",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_line",
+        "product_attribute_value_product_template_attribute_line_rel",
+        "product_attribute_value"
+      ],
+      "join_edges": [
+        [
+          "product_attribute_value",
+          "product_attribute_value_product_template_attribute_line_rel"
+        ],
+        [
+          "product_template_attribute_line",
+          "product_attribute_value_product_template_attribute_line_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_line.py",
+        "lines": [
+          32,
+          32
+        ]
+      },
+      "statement": "product.template.attribute.line.value_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "value_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_attribute_value_product_template_attribute_line_rel"
+      }
+    },
+    {
+      "id": "ap-21517768d1",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_line",
+        "product_template_attribute_value"
+      ],
+      "join_edges": [
+        [
+          "product_template_attribute_line",
+          "product_template_attribute_value"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_line.py",
+        "lines": [
+          39,
+          39
+        ]
+      },
+      "statement": "product.template.attribute.line.product_template_value_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "product_template_value_ids",
+        "side": "parent",
+        "owns": true
+      }
+    },
+    {
+      "id": "ap-5bb5f0b8ed",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_value",
+        "product_attribute_value"
+      ],
+      "join_edges": [
+        [
+          "product_attribute_value",
+          "product_template_attribute_value"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_value.py",
+        "lines": [
+          29,
+          29
+        ]
+      },
+      "statement": "product.template.attribute.value.product_attribute_value_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "product_attribute_value_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "cascade"
+      }
+    },
+    {
+      "id": "ap-938315e2b0",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_value",
+        "product_template_attribute_line"
+      ],
+      "join_edges": [
+        [
+          "product_template_attribute_line",
+          "product_template_attribute_value"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_value.py",
+        "lines": [
+          33,
+          33
+        ]
+      },
+      "statement": "product.template.attribute.value.attribute_line_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "attribute_line_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "cascade"
+      }
+    },
+    {
+      "id": "ap-1ef128505b",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_value",
+        "product_template_attribute_excluded_value_ids_rel",
+        "product_template_attribute_value"
+      ],
+      "join_edges": [
+        [
+          "product_template_attribute_value",
+          "product_template_attribute_excluded_value_ids_rel"
+        ],
+        [
+          "product_template_attribute_value",
+          "product_template_attribute_excluded_value_ids_rel"
+        ],
+        [
+          "product_template_attribute_value",
+          "product_template_attribute_excluded_value_ids_rel"
+        ],
+        [
+          "product_template_attribute_value",
+          "product_template_attribute_excluded_value_ids_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_value.py",
+        "lines": [
+          50,
+          50
+        ]
+      },
+      "statement": "product.template.attribute.value.excluded_value_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "excluded_value_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_template_attribute_excluded_value_ids_rel"
+      }
+    },
+    {
+      "id": "ap-147781703a",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_value",
+        "product_variant_combination",
+        "product_product"
+      ],
+      "join_edges": [
+        [
+          "product_product",
+          "product_variant_combination"
+        ],
+        [
+          "product_template_attribute_value",
+          "product_variant_combination"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_value.py",
+        "lines": [
+          65,
+          65
+        ]
+      },
+      "statement": "product.template.attribute.value.ptav_product_variant_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "ptav_product_variant_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_variant_combination"
+      }
+    },
+    {
+      "id": "ap-a49e12419e",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_uom",
+        "uom_uom"
+      ],
+      "join_edges": [
+        [
+          "uom_uom",
+          "product_uom"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_uom.py",
+        "lines": [
+          13,
+          13
+        ]
+      },
+      "statement": "product.uom.uom_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "uom_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "cascade"
+      }
+    },
+    {
+      "id": "ap-1da4db7aa4",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_uom",
+        "product_product"
+      ],
+      "join_edges": [
+        [
+          "product_product",
+          "product_uom"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_uom.py",
+        "lines": [
+          14,
+          14
+        ]
+      },
+      "statement": "product.uom.product_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "product_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "cascade"
+      }
+    },
+    {
+      "id": "ap-61b0a49c0c",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_uom",
+        "res_company"
+      ],
+      "join_edges": [
+        [
+          "res_company",
+          "product_uom"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_uom.py",
+        "lines": [
+          16,
+          16
+        ]
+      },
+      "statement": "product.uom.company_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "company_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-638a5bbff3",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "res_country_group",
+        "res_country_group_pricelist_rel",
+        "product_pricelist"
+      ],
+      "join_edges": [
+        [
+          "product_pricelist",
+          "res_country_group_pricelist_rel"
+        ],
+        [
+          "res_country_group",
+          "res_country_group_pricelist_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/res_country_group.py",
+        "lines": [
+          10,
+          10
+        ]
+      },
+      "statement": "res.country.group.pricelist_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "pricelist_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "res_country_group_pricelist_rel"
+      }
+    },
+    {
+      "id": "ap-c86e2f7a49",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "uom_uom",
+        "product_uom"
+      ],
+      "join_edges": [
+        [
+          "uom_uom",
+          "product_uom"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/uom_uom.py",
+        "lines": [
+          19,
+          19
+        ]
+      },
+      "statement": "uom.uom.product_uom_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "product_uom_ids",
+        "side": "parent",
+        "owns": true
+      }
+    },
+    {
+      "id": "ap-2cce0d45e0",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "uom_uom",
+        "uom_uom"
+      ],
+      "join_edges": [
+        [
+          "uom_uom",
+          "uom_uom"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/uom/models/uom_uom.py",
+        "lines": [
+          40,
+          40
+        ]
+      },
+      "statement": "uom.uom.relative_uom_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "relative_uom_id",
+        "side": "child",
+        "owns": false,
+        "ondelete": "cascade"
+      }
+    },
+    {
+      "id": "ap-b01fa060c2",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "uom_uom",
+        "uom_uom"
+      ],
+      "join_edges": [
+        [
+          "uom_uom",
+          "uom_uom"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/uom/models/uom_uom.py",
+        "lines": [
+          41,
+          41
+        ]
+      },
+      "statement": "uom.uom.related_uom_ids (One2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "One2many",
+        "field": "related_uom_ids",
+        "side": "parent",
+        "owns": true
+      }
+    },
+    {
+      "id": "ap-ff80fcca4f",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_label_layout",
+        "product_label_layout_product_product_rel",
+        "product_product"
+      ],
+      "join_edges": [
+        [
+          "product_label_layout",
+          "product_label_layout_product_product_rel"
+        ],
+        [
+          "product_product",
+          "product_label_layout_product_product_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/wizard/product_label_layout.py",
+        "lines": [
+          37,
+          37
+        ]
+      },
+      "statement": "product.label.layout.product_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "product_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_label_layout_product_product_rel"
+      }
+    },
+    {
+      "id": "ap-ae60115135",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_label_layout",
+        "product_label_layout_product_template_rel",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_label_layout",
+          "product_label_layout_product_template_rel"
+        ],
+        [
+          "product_template",
+          "product_label_layout_product_template_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/wizard/product_label_layout.py",
+        "lines": [
+          38,
+          38
+        ]
+      },
+      "statement": "product.label.layout.product_tmpl_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "product_tmpl_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_label_layout_product_template_rel"
+      }
+    },
+    {
+      "id": "ap-5e39467563",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_label_layout",
+        "product_label_layout_product_uom_rel",
+        "product_uom"
+      ],
+      "join_edges": [
+        [
+          "product_label_layout",
+          "product_label_layout_product_uom_rel"
+        ],
+        [
+          "product_uom",
+          "product_label_layout_product_uom_rel"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/wizard/product_label_layout.py",
+        "lines": [
+          39,
+          39
+        ]
+      },
+      "statement": "product.label.layout.product_uom_ids (Many2many)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2many",
+        "field": "product_uom_ids",
+        "side": "junction",
+        "owns": false,
+        "junction": "product_label_layout_product_uom_rel"
+      }
+    },
+    {
+      "id": "ap-4e33b0a47b",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_label_layout",
+        "uom_uom"
+      ],
+      "join_edges": [
+        [
+          "uom_uom",
+          "product_label_layout"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/wizard/product_label_layout.py",
+        "lines": [
+          41,
+          41
+        ]
+      },
+      "statement": "product.label.layout.packaging_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "packaging_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-6ecec12915",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_label_layout",
+        "product_pricelist"
+      ],
+      "join_edges": [
+        [
+          "product_pricelist",
+          "product_label_layout"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/wizard/product_label_layout.py",
+        "lines": [
+          49,
+          49
+        ]
+      },
+      "statement": "product.label.layout.pricelist_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "pricelist_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-c32ee5459a",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "update_product_attribute_value",
+        "product_attribute_value"
+      ],
+      "join_edges": [
+        [
+          "product_attribute_value",
+          "update_product_attribute_value"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/wizard/update_product_attribute_value.py",
+        "lines": [
+          11,
+          11
+        ]
+      },
+      "statement": "update.product.attribute.value.attribute_value_id (Many2one)",
+      "orm": {
+        "framework": "odoo",
+        "kind": "Many2one",
+        "field": "attribute_value_id",
+        "side": "child",
+        "owns": false
+      }
+    },
+    {
+      "id": "ap-7afe18fc9d",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_document",
+        "ir_attachment"
+      ],
+      "join_edges": [
+        [
+          "ir_attachment",
+          "product_document"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_document.py",
+        "lines": [
+          17,
+          17
+        ]
+      },
+      "statement": "product.document delegates ir.attachment",
+      "orm": {
+        "framework": "odoo",
+        "kind": "_inherits",
+        "side": "child",
+        "owns": true,
+        "delegates": "ir.attachment"
+      }
+    },
+    {
+      "id": "ap-73a7efaf58",
+      "kind": "orm",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_product"
+        ]
+      ],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          51,
+          51
+        ]
+      },
+      "statement": "product.product delegates product.template",
+      "orm": {
+        "framework": "odoo",
+        "kind": "_inherits",
+        "side": "child",
+        "owns": true,
+        "delegates": "product.template"
+      }
+    },
+    {
+      "id": "ap-192d87f823",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_document"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/ir_attachment.py",
+        "lines": [
+          20,
+          25
+        ]
+      },
+      "statement": "self.env[?].sudo().create([ { ?: attachment.id } for attachment IN product_attachments ])",
+      "orm": {
+        "framework": "odoo",
+        "method": "create"
+      },
+      "routine": "IrAttachment.create",
+      "verb": "insert"
+    },
+    {
+      "id": "ap-33c0dc5d40",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_line",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_template_attribute_line"
+        ]
+      ],
+      "filter": [
+        {
+          "col": "product_template_attribute_line.attribute_id",
+          "op": "eq"
+        },
+        {
+          "col": "product_template.active",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_attribute.py",
+        "lines": [
+          77,
+          81
+        ]
+      },
+      "statement": "self.env[?]._read_group( domain=[(?, ?, self.ids), (?, ?, True)], groupby=[?], aggregates=[?], )",
+      "orm": {
+        "framework": "odoo",
+        "method": "_read_group"
+      },
+      "routine": "ProductAttribute._compute_number_related_products",
+      "compute_by": [
+        "product_template_attribute_line.attribute_id"
+      ]
+    },
+    {
+      "id": "ap-3df1aac51f",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_line"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_template_attribute_line.attribute_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_attribute.py",
+        "lines": [
+          90,
+          94
+        ]
+      },
+      "statement": "self.env[?]._read_group( domain=[(?, ?, self.ids)], groupby=[?], aggregates=[?] )",
+      "orm": {
+        "framework": "odoo",
+        "method": "_read_group"
+      },
+      "routine": "ProductAttribute._compute_products",
+      "compute_by": [
+        "product_template_attribute_line.attribute_id"
+      ]
+    },
+    {
+      "id": "ap-ad74c5fa25",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_template_attribute_value.product_attribute_value_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [
+        "product_template_attribute_value.sequence",
+        "product_template_attribute_value.attribute_line_id",
+        "product_template_attribute_value.product_attribute_value_id",
+        "product_template_attribute_value.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_attribute_value.py",
+        "lines": [
+          84,
+          87
+        ]
+      },
+      "statement": "self.env[?].sudo().search_fetch([ (?, ?, self.ids), (?, ?, company_domain), ], [?, ?])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_fetch"
+      },
+      "routine": "ProductAttributeValue._compute_default_extra_price_changed"
+    },
+    {
+      "id": "ap-e3dc988af2",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_template_attribute_value.product_attribute_value_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [
+        "product_template_attribute_value.sequence",
+        "product_template_attribute_value.attribute_line_id",
+        "product_template_attribute_value.product_attribute_value_id",
+        "product_template_attribute_value.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_attribute_value.py",
+        "lines": [
+          135,
+          137
+        ]
+      },
+      "statement": "pav.env[?].search( [(?, ?, pav.id)] )",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductAttributeValue.unlink"
+    },
+    {
+      "id": "ap-27aa073b22",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_product.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_catalog_mixin.py",
+        "lines": [
+          68,
+          68
+        ]
+      },
+      "statement": "self.env[?].browse(product_ids)",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductCatalogMixin._get_product_catalog_order_line_info"
+    },
+    {
+      "id": "ap-9ec2270a41",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_category"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_category.name",
+          "op": "eq"
+        }
+      ],
+      "sort": [
+        "product_category.parent_id",
+        "product_category.name"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_category.py",
+        "lines": [
+          48,
+          48
+        ]
+      },
+      "statement": "self.search([(?, ?, complete_name.split(?)[-?])])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductCategory._search_complete_name"
+    },
+    {
+      "id": "ap-e38608d4bf",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_category"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_category.parent_id",
+        "product_category.name"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_category.py",
+        "lines": [
+          53,
+          53
+        ]
+      },
+      "statement": "self.search([(?, operator, value)])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductCategory._search_complete_name"
+    },
+    {
+      "id": "ap-1a59b72823",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_template.categ_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_category.py",
+        "lines": [
+          57,
+          57
+        ]
+      },
+      "statement": "self.env[?]._read_group([(?, ?, self.ids)], [?], [?])",
+      "orm": {
+        "framework": "odoo",
+        "method": "_read_group"
+      },
+      "routine": "ProductCategory._compute_product_count"
+    },
+    {
+      "id": "ap-3de10e7abf",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_template.company_id",
+          "op": "range"
+        },
+        {
+          "col": "product_template.categ_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [
+        "product_template.is_favorite",
+        "product_template.name"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_category.py",
+        "lines": [
+          81,
+          84
+        ]
+      },
+      "statement": "self.env[?].sudo().search([ (?, ?, company.id), (?, ?, categories.ids), ])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductCategory._check_company_id"
+    },
+    {
+      "id": "ap-6f931b80d9",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_category"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_category.py",
+        "lines": [
+          102,
+          102
+        ]
+      },
+      "statement": "self.create({?: name})",
+      "orm": {
+        "framework": "odoo",
+        "method": "create"
+      },
+      "routine": "ProductCategory.name_create",
+      "verb": "insert"
+    },
+    {
+      "id": "ap-bbdd0dbb55",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_combo_item"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_combo_item.combo_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_combo.py",
+        "lines": [
+          38,
+          42
+        ]
+      },
+      "statement": "self.env[?]._read_group( domain=[(?, ?, self.ids)], groupby=[?], aggregates=[?], )",
+      "orm": {
+        "framework": "odoo",
+        "method": "_read_group"
+      },
+      "routine": "ProductCombo._compute_combo_item_count",
+      "compute_by": [
+        "product_combo_item.combo_id"
+      ]
+    },
+    {
+      "id": "ap-7f59ca579c",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_template.is_favorite",
+        "product_template.name"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_combo.py",
+        "lines": [
+          82,
+          82
+        ]
+      },
+      "statement": "self.env[?].sudo().search([(?, ?, self.ids)])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductCombo._check_company_id"
+    },
+    {
+      "id": "ap-835a985a2b",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_product.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_document.py",
+        "lines": [
+          37,
+          37
+        ]
+      },
+      "statement": "Product.browse(document.res_id)",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductDocument._compute_variant_attribute_value_ids"
+    },
+    {
+      "id": "ap-f01f76317c",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "ir_attachment"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_document.py",
+        "lines": [
+          75,
+          75
+        ]
+      },
+      "statement": "attachments.unlink()",
+      "orm": {
+        "framework": "odoo",
+        "method": "unlink"
+      },
+      "routine": "ProductDocument.unlink",
+      "verb": "delete"
+    },
+    {
+      "id": "ap-1b37098133",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist_item"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_pricelist_item.applied_on",
+        "product_pricelist_item.min_quantity",
+        "product_pricelist_item.categ_id",
+        "product_pricelist_item.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist.py",
+        "lines": [
+          289,
+          293
+        ]
+      },
+      "statement": "self.env[?].search( self._get_applicable_rules_domain( products, date=date, quantity=quantity, uom=uom, **kwargs ) )",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductPricelist._get_applicable_rules"
+    },
+    {
+      "id": "ap-02f15f126e",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_pricelist.sequence",
+        "product_pricelist.id",
+        "product_pricelist.name"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist.py",
+        "lines": [
+          364,
+          364
+        ]
+      },
+      "statement": "self.search([])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductPricelist._compute_price_rule_multi"
+    },
+    {
+      "id": "ap-a40cd56d28",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_pricelist.sequence",
+        "product_pricelist.id",
+        "product_pricelist.name"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist.py",
+        "lines": [
+          394,
+          394
+        ]
+      },
+      "statement": "self.search(fallback_domain, limit=?)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductPricelist._get_country_pricelist_multi"
+    },
+    {
+      "id": "ap-4cd6930e24",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_pricelist.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist.py",
+        "lines": [
+          404,
+          404
+        ]
+      },
+      "statement": "self.browse(get_icp_id(f?))",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductPricelist._get_country_pricelist_multi"
+    },
+    {
+      "id": "ap-5c4e0ffeee",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_pricelist.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist.py",
+        "lines": [
+          405,
+          405
+        ]
+      },
+      "statement": "self.browse(get_icp_id(?))",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductPricelist._get_country_pricelist_multi"
+    },
+    {
+      "id": "ap-89613f7659",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_pricelist.sequence",
+        "product_pricelist.id",
+        "product_pricelist.name"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist.py",
+        "lines": [
+          406,
+          406
+        ]
+      },
+      "statement": "self.search(pl_domain, limit=?)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductPricelist._get_country_pricelist_multi"
+    },
+    {
+      "id": "ap-5f42aed216",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_pricelist.sequence",
+        "product_pricelist.id",
+        "product_pricelist.name"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist.py",
+        "lines": [
+          411,
+          414
+        ]
+      },
+      "statement": "self.search(Domain.AND([ pl_domain, [(?, ?, country_id)], ]), limit=?)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductPricelist._get_country_pricelist_multi"
+    },
+    {
+      "id": "ap-e0ff6aa544",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "res_partner"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "res_partner.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist.py",
+        "lines": [
+          444,
+          444
+        ]
+      },
+      "statement": "Partner.browse(partner_ids)",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductPricelist._get_partner_pricelist_multi"
+    },
+    {
+      "id": "ap-a1d432fcbb",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "res_partner"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "res_partner.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist.py",
+        "lines": [
+          452,
+          452
+        ]
+      },
+      "statement": "self.env[?].browse(remaining_partner_ids)",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductPricelist._get_partner_pricelist_multi"
+    },
+    {
+      "id": "ap-d1871192d3",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist_item"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_pricelist_item.base",
+          "op": "eq"
+        },
+        {
+          "col": "product_pricelist_item.base_pricelist_id",
+          "op": "eq"
+        },
+        {
+          "col": "product_pricelist_item.pricelist_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [
+        "product_pricelist_item.applied_on",
+        "product_pricelist_item.min_quantity",
+        "product_pricelist_item.categ_id",
+        "product_pricelist_item.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist.py",
+        "lines": [
+          480,
+          484
+        ]
+      },
+      "statement": "self.env[?].sudo().search([ (?, ?, ?), (?, ?, self.ids), (?, ?, self.ids), ])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductPricelist._unlink_except_used_as_rule_base"
+    },
+    {
+      "id": "ap-6d30561534",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist_item"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_pricelist_item.applied_on",
+        "product_pricelist_item.min_quantity",
+        "product_pricelist_item.categ_id",
+        "product_pricelist_item.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist.py",
+        "lines": [
+          514,
+          514
+        ]
+      },
+      "statement": "self.env[?].search_fetch(domain, [?])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_fetch"
+      },
+      "routine": "ProductPricelist._get_related_uoms"
+    },
+    {
+      "id": "ap-181f222428",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_pricelist.company_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [
+        "product_pricelist.sequence",
+        "product_pricelist.id",
+        "product_pricelist.name"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist_item.py",
+        "lines": [
+          16,
+          18
+        ]
+      },
+      "statement": "self.env[?].search([ ?, (?, ?, False), (?, ?, self.env.company.id)], limit=?)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductPricelistItem._default_pricelist_id"
+    },
+    {
+      "id": "ap-1e3c46692a",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist_item"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_pricelist_item.pricelist_id",
+          "op": "eq"
+        },
+        {
+          "col": "product_pricelist_item.base",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist_item.py",
+        "lines": [
+          361,
+          365
+        ]
+      },
+      "statement": "self.env[?]._read_group( domain=[(?, ?, to_pl.id), (?, ?, ?)], groupby=[?], aggregates=[?], )",
+      "orm": {
+        "framework": "odoo",
+        "method": "_read_group"
+      },
+      "routine": "ProductPricelistItem._check_pricelist_recursion",
+      "compute_by": [
+        "product_pricelist_item.base_pricelist_id"
+      ]
+    },
+    {
+      "id": "ap-89040b8f3f",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_product.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist_item.py",
+        "lines": [
+          476,
+          478
+        ]
+      },
+      "statement": "self.env[?].browse( values.get(?) )",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductPricelistItem.create"
+    },
+    {
+      "id": "ap-8d251368b5",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist_item"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_pricelist_item.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_pricelist_item.py",
+        "lines": [
+          671,
+          671
+        ]
+      },
+      "statement": "self.env[?].browse(rule_id)",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductPricelistItem._compute_price_before_discount"
+    },
+    {
+      "id": "ap-05dd7a2a6b",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_product.product_tmpl_id",
+          "op": "eq"
+        },
+        {
+          "col": "product_product.active",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          220,
+          223
+        ]
+      },
+      "statement": "self.search_count([ (?, ?, record.product_tmpl_id.id), (?, ?, True), ])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_count"
+      },
+      "routine": "ProductProduct._set_template_field"
+    },
+    {
+      "id": "ap-3403fc869b",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          373,
+          375
+        ]
+      },
+      "statement": "self.sudo()._read_group( domain, [?], [?], having=[(?, ?, ?)], )",
+      "orm": {
+        "framework": "odoo",
+        "method": "_read_group"
+      },
+      "routine": "ProductProduct._check_duplicated_product_barcodes"
+    },
+    {
+      "id": "ap-f35d814dbb",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          402,
+          404
+        ]
+      },
+      "statement": "self.env[?].sudo()._read_group( domain, [?], [?], )",
+      "orm": {
+        "framework": "odoo",
+        "method": "_read_group"
+      },
+      "routine": "ProductProduct._check_duplicated_template_barcodes"
+    },
+    {
+      "id": "ap-ca2fb3bbd0",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_uom"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          417,
+          417
+        ]
+      },
+      "statement": "self.env[?].sudo().search_count(packaging_domain, limit=?)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_count"
+      },
+      "routine": "ProductProduct._check_duplicated_packaging_barcodes"
+    },
+    {
+      "id": "ap-57461be406",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_combo_item"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_combo_item.product_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          437,
+          437
+        ]
+      },
+      "statement": "self.env[?].sudo().search([(?, ?, self.ids)])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductProduct._check_company_id"
+    },
+    {
+      "id": "ap-3a530ae0c5",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_product.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          551,
+          551
+        ]
+      },
+      "statement": "self.with_context(prefetch_fields=False).search_fetch([], [field], order=?)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_fetch"
+      },
+      "routine": "ProductProduct._search_product_quantity"
+    },
+    {
+      "id": "ap-77698cb470",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_document"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          556,
+          567
+        ]
+      },
+      "statement": "product.env[?].search_count( Domain.OR([ Domain.AND([ Domain(?, ?, ?), Domain(?, ?, product.ids), ]), Domain.AND([ Domain(?, ?, ?), Domain(?, ?, product.product_tmpl_id.ids), ]), ]) )",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_count"
+      },
+      "routine": "ProductProduct._compute_product_document_count"
+    },
+    {
+      "id": "ap-73c256e7d5",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_product.default_code",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          595,
+          595
+        ]
+      },
+      "statement": "self.env[?].search_count(domain, limit=?)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_count"
+      },
+      "routine": "ProductProduct._onchange_default_code"
+    },
+    {
+      "id": "ap-4213cc2fef",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_attribute"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_attribute.sequence",
+        "product_attribute.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          725,
+          725
+        ]
+      },
+      "statement": "PA.search(Domain(?, ?, list(attribute_to_values)))",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductProduct._load_records_create"
+    },
+    {
+      "id": "ap-9d5238cabd",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_attribute"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          737,
+          737
+        ]
+      },
+      "statement": "PA.create(missing_pa)",
+      "orm": {
+        "framework": "odoo",
+        "method": "create"
+      },
+      "routine": "ProductProduct._load_records_create",
+      "verb": "insert"
+    },
+    {
+      "id": "ap-69e3ab8a76",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_attribute_value.attribute_id",
+        "product_attribute_value.sequence",
+        "product_attribute_value.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          746,
+          746
+        ]
+      },
+      "statement": "PAV.search(domain)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductProduct._load_records_create"
+    },
+    {
+      "id": "ap-a9e1d46e7d",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          761,
+          761
+        ]
+      },
+      "statement": "PAV.create(missing_pav)",
+      "orm": {
+        "framework": "odoo",
+        "method": "create"
+      },
+      "routine": "ProductProduct._load_records_create",
+      "verb": "insert"
+    },
+    {
+      "id": "ap-03f55932a6",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_template.is_favorite",
+        "product_template.name"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          768,
+          770
+        ]
+      },
+      "statement": "PT.search( Domain(?, ?, [vals[?] for vals IN with_import_values]) | Domain(?, ?, [vals.get(?) for vals IN with_import_values]))",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductProduct._load_records_create"
+    },
+    {
+      "id": "ap-a8a011faa6",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_template"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          781,
+          781
+        ]
+      },
+      "statement": "PT.with_context(create_product_product=True).create(list(template_vals_list.values()))",
+      "orm": {
+        "framework": "odoo",
+        "method": "create"
+      },
+      "routine": "ProductProduct._load_records_create",
+      "verb": "insert"
+    },
+    {
+      "id": "ap-f9c1f96046",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_product"
+        ]
+      ],
+      "filter": [],
+      "sort": [
+        "product_product.default_code",
+        "product_template.name",
+        "product_product.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          794,
+          794
+        ]
+      },
+      "statement": "PP.search(Domain(?, ?, id2template.keys()) & Domain(?, ?, False))",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductProduct._load_records_create"
+    },
+    {
+      "id": "ap-1082fbf44c",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_line"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_template_attribute_line.sequence",
+        "product_template_attribute_line.attribute_id",
+        "product_template_attribute_line.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          814,
+          814
+        ]
+      },
+      "statement": "PTAL.search(domain)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductProduct._load_records_create"
+    },
+    {
+      "id": "ap-84b6ab3523",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_template_attribute_line"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          829,
+          829
+        ]
+      },
+      "statement": "PTAL.create(ptals_to_create)",
+      "orm": {
+        "framework": "odoo",
+        "method": "create"
+      },
+      "routine": "ProductProduct._load_records_create",
+      "verb": "insert"
+    },
+    {
+      "id": "ap-1a05d7f9bd",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_product"
+        ]
+      ],
+      "filter": [],
+      "sort": [
+        "product_product.default_code",
+        "product_template.name",
+        "product_product.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          880,
+          880
+        ]
+      },
+      "statement": "self.search(Domain(?, ?, res[?]))",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductProduct.load"
+    },
+    {
+      "id": "ap-2de9fac9ad",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_combo_item"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_combo_item.product_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          903,
+          903
+        ]
+      },
+      "statement": "self.env[?].search([(?, ?, records.ids)])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductProduct.action_archive"
+    },
+    {
+      "id": "ap-59fbba1974",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_product.product_tmpl_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          934,
+          938
+        ]
+      },
+      "statement": "self.with_context(active_test=False)._read_group( domain=[(?, ?, existing_products.product_tmpl_id.ids)], groupby=[?], aggregates=[?], )",
+      "orm": {
+        "framework": "odoo",
+        "method": "_read_group"
+      },
+      "routine": "ProductProduct.unlink",
+      "compute_by": [
+        "product_product.product_tmpl_id"
+      ]
+    },
+    {
+      "id": "ap-eb9cc51396",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_product.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          950,
+          950
+        ]
+      },
+      "statement": "self.env[?].browse(unlink_products_ids)",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductProduct.unlink"
+    },
+    {
+      "id": "ap-61d908b916",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_template.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          954,
+          954
+        ]
+      },
+      "statement": "self.env[?].browse(unlink_templates_ids)",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductProduct.unlink"
+    },
+    {
+      "id": "ap-bf95878df6",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_template"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          955,
+          955
+        ]
+      },
+      "statement": "unlink_templates.unlink()",
+      "orm": {
+        "framework": "odoo",
+        "method": "unlink"
+      },
+      "routine": "ProductProduct.unlink",
+      "verb": "delete"
+    },
+    {
+      "id": "ap-695a35204d",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          983,
+          983
+        ]
+      },
+      "statement": "self.unlink()",
+      "orm": {
+        "framework": "odoo",
+        "method": "unlink"
+      },
+      "routine": "ProductProduct._unlink_or_archive",
+      "verb": "delete"
+    },
+    {
+      "id": "ap-3ac6510bdb",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          995,
+          995
+        ]
+      },
+      "statement": "self.write({?: False})",
+      "orm": {
+        "framework": "odoo",
+        "method": "write"
+      },
+      "routine": "ProductProduct._unlink_or_archive",
+      "verb": "update"
+    },
+    {
+      "id": "ap-47bdf9727e",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_template"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          1012,
+          1012
+        ]
+      },
+      "statement": "templates_to_copy.copy(default=default)",
+      "orm": {
+        "framework": "odoo",
+        "method": "copy"
+      },
+      "routine": "ProductProduct.copy",
+      "verb": "insert"
+    },
+    {
+      "id": "ap-a9c3365cdf",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "res_partner"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "res_partner.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          1038,
+          1038
+        ]
+      },
+      "statement": "self.env[?].browse(partner_id)",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductProduct._compute_display_name"
+    },
+    {
+      "id": "ap-09c47bf055",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_supplierinfo"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_supplierinfo.product_tmpl_id",
+          "op": "eq"
+        },
+        {
+          "col": "product_supplierinfo.partner_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [
+        "product_supplierinfo.sequence",
+        "product_supplierinfo.min_qty",
+        "product_supplierinfo.price",
+        "product_supplierinfo.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          1051,
+          1054
+        ]
+      },
+      "statement": "self.env[?].sudo().search_fetch( [(?, ?, product_template_ids), (?, ?, partner_ids)], [?, ?, ?, ?, ?], )",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_fetch"
+      },
+      "routine": "ProductProduct._compute_display_name"
+    },
+    {
+      "id": "ap-ad4c0ff60e",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_supplierinfo"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_supplierinfo.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          1063,
+          1063
+        ]
+      },
+      "statement": "self.env[?].sudo().browse(self.env.context.get(?))",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductProduct._compute_display_name"
+    },
+    {
+      "id": "ap-90179736db",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_product"
+        ]
+      ],
+      "filter": [],
+      "sort": [
+        "product_product.default_code",
+        "product_template.name",
+        "product_product.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          1151,
+          1153
+        ]
+      },
+      "statement": "self.search_fetch( domain & Domain(?, ?, True), [?], limit=limit )",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_fetch"
+      },
+      "routine": "ProductProduct.name_search"
+    },
+    {
+      "id": "ap-3b8ccb7030",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_product"
+        ]
+      ],
+      "filter": [],
+      "sort": [
+        "product_product.default_code",
+        "product_template.name",
+        "product_product.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          1157,
+          1161
+        ]
+      },
+      "statement": "self.search_fetch( domain & Domain(?, ?, False), [?], limit=limit_products, )",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_fetch"
+      },
+      "routine": "ProductProduct.name_search"
+    },
+    {
+      "id": "ap-11320966b7",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_product.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          1166,
+          1166
+        ]
+      },
+      "statement": "self.browse()",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductProduct.name_search"
+    },
+    {
+      "id": "ap-0beae7dfd4",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_product"
+        ]
+      ],
+      "filter": [],
+      "sort": [
+        "product_product.default_code",
+        "product_template.name",
+        "product_product.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          1170,
+          1170
+        ]
+      },
+      "statement": "self.search_fetch(domain & Domain(?, code_operator, name), [?], limit=limit)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_fetch"
+      },
+      "routine": "ProductProduct.name_search"
+    },
+    {
+      "id": "ap-7916c8ca8f",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_product"
+        ]
+      ],
+      "filter": [],
+      "sort": [
+        "product_product.default_code",
+        "product_template.name",
+        "product_product.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          1171,
+          1171
+        ]
+      },
+      "statement": "self.search_fetch(domain & Domain(?, ?, name), [?], limit=limit)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_fetch"
+      },
+      "routine": "ProductProduct.name_search"
+    },
+    {
+      "id": "ap-54e24431aa",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_product"
+        ]
+      ],
+      "filter": [],
+      "sort": [
+        "product_product.default_code",
+        "product_template.name",
+        "product_product.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          1178,
+          1178
+        ]
+      },
+      "statement": "self.search_fetch(domain & Domain(?, operator, name), [?], limit=limit)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_fetch"
+      },
+      "routine": "ProductProduct.name_search"
+    },
+    {
+      "id": "ap-c515b8d421",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_product"
+        ]
+      ],
+      "filter": [],
+      "sort": [
+        "product_product.default_code",
+        "product_template.name",
+        "product_product.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          1182,
+          1182
+        ]
+      },
+      "statement": "self.search_fetch(domain & Domain(?, ?, products_query) & Domain(?, operator, name), [?], limit=limit_rest)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_fetch"
+      },
+      "routine": "ProductProduct.name_search"
+    },
+    {
+      "id": "ap-ef6cae09da",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_product"
+        ]
+      ],
+      "filter": [],
+      "sort": [
+        "product_product.default_code",
+        "product_template.name",
+        "product_product.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          1187,
+          1187
+        ]
+      },
+      "statement": "self.search_fetch(domain & domain_neg, [?], limit=limit)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_fetch"
+      },
+      "routine": "ProductProduct.name_search"
+    },
+    {
+      "id": "ap-1a0c9acaeb",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_product"
+        ]
+      ],
+      "filter": [],
+      "sort": [
+        "product_product.default_code",
+        "product_template.name",
+        "product_product.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          1190,
+          1190
+        ]
+      },
+      "statement": "self.search_fetch(domain & match_domain, [?], limit=limit)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_fetch"
+      },
+      "routine": "ProductProduct.name_search"
+    },
+    {
+      "id": "ap-a9dfcda0c2",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_product"
+        ]
+      ],
+      "filter": [],
+      "sort": [
+        "product_product.default_code",
+        "product_template.name",
+        "product_product.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          1200,
+          1200
+        ]
+      },
+      "statement": "self.search_fetch(domain & match_domain, [?], limit=limit)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_fetch"
+      },
+      "routine": "ProductProduct.name_search"
+    },
+    {
+      "id": "ap-65a32e2d52",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_category"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_category.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_product.py",
+        "lines": [
+          1208,
+          1208
+        ]
+      },
+      "statement": "self.env[?].browse(self.env.context[?])",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductProduct.view_header_get"
+    },
+    {
+      "id": "ap-797443f35e",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_product.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_supplierinfo.py",
+        "lines": [
+          130,
+          130
+        ]
+      },
+      "statement": "self.env[?].browse(vals[?])",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductSupplierinfo._sanitize_vals"
+    },
+    {
+      "id": "ap-19ffc087d0",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_template.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_tag.py",
+        "lines": [
+          13,
+          13
+        ]
+      },
+      "statement": "self.env[?].browse(self.env.context.get(?))",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductTag._get_default_template_id"
+    },
+    {
+      "id": "ap-80f3e51ea0",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_product.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_tag.py",
+        "lines": [
+          16,
+          16
+        ]
+      },
+      "statement": "self.env[?].browse(self.env.context.get(?))",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductTag._get_default_variant_id"
+    },
+    {
+      "id": "ap-fdcdc0d572",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_document"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          278,
+          280
+        ]
+      },
+      "statement": "template.env[?].search_count( template._get_product_document_domain() )",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_count"
+      },
+      "routine": "ProductTemplate._compute_product_document_count"
+    },
+    {
+      "id": "ap-c025ad4b3c",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          337,
+          339
+        ]
+      },
+      "statement": "self.sudo()._read_group( domain, [?], [?], having=[(?, ?, ?)], )",
+      "orm": {
+        "framework": "odoo",
+        "method": "_read_group"
+      },
+      "routine": "ProductTemplate._check_duplicated_template_barcodes"
+    },
+    {
+      "id": "ap-a811dbce0d",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          368,
+          370
+        ]
+      },
+      "statement": "self.env[?].sudo()._read_group( domain, [?], [?], )",
+      "orm": {
+        "framework": "odoo",
+        "method": "_read_group"
+      },
+      "routine": "ProductTemplate._check_duplicated_variant_barcodes"
+    },
+    {
+      "id": "ap-a01c9c81f8",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_product.qty_available",
+          "op": "range"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          497,
+          497
+        ]
+      },
+      "statement": "self.product_variant_ids._origin.read(quantities_fields)",
+      "orm": {
+        "framework": "odoo",
+        "method": "read"
+      },
+      "routine": "ProductTemplate._compute_quantities_dict"
+    },
+    {
+      "id": "ap-f42536e912",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_template.default_code",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          640,
+          640
+        ]
+      },
+      "statement": "self.env[?].search_count(domain, limit=?)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_count"
+      },
+      "routine": "ProductTemplate._onchange_default_code"
+    },
+    {
+      "id": "ap-c7ac28e566",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_combo_item"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_combo_item.product_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          676,
+          678
+        ]
+      },
+      "statement": "self.env[?].sudo().search([ (?, ?, self.product_variant_ids.ids) ])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductTemplate._onchange_type"
+    },
+    {
+      "id": "ap-638ecc8f00",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_product.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          808,
+          808
+        ]
+      },
+      "statement": "ProductProduct.browse(result_product[?])",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductTemplate.load"
+    },
+    {
+      "id": "ap-b2403a333c",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_template"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          844,
+          844
+        ]
+      },
+      "statement": "self.with_context(active_test=False).mapped(?).write({?: vals.get(?)})",
+      "orm": {
+        "framework": "odoo",
+        "method": "write"
+      },
+      "routine": "ProductTemplate.write",
+      "verb": "update"
+    },
+    {
+      "id": "ap-0fef61c9f1",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_combo_item"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_combo_item.product_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          862,
+          862
+        ]
+      },
+      "statement": "self.env[?].search([(?, ?, self.product_variant_ids.ids)])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductTemplate.action_archive"
+    },
+    {
+      "id": "ap-1d484eb616",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist_item"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_pricelist_item.product_tmpl_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [
+        "product_pricelist_item.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          899,
+          901
+        ]
+      },
+      "statement": "self.env[?].search( [(?, ?, template.id)], order=? )",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductTemplate.copy"
+    },
+    {
+      "id": "ap-cf5fa98d08",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          1193,
+          1193
+        ]
+      },
+      "statement": "variants_to_activate.filtered(lambda v: v.product_tmpl_id.active).write({?: True})",
+      "orm": {
+        "framework": "odoo",
+        "method": "write"
+      },
+      "routine": "ProductTemplate._create_variant_ids",
+      "verb": "update"
+    },
+    {
+      "id": "ap-784009c1e5",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          1195,
+          1195
+        ]
+      },
+      "statement": "Product.create(variants_to_create)",
+      "orm": {
+        "framework": "odoo",
+        "method": "create"
+      },
+      "routine": "ProductTemplate._create_variant_ids",
+      "verb": "insert"
+    },
+    {
+      "id": "ap-f010b1e3bf",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_combo_item"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_combo_item.product_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          1211,
+          1213
+        ]
+      },
+      "statement": "self.env[?].search([ (?, ?, variant.id) ])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductTemplate._create_variant_ids"
+    },
+    {
+      "id": "ap-a2d9131b51",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_combo_item"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          1215,
+          1215
+        ]
+      },
+      "statement": "combo_items_to_unlink.unlink()",
+      "orm": {
+        "framework": "odoo",
+        "method": "unlink"
+      },
+      "routine": "ProductTemplate._create_variant_ids",
+      "verb": "delete"
+    },
+    {
+      "id": "ap-f1a0c81054",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_product.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          1467,
+          1467
+        ]
+      },
+      "statement": "self.env[?].browse(self._get_variant_id_for_combination(filtered_combination))",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductTemplate._get_variant_for_combination"
+    },
+    {
+      "id": "ap-37c5f3562f",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          1511,
+          1514
+        ]
+      },
+      "statement": "Product.sudo().create({ ?: self.id, ?: [(?, ?, combination._without_no_variant_attributes().ids)] })",
+      "orm": {
+        "framework": "odoo",
+        "method": "create"
+      },
+      "routine": "ProductTemplate._create_product_variant",
+      "verb": "insert"
+    },
+    {
+      "id": "ap-c00a67babe",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_product.active"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          1544,
+          1544
+        ]
+      },
+      "statement": "self.env[?].sudo().with_context(active_test=False).search(domain, order=?, limit=?)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductTemplate._get_variant_id_for_combination"
+    },
+    {
+      "id": "ap-4d1cf6b20d",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_template_attribute_value.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          1606,
+          1606
+        ]
+      },
+      "statement": "self.env[?].browse(k)",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductTemplate._cartesian_product"
+    },
+    {
+      "id": "ap-a5cc88a9e5",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_template_attribute_value.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          1607,
+          1607
+        ]
+      },
+      "statement": "self.env[?].browse(v)",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductTemplate._cartesian_product"
+    },
+    {
+      "id": "ap-2055bcff71",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "uom_uom"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "uom_uom.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          1820,
+          1820
+        ]
+      },
+      "statement": "self.env[?].browse(self.env.context.get(?))",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductTemplate._get_contextual_price"
+    },
+    {
+      "id": "ap-f592a48822",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_pricelist.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template.py",
+        "lines": [
+          1829,
+          1829
+        ]
+      },
+      "statement": "self.env[?].browse(self.env.context.get(?))",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductTemplate._get_contextual_pricelist"
+    },
+    {
+      "id": "ap-75bbb6e4eb",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_attribute_value.attribute_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [
+        "product_attribute_value.attribute_id",
+        "product_attribute_value.sequence",
+        "product_attribute_value.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_line.py",
+        "lines": [
+          52,
+          54
+        ]
+      },
+      "statement": "self.env[?].search([ (?, ?, self.attribute_id.id), ])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductTemplateAttributeLine._onchange_attribute_id"
+    },
+    {
+      "id": "ap-feca970d5f",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_line"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_template_attribute_line.active",
+          "op": "eq"
+        },
+        {
+          "col": "product_template_attribute_line.product_tmpl_id",
+          "op": "eq"
+        },
+        {
+          "col": "product_template_attribute_line.attribute_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [
+        "product_template_attribute_line.sequence",
+        "product_template_attribute_line.attribute_id",
+        "product_template_attribute_line.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_line.py",
+        "lines": [
+          98,
+          102
+        ]
+      },
+      "statement": "self.search([ (?, ?, False), (?, ?, vals.pop(?, ?)), (?, ?, vals.pop(?, ?)), ], limit=?)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductTemplateAttributeLine.create"
+    },
+    {
+      "id": "ap-5ca05f058d",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_template_attribute_line"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_line.py",
+        "lines": [
+          108,
+          108
+        ]
+      },
+      "statement": "archived_ptal.with_context(update_product_template_attribute_values=False).write(vals)",
+      "orm": {
+        "framework": "odoo",
+        "method": "write"
+      },
+      "routine": "ProductTemplateAttributeLine.create",
+      "verb": "update"
+    },
+    {
+      "id": "ap-35cd6eeb48",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_template_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_line.py",
+        "lines": [
+          174,
+          174
+        ]
+      },
+      "statement": "self.product_template_value_ids._only_active().unlink()",
+      "orm": {
+        "framework": "odoo",
+        "method": "unlink"
+      },
+      "routine": "ProductTemplateAttributeLine.unlink",
+      "verb": "delete"
+    },
+    {
+      "id": "ap-5c011cc646",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_template_attribute_value.ptav_active",
+          "op": "eq"
+        },
+        {
+          "col": "product_template_attribute_value.product_attribute_value_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_line.py",
+        "lines": [
+          225,
+          230
+        ]
+      },
+      "statement": "ProductTemplateAttributeValue._read_group([ (?, ?, False), (?, ?, ptal.product_tmpl_id.id), (?, ?, ptal.attribute_id.id), (?, ?, list(remaining_pav)), ], groupby=[?], aggregates=[?])",
+      "orm": {
+        "framework": "odoo",
+        "method": "_read_group"
+      },
+      "routine": "ProductTemplateAttributeLine._update_product_template_attribute_values",
+      "compute_by": [
+        "product_template_attribute_value.product_attribute_value_id"
+      ]
+    },
+    {
+      "id": "ap-1649e720f8",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_attribute_value.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_line.py",
+        "lines": [
+          239,
+          239
+        ]
+      },
+      "statement": "self.env[?].sudo().browse(sorted(remaining_pav))",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductTemplateAttributeLine._update_product_template_attribute_values"
+    },
+    {
+      "id": "ap-3378f9ad2b",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_template_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_line.py",
+        "lines": [
+          249,
+          249
+        ]
+      },
+      "statement": "ptav_to_activate.write({?: True})",
+      "orm": {
+        "framework": "odoo",
+        "method": "write"
+      },
+      "routine": "ProductTemplateAttributeLine._update_product_template_attribute_values",
+      "verb": "update"
+    },
+    {
+      "id": "ap-221dac1a9e",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_template_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_line.py",
+        "lines": [
+          250,
+          250
+        ]
+      },
+      "statement": "ptav_to_unlink.write({?: False})",
+      "orm": {
+        "framework": "odoo",
+        "method": "write"
+      },
+      "routine": "ProductTemplateAttributeLine._update_product_template_attribute_values",
+      "verb": "update"
+    },
+    {
+      "id": "ap-bcb23f730e",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_template_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_line.py",
+        "lines": [
+          252,
+          252
+        ]
+      },
+      "statement": "ptav_to_unlink.unlink()",
+      "orm": {
+        "framework": "odoo",
+        "method": "unlink"
+      },
+      "routine": "ProductTemplateAttributeLine._update_product_template_attribute_values",
+      "verb": "delete"
+    },
+    {
+      "id": "ap-b5d86681ee",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_template_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_line.py",
+        "lines": [
+          253,
+          253
+        ]
+      },
+      "statement": "ProductTemplateAttributeValue.create(ptav_to_create)",
+      "orm": {
+        "framework": "odoo",
+        "method": "create"
+      },
+      "routine": "ProductTemplateAttributeLine._update_product_template_attribute_values",
+      "verb": "insert"
+    },
+    {
+      "id": "ap-ef310fb750",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_template_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_template_attribute_value.py",
+        "lines": [
+          158,
+          158
+        ]
+      },
+      "statement": "ptav_to_archive.write({?: False})",
+      "orm": {
+        "framework": "odoo",
+        "method": "write"
+      },
+      "routine": "ProductTemplateAttributeValue.unlink",
+      "verb": "update"
+    },
+    {
+      "id": "ap-8e656468c6",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_product"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_product.barcode",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/product_uom.py",
+        "lines": [
+          26,
+          26
+        ]
+      },
+      "statement": "self.env[?].search_count(domain, limit=?)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_count"
+      },
+      "routine": "ProductUom._check_barcode_uniqueness"
+    },
+    {
+      "id": "ap-824f5d4d75",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "res_company"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/res_company.py",
+        "lines": [
+          21,
+          21
+        ]
+      },
+      "statement": "self.env[?].search([])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ResCompany._activate_or_create_pricelists"
+    },
+    {
+      "id": "ap-99e984ee87",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_pricelist.company_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [
+        "product_pricelist.sequence",
+        "product_pricelist.id",
+        "product_pricelist.name"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/res_company.py",
+        "lines": [
+          24,
+          26
+        ]
+      },
+      "statement": "ProductPricelist.with_context(active_test=False).search( [(?, ?, False), (?, ?, companies.ids)] )",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ResCompany._activate_or_create_pricelists"
+    },
+    {
+      "id": "ap-b919689e22",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_pricelist"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/res_company.py",
+        "lines": [
+          32,
+          34
+        ]
+      },
+      "statement": "ProductPricelist.create([ company._get_default_pricelist_vals() for company IN companies_without_pricelist ])",
+      "orm": {
+        "framework": "odoo",
+        "method": "create"
+      },
+      "routine": "ResCompany._activate_or_create_pricelists",
+      "verb": "insert"
+    },
+    {
+      "id": "ap-0023627143",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "res_company"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "res_company.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/res_company.py",
+        "lines": [
+          67,
+          67
+        ]
+      },
+      "statement": "self.browse()",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ResCompany.write"
+    },
+    {
+      "id": "ap-c9b3ae1b68",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_pricelist.active",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/res_config_settings.py",
+        "lines": [
+          28,
+          30
+        ]
+      },
+      "statement": "self.env[?].sudo().search_count( [(?, ?, True)], limit=? )",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_count"
+      },
+      "routine": "ResConfigSettings._onchange_group_sale_pricelist"
+    },
+    {
+      "id": "ap-027d2096a3",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_pricelist.sequence",
+        "product_pricelist.id",
+        "product_pricelist.name"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/res_config_settings.py",
+        "lines": [
+          45,
+          45
+        ]
+      },
+      "statement": "self.env[?].sudo().search([])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ResConfigSettings.set_values"
+    },
+    {
+      "id": "ap-73bbf8291f",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_pricelist.currency_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [
+        "product_pricelist.sequence",
+        "product_pricelist.id",
+        "product_pricelist.name"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/models/res_currency.py",
+        "lines": [
+          23,
+          23
+        ]
+      },
+      "statement": "self.env[?].search([(?, ?, self.ids)])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ResCurrency.write"
+    },
+    {
+      "id": "ap-5f05e97474",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_pricelist.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/report/product_pricelist_report.py",
+        "lines": [
+          23,
+          23
+        ]
+      },
+      "statement": "self.env[?].browse(pricelist_id)",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductPricelistReport._get_report_data"
+    },
+    {
+      "id": "ap-3d88114fcc",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_pricelist"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [
+        "product_pricelist.sequence",
+        "product_pricelist.id",
+        "product_pricelist.name"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/report/product_pricelist_report.py",
+        "lines": [
+          25,
+          25
+        ]
+      },
+      "statement": "self.env[?].search([], limit=?)",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductPricelistReport._get_report_data"
+    },
+    {
+      "id": "ap-5ec0a0a4e3",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "uom_uom"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "uom_uom.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/wizard/product_label_layout.py",
+        "lines": [
+          54,
+          54
+        ]
+      },
+      "statement": "self.env[?].browse(self.env.context.get(?))",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "ProductLabelLayout._get_available_packagings"
+    },
+    {
+      "id": "ap-308c52a978",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_label_layout"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/wizard/product_label_layout.py",
+        "lines": [
+          72,
+          78
+        ]
+      },
+      "statement": "Bom.search([ ?, (?, ?, template_products.ids), ?, (?, ?, False), (?, ?, templates.ids), ])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "ProductLabelLayout._get_available_packagings"
+    },
+    {
+      "id": "ap-537f1dade4",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template",
+        "product_template_attribute_line"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_template_attribute_line"
+        ]
+      ],
+      "filter": [
+        {
+          "col": "product_template_attribute_line.attribute_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/wizard/update_product_attribute_value.py",
+        "lines": [
+          44,
+          46
+        ]
+      },
+      "statement": "ProductTemplate.search_count([ (?, ?, wizard.attribute_value_id.attribute_id.id), ])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_count"
+      },
+      "routine": "UpdateProductAttributeValue._compute_product_count"
+    },
+    {
+      "id": "ap-524241d304",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/wizard/update_product_attribute_value.py",
+        "lines": [
+          48,
+          50
+        ]
+      },
+      "statement": "ProductTemplate.search_count([ (?, ?, wizard.attribute_value_id.id), ])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search_count"
+      },
+      "routine": "UpdateProductAttributeValue._compute_product_count"
+    },
+    {
+      "id": "ap-7ede40a9d8",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_line",
+        "product_template"
+      ],
+      "join_edges": [
+        [
+          "product_template",
+          "product_template_attribute_line"
+        ]
+      ],
+      "filter": [
+        {
+          "col": "product_template_attribute_line.attribute_id",
+          "op": "eq"
+        },
+        {
+          "col": "product_template.company_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [
+        "product_template_attribute_line.sequence",
+        "product_template_attribute_line.attribute_id",
+        "product_template_attribute_line.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/wizard/update_product_attribute_value.py",
+        "lines": [
+          60,
+          64
+        ]
+      },
+      "statement": "self.env[?].search([ (?, ?, self.attribute_value_id.attribute_id.id), # Make sure we do NOT impact products belonging to other companies (?, ?, self.env.companies.ids + [False]), ])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "UpdateProductAttributeValue._add_value_to_existing_attribute_lines"
+    },
+    {
+      "id": "ap-237d335993",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_template_attribute_line"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/wizard/update_product_attribute_value.py",
+        "lines": [
+          65,
+          65
+        ]
+      },
+      "statement": "ptals.write({?: [Command.link(self.attribute_value_id.id)]})",
+      "orm": {
+        "framework": "odoo",
+        "method": "write"
+      },
+      "routine": "UpdateProductAttributeValue._add_value_to_existing_attribute_lines",
+      "verb": "update"
+    },
+    {
+      "id": "ap-2fb14a1a3e",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "product_template_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "product_template_attribute_value.product_attribute_value_id",
+          "op": "eq"
+        }
+      ],
+      "sort": [
+        "product_template_attribute_value.sequence",
+        "product_template_attribute_value.attribute_line_id",
+        "product_template_attribute_value.product_attribute_value_id",
+        "product_template_attribute_value.id"
+      ],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/wizard/update_product_attribute_value.py",
+        "lines": [
+          68,
+          72
+        ]
+      },
+      "statement": "self.env[?].search([ (?, ?, self.attribute_value_id.id), # Make sure we do NOT impact products belonging to other companies (?, ?, self.env.companies.ids + [False]), ])",
+      "orm": {
+        "framework": "odoo",
+        "method": "search"
+      },
+      "routine": "UpdateProductAttributeValue._update_extra_price_on_existing_products"
+    },
+    {
+      "id": "ap-b4a3fa4a72",
+      "kind": "odoo",
+      "op": "write",
+      "tables": [
+        "product_template_attribute_value"
+      ],
+      "join_edges": [],
+      "filter": [],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/product/wizard/update_product_attribute_value.py",
+        "lines": [
+          73,
+          73
+        ]
+      },
+      "statement": "ptavs.write({?: self.attribute_value_id.default_extra_price})",
+      "orm": {
+        "framework": "odoo",
+        "method": "write"
+      },
+      "routine": "UpdateProductAttributeValue._update_extra_price_on_existing_products",
+      "verb": "update"
+    },
+    {
+      "id": "ap-32134632f6",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "uom_uom"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "uom_uom.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/uom/models/uom_uom.py",
+        "lines": [
+          207,
+          207
+        ]
+      },
+      "statement": "self.browse()",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "UomUom._filter_protected_uoms"
+    },
+    {
+      "id": "ap-5f5fa44602",
+      "kind": "odoo",
+      "op": "read",
+      "tables": [
+        "uom_uom"
+      ],
+      "join_edges": [],
+      "filter": [
+        {
+          "col": "uom_uom.id",
+          "op": "eq"
+        }
+      ],
+      "sort": [],
+      "frequency": null,
+      "confirmed": false,
+      "source": {
+        "file": "addons/uom/models/uom_uom.py",
+        "lines": [
+          209,
+          209
+        ]
+      },
+      "statement": "self.browse(set(linked_model_data.mapped(?)))",
+      "orm": {
+        "framework": "odoo",
+        "method": "browse"
+      },
+      "routine": "UomUom._filter_protected_uoms"
+    }
+  ],
+  "findings": []
+}
