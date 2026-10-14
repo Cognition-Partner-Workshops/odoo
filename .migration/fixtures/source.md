@@ -52,7 +52,7 @@ PUBLIC. Its DSN is the secret `ODOO_PG_RO_DSN`
 (`postgresql://odoo_ro:<password>@localhost:5433/odoo_src`); the script reads the
 password from that secret, so every VM gets the same DSN.
 
-## Row counts (fresh build and rerun identical)
+## Row counts (fresh build; a rerun prints the same until someone writes to `odoo_src`)
 
 | table | rows |
 | --- | --- |

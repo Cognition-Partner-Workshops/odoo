@@ -25,7 +25,11 @@ fi
 
 sudo -n pg_ctlcluster 16 main status >/dev/null 2>&1 || sudo -n pg_ctlcluster 16 main start
 
-built="$(psql -d "$DB" -tAc "SELECT value FROM ir_config_parameter WHERE key='$MARKER'" 2>/dev/null || true)"
+# A failed query aborts (set -e); only a missing database or an unset marker triggers a rebuild.
+built=
+if [ "$(psql -X -v ON_ERROR_STOP=1 -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DB'")" = 1 ]; then
+  built="$(psql -X -v ON_ERROR_STOP=1 -d "$DB" -tAc "SELECT value FROM ir_config_parameter WHERE key='$MARKER'")"
+fi
 if [ "$built" != "1" ]; then
   dropdb --if-exists "$DB"
   "$PY" "$REPO/odoo-bin" --addons-path="$REPO/addons,$REPO/odoo/addons" \
