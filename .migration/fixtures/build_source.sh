@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Build the read-only Odoo source database odoo_src (product + uom, demo data)
+# Build the read-only Odoo source database odoo_src (product, uom, sale, purchase,
+# stock, account with demo data; code migration scope stays product + uom)
 # and the SELECT-only role odoo_ro on the local PostgreSQL 16 cluster (port 5433).
 # Idempotent: a second run leaves the database untouched and prints the same counts.
 #
@@ -13,8 +14,9 @@ REPO="${ODOO_REPO:-$(cd "$HERE/../.." && pwd)}"
 PY=/home/ubuntu/.venvs/odoo/bin/python
 PGPORT=5433
 DB=odoo_src
-ADDONS=product,uom
+ADDONS=product,uom,sale,purchase,stock,account
 MARKER=migration.fixture_source
+MARKER_VERSION=2   # bump when the fixture widens so an old odoo_src is rebuilt
 export PGPORT PGHOST=/var/run/postgresql
 
 if [ -z "${ODOO_RO_PASSWORD:-}" ]; then
@@ -25,13 +27,13 @@ fi
 
 sudo -n pg_ctlcluster 16 main status >/dev/null 2>&1 || sudo -n pg_ctlcluster 16 main start
 
-# A failed query aborts (set -e); only a missing database or an unset marker triggers a rebuild.
+# A failed query aborts (set -e); only a missing database or an old/unset marker triggers a rebuild.
 built=
 exists="$(psql -X -v ON_ERROR_STOP=1 -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DB'")"
 if [ "$exists" = 1 ]; then
   built="$(psql -X -v ON_ERROR_STOP=1 -d "$DB" -tAc "SELECT value FROM ir_config_parameter WHERE key='$MARKER'")"
 fi
-if [ "$built" != "1" ]; then
+if [ "$built" != "$MARKER_VERSION" ]; then
   dropdb --if-exists "$DB"
   "$PY" "$REPO/odoo-bin" --addons-path="$REPO/addons,$REPO/odoo/addons" \
     -d "$DB" --db_port="$PGPORT" -i "$ADDONS" --with-demo --stop-after-init --log-level=warn
@@ -56,5 +58,15 @@ SELECT 'product_template', count(*) FROM product_template UNION ALL
 SELECT 'product_product', count(*) FROM product_product UNION ALL
 SELECT 'product_category', count(*) FROM product_category UNION ALL
 SELECT 'uom_uom', count(*) FROM uom_uom UNION ALL
+SELECT 'sale_order', count(*) FROM sale_order UNION ALL
+SELECT 'sale_order_line', count(*) FROM sale_order_line UNION ALL
+SELECT 'purchase_order', count(*) FROM purchase_order UNION ALL
+SELECT 'purchase_order_line', count(*) FROM purchase_order_line UNION ALL
+SELECT 'stock_picking', count(*) FROM stock_picking UNION ALL
+SELECT 'stock_move', count(*) FROM stock_move UNION ALL
+SELECT 'stock_move_line', count(*) FROM stock_move_line UNION ALL
+SELECT 'stock_quant', count(*) FROM stock_quant UNION ALL
+SELECT 'account_move', count(*) FROM account_move UNION ALL
+SELECT 'account_move_line', count(*) FROM account_move_line UNION ALL
 SELECT 'mail_message', count(*) FROM mail_message;
 SQL
