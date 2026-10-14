@@ -82,7 +82,7 @@ def main():
         row_counts = {t: conn.execute(f"SELECT count(*) FROM {q(t)}").fetchone()[0]
                       for t in migrate}
 
-        relationships, uncovered = [], []
+        relationships, uncovered, empty_parent = [], [], []
         for stat in profile["stats"]:
             if stat["query_id"] != "fanout" or stat["status"] != "ok":
                 continue
@@ -92,6 +92,7 @@ def main():
                 continue
             expected = stat["values"]
             if not expected["parents"]:
+                empty_parent.append(stat["id"])   # parent table empty in the source: nothing to size
                 continue
             rows = conn.execute(
                 f"SELECT n, count(*) FROM (SELECT count(c.{q(cols[0])}) AS n FROM {q(parent)} p "
@@ -168,13 +169,14 @@ def main():
                      "any subset that would still hold all three, so no row is dropped); the "
                      "outlier template exceeds the profile's max variants per template"),
             "relationships": relationships,
+            "empty_parent": sorted(empty_parent),
             "uncovered": sorted(uncovered),
         },
         "outlier": outlier,
     }
     Path(args.out).write_text(json.dumps(manifest, indent=2, default=str) + "\n")
     print(f"{args.out}: {len(migrate)} tables, {sum(row_counts.values())} rows, "
-          f"{len(relationships)} fan-outs checked, outlier {outlier['variants']} variants "
+          f"{len(relationships)} fan-outs checked ({len(empty_parent)} empty-parent skipped), outlier {outlier['variants']} variants "
           f"(profile max {outlier['profile_max_variants']}), uncovered={len(uncovered)}")
     if uncovered:
         sys.exit(1)

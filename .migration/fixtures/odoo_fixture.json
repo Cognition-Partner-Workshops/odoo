@@ -4,7 +4,7 @@
   "method": "synthetic",
   "masked_columns": [],
   "masking": "none: Odoo demo data is synthetic, the fixture holds no customer rows",
-  "produced_at": "2026-10-14T23:15:21Z",
+  "produced_at": "2026-10-14T23:17:07Z",
   "produced_by": "s2.4-fixture (.migration/fixtures/build_fixture.sh)",
   "fixture": {
     "family": "postgresql",
@@ -1017,6 +1017,16 @@
         },
         "covered": true
       }
+    ],
+    "empty_parent": [
+      "fanout:product_label_layout_product_product_rel->product_label_layout(product_label_layout_id)",
+      "fanout:product_label_layout_product_template_rel->product_label_layout(product_label_layout_id)",
+      "fanout:product_label_layout_product_uom_rel->product_label_layout(product_label_layout_id)",
+      "fanout:product_label_layout_product_uom_rel->product_uom(product_uom_id)",
+      "fanout:product_product->product_base_unit(base_unit_id)",
+      "fanout:product_tag_product_product_rel->product_tag(product_tag_id)",
+      "fanout:product_tag_product_template_rel->product_tag(product_tag_id)",
+      "fanout:product_template->product_base_unit(base_unit_id)"
     ],
     "uncovered": []
   },
