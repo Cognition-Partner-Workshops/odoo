@@ -1,0 +1,19 @@
+{
+  "policy": "online",
+  "source_access": "live",
+  "target_access": "migration_cluster",
+  "source": {
+    "access": "live",
+    "reason": "probe_ok",
+    "blocked": false,
+    "detail": ""
+  },
+  "target": {
+    "access": "migration_cluster",
+    "reason": "privilege_excess_accepted",
+    "blocked": false,
+    "detail": "over-scoped principal accepted, mongo_guard is the only write fence: readWriteAnyDatabase@admin, dbAdminAnyDatabase@admin"
+  },
+  "blocked": false,
+  "probed_at": "2026-10-14T21:03:30.147872+00:00"
+}
