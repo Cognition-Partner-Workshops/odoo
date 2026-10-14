@@ -80,23 +80,23 @@ this register.
 | stock_package_type (model_only, stock) | uom_uom.package_type_id | D2+D3 |
 | sale_order_line (model_only, sale) | product_attribute_custom_value.sale_order_line_id (`addons/sale/models/product_attribute_custom_value.py`) | D2+D3 — reverse dependency: slice row points into sale |
 
-## C. Stored fields added to slice models by other modules (`ir_model_fields` ⋈ `ir_model_data`, 29 fields excl. `id`)
+## C. Stored fields added to slice models by other modules (`ir_model_fields` ⋈ `ir_model_data`, 54 fields excl. `id`; `*` = company-dependent JSONB)
 
 | module | fields | disp. |
 |---|---|---|
-| account | product.category: property_account_expense_categ_id, property_account_income_categ_id, property_cost_method*, property_price_difference_account_id, property_stock_journal, property_stock_valuation_account_id, property_valuation; product.template: property_account_expense_id, property_account_income_id, taxes_id, supplier_taxes_id, account_tag_ids (`addons/account/models/product.py`) | D2 (company-dependent → JSONB keyed by company id) |
-| stock | product.category: packaging_reserve_method, putaway_rule_ids, removal_strategy_id, route_ids; product.template: is_storable, tracking, sale_delay, responsible_id, property_stock_inventory, property_stock_production, description_picking/in/out, route_ids, lot_sequence_id; product.product: qty_available (company-dependent stub in `addons/product/models/product_product.py:94`, computed in `addons/stock/models/product.py:50`), lot_properties_definition; product.label.layout: move_ids, move_quantity, print_packaging (`addons/stock/models/product.py`) | D2 |
-| stock_account | product.template.lot_valuated, product.category.property_cost_method* (`addons/stock_account/models/product.py`) | D2 |
-| sale | product.template: invoice_policy, optional_product_ids, sale_line_warn_msg, description_sale; product.pricelist.item: *; product.document.attached_on_sale; product.attribute.custom.value.sale_order_line_id; product.category: property_account_invoiced_not_delivered_id, property_account_invoices_to_issue_id | D2 |
-| purchase | product.template: purchase_method, purchase_line_warn_msg, description_purchase; product.category: property_account_billed_not_received_id, property_account_bills_to_receive_id | D2 |
-| purchase_stock | product.product.purchase_order_line_ids (one2many — inverse lives in purchase, not stored on slice) | D1 |
+| account | product.category: property_account_expense_categ_id*, property_account_income_categ_id*, property_cost_method*, property_price_difference_account_id*, property_stock_journal*, property_stock_valuation_account_id*, property_valuation*; product.template: property_account_expense_id*, property_account_income_id*, taxes_id, supplier_taxes_id, account_tag_ids (`addons/account/models/product.py`) | D2 (m2m rel tables are D1, see A) |
+| stock | product.category: packaging_reserve_method, putaway_rule_ids, removal_strategy_id, route_ids; product.template: tracking, responsible_id*, property_stock_inventory*, property_stock_production*, description_picking, description_pickingin, description_pickingout, route_ids, lot_sequence_id; product.product: lot_properties_definition, orderpoint_ids, putaway_rule_ids, stock_move_ids, stock_quant_ids, storage_category_capacity_ids (one2many — inverse FK lives on the stock table, D1); product.label.layout: move_ids, move_quantity, print_packaging; uom.uom.package_type_id (`addons/stock/models/product.py`, `addons/stock/models/product_strategy.py`) | D2 |
+| stock_account | product.template.lot_valuated, product.category.property_cost_method* (override of the `account` field, `addons/stock_account/models/product.py`) | D2 |
+| sale | product.template: invoice_policy, reinvoice_policy, service_type, sale_delay*, optional_product_ids, sale_line_warn_msg (`addons/sale/models/product_template.py`); product.category: property_account_invoiced_not_delivered_id*, property_account_invoices_to_issue_id*; product.document.attached_on_sale; product.attribute.custom.value.sale_order_line_id | D2 |
+| purchase | product.template: purchase_method, purchase_line_warn_msg; product.category: property_account_billed_not_received_id*, property_account_bills_to_receive_id* (`addons/purchase/models/product.py`) | D2 |
+| purchase_stock | product.product.purchase_order_line_ids (one2many, inverse on purchase_order_line) | D1 |
 | sale_purchase | product.template.service_tracking | D2 |
 | account_edi_ubl_cii | uom.uom.unece_code | D2 |
 
-`*` field defined in `account`, overridden in `stock_account`. 19 of these are
-`company_dependent=True` and are physically JSONB columns in PostgreSQL (37 JSONB columns
+19 of these are `company_dependent=True` and are physically JSONB columns in PostgreSQL (37 JSONB columns
 on slice tables in total; the rest are translated `name`/`description*` and
-`properties`/`properties_definition`). There is **no `ir_property` and no
+`properties`/`properties_definition`, plus `product_product.qty_available`/`standard_price` which
+`product` itself declares company-dependent). There is **no `ir_property` and no
 `ir_translation` table** in Odoo 20: both live inside the row as JSONB, so they travel
 with the document (D2) — nothing to join.
 
@@ -125,10 +125,19 @@ PostgreSQL views in the fixture (3 of 5 touch the slice):
 `_table_query` reports (not materialised as PG views, executed as subqueries at read time;
 join slice tables through `product_id`/`product_uom_id` on their own lines):
 `addons/sale/report/sale_report.py:14`, `addons/purchase/report/purchase_report.py:15`,
-`addons/account/report/account_invoice_report.py:11`,
-`addons/purchase/models/purchase_bill_line_match.py:12` — D6. Not-installed addons with the
+`addons/account/report/account_invoice_report.py:11` — D6.
+`addons/purchase/models/purchase_bill_line_match.py:12,119-150` is also `_auto = False` but only
+selects `product_id` from purchase_order_line/account_move_line without joining a slice table — D1.
+Not-installed addons with the
 same pattern: `addons/event_sale/report/event_sale_report.py`,
 `addons/point_of_sale/report/pos_order_report.py` — D7.
+
+Raw SQL in out-of-scope addons that reads/writes slice tables directly (bypasses the ORM):
+
+| code | SQL | disp. |
+|---|---|---|
+| `addons/account/models/product.py:243-258` `_check_uom_not_in_invoice` (constraint on `uom_id`) | joins account_move_line → product_product → product_template → uom_uom | D6 — must become an ORM read (search on account.move.line) or needs a full shadow; runs on every uom change |
+| `addons/stock/__init__.py:46,83-92` `_create_inventory_adjustment` (post-init / uninstall hooks) | `SELECT id, qty_available FROM product_product`, `UPDATE product_product SET qty_available = …::jsonb` | D6 — lifecycle only (install/uninstall of `stock`); not exercised during the run, but blocks (un)installing `stock` on a Mongo-backed slice |
 
 In-scope raw SQL inside the slice itself (`addons/product/models/product_template.py:403,413,969`,
 `product_product.py:1134-1141`, `product_combo.py:55`) is the storage-path ticket's problem,
@@ -163,8 +172,8 @@ No cron targets a `product.*` or `uom.*` model. Indirect readers/writers of slic
 
 - 53 inbound FK columns from 36 out-of-scope tables → D1 (keep integer ids, id-shadow in PG).
 - 58 outbound Many2one columns → D3 references; 2 point *into* model-only addons (sale/stock).
-- 29 foreign-module stored fields + 37 JSONB columns → D2, must be honoured by the ORM storage path.
+- 54 foreign-module stored fields (19 company-dependent) + 37 JSONB columns → D2, must be honoured by the ORM storage path.
 - 5 ORM writers in stock_account/stock/account/purchase → D5, add to recon scenarios.
-- 3 PG views + 4 `_table_query` reports → D6, rewrite or full shadow.
+- 3 PG views + 3 `_table_query` reports + 2 raw-SQL paths (account uom constraint, stock lifecycle hooks) → D6, rewrite or full shadow.
 - ~530 `ir_model_data`/`ir_attachment`/`mail_message`/`ir_default` rows → D4.
 - 0 direct crons; 4 indirect → D5. 0 triggers.
