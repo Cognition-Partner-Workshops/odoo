@@ -2,7 +2,7 @@
 # Build the recon fixture database odoo_fixture (s2.4-fixture): a clone of the read-only
 # source odoo_src plus one synthetic outlier template (60 variants against a source max of
 # 5), then write .migration/fixtures/odoo_fixture.json from the live fixture.
-# Idempotent: when the fixture marker is current and the fixture still carries the live
+# Idempotent: when the fixture marker is current, its filestore exists and it still carries the live
 # source's database.uuid (a rebuilt odoo_src gets a new one) nothing is rebuilt and only
 # the manifest is rewritten. odoo_src is never written; the fixture is a separate database.
 # The Odoo filestore is copied alongside the database, as Odoo's own duplicate does.
@@ -45,7 +45,7 @@ if [ "$exists" = 1 ]; then
   built="$(param "$DB" "$MARKER")"
   fixture_uuid="$(param "$DB" database.uuid)"
 fi
-if [ "$built" != "$MARKER_VERSION" ] || [ "$fixture_uuid" != "$src_uuid" ]; then
+if [ "$built" != "$MARKER_VERSION" ] || [ "$fixture_uuid" != "$src_uuid" ] || [ ! -d "$FILESTORE" ]; then
   dropdb --if-exists "$DB"
   rm -rf "$FILESTORE"
   createdb -T "$SRC" "$DB"   # clone; schema and table grants (odoo_ro SELECT) come with the template
