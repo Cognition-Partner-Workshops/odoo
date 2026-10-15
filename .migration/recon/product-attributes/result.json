@@ -14,7 +14,7 @@
   "seed": 1,
   "params": {},
   "snapshot": null,
-  "generated_at": "2026-10-15T17:03:41.685524+00:00",
+  "generated_at": "2026-10-15T20:02:11.876635+00:00",
   "redacted": true,
   "redaction_salted": false,
   "tiers": [
@@ -31,14 +31,144 @@
         }
       },
       "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 16,
+      "stats": {
+        "deferred_to_tier3": [
+          "productAttribute.sequence",
+          "productAttribute.createUid",
+          "productAttribute.writeUid",
+          "productAttribute.createVariant",
+          "productAttribute.displayType",
+          "productAttribute.name",
+          "productAttribute.active",
+          "productAttribute.createDate",
+          "productAttribute.writeDate",
+          "productAttributeValue.sequence",
+          "productAttributeValue.color",
+          "productAttributeValue.createUid",
+          "productAttributeValue.writeUid",
+          "productAttributeValue.htmlColor",
+          "productAttributeValue.name",
+          "productAttributeValue.isCustom",
+          "productAttributeValue.active",
+          "productAttributeValue.createDate",
+          "productAttributeValue.writeDate",
+          "productAttributeValue.defaultExtraPrice",
+          "updateProductAttributeValue.createUid",
+          "updateProductAttributeValue.writeUid",
+          "updateProductAttributeValue.mode",
+          "updateProductAttributeValue.createDate",
+          "updateProductAttributeValue.writeDate"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "productAttribute.createVariant",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productAttribute.displayType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productAttribute.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productAttributeValue.htmlColor",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productAttributeValue.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "updateProductAttributeValue.mode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "productAttribute.name",
+            "key": "productAttribute"
+          },
+          {
+            "field": "productAttributeValue.name",
+            "key": "productAttributeValue"
+          }
+        ],
+        "fields_fully_deferred": 11
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 124,
+      "stats": {
+        "productAttribute": {
+          "mode": "full_diff",
+          "population": 14,
+          "duplicate_source_key_count": 0
+        },
+        "embeds_graded": {
+          "productAttribute.productTmplIds": 9
+        },
+        "productAttributeValue": {
+          "mode": "full_diff",
+          "population": 101,
+          "duplicate_source_key_count": 0
+        },
+        "updateProductAttributeValue": {
+          "mode": "full_diff",
+          "population": 0,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {},
+      "findings": []
     }
   ],
-  "warnings": [],
-  "verdict": "ERROR",
+  "warnings": [
+    "UNVERIFIED collection updateProductAttributeValue: 0 source rows, key/shape/field rules unexercised"
+  ],
+  "verdict": "PASS",
   "merge_eligible": false,
-  "error": {
-    "type": "UndefinedFunction",
-    "message": "function min(jsonb) does not exist",
-    "traceback": "omitted (redacted run)"
-  }
+  "error": null
 }

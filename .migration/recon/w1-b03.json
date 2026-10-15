@@ -1,0 +1,21 @@
+{
+  "batch": "w1-b03",
+  "status": "PASS",
+  "recon_results": [
+    ".migration/recon/product-attributes/result.json"
+  ],
+  "fixture_results": [
+    ".migration/recon/product-attributes/fixture/result.json"
+  ],
+  "write_targets": [
+    "odoo_migration.productAttribute",
+    "odoo_migration.productAttributeValue",
+    "odoo_migration.updateProductAttributeValue"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/23",
+  "branch": "devin/1792082920-w1-b03-product-attributes",
+  "failure_class": "",
+  "manifest_sha": "ea9f6b868dc7",
+  "plugin_sha": "0d6bcfd528a4099449ad7f7d8c65eb620b017c79",
+  "one_line_summary": "product-attributes -> odoo_migration.productAttribute/productAttributeValue/updateProductAttributeValue: live strict recon verdict PASS (T1 pass (None checks), T2 pass (None checks), T3 pass (None checks), T4 pass (None checks), mode=live, target_class=migration_cluster, merge_eligible=False: updateProductAttributeValue has 0 live source rows (UNVERIFIED warning), fixture verdict PASS with 2 wizard scenario rows), read from result.json"
+}
