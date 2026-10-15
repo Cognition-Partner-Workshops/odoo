@@ -1,0 +1,10 @@
+{
+  "batch": "w1-b02",
+  "status": "PASS",
+  "recon_results": [".migration/recon/product-taxonomy/result.json"],
+  "write_targets": ["odoo_migration.productCategory", "odoo_migration.productTag", "odoo_migration.productBaseUnit"],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/22",
+  "branch": "devin/1792083000-w1-b02-product-taxonomy",
+  "failure_class": "",
+  "one_line_summary": "product-taxonomy: live strict PASS (Tier 1-4, 0 findings); productTag/productBaseUnit UNVERIFIED (0 source rows) so merge_eligible false; harness run from plugin PR #75 (8de2e0e)"
+}
