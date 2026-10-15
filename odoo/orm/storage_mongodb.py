@@ -220,15 +220,17 @@ class MongoStore:
         )
 
     def _has_committed_rows(self, model: BaseModel) -> bool:
-        """Committed shadow rows only: a separate cursor does not see the ids the
-        current transaction is allocating for documents it has not inserted yet."""
+        """Committed shadow rows only, read with the current cursor so a table this
+        transaction is altering cannot block: ``age(xmin) > 0`` excludes the rows
+        the transaction itself (or one of its savepoints) inserted, i.e. the ids
+        ``allocate_ids`` takes before the documents are written."""
         from odoo.tools import SQL  # noqa: PLC0415
-        with self.registry.cursor() as cr:
-            cr.execute(SQL("SELECT to_regclass(%s)", model._table))
-            if cr.fetchone()[0] is None:
-                return False
-            cr.execute(SQL("SELECT 1 FROM %s LIMIT 1", SQL.identifier(model._table)))
-            return cr.fetchone() is not None
+        cr = model.env.cr
+        cr.execute(SQL("SELECT to_regclass(%s)", model._table))
+        if cr.fetchone()[0] is None:
+            return False
+        cr.execute(SQL("SELECT 1 FROM %s WHERE age(xmin) > 0 LIMIT 1", SQL.identifier(model._table)))
+        return cr.fetchone() is not None
 
     def field_path(self, model: BaseModel, fname: str) -> str:
         if fname == 'id':
