@@ -290,13 +290,17 @@ class MongoStore:
     def _discard_undo(self, cr: Cursor) -> None:
         cr._mongo_undo = None
 
-    def allocate_ids(self, model: BaseModel, count: int) -> list[int]:
-        """Allocate ids from the model's PostgreSQL shadow table (the single id authority)."""
+    def allocate_ids(self, model: BaseModel, shadow_columns: list[str], shadow_rows: list[list]) -> list[int]:
+        """Allocate ids from the model's PostgreSQL shadow table (the single id authority),
+        writing the full-shadow column values of each row through (``_shadow_columns``, contract §4)."""
         from odoo.tools import SQL  # noqa: PLC0415
         cr = model.env.cr
+        nextval = SQL("nextval(pg_get_serial_sequence(%s, 'id'))", model._table)
         cr.execute(SQL(
-            "INSERT INTO %s (id) SELECT nextval(pg_get_serial_sequence(%s, 'id')) FROM generate_series(1, %s) RETURNING id",
-            SQL.identifier(model._table), model._table, count,
+            "INSERT INTO %s (%s) VALUES %s RETURNING id",
+            SQL.identifier(model._table),
+            SQL(', ').join(map(SQL.identifier, ['id', *shadow_columns])),
+            SQL(', ').join(SQL('(%s)', SQL(', ').join([nextval, *row])) for row in shadow_rows),
         ))
         return [row[0] for row in cr.fetchall()]
 
@@ -362,13 +366,20 @@ class MongoStore:
     # ------------------------------------------------------------------
     def ensure_shadow_table(self, model: BaseModel) -> None:
         """Create the shadow table (id authority and FK target) or, on a pre-existing table,
-        relax the columns whose values moved to MongoDB: ``allocate_ids`` inserts ids only, so
-        every column other than ``id`` and ``_shadow_columns`` loses its NOT NULL and default.
-        The columns themselves stay until the cutover reduction."""
+        relax the columns whose values moved to MongoDB: ``allocate_ids`` inserts only ``id``
+        and the full-shadow columns (``_shadow_columns``, contract §4), so every other column
+        loses its NOT NULL and default. The full-shadow columns are created when missing and
+        written through by ``allocate_ids`` and ``_write_multi``; the other columns stay until
+        the cutover reduction."""
         from odoo.tools import SQL, sql  # noqa: PLC0415
         cr = model.env.cr
-        if not sql.table_exists(cr, model._table):
-            sql.create_model_table(cr, model._table, f"{model._description} (MongoDB shadow: ids only)")
+        created = not sql.table_exists(cr, model._table)
+        if created:
+            sql.create_model_table(cr, model._table, f"{model._description} (MongoDB shadow: ids and {list(model._shadow_columns)})")
+        columns = sql.table_columns(cr, model._table)
+        for fname in model._shadow_columns:
+            model._fields[fname].update_db_column(model, columns.get(fname))
+        if created:
             return
         kept = {'id', *model._shadow_columns}
         cr.execute(SQL(

@@ -2454,6 +2454,10 @@ class BaseModel(metaclass=MetaModel):
             raise NotImplementedError(f"{self._name} is stored in MongoDB: no SQL view for _auto = False")
         if self._parent_store:
             self._check_parent_path()
+        for fname in self._shadow_columns:
+            field = self._fields.get(fname)
+            if not (field and field.store and field.column_type):
+                raise ValueError(f"{self._name}._shadow_columns: {fname!r} is not a stored column field")
         store = self.pool.mongo_store
         store.ensure_shadow_table(self)
         store.ensure_collection(self)
@@ -2662,7 +2666,10 @@ class BaseModel(metaclass=MetaModel):
 
     def _create_mongodb(self, columns: list[str], rows: list[list]) -> list[int]:
         store = self.pool.mongo_store
-        ids = store.allocate_ids(self, len(rows))
+        shadow = [index for index, fname in enumerate(columns) if fname in self._shadow_columns]
+        ids = store.allocate_ids(
+            self, [columns[index] for index in shadow], [[row[index] for index in shadow] for row in rows],
+        )
         docs = []
         for id_, row in zip(ids, rows):
             doc = self._document_values(columns, row)
@@ -2670,6 +2677,20 @@ class BaseModel(metaclass=MetaModel):
             docs.append(doc)
         store.insert_many(self, docs)
         return ids
+
+    def _shadow_updates(self, updates_list: list) -> list:
+        """ Project ``updates_list`` onto ``_shadow_columns`` (contract §4): the
+        SQL UPDATE of ``_write_multi`` writes them through to the shadow table
+        in the same PostgreSQL transaction as the SQL readers. """
+        projected = []
+        for fnames, rows in updates_list:
+            kept = [index for index, fname in enumerate(fnames) if fname in self._shadow_columns]
+            if kept:
+                projected.append((
+                    tuple(fnames[index] for index in kept),
+                    [(row[0], *(row[index + 1] for index in kept)) for row in rows],
+                ))
+        return projected
 
     def _write_mongodb(self, updates_list: list) -> None:
         from .storage_mongodb import to_bson  # noqa: PLC0415
@@ -4503,7 +4524,7 @@ class BaseModel(metaclass=MetaModel):
 
         if self._storage == 'mongodb':
             self._write_mongodb(updates_list)
-            updates_list = []
+            updates_list = self._shadow_updates(updates_list)
 
         # update columns by group of updated fields
         for fnames, rows in updates_list:
