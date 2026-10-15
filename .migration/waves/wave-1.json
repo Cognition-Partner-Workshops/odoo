@@ -1,0 +1,54 @@
+{
+  "wave": 1,
+  "source_access": "live",
+  "target_access": "migration_cluster",
+  "auto_merge": false,
+  "batches": [
+    {
+      "id": "w1-b01",
+      "units": [
+        "uom"
+      ],
+      "write_targets": [
+        "odoo_migration.uomUom"
+      ],
+      "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+      "recon_tolerances_version": "v1",
+      "mapping_version": "map-draft-5",
+      "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+      "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68"
+    },
+    {
+      "id": "w1-b02",
+      "units": [
+        "product-taxonomy"
+      ],
+      "write_targets": [
+        "odoo_migration.productCategory",
+        "odoo_migration.productTag",
+        "odoo_migration.productBaseUnit"
+      ],
+      "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+      "recon_tolerances_version": "v1",
+      "mapping_version": "map-draft-5",
+      "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+      "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68"
+    },
+    {
+      "id": "w1-b03",
+      "units": [
+        "product-attributes"
+      ],
+      "write_targets": [
+        "odoo_migration.productAttribute",
+        "odoo_migration.productAttributeValue",
+        "odoo_migration.updateProductAttributeValue"
+      ],
+      "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+      "recon_tolerances_version": "v1",
+      "mapping_version": "map-draft-5",
+      "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+      "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68"
+    }
+  ]
+}
