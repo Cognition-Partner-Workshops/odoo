@@ -5351,9 +5351,11 @@ class BaseModel(metaclass=MetaModel):
             if comodel._storage == 'mongodb':
                 # no SQL join into a MongoDB collection: materialize the
                 # comodel's order as an id list and rank by it (contract §3)
-                ordered_ids = comodel.sudo().with_context(active_test=False)._search([], order=coorder).get_result_ids()
+                from .fields_relational import _cross_store_ids  # noqa: PLC0415
+                coquery = comodel.sudo().with_context(active_test=False)._search([], order=coorder)
+                ordered_ids = _cross_store_ids(self, coquery)
                 table._query._order_groupby.append(sql_field)
-                return SQL("array_position(%s::int[], %s) %s %s", list(ordered_ids), sql_field, direction, nulls)
+                return SQL("array_position(%s::int[], %s) %s %s", ordered_ids, sql_field, direction, nulls)
 
             # instead of ordering by the field's raw value, use the comodel's
             # order on many2one values
