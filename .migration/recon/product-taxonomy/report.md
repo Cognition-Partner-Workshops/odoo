@@ -7,7 +7,7 @@
 - Tolerance version: `v1` (sha256 `59f500708400`)
 - Collections: `productBaseUnit`, `productCategory`, `productTag`
 - Seed: `1`
-- Generated: 2026-10-15T17:40:08.410796+00:00
+- Generated: 2026-10-15T20:03:45.550642+00:00
 - 35 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 18 string fields: min/max/distinct deferred to Tier 3
 
