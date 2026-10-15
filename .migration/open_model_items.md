@@ -2,7 +2,7 @@
 
 Sections A–C are the register as it stood on `map-draft-4` (every open item, one recommended pick each). Section 0b records the user picks relayed on 2026-10-15 and the decisions that applied them; section D lists what is still open on `map-draft-5`.
 
-Source: `.migration/mapping_spec.json` version `map-draft-4` (193 collections, 22 embeds, 354 `modeling.unresolved`, 705 collection open questions = **1059 open items**). Every item below is either one row in section A or counted in exactly one rule of section B; the totals add up to that number. Nothing the proposer resolved with cited evidence is re-opened: the 449 `modeling.rationale` rows (each with `ddl`/`access`/`data_profile` evidence) and the 14 embeds with `cardinality_basis: derived` stand.
+Historical register, built from `map-draft-4` — the spec as it stood before the picks; the committed `.migration/mapping_spec.json` is now `map-draft-5` (see §0b and §D for the current state). `map-draft-4` had (193 collections, 22 embeds, 354 `modeling.unresolved`, 705 collection open questions = **1059 open items**). Every item below is either one row in section A or counted in exactly one rule of section B; the totals add up to that number. Nothing the proposer resolved with cited evidence is re-opened: the 449 `modeling.rationale` rows (each with `ddl`/`access`/`data_profile` evidence) and the 14 embeds with `cardinality_basis: derived` stand.
 
 ## 0. Applied now (plan decisions; the user can re-pick)
 
