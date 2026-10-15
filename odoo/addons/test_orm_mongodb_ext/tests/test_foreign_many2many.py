@@ -13,6 +13,7 @@ class TestForeignMany2many(TransactionCase):
         cls.store = cls.env.registry.mongo_store
         cls.Item = cls.env['test_orm_mongodb.item']
         cls.Tag = cls.env['test_orm_mongodb.tag']
+        cls.store.ensure_collection(cls.Item)  # recreate what another test class dropped
         cls.addClassCleanup(cls.store.db.drop_collection, cls.store.collection_name(cls.Item))
 
     def test_foreign_many2many_is_document_array(self):

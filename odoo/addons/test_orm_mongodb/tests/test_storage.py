@@ -25,6 +25,8 @@ class TestMongoStorage(TransactionCase):
         cls.Category = cls.env['test_orm_mongodb.category']
         cls.Tag = cls.env['test_orm_mongodb.tag']
         cls.mongo_models = [cls.Item, cls.Line]
+        for model in cls.mongo_models:  # recreate what another test class dropped
+            cls.store.ensure_collection(model)
         cls.addClassCleanup(cls._drop_collections)
 
     @classmethod
