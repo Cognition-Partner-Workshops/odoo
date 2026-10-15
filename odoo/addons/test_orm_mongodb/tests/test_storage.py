@@ -3,7 +3,7 @@ from unittest.mock import PropertyMock, patch
 
 from odoo import Command
 from odoo.exceptions import UserError, ValidationError
-from odoo.orm.query import MongoQuery
+from odoo.orm.query import MongoQuery, Query
 from odoo.orm.storage_mongodb import MongoStore
 from odoo.tests import TransactionCase, tagged
 from odoo.tools import SQL, config
@@ -104,6 +104,35 @@ class TestMongoStorage(TransactionCase):
             "SELECT id, code, price FROM %s WHERE id IN %s ORDER BY id", SQL.identifier(table), tuple(records.ids),
         ))
         return self.env.cr.fetchall()
+
+    def test_sql_join_reads_shadow_table(self):
+        # a PostgreSQL model joined to a MongoDB comodel through SQL reads the
+        # shadow table: ``id`` and ``_shadow_columns`` only (contract §4); the
+        # comodel's record rules resolve to an id list (two-step, contract §3)
+        with patch.object(type(self.Item), '_shadow_columns', ('price',)):
+            self.store.ensure_shadow_table(self.Item)  # creates the shadow column
+            cat_a, cat_b, _tag_x, _tag_y, (alpha, beta, _gamma) = self._make()
+            cat_a.default_item_id = alpha
+            cat_b.default_item_id = beta
+
+            def select_prices(Category):
+                query = Category._search([('id', 'in', (cat_a | cat_b).ids)], order='id')
+                return Category.env.execute_query(query.select(query.table.id, query.table.default_item_id.price))
+
+            self.assertEqual(select_prices(self.Category), [(cat_a.id, 2.5), (cat_b.id, 7.0)])
+            alpha.price = 3.5  # written through to the shadow column at flush
+            self.assertEqual(select_prices(self.Category), [(cat_a.id, 3.5), (cat_b.id, 7.0)])
+            query = Query(self.Category)
+            with self.assertRaises(NotImplementedError):
+                query.table.default_item_id.name
+            # a record rule (restriction) on the comodel applies to non-superusers
+            as_admin = self.Category.with_user(self.env.ref('base.user_admin'))
+            self.assertEqual(select_prices(as_admin), [(cat_a.id, 3.5), (cat_b.id, 7.0)])
+            self.env['ir.access'].create({
+                'name': 'cheap items only', 'operation': 'crud', 'domain': "[('price', '<', 5)]",
+                'model_id': self.env['ir.model']._get_id('test_orm_mongodb.item'),
+            })
+            self.assertEqual(select_prices(as_admin), [(cat_a.id, 3.5), (cat_b.id, None)])
 
     def test_registry_opt_in(self):
         self.assertEqual(self.Item._storage, 'mongodb')

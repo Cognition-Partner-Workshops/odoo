@@ -592,14 +592,23 @@ class Many2one(_Relational):
             coquery = None
         else:
             coquery = comodel.with_context(_generating_sql_for_fields=True)._search(Domain.TRUE, active_test=False)
-            if not coquery.where_clause:
+            if not (coquery.filter if isinstance(coquery, MongoQuery) else coquery.where_clause):
                 coquery = None
         if coquery is None:
             coalias = table._make_alias(self.name, comodel)
             cotable = None
         else:
             coalias = table._make_alias(f'{self.name}__{model.env.uid}', comodel)
-            cotable = coquery.subselect(SQL('%s.*', coquery.table))
+            if isinstance(coquery, MongoQuery):
+                # two-step: the comodel's rules are evaluated in MongoDB, the
+                # join reads the matching ids from the shadow table
+                cotable = SQL(
+                    "(SELECT %s FROM %s WHERE id = ANY(%s::int4[]))",
+                    SQL(', ').join(SQL.identifier(c) for c in ('id', *comodel._shadow_columns)),
+                    SQL.identifier(comodel._table), _cross_store_ids(model, coquery),
+                )
+            else:
+                cotable = coquery.subselect(SQL('%s.*', coquery.table))
         if kind == 'LEFT JOIN' and not can_be_null and not cotable:
             # [PERF]: 'JOIN' has better performance than 'LEFT JOIN'
             # Convert LEFT JOIN to JOIN when the required left-table reference
