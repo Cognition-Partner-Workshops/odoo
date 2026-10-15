@@ -1,0 +1,39 @@
+{
+  "run_id": "UNT11-15",
+  "manifest_sha": "ea9f6b868dc7",
+  "wave_verdict": "FAIL",
+  "unit_verdicts": {
+    "w1-b01": "PASS",
+    "w1-b02": "FAIL",
+    "w1-b03": "PASS"
+  },
+  "recon_results": {
+    "w1-b01": [".migration/recon/wave-1/w1-b01/uom/result.json"],
+    "w1-b02": [
+      ".migration/recon/wave-1/w1-b02/product-taxonomy-odoo_src/result.json",
+      ".migration/recon/wave-1/w1-b02/product-taxonomy-scenario/result.json"
+    ],
+    "w1-b03": [".migration/recon/wave-1/w1-b03/product-attributes/result.json"]
+  },
+  "findings": [
+    {
+      "batch": "w1-b02",
+      "class": "scenario-seed drift",
+      "severity": "drift-explained",
+      "detail": "productTag (3 docs) and productBaseUnit (2 docs) have 0 rows in read-only odoo_src; they were loaded from the worker's seeded clone. An independent seeded clone reconciles on every field except createDate/writeDate of those 5 documents because .migration/load/seed_scenario_rows.py stamps now(); the worker's PASS is not reproducible outside its session. productCategory (8 rows) matches odoo_src fully."
+    },
+    {
+      "batch": "w1-b03",
+      "class": "accepted warning",
+      "severity": "info",
+      "detail": "UNVERIFIED collection updateProductAttributeValue: 0 source rows (accepted by the user; merge_eligible=false on the harness result for that reason only)."
+    },
+    {
+      "batch": "w1-b03",
+      "class": "fixture rerun not performed",
+      "severity": "info",
+      "detail": "product-attributes fixture-mode rerun would require reloading the target from odoo_fixture (17 attributes / 114 values vs 14 / 101 in odoo_src); the verifier does not write to the target."
+    }
+  ],
+  "report_path": "recon/wave-1:.migration/recon/wave-1/verify-report.md"
+}
