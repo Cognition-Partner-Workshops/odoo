@@ -57,7 +57,7 @@ existing code, unchanged. "store" below means the `MongoStore` object of §1.
 | `_RelationalMulti.condition_to_sql` (`:845`) | `id IN (SELECT inverse …)` / `EXISTS` on the relation | §3 |
 | `One2many.update_db` (`:960`), `read` (`:998`), `write_batch` (`:1029`) | inverse column on the comodel; `comodel.search(inverse in ids)`; comodel create/write/unlink | unchanged — a One2many is a search in the *comodel's* store; it works across stores because `records.ids` are integers on both sides. |
 | `Many2many.update_db` / `update_db_foreign_keys` (`:1370`, `:1414`) | relation table + FKs | slice relation: skipped (array field on the declaring side). PostgreSQL relation: unchanged (FKs point at the shadow or at a PostgreSQL table). |
-| `Many2many.read` (`:1428`) | `comodel._search` + `add_join` on the relation + `id1 IN ids` | slice relation: project `<arrayPath>.<elementId>` from the declaring side's documents, then `comodel.browse(ids)` ordered with one `comodel._search([('id','in', ids)], order=comodel._order)`. PostgreSQL relation with one mongodb side: `SELECT col1, col2 FROM relation WHERE col1 IN %s` then the same ordered browse. |
+| `Many2many.read` (`:1428`) | `comodel._search` + `add_join` on the relation + `id1 IN ids` | slice relation: `find({_id: {$in: records.ids}}, {<arrayPath>: 1})`, then in Python `ids_by_record = {doc._id: [e[<elementId>] for e in doc[<arrayPath>]]}` (a dotted projection keeps the element objects; the integer ids are extracted explicitly, per declaring record), then `comodel.browse(ids)` ordered with one `comodel._search([('id','in', ids)], order=comodel._order)`. PostgreSQL relation with one mongodb side: `SELECT col1, col2 FROM relation WHERE col1 IN %s` then the same ordered browse. |
 | `Many2many.write_batch` (`:1457`) | `INSERT`/`DELETE` on the relation | slice relation: `$addToSet`/`$pull`/`$set` of `{<elementId>: id}` elements on the array (link/unlink/set/clear). PostgreSQL relation: unchanged SQL with integer ids. |
 | `TableSQLId` (`:1794`) | SQL id joins | not used for mongodb models |
 
@@ -98,8 +98,9 @@ whose value is a `Query`/`SQL`) where `model._storage != comodel._storage`, or w
      step 2 is `('id', 'in', parent_ids)`.
    - `Many2many`, relation in the slice: step 2 is `{'<arrayPath>.<elementId>': {$in: ids}}` (or
      `$nin`) on the declaring side; when the condition sits on the non-declaring side, the
-     declaring side's documents are queried for `{array: {$in: ids}}` and their `_id`s become
-     step 2.
+     declaring side's documents are queried with the same `{'<arrayPath>.<elementId>': {$in: ids}}`
+     (`$nin` → `$not: {$elemMatch: {<elementId>: {$in: ids}}}`, so a document with no matching element
+     passes, like the SQL `NOT EXISTS`) and their `_id`s become step 2.
    - `Many2many`, relation in PostgreSQL (sale/purchase/stock/account-owned, e.g.
      `product_template_attribute_value_sale_order_line_rel`): step 1 as above; step 1b
      `SELECT col1 FROM relation WHERE col2 IN %s` in PostgreSQL; step 2 `('id', 'in', …)` in
