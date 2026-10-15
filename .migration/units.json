@@ -1,0 +1,886 @@
+{
+  "kind": "migration-units",
+  "slice": "product + uom",
+  "derived_from": {
+    "mapping_version": "map-draft-5",
+    "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+    "recon_tolerances_version": "v1",
+    "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68",
+    "table_buckets": ".migration/table_buckets.json (bucket = migrate, 33 tables)",
+    "dependency_register": ".migration/NOTES.md (D1-D7)",
+    "orm_contract": ".migration/orm_backend_contract.md",
+    "open_items": ".migration/open_model_items.md §D (19 product embed_unbounded arrays)"
+  },
+  "rules": [
+    "unit = addon models that opt in to `_storage = \"mongodb\"`, their stored computed/related fields and raw SQL, plus the collections (and spec arrays) they own",
+    "a model and its `_inherits` parent share a unit (product.product + product.template)",
+    "relation tables are assigned to the unit owning the spec array that absorbs them",
+    "model_only collections (sale, purchase, stock, account) are not units: listed per unit as cross-boundary references only",
+    "wave width 4; one dependency depth per wave; no two batches share a write target",
+    "all units depend on the ORM MongoDB storage path (parallel ticket) — not implemented here"
+  ],
+  "source_access": "live",
+  "target_access": "migration_cluster",
+  "target_database": "odoo_migration",
+  "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+  "wave_width": 4,
+  "open_items": [
+    "Seven spec arrays on slice documents absorb relation tables that stay PostgreSQL-owned this run (model_only declaring side, NOTES.md D1): productTemplate.{accountTagIds,taxesId,supplierTaxesId,optionalProductIds,routeIds}, productCategory.routeIds, productLabelLayout.moveIds. The loader can snapshot them, but runtime writes keep landing in the PG relation table (contract §1), so recon on these arrays is point-in-time only. Decision needed from the storage-path ticket/manager: exclude these arrays from strict recon or treat them as shadow-owned until the declaring app migrates.",
+    "Wave 2 holds a single unit (product-catalog) because every depth-2 unit references productProduct/productTemplate; it is also the unit carrying all R rewrites and both full-shadow tables, so it gets the wave to itself by design.",
+    "Fixture has 0 rows in 11 of the 33 tables (listed per unit under recon_risks.fixture_zero_rows); strict recon on those is schema-only until the unit run adds scenario rows."
+  ],
+  "units": [
+    {
+      "id": "uom",
+      "name": "Units of measure",
+      "depth": 0,
+      "models": {
+        "uom.uom": "addons/uom/models/uom_uom.py"
+      },
+      "raw_sql": [],
+      "cross_boundary": {
+        "d1_inbound_fk": [
+          "account_move_line.product_uom_id",
+          "barcode_rule.associated_uom_id",
+          "sale_order_line.product_uom_id",
+          "sale_order_line.section_uom_id",
+          "purchase_order_line.uom_id",
+          "stock_move.uom_id",
+          "stock_move.packaging_uom_id",
+          "stock_move_line.uom_id",
+          "stock_warehouse_orderpoint.replenishment_uom_id"
+        ],
+        "d2_fields_travel": [
+          "uom.uom.package_type_id (stock → stockPackageType, reference-out)",
+          "uom.uom.unece_code (account_edi_ubl_cii)"
+        ],
+        "d3_reference_out": [
+          "create_uid/write_uid → res_users"
+        ],
+        "d5_orm_writers": [],
+        "d6_sql_readers": [
+          "account `_check_uom_not_in_invoice` (addons/account/models/product.py:243-258) — S, full shadow of uom_uom(id) until account migrates",
+          "report_stock_quantity / stock_avco_report / vendor_delay_report read uom_uom.factor — S, full shadow uom_uom(id, factor)"
+        ],
+        "d4_framework": [
+          "ir_model_data: 30 xmlids (uom.*)",
+          "`_parent_store` on uom.uom → `_parent_store_*` Python path (contract §3)"
+        ]
+      },
+      "notes": [
+        "No raw SQL in addons/uom.",
+        "CHECK `_factor_gt_zero` and partial index on relative_uom_id become ORM constraints/indexes per contract."
+      ],
+      "collections": [
+        "uomUom"
+      ],
+      "source_tables": {
+        "roots": [
+          "uom_uom"
+        ],
+        "embedded": [],
+        "pg_owned_arrays": []
+      },
+      "write_targets": [
+        "odoo_migration.uomUom"
+      ],
+      "expected_rows": {
+        "uom_uom": 30
+      },
+      "recon_risks": {
+        "embed_unbounded_arrays": [],
+        "fixture_zero_rows": []
+      },
+      "depends_on": [],
+      "forward_refs_same_or_later_depth": [],
+      "batch": "w1-b01"
+    },
+    {
+      "id": "product-taxonomy",
+      "name": "Product taxonomy (category, tag, base unit)",
+      "depth": 0,
+      "models": {
+        "product.category": "addons/product/models/product_category.py",
+        "product.tag": "addons/product/models/product_tag.py",
+        "product.base.unit": "addons/product/models/product_base_unit.py"
+      },
+      "raw_sql": [],
+      "cross_boundary": {
+        "d1_inbound_fk": [
+          "product_category_stock_picking_type_rel (stock m2m, declared on stock.picking.type)",
+          "stock_route_categ (stock m2m; spec array productCategory.routeIds stays PG-owned this run)",
+          "account_analytic_applicability.product_categ_id (D7 empty)",
+          "account_analytic_distribution_model.product_categ_id (D7 empty)",
+          "stock_putaway_rule.category_id / stock_storage_category_capacity (D7 empty)"
+        ],
+        "d2_fields_travel": [
+          "product.category: account property_account_* ×7 (company-dependent), stock packaging_reserve_method / removal_strategy_id / route_ids, stock_account property_cost_method / property_valuation, sale property_* ×2, purchase property_* ×2"
+        ],
+        "d3_reference_out": [
+          "product.category.removal_strategy_id → productRemoval (stock, model_only)",
+          "company_id → res_company",
+          "create_uid/write_uid → res_users"
+        ],
+        "d5_orm_writers": [],
+        "d6_sql_readers": [
+          "stock_avco_report reads product_category.property_cost_method — S, full shadow product_category(id, property_cost_method)"
+        ],
+        "d4_framework": [
+          "mail_message 8 (product.category, mail.thread)",
+          "ir_model_data: 7 (product.category)",
+          "`_parent_store` + parent_path index on product.category → `_parent_store_*` Python path"
+        ]
+      },
+      "notes": [
+        "Fixture has 0 rows in product_tag and product_base_unit: recon exercises schema only; the unit run adds scenario rows (tier 4)."
+      ],
+      "collections": [
+        "productCategory",
+        "productTag",
+        "productBaseUnit"
+      ],
+      "source_tables": {
+        "roots": [
+          "product_category",
+          "product_tag",
+          "product_base_unit"
+        ],
+        "embedded": [],
+        "pg_owned_arrays": [
+          "productCategory.routeIds ← stock_route_categ"
+        ]
+      },
+      "write_targets": [
+        "odoo_migration.productCategory",
+        "odoo_migration.productTag",
+        "odoo_migration.productBaseUnit"
+      ],
+      "expected_rows": {
+        "product_category": 8,
+        "product_tag": 0,
+        "product_base_unit": 0
+      },
+      "recon_risks": {
+        "embed_unbounded_arrays": [
+          "productCategory.routeIds ← stock_route_categ"
+        ],
+        "fixture_zero_rows": [
+          "product_base_unit",
+          "product_tag"
+        ]
+      },
+      "depends_on": [],
+      "forward_refs_same_or_later_depth": [],
+      "batch": "w1-b02"
+    },
+    {
+      "id": "product-attributes",
+      "name": "Product attributes and values",
+      "depth": 0,
+      "models": {
+        "product.attribute": "addons/product/models/product_attribute.py",
+        "product.attribute.value": "addons/product/models/product_attribute_value.py",
+        "update.product.attribute.value": "addons/product/wizard/update_product_attribute_value.py"
+      },
+      "raw_sql": [],
+      "cross_boundary": {
+        "d1_inbound_fk": [],
+        "d2_fields_travel": [],
+        "d3_reference_out": [
+          "create_uid/write_uid → res_users"
+        ],
+        "d5_orm_writers": [],
+        "d6_sql_readers": [],
+        "d4_framework": [
+          "ir_attachment 8 (product.attribute.value images)",
+          "ir_model_data: 14 + 101",
+          "update.product.attribute.value is TransientModel → `_transient_vacuum` deleteMany (contract §3)"
+        ]
+      },
+      "notes": [
+        "productAttribute.productTmplIds references productTemplate ids that migrate one wave later; ints only, no join at load.",
+        "CHECK `_check_multi_checkbox_no_variant` → ORM constraint; dropped index product_attribute_value(sequence) per spec."
+      ],
+      "collections": [
+        "productAttribute",
+        "productAttributeValue",
+        "updateProductAttributeValue"
+      ],
+      "source_tables": {
+        "roots": [
+          "product_attribute",
+          "product_attribute_value",
+          "update_product_attribute_value"
+        ],
+        "embedded": [
+          "product_attribute_product_template_rel"
+        ],
+        "pg_owned_arrays": []
+      },
+      "write_targets": [
+        "odoo_migration.productAttribute",
+        "odoo_migration.productAttributeValue",
+        "odoo_migration.updateProductAttributeValue"
+      ],
+      "expected_rows": {
+        "product_attribute": 17,
+        "product_attribute_value": 114,
+        "update_product_attribute_value": 0,
+        "product_attribute_product_template_rel": 12
+      },
+      "recon_risks": {
+        "embed_unbounded_arrays": [
+          "productAttribute.productTmplIds ← product_attribute_product_template_rel"
+        ],
+        "fixture_zero_rows": [
+          "update_product_attribute_value"
+        ]
+      },
+      "depends_on": [],
+      "forward_refs_same_or_later_depth": [
+        "product-catalog"
+      ],
+      "batch": "w1-b03"
+    },
+    {
+      "id": "product-catalog",
+      "name": "Product catalog (template + variant, attribute lines/values, documents, packagings)",
+      "depth": 1,
+      "models": {
+        "product.template": "addons/product/models/product_template.py",
+        "product.product": "addons/product/models/product_product.py",
+        "product.template.attribute.line": "addons/product/models/product_template_attribute_line.py",
+        "product.template.attribute.value": "addons/product/models/product_template_attribute_value.py",
+        "product.document": "addons/product/models/product_document.py",
+        "product.uom": "addons/product/models/product_uom.py"
+      },
+      "raw_sql": [
+        {
+          "path": "addons/product/models/product_template.py",
+          "lines": "102,108,401-413",
+          "what": "`_compute_sql` for currency_id / cost_currency_id (SQL expression over res_company)",
+          "disposition": "R"
+        },
+        {
+          "path": "addons/product/models/product_template.py",
+          "lines": "960-975",
+          "what": "`_search_display_name` UNION of template/variant name matches",
+          "disposition": "R"
+        },
+        {
+          "path": "addons/product/models/product_product.py",
+          "lines": "185-201",
+          "what": "`_search_is_in_catalog_order` subselect over sale/purchase order lines (PG side)",
+          "disposition": "R (two-step: PG subquery → id list)"
+        },
+        {
+          "path": "addons/product/models/product_product.py",
+          "lines": "1128-1145",
+          "what": "`_search_display_name` UNION + subselect into product.supplierinfo",
+          "disposition": "R (two-step)"
+        },
+        {
+          "path": "views: report_stock_quantity, stock_avco_report, vendor_delay_report",
+          "lines": "",
+          "what": "PostgreSQL views joining product_product/product_template",
+          "disposition": "S"
+        },
+        {
+          "path": "_table_query: sale.report, purchase.report, account.invoice.report",
+          "lines": "",
+          "what": "reporting models joining product_product/product_template",
+          "disposition": "S"
+        },
+        {
+          "path": "addons/stock/__init__.py",
+          "lines": "46,83-92",
+          "what": "install hook inventory-adjustment SQL",
+          "disposition": "S (install-time only; not run during coexistence)"
+        }
+      ],
+      "cross_boundary": {
+        "d1_inbound_fk": [
+          "account_move_line.product_id",
+          "account_analytic_distribution_model.product_id (D7)",
+          "product_taxes_rel / product_supplier_taxes_rel / account_account_tag_product_template_rel (account m2m; spec arrays stay PG-owned this run)",
+          "sale_order_line.product_id",
+          "product_optional_rel (sale m2m; spec array optionalProductIds stays PG-owned)",
+          "product_template_attribute_value_sale_order_line_rel",
+          "customer_product_reference.product_id",
+          "res_company.sale_discount_product_id",
+          "purchase_order_line.product_id",
+          "product_template_attribute_value_purchase_order_line_rel",
+          "stock_move.product_id",
+          "stock_move_line.product_id",
+          "stock_quant.product_id",
+          "stock_lot.product_id",
+          "stock_warehouse_orderpoint.product_id",
+          "stock_route_product (stock m2m; spec array routeIds stays PG-owned)",
+          "template_attribute_value_stock_move_rel",
+          "product_value.product_id",
+          "one2many inverses on product.product: orderpoint_ids, putaway_rule_ids, stock_move_ids, stock_quant_ids, storage_category_capacity_ids, purchase_order_line_ids"
+        ],
+        "d2_fields_travel": [
+          "product.template: account property_account_expense_id / property_account_income_id (company-dependent), taxes_id, supplier_taxes_id, account_tag_ids; stock tracking, responsible_id, property_stock_inventory, property_stock_production, description_picking, route_ids, lot_sequence_id; stock_account lot_valuated; sale invoice_policy, reinvoice_policy, service_type, sale_delay, optional_product_ids, sale_line_warn_msg; purchase purchase_method, purchase_line_warn_msg; sale_purchase service_tracking",
+          "product.product: stock lot_properties_definition",
+          "product.document: sale attached_on_sale"
+        ],
+        "d3_reference_out": [
+          "uom_id / uom_po_id → uomUom (wave 1)",
+          "categ_id → productCategory (wave 1)",
+          "base_unit_id → productBaseUnit (wave 1)",
+          "lot_sequence_id → ir_sequence",
+          "product.document.ir_attachment_id (`_inherits` ir.attachment stays PG, D3+D4)",
+          "company_id → res_company",
+          "create_uid/write_uid → res_users"
+        ],
+        "d5_orm_writers": [
+          "stock_account `_change_standard_price` / lot_valuated writes (routed through ORM, PG shadow receives shadow columns)",
+          "account write() clearing taxes on product.template (PG only until account migrates)",
+          "stock `_set_store_by` on product.template"
+        ],
+        "d6_sql_readers": [
+          "3 views + 3 `_table_query` reports — S, full shadow product_product(id, product_tmpl_id, weight, volume, standard_price) and product_template(id, uom_id, categ_id, is_storable, purchase_method)",
+          "stock install hook SQL (addons/stock/__init__.py) — S"
+        ],
+        "d4_framework": [
+          "ir_attachment 156 (product.template) + 46 (product.product)",
+          "mail_message 123 + 99",
+          "ir_model_data 41 + 47 + 8 + 15 + 2",
+          "image_* stored related fields are Binary(attachment=True) → ir_attachment, PG"
+        ]
+      },
+      "notes": [
+        "`_inherits = {\"product.template\": \"product_tmpl_id\"}` (product_product.py:19) → one unit; `_inherits` on product.document delegates to ir.attachment, which stays PG.",
+        "Stored related fields crossing documents: product.product.is_favorite ← product_tmpl_id.is_favorite; product.template.attribute.value.attribute_id / product_tmpl_id ← attribute_line_id.*; product.product.image_variant_* ← image_variant_1920. Recompute is ORM-side (contract §3).",
+        "Unique constraints become partial unique indexes: product_variant_combination `_combination_unique`, product_template_attribute_value `_attribute_value_unique`, product_uom `_barcode_uniq`.",
+        "Fixture: 39 templates / 108 variants incl. the 60-variant outlier template; product_uom has 0 rows."
+      ],
+      "collections": [
+        "productTemplate",
+        "productProduct",
+        "productTemplateAttributeLine",
+        "productTemplateAttributeValue",
+        "productDocument",
+        "productUom"
+      ],
+      "source_tables": {
+        "roots": [
+          "product_template",
+          "product_product",
+          "product_template_attribute_line",
+          "product_template_attribute_value",
+          "product_document",
+          "product_uom"
+        ],
+        "embedded": [
+          "product_attribute_value_product_template_attribute_line_rel",
+          "product_combo_product_template_rel",
+          "product_product_uom_uom_rel",
+          "product_tag_product_product_rel",
+          "product_tag_product_template_rel",
+          "product_template_attribute_excluded_value_ids_rel",
+          "product_template_uom_uom_rel",
+          "product_variant_combination"
+        ],
+        "pg_owned_arrays": [
+          "productTemplate.accountTagIds ← account_account_tag_product_template_rel",
+          "productTemplate.optionalProductIds ← product_optional_rel",
+          "productTemplate.routeIds ← stock_route_product",
+          "productTemplate.supplierTaxesId ← product_supplier_taxes_rel",
+          "productTemplate.taxesId ← product_taxes_rel"
+        ]
+      },
+      "write_targets": [
+        "odoo_migration.productTemplate",
+        "odoo_migration.productProduct",
+        "odoo_migration.productTemplateAttributeLine",
+        "odoo_migration.productTemplateAttributeValue",
+        "odoo_migration.productDocument",
+        "odoo_migration.productUom"
+      ],
+      "expected_rows": {
+        "product_template": 39,
+        "product_product": 108,
+        "product_template_attribute_line": 12,
+        "product_template_attribute_value": 37,
+        "product_document": 2,
+        "product_uom": 0,
+        "product_attribute_value_product_template_attribute_line_rel": 37,
+        "product_combo_product_template_rel": 3,
+        "product_product_uom_uom_rel": 0,
+        "product_tag_product_product_rel": 0,
+        "product_tag_product_template_rel": 0,
+        "product_template_attribute_excluded_value_ids_rel": 1,
+        "product_template_uom_uom_rel": 0,
+        "product_variant_combination": 200
+      },
+      "recon_risks": {
+        "embed_unbounded_arrays": [
+          "productProduct.additionalProductTagIds ← product_tag_product_product_rel",
+          "productProduct.extraUomIds ← product_product_uom_uom_rel",
+          "productTemplate.accountTagIds ← account_account_tag_product_template_rel",
+          "productTemplate.comboIds ← product_combo_product_template_rel",
+          "productTemplate.optionalProductIds ← product_optional_rel",
+          "productTemplate.productTagIds ← product_tag_product_template_rel",
+          "productTemplate.routeIds ← stock_route_product",
+          "productTemplate.supplierTaxesId ← product_supplier_taxes_rel",
+          "productTemplate.taxesId ← product_taxes_rel",
+          "productTemplate.uomIds ← product_template_uom_uom_rel",
+          "productTemplateAttributeLine.valueIds ← product_attribute_value_product_template_attribute_line_rel",
+          "productTemplateAttributeValue.excludedValueIds ← product_template_attribute_excluded_value_ids_rel"
+        ],
+        "fixture_zero_rows": [
+          "product_product_uom_uom_rel",
+          "product_tag_product_product_rel",
+          "product_tag_product_template_rel",
+          "product_template_uom_uom_rel",
+          "product_uom"
+        ]
+      },
+      "depends_on": [
+        "product-attributes",
+        "product-taxonomy",
+        "uom"
+      ],
+      "forward_refs_same_or_later_depth": [
+        "product-combo"
+      ],
+      "batch": "w2-b01"
+    },
+    {
+      "id": "product-pricing",
+      "name": "Pricelists and pricelist items",
+      "depth": 2,
+      "models": {
+        "product.pricelist": "addons/product/models/product_pricelist.py",
+        "product.pricelist.item": "addons/product/models/product_pricelist_item.py"
+      },
+      "raw_sql": [],
+      "cross_boundary": {
+        "d1_inbound_fk": [
+          "sale_order.pricelist_id",
+          "payment_provider_product_pricelist_rel (account_payment m2m, D7 empty)"
+        ],
+        "d2_fields_travel": [],
+        "d3_reference_out": [
+          "currency_id → res_currency",
+          "country_group_ids (array resCountryGroupPricelistRel) → res_country_group",
+          "company_id → res_company",
+          "product.pricelist.item.base_pricelist_id → self",
+          "categ_id → productCategory (wave 1), product_tmpl_id / product_id → catalog (wave 2)"
+        ],
+        "d5_orm_writers": [],
+        "d6_sql_readers": [],
+        "d4_framework": [
+          "mail_message 1 (product.pricelist, mail.thread + activity mixin)"
+        ]
+      },
+      "notes": [
+        "Hottest read path after the catalog: 21 hot access patterns (price computation). Fixture has 1 pricelist / 1 item: add scenario rows (tier 4)."
+      ],
+      "collections": [
+        "productPricelist",
+        "productPricelistItem"
+      ],
+      "source_tables": {
+        "roots": [
+          "product_pricelist",
+          "product_pricelist_item"
+        ],
+        "embedded": [
+          "res_country_group_pricelist_rel"
+        ],
+        "pg_owned_arrays": []
+      },
+      "write_targets": [
+        "odoo_migration.productPricelist",
+        "odoo_migration.productPricelistItem"
+      ],
+      "expected_rows": {
+        "product_pricelist": 1,
+        "product_pricelist_item": 1,
+        "res_country_group_pricelist_rel": 0
+      },
+      "recon_risks": {
+        "embed_unbounded_arrays": [
+          "productPricelist.resCountryGroupPricelistRel ← res_country_group_pricelist_rel"
+        ],
+        "fixture_zero_rows": [
+          "res_country_group_pricelist_rel"
+        ]
+      },
+      "depends_on": [],
+      "forward_refs_same_or_later_depth": [],
+      "batch": "w3-b01"
+    },
+    {
+      "id": "product-supplierinfo",
+      "name": "Vendor pricelists (supplierinfo)",
+      "depth": 2,
+      "models": {
+        "product.supplierinfo": "addons/product/models/product_supplierinfo.py"
+      },
+      "raw_sql": [
+        {
+          "path": "addons/product/models/product_product.py",
+          "lines": "1134-1145",
+          "what": "catalog `_search_display_name` subselects into product_supplierinfo (ported in product-catalog; this unit owns the recon scenario \"search product by vendor code\")",
+          "disposition": "R (two-step)"
+        }
+      ],
+      "cross_boundary": {
+        "d1_inbound_fk": [
+          "stock_warehouse_orderpoint.supplier_id",
+          "product_supplierinfo_stock_replenishment_info_rel (purchase_stock m2m, D7 empty)"
+        ],
+        "d2_fields_travel": [],
+        "d3_reference_out": [
+          "partner_id → res_partner",
+          "currency_id → res_currency",
+          "company_id → res_company",
+          "product_tmpl_id / product_id → catalog (wave 2)"
+        ],
+        "d5_orm_writers": [
+          "purchase res_partner.py:66 currency write on supplierinfo (ORM-routed, D5)"
+        ],
+        "d6_sql_readers": [
+          "vendor_delay_report — S (joins via purchase_order_line, no supplierinfo column needed in the shadow)"
+        ],
+        "d4_framework": [
+          "ir_model_data 28"
+        ]
+      },
+      "notes": [],
+      "collections": [
+        "productSupplierinfo"
+      ],
+      "source_tables": {
+        "roots": [
+          "product_supplierinfo"
+        ],
+        "embedded": [],
+        "pg_owned_arrays": []
+      },
+      "write_targets": [
+        "odoo_migration.productSupplierinfo"
+      ],
+      "expected_rows": {
+        "product_supplierinfo": 28
+      },
+      "recon_risks": {
+        "embed_unbounded_arrays": [],
+        "fixture_zero_rows": []
+      },
+      "depends_on": [],
+      "forward_refs_same_or_later_depth": [],
+      "batch": "w3-b02"
+    },
+    {
+      "id": "product-combo",
+      "name": "Combos and combo items",
+      "depth": 2,
+      "models": {
+        "product.combo": "addons/product/models/product_combo.py",
+        "product.combo.item": "addons/product/models/product_combo_item.py"
+      },
+      "raw_sql": [
+        {
+          "path": "addons/product/models/product_combo.py",
+          "lines": "22,53-55",
+          "what": "`_compute_sql` for currency_id",
+          "disposition": "R"
+        }
+      ],
+      "cross_boundary": {
+        "d1_inbound_fk": [
+          "sale_order_line.combo_item_id"
+        ],
+        "d2_fields_travel": [],
+        "d3_reference_out": [
+          "company_id → res_company",
+          "product.combo.item.product_id → productProduct (wave 2)"
+        ],
+        "d5_orm_writers": [
+          "account write() clearing taxes on combo products (PG only)"
+        ],
+        "d6_sql_readers": [],
+        "d4_framework": [
+          "ir_model_data 3"
+        ]
+      },
+      "notes": [
+        "product.combo.item.company_id is a stored related field (combo_id.company_id).",
+        "productTemplate.comboIds (reverse side) lives in the catalog unit."
+      ],
+      "collections": [
+        "productCombo",
+        "productComboItem"
+      ],
+      "source_tables": {
+        "roots": [
+          "product_combo",
+          "product_combo_item"
+        ],
+        "embedded": [],
+        "pg_owned_arrays": []
+      },
+      "write_targets": [
+        "odoo_migration.productCombo",
+        "odoo_migration.productComboItem"
+      ],
+      "expected_rows": {
+        "product_combo": 3,
+        "product_combo_item": 8
+      },
+      "recon_risks": {
+        "embed_unbounded_arrays": [],
+        "fixture_zero_rows": []
+      },
+      "depends_on": [],
+      "forward_refs_same_or_later_depth": [],
+      "batch": "w3-b03"
+    },
+    {
+      "id": "product-variant-extras",
+      "name": "Attribute custom values and label-layout wizard",
+      "depth": 2,
+      "models": {
+        "product.attribute.custom.value": "addons/product/models/product_attribute_custom_value.py",
+        "product.label.layout": "addons/product/wizard/product_label_layout.py"
+      },
+      "raw_sql": [],
+      "cross_boundary": {
+        "d1_inbound_fk": [
+          "product_label_layout_stock_move_rel (stock m2m; spec array moveIds stays PG-owned this run)"
+        ],
+        "d2_fields_travel": [
+          "product.attribute.custom.value.sale_order_line_id (sale; d-embed-attr-custom-value = keep-collection, reference-out to saleOrderLine)",
+          "product.label.layout: stock move_ids, move_quantity, print_packaging"
+        ],
+        "d3_reference_out": [
+          "custom_product_template_attribute_value_id → productTemplateAttributeValue (wave 2)",
+          "sale_order_line_id → sale_order_line (PG)",
+          "product_ids / product_tmpl_ids / product_uom_ids → catalog (wave 2)"
+        ],
+        "d5_orm_writers": [],
+        "d6_sql_readers": [],
+        "d4_framework": [
+          "product.label.layout is TransientModel → `_transient_vacuum` deleteMany"
+        ]
+      },
+      "notes": [
+        "Fixture has 0 rows in all 4 owned tables: recon exercises schema only; add scenario rows (tier 4)."
+      ],
+      "collections": [
+        "productAttributeCustomValue",
+        "productLabelLayout"
+      ],
+      "source_tables": {
+        "roots": [
+          "product_attribute_custom_value",
+          "product_label_layout"
+        ],
+        "embedded": [
+          "product_label_layout_product_product_rel",
+          "product_label_layout_product_template_rel",
+          "product_label_layout_product_uom_rel"
+        ],
+        "pg_owned_arrays": [
+          "productLabelLayout.moveIds ← product_label_layout_stock_move_rel"
+        ]
+      },
+      "write_targets": [
+        "odoo_migration.productAttributeCustomValue",
+        "odoo_migration.productLabelLayout"
+      ],
+      "expected_rows": {
+        "product_attribute_custom_value": 0,
+        "product_label_layout": 0,
+        "product_label_layout_product_product_rel": 0,
+        "product_label_layout_product_template_rel": 0,
+        "product_label_layout_product_uom_rel": 0
+      },
+      "recon_risks": {
+        "embed_unbounded_arrays": [
+          "productLabelLayout.moveIds ← product_label_layout_stock_move_rel",
+          "productLabelLayout.productIds ← product_label_layout_product_product_rel",
+          "productLabelLayout.productTmplIds ← product_label_layout_product_template_rel",
+          "productLabelLayout.productUomIds ← product_label_layout_product_uom_rel"
+        ],
+        "fixture_zero_rows": [
+          "product_attribute_custom_value",
+          "product_label_layout",
+          "product_label_layout_product_product_rel",
+          "product_label_layout_product_template_rel",
+          "product_label_layout_product_uom_rel"
+        ]
+      },
+      "depends_on": [
+        "product-catalog"
+      ],
+      "forward_refs_same_or_later_depth": [],
+      "batch": "w3-b04"
+    }
+  ],
+  "waves": [
+    {
+      "wave": 1,
+      "depth": 0,
+      "batches": [
+        {
+          "id": "w1-b01",
+          "units": [
+            "uom"
+          ],
+          "write_targets": [
+            "odoo_migration.uomUom"
+          ],
+          "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+          "recon_tolerances_version": "v1",
+          "mapping_version": "map-draft-5",
+          "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+          "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68"
+        },
+        {
+          "id": "w1-b02",
+          "units": [
+            "product-taxonomy"
+          ],
+          "write_targets": [
+            "odoo_migration.productCategory",
+            "odoo_migration.productTag",
+            "odoo_migration.productBaseUnit"
+          ],
+          "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+          "recon_tolerances_version": "v1",
+          "mapping_version": "map-draft-5",
+          "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+          "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68"
+        },
+        {
+          "id": "w1-b03",
+          "units": [
+            "product-attributes"
+          ],
+          "write_targets": [
+            "odoo_migration.productAttribute",
+            "odoo_migration.productAttributeValue",
+            "odoo_migration.updateProductAttributeValue"
+          ],
+          "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+          "recon_tolerances_version": "v1",
+          "mapping_version": "map-draft-5",
+          "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+          "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68"
+        }
+      ],
+      "preflight": {
+        "tool": "skills/wave-preflight/preflight.py @ c7f5feff23bd995dd4adfb6364a16583c668e171 (.migration/plugin_sha)",
+        "result": "wave 1 OK: 3 batches",
+        "manifest_sha": "ea9f6b868dc7"
+      }
+    },
+    {
+      "wave": 2,
+      "depth": 1,
+      "batches": [
+        {
+          "id": "w2-b01",
+          "units": [
+            "product-catalog"
+          ],
+          "write_targets": [
+            "odoo_migration.productTemplate",
+            "odoo_migration.productProduct",
+            "odoo_migration.productTemplateAttributeLine",
+            "odoo_migration.productTemplateAttributeValue",
+            "odoo_migration.productDocument",
+            "odoo_migration.productUom"
+          ],
+          "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+          "recon_tolerances_version": "v1",
+          "mapping_version": "map-draft-5",
+          "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+          "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68"
+        }
+      ],
+      "preflight": {
+        "tool": "skills/wave-preflight/preflight.py @ c7f5feff23bd995dd4adfb6364a16583c668e171 (.migration/plugin_sha)",
+        "result": "wave 2 OK: 1 batches",
+        "manifest_sha": "0b73271c13bf"
+      }
+    },
+    {
+      "wave": 3,
+      "depth": 2,
+      "batches": [
+        {
+          "id": "w3-b01",
+          "units": [
+            "product-pricing"
+          ],
+          "write_targets": [
+            "odoo_migration.productPricelist",
+            "odoo_migration.productPricelistItem"
+          ],
+          "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+          "recon_tolerances_version": "v1",
+          "mapping_version": "map-draft-5",
+          "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+          "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68"
+        },
+        {
+          "id": "w3-b02",
+          "units": [
+            "product-supplierinfo"
+          ],
+          "write_targets": [
+            "odoo_migration.productSupplierinfo"
+          ],
+          "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+          "recon_tolerances_version": "v1",
+          "mapping_version": "map-draft-5",
+          "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+          "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68"
+        },
+        {
+          "id": "w3-b03",
+          "units": [
+            "product-combo"
+          ],
+          "write_targets": [
+            "odoo_migration.productCombo",
+            "odoo_migration.productComboItem"
+          ],
+          "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+          "recon_tolerances_version": "v1",
+          "mapping_version": "map-draft-5",
+          "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+          "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68"
+        },
+        {
+          "id": "w3-b04",
+          "units": [
+            "product-variant-extras"
+          ],
+          "write_targets": [
+            "odoo_migration.productAttributeCustomValue",
+            "odoo_migration.productLabelLayout"
+          ],
+          "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+          "recon_tolerances_version": "v1",
+          "mapping_version": "map-draft-5",
+          "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+          "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68"
+        }
+      ],
+      "preflight": {
+        "tool": "skills/wave-preflight/preflight.py @ c7f5feff23bd995dd4adfb6364a16583c668e171 (.migration/plugin_sha)",
+        "result": "wave 3 OK: 4 batches",
+        "manifest_sha": "3548af4a78e1",
+        "negative_control": "w3-b02 claiming w3-b01 targets → exit 1 write-target collision"
+      }
+    }
+  ]
+}

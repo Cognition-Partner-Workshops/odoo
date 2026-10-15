@@ -179,3 +179,28 @@ No cron targets a `product.*` or `uom.*` model. Indirect readers/writers of slic
 - 3 PG views + 3 `_table_query` reports + 2 raw-SQL paths (account uom constraint, stock lifecycle hooks) → D6, rewrite or full shadow.
 - ~530 `ir_model_data`/`ir_attachment`/`mail_message`/`ir_default` rows → D4.
 - 0 direct crons; 4 indirect → D5. 0 triggers.
+
+## H. Units and wave proposal (`units.json`)
+
+Derived from `map-draft-5` as accepted (no remodeling). Unit = the addon models that opt in to `_storage = "mongodb"`, their stored computed/related fields and raw SQL, plus the collections and spec arrays they own; every relation table in the `migrate` bucket is assigned to the unit owning the array that absorbs it (33 tables, each exactly once; 20 collections). `model_only` collections are never units — they appear per unit under `cross_boundary` (D1–D7 codes from this register). Machine-readable detail per unit (models, tables, write targets, fixture rows, raw SQL dispositions, cross-boundary lists, recon risks, depends_on) is in `units.json`.
+
+| unit | depth | models (`_storage` opt-in) | collections | owned relation tables | raw SQL / views | §D arrays (recon risk) |
+|---|---|---|---|---|---|---|
+| `uom` | 0 | uom.uom | uomUom | — | none in addons/uom; S: `_check_uom_not_in_invoice`, 3 views read `factor` | 0 |
+| `product-taxonomy` | 0 | product.category, product.tag, product.base.unit | productCategory, productTag, productBaseUnit | — | S: stock_avco_report reads `property_cost_method` | 1 (`productCategory.routeIds`, stock-owned) |
+| `product-attributes` | 0 | product.attribute, product.attribute.value, update.product.attribute.value | productAttribute, productAttributeValue, updateProductAttributeValue | product_attribute_product_template_rel | — | 1 |
+| `product-catalog` | 1 | product.template + product.product (`_inherits`), product.template.attribute.line, product.template.attribute.value, product.document, product.uom | productTemplate, productProduct, productTemplateAttributeLine, productTemplateAttributeValue, productDocument, productUom | product_variant_combination, product_product_uom_uom_rel, product_tag_product_product_rel, product_tag_product_template_rel, product_template_uom_uom_rel, product_combo_product_template_rel, product_attribute_value_product_template_attribute_line_rel, product_template_attribute_excluded_value_ids_rel | R: product_template.py:102,108,401-413 (`_compute_sql` currency), 960-975 (`_search_display_name` UNION); product_product.py:185-201 (`_search_is_in_catalog_order` subselect), 1128-1145 (UNION + supplierinfo subselect). S: 3 views, 3 `_table_query` reports, stock install hook | 12 (4 of them account/sale/stock-owned) |
+| `product-pricing` | 2 | product.pricelist, product.pricelist.item | productPricelist, productPricelistItem | res_country_group_pricelist_rel | — | 1 |
+| `product-supplierinfo` | 2 | product.supplierinfo | productSupplierinfo | — | R (ported in catalog): product_product.py:1134-1145 subselect; S: vendor_delay_report | 0 |
+| `product-combo` | 2 | product.combo, product.combo.item | productCombo, productComboItem | — | R: product_combo.py:22,53-55 (`_compute_sql` currency) | 0 |
+| `product-variant-extras` | 2 | product.attribute.custom.value, product.label.layout | productAttributeCustomValue, productLabelLayout | product_label_layout_product_{product,template,uom}_rel | — | 4 (1 stock-owned) |
+
+Waves (width 4, one dependency depth per wave, unique write targets; all units depend on the ORM storage-path ticket):
+
+| wave | batches | preflight (pinned `wave-preflight/preflight.py`) |
+|---|---|---|
+| 1 | w1-b01 `uom`, w1-b02 `product-taxonomy`, w1-b03 `product-attributes` | `wave 1 OK: 3 batches, manifest_sha ea9f6b868dc7` |
+| 2 | w2-b01 `product-catalog` (alone by design: every depth-2 unit references it, and it carries all R rewrites and both full-shadow tables) | `wave 2 OK: 1 batches, manifest_sha 0b73271c13bf` |
+| 3 | w3-b01 `product-pricing`, w3-b02 `product-supplierinfo`, w3-b03 `product-combo`, w3-b04 `product-variant-extras` | `wave 3 OK: 4 batches, manifest_sha 3548af4a78e1`; negative control (w3-b02 claiming w3-b01 targets) → exit 1 write-target collision |
+
+Wave specs are scratch files for the launcher (not committed; `units.json` `waves[].batches` is the source). Open items carried to the storage-path ticket / manager, not decided here: (1) seven spec arrays on slice documents absorb relation tables whose declaring side is `model_only` (D1) — `productTemplate.{accountTagIds,taxesId,supplierTaxesId,optionalProductIds,routeIds}`, `productCategory.routeIds`, `productLabelLayout.moveIds` — runtime writes keep landing in the PG relation table, so strict recon on them is point-in-time only; (2) the fixture has 0 rows in 11 of the 33 tables (per unit under `recon_risks.fixture_zero_rows`), so strict recon there is schema-only until the unit run adds scenario rows.
