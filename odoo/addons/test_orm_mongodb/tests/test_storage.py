@@ -1,7 +1,7 @@
 from datetime import date
 
 from odoo import Command
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.orm.query import MongoQuery
 from odoo.tests import TransactionCase, tagged
 
@@ -24,7 +24,8 @@ class TestMongoStorage(TransactionCase):
         cls.Line = cls.env['test_orm_mongodb.line']
         cls.Category = cls.env['test_orm_mongodb.category']
         cls.Tag = cls.env['test_orm_mongodb.tag']
-        cls.mongo_models = [cls.Item, cls.Line]
+        cls.Node = cls.env['test_orm_mongodb.node']
+        cls.mongo_models = [cls.Item, cls.Line, cls.Node]
         for model in cls.mongo_models:  # recreate what another test class dropped
             cls.store.ensure_collection(model)
         cls.addClassCleanup(cls._drop_collections)
@@ -213,6 +214,53 @@ class TestMongoStorage(TransactionCase):
         self.env.invalidate_all()
         self.assertFalse(alpha.category_id)
         self.assertNotIn('categoryId', self._docs(self.Item, {'_id': alpha.id})[0])
+
+    def test_parent_store(self):
+        root = self.Node.create({'name': 'root'})
+        a, c = self.Node.create([{'name': 'a', 'parent_id': root.id}, {'name': 'c', 'parent_id': root.id}])
+        b = self.Node.create({'name': 'b', 'parent_id': a.id})
+        self.env.flush_all()
+        self.assertEqual(root.parent_path, f"{root.id}/")
+        self.assertEqual(b.parent_path, f"{root.id}/{a.id}/{b.id}/")
+        self.assertEqual(self._docs(self.Node, {'_id': b.id})[0]['parentPath'], b.parent_path)
+        indexes = {ix['name'] for ix in self.store.db[self.store.collection_name(self.Node)].list_indexes()}
+        self.assertIn('parentPath_1', indexes)
+
+        # child_of / parent_of resolve through parent_path
+        self.assertEqual(self.Node.search([('id', 'child_of', a.id)]), a | b)
+        self.assertEqual(self.Node.search([('id', 'child_of', root.id)]), root | a | c | b)
+        self.assertEqual(self.Node.search([('id', 'parent_of', b.id)]), root | a | b)
+        self.assertEqual(self.Node.search([('parent_id', 'child_of', root.id)]), root | a | c | b)  # same-model hierarchy field: root included, as in SQL
+
+        # moving a subtree rewrites the prefix of every descendant
+        a.parent_id = c
+        self.env.flush_all()
+        self.env.invalidate_all()
+        self.assertEqual(a.parent_path, f"{root.id}/{c.id}/{a.id}/")
+        self.assertEqual(b.parent_path, f"{root.id}/{c.id}/{a.id}/{b.id}/")
+        self.assertEqual(self._docs(self.Node, {'_id': b.id})[0]['parentPath'], b.parent_path)
+        self.assertEqual(self.Node.search([('id', 'child_of', c.id)]), c | a | b)
+        a.parent_id = False
+        self.env.flush_all()
+        self.env.invalidate_all()
+        self.assertEqual(b.parent_path, f"{a.id}/{b.id}/")
+        self.assertEqual(self.Node.search([('id', 'child_of', root.id)]), root | c)
+
+        # recursion check
+        with self.assertRaises(UserError), self.cr.savepoint():
+            a.parent_id = b
+        self.assertFalse((root | a | b | c)._has_cycle())
+        self.assertEqual(b.parent_path, f"{a.id}/{b.id}/")
+
+        # recompute from scratch
+        self.store.db[self.store.collection_name(self.Node)].update_many({}, {'$unset': {'parentPath': ''}})
+        self.Node._parent_store_compute()
+        self.assertEqual(b.parent_path, f"{a.id}/{b.id}/")
+        self.assertEqual(c.parent_path, f"{root.id}/{c.id}/")
+
+        # ondelete cascade through the MongoDB referrers
+        a.unlink()
+        self.assertFalse(b.exists())
 
     def test_rollback_replays_undo_log(self):
         before = self.store.count(self.Item, {})

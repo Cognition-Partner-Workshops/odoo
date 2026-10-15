@@ -2452,10 +2452,12 @@ class BaseModel(metaclass=MetaModel):
         if not self._auto:
             raise NotImplementedError(f"{self._name} is stored in MongoDB: no SQL view for _auto = False")
         if self._parent_store:
-            raise NotImplementedError(f"{self._name} is stored in MongoDB: _parent_store is not supported")
+            self._check_parent_path()
         store = self.pool.mongo_store
         store.ensure_shadow_table(self)
         store.ensure_collection(self)
+        if self._parent_store and store.count(self, {self._mongodb_path(self._fields['parent_path']): {'$exists': False}}):
+            self._parent_store_compute()
 
     def _mongodb_ondelete(self) -> None:
         """ Apply the ``ondelete`` of the Many2one fields of MongoDB models that
@@ -2480,6 +2482,77 @@ class BaseModel(metaclass=MetaModel):
                         " If possible, archive it instead.\n\nModel: %(model)s, Constraint: %(field)s",
                         model=model_name, field=field.name,
                     ))
+
+    def _parent_store_compute_mongodb(self) -> None:
+        """ Recompute every ``parent_path`` of the collection. """
+        store = self.pool.mongo_store
+        parent_key = self._mongodb_path(self._fields[self._parent_name])
+        path_key = self._mongodb_path(self._fields['parent_path'])
+        docs = store.find(self, {}, {parent_key: 1, path_key: 1})
+        parents = {doc['_id']: doc.get(parent_key) for doc in docs}
+        current = {doc['_id']: doc.get(path_key) for doc in docs}
+        paths: dict[int, str] = {}
+
+        def path_of(id_, visiting=()):
+            if id_ not in paths:
+                parent_id = parents.get(id_)
+                if parent_id in parents and parent_id not in visiting:
+                    prefix = path_of(parent_id, (*visiting, id_))
+                else:
+                    prefix = ""
+                paths[id_] = f"{prefix}{id_}/"
+            return paths[id_]
+
+        store.bulk_update(self, [
+            (id_, {'$set': {path_key: path_of(id_)}})
+            for id_ in parents if current[id_] != path_of(id_)
+        ])
+        self.invalidate_model(['parent_path'])
+
+    def _parent_store_create_mongodb(self) -> None:
+        """ ``parent_path`` of new nodes: the parent's path plus ``<id>/``. """
+        store = self.pool.mongo_store
+        parent_key = self._mongodb_path(self._fields[self._parent_name])
+        path_key = self._mongodb_path(self._fields['parent_path'])
+        pending = {
+            doc['_id']: doc.get(parent_key)
+            for doc in store.find(self, {'_id': {'$in': list(self.ids)}}, {parent_key: 1})
+        }
+        parent_ids = {pid for pid in pending.values() if pid is not None} - set(pending)
+        paths = {
+            doc['_id']: doc.get(path_key) or ""
+            for doc in store.find(self, {'_id': {'$in': list(parent_ids)}}, {path_key: 1})
+        } if parent_ids else {}
+        updates = []
+        while pending:  # a parent created in the same batch is resolved first
+            ready = [id_ for id_, pid in pending.items() if pid not in pending]
+            if not ready:
+                break
+            for id_ in ready:
+                paths[id_] = f"{paths.get(pending.pop(id_), '')}{id_}/"
+                updates.append((id_, {'$set': {path_key: paths[id_]}}))
+        store.bulk_update(self, updates)
+        field = self._fields['parent_path']
+        for id_, _update in updates:
+            field._update_cache(self.browse(id_), paths[id_])
+
+    def _parent_store_update_mongodb(self, prefix: str) -> dict[int, str]:
+        """ Re-root the subtrees of ``self`` under ``prefix`` (the new parent's
+        path); return ``{id: new parent_path}`` for every moved node. """
+        store = self.pool.mongo_store
+        path_key = self._mongodb_path(self._fields['parent_path'])
+        nodes = {
+            doc['_id']: doc.get(path_key) or f"{doc['_id']}/"
+            for doc in store.find(self, {'_id': {'$in': list(self.ids)}}, {path_key: 1})
+        }
+        updated = {}
+        for node_id, node_path in nodes.items():
+            cut = len(node_path) - len(f"{node_id}/")
+            # anchored prefix match on the parent_path index: the subtree of node
+            for doc in store.find(self, {path_key: {'$regex': f"^{re.escape(node_path)}"}}, {path_key: 1}):
+                updated[doc['_id']] = prefix + doc[path_key][cut:]
+        store.bulk_update(self, [(id_, {'$set': {path_key: path}}) for id_, path in updated.items()])
+        return updated
 
     def _validate_mongodb_checks(self) -> None:
         for (model_name, name), (predicate, message) in self.pool.mongodb_checks.items():
@@ -2789,7 +2862,8 @@ class BaseModel(metaclass=MetaModel):
         """ Compute parent_path field from scratch. """
         if not self._parent_store:
             return
-        self._raise_if_mongodb("_parent_store")
+        if self._storage == 'mongodb':
+            return self._parent_store_compute_mongodb()
 
         # Each record is associated to a string 'parent_path', that represents
         # the path from the record's root node to the record. The path is made
@@ -4844,7 +4918,8 @@ class BaseModel(metaclass=MetaModel):
         """ Set the parent_path field on ``self`` after its creation. """
         if not self._parent_store:
             return
-        self._raise_if_mongodb("_parent_store")
+        if self._storage == 'mongodb':
+            return self._parent_store_create_mongodb()
 
         updated = self.env.execute_query(SQL(
             """ UPDATE %(table)s node
@@ -4871,7 +4946,6 @@ class BaseModel(metaclass=MetaModel):
         """
         if not self._parent_store:
             return self.browse()
-        self._raise_if_mongodb("_parent_store")
 
         # associate each new parent_id to its corresponding record ids
         parent_to_ids = defaultdict(list)
@@ -4883,6 +4957,16 @@ class BaseModel(metaclass=MetaModel):
             return self.browse()
 
         self.flush_recordset([self._parent_name])
+
+        if self._storage == 'mongodb':
+            parent_key = self._mongodb_path(self._fields[self._parent_name])
+            current = {doc['_id']: doc.get(parent_key) for doc in self.pool.mongo_store.find(
+                self, {'_id': {'$in': list(self.ids)}}, {parent_key: 1},
+            )}
+            return self.browse(sorted(
+                id_ for parent_id, ids in parent_to_ids.items() for id_ in ids
+                if current.get(id_) != (parent_id or None)
+            ))
 
         # return the records for which the parent field will change
         sql_parent = SQL.identifier(self._parent_name)
@@ -4926,19 +5010,22 @@ class BaseModel(metaclass=MetaModel):
             # bounds and scans the table. The range below selects the same rows
             # from the index: parent_path ends with '/' and '0' is the next
             # character, so left(parent_path, -1) || '0' closes the range.
-            updated = dict(self.env.execute_query(SQL(
-                """ UPDATE %(table)s child
-                    SET parent_path = concat(%(prefix)s, substr(child.parent_path,
-                            length(node.parent_path) - length(node.id || '/') + 1))
-                    FROM %(table)s node
-                    WHERE node.id IN %(ids)s
-                    AND child.parent_path >= node.parent_path
-                    AND child.parent_path < left(node.parent_path, -1) || '0'
-                    RETURNING child.id, child.parent_path """,
-                table=SQL.identifier(self._table),
-                prefix=prefix,
-                ids=tuple(records.ids),
-            )))
+            if self._storage == 'mongodb':
+                updated = records._parent_store_update_mongodb(prefix)
+            else:
+                updated = dict(self.env.execute_query(SQL(
+                    """ UPDATE %(table)s child
+                        SET parent_path = concat(%(prefix)s, substr(child.parent_path,
+                                length(node.parent_path) - length(node.id || '/') + 1))
+                        FROM %(table)s node
+                        WHERE node.id IN %(ids)s
+                        AND child.parent_path >= node.parent_path
+                        AND child.parent_path < left(node.parent_path, -1) || '0'
+                        RETURNING child.id, child.parent_path """,
+                    table=SQL.identifier(self._table),
+                    prefix=prefix,
+                    ids=tuple(records.ids),
+                )))
 
             # update the cache of updated nodes, and determine what to recompute
             field = self._fields['parent_path']

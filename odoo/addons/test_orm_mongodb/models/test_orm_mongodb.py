@@ -68,3 +68,17 @@ class Line(models.Model):
     item_id = fields.Many2one('test_orm_mongodb.item', required=True, ondelete='cascade')
     label = fields.Char()
     amount = fields.Float()
+
+
+class Node(models.Model):
+    """MongoDB model with a materialized ``parent_path`` (``_parent_store``)."""
+    _name = 'test_orm_mongodb.node'
+    _description = 'Test ORM MongoDB node'
+    _storage = 'mongodb'
+    _parent_store = True
+    _order = 'id'
+
+    name = fields.Char(required=True)
+    parent_id = fields.Many2one('test_orm_mongodb.node', ondelete='cascade', index=True)
+    parent_path = fields.Char(index=True)
+    child_ids = fields.One2many('test_orm_mongodb.node', 'parent_id')

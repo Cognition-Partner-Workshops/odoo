@@ -338,6 +338,8 @@ class MongoStore:
             for nk in spec['decision'].get('natural_keys', ()):
                 keys = [(self.field_path(model, col), 1) for col in nk['columns']]
                 indexes.append((keys, {'unique': True}))
+        if model._parent_store:  # child_of / parent_of and subtree rewrites: anchored prefix match
+            indexes.append(([(self.field_path(model, 'parent_path'), 1)], {}))
         for field in model._fields.values():
             if field.type == 'many2many' and field.store and (layout := self.m2m_layout(model, field)) \
                     and layout[0] == model._name:
