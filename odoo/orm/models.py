@@ -2572,12 +2572,19 @@ class BaseModel(metaclass=MetaModel):
                 if not predicate(record):
                     raise ValidationError(message or self.env._("Constraint %s is violated", name))
 
-    def _order_to_sort(self, order: str) -> list[tuple[str, int]]:
-        """ Translate an ``order`` specification into a MongoDB sort list. """
+    def _order_to_sort(self, order: str) -> list[tuple]:
+        """ Translate an ``order`` specification into a MongoDB sort list.
+
+        A self-referential many2one (``_parent_name``) delegates to the
+        comodel's order like ``_order_field_to_sql``: the term becomes
+        ``(path, direction, parent_sort)`` and the store joins the parent
+        document (``$lookup``); the recursive occurrence is dropped.
+        """
         order = order or self._order
         if not order:
             return []
         self._check_qorder(order)
+        seen = self.env.context.get('__m2o_order_seen', ())
         sort = []
         for order_part in order.split(','):
             order_match = regex_order.match(order_part)
@@ -2589,14 +2596,17 @@ class BaseModel(metaclass=MetaModel):
             self.check_field_access(field, 'read')
             if not field.store or not field.column_type:
                 raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r}")
+            direction = -1 if (order_match['direction'] or '').upper() == 'DESC' else 1
+            if field.type == 'many2one' and field.comodel_name == self._name and self._order != 'id':
+                if field in seen:
+                    continue
+                parent = self.sudo().with_context(__m2o_order_seen=frozenset((field, *seen)))
+                sort.append((self._mongodb_path(field), direction, parent._order_to_sort(self._order)))
+                continue
             if field.translate is True or field.company_dependent or (
-                field.type == 'many2one' and field.comodel_name != self._name
-                and self.env[field.comodel_name]._order != 'id'
+                field.type == 'many2one' and self.env[field.comodel_name]._order != 'id'
             ):
                 raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r} (comodel order / translation)")
-            # a self-referential many2one (parent) sorts on the raw reference id: the comodel
-            # order would recurse into this same order and PostgreSQL drops that term too
-            direction = -1 if (order_match['direction'] or '').upper() == 'DESC' else 1
             sort.append((self._mongodb_path(field), direction))
         return sort
 

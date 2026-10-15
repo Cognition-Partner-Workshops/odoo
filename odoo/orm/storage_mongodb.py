@@ -222,7 +222,10 @@ class MongoStore:
     # reads
     # ------------------------------------------------------------------
     def find(self, model: BaseModel, filter_: dict, projection=None, sort=None, skip=0, limit=None) -> list[dict]:
-        cursor = self.db[self.collection_name(model)].find(filter_, projection)
+        coll = self.db[self.collection_name(model)]
+        if any(len(term) == 3 for term in sort or ()):
+            return list(coll.aggregate(self._parent_sort_pipeline(coll.name, filter_, projection, sort, skip, limit)))
+        cursor = coll.find(filter_, projection)
         if sort:
             cursor = cursor.sort(sort)
         if skip:
@@ -230,6 +233,41 @@ class MongoStore:
         if limit:
             cursor = cursor.limit(limit)
         return list(cursor)
+
+    @staticmethod
+    def _parent_sort_pipeline(collection: str, filter_: dict, projection, sort: list, skip: int, limit) -> list[dict]:
+        """Sort through a self-referential many2one: ``(path, direction, parent_sort)`` terms
+        join the parent document; a missing parent or parent value sorts like SQL NULLS
+        (last ascending, first descending)."""
+        from bson import MaxKey  # noqa: PLC0415
+        pipeline: list[dict] = [{'$match': filter_}]
+        sort_doc: dict[str, int] = {}
+        aliases = []
+        for index, term in enumerate(sort):
+            if len(term) == 2:
+                sort_doc[term[0]] = term[1]
+                continue
+            path, direction, parent_sort = term
+            if any(len(parent_term) != 2 for parent_term in parent_sort):
+                raise NotImplementedError(f"{collection}: MongoDB sort through nested parent orders is not supported")
+            alias = f'_parent{index}'
+            aliases.append(alias)
+            pipeline += [
+                {'$lookup': {'from': collection, 'localField': path, 'foreignField': '_id', 'as': alias,
+                             'pipeline': [{'$project': {parent_path: 1 for parent_path, _ in parent_sort}}]}},
+                {'$unwind': {'path': f'${alias}', 'preserveNullAndEmptyArrays': True}},
+                {'$addFields': {f'{alias}.{parent_path}': {'$ifNull': [f'${alias}.{parent_path}', MaxKey()]}
+                                for parent_path, _ in parent_sort}},
+            ]
+            for parent_path, parent_direction in parent_sort:
+                sort_doc[f'{alias}.{parent_path}'] = parent_direction * direction
+        pipeline.append({'$sort': sort_doc})
+        if skip:
+            pipeline.append({'$skip': skip})
+        if limit:
+            pipeline.append({'$limit': limit})
+        pipeline.append({'$project': dict(projection)} if projection else {'$unset': aliases})
+        return pipeline
 
     def distinct(self, model: BaseModel, path: str, filter_: dict) -> list:
         return [v for v in self.db[self.collection_name(model)].distinct(path, filter_) if v is not None]

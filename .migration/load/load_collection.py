@@ -1,8 +1,10 @@
 """Spec-driven bulk load of one mapping collection from PostgreSQL into the migration target.
 
 Reads the root table named by ``.migration/mapping_spec.json``, converts each column to the
-mapped BSON type, replaces the collection and creates the spec/natural-key/parent_path indexes
-the ORM storage expects.  Secrets are read by name from the environment, never printed.
+mapped BSON type, fills the (empty) collection and creates the spec/natural-key indexes the
+ORM storage expects.  Initial load only: once the model is opted in, the collection is the
+system of record and a reload (``--replace``) discards every edit made through the ORM.
+Secrets are read by name from the environment, never printed.
 
     python .migration/load/load_collection.py --collection uomUom \
         --source-dsn-secret ODOO_PG_RO_DSN --target-uri-secret MONGODB_ATLAS_URI
@@ -45,7 +47,7 @@ def to_bson(value, bson_type):
     return value
 
 
-def load(collection_name, source_secret, target_secret, target_db):
+def load(collection_name, source_secret, target_secret, target_db, replace=False):
     spec = json.load(MAPPING.open())
     coll_spec = next(c for c in spec['collections'] if c['collection'] == collection_name)
     if target_db not in json.load(ALLOWED.open())['databases']:
@@ -77,6 +79,9 @@ def load(collection_name, source_secret, target_secret, target_db):
 
     client = pymongo.MongoClient(os.environ[target_secret], appname=f'odoo-load-{collection_name}')
     coll = client[target_db][collection_name]
+    if coll.estimated_document_count() and not replace:
+        raise SystemExit(f'{target_db}.{collection_name} already has documents: pass --replace to drop '
+                         f'and reload it (the ORM writes to this collection once the model is opted in)')
     coll.drop()
     if docs:
         coll.insert_many(docs, ordered=True)
@@ -97,5 +102,6 @@ if __name__ == '__main__':
     parser.add_argument('--source-dsn-secret', required=True)
     parser.add_argument('--target-uri-secret', default='MONGODB_ATLAS_URI')
     parser.add_argument('--target-db', default='odoo_migration')
+    parser.add_argument('--replace', action='store_true', help='drop and reload a non-empty collection')
     args = parser.parse_args()
-    sys.exit(load(args.collection, args.source_dsn_secret, args.target_uri_secret, args.target_db))
+    sys.exit(load(args.collection, args.source_dsn_secret, args.target_uri_secret, args.target_db, args.replace))
