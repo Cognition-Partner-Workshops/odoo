@@ -240,6 +240,14 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual(b.parent_path, f"{root.id}/{c.id}/{a.id}/{b.id}/")
         self.assertEqual(self._docs(self.Node, {'_id': b.id})[0]['parentPath'], b.parent_path)
         self.assertEqual(self.Node.search([('id', 'child_of', c.id)]), c | a | b)
+        # an ancestor and its descendant moved under the same parent in one write
+        (a | b).write({'parent_id': root.id})
+        self.env.flush_all()
+        self.env.invalidate_all()
+        self.assertEqual(a.parent_path, f"{root.id}/{a.id}/")
+        self.assertEqual(b.parent_path, f"{root.id}/{b.id}/")
+        self.assertEqual(self.Node.search([('id', 'child_of', a.id)]), a)
+        b.parent_id = a
         a.parent_id = False
         self.env.flush_all()
         self.env.invalidate_all()

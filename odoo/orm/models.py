@@ -2492,20 +2492,20 @@ class BaseModel(metaclass=MetaModel):
         parents = {doc['_id']: doc.get(parent_key) for doc in docs}
         current = {doc['_id']: doc.get(path_key) for doc in docs}
         paths: dict[int, str] = {}
-
-        def path_of(id_, visiting=()):
-            if id_ not in paths:
-                parent_id = parents.get(id_)
-                if parent_id in parents and parent_id not in visiting:
-                    prefix = path_of(parent_id, (*visiting, id_))
-                else:
-                    prefix = ""
-                paths[id_] = f"{prefix}{id_}/"
-            return paths[id_]
+        for start in parents:  # iterative: walk up to a known path (or a root / a cycle)
+            chain, node, seen = [], start, set()
+            while node in parents and node not in paths and node not in seen:
+                seen.add(node)
+                chain.append(node)
+                node = parents[node]
+            prefix = "" if node in seen else paths.get(node, "")
+            for id_ in reversed(chain):
+                prefix = f"{prefix}{id_}/"
+                paths[id_] = prefix
 
         store.bulk_update(self, [
-            (id_, {'$set': {path_key: path_of(id_)}})
-            for id_ in parents if current[id_] != path_of(id_)
+            (id_, {'$set': {path_key: path}})
+            for id_, path in paths.items() if current[id_] != path
         ])
         self.invalidate_model(['parent_path'])
 
@@ -2545,12 +2545,21 @@ class BaseModel(metaclass=MetaModel):
             doc['_id']: doc.get(path_key) or f"{doc['_id']}/"
             for doc in store.find(self, {'_id': {'$in': list(self.ids)}}, {path_key: 1})
         }
-        updated = {}
-        for node_id, node_path in nodes.items():
-            cut = len(node_path) - len(f"{node_id}/")
-            # anchored prefix match on the parent_path index: the subtree of node
+        # old paths of every descendant first (anchored prefix match on the
+        # parent_path index), then one new path per document: when a moved node
+        # is itself inside the subtree of another moved node, the deepest one
+        # defines the document's new ancestry
+        subtree = {}
+        for node_path in nodes.values():
             for doc in store.find(self, {path_key: {'$regex': f"^{re.escape(node_path)}"}}, {path_key: 1}):
-                updated[doc['_id']] = prefix + doc[path_key][cut:]
+                subtree[doc['_id']] = doc[path_key]
+        updated = {}
+        for doc_id, old_path in subtree.items():
+            node_id, node_path = max(
+                ((nid, npath) for nid, npath in nodes.items() if old_path.startswith(npath)),
+                key=lambda item: len(item[1]),
+            )
+            updated[doc_id] = prefix + old_path[len(node_path) - len(f"{node_id}/"):]
         store.bulk_update(self, [(id_, {'$set': {path_key: path}}) for id_, path in updated.items()])
         return updated
 
