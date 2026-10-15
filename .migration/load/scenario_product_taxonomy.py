@@ -5,7 +5,11 @@ Run from the run branch against a scratch clone of the fixture whose rows were l
 into the target by load_unit.py (PostgreSQL rows are the oracle, MongoDB the system
 under test); every write is rolled back so the loaded documents are left unchanged::
 
-    odoo-bin shell -d <scratch db> --db_port=5433 --no-http < .migration/load/scenario_product_taxonomy.py
+    odoo-bin shell -d <scratch db> --db_port=5433 --no-http -c <conf> < .migration/load/scenario_product_taxonomy.py
+
+where ``<conf>`` sets ``mongodb_migration_db = <scratch db>``: only the migration database
+reads the unprefixed spec collections, any other database gets its own ``<db_name>__`` namespace
+(d-test-namespace = collection-prefix).
 """
 from odoo.exceptions import ValidationError
 

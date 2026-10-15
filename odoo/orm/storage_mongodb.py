@@ -99,7 +99,8 @@ class MongoUndoLog:
 
 
 class MongoStore:
-    """One MongoDB client per registry; all collections live in the single allowed database."""
+    """One MongoDB client per registry; all collections live in the single allowed
+    database, under a per-Odoo-database prefix unless the database is the migration one."""
 
     def __init__(self, registry):
         self.registry = registry
@@ -175,9 +176,23 @@ class MongoStore:
             return Decimal128(str(value))
         return value
 
+    @property
+    def collection_prefix(self) -> str:
+        """Per-Odoo-database namespace inside the allowed database.
+
+        Only the migration database, named by the config key
+        ``mongodb_migration_db``, reads and writes the spec collections; every
+        other database (test and scratch installs) gets ``<db_name>__`` in
+        front of each collection name, so a fresh install never touches the
+        migrated documents.
+        """
+        from odoo.tools import config  # noqa: PLC0415
+        db_name = self.registry.db_name
+        return '' if db_name == config.get('mongodb_migration_db') else f'{db_name}__'
+
     def collection_name(self, model: BaseModel) -> str:
         spec = self.collection_spec(model)
-        return spec['collection'] if spec else camelize(model._table)
+        return self.collection_prefix + (spec['collection'] if spec else camelize(model._table))
 
     def field_path(self, model: BaseModel, fname: str) -> str:
         if fname == 'id':
