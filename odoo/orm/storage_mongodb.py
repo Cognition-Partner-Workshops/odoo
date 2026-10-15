@@ -309,10 +309,30 @@ class MongoStore:
     # schema
     # ------------------------------------------------------------------
     def ensure_shadow_table(self, model: BaseModel) -> None:
-        from odoo.tools import sql  # noqa: PLC0415
+        """Create the shadow table (id authority and FK target) or, on a pre-existing table,
+        relax the columns whose values moved to MongoDB: ``allocate_ids`` inserts ids only, so
+        every column other than ``id`` and ``_shadow_columns`` loses its NOT NULL and default.
+        The columns themselves stay until the cutover reduction."""
+        from odoo.tools import SQL, sql  # noqa: PLC0415
         cr = model.env.cr
         if not sql.table_exists(cr, model._table):
             sql.create_model_table(cr, model._table, f"{model._description} (MongoDB shadow: ids only)")
+            return
+        kept = {'id', *model._shadow_columns}
+        cr.execute(SQL(
+            "SELECT column_name FROM information_schema.columns "
+            "WHERE table_schema = current_schema AND table_name = %s "
+            "AND (is_nullable = 'NO' OR column_default IS NOT NULL) "
+            "ORDER BY ordinal_position", model._table,
+        ))
+        for (column,) in cr.fetchall():
+            if column in kept:
+                continue
+            cr.execute(SQL(
+                "ALTER TABLE %s ALTER COLUMN %s DROP NOT NULL, ALTER COLUMN %s DROP DEFAULT",
+                SQL.identifier(model._table), SQL.identifier(column), SQL.identifier(column),
+            ))
+            _logger.info("Table %r: column %r moved to MongoDB, dropped NOT NULL and default", model._table, column)
 
     def ensure_collection(self, model: BaseModel) -> None:
         import pymongo  # noqa: PLC0415

@@ -465,6 +465,7 @@ class BaseModel(metaclass=MetaModel):
     _check_inherits_access: bool = True           #: check access for _inherits models
     _table: str = ''                 #: SQL table name used by model if :attr:`_auto`
     _storage: str = 'postgresql'     #: storage backend: 'postgresql' (default) or 'mongodb'
+    _shadow_columns: tuple[str, ...] = ()  #: mongodb: columns kept in the PostgreSQL shadow table besides ``id``
     _table_objects: dict[str, TableObject] = frozendict()  #: SQL/Table objects
     _inherit_children: OrderedSet[str]
 
