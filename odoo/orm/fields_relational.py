@@ -1535,8 +1535,19 @@ class Many2many(_RelationalMulti):
 
         # make the query for the lines
         domain = self.get_comodel_domain(records)
-        if layout := self._mongo_layout(records):
-            group = self._read_mongo_pairs(records, layout)
+        layout = self._mongo_layout(records)
+        if layout or comodel._storage == 'mongodb':
+            if layout:
+                group = self._read_mongo_pairs(records, layout)
+            else:  # PostgreSQL-owned relation table, lines in MongoDB
+                group = defaultdict(list)
+                rows = records.env.execute_query(SQL(
+                    "SELECT %s, %s FROM %s WHERE %s IN %s",
+                    SQL.identifier(self.column1), SQL.identifier(self.column2),
+                    SQL.identifier(self.relation), SQL.identifier(self.column1), tuple(records.ids),
+                ))
+                for id1, id2 in rows:
+                    group[id1].append(id2)
             coids = OrderedSet(id2 for ids in group.values() for id2 in ids)
             # keep only lines matching the comodel domain, in the comodel order
             allowed = comodel.sudo()._search(domain & Domain('id', 'in', coids), order=comodel._order, bypass_access=True)

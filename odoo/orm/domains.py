@@ -1496,7 +1496,10 @@ def _optimize_any_domain_at_level(level: OptimizationLevel, condition, model):
         )
         if comodel_domain.is_false() and not search_domain.is_false():
             # we don't know the constraining condition
-            if field.type == 'many2one' and (field.store or field.compute_sql) and level > OptimizationLevel.BASIC:
+            if (
+                field.type == 'many2one' and (field.store or field.compute_sql)
+                and level > OptimizationLevel.BASIC and model._storage != 'mongodb'
+            ):
                 # restrict using the whole domain
                 def restricted_domain_sql(table):
                     sub_query = model.sudo()._search(search_domain, active_test=False, bypass_access=True)
@@ -1922,7 +1925,11 @@ def _operator_child_of_domain(comodel: BaseModel, parent):
             child_ids.update(comodel._ids)
             # same as searching with the condition and bypassing all rules and overrides
             query = _new_query(comodel)
-            query.add_where(DomainCondition(parent, 'in', comodel._ids).optimize_full(comodel)._to_sql(query.table))
+            condition = DomainCondition(parent, 'in', comodel._ids).optimize_full(comodel)
+            if isinstance(query, MongoQuery):
+                query.add_filter(condition._to_filter(comodel))
+            else:
+                query.add_where(condition._to_sql(query.table))
             comodel = comodel.browse(OrderedSet(query.get_result_ids()) - child_ids)
     return child_ids
 

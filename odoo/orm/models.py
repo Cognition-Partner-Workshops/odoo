@@ -2473,6 +2473,7 @@ class BaseModel(metaclass=MetaModel):
                     referrers.unlink()
                 elif field.ondelete in ('set null', 'set default'):
                     referrers.write({field.name: False})
+                    referrers.flush_recordset([field.name])
                 else:
                     raise UserError(self.env._(
                         "The operation cannot be completed: another model requires the record being deleted."
@@ -2583,9 +2584,24 @@ class BaseModel(metaclass=MetaModel):
                     assert field.store and field.column_type
                     path = self._mongodb_path(field)
                     value = to_bson(value)
-                    if field.translate is True and isinstance(value, dict):
-                        for lang, val in value.items():
-                            set_[f"{path}.{lang}"] = val
+                    if field.translate is True and isinstance(value, list):
+                        # (is_partial, {lang: value}) from get_column_update()
+                        is_partial, translations = value
+                        if is_partial and translations:
+                            # merge into the stored map; a document without
+                            # translations gets en_US from the first value
+                            # (same as the SQL CASE in the PostgreSQL branch)
+                            pipeline_set = {path: {'$mergeObjects': [
+                                {'$ifNull': [f"${path}", {'en_US': next(iter(translations.values()))}]},
+                                translations,
+                            ]}}
+                            updates.append((id_, [{'$set': pipeline_set}]))
+                        elif translations is None:
+                            unset[path] = ""
+                        else:
+                            set_[path] = translations
+                    elif field.translate is True and isinstance(value, dict):
+                        set_[path] = value
                     elif field.company_dependent and isinstance(value, dict):
                         fallback = self.env['ir.default']._get_model_defaults(self._name).get(fname)
                         fallback = to_bson(field.convert_to_column(fallback, self))
@@ -2645,6 +2661,8 @@ class BaseModel(metaclass=MetaModel):
             pipeline.append({'$limit': query.limit})
         result = self.pool.mongo_store.aggregate(self, pipeline)
         if not result:
+            if not groupby:
+                return [tuple(self._read_group_empty_value(spec) for spec in aggregates)]
             return []
         column_result = []
         for spec, key in group_specs.items():
@@ -2652,7 +2670,8 @@ class BaseModel(metaclass=MetaModel):
             if (field := self._fields.get(spec.split(':')[0])) and field.type == 'date' and ':' in spec:
                 raw = [v.date() if hasattr(v, 'date') else v for v in raw]
             column_result.append(self._read_group_postprocess_groupby(spec, raw))
-        for spec, key in agg_keys.items():
+        for spec in aggregates:  # having-only aggregates in agg_keys are not returned
+            key = agg_keys[spec]
             raw = [doc.get(key) for doc in result]
             if spec.endswith(':count_distinct'):
                 raw = [len(v) for v in raw]
@@ -4052,7 +4071,7 @@ class BaseModel(metaclass=MetaModel):
         for sub_ids in split_every(IN_MAX, self.ids):
             records = self.browse(sub_ids)
 
-            if self._storage == 'mongodb':
+            if self.pool.mongodb_models:
                 records._mongodb_ondelete()
             cr.execute(SQL(
                 "DELETE FROM %s WHERE id IN %s",

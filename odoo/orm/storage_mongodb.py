@@ -62,9 +62,18 @@ class MongoUndoLog:
 
     def __init__(self, store: MongoStore, cr: Cursor):
         self.store = store
+        self.cr = cr
         self.entries: list[tuple[str, str, list]] = []
-        cr.prerollback.add(partial(self.rollback_to, 0))
+        # one log per PostgreSQL transaction: replayed then dropped on
+        # rollback, dropped on commit (the hooks run once per transaction)
+        cr.prerollback.add(self._on_rollback)
         cr.postcommit.add(partial(store._discard_undo, cr))
+
+    def _on_rollback(self) -> None:
+        try:
+            self.rollback_to(0)
+        finally:
+            self.store._discard_undo(self.cr)
 
     def mark(self) -> int:
         return len(self.entries)
@@ -78,11 +87,11 @@ class MongoUndoLog:
             kind, collection, payload = self.entries.pop()
             coll = self.store.db[collection]
             try:
+                # every replay is idempotent: it also works when the logged
+                # operation was never applied (e.g. the write failed)
                 if kind == 'insert':
                     coll.delete_many({'_id': {'$in': payload}})
-                elif kind == 'delete':
-                    coll.insert_many(payload)
-                else:  # update
+                else:  # update / delete: restore the prior documents
                     for doc in payload:
                         coll.replace_one({'_id': doc['_id']}, doc, upsert=True)
             except Exception:
@@ -256,13 +265,12 @@ class MongoStore:
             return
         import pymongo.errors  # noqa: PLC0415
         name = self.collection_name(model)
+        # log before writing: a failed or ambiguous write is still undone
+        self._undo(model.env.cr).append('insert', name, [doc['_id'] for doc in docs])
         try:
             self.db[name].insert_many(docs, ordered=True)
         except (pymongo.errors.DuplicateKeyError, pymongo.errors.BulkWriteError) as exc:
-            inserted = [doc['_id'] for doc in docs[:(getattr(exc, 'details', None) or {}).get('nInserted', 0)]]
-            self._undo(model.env.cr).append('insert', name, inserted)
             self._raise_unique(model, exc)
-        self._undo(model.env.cr).append('insert', name, [doc['_id'] for doc in docs])
 
     def update_many(self, model: BaseModel, ids: list[int], update: dict) -> None:
         if not ids or not update:
@@ -270,8 +278,8 @@ class MongoStore:
         name = self.collection_name(model)
         coll = self.db[name]
         prior = list(coll.find({'_id': {'$in': ids}}))
-        coll.update_many({'_id': {'$in': ids}}, update)
         self._undo(model.env.cr).append('update', name, prior)
+        coll.update_many({'_id': {'$in': ids}}, update)
 
     def bulk_update(self, model: BaseModel, updates: list[tuple[int, dict]]) -> None:
         """``updates``: list of ``(id, update_document)``."""
@@ -294,8 +302,8 @@ class MongoStore:
         name = self.collection_name(model)
         coll = self.db[name]
         prior = list(coll.find({'_id': {'$in': ids}}))
-        coll.delete_many({'_id': {'$in': ids}})
         self._undo(model.env.cr).append('delete', name, prior)
+        coll.delete_many({'_id': {'$in': ids}})
 
     # ------------------------------------------------------------------
     # schema

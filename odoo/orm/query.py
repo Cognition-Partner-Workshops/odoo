@@ -318,11 +318,13 @@ class MongoQuery(Query):
         super().__init__(model, table=SQL.identifier(model._table))
         self.filter: dict = {}
         self.sort: list[tuple[str, int]] = []
+        self._ordered_ids: tuple[int, ...] | None = None
 
     def __copy__(self):
         query = MongoQuery(self._model)
         query.filter = dict(self.filter)
         query.sort = list(self.sort)
+        query._ordered_ids = self._ordered_ids
         query.limit = self.limit
         query.offset = self.offset
         query._ids = self._ids
@@ -342,6 +344,7 @@ class MongoQuery(Query):
     def add_filter(self, filter_: dict) -> None:
         """ Add a MongoDB filter document (AND-ed with the existing filter). """
         self._ids = self._ids and None
+        self._ordered_ids = None
         if not filter_:
             return
         if not self.filter:
@@ -372,9 +375,13 @@ class MongoQuery(Query):
     def find(self, projection=None) -> list[dict]:
         """ Run the query and return the documents (``_id`` plus ``projection``). """
         model = self._model
-        return model.pool.mongo_store.find(
+        docs = model.pool.mongo_store.find(
             model, self.filter, projection, self.sort or None, self.offset or 0, self.limit,
         )
+        if self._ordered_ids is not None:
+            rank = {id_: index for index, id_ in enumerate(self._ordered_ids)}
+            docs.sort(key=lambda doc: rank.get(doc['_id'], len(rank)))
+        return docs
 
     def get_result_ids(self) -> tuple[int, ...]:
         if self._ids is None:
@@ -386,6 +393,7 @@ class MongoQuery(Query):
         assert not (self.filter or self.limit or self.offset), "Method set_result_ids() can only be called on a virgin Query"
         self.filter = {'_id': {'$in': list(ids)}}
         self.sort = []
+        self._ordered_ids = ids if ordered else None
         self._ids = ids
 
     def __len__(self) -> int:

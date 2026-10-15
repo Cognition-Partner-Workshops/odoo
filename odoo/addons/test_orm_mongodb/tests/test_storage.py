@@ -129,6 +129,9 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual(self.Item.with_context(active_test=False).search([], order='id'), items)
         self.assertEqual(self.Item.search([('name', 'ilike', 'alp')]), alpha)
         self.assertEqual(self.Item.search([('name', '=like', 'B%')]), beta)
+        self.assertEqual(self.Item.search([('name', 'like', 'Al%')]), alpha)
+        self.assertEqual(self.Item.search([('name', 'ilike', 'a_pha')]), alpha)
+        self.assertEqual(self.Item.search([('name', 'like', 'lp')]), alpha)
         self.assertEqual(self.Item.search([('name', 'not ilike', 'alp')]), beta)
         self.assertEqual(self.Item.search([('quantity', '>', 0)]), alpha)
         self.assertEqual(self.Item.search([('quantity', '>=', 0), ('state', '=', 'done')]), beta)
@@ -166,6 +169,7 @@ class TestMongoStorage(TransactionCase):
         )
         self.assertEqual(groups, [('draft', 2)])
         self.assertEqual(self.Item._read_group([], [], ['quantity:sum']), [(5,)])
+        self.assertEqual(self.Item._read_group([('name', '=', 'nope')], [], ['__count', 'quantity:sum']), [(0, 0)])
         self.assertEqual(self.Item.read_group([], ['category_id'], ['quantity:sum'])[0][1], 5)
         self.assertEqual(self.Item.search([('category_id.name', '=', 'B')]), self.Item)
 
@@ -201,6 +205,11 @@ class TestMongoStorage(TransactionCase):
         self.assertFalse(cat_b.default_item_id)
         # One2many MongoDB -> MongoDB
         self.assertEqual(self.Line.search([('item_id.name', '=', 'Alpha')]), alpha.line_ids)
+        # deleting a PostgreSQL record referenced from MongoDB documents: ondelete 'set null'
+        cat_a.unlink()
+        self.env.invalidate_all()
+        self.assertFalse(alpha.category_id)
+        self.assertNotIn('categoryId', self._docs(self.Item, {'_id': alpha.id})[0])
 
     def test_rollback_replays_undo_log(self):
         before = self.store.count(self.Item, {})

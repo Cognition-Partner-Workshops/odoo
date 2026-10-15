@@ -1579,9 +1579,13 @@ class Field[T]:
             else:
                 condition = {'$nin': params}  # $nin matches null/missing, like Odoo's NOT IN
         elif operator.endswith('like'):
-            pattern = re.escape(str(value))
+            # SQL LIKE wildcards: % -> .*, _ -> . ; everything else literal
+            pattern = ''.join(
+                '.*' if char == '%' else '.' if char == '_' else re.escape(char)
+                for char in str(value)
+            )
             if '=' in operator:
-                pattern = '^' + pattern.replace('%', '.*').replace('_', '.') + '$'
+                pattern = f"^{pattern}$"
             options = 'is' if operator.endswith('ilike') else 's'
             if self.is_text or self.type == 'selection':
                 regex = {'$regex': pattern, '$options': options}
