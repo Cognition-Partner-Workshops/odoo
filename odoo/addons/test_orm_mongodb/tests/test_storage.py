@@ -1,11 +1,12 @@
 from datetime import date
-from unittest.mock import patch
+from unittest.mock import PropertyMock, patch
 
 from odoo import Command
 from odoo.exceptions import UserError, ValidationError
 from odoo.orm.query import MongoQuery
+from odoo.orm.storage_mongodb import MongoStore
 from odoo.tests import TransactionCase, tagged
-from odoo.tools import SQL
+from odoo.tools import SQL, config
 
 
 @tagged('post_install', '-at_install', 'mongodb')
@@ -83,7 +84,30 @@ class TestMongoStorage(TransactionCase):
         self.assertIn('test_orm_mongodb.item', self.env.registry.mongodb_models)
         self.assertNotIn('test_orm_mongodb.category', self.env.registry.mongodb_models)
         self.assertEqual(self.store.database_name, 'odoo_migration')
-        self.assertEqual(self.store.collection_name(self.Item), 'testOrmMongodbItem')
+        # a test database is not the migration database: its collections carry the
+        # per-database prefix, so the migrated collections are never touched
+        self.assertEqual(self.store.collection_prefix, f'{self.env.cr.dbname}__')
+        self.assertEqual(self.store.collection_name(self.Item), f'{self.env.cr.dbname}__testOrmMongodbItem')
+        with patch.dict(config.options, {'mongodb_migration_db': self.env.cr.dbname}):
+            self.assertEqual(self.store.collection_prefix, '')
+            self.assertEqual(self.store.collection_name(self.Item), 'testOrmMongodbItem')
+        # a database with committed ids whose documents sit in the unprefixed
+        # collection is the migration database started without the key: fail closed
+        name, prefixed = 'testOrmMongodbItem', self.store.collection_name(self.Item)
+        fake_db = {n: type('Coll', (), {'estimated_document_count': lambda self, c=c: c})() for n, c in ((name, 1), (prefixed, 0))}
+        self.store._namespace_checked.discard(name)
+        with self.assertRaisesRegex(RuntimeError, 'set mongodb_migration_db'), \
+             patch.object(MongoStore, '_has_committed_rows', return_value=True), \
+             patch.object(MongoStore, 'db', new_callable=PropertyMock, return_value=fake_db):
+            self.store.collection_name(self.Item)
+        self.assertNotIn(name, self.store._namespace_checked)
+        self.assertEqual(self.store.collection_name(self.Item), prefixed)
+        self.assertNotIn(name, self.store._namespace_checked, "no committed ids yet: nothing to cache")
+        fake_db[prefixed] = fake_db[name]
+        with patch.object(MongoStore, '_has_committed_rows', return_value=True), \
+             patch.object(MongoStore, 'db', new_callable=PropertyMock, return_value=fake_db):
+            self.assertEqual(self.store.collection_name(self.Item), prefixed)
+        self.assertIn(name, self.store._namespace_checked, "documents in the prefixed namespace: established")
         # the shadow table exists with ids only
         self.env.cr.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'test_orm_mongodb_item'")
         self.assertEqual([row[0] for row in self.env.cr.fetchall()], ['id'])

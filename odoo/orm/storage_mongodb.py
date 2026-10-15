@@ -99,13 +99,15 @@ class MongoUndoLog:
 
 
 class MongoStore:
-    """One MongoDB client per registry; all collections live in the single allowed database."""
+    """One MongoDB client per registry; all collections live in the single allowed
+    database, under a per-Odoo-database prefix unless the database is the migration one."""
 
     def __init__(self, registry):
         self.registry = registry
         self._client = None
         self._spec = None
         self._unique_messages: dict[tuple[str, str], str] = {}
+        self._namespace_checked: set[str] = set()
 
     # ------------------------------------------------------------------
     # connection
@@ -175,9 +177,63 @@ class MongoStore:
             return Decimal128(str(value))
         return value
 
+    @property
+    def collection_prefix(self) -> str:
+        """Per-Odoo-database namespace inside the allowed database.
+
+        Only the migration database, named by the config key
+        ``mongodb_migration_db``, reads and writes the spec collections; every
+        other database (test and scratch installs) gets ``<db_name>__`` in
+        front of each collection name, so a fresh install never touches the
+        migrated documents.
+        """
+        from odoo.tools import config  # noqa: PLC0415
+        db_name = self.registry.db_name
+        return '' if db_name == config.get('mongodb_migration_db') else f'{db_name}__'
+
     def collection_name(self, model: BaseModel) -> str:
         spec = self.collection_spec(model)
-        return spec['collection'] if spec else camelize(model._table)
+        name = spec['collection'] if spec else camelize(model._table)
+        prefix = self.collection_prefix
+        if prefix and name not in self._namespace_checked and self._check_namespace(model, name, prefix + name):
+            self._namespace_checked.add(name)
+        return prefix + name
+
+    def _check_namespace(self, model: BaseModel, name: str, prefixed: str) -> bool:
+        """Fail closed instead of serving a migrated database from an empty namespace.
+
+        A database with committed shadow ids whose documents sit in the
+        unprefixed collection is the migration database started without
+        ``mongodb_migration_db``: reads would return nothing and ``repair``
+        would delete its shadow rows. Returns whether the prefixed namespace
+        is established (documents in it), the only outcome worth caching: a
+        negative probe may come from a snapshot older than a concurrent load.
+        """
+        if not self._has_committed_rows(model):
+            return False
+        if self.db[prefixed].estimated_document_count():
+            return True
+        if not self.db[name].estimated_document_count():
+            return False
+        db_name = self.registry.db_name
+        raise RuntimeError(
+            f"database {db_name!r} has committed ids for {model._name} but its documents are in the "
+            f"unprefixed collection {name!r}: set mongodb_migration_db = {db_name} in the config file "
+            f"if this is the migration database"
+        )
+
+    def _has_committed_rows(self, model: BaseModel) -> bool:
+        """Committed shadow rows only, read with the current cursor so a table this
+        transaction is altering cannot block: ``age(xmin) > 0`` excludes the rows
+        the transaction itself (or one of its savepoints) inserted, i.e. the ids
+        ``allocate_ids`` takes before the documents are written."""
+        from odoo.tools import SQL  # noqa: PLC0415
+        cr = model.env.cr
+        cr.execute(SQL("SELECT to_regclass(%s)", model._table))
+        if cr.fetchone()[0] is None:
+            return False
+        cr.execute(SQL("SELECT 1 FROM %s WHERE age(xmin) > 0 LIMIT 1", SQL.identifier(model._table)))
+        return cr.fetchone() is not None
 
     def field_path(self, model: BaseModel, fname: str) -> str:
         if fname == 'id':
