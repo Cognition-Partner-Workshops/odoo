@@ -170,6 +170,7 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual(groups, [('draft', 2)])
         self.assertEqual(self.Item._read_group([], [], ['quantity:sum']), [(5,)])
         self.assertEqual(self.Item._read_group([('name', '=', 'nope')], [], ['__count', 'quantity:sum']), [(0, 0)])
+        self.assertEqual(self.Item._read_group([('name', '=', 'nope')], [], ['__count'], offset=1), [])
         self.assertEqual(self.Item.read_group([], ['category_id'], ['quantity:sum'])[0][1], 5)
         self.assertEqual(self.Item.search([('category_id.name', '=', 'B')]), self.Item)
 

@@ -2661,7 +2661,8 @@ class BaseModel(metaclass=MetaModel):
             pipeline.append({'$limit': query.limit})
         result = self.pool.mongo_store.aggregate(self, pipeline)
         if not result:
-            if not groupby:
+            if not groupby and not query.offset:
+                # one aggregate row even without matching documents (SQL semantics)
                 return [tuple(self._read_group_empty_value(spec) for spec in aggregates)]
             return []
         column_result = []
