@@ -2,14 +2,12 @@
 
 - **Verdict: PASS** (values redacted)
 - Mode: `live`
-- Merge eligible: no (fixture/continuous evidence never merges)
+- Merge eligible: yes (fixture/continuous evidence never merges)
 - Mapping version: `map-draft-5` (sha256 `e329b5aec09f`)
 - Tolerance version: `v1` (sha256 `59f500708400`)
 - Collections: `productBaseUnit`, `productCategory`, `productTag`
 - Seed: `1`
-- Generated: 2026-10-15T16:58:08.808930+00:00
-- **WARNING: UNVERIFIED collection productBaseUnit: 0 source rows, key/shape/field rules unexercised**
-- **WARNING: UNVERIFIED collection productTag: 0 source rows, key/shape/field rules unexercised**
+- Generated: 2026-10-15T17:40:08.410796+00:00
 - 35 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 18 string fields: min/max/distinct deferred to Tier 3
 
@@ -17,16 +15,16 @@
 |---|---|---|---|
 | 1 | counts_through_mapping | 10 | PASS |
 | 2 | per_field_aggregates | 13 | PASS |
-| 3 | keyed_diffs | 8 | PASS |
+| 3 | keyed_diffs | 13 | PASS |
 | 4 | app_level_parity | 4 | PASS |
 
 ## Tier 1 coverage
 ```json
 {
   "source_counts": {
-    "productBaseUnit": 0,
+    "productBaseUnit": 2,
     "productCategory": 8,
-    "productTag": 0
+    "productTag": 3
   }
 }
 ```
@@ -217,6 +215,68 @@
       ]
     }
   ],
+  "document_aggregates_deferred_to_tier3": [
+    {
+      "field": "productBaseUnit.name",
+      "key": "productBaseUnit"
+    },
+    {
+      "field": "productCategory.name",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.productPropertiesDefinition",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyAccountIncomeCategId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyAccountExpenseCategId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyValuation",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyStockValuationAccountId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyStockJournal",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyCostMethod",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyPriceDifferenceAccountId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyAccountBillsToReceiveId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyAccountBilledNotReceivedId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyAccountInvoicesToIssueId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyAccountInvoicedNotDeliveredId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productTag.name",
+      "key": "productTag"
+    }
+  ],
   "fields_fully_deferred": 22
 }
 ```
@@ -226,7 +286,7 @@
 {
   "productBaseUnit": {
     "mode": "full_diff",
-    "population": 0,
+    "population": 2,
     "duplicate_source_key_count": 0
   },
   "productCategory": {
@@ -239,7 +299,7 @@
   },
   "productTag": {
     "mode": "full_diff",
-    "population": 0,
+    "population": 3,
     "duplicate_source_key_count": 0
   }
 }

@@ -6,5 +6,5 @@
   "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/22",
   "branch": "devin/1792083000-w1-b02-product-taxonomy",
   "failure_class": "",
-  "one_line_summary": "product-taxonomy: live strict PASS (Tier 1-4, 0 findings); productTag/productBaseUnit UNVERIFIED (0 source rows) so merge_eligible false; harness run from plugin PR #75 (8de2e0e)"
+  "one_line_summary": "product-taxonomy: live strict PASS (Tier 1-4, 0 findings, no warnings, merge_eligible true); source = fixture clone odoo_w1b02_fix with ORM-seeded product_tag/product_base_unit scenario rows (odoo_src read-only); harness from plugin PR #75 (b2ddbef), rerun on the re-pinned plugin pending"
 }
