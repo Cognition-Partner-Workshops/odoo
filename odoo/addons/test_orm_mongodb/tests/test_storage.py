@@ -1,9 +1,10 @@
 from datetime import date
-from unittest.mock import patch
+from unittest.mock import PropertyMock, patch
 
 from odoo import Command
 from odoo.exceptions import UserError, ValidationError
 from odoo.orm.query import MongoQuery
+from odoo.orm.storage_mongodb import MongoStore
 from odoo.tests import TransactionCase, tagged
 from odoo.tools import SQL, config
 
@@ -90,6 +91,17 @@ class TestMongoStorage(TransactionCase):
         with patch.dict(config.options, {'mongodb_migration_db': self.env.cr.dbname}):
             self.assertEqual(self.store.collection_prefix, '')
             self.assertEqual(self.store.collection_name(self.Item), 'testOrmMongodbItem')
+        # a database with committed ids whose documents sit in the unprefixed
+        # collection is the migration database started without the key: fail closed
+        name, prefixed = 'testOrmMongodbItem', self.store.collection_name(self.Item)
+        fake_db = {n: type('Coll', (), {'estimated_document_count': lambda self, c=c: c})() for n, c in ((name, 1), (prefixed, 0))}
+        self.store._namespace_checked.discard(name)
+        with self.assertRaisesRegex(RuntimeError, 'set mongodb_migration_db'), \
+             patch.object(MongoStore, '_has_committed_rows', return_value=True), \
+             patch.object(MongoStore, 'db', new_callable=PropertyMock, return_value=fake_db):
+            self.store.collection_name(self.Item)
+        self.assertNotIn(name, self.store._namespace_checked)
+        self.assertEqual(self.store.collection_name(self.Item), prefixed)  # a test database has no committed ids yet
         # the shadow table exists with ids only
         self.env.cr.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'test_orm_mongodb_item'")
         self.assertEqual([row[0] for row in self.env.cr.fetchall()], ['id'])

@@ -107,6 +107,7 @@ class MongoStore:
         self._client = None
         self._spec = None
         self._unique_messages: dict[tuple[str, str], str] = {}
+        self._namespace_checked: set[str] = set()
 
     # ------------------------------------------------------------------
     # connection
@@ -192,7 +193,42 @@ class MongoStore:
 
     def collection_name(self, model: BaseModel) -> str:
         spec = self.collection_spec(model)
-        return self.collection_prefix + (spec['collection'] if spec else camelize(model._table))
+        name = spec['collection'] if spec else camelize(model._table)
+        prefix = self.collection_prefix
+        if prefix and name not in self._namespace_checked:
+            self._check_namespace(model, name, prefix + name)
+            self._namespace_checked.add(name)
+        return prefix + name
+
+    def _check_namespace(self, model: BaseModel, name: str, prefixed: str) -> None:
+        """Fail closed instead of serving a migrated database from an empty namespace.
+
+        A database with committed shadow ids whose documents sit in the
+        unprefixed collection is the migration database started without
+        ``mongodb_migration_db``: reads would return nothing and ``repair``
+        would delete its shadow rows.
+        """
+        if not self._has_committed_rows(model):
+            return
+        if self.db[prefixed].estimated_document_count() or not self.db[name].estimated_document_count():
+            return
+        db_name = self.registry.db_name
+        raise RuntimeError(
+            f"database {db_name!r} has committed ids for {model._name} but its documents are in the "
+            f"unprefixed collection {name!r}: set mongodb_migration_db = {db_name} in the config file "
+            f"if this is the migration database"
+        )
+
+    def _has_committed_rows(self, model: BaseModel) -> bool:
+        """Committed shadow rows only: a separate cursor does not see the ids the
+        current transaction is allocating for documents it has not inserted yet."""
+        from odoo.tools import SQL  # noqa: PLC0415
+        with self.registry.cursor() as cr:
+            cr.execute(SQL("SELECT to_regclass(%s)", model._table))
+            if cr.fetchone()[0] is None:
+                return False
+            cr.execute(SQL("SELECT 1 FROM %s LIMIT 1", SQL.identifier(model._table)))
+            return cr.fetchone() is not None
 
     def field_path(self, model: BaseModel, fname: str) -> str:
         if fname == 'id':
