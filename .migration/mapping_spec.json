@@ -1,5 +1,5 @@
 {
-  "version": "map-draft-3",
+  "version": "map-draft-4",
   "source_family": "postgresql",
   "collections": [
     {
@@ -324,26 +324,6 @@
           },
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "parent_id"
             ],
             "to": "accountAccount",
@@ -351,16 +331,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -1331,38 +1301,7 @@
             ]
           }
         ],
-        "references": [
-          {
-            "column": [
-              "country_id"
-            ],
-            "to": "resCountry",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -1806,36 +1745,6 @@
           },
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "journal_id"
             ],
             "to": "accountJournal",
@@ -1843,16 +1752,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": []
@@ -1984,26 +1883,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "destination_account_id"
             ],
             "to": "accountAccount",
@@ -2011,16 +1890,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -2213,38 +2082,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": []
       },
       "indexes": []
@@ -2484,36 +2322,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "journal_id"
             ],
             "to": "accountJournal",
@@ -2521,16 +2329,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -3026,46 +2824,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "foreign_currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "journal_id"
             ],
             "to": "accountJournal",
@@ -3086,16 +2844,6 @@
           },
           {
             "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "statement_id"
             ],
             "to": "accountBankStatement",
@@ -3103,16 +2851,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -3874,38 +3612,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -4258,38 +3965,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": []
       },
       "indexes": []
@@ -4694,58 +4370,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "country_group_id"
-            ],
-            "to": "resCountryGroup",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "country_id"
-            ],
-            "to": "resCountry",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "extended_reference_candidate",
@@ -5199,28 +4824,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -5359,28 +4963,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -5801,56 +5384,6 @@
         "references": [
           {
             "column": [
-              "alias_id"
-            ],
-            "to": "mailAlias",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "bank_account_id"
-            ],
-            "to": "resPartnerBank",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "default_account_id"
             ],
             "to": "accountAccount",
@@ -5858,16 +5391,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "invoice_template_pdf_report_id"
-            ],
-            "to": "irActReportXml",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           },
           {
             "column": [
@@ -5918,16 +5441,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -7037,28 +6550,7 @@
             ]
           }
         ],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -7234,48 +6726,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "user_id"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": []
       },
       "indexes": [
@@ -7404,28 +6855,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -7604,16 +7034,6 @@
           },
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "wizard_id"
             ],
             "to": "accountMergeWizard",
@@ -7621,16 +7041,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": []
@@ -8371,56 +7781,6 @@
           },
           {
             "column": [
-              "campaign_id"
-            ],
-            "to": "utmCampaign",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "commercial_partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "fiscal_position_id"
             ],
             "to": "accountFiscalPosition",
@@ -8428,16 +7788,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "import_source_attachment_id"
-            ],
-            "to": "irAttachment",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           },
           {
             "column": [
@@ -8471,16 +7821,6 @@
           },
           {
             "column": [
-              "invoice_user_id"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "journal_id"
             ],
             "to": "accountJournal",
@@ -8491,26 +7831,6 @@
           },
           {
             "column": [
-              "medium_id"
-            ],
-            "to": "utmMedium",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "message_main_attachment_id"
-            ],
-            "to": "irAttachment",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "origin_payment_id"
             ],
             "to": "accountPayment",
@@ -8518,36 +7838,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "partner_bank_id"
-            ],
-            "to": "resPartnerBank",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "partner_shipping_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           },
           {
             "column": [
@@ -8568,16 +7858,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "source_id"
-            ],
-            "to": "utmSource",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           },
           {
             "column": [
@@ -8604,26 +7884,6 @@
               "tax_cash_basis_rec_id"
             ],
             "to": "accountPartialReconcile",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "team_id"
-            ],
-            "to": "crmTeam",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
             "to_columns": [
               "id"
             ],
@@ -12195,46 +11455,6 @@
           },
           {
             "column": [
-              "company_currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "full_reconcile_id"
             ],
             "to": "accountFullReconcile",
@@ -12272,16 +11492,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           },
           {
             "column": [
@@ -12392,16 +11602,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -14091,26 +13291,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "journal_id"
             ],
             "to": "accountJournal",
@@ -14118,16 +13298,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -14406,28 +13576,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -14673,16 +13822,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "move_id"
             ],
             "to": "accountMove",
@@ -14690,36 +13829,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "pdf_report_id"
-            ],
-            "to": "irActReportXml",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "template_id"
-            ],
-            "to": "mailTemplate",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -15080,36 +14189,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "credit_currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "credit_move_id"
             ],
             "to": "accountMoveLine",
@@ -15117,16 +14196,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "debit_currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           },
           {
             "column": [
@@ -15157,16 +14226,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -15858,46 +14917,6 @@
         "references": [
           {
             "column": [
-              "commercial_partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "destination_account_id"
             ],
             "to": "accountAccount",
@@ -15915,16 +14934,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "message_main_attachment_id"
-            ],
-            "to": "irAttachment",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           },
           {
             "column": [
@@ -15958,26 +14967,6 @@
           },
           {
             "column": [
-              "partner_bank_id"
-            ],
-            "to": "resPartnerBank",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "payment_method_id"
             ],
             "to": "accountPaymentMethod",
@@ -15998,36 +14987,6 @@
           },
           {
             "column": [
-              "payment_token_id"
-            ],
-            "to": "paymentToken",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "payment_transaction_id"
-            ],
-            "to": "paymentTransaction",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "return_partner_bank_id"
-            ],
-            "to": "resPartnerBank",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "source_payment_id"
             ],
             "to": "accountPayment",
@@ -16035,16 +14994,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -16969,28 +15918,7 @@
             ]
           }
         ],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -17158,16 +16086,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "journal_id"
             ],
             "to": "accountJournal",
@@ -17195,26 +16113,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "payment_provider_id"
-            ],
-            "to": "paymentProvider",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -17779,46 +16677,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "custom_user_currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "journal_id"
             ],
             "to": "accountJournal",
@@ -17829,26 +16687,6 @@
           },
           {
             "column": [
-              "partner_bank_id"
-            ],
-            "to": "resPartnerBank",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "payment_method_line_id"
             ],
             "to": "accountPaymentMethodLine",
@@ -17856,36 +16694,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "payment_token_id"
-            ],
-            "to": "paymentToken",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "source_currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           },
           {
             "column": [
@@ -18625,38 +17433,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "flag_domain_violation",
@@ -18974,58 +17751,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "mapped_partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "next_activity_type_id"
-            ],
-            "to": "mailActivityType",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -19352,26 +18078,6 @@
           },
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "model_id"
             ],
             "to": "accountReconcileModel",
@@ -19379,26 +18085,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -20281,26 +18967,6 @@
         "references": [
           {
             "column": [
-              "country_id"
-            ],
-            "to": "resCountry",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "root_report_id"
             ],
             "to": "accountReport",
@@ -20308,16 +18974,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -20856,16 +19512,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "report_line_id"
             ],
             "to": "accountReportLine",
@@ -20873,16 +19519,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -21104,39 +19740,9 @@
           },
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "target_report_expression_id"
             ],
             "to": "accountReportExpression",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
             "to_columns": [
               "id"
             ],
@@ -21334,16 +19940,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "parent_id"
             ],
             "to": "accountReportLine",
@@ -21361,16 +19957,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -21664,28 +20250,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -21793,38 +20358,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": []
       },
       "indexes": []
@@ -21924,38 +20458,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "res_partner_bank_id"
-            ],
-            "to": "resPartnerBank",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": []
       },
       "indexes": []
@@ -22406,56 +20909,6 @@
           },
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "country_id"
-            ],
-            "to": "resCountry",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "l10n_us_city_id"
-            ],
-            "to": "resCity",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "l10n_us_county_id"
-            ],
-            "to": "l10nUsResCounty",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "l10n_us_exempt_parent_tax_id"
             ],
             "to": "accountTax",
@@ -22476,16 +20929,6 @@
           },
           {
             "column": [
-              "l10n_us_state_id"
-            ],
-            "to": "resCountryState",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "tax_group_id"
             ],
             "to": "accountTaxGroup",
@@ -22493,16 +20936,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -23306,48 +21739,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "country_id"
-            ],
-            "to": "resCountry",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": []
       },
       "indexes": [
@@ -23682,26 +22074,6 @@
           },
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "tax_id"
             ],
             "to": "accountTax",
@@ -23709,16 +22081,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -24222,26 +22584,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "purchase_order_id"
             ],
             "to": "purchaseOrder",
@@ -24249,16 +22591,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": []
@@ -24351,28 +22683,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -24656,28 +22967,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -24890,28 +23180,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "flag_domain_violation",
@@ -25196,26 +23465,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -25530,28 +23779,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -25829,26 +24057,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "parent_id"
             ],
             "to": "productCategory",
@@ -25866,16 +24074,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -26287,38 +24485,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": []
       },
       "indexes": [
@@ -26451,26 +24618,6 @@
           },
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "product_id"
             ],
             "to": "productProduct",
@@ -26478,16 +24625,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -26817,38 +24954,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "ir_attachment_id"
-            ],
-            "to": "irAttachment",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "flag_domain_violation",
@@ -27040,16 +25146,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "packaging_id"
             ],
             "to": "uomUom",
@@ -27067,16 +25163,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -27773,48 +25859,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -28314,36 +26359,6 @@
           },
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "pricelist_id"
             ],
             "to": "productPricelist",
@@ -28381,16 +26396,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -29040,187 +27045,6 @@
               "ref": "ap-73a7efaf58"
             }
           ]
-        },
-        {
-          "array_path": "stockStorageCategoryCapacity",
-          "shape": "array",
-          "child_table": "stock_storage_category_capacity",
-          "child_key": [
-            "id"
-          ],
-          "child_fields": [
-            {
-              "source": "id",
-              "target": "id",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": []
-            },
-            {
-              "source": "storage_category_id",
-              "target": "storageCategoryId",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": []
-            },
-            {
-              "source": "package_type_id",
-              "target": "packageTypeId",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": [
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "create_uid",
-              "target": "createUid",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": [
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "write_uid",
-              "target": "writeUid",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": [
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "create_date",
-              "target": "createDate",
-              "source_type": "TIMESTAMP",
-              "bson_type": "date",
-              "rules": [
-                "datetime_utc_truncate_ms",
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "write_date",
-              "target": "writeDate",
-              "source_type": "TIMESTAMP",
-              "bson_type": "date",
-              "rules": [
-                "datetime_utc_truncate_ms",
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "quantity",
-              "target": "quantity",
-              "source_type": "DOUBLE PRECISION(53)",
-              "bson_type": "double",
-              "rules": []
-            }
-          ],
-          "parent_key_fields": [
-            {
-              "source": "product_id",
-              "target": "productId",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": [
-                "null_missing_equiv"
-              ]
-            }
-          ],
-          "parent_key": [
-            "product_id"
-          ],
-          "parent_ref": [
-            "id"
-          ],
-          "key": {
-            "source": [
-              "id"
-            ],
-            "target": "id"
-          },
-          "fields": [
-            {
-              "source": "storage_category_id",
-              "target": "storageCategoryId",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": []
-            },
-            {
-              "source": "package_type_id",
-              "target": "packageTypeId",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": [
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "create_uid",
-              "target": "createUid",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": [
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "write_uid",
-              "target": "writeUid",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": [
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "create_date",
-              "target": "createDate",
-              "source_type": "TIMESTAMP",
-              "bson_type": "date",
-              "rules": [
-                "datetime_utc_truncate_ms",
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "write_date",
-              "target": "writeDate",
-              "source_type": "TIMESTAMP",
-              "bson_type": "date",
-              "rules": [
-                "datetime_utc_truncate_ms",
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "quantity",
-              "target": "quantity",
-              "source_type": "DOUBLE PRECISION(53)",
-              "bson_type": "double",
-              "rules": []
-            }
-          ],
-          "cardinality": "1:N",
-          "cardinality_basis": "derived",
-          "evidence": "read_together: ap-995fc5a9b2",
-          "basis_sources": [
-            "ddl",
-            "access"
-          ],
-          "evidence_refs": [
-            {
-              "kind": "data_profile",
-              "ref": "embed_bytes:stock_storage_category_capacity->product_product(product_id)"
-            },
-            {
-              "kind": "access_pattern",
-              "ref": "ap-995fc5a9b2"
-            }
-          ]
         }
       ],
       "decision": {
@@ -29249,16 +27073,6 @@
           },
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "product_tmpl_id"
             ],
             "to": "productTemplate",
@@ -29266,16 +27080,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -29567,29 +27371,6 @@
           },
           {
             "kind": "fanout_unmeasured",
-            "child_table": "stock_storage_category_capacity",
-            "measurements": {
-              "fanout": {
-                "parents": 48,
-                "parents_zero": 48,
-                "min": 0,
-                "p50": 0,
-                "p95": 0,
-                "p99": 0,
-                "max": 0
-              },
-              "child_rows": 0
-            },
-            "evidence": [
-              {
-                "kind": "data_profile",
-                "ref": "fanout:stock_storage_category_capacity->product_product(product_id)"
-              }
-            ],
-            "proposal": "stock_storage_category_capacity has no rows per product_product in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding"
-          },
-          {
-            "kind": "fanout_unmeasured",
             "child_table": "stock_warn_insufficient_qty_scrap",
             "measurements": {
               "fanout": {
@@ -29694,6 +27475,33 @@
               "product_product_id"
             ],
             "proposal": "source index not exercised by any confirmed access pattern; keep or drop"
+          }
+        ],
+        "resolved_questions": [
+          {
+            "kind": "fanout_unmeasured",
+            "child_table": "stock_storage_category_capacity",
+            "measurements": {
+              "fanout": {
+                "parents": 48,
+                "parents_zero": 48,
+                "min": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "child_rows": 0
+            },
+            "evidence": [
+              {
+                "kind": "data_profile",
+                "ref": "fanout:stock_storage_category_capacity->product_product(product_id)"
+              }
+            ],
+            "proposal": "stock_storage_category_capacity has no rows per product_product in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
+            "resolution": "reference: stock_storage_category_capacity stays a standalone collection (d-embed-storage-capacity = keep-collection; product_id is nullable)",
+            "cited": ".migration/census.json: tables.stock_storage_category_capacity.columns[product_id].nullable = true"
           },
           {
             "kind": "source_index_not_exercised",
@@ -29702,7 +27510,9 @@
             "columns": [
               "package_type_id"
             ],
-            "proposal": "source index not exercised by any confirmed access pattern; keep or drop"
+            "proposal": "source index not exercised by any confirmed access pattern; keep or drop",
+            "resolution": "question belongs to the restored stockStorageCategoryCapacity collection (stock, model-only); decided by the model-only index rule in .migration/open_model_items.md",
+            "cited": ".migration/open_model_items.md: B-stock index rule"
           },
           {
             "kind": "source_index_not_exercised",
@@ -29711,7 +27521,9 @@
             "columns": [
               "storage_category_id"
             ],
-            "proposal": "source index not exercised by any confirmed access pattern; keep or drop"
+            "proposal": "source index not exercised by any confirmed access pattern; keep or drop",
+            "resolution": "question belongs to the restored stockStorageCategoryCapacity collection (stock, model-only); decided by the model-only index rule in .migration/open_model_items.md",
+            "cited": ".migration/open_model_items.md: B-stock index rule"
           }
         ]
       },
@@ -30022,36 +27834,6 @@
               "ref": "product_variant_combination_product_template_attribute_valu_idx"
             }
           ]
-        },
-        {
-          "keys": [
-            [
-              "stockStorageCategoryCapacity.packageTypeId",
-              1
-            ]
-          ],
-          "origin": "source_index",
-          "evidence": [
-            {
-              "kind": "ddl",
-              "ref": "stock_storage_category_capacity__package_type_id_index"
-            }
-          ]
-        },
-        {
-          "keys": [
-            [
-              "stockStorageCategoryCapacity.storageCategoryId",
-              1
-            ]
-          ],
-          "origin": "source_index",
-          "evidence": [
-            {
-              "kind": "ddl",
-              "ref": "stock_storage_category_capacity__storage_category_id_index"
-            }
-          ]
         }
       ]
     },
@@ -30232,28 +28014,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -30460,36 +28221,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "product_id"
             ],
             "to": "productProduct",
@@ -30547,16 +28278,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": []
@@ -30854,46 +28575,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "product_id"
             ],
             "to": "productProduct",
@@ -30921,16 +28602,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -31282,28 +28953,7 @@
             ]
           }
         ],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -32161,36 +29811,6 @@
           },
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "lot_sequence_id"
-            ],
-            "to": "irSequence",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "uom_id"
             ],
             "to": "uomUom",
@@ -32198,16 +29818,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -33085,16 +30695,6 @@
           },
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "product_tmpl_id"
             ],
             "to": "productTemplate",
@@ -33102,16 +30702,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -33442,16 +31032,6 @@
           },
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "product_tmpl_id"
             ],
             "to": "productTemplate",
@@ -33459,16 +31039,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -33943,26 +31513,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "product_id"
             ],
             "to": "productProduct",
@@ -33980,16 +31530,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -34529,46 +32069,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "dest_address_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "fiscal_position_id"
             ],
             "to": "accountFiscalPosition",
@@ -34589,16 +32089,6 @@
           },
           {
             "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "payment_term_id"
             ],
             "to": "accountPaymentTerm",
@@ -34616,26 +32106,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "user_id"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -35715,26 +33185,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "forecasted_location_id"
             ],
             "to": "stockLocation",
@@ -35765,16 +33215,6 @@
           },
           {
             "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "product_id"
             ],
             "to": "productProduct",
@@ -35802,16 +33242,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -36419,28 +33849,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "res_country_group_id"
-            ],
-            "to": "resCountryGroup",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "res_country_state_id"
-            ],
-            "to": "resCountryState",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "no_access_evidence",
@@ -36623,48 +34032,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -36887,28 +34255,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -37487,56 +34834,6 @@
         "references": [
           {
             "column": [
-              "analytic_account_id"
-            ],
-            "to": "accountAnalyticAccount",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "campaign_id"
-            ],
-            "to": "utmCampaign",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "fiscal_position_id"
             ],
             "to": "accountFiscalPosition",
@@ -37567,46 +34864,6 @@
           },
           {
             "column": [
-              "medium_id"
-            ],
-            "to": "utmMedium",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "partner_invoice_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "partner_shipping_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "payment_term_id"
             ],
             "to": "accountPaymentTerm",
@@ -37614,16 +34871,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "pending_email_template_id"
-            ],
-            "to": "mailTemplate",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           },
           {
             "column": [
@@ -37647,36 +34894,6 @@
           },
           {
             "column": [
-              "source_id"
-            ],
-            "to": "utmSource",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "team_id"
-            ],
-            "to": "crmTeam",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "user_id"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "warehouse_id"
             ],
             "to": "stockWarehouse",
@@ -37684,16 +34901,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -38542,16 +35749,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "sale_order_id"
             ],
             "to": "saleOrder",
@@ -38559,16 +35756,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -39094,173 +36281,6 @@
               "ref": "ap-b055f1ae04"
             }
           ]
-        },
-        {
-          "array_path": "productAttributeCustomValue",
-          "shape": "array",
-          "child_table": "product_attribute_custom_value",
-          "child_key": [
-            "id"
-          ],
-          "child_fields": [
-            {
-              "source": "id",
-              "target": "id",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": []
-            },
-            {
-              "source": "custom_product_template_attribute_value_id",
-              "target": "customProductTemplateAttributeValueId",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": []
-            },
-            {
-              "source": "create_uid",
-              "target": "createUid",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": [
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "write_uid",
-              "target": "writeUid",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": [
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "custom_value",
-              "target": "customValue",
-              "source_type": "VARCHAR",
-              "bson_type": "string",
-              "rules": [
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "create_date",
-              "target": "createDate",
-              "source_type": "TIMESTAMP",
-              "bson_type": "date",
-              "rules": [
-                "datetime_utc_truncate_ms",
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "write_date",
-              "target": "writeDate",
-              "source_type": "TIMESTAMP",
-              "bson_type": "date",
-              "rules": [
-                "datetime_utc_truncate_ms",
-                "null_missing_equiv"
-              ]
-            }
-          ],
-          "parent_key_fields": [
-            {
-              "source": "sale_order_line_id",
-              "target": "saleOrderLineId",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": [
-                "null_missing_equiv"
-              ]
-            }
-          ],
-          "parent_key": [
-            "sale_order_line_id"
-          ],
-          "parent_ref": [
-            "id"
-          ],
-          "key": {
-            "source": [
-              "id"
-            ],
-            "target": "id"
-          },
-          "fields": [
-            {
-              "source": "custom_product_template_attribute_value_id",
-              "target": "customProductTemplateAttributeValueId",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": []
-            },
-            {
-              "source": "create_uid",
-              "target": "createUid",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": [
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "write_uid",
-              "target": "writeUid",
-              "source_type": "INTEGER(32,0)",
-              "bson_type": "int",
-              "rules": [
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "custom_value",
-              "target": "customValue",
-              "source_type": "VARCHAR",
-              "bson_type": "string",
-              "rules": [
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "create_date",
-              "target": "createDate",
-              "source_type": "TIMESTAMP",
-              "bson_type": "date",
-              "rules": [
-                "datetime_utc_truncate_ms",
-                "null_missing_equiv"
-              ]
-            },
-            {
-              "source": "write_date",
-              "target": "writeDate",
-              "source_type": "TIMESTAMP",
-              "bson_type": "date",
-              "rules": [
-                "datetime_utc_truncate_ms",
-                "null_missing_equiv"
-              ]
-            }
-          ],
-          "cardinality": "1:N",
-          "cardinality_basis": "derived",
-          "evidence": "read_together: ap-501963510f",
-          "basis_sources": [
-            "ddl",
-            "access"
-          ],
-          "evidence_refs": [
-            {
-              "kind": "data_profile",
-              "ref": "embed_bytes:product_attribute_custom_value->sale_order_line(sale_order_line_id)"
-            },
-            {
-              "kind": "access_pattern",
-              "ref": "ap-501963510f"
-            }
-          ]
         }
       ],
       "decision": {
@@ -39289,36 +36309,6 @@
           },
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "currency_id"
-            ],
-            "to": "resCurrency",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "linked_line_id"
             ],
             "to": "saleOrderLine",
@@ -39336,16 +36326,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "order_partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           },
           {
             "column": [
@@ -39369,16 +36349,6 @@
           },
           {
             "column": [
-              "salesman_id"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "section_uom_id"
             ],
             "to": "uomUom",
@@ -39396,16 +36366,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -40319,16 +37279,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "transaction_id"
-            ],
-            "to": "paymentTransaction",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": []
@@ -40475,26 +37425,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "user_id"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "wave_id"
             ],
             "to": "stockPickingBatch",
@@ -40502,16 +37432,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -40800,28 +37720,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -40977,16 +37876,6 @@
           },
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "picking_id"
             ],
             "to": "stockPicking",
@@ -40994,16 +37883,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": []
@@ -41183,28 +38062,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -41377,28 +38235,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -41594,28 +38431,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -41943,26 +38759,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "location_id"
             ],
             "to": "stockLocation",
@@ -42010,16 +38806,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -42725,28 +39511,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "no_access_evidence",
@@ -43051,26 +39816,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "location_id"
             ],
             "to": "stockLocation",
@@ -43088,16 +39833,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -43954,26 +40689,6 @@
           },
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "forecasted_location_id"
             ],
             "to": "stockLocation",
@@ -44034,16 +40749,6 @@
           },
           {
             "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "picking_id"
             ],
             "to": "stockPicking",
@@ -44084,16 +40789,6 @@
           },
           {
             "column": [
-              "restrict_partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "rule_id"
             ],
             "to": "stockRule",
@@ -44131,16 +40826,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -45663,26 +42348,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "location_dest_id"
             ],
             "to": "stockLocation",
@@ -45720,16 +42385,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "owner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           },
           {
             "column": [
@@ -45790,16 +42445,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -47539,28 +44184,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -47755,28 +44379,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -48041,26 +44644,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "location_id"
             ],
             "to": "stockLocation",
@@ -48098,16 +44681,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -48752,16 +45325,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "location_dest_id"
             ],
             "to": "stockLocation",
@@ -48769,16 +45332,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -48959,26 +45512,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "location_dest_id"
             ],
             "to": "stockLocation",
@@ -49036,16 +45569,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -49558,28 +46081,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "no_access_evidence",
@@ -49852,48 +46354,7 @@
             ]
           }
         ],
-        "references": [
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "sequence_id"
-            ],
-            "to": "irSequence",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -50563,26 +47024,6 @@
           },
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "location_dest_id"
             ],
             "to": "stockLocation",
@@ -50600,26 +47041,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "owner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           },
           {
             "column": [
@@ -50643,16 +47064,6 @@
           },
           {
             "column": [
-              "return_reason_id"
-            ],
-            "to": "returnReason",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "sale_id"
             ],
             "to": "saleOrder",
@@ -50660,26 +47071,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "user_id"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -51725,26 +48116,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "picking_type_id"
             ],
             "to": "stockPickingType",
@@ -51752,26 +48123,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "user_id"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -52107,36 +48458,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "user_id"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": []
@@ -52722,26 +49043,6 @@
           },
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "default_location_dest_id"
             ],
             "to": "stockLocation",
@@ -52772,16 +49073,6 @@
           },
           {
             "column": [
-              "sequence_id"
-            ],
-            "to": "irSequence",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "warehouse_id"
             ],
             "to": "stockWarehouse",
@@ -52789,16 +49080,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -53363,28 +49644,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "no_access_evidence",
@@ -53513,16 +49773,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "location_dest_id"
             ],
             "to": "stockLocation",
@@ -53550,16 +49800,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -53765,26 +50005,6 @@
           },
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "location_in_id"
             ],
             "to": "stockLocation",
@@ -53822,16 +50042,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -54283,26 +50493,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "location_id"
             ],
             "to": "stockLocation",
@@ -54323,16 +50513,6 @@
           },
           {
             "column": [
-              "owner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "package_id"
             ],
             "to": "stockPackage",
@@ -54350,26 +50530,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "user_id"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -55063,16 +51223,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "dest_location_id"
             ],
             "to": "stockLocation",
@@ -55090,16 +51240,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -55386,28 +51526,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": []
       },
       "indexes": []
@@ -55609,16 +51728,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "orderpoint_id"
             ],
             "to": "stockWarehouseOrderpoint",
@@ -55626,16 +51735,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -55759,16 +51858,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "product_id"
             ],
             "to": "productProduct",
@@ -55796,16 +51885,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": []
@@ -55893,38 +51972,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "user_id"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -56122,26 +52170,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "supplied_wh_id"
             ],
             "to": "stockWarehouse",
@@ -56159,16 +52187,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -57195,26 +53213,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "location_dest_id"
             ],
             "to": "stockLocation",
@@ -57232,16 +53230,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "partner_address_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           },
           {
             "column": [
@@ -57272,16 +53260,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -57730,16 +53708,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "product_id"
             ],
             "to": "productProduct",
@@ -57757,16 +53725,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -57973,28 +53931,7 @@
             ]
           }
         ],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -58130,38 +54067,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -58299,28 +54205,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": []
       },
       "indexes": []
@@ -58637,26 +54522,6 @@
           },
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "delivery_route_id"
             ],
             "to": "stockRoute",
@@ -58724,16 +54589,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "partner_id"
-            ],
-            "to": "resPartner",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           },
           {
             "column": [
@@ -58824,16 +54679,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           },
           {
             "column": [
@@ -59656,26 +55501,6 @@
         "references": [
           {
             "column": [
-              "company_id"
-            ],
-            "to": "resCompany",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "location_id"
             ],
             "to": "stockLocation",
@@ -59733,16 +55558,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -60279,16 +56094,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "location_id"
             ],
             "to": "stockLocation",
@@ -60316,16 +56121,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": []
@@ -60476,28 +56271,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -60777,16 +56551,6 @@
         "references": [
           {
             "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
               "package_type_id"
             ],
             "to": "stockPackageType",
@@ -60804,16 +56568,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": [
@@ -61187,26 +56941,6 @@
               "id"
             ],
             "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
           }
         ],
         "open_questions": []
@@ -61316,28 +57050,7 @@
           }
         ],
         "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "create_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          },
-          {
-            "column": [
-              "write_uid"
-            ],
-            "to": "resUsers",
-            "to_columns": [
-              "id"
-            ],
-            "why": "child owns its own lifecycle"
-          }
-        ],
+        "references": [],
         "open_questions": [
           {
             "kind": "fanout_unmeasured",
@@ -61365,10 +57078,257 @@
         ]
       },
       "indexes": []
+    },
+    {
+      "collection": "stockStorageCategoryCapacity",
+      "root_table": "stock_storage_category_capacity",
+      "key": {
+        "source": [
+          "id"
+        ],
+        "target": "_id"
+      },
+      "fields": [
+        {
+          "source": "storage_category_id",
+          "target": "storageCategoryId",
+          "source_type": "INTEGER(32,0)",
+          "bson_type": "int",
+          "rules": []
+        },
+        {
+          "source": "package_type_id",
+          "target": "packageTypeId",
+          "source_type": "INTEGER(32,0)",
+          "bson_type": "int",
+          "rules": [
+            "null_missing_equiv"
+          ]
+        },
+        {
+          "source": "create_uid",
+          "target": "createUid",
+          "source_type": "INTEGER(32,0)",
+          "bson_type": "int",
+          "rules": [
+            "null_missing_equiv"
+          ]
+        },
+        {
+          "source": "write_uid",
+          "target": "writeUid",
+          "source_type": "INTEGER(32,0)",
+          "bson_type": "int",
+          "rules": [
+            "null_missing_equiv"
+          ]
+        },
+        {
+          "source": "create_date",
+          "target": "createDate",
+          "source_type": "TIMESTAMP",
+          "bson_type": "date",
+          "rules": [
+            "datetime_utc_truncate_ms",
+            "null_missing_equiv"
+          ]
+        },
+        {
+          "source": "write_date",
+          "target": "writeDate",
+          "source_type": "TIMESTAMP",
+          "bson_type": "date",
+          "rules": [
+            "datetime_utc_truncate_ms",
+            "null_missing_equiv"
+          ]
+        },
+        {
+          "source": "quantity",
+          "target": "quantity",
+          "source_type": "DOUBLE PRECISION(53)",
+          "bson_type": "double",
+          "rules": []
+        },
+        {
+          "source": "product_id",
+          "target": "productId",
+          "source_type": "INTEGER(32,0)",
+          "bson_type": "int",
+          "rules": [
+            "null_missing_equiv"
+          ]
+        }
+      ],
+      "embeds": [],
+      "decision": {
+        "shape": "collection",
+        "key_strategy": "natural primary key",
+        "key_fields": [
+          {
+            "source": "id",
+            "target": "id",
+            "source_type": "INTEGER(32,0)",
+            "bson_type": "int",
+            "rules": []
+          }
+        ],
+        "references": [
+          {
+            "column": [
+              "product_id"
+            ],
+            "to": "productProduct",
+            "why": ".migration/census.json: tables.stock_storage_category_capacity.columns[product_id].nullable = true (storage.category.capacity rows keyed by package_type_id have no product); an embed would drop parentless rows. Table is stock-owned (model_only); plan decision d-embed-storage-capacity = keep-collection."
+          }
+        ],
+        "open_questions": [],
+        "resolved_questions": []
+      },
+      "indexes": [
+        {
+          "keys": [
+            [
+              "packageTypeId",
+              1
+            ]
+          ],
+          "origin": "source_index",
+          "evidence": [
+            {
+              "kind": "ddl",
+              "ref": "stock_storage_category_capacity__package_type_id_index"
+            },
+            {
+              "kind": "decision",
+              "ref": ".migration/census.json: tables.stock_storage_category_capacity.columns[product_id].nullable = true (storage.category.capacity rows keyed by package_type_id have no product); an embed would drop parentless rows. Table is stock-owned (model_only); plan decision d-embed-storage-capacity = keep-collection."
+            }
+          ]
+        },
+        {
+          "keys": [
+            [
+              "storageCategoryId",
+              1
+            ]
+          ],
+          "origin": "source_index",
+          "evidence": [
+            {
+              "kind": "ddl",
+              "ref": "stock_storage_category_capacity__storage_category_id_index"
+            },
+            {
+              "kind": "decision",
+              "ref": ".migration/census.json: tables.stock_storage_category_capacity.columns[product_id].nullable = true (storage.category.capacity rows keyed by package_type_id have no product); an embed would drop parentless rows. Table is stock-owned (model_only); plan decision d-embed-storage-capacity = keep-collection."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "collection": "productAttributeCustomValue",
+      "root_table": "product_attribute_custom_value",
+      "key": {
+        "source": [
+          "id"
+        ],
+        "target": "_id"
+      },
+      "fields": [
+        {
+          "source": "custom_product_template_attribute_value_id",
+          "target": "customProductTemplateAttributeValueId",
+          "source_type": "INTEGER(32,0)",
+          "bson_type": "int",
+          "rules": []
+        },
+        {
+          "source": "create_uid",
+          "target": "createUid",
+          "source_type": "INTEGER(32,0)",
+          "bson_type": "int",
+          "rules": [
+            "null_missing_equiv"
+          ]
+        },
+        {
+          "source": "write_uid",
+          "target": "writeUid",
+          "source_type": "INTEGER(32,0)",
+          "bson_type": "int",
+          "rules": [
+            "null_missing_equiv"
+          ]
+        },
+        {
+          "source": "custom_value",
+          "target": "customValue",
+          "source_type": "VARCHAR",
+          "bson_type": "string",
+          "rules": [
+            "null_missing_equiv"
+          ]
+        },
+        {
+          "source": "create_date",
+          "target": "createDate",
+          "source_type": "TIMESTAMP",
+          "bson_type": "date",
+          "rules": [
+            "datetime_utc_truncate_ms",
+            "null_missing_equiv"
+          ]
+        },
+        {
+          "source": "write_date",
+          "target": "writeDate",
+          "source_type": "TIMESTAMP",
+          "bson_type": "date",
+          "rules": [
+            "datetime_utc_truncate_ms",
+            "null_missing_equiv"
+          ]
+        },
+        {
+          "source": "sale_order_line_id",
+          "target": "saleOrderLineId",
+          "source_type": "INTEGER(32,0)",
+          "bson_type": "int",
+          "rules": [
+            "null_missing_equiv"
+          ]
+        }
+      ],
+      "embeds": [],
+      "decision": {
+        "shape": "collection",
+        "key_strategy": "natural primary key",
+        "key_fields": [
+          {
+            "source": "id",
+            "target": "id",
+            "source_type": "INTEGER(32,0)",
+            "bson_type": "int",
+            "rules": []
+          }
+        ],
+        "references": [
+          {
+            "column": [
+              "sale_order_line_id"
+            ],
+            "to": "saleOrderLine",
+            "why": ".migration/census.json: tables.product_attribute_custom_value.columns[sale_order_line_id].nullable = true (the FK is added by addons/sale/models/product_attribute_custom_value.py; product-owned rows exist without a sale line); an embed would drop parentless rows. Table is product-owned (migrate); plan decision d-embed-attr-custom-value = keep-collection."
+          }
+        ],
+        "open_questions": [],
+        "resolved_questions": []
+      }
     }
   ],
   "canonicalization": {
-    "version": "map-draft-3-canon",
+    "version": "map-draft-4-canon",
     "rules": [
       {
         "rule": "decimal_round",
@@ -64108,30 +60068,6 @@
           }
         ],
         "proposal": "product_attribute_custom_value has no rows per product_template_attribute_value in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding"
-      },
-      {
-        "kind": "fanout_unmeasured",
-        "parent": "sale_order_line",
-        "child_table": "product_attribute_custom_value",
-        "measurements": {
-          "fanout": {
-            "parents": 51,
-            "parents_zero": 51,
-            "min": 0,
-            "p50": 0,
-            "p95": 0,
-            "p99": 0,
-            "max": 0
-          },
-          "child_rows": 0
-        },
-        "evidence": [
-          {
-            "kind": "data_profile",
-            "ref": "fanout:product_attribute_custom_value->sale_order_line(sale_order_line_id)"
-          }
-        ],
-        "proposal": "product_attribute_custom_value has no rows per sale_order_line in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding"
       },
       {
         "kind": "fanout_unmeasured",
@@ -67684,30 +63620,6 @@
           }
         ],
         "proposal": "stock_storage_category_capacity has no rows per stock_package_type in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding"
-      },
-      {
-        "kind": "fanout_unmeasured",
-        "parent": "product_product",
-        "child_table": "stock_storage_category_capacity",
-        "measurements": {
-          "fanout": {
-            "parents": 48,
-            "parents_zero": 48,
-            "min": 0,
-            "p50": 0,
-            "p95": 0,
-            "p99": 0,
-            "max": 0
-          },
-          "child_rows": 0
-        },
-        "evidence": [
-          {
-            "kind": "data_profile",
-            "ref": "fanout:stock_storage_category_capacity->product_product(product_id)"
-          }
-        ],
-        "proposal": "stock_storage_category_capacity has no rows per product_product in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding"
       },
       {
         "kind": "fanout_unmeasured",
@@ -89423,7 +85335,7 @@
           "sale_order_line_id"
         ],
         "rule": "read_together",
-        "decision": "embed",
+        "decision": "reference",
         "basis": "derived",
         "basis_sources": [
           "ddl",
@@ -89433,6 +85345,10 @@
           {
             "kind": "access_pattern",
             "ref": "ap-501963510f"
+          },
+          {
+            "kind": "decision",
+            "ref": ".migration/census.json: tables.product_attribute_custom_value.columns[sale_order_line_id].nullable = true (the FK is added by addons/sale/models/product_attribute_custom_value.py; product-owned rows exist without a sale line); an embed would drop parentless rows. Table is product-owned (migrate); plan decision d-embed-attr-custom-value = keep-collection."
           }
         ],
         "measurements": {
@@ -115252,7 +111168,7 @@
           "product_id"
         ],
         "rule": "read_together",
-        "decision": "embed",
+        "decision": "reference",
         "basis": "derived",
         "basis_sources": [
           "ddl",
@@ -115266,6 +111182,10 @@
           {
             "kind": "access_pattern",
             "ref": "ap-136eacaba3"
+          },
+          {
+            "kind": "decision",
+            "ref": ".migration/census.json: tables.stock_storage_category_capacity.columns[product_id].nullable = true (storage.category.capacity rows keyed by package_type_id have no product); an embed would drop parentless rows. Table is stock-owned (model_only); plan decision d-embed-storage-capacity = keep-collection."
           }
         ],
         "measurements": {
@@ -121052,6 +116972,140 @@
           "template_attribute_value_id"
         ],
         "reason": "left prefix of planned index"
+      }
+    ],
+    "decisions": [
+      {
+        "op": "reference",
+        "from": "productProduct",
+        "child_table": "stock_storage_category_capacity",
+        "child_columns": [
+          "product_id"
+        ],
+        "basis": "d-embed-storage-capacity = keep-collection",
+        "evidence": {
+          "file": ".migration/census.json",
+          "note": "tables.stock_storage_category_capacity.columns[product_id].nullable = true (storage.category.capacity rows keyed by package_type_id have no product); an embed would drop parentless rows. Table is stock-owned (model_only); plan decision d-embed-storage-capacity = keep-collection."
+        },
+        "cited": ".migration/census.json: tables.stock_storage_category_capacity.columns[product_id].nullable = true (storage.category.capacity rows keyed by package_type_id have no product); an embed would drop parentless rows. Table is stock-owned (model_only); plan decision d-embed-storage-capacity = keep-collection.",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "resolve",
+        "collection": "productProduct",
+        "match": {
+          "kind": "fanout_unmeasured",
+          "child_table": "stock_storage_category_capacity"
+        },
+        "resolution": "reference: stock_storage_category_capacity stays a standalone collection (d-embed-storage-capacity = keep-collection; product_id is nullable)",
+        "evidence": {
+          "file": ".migration/census.json",
+          "note": "tables.stock_storage_category_capacity.columns[product_id].nullable = true"
+        },
+        "cited": ".migration/census.json: tables.stock_storage_category_capacity.columns[product_id].nullable = true",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "resolve",
+        "match": {
+          "kind": "fanout_unmeasured",
+          "parent": "product_product",
+          "child_table": "stock_storage_category_capacity"
+        },
+        "resolution": "reference: stock_storage_category_capacity stays a standalone collection (d-embed-storage-capacity = keep-collection; product_id is nullable)",
+        "evidence": {
+          "file": ".migration/census.json",
+          "note": "tables.stock_storage_category_capacity.columns[product_id].nullable = true"
+        },
+        "cited": ".migration/census.json: tables.stock_storage_category_capacity.columns[product_id].nullable = true",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "resolve",
+        "collection": "productProduct",
+        "match": {
+          "kind": "source_index_not_exercised",
+          "table": "stock_storage_category_capacity"
+        },
+        "resolution": "question belongs to the restored stockStorageCategoryCapacity collection (stock, model-only); decided by the model-only index rule in .migration/open_model_items.md",
+        "evidence": {
+          "file": ".migration/open_model_items.md",
+          "note": "B-stock index rule"
+        },
+        "cited": ".migration/open_model_items.md: B-stock index rule",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "reference",
+        "from": "saleOrderLine",
+        "child_table": "product_attribute_custom_value",
+        "child_columns": [
+          "sale_order_line_id"
+        ],
+        "basis": "d-embed-attr-custom-value = keep-collection",
+        "evidence": {
+          "file": ".migration/census.json",
+          "note": "tables.product_attribute_custom_value.columns[sale_order_line_id].nullable = true (the FK is added by addons/sale/models/product_attribute_custom_value.py; product-owned rows exist without a sale line); an embed would drop parentless rows. Table is product-owned (migrate); plan decision d-embed-attr-custom-value = keep-collection."
+        },
+        "cited": ".migration/census.json: tables.product_attribute_custom_value.columns[sale_order_line_id].nullable = true (the FK is added by addons/sale/models/product_attribute_custom_value.py; product-owned rows exist without a sale line); an embed would drop parentless rows. Table is product-owned (migrate); plan decision d-embed-attr-custom-value = keep-collection.",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "resolve",
+        "match": {
+          "kind": "fanout_unmeasured",
+          "parent": "sale_order_line",
+          "child_table": "product_attribute_custom_value"
+        },
+        "resolution": "reference: product_attribute_custom_value stays a standalone collection (d-embed-attr-custom-value = keep-collection; sale_order_line_id is nullable)",
+        "evidence": {
+          "file": ".migration/census.json",
+          "note": "tables.product_attribute_custom_value.columns[sale_order_line_id].nullable = true"
+        },
+        "cited": ".migration/census.json: tables.product_attribute_custom_value.columns[sale_order_line_id].nullable = true",
+        "status": "PROPOSED"
+      }
+    ],
+    "resolved": [
+      {
+        "kind": "fanout_unmeasured",
+        "parent": "product_product",
+        "child_table": "stock_storage_category_capacity",
+        "measurements": {
+          "fanout": {
+            "parents": 48,
+            "parents_zero": 48,
+            "min": 0,
+            "p50": 0,
+            "p95": 0,
+            "p99": 0,
+            "max": 0
+          },
+          "child_rows": 0
+        },
+        "evidence": ".migration/census.json: tables.stock_storage_category_capacity.columns[product_id].nullable = true",
+        "proposal": "stock_storage_category_capacity has no rows per product_product in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
+        "resolution": "reference: stock_storage_category_capacity stays a standalone collection (d-embed-storage-capacity = keep-collection; product_id is nullable)"
+      },
+      {
+        "kind": "fanout_unmeasured",
+        "parent": "sale_order_line",
+        "child_table": "product_attribute_custom_value",
+        "measurements": {
+          "fanout": {
+            "parents": 51,
+            "parents_zero": 51,
+            "min": 0,
+            "p50": 0,
+            "p95": 0,
+            "p99": 0,
+            "max": 0
+          },
+          "child_rows": 0
+        },
+        "evidence": ".migration/census.json: tables.product_attribute_custom_value.columns[sale_order_line_id].nullable = true",
+        "proposal": "product_attribute_custom_value has no rows per sale_order_line in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
+        "resolution": "reference: product_attribute_custom_value stays a standalone collection (d-embed-attr-custom-value = keep-collection; sale_order_line_id is nullable)"
       }
     ]
   }

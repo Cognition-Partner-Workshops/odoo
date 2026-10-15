@@ -1,0 +1,50 @@
+[
+  {
+    "op": "reference",
+    "from": "productProduct",
+    "child_table": "stock_storage_category_capacity",
+    "child_columns": ["product_id"],
+    "basis": "d-embed-storage-capacity = keep-collection",
+    "evidence": {
+      "file": ".migration/census.json",
+      "note": "tables.stock_storage_category_capacity.columns[product_id].nullable = true (storage.category.capacity rows keyed by package_type_id have no product); an embed would drop parentless rows. Table is stock-owned (model_only); plan decision d-embed-storage-capacity = keep-collection."
+    }
+  },
+  {
+    "op": "resolve",
+    "collection": "productProduct",
+    "match": {"kind": "fanout_unmeasured", "child_table": "stock_storage_category_capacity"},
+    "resolution": "reference: stock_storage_category_capacity stays a standalone collection (d-embed-storage-capacity = keep-collection; product_id is nullable)",
+    "evidence": {"file": ".migration/census.json", "note": "tables.stock_storage_category_capacity.columns[product_id].nullable = true"}
+  },
+  {
+    "op": "resolve",
+    "match": {"kind": "fanout_unmeasured", "parent": "product_product", "child_table": "stock_storage_category_capacity"},
+    "resolution": "reference: stock_storage_category_capacity stays a standalone collection (d-embed-storage-capacity = keep-collection; product_id is nullable)",
+    "evidence": {"file": ".migration/census.json", "note": "tables.stock_storage_category_capacity.columns[product_id].nullable = true"}
+  },
+  {
+    "op": "resolve",
+    "collection": "productProduct",
+    "match": {"kind": "source_index_not_exercised", "table": "stock_storage_category_capacity"},
+    "resolution": "question belongs to the restored stockStorageCategoryCapacity collection (stock, model-only); decided by the model-only index rule in .migration/open_model_items.md",
+    "evidence": {"file": ".migration/open_model_items.md", "note": "B-stock index rule"}
+  },
+  {
+    "op": "reference",
+    "from": "saleOrderLine",
+    "child_table": "product_attribute_custom_value",
+    "child_columns": ["sale_order_line_id"],
+    "basis": "d-embed-attr-custom-value = keep-collection",
+    "evidence": {
+      "file": ".migration/census.json",
+      "note": "tables.product_attribute_custom_value.columns[sale_order_line_id].nullable = true (the FK is added by addons/sale/models/product_attribute_custom_value.py; product-owned rows exist without a sale line); an embed would drop parentless rows. Table is product-owned (migrate); plan decision d-embed-attr-custom-value = keep-collection."
+    }
+  },
+  {
+    "op": "resolve",
+    "match": {"kind": "fanout_unmeasured", "parent": "sale_order_line", "child_table": "product_attribute_custom_value"},
+    "resolution": "reference: product_attribute_custom_value stays a standalone collection (d-embed-attr-custom-value = keep-collection; sale_order_line_id is nullable)",
+    "evidence": {"file": ".migration/census.json", "note": "tables.product_attribute_custom_value.columns[sale_order_line_id].nullable = true"}
+  }
+]
