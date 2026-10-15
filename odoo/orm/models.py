@@ -2588,12 +2588,17 @@ class BaseModel(metaclass=MetaModel):
             self.check_field_access(field, 'read')
             if not field.store or not field.column_type:
                 raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r}")
-            if field.translate is True or field.company_dependent or (
+            if field.company_dependent or (
                 field.type == 'many2one' and self.env[field.comodel_name]._order != 'id'
             ):
-                raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r} (comodel order / translation)")
+                raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r} (comodel order / company dependent)")
             direction = -1 if (order_match['direction'] or '').upper() == 'DESC' else 1
-            sort.append((self._mongodb_path(field), direction))
+            path = self._mongodb_path(field)
+            if field.translate is True:
+                # sort on the current language's value ({lang: value} document); a document
+                # without that translation sorts as missing, where SQL falls back to en_US
+                path = f"{path}.{field.translation_lang(self.env)}"
+            sort.append((path, direction))
         return sort
 
     def _document_value_to_cache(self, field: Field, value):

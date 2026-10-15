@@ -1,0 +1,271 @@
+{
+  "unit": "product-taxonomy",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+  "tolerance_version": "v1",
+  "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68",
+  "collections": [
+    "productBaseUnit",
+    "productCategory",
+    "productTag"
+  ],
+  "seed": 1,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-15T16:58:08.808930+00:00",
+  "redacted": true,
+  "redaction_salted": false,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 10,
+      "stats": {
+        "source_counts": {
+          "productBaseUnit": 0,
+          "productCategory": 8,
+          "productTag": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 13,
+      "stats": {
+        "deferred_to_tier3": [
+          "productBaseUnit.createUid",
+          "productBaseUnit.writeUid",
+          "productBaseUnit.name",
+          "productBaseUnit.createDate",
+          "productBaseUnit.writeDate",
+          "productCategory.parentId",
+          "productCategory.companyId",
+          "productCategory.createUid",
+          "productCategory.writeUid",
+          "productCategory.parentPath",
+          "productCategory.name",
+          "productCategory.productPropertiesDefinition",
+          "productCategory.createDate",
+          "productCategory.writeDate",
+          "productCategory.propertyAccountIncomeCategId",
+          "productCategory.propertyAccountExpenseCategId",
+          "productCategory.propertyValuation",
+          "productCategory.propertyStockValuationAccountId",
+          "productCategory.propertyStockJournal",
+          "productCategory.propertyCostMethod",
+          "productCategory.propertyPriceDifferenceAccountId",
+          "productCategory.removalStrategyId",
+          "productCategory.packagingReserveMethod",
+          "productCategory.propertyAccountBillsToReceiveId",
+          "productCategory.propertyAccountBilledNotReceivedId",
+          "productCategory.propertyAccountInvoicesToIssueId",
+          "productCategory.propertyAccountInvoicedNotDeliveredId",
+          "productTag.sequence",
+          "productTag.createUid",
+          "productTag.writeUid",
+          "productTag.color",
+          "productTag.name",
+          "productTag.visibleToCustomers",
+          "productTag.createDate",
+          "productTag.writeDate"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "productBaseUnit.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.parentPath",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.productPropertiesDefinition",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyAccountIncomeCategId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyAccountExpenseCategId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyValuation",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyStockValuationAccountId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyStockJournal",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyCostMethod",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyPriceDifferenceAccountId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.packagingReserveMethod",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyAccountBillsToReceiveId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyAccountBilledNotReceivedId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyAccountInvoicesToIssueId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyAccountInvoicedNotDeliveredId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTag.color",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTag.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "fields_fully_deferred": 22
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 8,
+      "stats": {
+        "productBaseUnit": {
+          "mode": "full_diff",
+          "population": 0,
+          "duplicate_source_key_count": 0
+        },
+        "productCategory": {
+          "mode": "full_diff",
+          "population": 8,
+          "duplicate_source_key_count": 0
+        },
+        "embeds_graded": {
+          "productCategory.routeIds": 0
+        },
+        "productTag": {
+          "mode": "full_diff",
+          "population": 0,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 4,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [
+    "UNVERIFIED collection productBaseUnit: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection productTag: 0 source rows, key/shape/field rules unexercised"
+  ],
+  "verdict": "PASS",
+  "merge_eligible": false,
+  "error": null
+}

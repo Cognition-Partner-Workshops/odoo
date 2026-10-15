@@ -310,9 +310,20 @@ class MongoStore:
     # ------------------------------------------------------------------
     def ensure_shadow_table(self, model: BaseModel) -> None:
         from odoo.tools import sql  # noqa: PLC0415
+        from odoo.tools import SQL  # noqa: PLC0415
         cr = model.env.cr
         if not sql.table_exists(cr, model._table):
             sql.create_model_table(cr, model._table, f"{model._description} (MongoDB shadow: ids only)")
+            return
+        # a migrated table keeps its columns until the cutover reduces it to the id; until
+        # then the id-only allocation row must be insertable, so no column but id stays NOT NULL
+        cr.execute(SQL(
+            """SELECT column_name FROM information_schema.columns
+               WHERE table_schema = current_schema() AND table_name = %s
+                 AND column_name != 'id' AND is_nullable = 'NO'""", model._table,
+        ))
+        for (column,) in cr.fetchall():
+            sql.drop_not_null(cr, model._table, column)
 
     def ensure_collection(self, model: BaseModel) -> None:
         import pymongo  # noqa: PLC0415
@@ -325,6 +336,7 @@ class MongoStore:
             key_tuple = tuple((k, pymongo.ASCENDING if d == 1 else pymongo.DESCENDING) for k, d in keys)
             if key_tuple in existing:
                 continue
+            existing.add(key_tuple)
             coll.create_index(list(key_tuple), **options)
 
     def indexes_for(self, model: BaseModel) -> list[tuple[list, dict]]:
@@ -334,7 +346,7 @@ class MongoStore:
         spec = self.collection_spec(model)
         if spec:
             for ix in spec.get('indexes', ()):
-                indexes.append(([tuple(k) for k in ix['keys']], {}))
+                indexes.append(([tuple(k) for k in ix['keys']], {'unique': True} if ix.get('unique') else {}))
             for nk in spec['decision'].get('natural_keys', ()):
                 keys = [(self.field_path(model, col), 1) for col in nk['columns']]
                 indexes.append((keys, {'unique': True}))
