@@ -1,0 +1,557 @@
+"""MongoDB storage for models declaring ``_storage = 'mongodb'``.
+
+Implements ``.migration/orm_backend_contract.md``: one lazy client per
+registry, documents keyed by the PostgreSQL integer ``id`` (``_id``), an
+id-only PostgreSQL shadow table per model (id authority and FK target), and a
+per-cursor undo log that replays MongoDB writes backwards when PostgreSQL
+rolls back.  Writes to the two stores are not atomic: a process dying between
+the MongoDB write and the PostgreSQL commit leaves a document whose shadow
+row was never committed (or the reverse); :meth:`MongoStore.repair` removes
+those orphans.
+"""
+from __future__ import annotations
+
+import datetime as dt
+import decimal
+import json
+import logging
+import os
+import re
+import typing
+from functools import partial
+from pathlib import Path
+
+if typing.TYPE_CHECKING:
+    from odoo.sql_db import Cursor
+
+    from .fields import Field
+    from .models import BaseModel
+
+_logger = logging.getLogger(__name__)
+
+MIGRATION_DIR = Path(__file__).resolve().parents[2] / '.migration'
+DEFAULT_MONGODB_URI_ENV = 'MONGODB_ATLAS_URI'
+
+
+def camelize(name: str) -> str:
+    """``product_tmpl_id`` -> ``productTmplId`` (the mapping spec convention)."""
+    head, *tail = name.split('_')
+    return head + ''.join(part[:1].upper() + part[1:] for part in tail)
+
+
+def to_bson(value):
+    """Normalize an SQL parameter (``convert_to_column_insert`` output) into a BSON value."""
+    if value is None or isinstance(value, (bool, int, float, str, bytes, dt.datetime)):
+        return value
+    if isinstance(value, dt.date):
+        return dt.datetime(value.year, value.month, value.day)
+    if isinstance(value, decimal.Decimal):
+        return float(value)
+    if isinstance(value, dict):
+        return {str(k): to_bson(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [to_bson(v) for v in value]
+    adapted = getattr(value, 'adapted', None)  # psycopg2 Json / Binary wrappers
+    if adapted is not None:
+        return to_bson(bytes(adapted) if isinstance(adapted, memoryview) else adapted)
+    raise TypeError(f"Cannot store {value!r} in MongoDB")
+
+
+class MongoUndoLog:
+    """Undo entries of one PostgreSQL transaction, replayed on rollback."""
+
+    def __init__(self, store: MongoStore, cr: Cursor):
+        self.store = store
+        self.cr = cr
+        self.entries: list[tuple[str, str, list]] = []
+        # one log per PostgreSQL transaction: replayed then dropped on
+        # rollback, dropped on commit (the hooks run once per transaction)
+        cr.prerollback.add(self._on_rollback)
+        cr.postcommit.add(partial(store._discard_undo, cr))
+
+    def _on_rollback(self) -> None:
+        try:
+            self.rollback_to(0)
+        finally:
+            self.store._discard_undo(self.cr)
+
+    def mark(self) -> int:
+        return len(self.entries)
+
+    def append(self, kind: str, collection: str, payload: list) -> None:
+        if payload:
+            self.entries.append((kind, collection, payload))
+
+    def rollback_to(self, mark: int) -> None:
+        while len(self.entries) > mark:
+            kind, collection, payload = self.entries.pop()
+            coll = self.store.db[collection]
+            try:
+                # every replay is idempotent: it also works when the logged
+                # operation was never applied (e.g. the write failed)
+                if kind == 'insert':
+                    coll.delete_many({'_id': {'$in': payload}})
+                else:  # update / delete: restore the prior documents
+                    for doc in payload:
+                        coll.replace_one({'_id': doc['_id']}, doc, upsert=True)
+            except Exception:
+                _logger.exception("MongoDB undo failed for %s on %s; run repair", kind, collection)
+
+
+class MongoStore:
+    """One MongoDB client per registry; all collections live in the single allowed database."""
+
+    def __init__(self, registry):
+        self.registry = registry
+        self._client = None
+        self._spec = None
+        self._unique_messages: dict[tuple[str, str], str] = {}
+
+    # ------------------------------------------------------------------
+    # connection
+    # ------------------------------------------------------------------
+    @property
+    def client(self):
+        if self._client is None:
+            import pymongo  # noqa: PLC0415
+
+            from odoo.tools import config  # noqa: PLC0415
+            # name of the environment variable holding the URI (the secret
+            # itself never goes through the config)
+            env_name = config.get('mongodb_uri') or DEFAULT_MONGODB_URI_ENV
+            uri = os.environ.get(env_name)
+            if not uri:
+                raise RuntimeError(f"MongoDB URI environment variable {env_name!r} is not set")
+            self._client = pymongo.MongoClient(uri, appname=f"odoo-{self.registry.db_name}")
+        return self._client
+
+    @property
+    def database_name(self) -> str:
+        with open(MIGRATION_DIR / 'allowed_targets.json', encoding='utf-8') as f:
+            return json.load(f)['databases'][0]
+
+    @property
+    def db(self):
+        return self.client[self.database_name]
+
+    def close(self) -> None:
+        if self._client is not None:
+            self._client.close()
+            self._client = None
+
+    # ------------------------------------------------------------------
+    # mapping spec
+    # ------------------------------------------------------------------
+    @property
+    def spec(self) -> dict:
+        if self._spec is None:
+            with open(MIGRATION_DIR / 'mapping_spec.json', encoding='utf-8') as f:
+                spec = json.load(f)
+            self._spec = {
+                'version': spec['version'],
+                'by_table': {c['root_table']: c for c in spec['collections']},
+                'embeds': {
+                    embed['child_table']: (c, embed)
+                    for c in spec['collections']
+                    for embed in c.get('embeds', ())
+                    if embed.get('shape') == 'array'
+                },
+            }
+        return self._spec
+
+    def collection_spec(self, model: BaseModel) -> dict | None:
+        return self.spec['by_table'].get(model._table)
+
+    def collection_name(self, model: BaseModel) -> str:
+        spec = self.collection_spec(model)
+        return spec['collection'] if spec else camelize(model._table)
+
+    def field_path(self, model: BaseModel, fname: str) -> str:
+        if fname == 'id':
+            return '_id'
+        spec = self.collection_spec(model)
+        if spec:
+            for f in spec['fields']:
+                if f['source'] == fname:
+                    return f['target']
+        return camelize(fname)
+
+    def m2m_layout(self, model: BaseModel, field: Field) -> tuple | None:
+        """Where a Many2many relation lives.
+
+        Returns ``(owner_model_name, array_path, element_key)`` when the
+        relation is an id-object array on a MongoDB document (d-m2m-arrays),
+        or ``None`` when it stays a PostgreSQL relation table.
+        """
+        registry = self.registry
+        if field.relation in self.spec['embeds']:
+            coll, embed = self.spec['embeds'][field.relation]
+            owner = next(
+                (m for m in registry.mongodb_models if registry[m]._table == coll['root_table']),
+                None,
+            )
+            if owner is None:
+                return None
+            return owner, embed['array_path'], embed['child_fields'][0]['target']
+        candidates = sorted(
+            (mname, fn)
+            for mname, fn in registry.many2many_relations[field.relation, field.column1, field.column2]
+            | registry.many2many_relations[field.relation, field.column2, field.column1]
+            if mname in registry.mongodb_models
+        )
+        if not candidates:
+            return None
+        owner_name, owner_fname = candidates[0]
+        owner_field = registry[owner_name]._fields[owner_fname]
+        return owner_name, camelize(owner_fname), camelize(owner_field.column2)
+
+    # ------------------------------------------------------------------
+    # reads
+    # ------------------------------------------------------------------
+    def find(self, model: BaseModel, filter_: dict, projection=None, sort=None, skip=0, limit=None) -> list[dict]:
+        cursor = self.db[self.collection_name(model)].find(filter_, projection)
+        if sort:
+            cursor = cursor.sort(sort)
+        if skip:
+            cursor = cursor.skip(skip)
+        if limit:
+            cursor = cursor.limit(limit)
+        return list(cursor)
+
+    def distinct(self, model: BaseModel, path: str, filter_: dict) -> list:
+        return [v for v in self.db[self.collection_name(model)].distinct(path, filter_) if v is not None]
+
+    def aggregate(self, model: BaseModel, pipeline: list[dict]) -> list[dict]:
+        return list(self.db[self.collection_name(model)].aggregate(pipeline))
+
+    def count(self, model: BaseModel, filter_: dict) -> int:
+        return self.db[self.collection_name(model)].count_documents(filter_)
+
+    # ------------------------------------------------------------------
+    # writes (logged for rollback)
+    # ------------------------------------------------------------------
+    def _undo(self, cr: Cursor) -> MongoUndoLog:
+        if cr._mongo_undo is None:
+            cr._mongo_undo = MongoUndoLog(self, cr)
+        return cr._mongo_undo
+
+    def _discard_undo(self, cr: Cursor) -> None:
+        cr._mongo_undo = None
+
+    def allocate_ids(self, model: BaseModel, count: int) -> list[int]:
+        """Allocate ids from the model's PostgreSQL shadow table (the single id authority)."""
+        from odoo.tools import SQL  # noqa: PLC0415
+        cr = model.env.cr
+        cr.execute(SQL(
+            "INSERT INTO %s (id) SELECT nextval(pg_get_serial_sequence(%s, 'id')) FROM generate_series(1, %s) RETURNING id",
+            SQL.identifier(model._table), model._table, count,
+        ))
+        return [row[0] for row in cr.fetchall()]
+
+    def _raise_unique(self, model: BaseModel, exc) -> typing.NoReturn:
+        """Map a duplicate-key error to the constraint's ValidationError (like psycopg's IntegrityError)."""
+        from odoo.exceptions import ValidationError  # noqa: PLC0415
+        details = getattr(exc, 'details', None) or {}
+        errors = details.get('writeErrors') or [details]
+        for error in errors:
+            if error.get('code') == 11000:
+                match = re.search(r"index: (\S+)", error.get('errmsg', ''))
+                message = self._unique_messages.get((self.collection_name(model), match[1] if match else ''))
+                raise ValidationError(message or model.env._("The operation cannot be completed: another record already has the same value for a unique key.")) from exc
+        raise exc
+
+    def insert_many(self, model: BaseModel, docs: list[dict]) -> None:
+        if not docs:
+            return
+        import pymongo.errors  # noqa: PLC0415
+        name = self.collection_name(model)
+        # log before writing: a failed or ambiguous write is still undone
+        self._undo(model.env.cr).append('insert', name, [doc['_id'] for doc in docs])
+        try:
+            self.db[name].insert_many(docs, ordered=True)
+        except (pymongo.errors.DuplicateKeyError, pymongo.errors.BulkWriteError) as exc:
+            self._raise_unique(model, exc)
+
+    def update_many(self, model: BaseModel, ids: list[int], update: dict) -> None:
+        if not ids or not update:
+            return
+        name = self.collection_name(model)
+        coll = self.db[name]
+        prior = list(coll.find({'_id': {'$in': ids}}))
+        self._undo(model.env.cr).append('update', name, prior)
+        coll.update_many({'_id': {'$in': ids}}, update)
+
+    def bulk_update(self, model: BaseModel, updates: list[tuple[int, dict]]) -> None:
+        """``updates``: list of ``(id, update_document)``."""
+        if not updates:
+            return
+        import pymongo.errors  # noqa: PLC0415
+        from pymongo import UpdateOne  # noqa: PLC0415
+        name = self.collection_name(model)
+        coll = self.db[name]
+        prior = list(coll.find({'_id': {'$in': [id_ for id_, _ in updates]}}))
+        self._undo(model.env.cr).append('update', name, prior)
+        try:
+            coll.bulk_write([UpdateOne({'_id': id_}, update) for id_, update in updates], ordered=True)
+        except (pymongo.errors.DuplicateKeyError, pymongo.errors.BulkWriteError) as exc:
+            self._raise_unique(model, exc)
+
+    def delete_many(self, model: BaseModel, ids: list[int]) -> None:
+        if not ids:
+            return
+        name = self.collection_name(model)
+        coll = self.db[name]
+        prior = list(coll.find({'_id': {'$in': ids}}))
+        self._undo(model.env.cr).append('delete', name, prior)
+        coll.delete_many({'_id': {'$in': ids}})
+
+    # ------------------------------------------------------------------
+    # schema
+    # ------------------------------------------------------------------
+    def ensure_shadow_table(self, model: BaseModel) -> None:
+        from odoo.tools import sql  # noqa: PLC0415
+        cr = model.env.cr
+        if not sql.table_exists(cr, model._table):
+            sql.create_model_table(cr, model._table, f"{model._description} (MongoDB shadow: ids only)")
+
+    def ensure_collection(self, model: BaseModel) -> None:
+        import pymongo  # noqa: PLC0415
+        name = self.collection_name(model)
+        if name not in self.db.list_collection_names(filter={'name': name}):
+            self.db.create_collection(name)
+        coll = self.db[name]
+        existing = {tuple(map(tuple, ix['key'].items())) for ix in coll.list_indexes()}
+        for keys, options in self.indexes_for(model):
+            key_tuple = tuple((k, pymongo.ASCENDING if d == 1 else pymongo.DESCENDING) for k, d in keys)
+            if key_tuple in existing:
+                continue
+            coll.create_index(list(key_tuple), **options)
+
+    def indexes_for(self, model: BaseModel) -> list[tuple[list, dict]]:
+        """Indexes from the mapping spec plus the model's unique constraints/indexes."""
+        from .table_objects import Constraint, Index  # noqa: PLC0415
+        indexes: list[tuple[list, dict]] = []
+        spec = self.collection_spec(model)
+        if spec:
+            for ix in spec.get('indexes', ()):
+                indexes.append(([tuple(k) for k in ix['keys']], {}))
+            for nk in spec['decision'].get('natural_keys', ()):
+                keys = [(self.field_path(model, col), 1) for col in nk['columns']]
+                indexes.append((keys, {'unique': True}))
+        if model._parent_store:  # child_of / parent_of and subtree rewrites: anchored prefix match
+            indexes.append(([(self.field_path(model, 'parent_path'), 1)], {}))
+        for field in model._fields.values():
+            if field.type == 'many2many' and field.store and (layout := self.m2m_layout(model, field)) \
+                    and layout[0] == model._name:
+                indexes.append(([(f"{layout[1]}.{layout[2]}", 1)], {}))
+        for name, obj in model._table_objects.items():
+            if isinstance(obj, Index):
+                definition = obj._index_definition(self.registry) if callable(obj._index_definition) else obj._index_definition
+                if not definition:
+                    continue
+                if not obj.unique:
+                    continue  # non-unique Odoo indexes are covered by the mapping spec indexes
+                indexes.append(self._unique_index(model, definition, name, obj.message))
+            elif isinstance(obj, Constraint):
+                definition = obj._definition.strip()
+                if definition.upper().startswith('UNIQUE'):
+                    indexes.append(self._unique_index(model, definition[6:], name, obj.message))
+                elif definition.upper().startswith('CHECK'):
+                    model.pool.mongodb_checks[model._name, name] = parse_check(model, definition[5:], obj.message)
+                else:
+                    raise NotImplementedError(
+                        f"{model._name}: constraint {name!r} ({definition}) has no MongoDB equivalent",
+                    )
+        return indexes
+
+    def _unique_index(self, model: BaseModel, definition: str, name: str, message) -> tuple[list, dict]:
+        """``(col1, col2) WHERE pred`` -> unique index keys, partial on nullable columns."""
+        index_name = f"{model._table}_{name}"
+        self._unique_messages[self.collection_name(model), index_name] = str(message) if message else ''
+        definition = definition.strip()
+        match = re.fullmatch(r"\((?P<cols>[^)]*)\)(?:\s+WHERE\s+(?P<pred>.+))?", definition, re.I | re.S)
+        if not match:
+            raise NotImplementedError(f"{model._name}: cannot translate unique index {definition!r} to MongoDB")
+        columns = [c.strip().strip('"') for c in match['cols'].split(',')]
+        keys = [(self.field_path(model, col), 1) for col in columns]
+        partial_filter = {}
+        if match['pred']:
+            partial_filter = parse_partial_predicate(model, self, match['pred'])
+        for col in columns:
+            field = model._fields[col]
+            if field not in self.registry.not_null_fields and not field.required:
+                partial_filter.setdefault(self.field_path(model, col), {'$type': bson_type(field)})
+        options = {'unique': True, 'name': index_name}
+        if partial_filter:
+            options['partialFilterExpression'] = partial_filter
+        return keys, options
+
+    # ------------------------------------------------------------------
+    # repair
+    # ------------------------------------------------------------------
+    def repair(self, model: BaseModel) -> dict:
+        """Remove documents without a committed shadow row and shadow rows without a document."""
+        from odoo.tools import SQL  # noqa: PLC0415
+        cr = model.env.cr
+        cr.execute(SQL("SELECT id FROM %s", SQL.identifier(model._table)))
+        shadow_ids = {row[0] for row in cr.fetchall()}
+        coll = self.db[self.collection_name(model)]
+        doc_ids = {doc['_id'] for doc in coll.find({}, {'_id': 1})}
+        orphan_docs = sorted(doc_ids - shadow_ids)
+        orphan_rows = sorted(shadow_ids - doc_ids)
+        if orphan_docs:
+            coll.delete_many({'_id': {'$in': orphan_docs}})
+        if orphan_rows:
+            cr.execute(SQL("DELETE FROM %s WHERE id IN %s", SQL.identifier(model._table), tuple(orphan_rows)))
+        return {'documents_removed': len(orphan_docs), 'shadow_rows_removed': len(orphan_rows)}
+
+
+def bson_type(field: Field) -> str:
+    return {
+        'integer': 'int', 'many2one': 'int', 'many2one_reference': 'int',
+        'float': 'double', 'monetary': 'double',
+        'boolean': 'bool', 'date': 'date', 'datetime': 'date', 'binary': 'binData',
+    }.get(field.type, 'string')
+
+
+_CHECK_TOKEN = re.compile(r"\s*(?:(?P<num>-?\d+(?:\.\d+)?)|'(?P<str>(?:[^']|'')*)'|(?P<op><>|!=|>=|<=|=|>|<|\(|\)|,)|(?P<word>[A-Za-z_][A-Za-z0-9_]*))")
+
+
+def _tokenize_check(expression: str) -> list[tuple[str, typing.Any]]:
+    tokens = []
+    pos = 0
+    expression = expression.strip()
+    while pos < len(expression):
+        m = _CHECK_TOKEN.match(expression, pos)
+        if not m or m.end() == pos:
+            raise NotImplementedError(f"Cannot parse CHECK expression at {expression[pos:]!r}")
+        pos = m.end()
+        if m['num'] is not None:
+            tokens.append(('lit', float(m['num']) if '.' in m['num'] else int(m['num'])))
+        elif m['str'] is not None:
+            tokens.append(('lit', m['str'].replace("''", "'")))
+        elif m['op'] is not None:
+            tokens.append(('op', m['op']))
+        else:
+            word = m['word']
+            tokens.append(('kw', word.upper()) if word.upper() in ('AND', 'OR', 'NOT', 'IN', 'IS', 'NULL', 'TRUE', 'FALSE') else ('name', word))
+    return tokens
+
+
+def parse_check(model: BaseModel, expression: str, message: str):
+    """Parse a SQL ``CHECK (...)`` body into a Python predicate ``f(record) -> bool``.
+
+    Supports ``=``, ``!=``/``<>``, ``<``, ``<=``, ``>``, ``>=``, ``IN``,
+    ``IS [NOT] NULL``, ``AND``/``OR``/``NOT`` and parentheses; anything else
+    raises :class:`NotImplementedError` at ``_auto_init`` so a lost invariant
+    is loud.
+    """
+    tokens = _tokenize_check(expression)
+    pos = 0
+
+    def peek():
+        return tokens[pos] if pos < len(tokens) else (None, None)
+
+    def take(expected=None):
+        nonlocal pos
+        tok = peek()
+        if expected is not None and tok != expected:
+            raise NotImplementedError(f"Unsupported CHECK expression {expression!r} (near {tok})")
+        pos += 1
+        return tok
+
+    def value_of(tok):
+        kind, val = tok
+        if kind == 'lit':
+            return lambda rec: val
+        if kind == 'kw' and val in ('TRUE', 'FALSE', 'NULL'):
+            const = {'TRUE': True, 'FALSE': False, 'NULL': None}[val]
+            return lambda rec: const
+        if kind == 'name':
+            field = model._fields[val]
+            getter = field.expression_getter(val)
+
+            def get(rec):
+                v = getter(rec)
+                return None if v is False and field.type not in ('boolean',) else v
+            return get
+        raise NotImplementedError(f"Unsupported CHECK expression {expression!r} (near {tok})")
+
+    def combine(left, right, any_of):
+        if any_of:
+            return lambda rec: left(rec) or right(rec)
+        return lambda rec: left(rec) and right(rec)
+
+    def parse_or():
+        pred = parse_and()
+        while peek() == ('kw', 'OR'):
+            take()
+            pred = combine(pred, parse_and(), True)
+        return pred
+
+    def parse_and():
+        pred = parse_not()
+        while peek() == ('kw', 'AND'):
+            take()
+            pred = combine(pred, parse_not(), False)
+        return pred
+
+    def parse_not():
+        if peek() == ('kw', 'NOT'):
+            take()
+            inner = parse_not()
+            return lambda rec: not inner(rec)
+        return parse_comparison()
+
+    def parse_comparison():
+        if peek() == ('op', '('):
+            take()
+            inner = parse_or()
+            take(('op', ')'))
+            return inner
+        left = value_of(take())
+        kind, op = peek()
+        if (kind, op) == ('kw', 'IS'):
+            take()
+            negate = peek() == ('kw', 'NOT') and take()
+            take(('kw', 'NULL'))
+            return (lambda rec: (left(rec) is not None) if negate else (left(rec) is None))
+        if (kind, op) == ('kw', 'IN'):
+            take()
+            take(('op', '('))
+            items = [value_of(take())]
+            while peek() == ('op', ','):
+                take()
+                items.append(value_of(take()))
+            take(('op', ')'))
+            return lambda rec: left(rec) in [item(rec) for item in items]
+        if kind != 'op' or op not in ('=', '!=', '<>', '<', '<=', '>', '>='):
+            raise NotImplementedError(f"Unsupported CHECK expression {expression!r} (near {(kind, op)})")
+        take()
+        right = value_of(take())
+        import operator as _op  # noqa: PLC0415
+        fn = {'=': _op.eq, '!=': _op.ne, '<>': _op.ne, '<': _op.lt, '<=': _op.le, '>': _op.gt, '>=': _op.ge}[op]
+
+        def compare(rec):
+            a, b = left(rec), right(rec)
+            if a is None or b is None:
+                return True  # SQL NULL comparisons do not fail a CHECK
+            return fn(a, b)
+        return compare
+
+    predicate = parse_or()
+    if pos != len(tokens):
+        raise NotImplementedError(f"Unsupported CHECK expression {expression!r} (trailing {tokens[pos:]})")
+    return predicate, message
+
+
+def parse_partial_predicate(model: BaseModel, store: MongoStore, predicate: str) -> dict:
+    """``WHERE`` predicate of a partial unique index -> ``partialFilterExpression``."""
+    predicate = predicate.strip()
+    if m := re.fullmatch(r"(\w+)\s+IS\s+TRUE", predicate, re.I):
+        return {store.field_path(model, m[1]): True}
+    if m := re.fullmatch(r"(\w+)\s+IS\s+NOT\s+NULL", predicate, re.I):
+        return {store.field_path(model, m[1]): {'$type': bson_type(model._fields[m[1]])}}
+    if m := re.fullmatch(r"(\w+)\s*=\s*'([^']*)'", predicate, re.I):
+        return {store.field_path(model, m[1]): m[2]}
+    raise NotImplementedError(f"{model._name}: cannot translate index predicate {predicate!r} to MongoDB")

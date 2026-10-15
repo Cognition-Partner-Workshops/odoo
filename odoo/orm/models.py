@@ -64,8 +64,10 @@ from .fields_temporal import Datetime
 from .fields_textual import Char, StoredTranslations
 
 from .identifiers import NewId
-from .query import Query, TableSQL
+from .query import MongoQuery, Query, TableSQL
 from .utils import (
+    READ_GROUP_NUMBER_GRANULARITY,
+    READ_GROUP_TIME_GRANULARITY,
     OriginIds, Prefetch, ReversibleComparator, check_object_name, parse_field_expr,
     COLLECTION_TYPES, SQL_OPERATORS,
     SUPERUSER_ID,
@@ -462,6 +464,7 @@ class BaseModel(metaclass=MetaModel):
     """
     _check_inherits_access: bool = True           #: check access for _inherits models
     _table: str = ''                 #: SQL table name used by model if :attr:`_auto`
+    _storage: str = 'postgresql'     #: storage backend: 'postgresql' (default) or 'mongodb'
     _table_objects: dict[str, TableObject] = frozendict()  #: SQL/Table objects
     _inherit_children: OrderedSet[str]
 
@@ -532,6 +535,8 @@ class BaseModel(metaclass=MetaModel):
         """ Return an :class:`SQL` object that represents SQL table identifier
         or table query.
         """
+        if self._storage == 'mongodb':
+            raise NotImplementedError(f"{self._name} is stored in MongoDB: no SQL for its table")
         table_sql = SQL.identifier(self._table)
         if not self._depends:
             return table_sql
@@ -1300,6 +1305,8 @@ class BaseModel(metaclass=MetaModel):
         """ Invoke the constraint methods for which at least one field name is
         in ``field_names`` and none is in ``excluded_names``.
         """
+        if self._storage == 'mongodb':
+            self._validate_mongodb_checks()
         methods = self._constraint_methods
         if not methods:
             return
@@ -2046,6 +2053,9 @@ class BaseModel(metaclass=MetaModel):
         query.limit = limit
         query.offset = offset
 
+        if self._storage == 'mongodb':
+            return self._read_group_mongodb(query, groupby, aggregates, having, order)
+
         groupby_terms: dict[str, SQL] = {
             spec: self._read_group_groupby(query.table, spec)
             for spec in groupby
@@ -2385,6 +2395,8 @@ class BaseModel(metaclass=MetaModel):
         The query object is necessary for inherited fields, many2one fields and
         properties fields, where joins are added to the query.
         """
+        if self._storage == 'mongodb':
+            raise NotImplementedError(f"{self._name} is stored in MongoDB: no SQL for field {field_expr!r}")
         fname, property_name = parse_field_expr(field_expr)
         table = TableSQL(alias, self, query)
         sql = table[fname]
@@ -2420,10 +2432,447 @@ class BaseModel(metaclass=MetaModel):
         ))
         return result[0]["definition"] if result else {}
 
+    # ------------------------------------------------------------------
+    # MongoDB storage path (``_storage = 'mongodb'``), see
+    # .migration/orm_backend_contract.md and odoo/orm/storage_mongodb.py
+    # ------------------------------------------------------------------
+
+    def _raise_if_mongodb(self, what: str) -> None:
+        if self._storage == 'mongodb':
+            raise NotImplementedError(f"{self._name} is stored in MongoDB: no SQL for {what}")
+
+    def _mongodb_path(self, field: Field) -> str:
+        return self.pool.mongo_store.field_path(self, field.name)
+
+    def _auto_init_mongodb(self) -> None:
+        """ Create the shadow table (id authority and FK target), the collection
+        and its indexes from the mapping spec and the model's constraints. """
+        if getattr(self, '_table_query', None):
+            raise NotImplementedError(f"{self._name} is stored in MongoDB: no SQL for _table_query")
+        if not self._auto:
+            raise NotImplementedError(f"{self._name} is stored in MongoDB: no SQL view for _auto = False")
+        if self._parent_store:
+            self._check_parent_path()
+        store = self.pool.mongo_store
+        store.ensure_shadow_table(self)
+        store.ensure_collection(self)
+        if self._parent_store and store.count(self, {self._mongodb_path(self._fields['parent_path']): {'$exists': False}}):
+            self._parent_store_compute()
+
+    def _mongodb_ondelete(self) -> None:
+        """ Apply the ``ondelete`` of the Many2one fields of MongoDB models that
+        point to ``self`` (PostgreSQL models have a foreign key to the shadow
+        table, which does it for them). """
+        for model_name in self.pool.mongodb_models:
+            Model = self.env[model_name].sudo().with_context(active_test=False)
+            for field in Model._fields.values():
+                if field.type != 'many2one' or field.comodel_name != self._name or not field.store:
+                    continue
+                referrers = Model.search([(field.name, 'in', self.ids)])
+                if not referrers:
+                    continue
+                if field.ondelete == 'cascade':
+                    referrers.unlink()
+                elif field.ondelete in ('set null', 'set default'):
+                    referrers.write({field.name: False})
+                    referrers.flush_recordset([field.name])
+                else:
+                    raise UserError(self.env._(
+                        "The operation cannot be completed: another model requires the record being deleted."
+                        " If possible, archive it instead.\n\nModel: %(model)s, Constraint: %(field)s",
+                        model=model_name, field=field.name,
+                    ))
+
+    def _parent_store_compute_mongodb(self) -> None:
+        """ Recompute every ``parent_path`` of the collection. """
+        store = self.pool.mongo_store
+        parent_key = self._mongodb_path(self._fields[self._parent_name])
+        path_key = self._mongodb_path(self._fields['parent_path'])
+        docs = store.find(self, {}, {parent_key: 1, path_key: 1})
+        parents = {doc['_id']: doc.get(parent_key) for doc in docs}
+        current = {doc['_id']: doc.get(path_key) for doc in docs}
+        paths: dict[int, str] = {}
+        for start in parents:  # iterative: walk up to a known path (or a root / a cycle)
+            chain, node, seen = [], start, set()
+            while node in parents and node not in paths and node not in seen:
+                seen.add(node)
+                chain.append(node)
+                node = parents[node]
+            prefix = "" if node in seen else paths.get(node, "")
+            for id_ in reversed(chain):
+                prefix = f"{prefix}{id_}/"
+                paths[id_] = prefix
+
+        store.bulk_update(self, [
+            (id_, {'$set': {path_key: path}})
+            for id_, path in paths.items() if current[id_] != path
+        ])
+        self.invalidate_model(['parent_path'])
+
+    def _parent_store_create_mongodb(self) -> None:
+        """ ``parent_path`` of new nodes: the parent's path plus ``<id>/``. """
+        store = self.pool.mongo_store
+        parent_key = self._mongodb_path(self._fields[self._parent_name])
+        path_key = self._mongodb_path(self._fields['parent_path'])
+        pending = {
+            doc['_id']: doc.get(parent_key)
+            for doc in store.find(self, {'_id': {'$in': list(self.ids)}}, {parent_key: 1})
+        }
+        parent_ids = {pid for pid in pending.values() if pid is not None} - set(pending)
+        paths = {
+            doc['_id']: doc.get(path_key) or ""
+            for doc in store.find(self, {'_id': {'$in': list(parent_ids)}}, {path_key: 1})
+        } if parent_ids else {}
+        updates = []
+        while pending:  # a parent created in the same batch is resolved first
+            ready = [id_ for id_, pid in pending.items() if pid not in pending]
+            if not ready:
+                break
+            for id_ in ready:
+                paths[id_] = f"{paths.get(pending.pop(id_), '')}{id_}/"
+                updates.append((id_, {'$set': {path_key: paths[id_]}}))
+        store.bulk_update(self, updates)
+        field = self._fields['parent_path']
+        for id_, _update in updates:
+            field._update_cache(self.browse(id_), paths[id_])
+
+    def _parent_store_update_mongodb(self, prefix: str) -> dict[int, str]:
+        """ Re-root the subtrees of ``self`` under ``prefix`` (the new parent's
+        path); return ``{id: new parent_path}`` for every moved node. """
+        store = self.pool.mongo_store
+        path_key = self._mongodb_path(self._fields['parent_path'])
+        nodes = {
+            doc['_id']: doc.get(path_key) or f"{doc['_id']}/"
+            for doc in store.find(self, {'_id': {'$in': list(self.ids)}}, {path_key: 1})
+        }
+        # old paths of every descendant first (anchored prefix match on the
+        # parent_path index), then one new path per document: when a moved node
+        # is itself inside the subtree of another moved node, the deepest one
+        # defines the document's new ancestry
+        subtree = {}
+        for node_path in nodes.values():
+            for doc in store.find(self, {path_key: {'$regex': f"^{re.escape(node_path)}"}}, {path_key: 1}):
+                subtree[doc['_id']] = doc[path_key]
+        updated = {}
+        for doc_id, old_path in subtree.items():
+            node_id, node_path = max(
+                ((nid, npath) for nid, npath in nodes.items() if old_path.startswith(npath)),
+                key=lambda item: len(item[1]),
+            )
+            updated[doc_id] = prefix + old_path[len(node_path) - len(f"{node_id}/"):]
+        store.bulk_update(self, [(id_, {'$set': {path_key: path}}) for id_, path in updated.items()])
+        return updated
+
+    def _validate_mongodb_checks(self) -> None:
+        for (model_name, name), (predicate, message) in self.pool.mongodb_checks.items():
+            if model_name != self._name:
+                continue
+            for record in self.sudo():
+                if not predicate(record):
+                    raise ValidationError(message or self.env._("Constraint %s is violated", name))
+
+    def _order_to_sort(self, order: str) -> list[tuple[str, int]]:
+        """ Translate an ``order`` specification into a MongoDB sort list. """
+        order = order or self._order
+        if not order:
+            return []
+        self._check_qorder(order)
+        sort = []
+        for order_part in order.split(','):
+            order_match = regex_order.match(order_part)
+            assert order_match is not None, "No match found"
+            field_name = order_match['field']
+            field = self._fields.get(field_name)
+            if field is None:
+                raise ValueError(f"Invalid field {field_name!r} on model {self._name!r}")
+            self.check_field_access(field, 'read')
+            if not field.store or not field.column_type:
+                raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r}")
+            if field.translate is True or field.company_dependent or (
+                field.type == 'many2one' and self.env[field.comodel_name]._order != 'id'
+            ):
+                raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r} (comodel order / translation)")
+            direction = -1 if (order_match['direction'] or '').upper() == 'DESC' else 1
+            sort.append((self._mongodb_path(field), direction))
+        return sort
+
+    def _document_value_to_cache(self, field: Field, value):
+        """ Convert a document value into the field's column format. """
+        if value is None:
+            return None
+        if field.translate is True:
+            if self.env.context.get('prefetch_langs'):
+                return value
+            for lang in StoredTranslations.fallback_langs(field.translation_lang(self.env)):
+                if (val := value.get(lang)) is not None:
+                    return val
+            return None
+        if field.company_dependent:
+            val = value.get(str(self.env.company.id))
+            if val is None:
+                val = self.env['ir.default']._get_model_defaults(self._name).get(field.name)
+            return val
+        if field.type == 'date':
+            return value.date()
+        return value
+
+    def _fetch_mongodb(self, query: Query, column_fields: OrderedSet[Field]) -> Self:
+        if not isinstance(query, MongoQuery):
+            raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot fetch from an SQL query")
+        paths = {field: self._mongodb_path(field) for field in column_fields}
+        docs = query.find({path: 1 for path in paths.values()})
+        if not docs:
+            return self.browse()
+        fetched = self.browse(doc['_id'] for doc in docs)
+        for field, path in paths.items():
+            field._insert_cache(fetched, [
+                self._document_value_to_cache(field, doc.get(path)) for doc in docs
+            ])
+        return fetched
+
+    def _document_values(self, columns: list[str], row: list) -> dict:
+        """ Build the document fields from SQL insert parameters. """
+        from .storage_mongodb import to_bson  # noqa: PLC0415
+        doc = {}
+        for fname, value in zip(columns, row):
+            if value is SQL_DEFAULT:
+                continue
+            value = to_bson(value)
+            if value is not None:
+                doc[self._mongodb_path(self._fields[fname])] = value
+        return doc
+
+    def _create_mongodb(self, columns: list[str], rows: list[list]) -> list[int]:
+        store = self.pool.mongo_store
+        ids = store.allocate_ids(self, len(rows))
+        docs = []
+        for id_, row in zip(ids, rows):
+            doc = self._document_values(columns, row)
+            doc['_id'] = id_
+            docs.append(doc)
+        store.insert_many(self, docs)
+        return ids
+
+    def _write_mongodb(self, updates_list: list) -> None:
+        from .storage_mongodb import to_bson  # noqa: PLC0415
+        store = self.pool.mongo_store
+        updates = []
+        for fnames, rows in updates_list:
+            for row in rows:
+                id_, *values = row
+                set_, unset = {}, {}
+                for fname, value in zip(fnames, values):
+                    field = self._fields[fname]
+                    assert field.store and field.column_type
+                    path = self._mongodb_path(field)
+                    value = to_bson(value)
+                    if field.translate is True and isinstance(value, list):
+                        # (is_partial, {lang: value}) from get_column_update()
+                        is_partial, translations = value
+                        if is_partial and translations:
+                            # merge into the stored map; a document without
+                            # translations gets en_US from the first value
+                            # (same as the SQL CASE in the PostgreSQL branch)
+                            pipeline_set = {path: {'$mergeObjects': [
+                                {'$ifNull': [f"${path}", {'en_US': next(iter(translations.values()))}]},
+                                translations,
+                            ]}}
+                            updates.append((id_, [{'$set': pipeline_set}]))
+                        elif translations is None:
+                            unset[path] = ""
+                        else:
+                            set_[path] = translations
+                    elif field.translate is True and isinstance(value, dict):
+                        set_[path] = value
+                    elif field.company_dependent and isinstance(value, dict):
+                        fallback = self.env['ir.default']._get_model_defaults(self._name).get(fname)
+                        fallback = to_bson(field.convert_to_column(fallback, self))
+                        for company_id, val in value.items():
+                            if val is None or val == fallback:
+                                unset[f"{path}.{company_id}"] = ""
+                            else:
+                                set_[f"{path}.{company_id}"] = val
+                    elif value is None:
+                        unset[path] = ""
+                    else:
+                        set_[path] = value
+                update = {}
+                if set_:
+                    update['$set'] = set_
+                if unset:
+                    update['$unset'] = unset
+                if update:
+                    updates.append((id_, update))
+        store.bulk_update(self, updates)
+
+    def _read_group_mongodb(self, query: MongoQuery, groupby, aggregates, having, order) -> list[tuple]:
+        """ ``_read_group`` as an aggregation pipeline. """
+        if not groupby and not aggregates:
+            raise ValueError(self.env._("Need groupby or aggregates."))
+        pipeline = [{'$match': query.filter}] if query.filter else []
+        group_specs = {spec: f"g{index}" for index, spec in enumerate(groupby)}
+        group_stage = {'_id': {key: self._read_group_groupby_mongodb(spec) for spec, key in group_specs.items()}}
+        agg_keys = {spec: f"a{index}" for index, spec in enumerate(aggregates)}
+        for spec, key in agg_keys.items():
+            group_stage[key] = self._read_group_select_mongodb(spec)
+        pipeline.append({'$group': group_stage})
+        if having:
+            pipeline.append({'$match': self._read_group_having_mongodb(list(having), agg_keys, group_stage)})
+        sort = {}
+        for order_part in (order or ','.join(groupby)).split(','):
+            if not order_part.strip():
+                continue
+            order_match = regex_order_part_read_group.fullmatch(order_part)
+            if not order_match:
+                raise ValueError(f"Invalid order {order!r} for _read_group()")
+            term = order_match['term']
+            direction = -1 if (order_match['direction'] or 'ASC').upper() == 'DESC' else 1
+            if term in group_specs:
+                sort[f"_id.{group_specs[term]}"] = direction
+            elif term in agg_keys:
+                sort[agg_keys[term]] = direction
+            else:
+                key = f"o{len(sort)}"
+                group_stage[key] = self._read_group_select_mongodb(term)
+                sort[key] = direction
+        if sort:
+            pipeline.append({'$sort': sort})
+        if query.offset:
+            pipeline.append({'$skip': query.offset})
+        if query.limit:
+            pipeline.append({'$limit': query.limit})
+        result = self.pool.mongo_store.aggregate(self, pipeline)
+        if not result:
+            if not groupby and not query.offset:
+                # one aggregate row even without matching documents (SQL semantics)
+                return [tuple(self._read_group_empty_value(spec) for spec in aggregates)]
+            return []
+        column_result = []
+        for spec, key in group_specs.items():
+            raw = [doc['_id'].get(key) for doc in result]
+            if (field := self._fields.get(spec.split(':')[0])) and field.type == 'date' and ':' in spec:
+                raw = [v.date() if hasattr(v, 'date') else v for v in raw]
+            column_result.append(self._read_group_postprocess_groupby(spec, raw))
+        for spec in aggregates:  # having-only aggregates in agg_keys are not returned
+            key = agg_keys[spec]
+            raw = [doc.get(key) for doc in result]
+            if spec.endswith(':count_distinct'):
+                raw = [len(v) for v in raw]
+            column_result.append(self._read_group_postprocess_aggregate(spec, raw))
+        return list(zip(*column_result))
+
+    def _read_group_groupby_mongodb(self, groupby_spec: str) -> dict | str:
+        fname, __, granularity = parse_read_group_spec(groupby_spec)
+        field = self._fields.get(fname)
+        if not field:
+            raise ValueError(f"Invalid field {fname!r} on model {self._name!r}")
+        self.check_field_access(field, 'read')
+        if not field.store or not field.column_type or field.translate is True or field.company_dependent:
+            raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot group by {groupby_spec!r}")
+        path = self._mongodb_path(field)
+        if field.type in ('date', 'datetime'):
+            if not granularity:
+                raise ValueError(f"Granularity not set on a date(time) field: {groupby_spec!r}")
+            if granularity in READ_GROUP_TIME_GRANULARITY:
+                tz = (self.env.context.get('tz') or 'UTC') if field.type == 'datetime' else 'UTC'
+                trunc = {'date': f"${path}", 'unit': granularity, 'timezone': tz}
+                if granularity == 'week':
+                    trunc['startOfWeek'] = 'monday'
+                return {'$dateTrunc': trunc}
+            if granularity in READ_GROUP_NUMBER_GRANULARITY:
+                return field._condition_to_filter_date_part(path, granularity, '=', None)['$expr']['$eq'][0]
+            raise ValueError(f"Invalid granularity in {groupby_spec!r}")
+        if granularity:
+            raise ValueError(f"Granularity set on a no-datetime field or property: {groupby_spec!r}")
+        return {'$ifNull': [f"${path}", None]}
+
+    def _read_group_select_mongodb(self, aggregate_spec: str) -> dict:
+        if aggregate_spec == '__count':
+            return {'$sum': 1}
+        fname, property_name, func = parse_read_group_spec(aggregate_spec)
+        if property_name:
+            raise ValueError(f"Invalid {aggregate_spec!r}, this dot notation is not supported")
+        if fname not in self._fields:
+            raise ValueError(f"Invalid field {fname!r} on model {self._name!r} for {aggregate_spec!r}.")
+        if not func:
+            raise ValueError(f"Aggregate method is mandatory for {fname!r}")
+        field = self._fields[fname]
+        self.check_field_access(field, 'read')
+        path = f"${self._mongodb_path(field)}"
+        if func in ('sum', 'avg', 'min', 'max'):
+            return {f"${func}": path}
+        if func == 'count':
+            return {'$sum': {'$cond': [{'$ne': [{'$ifNull': [path, None]}, None]}, 1, 0]}}
+        if func in ('count_distinct', 'array_agg_distinct'):
+            return {'$addToSet': path}
+        if func in ('array_agg', 'recordset'):
+            return {'$push': path}
+        if func == 'bool_and':
+            return {'$min': {'$ifNull': [path, False]}}
+        if func == 'bool_or':
+            return {'$max': {'$ifNull': [path, False]}}
+        raise NotImplementedError(f"{self._name} is stored in MongoDB: aggregate {func!r} is not supported")
+
+    def _read_group_having_mongodb(self, having_domain: list, agg_keys: dict, group_stage: dict) -> dict:
+        stack = []
+        ops = {'in': '$in', 'not in': '$nin', '<': '$lt', '>': '$gt', '<=': '$lte', '>=': '$gte', '=': '$eq', '!=': '$ne'}
+        for item in reversed(having_domain):
+            if item == '!':
+                stack.append({'$nor': [stack.pop()]})
+            elif item == '&':
+                stack.append({'$and': [stack.pop(), stack.pop()]})
+            elif item == '|':
+                stack.append({'$or': [stack.pop(), stack.pop()]})
+            elif isinstance(item, (list, tuple)) and len(item) == 3:
+                left, operator, right = item
+                if operator not in ops:
+                    raise ValueError(f"Invalid having clause {item!r}: supported comparators are {tuple(ops)}")
+                if left not in agg_keys:
+                    agg_keys[left] = f"h{len(group_stage)}"
+                    group_stage[agg_keys[left]] = self._read_group_select_mongodb(left)
+                stack.append({agg_keys[left]: {ops[operator]: right}})
+            else:
+                raise ValueError(f"Invalid having clause {item!r}: it should be a domain-like clause")
+        while len(stack) > 1:
+            stack.append({'$and': [stack.pop(), stack.pop()]})
+        return stack[0]
+
+    def _has_cycle_mongodb(self, field) -> bool:
+        """ Follow ``field`` from ``self`` in Python (no recursive SQL). """
+        store = self.pool.mongo_store
+        if field.type == 'many2many':
+            layout = store.m2m_layout(self, field)
+            if not layout or layout[0] != self._name:
+                raise NotImplementedError(f"{self._name} is stored in MongoDB: cycle detection on {field.name!r} is not supported")
+            array_path, element_key = layout[1], layout[2]
+
+            def successors(ids):
+                docs = store.find(self, {'_id': {'$in': list(ids)}}, {array_path: 1})
+                return {item[element_key] for doc in docs for item in doc.get(array_path, ())}
+        else:
+            path = self._mongodb_path(field)
+
+            def successors(ids):
+                docs = store.find(self, {'_id': {'$in': list(ids)}}, {path: 1})
+                return {doc[path] for doc in docs if doc.get(path) is not None}
+
+        for start in self.ids:
+            seen = set()
+            frontier = {start}
+            while frontier:
+                frontier = successors(frontier)
+                if start in frontier:
+                    return True
+                frontier -= seen
+                seen |= frontier
+        return False
+
     def _parent_store_compute(self) -> None:
         """ Compute parent_path field from scratch. """
         if not self._parent_store:
             return
+        if self._storage == 'mongodb':
+            return self._parent_store_compute_mongodb()
 
         # Each record is associated to a string 'parent_path', that represents
         # the path from the record's root node to the record. The path is made
@@ -2526,6 +2975,9 @@ class BaseModel(metaclass=MetaModel):
         # values) from prefetching a field for which the corresponding column
         # has not been added in database yet!
         self = self.with_context(prefetch_fields=False)
+        if self._storage == 'mongodb':
+            self._auto_init_mongodb()
+            return
 
         cr = self.env.cr
         update_custom_fields = self.env.context.get('update_custom_fields', False)
@@ -3243,7 +3695,9 @@ class BaseModel(metaclass=MetaModel):
             assert field.store or field.compute_sql
             (column_fields if field.column_type else other_fields).add(field)
 
-        if column_fields:
+        if self._storage == 'mongodb':
+            fetched = self._fetch_mongodb(query, column_fields)
+        elif column_fields:
             # the query may involve several tables: we need fully-qualified names
             sql_terms = [SQL.identifier(self._table, 'id')]
             for field in column_fields:
@@ -3701,10 +4155,14 @@ class BaseModel(metaclass=MetaModel):
         for sub_ids in split_every(IN_MAX, self.ids):
             records = self.browse(sub_ids)
 
+            if self.pool.mongodb_models:
+                records._mongodb_ondelete()
             cr.execute(SQL(
                 "DELETE FROM %s WHERE id IN %s",
                 SQL.identifier(self._table), sub_ids,
             ))
+            if self._storage == 'mongodb':
+                self.pool.mongo_store.delete_many(self, list(sub_ids))
 
             # Removing the ir_model_data reference if the record being deleted
             # is a record created by xml/csv file, as these are not connected
@@ -4024,6 +4482,10 @@ class BaseModel(metaclass=MetaModel):
             for fnames, rows in updates.items()
             for sub_rows in split_every(UPDATE_BATCH_SIZE, rows)
         ]
+
+        if self._storage == 'mongodb':
+            self._write_mongodb(updates_list)
+            updates_list = []
 
         # update columns by group of updated fields
         for fnames, rows in updates_list:
@@ -4378,6 +4840,10 @@ class BaseModel(metaclass=MetaModel):
                     # we might want to update the parent definition
                     other_fields.add(field)
 
+            if self._storage == 'mongodb':
+                ids.extend(self._create_mongodb(columns, rows))
+                continue
+
             if not columns:
                 # manage the case where we create empty records
                 columns = ['id']
@@ -4461,6 +4927,8 @@ class BaseModel(metaclass=MetaModel):
         """ Set the parent_path field on ``self`` after its creation. """
         if not self._parent_store:
             return
+        if self._storage == 'mongodb':
+            return self._parent_store_create_mongodb()
 
         updated = self.env.execute_query(SQL(
             """ UPDATE %(table)s node
@@ -4498,6 +4966,16 @@ class BaseModel(metaclass=MetaModel):
             return self.browse()
 
         self.flush_recordset([self._parent_name])
+
+        if self._storage == 'mongodb':
+            parent_key = self._mongodb_path(self._fields[self._parent_name])
+            current = {doc['_id']: doc.get(parent_key) for doc in self.pool.mongo_store.find(
+                self, {'_id': {'$in': list(self.ids)}}, {parent_key: 1},
+            )}
+            return self.browse(sorted(
+                id_ for parent_id, ids in parent_to_ids.items() for id_ in ids
+                if current.get(id_) != (parent_id or None)
+            ))
 
         # return the records for which the parent field will change
         sql_parent = SQL.identifier(self._parent_name)
@@ -4541,19 +5019,22 @@ class BaseModel(metaclass=MetaModel):
             # bounds and scans the table. The range below selects the same rows
             # from the index: parent_path ends with '/' and '0' is the next
             # character, so left(parent_path, -1) || '0' closes the range.
-            updated = dict(self.env.execute_query(SQL(
-                """ UPDATE %(table)s child
-                    SET parent_path = concat(%(prefix)s, substr(child.parent_path,
-                            length(node.parent_path) - length(node.id || '/') + 1))
-                    FROM %(table)s node
-                    WHERE node.id IN %(ids)s
-                    AND child.parent_path >= node.parent_path
-                    AND child.parent_path < left(node.parent_path, -1) || '0'
-                    RETURNING child.id, child.parent_path """,
-                table=SQL.identifier(self._table),
-                prefix=prefix,
-                ids=tuple(records.ids),
-            )))
+            if self._storage == 'mongodb':
+                updated = records._parent_store_update_mongodb(prefix)
+            else:
+                updated = dict(self.env.execute_query(SQL(
+                    """ UPDATE %(table)s child
+                        SET parent_path = concat(%(prefix)s, substr(child.parent_path,
+                                length(node.parent_path) - length(node.id || '/') + 1))
+                        FROM %(table)s node
+                        WHERE node.id IN %(ids)s
+                        AND child.parent_path >= node.parent_path
+                        AND child.parent_path < left(node.parent_path, -1) || '0'
+                        RETURNING child.id, child.parent_path """,
+                    table=SQL.identifier(self._table),
+                    prefix=prefix,
+                    ids=tuple(records.ids),
+                )))
 
             # update the cache of updated nodes, and determine what to recompute
             field = self._fields['parent_path']
@@ -4740,6 +5221,7 @@ class BaseModel(metaclass=MetaModel):
         order = order or self._order
         if not order:
             return SQL()
+        self._raise_if_mongodb("ORDER BY")
         self._check_qorder(order)
 
         terms = []
@@ -4900,9 +5382,14 @@ class BaseModel(metaclass=MetaModel):
         domain = domain.optimize_full(self)
         if domain.is_false():
             return self.browse()._as_query()
-        query = Query(self)
-        if not domain.is_true():
-            query.add_where(domain._to_sql(query.table))
+        if self._storage == 'mongodb':
+            query = MongoQuery(self)
+            if not domain.is_true():
+                query.add_filter(domain._to_filter(self))
+        else:
+            query = Query(self)
+            if not domain.is_true():
+                query.add_where(domain._to_sql(query.table))
 
         # security access domain
         if not sec_domain.is_true():
@@ -4926,10 +5413,15 @@ class BaseModel(metaclass=MetaModel):
                     records = records[:limit]
                 return records._as_query(ordered=bool(order))
             if not sec_domain.is_true():
-                query.add_where(sec_domain._to_sql(query.table._with_model(self_sudo)))
+                if self._storage == 'mongodb':
+                    query.add_filter(sec_domain._to_filter(self_sudo))
+                else:
+                    query.add_where(sec_domain._to_sql(query.table._with_model(self_sudo)))
 
         # add order and limits
-        if order:
+        if order and self._storage == 'mongodb':
+            query.sort = self._order_to_sort(order)
+        elif order:
             query.order = self._order_to_sql(query.table, order)
 
         # In RPC, None is not available; False is used instead to mean "no limit"
@@ -4947,7 +5439,7 @@ class BaseModel(metaclass=MetaModel):
 
         :param ordered: whether the recordset order must be enforced by the query
         """
-        query = Query(self)
+        query = MongoQuery(self) if self._storage == 'mongodb' else Query(self)
         query.set_result_ids(self._ids, ordered)
         return query
 
@@ -5046,9 +5538,12 @@ class BaseModel(metaclass=MetaModel):
         new_ids, ids = partition(lambda i: isinstance(i, NewId), self._ids)
         if not ids:
             return self
-        query = Query(self)
-        query.add_where(SQL("%s IN %s", SQL.identifier(self._table, 'id'), tuple(ids)))
-        real_ids = (id_ for [id_] in self.env.execute_query(query.select()))
+        if self._storage == 'mongodb':
+            real_ids = self.pool.mongo_store.distinct(self, '_id', {'_id': {'$in': ids}})
+        else:
+            query = Query(self)
+            query.add_where(SQL("%s IN %s", SQL.identifier(self._table, 'id'), tuple(ids)))
+            real_ids = (id_ for [id_] in self.env.execute_query(query.select()))
         valid_ids = {*real_ids, *new_ids}
         return self.browse(i for i in self._ids if i in valid_ids)
 
@@ -5145,6 +5640,8 @@ class BaseModel(metaclass=MetaModel):
         # must ignore 'active' flag, ir.rules, etc.
         # direct recursive SQL query with cycle detection for performance
         self.flush_model([field_name])
+        if self._storage == 'mongodb':
+            return self._has_cycle_mongodb(field)
         if field.type == 'many2many':
             relation = field.relation
             column1 = field.column1

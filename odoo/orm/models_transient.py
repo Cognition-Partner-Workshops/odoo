@@ -65,6 +65,13 @@ class TransientModel(Model):
 
     def _transient_clean_old_rows(self, max_count: int) -> bool:
         # Check how many rows we have in the table
+        if self._storage == 'mongodb':
+            count = self.pool.mongo_store.count(self, {})
+            if count <= max_count:
+                return False
+            self.flush_model()
+            self._transient_clean_rows_older_than(0)
+            return True
         self.env.cr.execute(SQL("SELECT count(*) FROM %s", SQL.identifier(self._table)))
         [count] = self.env.cr.fetchone()
         if count > max_count:

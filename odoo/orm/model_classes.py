@@ -252,6 +252,11 @@ def _check_model_extension(model_cls: type[BaseModel], model_def: type[BaseModel
             f"{model_def} cannot redefine _table while extending model {model_cls._name!r}. "
             "That class should either remove '_table', or set a different '_name'."
         )
+    if (storage := model_def.__dict__.get('_storage')) and storage != model_cls._storage:
+        raise TypeError(
+            f"{model_def} cannot redefine _storage while extending model {model_cls._name!r}. "
+            "That class should either remove '_storage', or set a different '_name'.",
+        )
     if model_cls._abstract and not model_def._abstract:
         raise TypeError(
             f"{model_def} transforms the abstract model {model_cls._name!r} into a non-abstract model. "
@@ -285,6 +290,7 @@ def _init_model_class_attributes(model_cls: type[BaseModel]):
     model_cls._description = model_cls._name
     model_cls._table = model_cls._name.replace('.', '_')
     model_cls._log_access = model_cls._auto
+    model_cls._storage = 'postgresql'
     inherits = {}
     depends = {}
 
@@ -296,6 +302,7 @@ def _init_model_class_attributes(model_cls: type[BaseModel]):
             model_cls._description = base._description or model_cls._description
             model_cls._table = base._table or model_cls._table
             model_cls._log_access = getattr(base, '_log_access', model_cls._log_access)
+            model_cls._storage = base.__dict__.get('_storage') or model_cls._storage
 
         inherits.update(base._inherits)
 

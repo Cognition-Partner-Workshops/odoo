@@ -67,7 +67,7 @@ from odoo.exceptions import AccessError, MissingError, UserError
 from odoo.tools import SQL, OrderedSet, classproperty, partition, str2bool
 from odoo.tools.date_utils import parse_date, parse_iso_date
 from .identifiers import NewId
-from .query import Query, TableSQL
+from .query import MongoQuery, Query, TableSQL
 from .utils import COLLECTION_TYPES, parse_field_expr
 
 if typing.TYPE_CHECKING:
@@ -189,6 +189,11 @@ MAX_OPTIMIZE_ITERATIONS = 1000
 # --------------------------------------------------
 # Domain definition and manipulation
 # --------------------------------------------------
+
+def _new_query(model: BaseModel) -> Query:
+    """A virgin query on ``model`` (all its records), in the model's storage."""
+    return MongoQuery(model) if model._storage == 'mongodb' else Query(model)
+
 
 class Domain:
     """Representation of a domain as an AST.
@@ -500,6 +505,11 @@ class Domain:
         """Build the SQL to inject into the query.  The domain should be optimized first."""
         raise NotImplementedError
 
+    def _to_filter(self, model: BaseModel) -> dict:
+        """Build the MongoDB filter document for a model stored in MongoDB.
+        The domain should be optimized first."""
+        raise NotImplementedError
+
 
 class DomainBool(Domain):
     """Constant domain: True/False
@@ -548,6 +558,9 @@ class DomainBool(Domain):
     def _to_sql(self, table: TableSQL) -> SQL:
         return SQL("TRUE") if self.value else SQL("FALSE")
 
+    def _to_filter(self, model: BaseModel) -> dict:
+        return {} if self.value else {'_id': {'$in': []}}
+
 
 # singletons, available though Domain.TRUE and Domain.FALSE
 _TRUE_DOMAIN = DomainBool(True)
@@ -593,6 +606,9 @@ class DomainNot(Domain):
 
     def _to_sql(self, table: TableSQL) -> SQL:
         return SQL("(%s) IS NOT TRUE", self.child._to_sql(table))
+
+    def _to_filter(self, model: BaseModel) -> dict:
+        return {'$nor': [self.child._to_filter(model)]}
 
 
 class DomainNary(Domain):
@@ -700,6 +716,9 @@ class DomainNary(Domain):
         return SQL("(%s)", self.OPERATOR_SQL.join(
             child._to_sql(table) for child in self.children
         ))
+
+    def _to_filter(self, model: BaseModel) -> dict:
+        return {'$and' if self.OPERATOR == '&' else '$or': [child._to_filter(model) for child in self.children]}
 
 
 class DomainAnd(DomainNary):
@@ -827,6 +846,9 @@ class DomainCustom(Domain):
         assert self._sql is not None, \
             f"Must fully optimize before generating the query {self}"
         return self._sql(table)
+
+    def _to_filter(self, model: BaseModel) -> dict:
+        raise NotImplementedError(f"{model._name} is stored in MongoDB: no SQL for Domain.custom()")
 
 
 class DomainCondition(Domain):
@@ -1180,6 +1202,16 @@ class DomainCondition(Domain):
         model.check_field_access(field, 'read')
         return field.condition_to_sql(table, field_expr, operator, value)
 
+    def _to_filter(self, model: BaseModel) -> dict:
+        field_expr, operator, value = self.field_expr, self.operator, self.value
+        assert operator in STANDARD_CONDITION_OPERATORS, \
+            f"Invalid operator {operator!r} for MongoDB in domain term {(field_expr, operator, value)!r}"
+        assert self._opt_level >= OptimizationLevel.FULL, \
+            f"Must fully optimize before generating the query {(field_expr, operator, value)}"
+        field = self._field(model)
+        model.check_field_access(field, 'read')
+        return field.condition_to_filter(model, field_expr, operator, value)
+
 
 # --------------------------------------------------
 # Optimizations: registration
@@ -1464,7 +1496,10 @@ def _optimize_any_domain_at_level(level: OptimizationLevel, condition, model):
         )
         if comodel_domain.is_false() and not search_domain.is_false():
             # we don't know the constraining condition
-            if field.type == 'many2one' and (field.store or field.compute_sql) and level > OptimizationLevel.BASIC:
+            if (
+                field.type == 'many2one' and (field.store or field.compute_sql)
+                and level > OptimizationLevel.BASIC and model._storage != 'mongodb'
+            ):
                 # restrict using the whole domain
                 def restricted_domain_sql(table):
                     sub_query = model.sudo()._search(search_domain, active_test=False, bypass_access=True)
@@ -1889,8 +1924,12 @@ def _operator_child_of_domain(comodel: BaseModel, parent):
         while comodel:
             child_ids.update(comodel._ids)
             # same as searching with the condition and bypassing all rules and overrides
-            query = Query(comodel)
-            query.add_where(DomainCondition(parent, 'in', comodel._ids).optimize_full(comodel)._to_sql(query.table))
+            query = _new_query(comodel)
+            condition = DomainCondition(parent, 'in', comodel._ids).optimize_full(comodel)
+            if isinstance(query, MongoQuery):
+                query.add_filter(condition._to_filter(comodel))
+            else:
+                query.add_where(condition._to_sql(query.table))
             comodel = comodel.browse(OrderedSet(query.get_result_ids()) - child_ids)
     return child_ids
 
@@ -2022,7 +2061,7 @@ def _optimize_x2m_in_operator(condition, model):
     comodel = model.env[condition._field(model).comodel_name]
     if False in ids:
         # x2m in {False, ...} => x2m not any! (Domain.TRUE) or x2m in {...}
-        domain |= Domain(field_expr, 'not any!', Query(comodel))
+        domain |= Domain(field_expr, 'not any!', _new_query(comodel))
         ids = ids - {False}
     if ids:
         # x2m in ids => x2m any! (ids_as_query)
