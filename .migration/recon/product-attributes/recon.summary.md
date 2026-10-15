@@ -2,8 +2,8 @@
 
 - Mode: `live`
 - Merge eligible: no (fixture/continuous evidence never merges)
-- Mapping `map-draft-5` / tolerances `v1` / seed `1`
-- Generated: 2026-10-15T20:17:26.828440+00:00
+- Mapping `map-draft-5` / tolerances `v1` / seed `0`
+- Generated: 2026-10-15T21:41:39.461749+00:00
 - **WARNING: UNVERIFIED collection updateProductAttributeValue: 0 source rows, key/shape/field rules unexercised**
 
 | Tier | Checks | Result |

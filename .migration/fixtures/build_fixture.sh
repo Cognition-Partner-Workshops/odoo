@@ -13,13 +13,13 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO="${ODOO_REPO:-$(cd "$HERE/../.." && pwd)}"
+REPO="${ODOO_REPO:-$(dirname "$(cd "$HERE/../.." && pwd)")/odoo-base}"   # the build_source.sh worktree: the fixture is written by the PostgreSQL storage too
 PY=/home/ubuntu/.venvs/odoo/bin/python
 RECON_PY=/home/ubuntu/.venvs/recon/bin/python
 PGPORT=5433
 SRC=odoo_src
 DB=odoo_fixture
-SRC_MARKER_VERSION=2   # build_source.sh MARKER_VERSION the fixture is cloned from
+SRC_MARKER_VERSION=3   # build_source.sh MARKER_VERSION the fixture is cloned from
 MARKER=migration.fixture
 MARKER_VERSION=1       # bump when the fixture changes so an old odoo_fixture is rebuilt
 export PGPORT PGHOST=/var/run/postgresql

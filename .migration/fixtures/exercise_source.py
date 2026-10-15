@@ -43,5 +43,4 @@ assert sale.state == 'sale' and sale.picking_ids, sale.state
 invoice = sale._create_invoices()
 invoice.action_post()
 assert invoice.state == 'posted', invoice.state
-env['ir.config_parameter'].set_str('migration.fixture_source', '2')
-env.cr.commit()
+env.cr.commit()   # build_source.sh pins the timestamps and sets the marker next

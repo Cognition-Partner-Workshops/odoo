@@ -11,10 +11,10 @@
     "productCategory",
     "productTag"
   ],
-  "seed": 1,
+  "seed": 0,
   "params": {},
   "snapshot": null,
-  "generated_at": "2026-10-15T20:03:45.550642+00:00",
+  "generated_at": "2026-10-15T21:41:47.689575+00:00",
   "redacted": true,
   "redaction_salted": false,
   "tiers": [

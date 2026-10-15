@@ -15,5 +15,5 @@
   "failure_class": "",
   "manifest_sha": "ea9f6b868dc7",
   "plugin_sha": "0d6bcfd528a4099449ad7f7d8c65eb620b017c79",
-  "one_line_summary": "uom.uom -> odoo_migration.uomUom: live strict recon verdict PASS (T1 pass (3 checks), T2 pass (8 checks), T3 pass (30 checks), mode=live, target_class=migration_cluster, fixture verdict PASS), read from result.json"
+  "one_line_summary": "uom.uom -> odoo_migration.uomUom: live strict recon verdict PASS (T1 pass (3 checks), T2 pass (8 checks), T3 pass (30 checks), mode=live, target_class=migration_cluster, fixture verdict PASS), read from result.json; source odoo_src rebuilt deterministic (build_source.sh marker 3: pinned create_date/write_date, UNT11-37)"
 }

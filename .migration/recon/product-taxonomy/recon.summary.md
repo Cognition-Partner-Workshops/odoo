@@ -2,8 +2,8 @@
 
 - Mode: `live`
 - Merge eligible: yes (fixture/continuous evidence never merges)
-- Mapping `map-draft-5` / tolerances `v1` / seed `1`
-- Generated: 2026-10-15T20:03:45.550642+00:00
+- Mapping `map-draft-5` / tolerances `v1` / seed `0`
+- Generated: 2026-10-15T21:41:47.689575+00:00
 
 | Tier | Checks | Result |
 |---|---|---|
