@@ -37,6 +37,8 @@ if [ ! -e "$REPO/odoo-bin" ]; then
 fi
 head="$(git -C "$REPO" rev-parse HEAD)"
 [ "$head" = "$SOURCE_COMMIT" ] || { echo "$REPO is at $head, not SOURCE_COMMIT $SOURCE_COMMIT" >&2; exit 1; }
+dirty="$(git -C "$REPO" status --porcelain)"
+[ -z "$dirty" ] || { printf '%s has local changes; build only from a clean SOURCE_COMMIT checkout:\n%s\n' "$REPO" "$dirty" >&2; exit 1; }
 
 if [ -z "${ODOO_RO_PASSWORD:-}" ]; then
   [ -n "${ODOO_PG_RO_DSN:-}" ] || { echo "set ODOO_PG_RO_DSN (or ODOO_RO_PASSWORD on first build)" >&2; exit 1; }
