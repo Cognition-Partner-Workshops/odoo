@@ -510,7 +510,11 @@
           "res_country_group_pricelist_rel"
         ]
       },
-      "depends_on": [],
+      "depends_on": [
+        "product-catalog",
+        "product-taxonomy",
+        "uom"
+      ],
       "forward_refs_same_or_later_depth": [],
       "batch": "w3-b01"
     },
@@ -572,7 +576,10 @@
         "embed_unbounded_arrays": [],
         "fixture_zero_rows": []
       },
-      "depends_on": [],
+      "depends_on": [
+        "product-catalog",
+        "uom"
+      ],
       "forward_refs_same_or_later_depth": [],
       "batch": "w3-b02"
     },
@@ -637,7 +644,9 @@
         "embed_unbounded_arrays": [],
         "fixture_zero_rows": []
       },
-      "depends_on": [],
+      "depends_on": [
+        "product-catalog"
+      ],
       "forward_refs_same_or_later_depth": [],
       "batch": "w3-b03"
     },
@@ -717,9 +726,12 @@
         ]
       },
       "depends_on": [
-        "product-catalog"
+        "product-catalog",
+        "uom"
       ],
-      "forward_refs_same_or_later_depth": [],
+      "forward_refs_same_or_later_depth": [
+        "product-pricing"
+      ],
       "batch": "w3-b04"
     }
   ],
