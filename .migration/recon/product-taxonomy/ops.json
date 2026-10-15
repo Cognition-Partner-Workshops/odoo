@@ -1,0 +1,43 @@
+[
+  {
+    "name": "category_tree",
+    "collection": "productCategory",
+    "source_sql": "SELECT id AS \"_id\", parent_id AS \"parentId\", parent_path AS \"parentPath\", name->>'en_US' AS name FROM product_category ORDER BY id",
+    "target_pipeline": [
+      {"$project": {"_id": 1, "parentId": {"$ifNull": ["$parentId", null]}, "parentPath": 1, "name": "$name.en_US"}},
+      {"$sort": {"_id": 1}}
+    ],
+    "rules": []
+  },
+  {
+    "name": "categories_per_parent",
+    "collection": "productCategory",
+    "source_sql": "SELECT parent_id AS \"parentId\", COUNT(*) AS n FROM product_category GROUP BY parent_id ORDER BY parent_id",
+    "target_pipeline": [
+      {"$group": {"_id": {"$ifNull": ["$parentId", null]}, "n": {"$sum": 1}}},
+      {"$project": {"_id": 0, "parentId": "$_id", "n": 1}},
+      {"$sort": {"parentId": 1}}
+    ],
+    "rules": []
+  },
+  {
+    "name": "tags_by_sequence",
+    "collection": "productTag",
+    "source_sql": "SELECT id AS \"_id\", name->>'en_US' AS name, sequence, color, visible_to_customers AS \"visibleToCustomers\" FROM product_tag ORDER BY sequence, id",
+    "target_pipeline": [
+      {"$project": {"_id": 1, "name": "$name.en_US", "sequence": 1, "color": 1, "visibleToCustomers": 1}},
+      {"$sort": {"sequence": 1, "_id": 1}}
+    ],
+    "rules": []
+  },
+  {
+    "name": "base_units_by_name",
+    "collection": "productBaseUnit",
+    "source_sql": "SELECT id AS \"_id\", name->>'en_US' AS name FROM product_base_unit ORDER BY name->>'en_US'",
+    "target_pipeline": [
+      {"$project": {"_id": 1, "name": "$name.en_US"}},
+      {"$sort": {"name": 1}}
+    ],
+    "rules": []
+  }
+]

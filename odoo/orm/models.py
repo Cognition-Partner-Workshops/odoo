@@ -2422,6 +2422,16 @@ class BaseModel(metaclass=MetaModel):
 
         target_model = self.env[self._fields[field.definition_record].comodel_name]
         field_definition = target_model._fields[field.definition_record_field]
+        if target_model._storage == 'mongodb':
+            target_model.flush_model([field.definition_record_field])
+            path = target_model._mongodb_path(field_definition)
+            docs = self.pool.mongo_store.aggregate(target_model, [
+                {'$match': {f"{path}.name": property_name}},
+                {'$project': {'definition': {'$first': {'$filter': {
+                    'input': f"${path}", 'as': 'd', 'cond': {'$eq': ['$$d.name', property_name]}}}}}},
+                {'$limit': 1},
+            ])
+            return docs[0]['definition'] if docs else {}
         result = self.env.execute_query_dict(SQL(
             """ SELECT definition
                   FROM %(table)s, jsonb_array_elements(%(field)s) definition
@@ -2605,11 +2615,17 @@ class BaseModel(metaclass=MetaModel):
                 nulls_first = nulls == 'NULLS FIRST' if nulls else direction == -1  # SQL default
                 sort.append((self._mongodb_path(field), direction, parent._order_to_sort(self._order), nulls_first))
                 continue
-            if field.translate is True or field.company_dependent or (
+            if field.company_dependent or (
                 field.type == 'many2one' and self.env[field.comodel_name]._order != 'id'
             ):
-                raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r} (comodel order / translation)")
-            sort.append((self._mongodb_path(field), direction))
+                raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r} (comodel order / company dependent)")
+            path = self._mongodb_path(field)
+            if field.translate is True:
+                # same COALESCE as the SQL branch: the current language, then its fallbacks
+                # (StoredTranslations.fallback_langs); MongoStore evaluates the expression
+                langs = list(dict.fromkeys((*StoredTranslations.fallback_langs(field.translation_lang(self.env)), 'en_US')))
+                path = f"{path}.{langs[0]}" if len(langs) == 1 else {'$ifNull': [f"${path}.{lang}" for lang in langs]}
+            sort.append((path, direction))
         return sort
 
     def _document_value_to_cache(self, field: Field, value):
@@ -2655,9 +2671,12 @@ class BaseModel(metaclass=MetaModel):
         for fname, value in zip(columns, row):
             if value is SQL_DEFAULT:
                 continue
+            field = self._fields[fname]
             value = store.document_value(self, fname, value)
+            if isinstance(value, str) and field.column_type[0] == 'jsonb':
+                value = json.loads(value)  # convert_to_column() serialised (properties definitions)
             if value is not None:
-                doc[self._mongodb_path(self._fields[fname])] = value
+                doc[self._mongodb_path(field)] = value
         return doc
 
     def _create_mongodb(self, columns: list[str], rows: list[list]) -> list[int]:
@@ -2669,13 +2688,28 @@ class BaseModel(metaclass=MetaModel):
             doc['_id'] = id_
             docs.append(doc)
         store.insert_many(self, docs)
+        self._write_shadow_columns([(id_, dict(zip(columns, row))) for id_, row in zip(ids, rows)])
         return ids
+
+    def _write_shadow_columns(self, values_by_id: list[tuple[int, dict]]) -> None:
+        """ D6 full shadow (orm_backend_contract.md §4): the columns in
+        ``_shadow_columns`` are also written to the PostgreSQL table, in
+        the same transaction, for the SQL readers of model-only addons. """
+        shadow = [c for c in self._shadow_columns if c in self._fields]
+        for id_, values in values_by_id:
+            assignments = [(c, values[c]) for c in shadow if c in values]
+            if assignments:
+                self.env.cr.execute(SQL(
+                    "UPDATE %s SET %s WHERE id = %s", SQL.identifier(self._table),
+                    SQL(', ').join(SQL("%s = %s", SQL.identifier(c), v) for c, v in assignments), id_,
+                ))
 
     def _write_mongodb(self, updates_list: list) -> None:
         from .storage_mongodb import to_bson  # noqa: PLC0415
         store = self.pool.mongo_store
         updates = []
         for fnames, rows in updates_list:
+            self._write_shadow_columns([(row[0], dict(zip(fnames, row[1:]))) for row in rows])
             for row in rows:
                 id_, *values = row
                 set_, unset = {}, {}
@@ -2684,6 +2718,8 @@ class BaseModel(metaclass=MetaModel):
                     assert field.store and field.column_type
                     path = self._mongodb_path(field)
                     value = self.pool.mongo_store.document_value(self, fname, value)
+                    if isinstance(value, str) and field.column_type[0] == 'jsonb':
+                        value = json.loads(value)
                     if field.translate is True and isinstance(value, list):
                         # (is_partial, {lang: value}) from get_column_update()
                         is_partial, translations = value
