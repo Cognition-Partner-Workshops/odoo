@@ -133,6 +133,8 @@ class Savepoint:
         self.name = str(uuid.uuid1())
         self._cr = cr
         self.closed: bool = False
+        undo = getattr(cr, '_mongo_undo', None)
+        self._mongo_mark = undo.mark() if undo is not None else 0
         cr.execute(psql.SQL('SAVEPOINT {}').format(psql.Identifier(self.name)))
 
     def __enter__(self):
@@ -146,6 +148,8 @@ class Savepoint:
             self._close(rollback)
 
     def rollback(self):
+        if (undo := getattr(self._cr, '_mongo_undo', None)) is not None:
+            undo.rollback_to(self._mongo_mark)
         self._cr.execute(psql.SQL('ROLLBACK TO SAVEPOINT {}').format(psql.Identifier(self.name)))
 
     def _close(self, rollback: bool):
@@ -259,6 +263,7 @@ class Cursor(_CursorProtocol):
         self.postcommit = Callbacks()
         self.prerollback = Callbacks()
         self.postrollback = Callbacks()
+        self._mongo_undo = None  # MongoDB undo log of the transaction (orm.storage_mongodb)
         self._now: datetime | None = None
         self.cache: dict[typing.Any, typing.Any] = {}
 

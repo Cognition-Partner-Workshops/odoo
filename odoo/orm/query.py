@@ -307,6 +307,96 @@ class Query:
         return iter(self.get_result_ids())
 
 
+class MongoQuery(Query):
+    """ A :class:`Query` for models stored in MongoDB: a filter document, a
+    sort specification and limit/offset instead of SQL clauses.  Any SQL
+    rendering (``select``, ``subselect``, joins, where clauses) raises
+    :class:`NotImplementedError`: there is no SQL for such a model.
+    """
+
+    def __init__(self, model: BaseModel):
+        super().__init__(model, table=SQL.identifier(model._table))
+        self.filter: dict = {}
+        self.sort: list[tuple[str, int]] = []
+
+    def __copy__(self):
+        query = MongoQuery(self._model)
+        query.filter = dict(self.filter)
+        query.sort = list(self.sort)
+        query.limit = self.limit
+        query.offset = self.offset
+        query._ids = self._ids
+        return query
+
+    def _no_sql(self, what: str):
+        raise NotImplementedError(
+            f"{self._model._name} is stored in MongoDB: no SQL for {what}",
+        )
+
+    def add_join(self, kind, alias, table, condition):
+        self._no_sql("join")
+
+    def add_where(self, where_clause, where_params=()):
+        self._no_sql("where clause")
+
+    def add_filter(self, filter_: dict) -> None:
+        """ Add a MongoDB filter document (AND-ed with the existing filter). """
+        self._ids = self._ids and None
+        if not filter_:
+            return
+        if not self.filter:
+            self.filter = filter_
+        elif '$and' in self.filter and len(self.filter) == 1:
+            self.filter = {'$and': [*self.filter['$and'], filter_]}
+        else:
+            self.filter = {'$and': [self.filter, filter_]}
+
+    @property
+    def from_clause(self):
+        return self._no_sql("from clause")
+
+    @property
+    def where_clause(self):
+        return self._no_sql("where clause")
+
+    def select(self, *args):
+        self._no_sql("select")
+
+    def subselect(self, *args):
+        """ The ids of the query as an SQL subselect, so that an SQL model can
+        filter on a MongoDB comodel (second step of a cross-store domain). """
+        if args:
+            self._no_sql("subselect with expressions")
+        return SQL("(SELECT unnest(%s::int4[]))", list(self.get_result_ids()))
+
+    def find(self, projection=None) -> list[dict]:
+        """ Run the query and return the documents (``_id`` plus ``projection``). """
+        model = self._model
+        return model.pool.mongo_store.find(
+            model, self.filter, projection, self.sort or None, self.offset or 0, self.limit,
+        )
+
+    def get_result_ids(self) -> tuple[int, ...]:
+        if self._ids is None:
+            self._ids = tuple(doc['_id'] for doc in self.find({'_id': 1}))
+        return self._ids
+
+    def set_result_ids(self, ids, ordered: bool = True) -> None:
+        ids = tuple(ids)
+        assert not (self.filter or self.limit or self.offset), "Method set_result_ids() can only be called on a virgin Query"
+        self.filter = {'_id': {'$in': list(ids)}}
+        self.sort = []
+        self._ids = ids
+
+    def __len__(self) -> int:
+        if self._ids is None:
+            model = self._model
+            if self.limit or self.offset:
+                return len(self.get_result_ids())
+            return model.pool.mongo_store.count(model, self.filter)
+        return len(self._ids)
+
+
 class TableSQL(SQL):
     """An alias of a table in a Query."""
     __slots__ = ('_alias', '_model', '_query')

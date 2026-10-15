@@ -23,7 +23,7 @@ from odoo.tools.misc import frozendict, SENTINEL, Sentinel, unique
 
 from .domains import Domain
 from .query import Query
-from .utils import COLLECTION_TYPES, SQL_OPERATORS, SUPERUSER_ID, expand_ids, parse_field_expr
+from .utils import COLLECTION_TYPES, READ_GROUP_NUMBER_GRANULARITY, SQL_OPERATORS, SUPERUSER_ID, expand_ids, parse_field_expr
 
 if typing.TYPE_CHECKING:
     from collections.abc import Callable, Collection, Iterable, Iterator, MutableMapping, Sequence
@@ -1537,6 +1537,101 @@ class Field[T]:
             return SQL("%s%s%s", sql_field, sql_operator, subselect)
 
         raise NotImplementedError(f"Invalid operator {operator!r} for SQL in domain term {(field_expr, operator, value)!r}")
+
+    def condition_to_filter(self, model: BaseModel, field_expr: str, operator: str, value) -> dict:
+        """ Return the MongoDB filter document for the domain condition
+        ``(field_expr, operator, value)`` on ``model`` (stored in MongoDB).
+        Mirrors :meth:`condition_to_sql`, including the null semantics.
+        """
+        from .storage_mongodb import to_bson  # noqa: PLC0415
+        store = model.pool.mongo_store
+        fname, property_name = parse_field_expr(field_expr)
+        path = store.field_path(model, fname)
+        if property_name:
+            if self.type not in ('date', 'datetime') or property_name not in READ_GROUP_NUMBER_GRANULARITY:
+                raise NotImplementedError(f"{model._name} is stored in MongoDB: no filter for {field_expr!r}")
+            return self._condition_to_filter_date_part(path, property_name, operator, value)
+        if self.translate is True:
+            lang = self.translation_lang(model.env)
+            path = f"{path}.{lang}"
+        elif self.company_dependent:
+            path = f"{path}.{model.env.company.id}"
+
+        def _value(v):
+            return to_bson(self.convert_to_column(v, model, validate=False))
+
+        if operator in ('in', 'not in'):
+            assert isinstance(value, COLLECTION_TYPES), \
+                f"condition_to_filter() 'in' operator expects a collection, not a {value!r}"
+            params = [_value(v) for v in value if v is not False and v is not None]
+            null_in_condition = len(params) < len(value)
+            if (null_value := self.falsy_value) is not None:
+                null_value = _value(null_value)
+                if null_value in params:
+                    null_in_condition = True
+                elif null_in_condition:
+                    params.append(null_value)
+            if operator == 'in':
+                # {$in: [..., None]} also matches missing fields
+                condition = {'$in': [*params, None] if null_in_condition else params}
+            elif null_in_condition:
+                condition = {'$nin': params, '$ne': None}
+            else:
+                condition = {'$nin': params}  # $nin matches null/missing, like Odoo's NOT IN
+        elif operator.endswith('like'):
+            pattern = re.escape(str(value))
+            if '=' in operator:
+                pattern = '^' + pattern.replace('%', '.*').replace('_', '.') + '$'
+            options = 'is' if operator.endswith('ilike') else 's'
+            if self.is_text or self.type == 'selection':
+                regex = {'$regex': pattern, '$options': options}
+            else:
+                regex = {'$expr': {'$regexMatch': {'input': {'$toString': f'${path}'}, 'regex': pattern, 'options': options}}}
+                path = None
+            if operator in Domain.NEGATIVE_OPERATORS:
+                condition = {'$not': regex} if path else {'$nor': [regex]}
+            else:
+                condition = regex
+        elif operator in ('>', '<', '>=', '<='):
+            mongo_operator = {'>': '$gt', '<': '$lt', '>=': '$gte', '<=': '$lte'}[operator]
+            accept_null_value = False
+            if (null_value := self.falsy_value) is not None:
+                value = self.convert_to_cache(value, model) or null_value
+                accept_null_value = (
+                    null_value < value if operator == '<' else
+                    null_value > value if operator == '>' else
+                    null_value <= value if operator == '<=' else
+                    null_value >= value
+                )
+            condition = {mongo_operator: _value(value)}
+            if accept_null_value:
+                return {'$or': [{path: condition}, {path: None}]}
+        elif operator in ('any!', 'not any!'):
+            if not isinstance(value, Query):
+                raise TypeError(f"condition_to_filter() operator 'any!' accepts a Query, got {value}")
+            ids = list(value.get_result_ids())
+            condition = {'$in': ids} if operator == 'any!' else {'$nin': ids}
+        else:
+            raise NotImplementedError(f"Invalid operator {operator!r} for MongoDB in domain term {(field_expr, operator, value)!r}")
+
+        if path is None:
+            return condition
+        if self.company_dependent and operator not in ('any!', 'not any!') and model.env['ir.default']._evaluate_condition_with_fallback(model._name, field_expr, operator, value):
+            return {'$or': [{path: condition}, {path: {'$exists': False}}]}
+        return {path: condition}
+
+    def _condition_to_filter_date_part(self, path: str, part: str, operator: str, value) -> dict:
+        expr = {
+            'year_number': {'$year': f'${path}'}, 'quarter_number': {'$ceil': {'$divide': [{'$month': f'${path}'}, 3]}},
+            'month_number': {'$month': f'${path}'}, 'iso_week_number': {'$isoWeek': f'${path}'},
+            'day_of_year': {'$dayOfYear': f'${path}'}, 'day_of_month': {'$dayOfMonth': f'${path}'},
+            'day_of_week': {'$subtract': [{'$dayOfWeek': f'${path}'}, 1]}, 'hour_number': {'$hour': f'${path}'},
+            'minute_number': {'$minute': f'${path}'}, 'second_number': {'$second': f'${path}'},
+        }[part]
+        ops = {'=': '$eq', '!=': '$ne', '>': '$gt', '<': '$lt', '>=': '$gte', '<=': '$lte', 'in': '$in', 'not in': '$not'}
+        if operator == 'not in':
+            return {'$expr': {'$not': [{'$in': [expr, list(value)]}]}}
+        return {'$expr': {ops[operator]: [expr, list(value) if operator == 'in' else value]}}
 
     def _condition_to_sql_company(self, table: TableSQL, sql_expr: SQL, field_expr: str, operator: str, value) -> SQL:
         """ Add a not null condition on the field for company-dependent fields to use an existing index for better performance."""

@@ -328,6 +328,9 @@ class Registry(Mapping[str, type["BaseModel"]]):
 
         # constraint checks
         self.not_null_fields: set[Field] = set()
+        self.mongodb_models: frozenset[str] = frozenset()
+        self.mongodb_checks: dict[tuple[str, str], tuple] = {}
+        self._mongo_store = None
 
         # Inter-process signaling:
         # The `orm_signaling_...` sequence indicates that the corresponding
@@ -586,7 +589,19 @@ class Registry(Mapping[str, type["BaseModel"]]):
             env.cr.flush()
             env.transaction.clear()
             self.check_null_constraints(env.cr)
+        self.mongodb_models = frozenset(
+            name for name, model_cls in self.models.items()
+            if model_cls._storage == 'mongodb' and not model_cls._abstract
+        )
         reset_classes_tp_versions_used([*self.values(), Registry])  # cpython optimisation
+
+    @property
+    def mongo_store(self):
+        """ The MongoDB store of models with ``_storage = 'mongodb'`` (lazy client). """
+        if self._mongo_store is None:
+            from .storage_mongodb import MongoStore  # noqa: PLC0415
+            self._mongo_store = MongoStore(self)
+        return self._mongo_store
 
     @functools.cached_property
     def field_inverses(self) -> Collector[Field, Field]:
@@ -881,7 +896,7 @@ class Registry(Mapping[str, type["BaseModel"]]):
 
         self.not_null_fields.clear()
         for Model in self.models.values():
-            if Model._auto and not Model._abstract:
+            if Model._auto and not Model._abstract and Model._storage != 'mongodb':
                 for field_name, field in Model._fields.items():
                     if field_name == 'id':
                         self.not_null_fields.add(field)
@@ -901,7 +916,7 @@ class Registry(Mapping[str, type["BaseModel"]]):
             (sql.make_index_name(Model._table, field.name), Model._table, field)
             for model_name in model_names
             for Model in [self.models[model_name]]
-            if Model._auto and not Model._abstract
+            if Model._auto and not Model._abstract and Model._storage != 'mongodb'
             for field in Model._fields.values()
             if field.column_type and field.store
         ]

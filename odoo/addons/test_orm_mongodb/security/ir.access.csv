@@ -1,0 +1,5 @@
+id,name,model_id,group_id/id,operation,domain
+access_category,test_orm_mongodb_category,test_orm_mongodb.category,base.group_user,crud,
+access_tag,test_orm_mongodb_tag,test_orm_mongodb.tag,base.group_user,crud,
+access_item,test_orm_mongodb_item,test_orm_mongodb.item,base.group_user,crud,
+access_line,test_orm_mongodb_line,test_orm_mongodb.line,base.group_user,crud,

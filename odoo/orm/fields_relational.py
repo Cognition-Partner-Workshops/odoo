@@ -17,7 +17,7 @@ from .fields import IR_MODELS, Field, _logger, determine
 from .fields_reference import Many2oneReference
 from .identifiers import NewId
 from .models import BaseModel
-from .query import FieldSQL, Query, TableSQL
+from .query import FieldSQL, MongoQuery, Query, TableSQL
 from .utils import COLLECTION_TYPES, Prefetch, SQL_OPERATORS, check_pg_name
 
 if typing.TYPE_CHECKING:
@@ -27,6 +27,24 @@ if typing.TYPE_CHECKING:
     OnDelete = typing.Literal['cascade', 'set null', 'restrict']
 
 _schema = logging.getLogger('odoo.schema')
+
+
+def _check_cross_store_size(model: BaseModel, ids) -> None:
+    from odoo.tools import config  # noqa: PLC0415
+    max_ids = int(config.get('mongodb_cross_store_max_ids') or 50_000)
+    if len(ids) > max_ids:
+        raise ValueError(
+            f"Cross-store domain on {model._name} resolves to {len(ids)} ids "
+            f"(limit mongodb_cross_store_max_ids={max_ids}); narrow the domain",
+        )
+
+
+def _cross_store_ids(model: BaseModel, coquery: Query) -> list[int]:
+    """ Step 1 of the two-step cross-store rule: evaluate the comodel query in
+    its own store and return the matching ids. """
+    ids = list(coquery.get_result_ids())
+    _check_cross_store_size(model, ids)
+    return ids
 
 
 class _Relational(Field[BaseModel]):
@@ -480,6 +498,22 @@ class Many2one(_Relational):
         cotable = self.join(field_sql._table)
         return cotable[property_name]
 
+    def condition_to_filter(self, model: BaseModel, field_expr: str, operator: str, value) -> dict:
+        if operator not in ('any', 'not any', 'any!', 'not any!') or field_expr != self.name:
+            return super().condition_to_filter(model, field_expr, operator, value)
+        # two-step cross-store rule: search the comodel in its own store, then
+        # filter on the id list
+        comodel = model.env[self.comodel_name]
+        bypass_access = operator in ('any!', 'not any!') or self.bypass_search_access
+        if isinstance(value, Domain):
+            value = comodel._search(value, active_test=False, bypass_access=bypass_access)
+        if not isinstance(value, Query):
+            raise TypeError(f"condition_to_filter() 'any' operator accepts Domain or Query, got {value}")
+        ids = _cross_store_ids(model, value)
+        path = model.pool.mongo_store.field_path(model, self.name)
+        # $nin also matches null/missing, like "field IS NULL OR field NOT IN ..."
+        return {path: {'$in': ids} if operator in ('any', 'any!') else {'$nin': ids}}
+
     def condition_to_sql(self, table: TableSQL, field_expr: str, operator: str, value) -> SQL:
         if operator not in ('any', 'not any', 'any!', 'not any!') or field_expr != self.name:
             # for other operators than 'any', just generate condition based on column type
@@ -842,6 +876,35 @@ class _RelationalMulti(_Relational):
         # not allowed, since using it changes the cardinality of the query
         raise ValueError(f"Cannot generate SQL for multi-relational field {self}")
 
+    def condition_to_filter(self, model: BaseModel, field_expr: str, operator: str, value) -> dict:
+        assert field_expr == self.name, "Supporting condition only to field"
+        comodel = model.env[self.comodel_name].with_context(**self.context)
+        if not self.store:
+            raise ValueError(f"Cannot convert {self} to a filter because it is not stored")
+        assert operator in ('any', 'not any', 'any!', 'not any!'), \
+            f"Relational field {self} expects 'any' operator"
+        exists = operator in ('any', 'any!')
+        domain = self.get_comodel_domain(model)
+        if isinstance(value, Domain):
+            domain &= value
+            bypass_access = self.bypass_search_access or operator in ('any!', 'not any!')
+            query = comodel._search(domain, bypass_access=bypass_access)
+        elif isinstance(value, MongoQuery):
+            domain = domain.optimize_full(comodel)
+            query = copy.copy(value)
+            if not domain.is_true():
+                query.add_filter(domain._to_filter(comodel))
+        elif isinstance(value, Query):
+            query = comodel._search(domain & Domain('id', 'any!', value), active_test=False, bypass_access=True)
+        else:
+            raise TypeError(f"Unimplemented condition on {self} for {type(value)}")
+        if query.is_empty():
+            return Domain(not exists)._to_filter(model)
+        return self._condition_to_filter_relational(model, exists, query)
+
+    def _condition_to_filter_relational(self, model: BaseModel, exists: bool, coquery: Query) -> dict:
+        raise NotImplementedError
+
     def condition_to_sql(self, table: TableSQL, field_expr: str, operator: str, value) -> SQL:
         assert field_expr == self.name, "Supporting condition only to field"
         model = table._model
@@ -957,9 +1020,29 @@ class One2many(_RelationalMulti):
 
     _description_relation_field = property(attrgetter('inverse_name'))
 
+    def _condition_to_filter_relational(self, model: BaseModel, exists: bool, coquery: Query) -> dict:
+        # step 1 ran in the comodel's store; step 2 maps the matching lines to
+        # their parent ids through the inverse field
+        comodel = coquery._model
+        inverse = comodel._fields[self.inverse_name]
+        if isinstance(coquery, MongoQuery):
+            store = comodel.pool.mongo_store
+            path = store.field_path(comodel, inverse.name)
+            if coquery.limit or coquery.offset:
+                parent_ids = store.distinct(comodel, path, {'_id': {'$in': list(coquery.get_result_ids())}})
+            else:
+                parent_ids = store.distinct(comodel, path, coquery.filter)
+        else:
+            rows = model.env.execute_query(coquery.subselect(coquery.table[inverse.name]))
+            parent_ids = [row[0] for row in rows if row[0]]
+        _check_cross_store_size(model, parent_ids)
+        return {'_id': {'$in': parent_ids} if exists else {'$nin': parent_ids}}
+
     def update_db(self, model, columns):
         if self.comodel_name in model.env:
             comodel = model.env[self.comodel_name]
+            if comodel._storage == 'mongodb':
+                return
             if self.inverse_name not in comodel._fields:
                 raise UserError(model.env._(
                     'No inverse field "%(inverse_field)s" found for "%(comodel)s"',
@@ -1224,6 +1307,17 @@ class One2many(_RelationalMulti):
                 subselect,
             )
 
+        if isinstance(coquery, MongoQuery):
+            # the lines live in MongoDB: map them to their parents here
+            store = comodel.pool.mongo_store
+            path = store.field_path(comodel, inverse_field.name)
+            parent_ids = store.distinct(comodel, path, {'_id': {'$in': list(coquery.get_result_ids())}})
+            _check_cross_store_size(model, parent_ids)
+            return SQL(
+                "%s%s(SELECT unnest(%s::int4[]))",
+                table.id, SQL_OPERATORS['in' if exists else 'not in'], parent_ids,
+            )
+
         subselect = coquery.subselect(
             SQL("%s AS __inverse", coquery.table[inverse_field.name]),
         )
@@ -1367,8 +1461,17 @@ class Many2many(_RelationalMulti):
                 inverses.add(self, field)
                 inverses.add(field, self)
 
+    def _mongo_layout(self, model):
+        """ ``(owner_model_name, array_path, element_key)`` when the relation is
+        an id array on a MongoDB document, else ``None`` (PostgreSQL relation table). """
+        if not model.pool.mongodb_models:
+            return None
+        return model.pool.mongo_store.m2m_layout(model, self)
+
     def update_db(self, model, columns):
         cr = model.env.cr
+        if self._mongo_layout(model):
+            return  # the relation is an array on a MongoDB document (d-m2m-arrays)
         # Do not reflect relations for custom fields, as they do not belong to a
         # module. They are automatically removed when dropping the corresponding
         # 'ir.model.field'.
@@ -1432,6 +1535,18 @@ class Many2many(_RelationalMulti):
 
         # make the query for the lines
         domain = self.get_comodel_domain(records)
+        if layout := self._mongo_layout(records):
+            group = self._read_mongo_pairs(records, layout)
+            coids = OrderedSet(id2 for ids in group.values() for id2 in ids)
+            # keep only lines matching the comodel domain, in the comodel order
+            allowed = comodel.sudo()._search(domain & Domain('id', 'in', coids), order=comodel._order, bypass_access=True)
+            rank = {id2: index for index, id2 in enumerate(allowed.get_result_ids())}
+            values = [
+                tuple(sorted((id2 for id2 in group[id_] if id2 in rank), key=rank.__getitem__))
+                for id_ in records._ids
+            ]
+            self._insert_cache(records, values)
+            return
         # bypass_access set because of context management in ir.attachment
         query = comodel.sudo()._search(domain, order=comodel._order, bypass_access=True)
 
@@ -1609,7 +1724,9 @@ class Many2many(_RelationalMulti):
         add_pairs = [(x, y) for x, ys in new_relation.items() for y in ys - old_relation[x]]
         remove_pairs = [(x, y) for x, ys in old_relation.items() for y in ys - new_relation[x]]
 
-        if is_real and self.store:
+        if is_real and self.store and (layout := self._mongo_layout(model)):
+            self._write_mongo_pairs(model, layout, add_pairs, remove_pairs)
+        elif is_real and self.store:
             if add_pairs:
                 cr.execute(SQL(
                     "INSERT INTO %s (%s, %s) SELECT * FROM UNNEST(%s, %s) ON CONFLICT DO NOTHING",
@@ -1703,6 +1820,58 @@ class Many2many(_RelationalMulti):
         for model_name, (ids, field_names) in modified.items():
             model.env[model_name].browse(ids).modified(field_names)
 
+    def _read_mongo_pairs(self, records, layout) -> dict[int, list[int]]:
+        """ ``{record_id: [corecord_id]}`` from the id array of the owner documents. """
+        owner_name, array_path, element_key = layout
+        store = records.pool.mongo_store
+        group = defaultdict(list)
+        if owner_name == self.model_name:
+            for doc in store.find(records.env[owner_name], {'_id': {'$in': list(records.ids)}}, {array_path: 1}):
+                group[doc['_id']] = [item[element_key] for item in doc.get(array_path, ())]
+        else:  # reverse read through the multikey index on the comodel documents
+            path = f"{array_path}.{element_key}"
+            for doc in store.find(records.env[owner_name], {path: {'$in': list(records.ids)}}, {path: 1}):
+                for item in doc.get(array_path, ()):
+                    if item[element_key] in records._ids:
+                        group[item[element_key]].append(doc['_id'])
+        return group
+
+    def _write_mongo_pairs(self, model, layout, add_pairs, remove_pairs) -> None:
+        owner_name, array_path, element_key = layout
+        store = model.pool.mongo_store
+        owner = model.env[owner_name]
+        if owner_name != self.model_name:
+            add_pairs = [(y, x) for x, y in add_pairs]
+            remove_pairs = [(y, x) for x, y in remove_pairs]
+        more, less = defaultdict(list), defaultdict(list)
+        for x, y in add_pairs:
+            more[x].append({element_key: y})
+        for x, y in remove_pairs:
+            less[x].append(y)
+        updates = [(x, {'$addToSet': {array_path: {'$each': items}}}) for x, items in more.items()]
+        updates += [(x, {'$pull': {array_path: {element_key: {'$in': ys}}}}) for x, ys in less.items()]
+        store.bulk_update(owner, updates)
+
+    def _condition_to_filter_relational(self, model: BaseModel, exists: bool, coquery: Query) -> dict:
+        layout = self._mongo_layout(model)
+        coids = _cross_store_ids(model, coquery)
+        if layout and layout[0] == self.model_name:
+            owner_name, array_path, element_key = layout
+            path = f"{array_path}.{element_key}"
+            return {path: {'$in': coids} if exists else {'$nin': coids}}
+        if layout:  # the array lives on the comodel documents: reverse read
+            owner_name, array_path, element_key = layout
+            store = model.pool.mongo_store
+            ids = store.distinct(model.env[owner_name], f"{array_path}.{element_key}", {'_id': {'$in': coids}})
+        else:  # PostgreSQL-owned relation table
+            rows = model.env.execute_query(SQL(
+                "SELECT DISTINCT %s FROM %s WHERE %s IN %s",
+                SQL.identifier(self.column1), SQL.identifier(self.relation), SQL.identifier(self.column2), tuple(coids) or (None,),
+            ))
+            ids = [row[0] for row in rows]
+        _check_cross_store_size(model, ids)
+        return {'_id': {'$in': ids} if exists else {'$nin': ids}}
+
     def join(self, table: TableSQL, kind='LEFT JOIN', *, only_ids: bool = False) -> TableSQL:
         """ Add a LEFT JOIN to ``query`` by following field ``self``,
         and return the joined table's corresponding model and alias.
@@ -1767,7 +1936,20 @@ class Many2many(_RelationalMulti):
         assert not coquery.is_empty()
         rel_table, rel_id1, rel_id2 = self.relation, self.column1, self.column2
         rel_alias = table._make_alias(self.name)
-        if not coquery.where_clause:
+        model = table._model
+        if layout := self._mongo_layout(model):
+            # the relation is an id array on the comodel documents (the model
+            # itself is in PostgreSQL): reverse read through the multikey index
+            owner_name, array_path, element_key = layout
+            store = model.pool.mongo_store
+            coids = _cross_store_ids(model, coquery)
+            ids = store.distinct(model.env[owner_name], f"{array_path}.{element_key}", {'_id': {'$in': coids}})
+            _check_cross_store_size(model, ids)
+            return SQL(
+                "%s%s(SELECT unnest(%s::int4[]))",
+                table.id, SQL_OPERATORS['in' if exists else 'not in'], ids,
+            )
+        if not isinstance(coquery, MongoQuery) and not coquery.where_clause:
             # case: no constraints on table and we have foreign keys
             # so we can inverse the operator and check existence
             exists = not exists
