@@ -34,12 +34,16 @@ def main() -> int:
     original_check = mp._check_references
 
     def check_references_skipping_excluded(out: dict) -> None:
-        for c in out["collections"]:
-            c["decision"]["references"] = [r for r in c["decision"]["references"]
-                                           if r["to"] not in excluded]
+        # check a pruned copy; `out` is what gets written and must keep every reference.
         # references into excluded tables are not dangling: the table was excluded on
         # purpose and the column stays an integer id (NOTES.md D3)
         pruned = json.loads(json.dumps(out))
+        for c in pruned["collections"]:
+            c["decision"]["references"] = [r for r in c["decision"]["references"]
+                                           if r["to"] not in excluded]
+            for emb in c["embeds"]:
+                emb["child_references"] = [r for r in emb.get("child_references", [])
+                                           if r["to"] not in excluded]
         original_check(pruned)
 
     mp._check_references = check_references_skipping_excluded

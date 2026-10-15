@@ -3,7 +3,9 @@
     "op": "reference",
     "from": "productProduct",
     "child_table": "stock_storage_category_capacity",
-    "child_columns": ["product_id"],
+    "child_columns": [
+      "product_id"
+    ],
     "basis": "d-embed-storage-capacity = keep-collection",
     "evidence": {
       "file": ".migration/census.json",
@@ -13,28 +15,49 @@
   {
     "op": "resolve",
     "collection": "productProduct",
-    "match": {"kind": "fanout_unmeasured", "child_table": "stock_storage_category_capacity"},
+    "match": {
+      "kind": "fanout_unmeasured",
+      "child_table": "stock_storage_category_capacity"
+    },
     "resolution": "reference: stock_storage_category_capacity stays a standalone collection (d-embed-storage-capacity = keep-collection; product_id is nullable)",
-    "evidence": {"file": ".migration/census.json", "note": "tables.stock_storage_category_capacity.columns[product_id].nullable = true"}
+    "evidence": {
+      "file": ".migration/census.json",
+      "note": "tables.stock_storage_category_capacity.columns[product_id].nullable = true"
+    }
   },
   {
     "op": "resolve",
-    "match": {"kind": "fanout_unmeasured", "parent": "product_product", "child_table": "stock_storage_category_capacity"},
+    "match": {
+      "kind": "fanout_unmeasured",
+      "parent": "product_product",
+      "child_table": "stock_storage_category_capacity"
+    },
     "resolution": "reference: stock_storage_category_capacity stays a standalone collection (d-embed-storage-capacity = keep-collection; product_id is nullable)",
-    "evidence": {"file": ".migration/census.json", "note": "tables.stock_storage_category_capacity.columns[product_id].nullable = true"}
+    "evidence": {
+      "file": ".migration/census.json",
+      "note": "tables.stock_storage_category_capacity.columns[product_id].nullable = true"
+    }
   },
   {
     "op": "resolve",
     "collection": "productProduct",
-    "match": {"kind": "source_index_not_exercised", "table": "stock_storage_category_capacity"},
+    "match": {
+      "kind": "source_index_not_exercised",
+      "table": "stock_storage_category_capacity"
+    },
     "resolution": "question belongs to the restored stockStorageCategoryCapacity collection (stock, model-only); decided by the model-only index rule in .migration/open_model_items.md",
-    "evidence": {"file": ".migration/open_model_items.md", "note": "B-stock index rule"}
+    "evidence": {
+      "file": ".migration/open_model_items.md",
+      "note": "B-stock index rule"
+    }
   },
   {
     "op": "reference",
     "from": "saleOrderLine",
     "child_table": "product_attribute_custom_value",
-    "child_columns": ["sale_order_line_id"],
+    "child_columns": [
+      "sale_order_line_id"
+    ],
     "basis": "d-embed-attr-custom-value = keep-collection",
     "evidence": {
       "file": ".migration/census.json",
@@ -43,8 +66,54 @@
   },
   {
     "op": "resolve",
-    "match": {"kind": "fanout_unmeasured", "parent": "sale_order_line", "child_table": "product_attribute_custom_value"},
+    "match": {
+      "kind": "fanout_unmeasured",
+      "parent": "sale_order_line",
+      "child_table": "product_attribute_custom_value"
+    },
     "resolution": "reference: product_attribute_custom_value stays a standalone collection (d-embed-attr-custom-value = keep-collection; sale_order_line_id is nullable)",
-    "evidence": {"file": ".migration/census.json", "note": "tables.product_attribute_custom_value.columns[sale_order_line_id].nullable = true"}
+    "evidence": {
+      "file": ".migration/census.json",
+      "note": "tables.product_attribute_custom_value.columns[sale_order_line_id].nullable = true"
+    }
+  },
+  {
+    "op": "reference",
+    "from": "stockStorageCategory",
+    "child_table": "stock_storage_category_capacity",
+    "child_columns": [
+      "storage_category_id"
+    ],
+    "basis": "restored collection keeps every census FK edge as a reference row",
+    "evidence": {
+      "file": ".migration/census.json",
+      "note": "relationships: stock_storage_category_capacity.storage_category_id -> stock_storage_category (NOT NULL); the reference op that un-embedded the table restored only the former parent edge"
+    }
+  },
+  {
+    "op": "reference",
+    "from": "stockPackageType",
+    "child_table": "stock_storage_category_capacity",
+    "child_columns": [
+      "package_type_id"
+    ],
+    "basis": "restored collection keeps every census FK edge as a reference row",
+    "evidence": {
+      "file": ".migration/census.json",
+      "note": "relationships: stock_storage_category_capacity.package_type_id -> stock_package_type (nullable); restored collection needs its reference row"
+    }
+  },
+  {
+    "op": "reference",
+    "from": "productTemplateAttributeValue",
+    "child_table": "product_attribute_custom_value",
+    "child_columns": [
+      "custom_product_template_attribute_value_id"
+    ],
+    "basis": "restored collection keeps every census FK edge as a reference row",
+    "evidence": {
+      "file": ".migration/census.json",
+      "note": "relationships: product_attribute_custom_value.custom_product_template_attribute_value_id -> product_template_attribute_value (NOT NULL); restored collection needs its reference row"
+    }
   }
 ]

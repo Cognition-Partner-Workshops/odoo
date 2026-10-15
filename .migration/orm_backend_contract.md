@@ -39,7 +39,7 @@ existing code, unchanged. "store" below means the `MongoStore` object of §1.
 | `_flush` (`:5859`) → `_write_multi` | | unchanged entry; see §6 for when the buffered writes reach Mongo. |
 | `unlink` (`:3658`) | `flush_all`; cleanup of `ir.model.data`/`ir.attachment`/`ir.default` (PostgreSQL models); company-dependent Many2one `UPDATE … jsonb` on referencing tables (`:3731-3788`); `DELETE`; `invalidate_all` | `DELETE FROM <shadow> WHERE id IN %s` first, in the PostgreSQL transaction (FK `RESTRICT`/`SET NULL`/`CASCADE` actions of the 53 inbound FKs fire here, as today), then `store.delete_many({_id: {$in}})` through the buffer. Framework cleanup unchanged (D4). The company-dependent `UPDATE` at `:3758-3786` runs per referencing model in that model's own store (SQL for PostgreSQL models, `$unset <field>.<company>` for mongodb ones). |
 | `_read_group` (`:1996`) via `read_group` (`:1932`) | `_search` + `_read_group_select` (`:2087`) / `_groupby` (`:2124`) / `_orderby` (`:2202`) / having → `query.select` | `_search` filter → `$match`; groupby → `$group` on the field, with `day/week/month/quarter/year` as `$dateTrunc` and the integer date parts as `$year`/`$month`/…; aggregates `count`, `count_distinct`, `sum`, `avg`, `min`, `max`, `array_agg`/`recordset`, `bool_and`, `bool_or`; having → `$match` after `$group`; order/limit/offset → `$sort`/`$skip`/`$limit`. Other PostgreSQL aggregate names raise `NotImplementedError` naming the spec. Group values are post-processed by `_read_group_postprocess_*` unchanged. |
-| `_auto_init` (`:2506`) | `sql.create_model_table`, `field.update_db`, `_add_sql_constraints` (`:2599`) | `store.ensure_collection(model)` + the collection's `indexes` from `mapping_spec.json` (natural keys unique); create the shadow table (§4) if missing; no `update_db`, no SQL constraints — Python `_check_*` constraints keep running, SQL `_sql_constraints`/`models.Constraint` are implemented as unique indexes when they are plain `UNIQUE(cols)`, else logged as unsupported (NOTES.md E lists none on the slice). `init()` (`:2587`) is still called. |
+| `_auto_init` (`:2506`) | `sql.create_model_table`, `field.update_db`, `_add_sql_constraints` (`:2599`) | `store.ensure_collection(model)` + the collection's `indexes` from `mapping_spec.json` (natural keys unique); create the shadow table (§4) if missing; no `update_db`, no SQL constraints — Python `_check_*` constraints keep running, SQL `models.Constraint`/`models.UniqueIndex` declarations become indexes: plain `UNIQUE(cols)` → unique index; a partial unique index keeps its predicate as `partialFilterExpression` — on the slice `product.product._combination_unique` (`addons/product/models/product_product.py:152-154`, `(product_tmpl_id, combination_indices) WHERE active IS TRUE`) becomes `{productTmplId: 1, combinationIndices: 1}` unique with `partialFilterExpression: {active: true}`, and `uom_uom__relative_uom_id_index` (filtered, census) keeps its predicate; the spec's non-unique `combinationIndices` index is superseded by it (index decision, open item A for `product_product(combination_indices)`). Any other `CHECK`/expression constraint raises at `_auto_init` instead of being logged, so a lost invariant is loud. `init()` (`:2587`) is still called. |
 | `_init_column` (`:2491`), `_check_removed_columns` (`:2462`) | SQL | no-op |
 | `exists` (`:5037`) | `SELECT id` | `find({_id: {$in}}, {_id: 1})` |
 | `_has_cycle` (`:5116`) | recursive SQL | Python walk over the parent field |
@@ -80,10 +80,13 @@ sub-domain against the comodel. The storage path adds one rule there, and in
 whose value is a `Query`/`SQL`) where `model._storage != comodel._storage`, or where both are
 `'mongodb'` (MongoDB has no cross-collection sub-query without `$lookup`):
 
-1. *Step 1 — resolve in the comodel's store.* `ids = comodel.sudo()._search(sub_domain,
-   active_test=…, bypass_access=…).get_result_ids()` with the same `comodel.with_context`
-   and access flags the SQL branch uses (`domains.py:1446-1449`, `fields_relational.py:491-493`,
-   `:859`). The result is bounded: more than `mongodb.cross_store_max_ids` ids
+1. *Step 1 — resolve in the comodel's store.* `ids = comodel._search(sub_domain,
+   active_test=…, bypass_access=bypass_access).get_result_ids()` with exactly the access
+   semantics of the SQL branch: `bypass_access` is true only for `any!`/`not any!` or a field
+   with `bypass_search_access` (`fields_relational.py:492`, `:859`); a plain `any` runs the
+   comodel's `_access_domain` (record rules) like the SQL sub-select does today. No `sudo()`:
+   the only `sudo()` kept is the one the SQL branch already uses for the `search_domain`
+   restriction (`domains.py:1470`). Context handling as at `domains.py:1446-1449`. The result is bounded: more than `mongodb.cross_store_max_ids` ids
    (`ir.config_parameter`, default `50000`) raises `UserError` naming the field, so an
    unbounded two-step never silently builds a multi-megabyte `$in`.
 2. *Step 2 — rewrite into a single-store condition* and let the normal `_to_sql` /
@@ -195,8 +198,10 @@ PostgreSQL stays the transaction coordinator; MongoDB has no shared transaction 
 - **Repair.** A cron `product_mongodb.repair` (PostgreSQL side, `ir.cron`) deletes documents
   whose `_id` has no shadow row and reports shadow rows without a document; every Mongo write
   carries `writeDate` (already a stored field) so the recon harness can bound the window.
-  Savepoints (`cr.savepoint :308`) truncate the undo log to the savepoint mark on release
-  and replay to it on rollback.
+  Savepoints (`cr.savepoint :308`): entering a savepoint records a mark; a savepoint
+  *rollback* replays the undo log back to its mark; a successful *release* keeps the entries
+  (they merge into the enclosing transaction's log, since PostgreSQL has not committed them).
+  The log is discarded only in `cr.postcommit`, after the PostgreSQL `COMMIT` succeeded.
 - **The 5 ORM writers (NOTES.md §D)** and what non-atomicity means for each:
 
 | writer | stores touched in one request | failure window and consequence |
