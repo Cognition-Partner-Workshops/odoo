@@ -294,8 +294,8 @@
         {
           "path": "addons/stock/__init__.py",
           "lines": "46,83-92",
-          "what": "install hook inventory-adjustment SQL",
-          "disposition": "S (install-time only; not run during coexistence)"
+          "what": "`_create_inventory_adjustment` install/uninstall hook: SELECT/UPDATE product_product.qty_available (non-shadowed column)",
+          "disposition": "B (contract §2: installing/uninstalling stock while the slice is on MongoDB is blocked; operational constraint recorded for cutover, not a run-time path)"
         }
       ],
       "cross_boundary": {
@@ -341,7 +341,7 @@
         ],
         "d6_sql_readers": [
           "3 views + 3 `_table_query` reports — S, full shadow product_product(id, product_tmpl_id, weight, volume, standard_price) and product_template(id, uom_id, categ_id, is_storable, purchase_method)",
-          "stock install hook SQL (addons/stock/__init__.py) — S"
+          "stock install/uninstall hook SQL (addons/stock/__init__.py:46,83-92) — B, operational block at cutover (contract §2)"
         ],
         "d4_framework": [
           "ir_attachment 156 (product.template) + 46 (product.product)",
