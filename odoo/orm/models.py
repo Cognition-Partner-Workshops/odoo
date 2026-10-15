@@ -2422,6 +2422,16 @@ class BaseModel(metaclass=MetaModel):
 
         target_model = self.env[self._fields[field.definition_record].comodel_name]
         field_definition = target_model._fields[field.definition_record_field]
+        if target_model._storage == 'mongodb':
+            target_model.flush_model([field.definition_record_field])
+            path = target_model._mongodb_path(field_definition)
+            docs = self.pool.mongo_store.aggregate(target_model, [
+                {'$match': {f"{path}.name": property_name}},
+                {'$project': {'definition': {'$first': {'$filter': {
+                    'input': f"${path}", 'as': 'd', 'cond': {'$eq': ['$$d.name', property_name]}}}}}},
+                {'$limit': 1},
+            ])
+            return docs[0]['definition'] if docs else {}
         result = self.env.execute_query_dict(SQL(
             """ SELECT definition
                   FROM %(table)s, jsonb_array_elements(%(field)s) definition
@@ -2609,11 +2619,16 @@ class BaseModel(metaclass=MetaModel):
                 nulls_first = nulls == 'NULLS FIRST' if nulls else direction == -1  # SQL default
                 sort.append((self._mongodb_path(field), direction, parent._order_to_sort(self._order), nulls_first))
                 continue
-            if field.translate is True or field.company_dependent or (
-                field.type == 'many2one' and self.env[field.comodel_name]._order != 'id'
-            ):
-                raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r} (comodel order / translation)")
-            sort.append((self._mongodb_path(field), direction))
+            if field.company_dependent:
+                raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r} (company dependent)")
+            # a many2one to another model sorts by its raw id (binary order, open_model_items C-10)
+            path = self._mongodb_path(field)
+            if field.translate is True:
+                # same COALESCE as the SQL branch: the current language, then its fallbacks
+                # (StoredTranslations.fallback_langs); MongoStore evaluates the expression
+                langs = list(dict.fromkeys((*StoredTranslations.fallback_langs(field.translation_lang(self.env)), 'en_US')))
+                path = f"{path}.{langs[0]}" if len(langs) == 1 else {'$ifNull': [f"${path}.{lang}" for lang in langs]}
+            sort.append((path, direction))
         return sort
 
     def _document_value_to_cache(self, field: Field, value):
@@ -2659,9 +2674,12 @@ class BaseModel(metaclass=MetaModel):
         for fname, value in zip(columns, row):
             if value is SQL_DEFAULT:
                 continue
+            field = self._fields[fname]
             value = store.document_value(self, fname, value)
+            if isinstance(value, str) and field.column_type[0] == 'jsonb':
+                value = json.loads(value)  # convert_to_column() serialised (properties definitions)
             if value is not None:
-                doc[self._mongodb_path(self._fields[fname])] = value
+                doc[self._mongodb_path(field)] = value
         return doc
 
     def _create_mongodb(self, columns: list[str], rows: list[list]) -> list[int]:
@@ -2705,6 +2723,8 @@ class BaseModel(metaclass=MetaModel):
                     assert field.store and field.column_type
                     path = self._mongodb_path(field)
                     value = self.pool.mongo_store.document_value(self, fname, value)
+                    if isinstance(value, str) and field.column_type[0] == 'jsonb':
+                        value = json.loads(value)
                     if field.translate is True and isinstance(value, list):
                         # (is_partial, {lang: value}) from get_column_update()
                         is_partial, translations = value
@@ -5342,6 +5362,15 @@ class BaseModel(metaclass=MetaModel):
             if coorder == 'id':
                 table._query._order_groupby.append(sql_field)
                 return SQL("%s %s %s", sql_field, direction, nulls)
+
+            if comodel._storage == 'mongodb':
+                # no SQL join into a MongoDB collection: materialize the
+                # comodel's order as an id list and rank by it (contract §3)
+                from .fields_relational import _cross_store_ids  # noqa: PLC0415
+                coquery = comodel.sudo().with_context(active_test=False)._search([], order=coorder)
+                ordered_ids = _cross_store_ids(self, coquery)
+                table._query._order_groupby.append(sql_field)
+                return SQL("array_position(%s::int[], %s) %s %s", ordered_ids, sql_field, direction, nulls)
 
             # instead of ordering by the field's raw value, use the comodel's
             # order on many2one values

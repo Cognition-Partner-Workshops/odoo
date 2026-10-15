@@ -1,0 +1,20 @@
+[
+  {
+    "name": "values_per_attribute",
+    "collection": "productAttributeValue",
+    "source_sql": "SELECT attribute_id, COUNT(*)::int AS value_count FROM product_attribute_value GROUP BY attribute_id",
+    "target_pipeline": [
+      {"$group": {"_id": "$attributeId", "value_count": {"$sum": 1}}},
+      {"$project": {"_id": 0, "attribute_id": "$_id", "value_count": 1}}
+    ]
+  },
+  {
+    "name": "attribute_template_links",
+    "collection": "productAttribute",
+    "source_sql": "SELECT product_attribute_id, product_template_id FROM product_attribute_product_template_rel",
+    "target_pipeline": [
+      {"$unwind": "$productTmplIds"},
+      {"$project": {"_id": 0, "product_attribute_id": "$_id", "product_template_id": "$productTmplIds.productTemplateId"}}
+    ]
+  }
+]

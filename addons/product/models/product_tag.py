@@ -7,6 +7,7 @@ from odoo.fields import Domain
 class ProductTag(models.Model):
     _name = 'product.tag'
     _description = 'Product Tag'
+    _storage = 'mongodb'
     _order = 'sequence, id'
 
     def _get_default_template_id(self):

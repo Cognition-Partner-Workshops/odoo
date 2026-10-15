@@ -223,7 +223,7 @@ class MongoStore:
     # ------------------------------------------------------------------
     def find(self, model: BaseModel, filter_: dict, projection=None, sort=None, skip=0, limit=None) -> list[dict]:
         coll = self.db[self.collection_name(model)]
-        if any(len(term) == 4 for term in sort or ()):
+        if sort and any(len(term) == 4 or isinstance(term[0], dict) for term in sort):
             return list(coll.aggregate(self._parent_sort_pipeline(coll.name, filter_, projection, sort, skip, limit)))
         cursor = coll.find(filter_, projection)
         if sort:
@@ -236,38 +236,54 @@ class MongoStore:
 
     @staticmethod
     def _parent_sort_pipeline(collection: str, filter_: dict, projection, sort: list, skip: int, limit) -> list[dict]:
-        """Sort through a self-referential many2one: ``(path, direction, parent_sort,
-        nulls_first)`` terms join the parent document; a missing parent or parent value
-        takes the requested NULLS placement (SQL default: last ascending, first descending)."""
+        """Sort through a self-referential many2one and/or on computed keys: a
+        ``(path, direction, parent_sort, nulls_first)`` term joins the parent document, a
+        missing parent or parent value taking the requested NULLS placement (SQL default:
+        last ascending, first descending); a term whose path is an expression (translated
+        field: ``{'$ifNull': [...]}``) is evaluated into a temporary field first."""
         from bson import MaxKey, MinKey  # noqa: PLC0415
         pipeline: list[dict] = [{'$match': filter_}]
         sort_doc: dict[str, int] = {}
-        aliases = []
+        temporary = []
+        computed: dict[str, dict] = {}
         for index, term in enumerate(sort):
             if len(term) == 2:
-                sort_doc[term[0]] = term[1]
+                path, direction = term
+                if isinstance(path, dict):
+                    path = f'__sort{index}'
+                    computed[path] = term[0]
+                    temporary.append(path)
+                sort_doc[path] = direction
                 continue
             path, direction, parent_sort, nulls_first = term
             if any(len(parent_term) != 2 for parent_term in parent_sort):
                 raise NotImplementedError(f"{collection}: MongoDB sort through nested parent orders is not supported")
             alias = f'_parent{index}'
-            aliases.append(alias)
+            temporary.append(alias)
             missing = MinKey() if nulls_first == (direction == 1) else MaxKey()
+            parent_keys = [(f'__psort{j}' if isinstance(parent_path, dict) else parent_path, parent_path, parent_direction)
+                           for j, (parent_path, parent_direction) in enumerate(parent_sort)]
             pipeline += [
                 {'$lookup': {'from': collection, 'localField': path, 'foreignField': '_id', 'as': alias,
-                             'pipeline': [{'$project': {parent_path: 1 for parent_path, _ in parent_sort}}]}},
+                             'pipeline': [{'$project': {key: (expr if isinstance(expr, dict) else 1)
+                                                        for key, expr, _ in parent_keys}}]}},
                 {'$unwind': {'path': f'${alias}', 'preserveNullAndEmptyArrays': True}},
-                {'$addFields': {f'{alias}.{parent_path}': {'$ifNull': [f'${alias}.{parent_path}', missing]}
-                                for parent_path, _ in parent_sort}},
+                {'$addFields': {f'{alias}.{key}': {'$ifNull': [f'${alias}.{key}', missing]} for key, _, _ in parent_keys}},
             ]
-            for parent_path, parent_direction in parent_sort:
-                sort_doc[f'{alias}.{parent_path}'] = parent_direction * direction
+            for key, _, parent_direction in parent_keys:
+                sort_doc[f'{alias}.{key}'] = parent_direction * direction
+        if computed:
+            pipeline.append({'$addFields': computed})
         pipeline.append({'$sort': sort_doc})
         if skip:
             pipeline.append({'$skip': skip})
         if limit:
             pipeline.append({'$limit': limit})
-        pipeline.append({'$project': dict(projection)} if projection else {'$unset': aliases})
+        if projection:
+            pipeline.append({'$project': {k: 1 for k in projection} if isinstance(projection, (list, tuple))
+                             else dict(projection)})
+        else:
+            pipeline.append({'$unset': temporary})
         return pipeline
 
     def distinct(self, model: BaseModel, path: str, filter_: dict) -> list:
@@ -432,6 +448,7 @@ class MongoStore:
             key_tuple = tuple((k, pymongo.ASCENDING if d == 1 else pymongo.DESCENDING) for k, d in keys)
             if key_tuple in existing:
                 continue
+            existing.add(key_tuple)
             coll.create_index(list(key_tuple), **options)
 
     def indexes_for(self, model: BaseModel) -> list[tuple[list, dict]]:
@@ -441,7 +458,7 @@ class MongoStore:
         spec = self.collection_spec(model)
         if spec:
             for ix in spec.get('indexes', ()):
-                indexes.append(([tuple(k) for k in ix['keys']], {}))
+                indexes.append(([tuple(k) for k in ix['keys']], {'unique': True} if ix.get('unique') else {}))
             for nk in spec['decision'].get('natural_keys', ()):
                 if any(col not in model._fields for col in nk['columns']):
                     continue  # column of a module not installed yet: indexed when that module loads the model

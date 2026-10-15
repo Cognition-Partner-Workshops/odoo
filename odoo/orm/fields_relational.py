@@ -1916,7 +1916,12 @@ class Many2many(_RelationalMulti):
         )
         if only_ids:
             result_id = TableSQLId(rel_alias._alias, rel_id2, table._query)
-            if coquery.where_clause:
+            if comodel._storage == 'mongodb':
+                # cross-store: resolve the MongoDB side to ids first (contract §3)
+                if coquery.filter:
+                    coids = _cross_store_ids(model, coquery)
+                    condition = SQL("%s AND %s IN %s", condition, result_id.id, tuple(coids)) if coids else SQL("FALSE")
+            elif coquery.where_clause:
                 condition = SQL(
                     "%s AND %s IN %s",
                     condition,
