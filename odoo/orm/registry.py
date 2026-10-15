@@ -356,9 +356,9 @@ class Registry(Mapping[str, type["BaseModel"]]):
     def delete(cls, db_name: str) -> None:
         """ Delete the registry linked to a given database. """
         if db_name in cls.registries:  # pylint: disable=unsupported-membership-test
-            registry = cls.registries[db_name]
-            if registry._mongo_store is not None:
-                registry._mongo_store.close()
+            store = getattr(cls.registries[db_name], '_mongo_store', None)
+            if store is not None:
+                store.close()
             del cls.registries[db_name]  # pylint: disable=unsupported-delete-operation
 
     @classmethod
