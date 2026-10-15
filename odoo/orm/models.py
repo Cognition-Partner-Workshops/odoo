@@ -2615,10 +2615,9 @@ class BaseModel(metaclass=MetaModel):
                 nulls_first = nulls == 'NULLS FIRST' if nulls else direction == -1  # SQL default
                 sort.append((self._mongodb_path(field), direction, parent._order_to_sort(self._order), nulls_first))
                 continue
-            if field.company_dependent or (
-                field.type == 'many2one' and self.env[field.comodel_name]._order != 'id'
-            ):
-                raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r} (comodel order / company dependent)")
+            if field.company_dependent:
+                raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r} (company dependent)")
+            # a many2one to another model sorts by its raw id (binary order, open_model_items C-10)
             path = self._mongodb_path(field)
             if field.translate is True:
                 # same COALESCE as the SQL branch: the current language, then its fallbacks
@@ -5348,6 +5347,13 @@ class BaseModel(metaclass=MetaModel):
             if coorder == 'id':
                 table._query._order_groupby.append(sql_field)
                 return SQL("%s %s %s", sql_field, direction, nulls)
+
+            if comodel._storage == 'mongodb':
+                # no SQL join into a MongoDB collection: materialize the
+                # comodel's order as an id list and rank by it (contract §3)
+                ordered_ids = comodel.sudo().with_context(active_test=False)._search([], order=coorder).get_result_ids()
+                table._query._order_groupby.append(sql_field)
+                return SQL("array_position(%s::int[], %s) %s %s", list(ordered_ids), sql_field, direction, nulls)
 
             # instead of ordering by the field's raw value, use the comodel's
             # order on many2one values
