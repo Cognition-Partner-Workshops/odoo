@@ -321,7 +321,8 @@ class MongoStore:
         kept = {'id', *model._shadow_columns}
         cr.execute(SQL(
             "SELECT column_name FROM information_schema.columns "
-            "WHERE table_name = %s AND (is_nullable = 'NO' OR column_default IS NOT NULL) "
+            "WHERE table_schema = current_schema AND table_name = %s "
+            "AND (is_nullable = 'NO' OR column_default IS NOT NULL) "
             "ORDER BY ordinal_position", model._table,
         ))
         for (column,) in cr.fetchall():
