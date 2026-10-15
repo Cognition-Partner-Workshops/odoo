@@ -7,7 +7,7 @@
 - Tolerance version: `v1` (sha256 `59f500708400`)
 - Collections: `productAttribute`, `productAttributeValue`, `updateProductAttributeValue`
 - Seed: `1`
-- Generated: 2026-10-15T20:02:11.876635+00:00
+- Generated: 2026-10-15T20:17:26.828440+00:00
 - **WARNING: UNVERIFIED collection updateProductAttributeValue: 0 source rows, key/shape/field rules unexercised**
 - 25 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 6 string fields: min/max/distinct deferred to Tier 3
