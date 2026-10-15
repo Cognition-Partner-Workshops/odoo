@@ -103,8 +103,10 @@ class Query:
         sql_kind = _SQL_JOINS.get(kind.upper())
         assert sql_kind is not None, f"Invalid JOIN type {kind!r}"
         if isinstance(alias, TableSQL):
-            if table is None and alias._model is not None:
-                table = alias._model._table_sql
+            if table is None and (comodel := alias._model) is not None:
+                # a MongoDB model joined from SQL is its PostgreSQL shadow
+                # table: ``id`` and ``_shadow_columns`` only (contract §4)
+                table = SQL.identifier(comodel._table) if comodel._storage == 'mongodb' else comodel._table_sql
             alias = alias._alias
         elif table is None:
             table = alias
@@ -425,6 +427,10 @@ class TableSQL(SQL):
         field = model._fields.get(field_name)
         if field is None:
             raise ValueError(f"Invalid field {field_name!r} on model {model._name!r}")
+        if model._storage == 'mongodb' and field_name != 'id' and field_name not in model._shadow_columns:
+            raise NotImplementedError(
+                f"{model._name} is stored in MongoDB: no SQL for field {field_name!r} (not in _shadow_columns)",
+            )
         return FieldSQL(self, field)
 
     __getattr__ = __getitem__

@@ -449,8 +449,9 @@ class MongoStore:
         if created:
             sql.create_model_table(cr, model._table, f"{model._description} (MongoDB shadow: ids and {list(model._shadow_columns)})")
         columns = sql.table_columns(cr, model._table)
-        missing = [fname for fname in model._shadow_columns if fname not in columns]
-        for fname in model._shadow_columns:
+        shadow = [fname for fname in model._shadow_columns if fname in model._fields]  # loaded modules only
+        missing = [fname for fname in shadow if fname not in columns]
+        for fname in shadow:
             model._fields[fname].update_db_column(model, columns.get(fname))
         if created:
             return
@@ -475,11 +476,23 @@ class MongoStore:
     def _backfill_shadow_columns(self, model: BaseModel, fnames: list[str]) -> None:
         """Fill full-shadow columns just added to a populated shadow table from the documents,
         so the SQL readers see the current values instead of NULL."""
+        from psycopg2.extras import Json  # noqa: PLC0415
+
         from odoo.tools import SQL  # noqa: PLC0415
         fields = [model._fields[fname] for fname in fnames]
         paths = [model._mongodb_path(field) for field in fields]
+
+        def column_value(field, value):
+            # jsonb columns (translated, company-dependent, properties) keep the whole document
+            # value; other columns get the cache value, cast to the column type
+            if value is None:
+                return SQL("NULL::%s", SQL(field.column_type[1]))
+            if field.column_type[0] == 'jsonb':
+                return SQL("%s::jsonb", Json(value))
+            return SQL("%s::%s", model._document_value_to_cache(field, value), SQL(field.column_type[1]))
+
         rows = [
-            (doc['_id'], *(model._document_value_to_cache(field, doc.get(path)) for field, path in zip(fields, paths)))
+            (doc['_id'], *(column_value(field, doc.get(path)) for field, path in zip(fields, paths)))
             for doc in self.db[self.collection_name(model)].find({}, dict.fromkeys(paths, 1))
         ]
         if not rows:

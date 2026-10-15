@@ -2466,7 +2466,11 @@ class BaseModel(metaclass=MetaModel):
             self._check_parent_path()
         for fname in self._shadow_columns:
             field = self._fields.get(fname)
-            if not (field and field.store and field.column_type):
+            if field is None:
+                # declared by a module that is not loaded yet (e.g. a stock_account
+                # field on product.category): created when that module's _auto_init runs
+                continue
+            if not (field.store and field.column_type):
                 raise ValueError(f"{self._name}._shadow_columns: {fname!r} is not a stored column field")
         store = self.pool.mongo_store
         store.ensure_shadow_table(self)

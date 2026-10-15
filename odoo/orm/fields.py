@@ -1040,6 +1040,12 @@ class Field[T]:
         model = env[self.model_name]
         if self.relational and getattr(env[self.comodel_name], '_access_domain_heavy', False):
             return False
+        if model._storage == 'mongodb':
+            try:
+                model._order_to_sort(self.name)
+                return True
+            except (ValueError, AccessError, NotImplementedError):
+                return False
         query = model._as_query(ordered=False)
         try:
             model._order_field_to_sql(query.table, self.name, SQL(), SQL())
@@ -1062,6 +1068,12 @@ class Field[T]:
         if self.relational and getattr(env[self.comodel_name], '_access_domain_heavy', False):
             return False
         groupby = self.name if self.type not in ('date', 'datetime') else f"{self.name}:month"
+        if model._storage == 'mongodb':
+            try:
+                model._read_group_groupby_mongodb(groupby)
+                return True
+            except (ValueError, AccessError, NotImplementedError):
+                return False
         try:
             model._read_group_groupby(Query(model).table, groupby)
             return True
