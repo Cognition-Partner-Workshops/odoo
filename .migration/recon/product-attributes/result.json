@@ -1,0 +1,44 @@
+{
+  "unit": "product-attributes",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+  "tolerance_version": "v1",
+  "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68",
+  "collections": [
+    "productAttribute",
+    "productAttributeValue",
+    "updateProductAttributeValue"
+  ],
+  "seed": 1,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-15T17:03:41.685524+00:00",
+  "redacted": true,
+  "redaction_salted": false,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 8,
+      "stats": {
+        "source_counts": {
+          "productAttribute": 14,
+          "productAttributeValue": 101,
+          "updateProductAttributeValue": 0
+        }
+      },
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "ERROR",
+  "merge_eligible": false,
+  "error": {
+    "type": "UndefinedFunction",
+    "message": "function min(jsonb) does not exist",
+    "traceback": "omitted (redacted run)"
+  }
+}
