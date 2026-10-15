@@ -101,7 +101,13 @@ class TestMongoStorage(TransactionCase):
              patch.object(MongoStore, 'db', new_callable=PropertyMock, return_value=fake_db):
             self.store.collection_name(self.Item)
         self.assertNotIn(name, self.store._namespace_checked)
-        self.assertEqual(self.store.collection_name(self.Item), prefixed)  # a test database has no committed ids yet
+        self.assertEqual(self.store.collection_name(self.Item), prefixed)
+        self.assertNotIn(name, self.store._namespace_checked, "no committed ids yet: nothing to cache")
+        fake_db[prefixed] = fake_db[name]
+        with patch.object(MongoStore, '_has_committed_rows', return_value=True), \
+             patch.object(MongoStore, 'db', new_callable=PropertyMock, return_value=fake_db):
+            self.assertEqual(self.store.collection_name(self.Item), prefixed)
+        self.assertIn(name, self.store._namespace_checked, "documents in the prefixed namespace: established")
         # the shadow table exists with ids only
         self.env.cr.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'test_orm_mongodb_item'")
         self.assertEqual([row[0] for row in self.env.cr.fetchall()], ['id'])

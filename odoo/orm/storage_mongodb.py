@@ -195,23 +195,26 @@ class MongoStore:
         spec = self.collection_spec(model)
         name = spec['collection'] if spec else camelize(model._table)
         prefix = self.collection_prefix
-        if prefix and name not in self._namespace_checked:
-            self._check_namespace(model, name, prefix + name)
+        if prefix and name not in self._namespace_checked and self._check_namespace(model, name, prefix + name):
             self._namespace_checked.add(name)
         return prefix + name
 
-    def _check_namespace(self, model: BaseModel, name: str, prefixed: str) -> None:
+    def _check_namespace(self, model: BaseModel, name: str, prefixed: str) -> bool:
         """Fail closed instead of serving a migrated database from an empty namespace.
 
         A database with committed shadow ids whose documents sit in the
         unprefixed collection is the migration database started without
         ``mongodb_migration_db``: reads would return nothing and ``repair``
-        would delete its shadow rows.
+        would delete its shadow rows. Returns whether the prefixed namespace
+        is established (documents in it), the only outcome worth caching: a
+        negative probe may come from a snapshot older than a concurrent load.
         """
         if not self._has_committed_rows(model):
-            return
-        if self.db[prefixed].estimated_document_count() or not self.db[name].estimated_document_count():
-            return
+            return False
+        if self.db[prefixed].estimated_document_count():
+            return True
+        if not self.db[name].estimated_document_count():
+            return False
         db_name = self.registry.db_name
         raise RuntimeError(
             f"database {db_name!r} has committed ids for {model._name} but its documents are in the "
