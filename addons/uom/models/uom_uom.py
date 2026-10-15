@@ -20,6 +20,7 @@ class UomUom(models.Model):
     _parent_name = 'relative_uom_id'
     _parent_store = True
     _storage = 'mongodb'
+    _shadow_columns = ('factor',)  # read in SQL by report_stock_quantity & co. (orm_backend_contract.md §4)
     _order = 'sequence, relative_uom_id, id'
 
     def _unprotected_uom_xml_ids(self):

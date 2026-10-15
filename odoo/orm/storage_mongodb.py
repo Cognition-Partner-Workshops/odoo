@@ -362,13 +362,17 @@ class MongoStore:
     def _discard_undo(self, cr: Cursor) -> None:
         cr._mongo_undo = None
 
-    def allocate_ids(self, model: BaseModel, count: int) -> list[int]:
-        """Allocate ids from the model's PostgreSQL shadow table (the single id authority)."""
+    def allocate_ids(self, model: BaseModel, shadow_columns: list[str], shadow_rows: list[list]) -> list[int]:
+        """Allocate ids from the model's PostgreSQL shadow table (the single id authority),
+        writing the full-shadow column values of each row through (``_shadow_columns``, contract §4)."""
         from odoo.tools import SQL  # noqa: PLC0415
         cr = model.env.cr
+        nextval = SQL("nextval(pg_get_serial_sequence(%s, 'id'))", model._table)
         cr.execute(SQL(
-            "INSERT INTO %s (id) SELECT nextval(pg_get_serial_sequence(%s, 'id')) FROM generate_series(1, %s) RETURNING id",
-            SQL.identifier(model._table), model._table, count,
+            "INSERT INTO %s (%s) VALUES %s RETURNING id",
+            SQL.identifier(model._table),
+            SQL(', ').join(map(SQL.identifier, ['id', *shadow_columns])),
+            SQL(', ').join(SQL('(%s)', SQL(', ').join([nextval, *row])) for row in shadow_rows),
         ))
         return [row[0] for row in cr.fetchall()]
 
@@ -434,14 +438,24 @@ class MongoStore:
     # ------------------------------------------------------------------
     def ensure_shadow_table(self, model: BaseModel) -> None:
         """Create the shadow table (id authority and FK target) or, on a pre-existing table,
-        relax the columns whose values moved to MongoDB: ``allocate_ids`` inserts ids only, so
-        every column other than ``id`` and ``_shadow_columns`` loses its NOT NULL and default.
-        The columns themselves stay until the cutover reduction."""
+        relax the columns whose values moved to MongoDB: ``allocate_ids`` inserts only ``id``
+        and the full-shadow columns (``_shadow_columns``, contract §4), so every other column
+        loses its NOT NULL and default. The full-shadow columns are created when missing and
+        written through by ``allocate_ids`` and ``_write_multi``; the other columns stay until
+        the cutover reduction."""
         from odoo.tools import SQL, sql  # noqa: PLC0415
         cr = model.env.cr
-        if not sql.table_exists(cr, model._table):
-            sql.create_model_table(cr, model._table, f"{model._description} (MongoDB shadow: ids only)")
+        created = not sql.table_exists(cr, model._table)
+        if created:
+            sql.create_model_table(cr, model._table, f"{model._description} (MongoDB shadow: ids and {list(model._shadow_columns)})")
+        columns = sql.table_columns(cr, model._table)
+        missing = [fname for fname in model._shadow_columns if fname not in columns]
+        for fname in model._shadow_columns:
+            model._fields[fname].update_db_column(model, columns.get(fname))
+        if created:
             return
+        if missing:
+            self._backfill_shadow_columns(model, missing)
         kept = {'id', *model._shadow_columns}
         cr.execute(SQL(
             "SELECT column_name FROM information_schema.columns "
@@ -457,6 +471,27 @@ class MongoStore:
                 SQL.identifier(model._table), SQL.identifier(column), SQL.identifier(column),
             ))
             _logger.info("Table %r: column %r moved to MongoDB, dropped NOT NULL and default", model._table, column)
+
+    def _backfill_shadow_columns(self, model: BaseModel, fnames: list[str]) -> None:
+        """Fill full-shadow columns just added to a populated shadow table from the documents,
+        so the SQL readers see the current values instead of NULL."""
+        from odoo.tools import SQL  # noqa: PLC0415
+        fields = [model._fields[fname] for fname in fnames]
+        paths = [model._mongodb_path(field) for field in fields]
+        rows = [
+            (doc['_id'], *(model._document_value_to_cache(field, doc.get(path)) for field, path in zip(fields, paths)))
+            for doc in self.db[self.collection_name(model)].find({}, dict.fromkeys(paths, 1))
+        ]
+        if not rows:
+            return
+        model.env.cr.execute(SQL(
+            "UPDATE %s AS t SET %s FROM (VALUES %s) AS v (id, %s) WHERE t.id = v.id",
+            SQL.identifier(model._table),
+            SQL(', ').join(SQL('%s = v.%s', SQL.identifier(fname), SQL.identifier(fname)) for fname in fnames),
+            SQL(', ').join(SQL('(%s)', SQL(', ').join(row)) for row in rows),
+            SQL(', ').join(map(SQL.identifier, fnames)),
+        ))
+        _logger.info("Table %r: backfilled full-shadow columns %s for %d rows", model._table, fnames, len(rows))
 
     def ensure_collection(self, model: BaseModel) -> None:
         import pymongo  # noqa: PLC0415

@@ -2464,6 +2464,10 @@ class BaseModel(metaclass=MetaModel):
             raise NotImplementedError(f"{self._name} is stored in MongoDB: no SQL view for _auto = False")
         if self._parent_store:
             self._check_parent_path()
+        for fname in self._shadow_columns:
+            field = self._fields.get(fname)
+            if not (field and field.store and field.column_type):
+                raise ValueError(f"{self._name}._shadow_columns: {fname!r} is not a stored column field")
         store = self.pool.mongo_store
         store.ensure_shadow_table(self)
         store.ensure_collection(self)
@@ -2680,35 +2684,37 @@ class BaseModel(metaclass=MetaModel):
 
     def _create_mongodb(self, columns: list[str], rows: list[list]) -> list[int]:
         store = self.pool.mongo_store
-        ids = store.allocate_ids(self, len(rows))
+        shadow = [index for index, fname in enumerate(columns) if fname in self._shadow_columns]
+        ids = store.allocate_ids(
+            self, [columns[index] for index in shadow], [[row[index] for index in shadow] for row in rows],
+        )
         docs = []
         for id_, row in zip(ids, rows):
             doc = self._document_values(columns, row)
             doc['_id'] = id_
             docs.append(doc)
         store.insert_many(self, docs)
-        self._write_shadow_columns([(id_, dict(zip(columns, row))) for id_, row in zip(ids, rows)])
         return ids
 
-    def _write_shadow_columns(self, values_by_id: list[tuple[int, dict]]) -> None:
-        """ D6 full shadow (orm_backend_contract.md §4): the columns in
-        ``_shadow_columns`` are also written to the PostgreSQL table, in
-        the same transaction, for the SQL readers of model-only addons. """
-        shadow = [c for c in self._shadow_columns if c in self._fields]
-        for id_, values in values_by_id:
-            assignments = [(c, values[c]) for c in shadow if c in values]
-            if assignments:
-                self.env.cr.execute(SQL(
-                    "UPDATE %s SET %s WHERE id = %s", SQL.identifier(self._table),
-                    SQL(', ').join(SQL("%s = %s", SQL.identifier(c), v) for c, v in assignments), id_,
+    def _shadow_updates(self, updates_list: list) -> list:
+        """ Project ``updates_list`` onto ``_shadow_columns`` (contract §4): the
+        SQL UPDATE of ``_write_multi`` writes them through to the shadow table
+        in the same PostgreSQL transaction as the SQL readers. """
+        projected = []
+        for fnames, rows in updates_list:
+            kept = [index for index, fname in enumerate(fnames) if fname in self._shadow_columns]
+            if kept:
+                projected.append((
+                    tuple(fnames[index] for index in kept),
+                    [(row[0], *(row[index + 1] for index in kept)) for row in rows],
                 ))
+        return projected
 
     def _write_mongodb(self, updates_list: list) -> None:
         from .storage_mongodb import to_bson  # noqa: PLC0415
         store = self.pool.mongo_store
         updates = []
         for fnames, rows in updates_list:
-            self._write_shadow_columns([(row[0], dict(zip(fnames, row[1:]))) for row in rows])
             for row in rows:
                 id_, *values = row
                 set_, unset = {}, {}
@@ -4537,8 +4543,17 @@ class BaseModel(metaclass=MetaModel):
         ]
 
         if self._storage == 'mongodb':
+            shadow_updates = self._shadow_updates(updates_list)
+            if shadow_updates:
+                # serialize concurrent edits of the shadowed values: take the row
+                # lock the SQL UPDATE below would take before writing the documents
+                self.env.cr.execute(SQL(
+                    "SELECT id FROM %s WHERE id IN %s FOR NO KEY UPDATE",
+                    SQL.identifier(self._table),
+                    tuple({row[0] for _fnames, rows in shadow_updates for row in rows}),
+                ))
             self._write_mongodb(updates_list)
-            updates_list = []
+            updates_list = shadow_updates
 
         # update columns by group of updated fields
         for fnames, rows in updates_list:

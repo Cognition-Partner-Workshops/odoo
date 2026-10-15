@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo.tests import tagged
+from odoo.tools import SQL
 
 from odoo.addons.uom.tests.common import UomCommon
 
@@ -57,3 +58,33 @@ class TestUom(UomCommon):
         result = self.uom_unit._check_qty(quantity, uom, rounding_method)
 
         self.assertEqual(result, quantity, 'Quantity should not be rounded.')
+
+    def test_40_factor_shadow(self):
+        """``factor`` is a full-shadow column (orm_backend_contract.md §4): the ORM
+        writes it through to the PostgreSQL shadow table, where report_stock_quantity
+        reads ``uom_move.factor / uom_product.factor`` in SQL."""
+        def report_ratio(uom_move, uom_product):
+            # the qty_done_product_uom expression of addons/stock/report/report_stock_quantity.py
+            self.env.flush_all()
+            return self.env.execute_query(SQL(
+                "SELECT 1.0 * uom_move.factor / uom_product.factor FROM uom_uom uom_move, uom_uom uom_product "
+                "WHERE uom_move.id = %s AND uom_product.id = %s", uom_move.id, uom_product.id,
+            ))[0][0]
+
+        Uom = self.env['uom.uom'].sudo()
+        pack = Uom.create({'name': 'Pack of 4', 'relative_factor': 4, 'relative_uom_id': self.uom_unit.id})
+        self.assertEqual(pack.factor, 4)
+        self.assertEqual(report_ratio(pack, self.uom_unit), 4)
+
+        pack.relative_factor = 5
+        self.assertEqual(pack.factor, 5)
+        self.assertEqual(report_ratio(pack, self.uom_unit), 5)
+        # a recomputation through a dependency is written through as well
+        box = Uom.create({'name': 'Box of 3 packs', 'relative_factor': 3, 'relative_uom_id': pack.id})
+        pack.relative_factor = 6
+        self.assertEqual(box.factor, 18)
+        self.assertEqual(report_ratio(box, self.uom_unit), 18)
+
+        box.unlink()
+        self.env.flush_all()
+        self.assertEqual(self.env.execute_query(SQL("SELECT count(*) FROM uom_uom WHERE id = %s", box.id)), [(0,)])

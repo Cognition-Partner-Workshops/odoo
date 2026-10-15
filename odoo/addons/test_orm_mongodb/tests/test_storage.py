@@ -66,17 +66,44 @@ class TestMongoStorage(TransactionCase):
         table = self.Item._table
         self.env.cr.execute(SQL(
             "ALTER TABLE %s ADD COLUMN legacy_name varchar NOT NULL DEFAULT 'moved', "
-            "ADD COLUMN kept_factor numeric NOT NULL DEFAULT 1", SQL.identifier(table)))
-        with patch.object(type(self.Item), '_shadow_columns', ('kept_factor',)):
+            "ADD COLUMN quantity int4 NOT NULL DEFAULT 1", SQL.identifier(table)))
+        with patch.object(type(self.Item), '_shadow_columns', ('quantity',)):
             self.store.ensure_shadow_table(self.Item)
         self.assertEqual(self._column_state(table, 'legacy_name'), ('YES', None))
-        self.assertEqual(self._column_state(table, 'kept_factor'), ('NO', '1'))
+        self.assertEqual(self._column_state(table, 'quantity'), ('NO', '1'))
         self.assertEqual(self._column_state(table, 'id')[0], 'NO')
-        self.env.cr.execute(SQL("ALTER TABLE %s DROP COLUMN kept_factor", SQL.identifier(table)))
+        self.env.cr.execute(SQL("ALTER TABLE %s DROP COLUMN quantity", SQL.identifier(table)))
         item = self.Item.create({'name': 'Shadow'})
         self.env.cr.execute(SQL("SELECT id, legacy_name FROM %s WHERE id = %s", SQL.identifier(table), item.id))
         self.assertEqual(self.env.cr.fetchone(), (item.id, None))
         self.assertEqual(self._docs(self.Item, {'_id': item.id})[0]['name'], 'Shadow')
+
+    def test_shadow_columns_write_through(self):
+        # full-shadow columns (contract §4) are created on the shadow table and written
+        # through on create/write in the same transaction; unlink drops the row
+        table = self.Item._table
+        legacy = self.Item.create({'name': 'Legacy', 'code': 'L0', 'price': 1.5})  # id-only shadow row
+        with patch.object(type(self.Item), '_shadow_columns', ('code', 'price')):
+            self.store.ensure_shadow_table(self.Item)
+            self.assertEqual(self._column_state(table, 'price'), ('YES', None))
+            # the new columns are backfilled from the documents
+            self.assertEqual(self._shadow_rows(table, legacy), [(legacy.id, 'L0', 1.5)])
+            item, other = self.Item.create([{'name': 'Shadow', 'code': 'S1', 'price': 2.5}, {'name': 'Plain'}])
+            self.env.flush_all()
+            self.assertEqual(self._shadow_rows(table, item + other), [(item.id, 'S1', 2.5), (other.id, None, None)])
+            item.write({'code': False, 'price': 4.0, 'quantity': 7})
+            self.env.flush_all()
+            self.assertEqual(self._shadow_rows(table, item), [(item.id, None, 4.0)])
+            self.assertEqual(self._docs(self.Item, {'_id': item.id})[0]['price'], 4.0)
+            item.unlink()
+            self.assertEqual(self._shadow_rows(table, item), [])
+            self.assertEqual(self._docs(self.Item, {'_id': item.id}), [])
+
+    def _shadow_rows(self, table, records):
+        self.env.cr.execute(SQL(
+            "SELECT id, code, price FROM %s WHERE id IN %s ORDER BY id", SQL.identifier(table), tuple(records.ids),
+        ))
+        return self.env.cr.fetchall()
 
     def test_registry_opt_in(self):
         self.assertEqual(self.Item._storage, 'mongodb')
