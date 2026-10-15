@@ -2590,9 +2590,12 @@ class BaseModel(metaclass=MetaModel):
             if not field.store or not field.column_type:
                 raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r}")
             if field.translate is True or field.company_dependent or (
-                field.type == 'many2one' and self.env[field.comodel_name]._order != 'id'
+                field.type == 'many2one' and field.comodel_name != self._name
+                and self.env[field.comodel_name]._order != 'id'
             ):
                 raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r} (comodel order / translation)")
+            # a self-referential many2one (parent) sorts on the raw reference id: the comodel
+            # order would recurse into this same order and PostgreSQL drops that term too
             direction = -1 if (order_match['direction'] or '').upper() == 'DESC' else 1
             sort.append((self._mongodb_path(field), direction))
         return sort
@@ -2601,6 +2604,8 @@ class BaseModel(metaclass=MetaModel):
         """ Convert a document value into the field's column format. """
         if value is None:
             return None
+        if hasattr(value, 'to_decimal'):  # Decimal128 (mapping spec bson_type 'decimal')
+            return float(value.to_decimal())
         if field.translate is True:
             if self.env.context.get('prefetch_langs'):
                 return value
@@ -2633,12 +2638,12 @@ class BaseModel(metaclass=MetaModel):
 
     def _document_values(self, columns: list[str], row: list) -> dict:
         """ Build the document fields from SQL insert parameters. """
-        from .storage_mongodb import to_bson  # noqa: PLC0415
+        store = self.pool.mongo_store
         doc = {}
         for fname, value in zip(columns, row):
             if value is SQL_DEFAULT:
                 continue
-            value = to_bson(value)
+            value = store.document_value(self, fname, value)
             if value is not None:
                 doc[self._mongodb_path(self._fields[fname])] = value
         return doc
@@ -2666,7 +2671,7 @@ class BaseModel(metaclass=MetaModel):
                     field = self._fields[fname]
                     assert field.store and field.column_type
                     path = self._mongodb_path(field)
-                    value = to_bson(value)
+                    value = self.pool.mongo_store.document_value(self, fname, value)
                     if field.translate is True and isinstance(value, list):
                         # (is_partial, {lang: value}) from get_column_update()
                         is_partial, translations = value

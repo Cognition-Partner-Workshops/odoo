@@ -162,6 +162,19 @@ class MongoStore:
     def collection_spec(self, model: BaseModel) -> dict | None:
         return self.spec['by_table'].get(model._table)
 
+    def spec_bson_type(self, model: BaseModel, fname: str) -> str | None:
+        spec = self.collection_spec(model)
+        return next((f['bson_type'] for f in spec['fields'] if f['source'] == fname), None) if spec else None
+
+    def document_value(self, model: BaseModel, fname: str, value):
+        """``to_bson`` plus the mapping spec's numeric type: ``decimal`` fields store Decimal128."""
+        value = to_bson(value)
+        if isinstance(value, (int, float)) and not isinstance(value, bool) \
+                and self.spec_bson_type(model, fname) == 'decimal':
+            from bson.decimal128 import Decimal128  # noqa: PLC0415
+            return Decimal128(str(value))
+        return value
+
     def collection_name(self, model: BaseModel) -> str:
         spec = self.collection_spec(model)
         return spec['collection'] if spec else camelize(model._table)
@@ -356,8 +369,10 @@ class MongoStore:
             for ix in spec.get('indexes', ()):
                 indexes.append(([tuple(k) for k in ix['keys']], {}))
             for nk in spec['decision'].get('natural_keys', ()):
-                keys = [(self.field_path(model, col), 1) for col in nk['columns']]
-                indexes.append((keys, {'unique': True}))
+                if any(col not in model._fields for col in nk['columns']):
+                    continue  # column of a module not installed yet: indexed when that module loads the model
+                definition = f"({', '.join(nk['columns'])})"
+                indexes.append(self._unique_index(model, definition, nk['name'].removeprefix(f"{model._table}_"), None))
         if model._parent_store:  # child_of / parent_of and subtree rewrites: anchored prefix match
             indexes.append(([(self.field_path(model, 'parent_path'), 1)], {}))
         for field in model._fields.values():
