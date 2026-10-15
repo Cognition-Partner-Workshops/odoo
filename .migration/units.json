@@ -294,7 +294,7 @@
         {
           "path": "addons/stock/__init__.py",
           "lines": "46,83-92",
-          "what": "`_create_inventory_adjustment` install/uninstall hook: SELECT/UPDATE product_product.qty_available (non-shadowed column)",
+          "what": "post-init hook `_create_inventory_adjustment` (:46, SELECT product_product.qty_available) and uninstall hook `_save_current_inventory` (:83-92, UPDATE product_product.qty_available — a non-shadowed column)",
           "disposition": "B (contract §2: installing/uninstalling stock while the slice is on MongoDB is blocked; operational constraint recorded for cutover, not a run-time path)"
         }
       ],
