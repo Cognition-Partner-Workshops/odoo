@@ -2577,8 +2577,8 @@ class BaseModel(metaclass=MetaModel):
 
         A self-referential many2one (``_parent_name``) delegates to the
         comodel's order like ``_order_field_to_sql``: the term becomes
-        ``(path, direction, parent_sort)`` and the store joins the parent
-        document (``$lookup``); the recursive occurrence is dropped.
+        ``(path, direction, parent_sort, nulls_first)`` and the store joins
+        the parent document (``$lookup``); the recursive occurrence is dropped.
         """
         order = order or self._order
         if not order:
@@ -2601,7 +2601,9 @@ class BaseModel(metaclass=MetaModel):
                 if field in seen:
                     continue
                 parent = self.sudo().with_context(__m2o_order_seen=frozenset((field, *seen)))
-                sort.append((self._mongodb_path(field), direction, parent._order_to_sort(self._order)))
+                nulls = (order_match['nulls'] or '').upper()
+                nulls_first = nulls == 'NULLS FIRST' if nulls else direction == -1  # SQL default
+                sort.append((self._mongodb_path(field), direction, parent._order_to_sort(self._order), nulls_first))
                 continue
             if field.translate is True or field.company_dependent or (
                 field.type == 'many2one' and self.env[field.comodel_name]._order != 'id'

@@ -223,7 +223,7 @@ class MongoStore:
     # ------------------------------------------------------------------
     def find(self, model: BaseModel, filter_: dict, projection=None, sort=None, skip=0, limit=None) -> list[dict]:
         coll = self.db[self.collection_name(model)]
-        if any(len(term) == 3 for term in sort or ()):
+        if any(len(term) == 4 for term in sort or ()):
             return list(coll.aggregate(self._parent_sort_pipeline(coll.name, filter_, projection, sort, skip, limit)))
         cursor = coll.find(filter_, projection)
         if sort:
@@ -236,10 +236,10 @@ class MongoStore:
 
     @staticmethod
     def _parent_sort_pipeline(collection: str, filter_: dict, projection, sort: list, skip: int, limit) -> list[dict]:
-        """Sort through a self-referential many2one: ``(path, direction, parent_sort)`` terms
-        join the parent document; a missing parent or parent value sorts like SQL NULLS
-        (last ascending, first descending)."""
-        from bson import MaxKey  # noqa: PLC0415
+        """Sort through a self-referential many2one: ``(path, direction, parent_sort,
+        nulls_first)`` terms join the parent document; a missing parent or parent value
+        takes the requested NULLS placement (SQL default: last ascending, first descending)."""
+        from bson import MaxKey, MinKey  # noqa: PLC0415
         pipeline: list[dict] = [{'$match': filter_}]
         sort_doc: dict[str, int] = {}
         aliases = []
@@ -247,16 +247,17 @@ class MongoStore:
             if len(term) == 2:
                 sort_doc[term[0]] = term[1]
                 continue
-            path, direction, parent_sort = term
+            path, direction, parent_sort, nulls_first = term
             if any(len(parent_term) != 2 for parent_term in parent_sort):
                 raise NotImplementedError(f"{collection}: MongoDB sort through nested parent orders is not supported")
             alias = f'_parent{index}'
             aliases.append(alias)
+            missing = MinKey() if nulls_first == (direction == 1) else MaxKey()
             pipeline += [
                 {'$lookup': {'from': collection, 'localField': path, 'foreignField': '_id', 'as': alias,
                              'pipeline': [{'$project': {parent_path: 1 for parent_path, _ in parent_sort}}]}},
                 {'$unwind': {'path': f'${alias}', 'preserveNullAndEmptyArrays': True}},
-                {'$addFields': {f'{alias}.{parent_path}': {'$ifNull': [f'${alias}.{parent_path}', MaxKey()]}
+                {'$addFields': {f'{alias}.{parent_path}': {'$ifNull': [f'${alias}.{parent_path}', missing]}
                                 for parent_path, _ in parent_sort}},
             ]
             for parent_path, parent_direction in parent_sort:
