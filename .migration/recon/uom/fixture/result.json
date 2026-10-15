@@ -12,7 +12,7 @@
   "seed": 0,
   "params": {},
   "snapshot": null,
-  "generated_at": "2026-10-15T16:42:10.050685+00:00",
+  "generated_at": "2026-10-15T19:40:23.631774+00:00",
   "redacted": true,
   "redaction_salted": false,
   "tiers": [
@@ -27,14 +27,80 @@
         }
       },
       "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 8,
+      "stats": {
+        "deferred_to_tier3": [
+          "uomUom.sequence",
+          "uomUom.relativeUomId",
+          "uomUom.createUid",
+          "uomUom.writeUid",
+          "uomUom.parentPath",
+          "uomUom.name",
+          "uomUom.factor",
+          "uomUom.active",
+          "uomUom.createDate",
+          "uomUom.writeDate",
+          "uomUom.packageTypeId",
+          "uomUom.uneceCode"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "uomUom.parentPath",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "uomUom.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "uomUom.uneceCode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "uomUom.name",
+            "key": "uomUom"
+          }
+        ],
+        "fields_fully_deferred": 5
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 30,
+      "stats": {
+        "uomUom": {
+          "mode": "full_diff",
+          "population": 30,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
     }
   ],
   "warnings": [],
-  "verdict": "ERROR",
+  "verdict": "PASS",
   "merge_eligible": false,
-  "error": {
-    "type": "UndefinedFunction",
-    "message": "function min(jsonb) does not exist",
-    "traceback": "omitted (redacted run)"
-  }
+  "error": null
 }
