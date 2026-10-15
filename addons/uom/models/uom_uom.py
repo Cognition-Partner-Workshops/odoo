@@ -19,6 +19,7 @@ class UomUom(models.Model):
     _description = 'Product Unit of Measure'
     _parent_name = 'relative_uom_id'
     _parent_store = True
+    _storage = 'mongodb'
     _order = 'sequence, relative_uom_id, id'
 
     def _unprotected_uom_xml_ids(self):

@@ -28,11 +28,13 @@ categories = Category.with_context(lang='en_US').search([], order='id')
 check('category search = PostgreSQL rows',
       [(c.id, c.parent_id.id or None, c.parent_path, c.name, c.company_id.id or None) for c in categories] == pg_categories,
       f"{len(categories)} categories")
-# PostgreSQL puts NULL parents first on DESC, MongoDB last: the storage path keeps MongoDB's
-# null placement (documented deviation), the relative order of the rest is the SQL one
-cr.execute("SELECT id FROM product_category ORDER BY parent_id DESC NULLS LAST, name->>'en_US' ASC, id")
+# default order `parent_id desc, name asc`: SQL recurses into the parent's order (its own
+# parent_id term dropped, name reversed), NULL parents first on DESC
+cr.execute("""SELECT c.id FROM product_category c LEFT JOIN product_category p ON p.id = c.parent_id
+              ORDER BY p.name->>'en_US' DESC NULLS FIRST, c.name->>'en_US' ASC, c.id""")
 pg_default_order = [r[0] for r in cr.fetchall()]
-check('default order (parent_id desc, name asc) = SQL order', Category.search([]).ids == pg_default_order)
+check('default order (parent_id desc, name asc) follows the parent order like SQL',
+      Category.search([], order='parent_id desc, name asc, id').ids == pg_default_order)
 root = categories.filtered(lambda c: not c.parent_id)[:1]
 cr.execute("SELECT id FROM product_category WHERE parent_path LIKE %s ORDER BY id", (f"{root.parent_path}%",))
 check('child_of uses parent_path', Category.search([('id', 'child_of', root.id)], order='id').ids == [r[0] for r in cr.fetchall()])

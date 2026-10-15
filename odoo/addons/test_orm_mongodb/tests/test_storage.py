@@ -1,9 +1,11 @@
 from datetime import date
+from unittest.mock import patch
 
 from odoo import Command
 from odoo.exceptions import UserError, ValidationError
 from odoo.orm.query import MongoQuery
 from odoo.tests import TransactionCase, tagged
+from odoo.tools import SQL
 
 
 @tagged('post_install', '-at_install', 'mongodb')
@@ -51,6 +53,29 @@ class TestMongoStorage(TransactionCase):
              'category_id': cat_b.id, 'active': False},
         ])
         return cat_a, cat_b, tag_x, tag_y, items
+
+    def _column_state(self, table, column):
+        self.env.cr.execute(
+            "SELECT is_nullable, column_default FROM information_schema.columns "
+            "WHERE table_name = %s AND column_name = %s", (table, column))
+        return self.env.cr.fetchone()
+
+    def test_create_on_pre_existing_shadow_table(self):
+        # an existing database keeps the moved columns until cutover: _auto_init relaxes them
+        table = self.Item._table
+        self.env.cr.execute(SQL(
+            "ALTER TABLE %s ADD COLUMN legacy_name varchar NOT NULL DEFAULT 'moved', "
+            "ADD COLUMN kept_factor numeric NOT NULL DEFAULT 1", SQL.identifier(table)))
+        with patch.object(type(self.Item), '_shadow_columns', ('kept_factor',)):
+            self.store.ensure_shadow_table(self.Item)
+        self.assertEqual(self._column_state(table, 'legacy_name'), ('YES', None))
+        self.assertEqual(self._column_state(table, 'kept_factor'), ('NO', '1'))
+        self.assertEqual(self._column_state(table, 'id')[0], 'NO')
+        self.env.cr.execute(SQL("ALTER TABLE %s DROP COLUMN kept_factor", SQL.identifier(table)))
+        item = self.Item.create({'name': 'Shadow'})
+        self.env.cr.execute(SQL("SELECT id, legacy_name FROM %s WHERE id = %s", SQL.identifier(table), item.id))
+        self.assertEqual(self.env.cr.fetchone(), (item.id, None))
+        self.assertEqual(self._docs(self.Item, {'_id': item.id})[0]['name'], 'Shadow')
 
     def test_registry_opt_in(self):
         self.assertEqual(self.Item._storage, 'mongodb')

@@ -465,7 +465,7 @@ class BaseModel(metaclass=MetaModel):
     _check_inherits_access: bool = True           #: check access for _inherits models
     _table: str = ''                 #: SQL table name used by model if :attr:`_auto`
     _storage: str = 'postgresql'     #: storage backend: 'postgresql' (default) or 'mongodb'
-    _mongodb_shadow_columns: tuple[str, ...] = ()  #: columns also kept in the PostgreSQL shadow table (D6 SQL readers)
+    _shadow_columns: tuple[str, ...] = ()  #: mongodb: columns kept in the PostgreSQL shadow table besides ``id``
     _table_objects: dict[str, TableObject] = frozendict()  #: SQL/Table objects
     _inherit_children: OrderedSet[str]
 
@@ -2582,12 +2582,19 @@ class BaseModel(metaclass=MetaModel):
                 if not predicate(record):
                     raise ValidationError(message or self.env._("Constraint %s is violated", name))
 
-    def _order_to_sort(self, order: str) -> list[tuple[str, int]]:
-        """ Translate an ``order`` specification into a MongoDB sort list. """
+    def _order_to_sort(self, order: str) -> list[tuple]:
+        """ Translate an ``order`` specification into a MongoDB sort list.
+
+        A self-referential many2one (``_parent_name``) delegates to the
+        comodel's order like ``_order_field_to_sql``: the term becomes
+        ``(path, direction, parent_sort, nulls_first)`` and the store joins
+        the parent document (``$lookup``); the recursive occurrence is dropped.
+        """
         order = order or self._order
         if not order:
             return []
         self._check_qorder(order)
+        seen = self.env.context.get('__m2o_order_seen', ())
         sort = []
         for order_part in order.split(','):
             order_match = regex_order.match(order_part)
@@ -2599,19 +2606,25 @@ class BaseModel(metaclass=MetaModel):
             self.check_field_access(field, 'read')
             if not field.store or not field.column_type:
                 raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r}")
+            direction = -1 if (order_match['direction'] or '').upper() == 'DESC' else 1
+            if field.type == 'many2one' and field.comodel_name == self._name and self._order != 'id':
+                if field in seen:
+                    continue
+                parent = self.sudo().with_context(__m2o_order_seen=frozenset((field, *seen)))
+                nulls = (order_match['nulls'] or '').upper()
+                nulls_first = nulls == 'NULLS FIRST' if nulls else direction == -1  # SQL default
+                sort.append((self._mongodb_path(field), direction, parent._order_to_sort(self._order), nulls_first))
+                continue
             if field.company_dependent or (
-                field.type == 'many2one' and field.comodel_name != self._name
-                and self.env[field.comodel_name]._order != 'id'
+                field.type == 'many2one' and self.env[field.comodel_name]._order != 'id'
             ):
                 raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r} (comodel order / company dependent)")
-            direction = -1 if (order_match['direction'] or '').upper() == 'DESC' else 1
             path = self._mongodb_path(field)
             if field.translate is True:
                 # same COALESCE as the SQL branch: the current language, then its fallbacks
-                # (StoredTranslations.fallback_langs); MongoStore.find evaluates the expression
+                # (StoredTranslations.fallback_langs); MongoStore evaluates the expression
                 langs = list(dict.fromkeys((*StoredTranslations.fallback_langs(field.translation_lang(self.env)), 'en_US')))
                 path = f"{path}.{langs[0]}" if len(langs) == 1 else {'$ifNull': [f"${path}.{lang}" for lang in langs]}
-            # a self-referential many2one (parent_id) sorts on the id like the SQL branch
             sort.append((path, direction))
         return sort
 
@@ -2619,6 +2632,8 @@ class BaseModel(metaclass=MetaModel):
         """ Convert a document value into the field's column format. """
         if value is None:
             return None
+        if hasattr(value, 'to_decimal'):  # Decimal128 (mapping spec bson_type 'decimal')
+            return float(value.to_decimal())
         if field.translate is True:
             if self.env.context.get('prefetch_langs'):
                 return value
@@ -2651,13 +2666,13 @@ class BaseModel(metaclass=MetaModel):
 
     def _document_values(self, columns: list[str], row: list) -> dict:
         """ Build the document fields from SQL insert parameters. """
-        from .storage_mongodb import to_bson  # noqa: PLC0415
+        store = self.pool.mongo_store
         doc = {}
         for fname, value in zip(columns, row):
             if value is SQL_DEFAULT:
                 continue
             field = self._fields[fname]
-            value = to_bson(value)
+            value = store.document_value(self, fname, value)
             if isinstance(value, str) and field.column_type[0] == 'jsonb':
                 value = json.loads(value)  # convert_to_column() serialised (properties definitions)
             if value is not None:
@@ -2678,9 +2693,9 @@ class BaseModel(metaclass=MetaModel):
 
     def _write_shadow_columns(self, values_by_id: list[tuple[int, dict]]) -> None:
         """ D6 full shadow (orm_backend_contract.md §4): the columns in
-        ``_mongodb_shadow_columns`` are also written to the PostgreSQL table, in
+        ``_shadow_columns`` are also written to the PostgreSQL table, in
         the same transaction, for the SQL readers of model-only addons. """
-        shadow = [c for c in self._mongodb_shadow_columns if c in self._fields]
+        shadow = [c for c in self._shadow_columns if c in self._fields]
         for id_, values in values_by_id:
             assignments = [(c, values[c]) for c in shadow if c in values]
             if assignments:
@@ -2702,7 +2717,7 @@ class BaseModel(metaclass=MetaModel):
                     field = self._fields[fname]
                     assert field.store and field.column_type
                     path = self._mongodb_path(field)
-                    value = to_bson(value)
+                    value = self.pool.mongo_store.document_value(self, fname, value)
                     if isinstance(value, str) and field.column_type[0] == 'jsonb':
                         value = json.loads(value)
                     if field.translate is True and isinstance(value, list):
