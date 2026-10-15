@@ -4523,8 +4523,17 @@ class BaseModel(metaclass=MetaModel):
         ]
 
         if self._storage == 'mongodb':
+            shadow_updates = self._shadow_updates(updates_list)
+            if shadow_updates:
+                # serialize concurrent edits of the shadowed values: take the row
+                # lock the SQL UPDATE below would take before writing the documents
+                self.env.cr.execute(SQL(
+                    "SELECT id FROM %s WHERE id IN %s FOR NO KEY UPDATE",
+                    SQL.identifier(self._table),
+                    tuple({row[0] for _fnames, rows in shadow_updates for row in rows}),
+                ))
             self._write_mongodb(updates_list)
-            updates_list = self._shadow_updates(updates_list)
+            updates_list = shadow_updates
 
         # update columns by group of updated fields
         for fnames, rows in updates_list:

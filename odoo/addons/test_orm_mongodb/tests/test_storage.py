@@ -81,9 +81,12 @@ class TestMongoStorage(TransactionCase):
         # full-shadow columns (contract §4) are created on the shadow table and written
         # through on create/write in the same transaction; unlink drops the row
         table = self.Item._table
+        legacy = self.Item.create({'name': 'Legacy', 'code': 'L0', 'price': 1.5})  # id-only shadow row
         with patch.object(type(self.Item), '_shadow_columns', ('code', 'price')):
             self.store.ensure_shadow_table(self.Item)
             self.assertEqual(self._column_state(table, 'price'), ('YES', None))
+            # the new columns are backfilled from the documents
+            self.assertEqual(self._shadow_rows(table, legacy), [(legacy.id, 'L0', 1.5)])
             item, other = self.Item.create([{'name': 'Shadow', 'code': 'S1', 'price': 2.5}, {'name': 'Plain'}])
             self.env.flush_all()
             self.assertEqual(self._shadow_rows(table, item + other), [(item.id, 'S1', 2.5), (other.id, None, None)])

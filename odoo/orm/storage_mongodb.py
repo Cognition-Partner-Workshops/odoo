@@ -377,10 +377,13 @@ class MongoStore:
         if created:
             sql.create_model_table(cr, model._table, f"{model._description} (MongoDB shadow: ids and {list(model._shadow_columns)})")
         columns = sql.table_columns(cr, model._table)
+        missing = [fname for fname in model._shadow_columns if fname not in columns]
         for fname in model._shadow_columns:
             model._fields[fname].update_db_column(model, columns.get(fname))
         if created:
             return
+        if missing:
+            self._backfill_shadow_columns(model, missing)
         kept = {'id', *model._shadow_columns}
         cr.execute(SQL(
             "SELECT column_name FROM information_schema.columns "
@@ -396,6 +399,27 @@ class MongoStore:
                 SQL.identifier(model._table), SQL.identifier(column), SQL.identifier(column),
             ))
             _logger.info("Table %r: column %r moved to MongoDB, dropped NOT NULL and default", model._table, column)
+
+    def _backfill_shadow_columns(self, model: BaseModel, fnames: list[str]) -> None:
+        """Fill full-shadow columns just added to a populated shadow table from the documents,
+        so the SQL readers see the current values instead of NULL."""
+        from odoo.tools import SQL  # noqa: PLC0415
+        fields = [model._fields[fname] for fname in fnames]
+        paths = [model._mongodb_path(field) for field in fields]
+        rows = [
+            (doc['_id'], *(model._document_value_to_cache(field, doc.get(path)) for field, path in zip(fields, paths)))
+            for doc in self.db[self.collection_name(model)].find({}, dict.fromkeys(paths, 1))
+        ]
+        if not rows:
+            return
+        model.env.cr.execute(SQL(
+            "UPDATE %s AS t SET %s FROM (VALUES %s) AS v (id, %s) WHERE t.id = v.id",
+            SQL.identifier(model._table),
+            SQL(', ').join(SQL('%s = v.%s', SQL.identifier(fname), SQL.identifier(fname)) for fname in fnames),
+            SQL(', ').join(SQL('(%s)', SQL(', ').join(row)) for row in rows),
+            SQL(', ').join(map(SQL.identifier, fnames)),
+        ))
+        _logger.info("Table %r: backfilled full-shadow columns %s for %d rows", model._table, fnames, len(rows))
 
     def ensure_collection(self, model: BaseModel) -> None:
         import pymongo  # noqa: PLC0415
