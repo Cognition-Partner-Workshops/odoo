@@ -162,6 +162,19 @@ class MongoStore:
     def collection_spec(self, model: BaseModel) -> dict | None:
         return self.spec['by_table'].get(model._table)
 
+    def spec_bson_type(self, model: BaseModel, fname: str) -> str | None:
+        spec = self.collection_spec(model)
+        return next((f['bson_type'] for f in spec['fields'] if f['source'] == fname), None) if spec else None
+
+    def document_value(self, model: BaseModel, fname: str, value):
+        """``to_bson`` plus the mapping spec's numeric type: ``decimal`` fields store Decimal128."""
+        value = to_bson(value)
+        if isinstance(value, (int, float)) and not isinstance(value, bool) \
+                and self.spec_bson_type(model, fname) == 'decimal':
+            from bson.decimal128 import Decimal128  # noqa: PLC0415
+            return Decimal128(str(value))
+        return value
+
     def collection_name(self, model: BaseModel) -> str:
         spec = self.collection_spec(model)
         return spec['collection'] if spec else camelize(model._table)
@@ -209,7 +222,10 @@ class MongoStore:
     # reads
     # ------------------------------------------------------------------
     def find(self, model: BaseModel, filter_: dict, projection=None, sort=None, skip=0, limit=None) -> list[dict]:
-        cursor = self.db[self.collection_name(model)].find(filter_, projection)
+        coll = self.db[self.collection_name(model)]
+        if any(len(term) == 4 for term in sort or ()):
+            return list(coll.aggregate(self._parent_sort_pipeline(coll.name, filter_, projection, sort, skip, limit)))
+        cursor = coll.find(filter_, projection)
         if sort:
             cursor = cursor.sort(sort)
         if skip:
@@ -217,6 +233,42 @@ class MongoStore:
         if limit:
             cursor = cursor.limit(limit)
         return list(cursor)
+
+    @staticmethod
+    def _parent_sort_pipeline(collection: str, filter_: dict, projection, sort: list, skip: int, limit) -> list[dict]:
+        """Sort through a self-referential many2one: ``(path, direction, parent_sort,
+        nulls_first)`` terms join the parent document; a missing parent or parent value
+        takes the requested NULLS placement (SQL default: last ascending, first descending)."""
+        from bson import MaxKey, MinKey  # noqa: PLC0415
+        pipeline: list[dict] = [{'$match': filter_}]
+        sort_doc: dict[str, int] = {}
+        aliases = []
+        for index, term in enumerate(sort):
+            if len(term) == 2:
+                sort_doc[term[0]] = term[1]
+                continue
+            path, direction, parent_sort, nulls_first = term
+            if any(len(parent_term) != 2 for parent_term in parent_sort):
+                raise NotImplementedError(f"{collection}: MongoDB sort through nested parent orders is not supported")
+            alias = f'_parent{index}'
+            aliases.append(alias)
+            missing = MinKey() if nulls_first == (direction == 1) else MaxKey()
+            pipeline += [
+                {'$lookup': {'from': collection, 'localField': path, 'foreignField': '_id', 'as': alias,
+                             'pipeline': [{'$project': {parent_path: 1 for parent_path, _ in parent_sort}}]}},
+                {'$unwind': {'path': f'${alias}', 'preserveNullAndEmptyArrays': True}},
+                {'$addFields': {f'{alias}.{parent_path}': {'$ifNull': [f'${alias}.{parent_path}', missing]}
+                                for parent_path, _ in parent_sort}},
+            ]
+            for parent_path, parent_direction in parent_sort:
+                sort_doc[f'{alias}.{parent_path}'] = parent_direction * direction
+        pipeline.append({'$sort': sort_doc})
+        if skip:
+            pipeline.append({'$skip': skip})
+        if limit:
+            pipeline.append({'$limit': limit})
+        pipeline.append({'$project': dict(projection)} if projection else {'$unset': aliases})
+        return pipeline
 
     def distinct(self, model: BaseModel, path: str, filter_: dict) -> list:
         return [v for v in self.db[self.collection_name(model)].distinct(path, filter_) if v is not None]
@@ -356,8 +408,10 @@ class MongoStore:
             for ix in spec.get('indexes', ()):
                 indexes.append(([tuple(k) for k in ix['keys']], {}))
             for nk in spec['decision'].get('natural_keys', ()):
-                keys = [(self.field_path(model, col), 1) for col in nk['columns']]
-                indexes.append((keys, {'unique': True}))
+                if any(col not in model._fields for col in nk['columns']):
+                    continue  # column of a module not installed yet: indexed when that module loads the model
+                definition = f"({', '.join(nk['columns'])})"
+                indexes.append(self._unique_index(model, definition, nk['name'].removeprefix(f"{model._table}_"), None))
         if model._parent_store:  # child_of / parent_of and subtree rewrites: anchored prefix match
             indexes.append(([(self.field_path(model, 'parent_path'), 1)], {}))
         for field in model._fields.values():
