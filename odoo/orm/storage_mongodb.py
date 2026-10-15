@@ -209,6 +209,19 @@ class MongoStore:
     # reads
     # ------------------------------------------------------------------
     def find(self, model: BaseModel, filter_: dict, projection=None, sort=None, skip=0, limit=None) -> list[dict]:
+        if sort and any(isinstance(key, dict) for key, _ in sort):
+            # computed sort keys (translated fields): aggregate with temporary fields
+            computed = {f"__sort{i}": key for i, (key, _) in enumerate(sort) if isinstance(key, dict)}
+            pipeline = [{'$match': filter_}, {'$addFields': computed}, {'$sort': {
+                (f"__sort{i}" if isinstance(key, dict) else key): direction
+                for i, (key, direction) in enumerate(sort)}}]
+            if skip:
+                pipeline.append({'$skip': skip})
+            if limit:
+                pipeline.append({'$limit': limit})
+            pipeline.append({'$project': dict.fromkeys(computed, 0) if projection is None
+                             else ({k: 1 for k in projection} if isinstance(projection, (list, tuple)) else projection)})
+            return self.aggregate(model, pipeline)
         cursor = self.db[self.collection_name(model)].find(filter_, projection)
         if sort:
             cursor = cursor.sort(sort)
@@ -310,20 +323,9 @@ class MongoStore:
     # ------------------------------------------------------------------
     def ensure_shadow_table(self, model: BaseModel) -> None:
         from odoo.tools import sql  # noqa: PLC0415
-        from odoo.tools import SQL  # noqa: PLC0415
         cr = model.env.cr
         if not sql.table_exists(cr, model._table):
             sql.create_model_table(cr, model._table, f"{model._description} (MongoDB shadow: ids only)")
-            return
-        # a migrated table keeps its columns until the cutover reduces it to the id; until
-        # then the id-only allocation row must be insertable, so no column but id stays NOT NULL
-        cr.execute(SQL(
-            """SELECT column_name FROM information_schema.columns
-               WHERE table_schema = current_schema() AND table_name = %s
-                 AND column_name != 'id' AND is_nullable = 'NO'""", model._table,
-        ))
-        for (column,) in cr.fetchall():
-            sql.drop_not_null(cr, model._table, column)
 
     def ensure_collection(self, model: BaseModel) -> None:
         import pymongo  # noqa: PLC0415

@@ -12,6 +12,7 @@ class ProductCategory(models.Model):
     _parent_name = "parent_id"
     _parent_store = True
     _storage = 'mongodb'
+    _mongodb_shadow_columns = ('property_cost_method',)  # read by stock_avco_report (contract §4/§5 S)
     _rec_name = 'complete_name'
     _order = 'parent_id desc, name asc'
     name = fields.Char('Name', index='trigram', required=True, translate=True)
