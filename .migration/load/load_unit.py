@@ -172,11 +172,14 @@ def main() -> None:
     params = parse_postgresql_secret(os.environ[args.source_dsn_secret])
     params.pop('schema', None)
     db = pymongo.MongoClient(os.environ[args.target_uri_secret], uuidRepresentation='standard')[target_db]
-    with psycopg.connect(**params, autocommit=True) as conn:
+    with psycopg.connect(**params) as conn:
         cur = conn.cursor()
-        cur.execute("SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY")
+        # one read-only REPEATABLE READ transaction: every root and embed query of the unit
+        # reads the same source snapshot
+        cur.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
         cur.execute("SET TIME ZONE 'UTC'")
         loaded = {name: load_collection(cur, db, by_name[name]) for name in unit['collections']}
+        conn.rollback()
     print(json.dumps({'unit': args.unit, 'source_database': params.get('dbname') or params.get('database'),
                       'target_db': target_db, 'mapping_version': spec['version'], 'loaded': loaded}, indent=2))
 

@@ -31,7 +31,8 @@ check('category search = PostgreSQL rows',
 # PostgreSQL puts NULL parents first on DESC, MongoDB last: the storage path keeps MongoDB's
 # null placement (documented deviation), the relative order of the rest is the SQL one
 cr.execute("SELECT id FROM product_category ORDER BY parent_id DESC NULLS LAST, name->>'en_US' ASC, id")
-check('default order (parent_id desc, name asc) = SQL order', Category.search([]).ids == [r[0] for r in cr.fetchall()])
+pg_default_order = [r[0] for r in cr.fetchall()]
+check('default order (parent_id desc, name asc) = SQL order', Category.search([]).ids == pg_default_order)
 root = categories.filtered(lambda c: not c.parent_id)[:1]
 cr.execute("SELECT id FROM product_category WHERE parent_path LIKE %s ORDER BY id", (f"{root.parent_path}%",))
 check('child_of uses parent_path', Category.search([('id', 'child_of', root.id)], order='id').ids == [r[0] for r in cr.fetchall()])
@@ -62,10 +63,11 @@ check('search on boolean', Tag.search([('visible_to_customers', '=', False)]).id
 
 cr.execute("SELECT id, name->>'en_US' FROM product_base_unit ORDER BY name->>'en_US'")
 pg_units = cr.fetchall()
+env['res.lang']._activate_lang('fr_FR')  # rolled back with the rest of the scenario
 cr.execute("SELECT id FROM product_tag ORDER BY COALESCE(name->>'fr_FR', name->>'en_US'), id")
-check('translated sort falls back to en_US like SQL',
-      Tag.with_context(lang='fr_FR').search([], order='name, id').ids == [r[0] for r in cr.fetchall()] if False else
-      [d['_id'] for d in env.registry.mongo_store.find(Tag, {}, {'_id': 1}, sort=[({'$ifNull': ['$name.fr_FR', '$name.en_US']}, 1), ('_id', 1)])] == [r[0] for r in cr.fetchall()])
+pg_fr_order = [r[0] for r in cr.fetchall()]  # fetch before the ORM reuses the cursor
+check('translated sort (fr_FR) falls back to en_US like SQL',
+      Tag.with_context(lang='fr_FR').search([], order='name, id').ids == pg_fr_order)
 check('base unit search (order name) = PostgreSQL rows',
       [(u.id, u.name) for u in BaseUnit.with_context(lang='en_US').search([])] == pg_units, f"{len(pg_units)} units")
 

@@ -219,8 +219,11 @@ class MongoStore:
                 pipeline.append({'$skip': skip})
             if limit:
                 pipeline.append({'$limit': limit})
-            pipeline.append({'$project': dict.fromkeys(computed, 0) if projection is None
-                             else ({k: 1 for k in projection} if isinstance(projection, (list, tuple)) else projection)})
+            if not projection:
+                pipeline.append({'$project': dict.fromkeys(computed, 0)})
+            else:
+                pipeline.append({'$project': {k: 1 for k in projection} if isinstance(projection, (list, tuple))
+                                 else dict(projection)})
             return self.aggregate(model, pipeline)
         cursor = self.db[self.collection_name(model)].find(filter_, projection)
         if sort:
