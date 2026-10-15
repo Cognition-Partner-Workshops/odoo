@@ -17,5 +17,5 @@
   "failure_class": "",
   "manifest_sha": "ea9f6b868dc7",
   "plugin_sha": "0d6bcfd528a4099449ad7f7d8c65eb620b017c79",
-  "one_line_summary": "product-attributes -> odoo_migration.productAttribute/productAttributeValue/updateProductAttributeValue: live strict recon verdict PASS (T1 pass (8 checks), T2 pass (16 checks), T3 pass (124 checks), T4 pass (2 checks), mode=live, target_class=migration_cluster, merge_eligible=False: updateProductAttributeValue has 0 live source rows (UNVERIFIED warning), fixture verdict PASS with 2 wizard scenario rows), read from result.json"
+  "one_line_summary": "product-attributes -> odoo_migration.productAttribute/productAttributeValue/updateProductAttributeValue: live strict recon verdict PASS (T1 pass (8 checks), T2 pass (16 checks), T3 pass (124 checks), T4 pass (2 checks), mode=live, target_class=migration_cluster, merge_eligible=False: updateProductAttributeValue has 0 live source rows (UNVERIFIED warning), fixture verdict PASS with 2 wizard scenario rows), read from result.json; source odoo_src rebuilt deterministic (build_source.sh marker 3: pinned create_date/write_date, UNT11-37)"
 }

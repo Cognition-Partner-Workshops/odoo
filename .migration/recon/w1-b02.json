@@ -12,7 +12,7 @@
   "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/22",
   "branch": "devin/1792083000-w1-b02-product-taxonomy",
   "failure_class": "",
-  "one_line_summary": "product-taxonomy: live strict PASS on pinned plugin 0d6bcfd (Tier 1-4, 0 findings, no warnings, merge_eligible true); source = fixture clone odoo_w1b02_fix with ORM-seeded product_tag/product_base_unit scenario rows (odoo_src read-only)",
+  "one_line_summary": "product-taxonomy: live strict PASS on pinned plugin 0d6bcfd (Tier 1-4, 0 findings, no warnings, merge_eligible true); source = fixture clone odoo_w1b02_fix with ORM-seeded product_tag/product_base_unit scenario rows (odoo_src read-only); source odoo_src rebuilt deterministic (build_source.sh marker 3: pinned create_date/write_date, UNT11-37)",
   "plugin_sha": "0d6bcfd528a4099449ad7f7d8c65eb620b017c79",
   "manifest_sha": "ea9f6b868dc7"
 }

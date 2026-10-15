@@ -1,7 +1,8 @@
 # Source fixture: `odoo_src`
 
 Read-only legacy source for the run. Local PostgreSQL 16 cluster on port 5433
-(the image's PG14 owns 5432), database `odoo_src`, Odoo 20.0 from this branch.
+(the image's PG14 owns 5432), database `odoo_src`, Odoo 20.0 at `SOURCE_COMMIT`
+(`03a3cb561ac`, the run-branch tip before any model opted into MongoDB storage).
 
 ## Build
 
@@ -10,7 +11,9 @@ sudo pg_ctlcluster 16 main start
 ODOO_PG_RO_DSN=... .migration/fixtures/build_source.sh   # secret ODOO_PG_RO_DSN
 ```
 
-The script is idempotent. On a fresh VM it runs:
+The script is idempotent. On a fresh VM it adds a git worktree of this repo at
+`SOURCE_COMMIT` next to the repo (`../odoo-base`; override with `ODOO_REPO`) and runs
+from it:
 
 ```sh
 dropdb --if-exists odoo_src
@@ -20,11 +23,32 @@ dropdb --if-exists odoo_src
   -d odoo_src --db_port=5433 < .migration/fixtures/exercise_source.py
 ```
 
-then (re)applies the `odoo_ro` role and grants and prints the row counts. When the
-database already carries `ir_config_parameter` `migration.fixture_source = 2`
-(`MARKER_VERSION` in the script) the install and exercise steps are skipped, so a
-rerun changes nothing; an `odoo_src` built by the older product + uom fixture
-(marker `1`) is dropped and rebuilt.
+then pins the build (below), (re)applies the `odoo_ro` role and grants and prints the
+row counts. When the database already carries `ir_config_parameter`
+`migration.fixture_source = 3` (`MARKER_VERSION` in the script) the install, exercise
+and pin steps are skipped, so a rerun changes nothing; an `odoo_src` built by an older
+marker (`1`: product + uom only; `2`: widened but unpinned) is dropped and rebuilt.
+
+## Deterministic build (marker 3, plan decision d-source-repro)
+
+Every worker VM builds its own `odoo_src`, and a collection loaded on one VM is
+reconciled against another VM's source, so the build must give identical rows on every
+compared column. Odoo stamps `create_date`/`write_date` with the transaction time and
+`product.attribute.value` / `product.template.attribute.value` default `color` to
+`randint(1, 11)`. After `exercise_source.py` the script runs one SQL transaction that
+sets every `create_date`/`write_date` in `public` to `FIXED_INSTANT`
+(`2026-10-14 00:00:00` UTC), sets `product_attribute_value.color = (id - 1) % 11 + 1`,
+copies that colour onto `product_template_attribute_value`, and writes the marker; a
+database carrying the marker is therefore always a pinned one. Nothing is written
+after `odoo_ro` is granted.
+
+Proof: two builds from scratch (`dropdb odoo_src` between them), each dumped with
+`pg_dump --data-only --column-inserts` and sorted, diffed line by line. All 33
+migrate-bucket tables (`.migration/table_buckets.json`, 661 rows: the recon-compared
+set, including the seven wave 1 targets) are byte-identical. 31 tables outside the
+migrate bucket still differ (3,956 lines): `mail_message.date`, `stock_*` dates,
+`sale_order`/`purchase_order` dates, `ir_cron.nextcall`, `database.uuid`, bus/ORM
+signaling registries. They are not recon-compared and are left as Odoo writes them.
 
 Odoo 20.0 installs without demo data by default, so `--with-demo` replaces the
 `--without-demo=` form from the plan.
@@ -59,7 +83,7 @@ units, confirmed and its receipt validated (`stock_picking` done, `stock_move_li
 and `stock_quant` rows); a sale order to `base.res_partner_2` for 5 units, confirmed
 (`sale.order` state `sale`, a delivery picking and its moves); the sale invoiced
 through `_create_invoices()` and posted (`account_move` / `account_move_line`).
-The script asserts each state before setting the marker.
+The script asserts each state; `build_source.sh` sets the marker after pinning.
 
 ## Read-only role
 

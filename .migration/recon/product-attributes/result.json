@@ -11,10 +11,10 @@
     "productAttributeValue",
     "updateProductAttributeValue"
   ],
-  "seed": 1,
+  "seed": 0,
   "params": {},
   "snapshot": null,
-  "generated_at": "2026-10-15T20:17:26.828440+00:00",
+  "generated_at": "2026-10-15T21:41:39.461749+00:00",
   "redacted": true,
   "redaction_salted": false,
   "tiers": [

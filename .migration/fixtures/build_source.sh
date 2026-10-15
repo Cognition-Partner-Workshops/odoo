@@ -7,17 +7,38 @@
 # The odoo_ro password comes from the secret ODOO_PG_RO_DSN, the plugin's JSON
 # PostgreSQL secret {"user","password","host","port","database"}, so every VM
 # gets the same DSN. On the very first build, export ODOO_RO_PASSWORD instead.
+#
+# Deterministic (d-source-repro = deterministic-fixture): the build runs the Odoo code of
+# SOURCE_COMMIT, the run-branch tip before any model opted into MongoDB storage, so every
+# table is written by the PostgreSQL storage; every create_date / write_date stamped during
+# the build is then pinned to FIXED_INSTANT and the only random defaults in migrate-bucket
+# tables (the attribute value colours) are replaced. Two VMs building this fixture get the
+# same rows on every column the recon harness compares; prove it with a second build and a
+# data-only pg_dump diff (see source.md).
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO="${ODOO_REPO:-$(cd "$HERE/../.." && pwd)}"
 PY=/home/ubuntu/.venvs/odoo/bin/python
 PGPORT=5433
 DB=odoo_src
 ADDONS=product,uom,sale,purchase,stock,account
 MARKER=migration.fixture_source
-MARKER_VERSION=2   # bump when the fixture widens so an old odoo_src is rebuilt
+MARKER_VERSION=3   # bump when the fixture changes so an old odoo_src is rebuilt (3: pinned timestamps)
+SOURCE_COMMIT=03a3cb561ac42578e920b1f549e9d400177add06   # mongo-run/20261014 before PR #21 (first opt-in)
+FIXED_INSTANT='2026-10-14 00:00:00'   # UTC; the run date
 export PGPORT PGHOST=/var/run/postgresql
+
+# ODOO_REPO: an Odoo checkout at SOURCE_COMMIT. Default: a git worktree of this repo at
+# that commit, created on first use next to the repo (the run-branch tip itself cannot build
+# the source: its opted-in models would write through MongoDB).
+REPO="${ODOO_REPO:-$(dirname "$(cd "$HERE/../.." && pwd)")/odoo-base}"
+if [ ! -e "$REPO/odoo-bin" ]; then
+  git -C "$HERE/../.." worktree add "$REPO" "$SOURCE_COMMIT"
+fi
+head="$(git -C "$REPO" rev-parse HEAD)"
+[ "$head" = "$SOURCE_COMMIT" ] || { echo "$REPO is at $head, not SOURCE_COMMIT $SOURCE_COMMIT" >&2; exit 1; }
+dirty="$(git -C "$REPO" status --porcelain)"
+[ -z "$dirty" ] || { printf '%s has local changes; build only from a clean SOURCE_COMMIT checkout:\n%s\n' "$REPO" "$dirty" >&2; exit 1; }
 
 if [ -z "${ODOO_RO_PASSWORD:-}" ]; then
   [ -n "${ODOO_PG_RO_DSN:-}" ] || { echo "set ODOO_PG_RO_DSN (or ODOO_RO_PASSWORD on first build)" >&2; exit 1; }
@@ -39,6 +60,33 @@ if [ "$built" != "$MARKER_VERSION" ]; then
     -d "$DB" --db_port="$PGPORT" -i "$ADDONS" --with-demo --stop-after-init --log-level=warn
   "$PY" "$REPO/odoo-bin" shell --addons-path="$REPO/addons,$REPO/odoo/addons" \
     -d "$DB" --db_port="$PGPORT" --log-level=warn < "$HERE/exercise_source.py"
+  # Pin every build-time stamp and the randint colour defaults of product.attribute.value (a
+  # function of the id) and product.template.attribute.value (its value's colour), then set the
+  # marker in the same transaction: an odoo_src that carries MARKER_VERSION is always pinned.
+  psql -X -1 -v ON_ERROR_STOP=1 -q -d "$DB" -v fixed="$FIXED_INSTANT" -v marker="$MARKER" -v version="$MARKER_VERSION" <<'SQL'
+SET LOCAL fixture.instant = :'fixed';
+DO $$
+DECLARE r record;
+BEGIN
+  FOR r IN
+    SELECT c.table_name, c.column_name
+    FROM information_schema.columns c
+    JOIN information_schema.tables t USING (table_schema, table_name)
+    WHERE c.table_schema = 'public' AND t.table_type = 'BASE TABLE'
+      AND c.column_name IN ('create_date', 'write_date')
+      AND c.data_type LIKE 'timestamp%'
+  LOOP
+    EXECUTE format('UPDATE %I SET %I = %L WHERE %I IS NOT NULL',
+                   r.table_name, r.column_name, current_setting('fixture.instant'), r.column_name);
+  END LOOP;
+END $$;
+UPDATE product_attribute_value SET color = (id - 1) % 11 + 1;
+UPDATE product_template_attribute_value ptav SET color = pav.color
+  FROM product_attribute_value pav WHERE pav.id = ptav.product_attribute_value_id;
+INSERT INTO ir_config_parameter (key, value, create_uid, create_date, write_uid, write_date)
+VALUES (:'marker', :'version', 1, :'fixed', 1, :'fixed')
+ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, write_date = EXCLUDED.write_date;
+SQL
 fi
 
 psql -v ON_ERROR_STOP=1 -q -d "$DB" -v pw="$ODOO_RO_PASSWORD" <<'SQL'

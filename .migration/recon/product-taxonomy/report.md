@@ -6,8 +6,8 @@
 - Mapping version: `map-draft-5` (sha256 `e329b5aec09f`)
 - Tolerance version: `v1` (sha256 `59f500708400`)
 - Collections: `productBaseUnit`, `productCategory`, `productTag`
-- Seed: `1`
-- Generated: 2026-10-15T20:03:45.550642+00:00
+- Seed: `0`
+- Generated: 2026-10-15T21:41:47.689575+00:00
 - 35 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 18 string fields: min/max/distinct deferred to Tier 3
 

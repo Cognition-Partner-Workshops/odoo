@@ -7,7 +7,7 @@
 - Tolerance version: `v1` (sha256 `59f500708400`)
 - Collections: `uomUom`
 - Seed: `0`
-- Generated: 2026-10-15T19:40:29.476505+00:00
+- Generated: 2026-10-15T21:41:32.182015+00:00
 - 12 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 3 string fields: min/max/distinct deferred to Tier 3
 

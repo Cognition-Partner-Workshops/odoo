@@ -1,10 +1,10 @@
 {
   "manifest_version": 1,
-  "source": "odoo_src (Odoo 20.0 demo data, migration.fixture_source marker 2) cloned with CREATE DATABASE odoo_fixture TEMPLATE odoo_src, plus one synthetic outlier template",
+  "source": "odoo_src (Odoo 20.0 demo data, migration.fixture_source marker 3) cloned with CREATE DATABASE odoo_fixture TEMPLATE odoo_src, plus one synthetic outlier template",
   "method": "synthetic",
   "masked_columns": [],
   "masking": "none: Odoo demo data is synthetic, the fixture holds no customer rows",
-  "produced_at": "2026-10-14T23:17:07Z",
+  "produced_at": "2026-10-15T21:39:08Z",
   "produced_by": "s2.4-fixture (.migration/fixtures/build_fixture.sh)",
   "fixture": {
     "family": "postgresql",
@@ -17,7 +17,7 @@
       "key": "migration.fixture",
       "value": "1"
     },
-    "source_database_uuid": "99180dc6-c823-11f1-8fa2-0b3e1f661030",
+    "source_database_uuid": "a43d7d54-c8e0-11f1-a091-05a6f68c7eda",
     "dsn_env": "ODOO_PG_FIXTURE_DSN",
     "dsn_derivation": "ODOO_PG_RO_DSN JSON with \"database\" replaced by odoo_fixture (same read-only role); exported per shell, never stored",
     "recon": "recon run --mode fixture --family postgresql --source-dsn-secret ODOO_PG_FIXTURE_DSN",
@@ -99,8 +99,8 @@
   "sizing": {
     "profile": {
       "path": ".migration/data_profile.json",
-      "sha256": "f994f831c3888f449e9e8d44036a7f4b6c399f9cdf27013440a82bb5b41096e7",
-      "as_of": "2026-10-14T22:49:20.989238+00:00",
+      "sha256": "e1ed4456c5462ae5d4eca84c8e77786d3d6e38873ed0bd22b593890087c4d0f7",
+      "as_of": "2026-10-14T23:40:24.569425+00:00",
       "census_sha256": "c50ff5384a5c53d07cd894cf4fb8559d301b48dd6884869aaa45c7d7fc945c49"
     },
     "rule": "every fan-out whose parent and child are both migrate-bucket tables keeps parents at the profile's p50, p99 and max (the demo slice is smaller than any subset that would still hold all three, so no row is dropped); the outlier template exceeds the profile's max variants per template",
