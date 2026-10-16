@@ -268,7 +268,7 @@
       "extra_fields": {},
       "indexes": {
         "spec": 1,
-        "target": 2,
+        "target": 3,
         "missing": []
       }
     },

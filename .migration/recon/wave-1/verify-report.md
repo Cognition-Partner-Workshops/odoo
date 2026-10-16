@@ -3,7 +3,7 @@ manifest_sha: ea9f6b868dc7
 
 # Wave 1 independent verification: product + uom
 
-Verifier session that migrated none of the wave. Run branch `mongo-run/20261014` at `a7faf9a`;
+Verifier session that migrated none of the wave. Run branch `mongo-run/20261014` at `892d516` (first pass at `a7faf9a`; w1-b02 re-verified after PR #31 pinned the scenario seed timestamps and reloaded `productTag`/`productBaseUnit`);
 plugin pinned `0d6bcfd` (`.migration/plugin_sha`); mapping `map-draft-5`
 (`e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a`); tolerances `v1` strict
 (`59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68`); canonicalization
@@ -18,31 +18,27 @@ unprefixed collection). Odoo tests ran in a separate database `odoo_v1t` with
 | batch | unit | verdict | verifier recon | note |
 |---|---|---|---|---|
 | w1-b01 | uom | PASS | live from `odoo_src`: PASS, T1 3 / T2 8 / T3 30 checks, 0 findings, merge_eligible | fixture-mode rerun (post-#29 source) PASS |
-| w1-b02 | product-taxonomy | FAIL | live from `odoo_src`: FAIL T1 (`product_tag` 0 rows vs 3 docs, `product_base_unit` 0 rows vs 2 docs); live from a fresh seeded clone: T1 10/10, T2 13/13, T4 4/4 PASS, T3 FAIL 10 of 13 | drift explained below: scenario-seed timestamps, not migration code |
+| w1-b02 | product-taxonomy | PASS | live from a freshly seeded clone of `odoo_fixture` (`odoo_w1v_fix2`, merged `seed_scenario_rows.py`): PASS, T1 10 / T2 13 / T3 13 / T4 4 checks, 0 findings, merge_eligible | first pass FAILed on seed timestamps; fixed by PR #31 (pin-and-reload), see below |
 | w1-b03 | product-attributes | PASS | live from `odoo_src`: PASS, T1 8 / T2 16 / T3 124 / T4 2 checks, 0 findings; warning `UNVERIFIED updateProductAttributeValue: 0 source rows` (accepted by the user, not a FAIL) | `merge_eligible=false` on the verifier re-run only because of that warning; the worker's committed result carries the same warning |
 
-Wave verdict: **FAIL** (w1-b02 not independently reproducible). Circuit breaker: one failure, one
-class (scenario-seed drift); not tripped.
+Wave verdict: **PASS**. Circuit breaker: no batch failed on the final pass (one explained
+failure on the first pass, one class); not tripped.
 
 ## w1-b02 product-taxonomy: what the verifier saw
 
-1. From the read-only source `odoo_src` the target does not reconcile: `productTag` has 3 documents
-   and `productBaseUnit` 2 while the source tables have 0 rows
-   (`w1-b02/product-taxonomy-odoo_src/result.json`). Those documents came from the worker's seeded
-   clone `odoo_w1b02_fix` (PR #22 says so; the manager-accepted 0-row scenario-row pattern).
-2. Reproducing that pattern independently (`odoo_w1v_fix` = clone of `odoo_fixture` +
-   `.migration/load/seed_scenario_rows.py` run with the pre-opt-in code) gives Tier 1, 2 and 4
-   PASS and Tier 3 FAIL on exactly 10 checks: `createDate` and `writeDate` of all 5 scenario
-   documents (3 `productTag`, 2 `productBaseUnit`)
-   (`w1-b02/product-taxonomy-scenario/result.json`). Every other field of those documents
-   (name, sequence, color, visibleToCustomers, create/write uid) matches.
-3. Cause: `seed_scenario_rows.py` lets the ORM stamp `create_date`/`write_date` with `now()`, so
-   each clone produces different timestamps and the worker's PASS can only be reproduced inside
-   the worker's own session. The 8 `productCategory` rows (the only collection with live rows)
-   match `odoo_src` in full in both runs.
-4. Not fixed here (verifier never fixes code). Manager's options: pin the seed timestamps the way
-   `build_source.sh` pins `FIXED_INSTANT` and reload `productTag`/`productBaseUnit`, then
-   re-verify; or grade the batch DRIFT-EXPLAINED on the evidence above.
+1. `product_tag` and `product_base_unit` have 0 rows in the read-only source `odoo_src`, so a
+   recon from `odoo_src` cannot reconcile the 3 + 2 target documents (Tier 1 rows=0 vs docs);
+   the manager-accepted 0-row scenario-row pattern is that the live recon reads a seeded clone.
+2. First pass (run branch `a7faf9a`): an independently seeded clone reconciled on every field
+   except `createDate`/`writeDate` of the 5 scenario documents, because the seed let the ORM
+   stamp `now()`; the worker's PASS was not reproducible outside its session. Reported as FAIL,
+   explained drift; the user chose pin-and-reload.
+3. Final pass (run branch `892d516`, PR #31 merged): `seed_scenario_rows.py` pins both dates to
+   `FIXED_INSTANT` (2026-10-14 00:00:00, the same instant `build_source.sh` pins) and the worker
+   reloaded `productTag`/`productBaseUnit`. A fresh clone `odoo_w1v_fix2` of `odoo_fixture`
+   seeded with the merged script, then live strict recon against the target: PASS on all tiers,
+   0 findings, `merge_eligible=true` (`w1-b02/product-taxonomy-scenario/result.json`). The 8
+   `productCategory` rows match `odoo_src` in full.
 
 ## Fixture-mode reruns requested by the manager (post-#29 source)
 
@@ -108,8 +104,7 @@ fresh-install run above is the evidence.
 
 - `.migration/recon/wave-1/w1-b01/uom/result.json` (live, PASS)
 - `.migration/recon/wave-1/w1-b01/uom-fixture/result.json` (fixture, PASS)
-- `.migration/recon/wave-1/w1-b02/product-taxonomy-odoo_src/result.json` (live, FAIL T1)
-- `.migration/recon/wave-1/w1-b02/product-taxonomy-scenario/result.json` (live from seeded clone, FAIL T3 timestamps)
+- `.migration/recon/wave-1/w1-b02/product-taxonomy-scenario/result.json` (live from freshly seeded clone, PASS)
 - `.migration/recon/wave-1/w1-b03/product-attributes/result.json` (live, PASS, accepted warning)
 - `.migration/recon/wave-1/probes.json`
 - `.migration/recon/wave-1/verify-result.json`

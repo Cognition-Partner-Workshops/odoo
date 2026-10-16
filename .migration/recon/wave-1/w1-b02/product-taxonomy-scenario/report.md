@@ -1,13 +1,13 @@
 # Recon report: unit `product-taxonomy`
 
-- **Verdict: FAIL** (values redacted)
+- **Verdict: PASS** (values redacted)
 - Mode: `live`
-- Merge eligible: no (fixture/continuous evidence never merges)
+- Merge eligible: yes (fixture/continuous evidence never merges)
 - Mapping version: `map-draft-5` (sha256 `e329b5aec09f`)
 - Tolerance version: `v1` (sha256 `59f500708400`)
 - Collections: `productBaseUnit`, `productCategory`, `productTag`
 - Seed: `0`
-- Generated: 2026-10-15T23:00:48.928114+00:00
+- Generated: 2026-10-16T21:43:43.676705+00:00
 - 35 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 18 string fields: min/max/distinct deferred to Tier 3
 
@@ -15,7 +15,7 @@
 |---|---|---|---|
 | 1 | counts_through_mapping | 10 | PASS |
 | 2 | per_field_aggregates | 13 | PASS |
-| 3 | keyed_diffs | 13 | FAIL (10 findings) |
+| 3 | keyed_diffs | 13 | PASS |
 | 4 | app_level_parity | 4 | PASS |
 
 ## Tier 1 coverage
@@ -304,15 +304,3 @@
   }
 }
 ```
-
-## Tier 3 findings (10)
-- `productBaseUnit` field_diff: field create_date->createDate key=tuple:28cb03b06c28 | source=datetime:dc19392be417 target=datetime:3e3c81500558 | rules=['datetime_utc_truncate_ms']
-- `productBaseUnit` field_diff: field write_date->writeDate key=tuple:28cb03b06c28 | source=datetime:dc19392be417 target=datetime:3e3c81500558 | rules=['datetime_utc_truncate_ms']
-- `productBaseUnit` field_diff: field create_date->createDate key=tuple:0555debc8a65 | source=datetime:dc19392be417 target=datetime:3e3c81500558 | rules=['datetime_utc_truncate_ms']
-- `productBaseUnit` field_diff: field write_date->writeDate key=tuple:0555debc8a65 | source=datetime:dc19392be417 target=datetime:3e3c81500558 | rules=['datetime_utc_truncate_ms']
-- `productTag` field_diff: field create_date->createDate key=tuple:28cb03b06c28 | source=datetime:dc19392be417 target=datetime:3e3c81500558 | rules=['datetime_utc_truncate_ms']
-- `productTag` field_diff: field write_date->writeDate key=tuple:28cb03b06c28 | source=datetime:dc19392be417 target=datetime:3e3c81500558 | rules=['datetime_utc_truncate_ms']
-- `productTag` field_diff: field create_date->createDate key=tuple:0555debc8a65 | source=datetime:dc19392be417 target=datetime:3e3c81500558 | rules=['datetime_utc_truncate_ms']
-- `productTag` field_diff: field write_date->writeDate key=tuple:0555debc8a65 | source=datetime:dc19392be417 target=datetime:3e3c81500558 | rules=['datetime_utc_truncate_ms']
-- `productTag` field_diff: field create_date->createDate key=tuple:4079e4af87d7 | source=datetime:dc19392be417 target=datetime:3e3c81500558 | rules=['datetime_utc_truncate_ms']
-- `productTag` field_diff: field write_date->writeDate key=tuple:4079e4af87d7 | source=datetime:dc19392be417 target=datetime:3e3c81500558 | rules=['datetime_utc_truncate_ms']

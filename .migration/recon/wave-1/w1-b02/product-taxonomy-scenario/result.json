@@ -14,7 +14,7 @@
   "seed": 0,
   "params": {},
   "snapshot": null,
-  "generated_at": "2026-10-15T23:00:48.928114+00:00",
+  "generated_at": "2026-10-16T21:43:43.676705+00:00",
   "redacted": true,
   "redaction_salted": false,
   "tiers": [
@@ -290,7 +290,7 @@
     {
       "tier": 3,
       "name": "keyed_diffs",
-      "passed": false,
+      "passed": true,
       "checks_run": 13,
       "stats": {
         "productBaseUnit": {
@@ -312,148 +312,7 @@
           "duplicate_source_key_count": 0
         }
       },
-      "findings": [
-        {
-          "collection": "productBaseUnit",
-          "check": "field_diff",
-          "detail": "field create_date->createDate key=tuple:28cb03b06c28",
-          "source_value": "datetime:dc19392be417",
-          "target_value": "datetime:3e3c81500558",
-          "rules_applied": [
-            "datetime_utc_truncate_ms"
-          ],
-          "rules_configured": [
-            "datetime_utc_truncate_ms",
-            "null_missing_equiv"
-          ]
-        },
-        {
-          "collection": "productBaseUnit",
-          "check": "field_diff",
-          "detail": "field write_date->writeDate key=tuple:28cb03b06c28",
-          "source_value": "datetime:dc19392be417",
-          "target_value": "datetime:3e3c81500558",
-          "rules_applied": [
-            "datetime_utc_truncate_ms"
-          ],
-          "rules_configured": [
-            "datetime_utc_truncate_ms",
-            "null_missing_equiv"
-          ]
-        },
-        {
-          "collection": "productBaseUnit",
-          "check": "field_diff",
-          "detail": "field create_date->createDate key=tuple:0555debc8a65",
-          "source_value": "datetime:dc19392be417",
-          "target_value": "datetime:3e3c81500558",
-          "rules_applied": [
-            "datetime_utc_truncate_ms"
-          ],
-          "rules_configured": [
-            "datetime_utc_truncate_ms",
-            "null_missing_equiv"
-          ]
-        },
-        {
-          "collection": "productBaseUnit",
-          "check": "field_diff",
-          "detail": "field write_date->writeDate key=tuple:0555debc8a65",
-          "source_value": "datetime:dc19392be417",
-          "target_value": "datetime:3e3c81500558",
-          "rules_applied": [
-            "datetime_utc_truncate_ms"
-          ],
-          "rules_configured": [
-            "datetime_utc_truncate_ms",
-            "null_missing_equiv"
-          ]
-        },
-        {
-          "collection": "productTag",
-          "check": "field_diff",
-          "detail": "field create_date->createDate key=tuple:28cb03b06c28",
-          "source_value": "datetime:dc19392be417",
-          "target_value": "datetime:3e3c81500558",
-          "rules_applied": [
-            "datetime_utc_truncate_ms"
-          ],
-          "rules_configured": [
-            "datetime_utc_truncate_ms",
-            "null_missing_equiv"
-          ]
-        },
-        {
-          "collection": "productTag",
-          "check": "field_diff",
-          "detail": "field write_date->writeDate key=tuple:28cb03b06c28",
-          "source_value": "datetime:dc19392be417",
-          "target_value": "datetime:3e3c81500558",
-          "rules_applied": [
-            "datetime_utc_truncate_ms"
-          ],
-          "rules_configured": [
-            "datetime_utc_truncate_ms",
-            "null_missing_equiv"
-          ]
-        },
-        {
-          "collection": "productTag",
-          "check": "field_diff",
-          "detail": "field create_date->createDate key=tuple:0555debc8a65",
-          "source_value": "datetime:dc19392be417",
-          "target_value": "datetime:3e3c81500558",
-          "rules_applied": [
-            "datetime_utc_truncate_ms"
-          ],
-          "rules_configured": [
-            "datetime_utc_truncate_ms",
-            "null_missing_equiv"
-          ]
-        },
-        {
-          "collection": "productTag",
-          "check": "field_diff",
-          "detail": "field write_date->writeDate key=tuple:0555debc8a65",
-          "source_value": "datetime:dc19392be417",
-          "target_value": "datetime:3e3c81500558",
-          "rules_applied": [
-            "datetime_utc_truncate_ms"
-          ],
-          "rules_configured": [
-            "datetime_utc_truncate_ms",
-            "null_missing_equiv"
-          ]
-        },
-        {
-          "collection": "productTag",
-          "check": "field_diff",
-          "detail": "field create_date->createDate key=tuple:4079e4af87d7",
-          "source_value": "datetime:dc19392be417",
-          "target_value": "datetime:3e3c81500558",
-          "rules_applied": [
-            "datetime_utc_truncate_ms"
-          ],
-          "rules_configured": [
-            "datetime_utc_truncate_ms",
-            "null_missing_equiv"
-          ]
-        },
-        {
-          "collection": "productTag",
-          "check": "field_diff",
-          "detail": "field write_date->writeDate key=tuple:4079e4af87d7",
-          "source_value": "datetime:dc19392be417",
-          "target_value": "datetime:3e3c81500558",
-          "rules_applied": [
-            "datetime_utc_truncate_ms"
-          ],
-          "rules_configured": [
-            "datetime_utc_truncate_ms",
-            "null_missing_equiv"
-          ]
-        }
-      ]
+      "findings": []
     },
     {
       "tier": 4,
@@ -465,7 +324,7 @@
     }
   ],
   "warnings": [],
-  "verdict": "FAIL",
-  "merge_eligible": false,
+  "verdict": "PASS",
+  "merge_eligible": true,
   "error": null
 }
