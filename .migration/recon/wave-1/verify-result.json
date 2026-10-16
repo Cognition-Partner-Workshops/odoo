@@ -1,0 +1,42 @@
+{
+  "run_id": "UNT11-15",
+  "manifest_sha": "ea9f6b868dc7",
+  "wave_verdict": "PASS",
+  "unit_verdicts": {
+    "w1-b01": "PASS",
+    "w1-b02": "PASS",
+    "w1-b03": "PASS"
+  },
+  "recon_results": {
+    "w1-b01": [
+      ".migration/recon/wave-1/w1-b01/uom/result.json"
+    ],
+    "w1-b02": [
+      ".migration/recon/wave-1/w1-b02/product-taxonomy-scenario/result.json"
+    ],
+    "w1-b03": [
+      ".migration/recon/wave-1/w1-b03/product-attributes/result.json"
+    ]
+  },
+  "findings": [
+    {
+      "batch": "w1-b03",
+      "class": "accepted warning",
+      "severity": "info",
+      "detail": "UNVERIFIED collection updateProductAttributeValue: 0 source rows (accepted by the user; merge_eligible=false on the harness result for that reason only)."
+    },
+    {
+      "batch": "w1-b03",
+      "class": "fixture rerun not performed",
+      "severity": "info",
+      "detail": "product-attributes fixture-mode rerun would require reloading the target from odoo_fixture (17 attributes / 114 values vs 14 / 101 in odoo_src); the verifier does not write to the target."
+    },
+    {
+      "batch": "w1-b02",
+      "class": "scenario-seed drift (resolved)",
+      "severity": "info",
+      "detail": "First pass FAILed Tier 3 on createDate/writeDate of the 5 seeded productTag/productBaseUnit docs (seed stamped now()). PR #31 pinned the seed to FIXED_INSTANT and reloaded; re-verified PASS from a fresh clone odoo_w1v_fix2 on run branch 892d516."
+    }
+  ],
+  "report_path": "recon/wave-1:.migration/recon/wave-1/verify-report.md"
+}

@@ -1,0 +1,584 @@
+{
+  "source_db": "odoo_src",
+  "target_db": "odoo_migration",
+  "probes": {
+    "w1-b01/uom:uomUom": {
+      "count": {
+        "source": 30,
+        "target": 30,
+        "estimated": 30
+      },
+      "boundary_ids": {
+        "source": [
+          1,
+          30
+        ],
+        "target": [
+          1,
+          30
+        ]
+      },
+      "duplicate_ids": 0,
+      "empty": {
+        "source": false,
+        "target": false
+      },
+      "null_rates": {
+        "sequence": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "relativeUomId": {
+          "source_null": 7,
+          "target_null_or_missing": 7
+        },
+        "createUid": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "writeUid": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "parentPath": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "name": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "relativeFactor": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "factor": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "active": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "createDate": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "writeDate": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "packageTypeId": {
+          "source_null": 30,
+          "target_null_or_missing": 30
+        },
+        "uneceCode": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        }
+      },
+      "extra_fields": {},
+      "indexes": {
+        "spec": 2,
+        "target": 4,
+        "missing": []
+      }
+    },
+    "w1-b02/product-taxonomy:productCategory": {
+      "count": {
+        "source": 8,
+        "target": 8,
+        "estimated": 8
+      },
+      "boundary_ids": {
+        "source": [
+          1,
+          8
+        ],
+        "target": [
+          1,
+          8
+        ]
+      },
+      "duplicate_ids": 0,
+      "empty": {
+        "source": false,
+        "target": false
+      },
+      "null_rates": {
+        "parentId": {
+          "source_null": 5,
+          "target_null_or_missing": 5
+        },
+        "companyId": {
+          "source_null": 8,
+          "target_null_or_missing": 8
+        },
+        "createUid": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "writeUid": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "parentPath": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "name": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "productPropertiesDefinition": {
+          "source_null": 8,
+          "target_null_or_missing": 8
+        },
+        "createDate": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "writeDate": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "propertyAccountIncomeCategId": {
+          "source_null": 8,
+          "target_null_or_missing": 8
+        },
+        "propertyAccountExpenseCategId": {
+          "source_null": 8,
+          "target_null_or_missing": 8
+        },
+        "propertyValuation": {
+          "source_null": 8,
+          "target_null_or_missing": 8
+        },
+        "propertyStockValuationAccountId": {
+          "source_null": 8,
+          "target_null_or_missing": 8
+        },
+        "propertyStockJournal": {
+          "source_null": 8,
+          "target_null_or_missing": 8
+        },
+        "propertyCostMethod": {
+          "source_null": 8,
+          "target_null_or_missing": 8
+        },
+        "propertyPriceDifferenceAccountId": {
+          "source_null": 8,
+          "target_null_or_missing": 8
+        },
+        "removalStrategyId": {
+          "source_null": 8,
+          "target_null_or_missing": 8
+        },
+        "packagingReserveMethod": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "propertyAccountBillsToReceiveId": {
+          "source_null": 8,
+          "target_null_or_missing": 8
+        },
+        "propertyAccountBilledNotReceivedId": {
+          "source_null": 8,
+          "target_null_or_missing": 8
+        },
+        "propertyAccountInvoicesToIssueId": {
+          "source_null": 8,
+          "target_null_or_missing": 8
+        },
+        "propertyAccountInvoicedNotDeliveredId": {
+          "source_null": 8,
+          "target_null_or_missing": 8
+        }
+      },
+      "extra_fields": {},
+      "embed:routeIds": {
+        "child_rows": 0,
+        "embedded_total": 0,
+        "length_distribution": {
+          "0": 8
+        },
+        "mismatched_parents": []
+      },
+      "indexes": {
+        "spec": 5,
+        "target": 6,
+        "missing": []
+      }
+    },
+    "w1-b02/product-taxonomy:productTag": {
+      "count": {
+        "source": 0,
+        "target": 3,
+        "estimated": 3
+      },
+      "boundary_ids": {
+        "source": [
+          null,
+          null
+        ],
+        "target": [
+          1,
+          3
+        ]
+      },
+      "duplicate_ids": 0,
+      "empty": {
+        "source": true,
+        "target": false
+      },
+      "null_rates": {
+        "sequence": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "createUid": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "writeUid": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "color": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "name": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "visibleToCustomers": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "createDate": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "writeDate": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        }
+      },
+      "extra_fields": {},
+      "indexes": {
+        "spec": 1,
+        "target": 3,
+        "missing": []
+      }
+    },
+    "w1-b02/product-taxonomy:productBaseUnit": {
+      "count": {
+        "source": 0,
+        "target": 2,
+        "estimated": 2
+      },
+      "boundary_ids": {
+        "source": [
+          null,
+          null
+        ],
+        "target": [
+          1,
+          2
+        ]
+      },
+      "duplicate_ids": 0,
+      "empty": {
+        "source": true,
+        "target": false
+      },
+      "null_rates": {
+        "createUid": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "writeUid": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "name": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "createDate": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "writeDate": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        }
+      },
+      "extra_fields": {},
+      "indexes": {
+        "spec": 0,
+        "target": 1,
+        "missing": []
+      }
+    },
+    "w1-b03/product-attributes:productAttribute": {
+      "count": {
+        "source": 14,
+        "target": 14,
+        "estimated": 14
+      },
+      "boundary_ids": {
+        "source": [
+          1,
+          14
+        ],
+        "target": [
+          1,
+          14
+        ]
+      },
+      "duplicate_ids": 0,
+      "empty": {
+        "source": false,
+        "target": false
+      },
+      "null_rates": {
+        "sequence": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "createUid": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "writeUid": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "createVariant": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "displayType": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "name": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "active": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "createDate": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "writeDate": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        }
+      },
+      "extra_fields": {},
+      "embed:productTmplIds": {
+        "child_rows": 9,
+        "embedded_total": 9,
+        "length_distribution": {
+          "0": 9,
+          "1": 1,
+          "2": 4
+        },
+        "mismatched_parents": []
+      },
+      "indexes": {
+        "spec": 2,
+        "target": 3,
+        "missing": []
+      }
+    },
+    "w1-b03/product-attributes:productAttributeValue": {
+      "count": {
+        "source": 101,
+        "target": 101,
+        "estimated": 101
+      },
+      "boundary_ids": {
+        "source": [
+          1,
+          101
+        ],
+        "target": [
+          1,
+          101
+        ]
+      },
+      "duplicate_ids": 0,
+      "empty": {
+        "source": false,
+        "target": false
+      },
+      "null_rates": {
+        "sequence": {
+          "source_null": 62,
+          "target_null_or_missing": 62
+        },
+        "attributeId": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "color": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "createUid": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "writeUid": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "htmlColor": {
+          "source_null": 81,
+          "target_null_or_missing": 81
+        },
+        "name": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "isCustom": {
+          "source_null": 98,
+          "target_null_or_missing": 98
+        },
+        "active": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "createDate": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "writeDate": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "defaultExtraPrice": {
+          "source_null": 86,
+          "target_null_or_missing": 86
+        }
+      },
+      "extra_fields": {},
+      "indexes": {
+        "spec": 2,
+        "target": 3,
+        "missing": []
+      }
+    },
+    "w1-b03/product-attributes:updateProductAttributeValue": {
+      "count": {
+        "source": 0,
+        "target": 0,
+        "estimated": 0
+      },
+      "boundary_ids": {
+        "source": [
+          null,
+          null
+        ],
+        "target": [
+          null,
+          null
+        ]
+      },
+      "duplicate_ids": 0,
+      "empty": {
+        "source": true,
+        "target": true
+      },
+      "null_rates": {
+        "attributeValueId": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "createUid": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "writeUid": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "mode": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "createDate": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        },
+        "writeDate": {
+          "source_null": 0,
+          "target_null_or_missing": 0
+        }
+      },
+      "extra_fields": {},
+      "indexes": {
+        "spec": 0,
+        "target": 1,
+        "missing": []
+      }
+    },
+    "spot:uomUom.factor/relativeFactor/uneceCode/sequence/relativeUomId": {
+      "rows": 30,
+      "mismatches": []
+    },
+    "spot:productAttributeValue.attributeId/color/htmlColor/defaultExtraPrice/sequence": {
+      "rows": 101,
+      "mismatches": []
+    }
+  },
+  "problems": [],
+  "cross_unit": {
+    "productAttributeValue.attributeId -> productAttribute._id dangling": [],
+    "productCategory.parentId -> productCategory._id dangling": [],
+    "uomUom.relativeUomId -> uomUom._id dangling": [],
+    "productCategory.parentPath consistent with parentId chain: bad": [],
+    "uomUom.parentPath consistent with relativeUomId chain: bad": [],
+    "productAttribute.productTmplIds.productTemplateId not in source product_template": [],
+    "product_template.uom_id -> uomUom": {
+      "source_refs": 3,
+      "unresolved_on_target": []
+    },
+    "product_template.categ_id -> productCategory": {
+      "source_refs": 6,
+      "unresolved_on_target": []
+    },
+    "product_template_attribute_line.attribute_id -> productAttribute": {
+      "source_refs": 5,
+      "unresolved_on_target": []
+    },
+    "product_attribute_value_product_template_attribute_line_rel.product_attribute_value_id -> productAttributeValue": {
+      "source_refs": 16,
+      "unresolved_on_target": []
+    },
+    "product_tag_product_template_rel.product_tag_id -> productTag": {
+      "source_refs": 0,
+      "unresolved_on_target": []
+    },
+    "uomUom.name duplicates": [],
+    "productTag.name duplicates": [],
+    "productAttributeValue (attributeId,name) duplicates": []
+  },
+  "target_namespaces_unprefixed": [
+    "_connectivity_probe",
+    "productAttribute",
+    "productAttributeValue",
+    "productBaseUnit",
+    "productCategory",
+    "productTag",
+    "uomUom",
+    "updateProductAttributeValue"
+  ]
+}
