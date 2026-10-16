@@ -10,8 +10,8 @@ plugin pinned `0d6bcfd` (`.migration/plugin_sha`); mapping `map-draft-5`
 `skills/mongo-migration/profiles/postgresql.md`. Source `odoo_src` rebuilt in this session with
 `.migration/fixtures/build_source.sh` (marker 3, pre-opt-in commit `03a3cb5`); target
 `odoo_migration` on the migration cluster, read only by the verifier (no reload, no writes to any
-unprefixed collection). Odoo tests ran in a separate database `odoo_v1t` with
-`mongodb_migration_db = odoo_verify_mig`, so every test collection was `odoo_v1t__*`.
+unprefixed collection). Odoo tests ran in a separate database `odoo_v1u` with
+`mongodb_migration_db = odoo_verify_mig`, so every test collection was `odoo_v1u__*`.
 
 ## Per-batch verdicts
 
@@ -55,8 +55,11 @@ failure on the first pass, one class); not tripped.
 
 ## Probes past the gate (`probes.json`, 0 problems)
 
-Read-only, `odoo_src` vs `odoo_migration`, all seven collections of the wave:
-counts and `estimated_document_count` equal; min/max `_id` equal to source min/max `id`;
+Read-only, `odoo_src` vs `odoo_migration`, all seven collections of the wave (exception:
+`productTag` and `productBaseUnit` have 0 rows in `odoo_src` vs 3 / 2 target documents, the
+scenario rows; their count, boundary-id and field parity is established by the w1-b02 recon
+against the seeded clone, not by these probes): counts and `estimated_document_count` equal;
+min/max `_id` equal to source min/max `id`;
 no duplicate `_id`; per-field null-vs-missing rates equal on every mapped field; no top-level
 fields outside the spec; embedded arrays `productAttribute.productTmplIds` (9 child rows → 9
 embedded, lengths {0:9, 1:1, 2:4}) and `productCategory.routeIds` (0 → 0) match child-row counts
