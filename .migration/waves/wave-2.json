@@ -1,0 +1,27 @@
+{
+  "wave": 2,
+  "source_access": "live",
+  "target_access": "migration_cluster",
+  "auto_merge": false,
+  "batches": [
+    {
+      "id": "w2-b01",
+      "units": [
+        "product-catalog"
+      ],
+      "write_targets": [
+        "odoo_migration.productTemplate",
+        "odoo_migration.productProduct",
+        "odoo_migration.productTemplateAttributeLine",
+        "odoo_migration.productTemplateAttributeValue",
+        "odoo_migration.productDocument",
+        "odoo_migration.productUom"
+      ],
+      "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+      "recon_tolerances_version": "v1",
+      "mapping_version": "map-draft-5",
+      "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+      "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68"
+    }
+  ]
+}
