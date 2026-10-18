@@ -22,6 +22,10 @@ class ProductTemplate(models.Model):
     _description = "Product"
     _explanation = "The abstract base representation of a product. It defines the generic properties (name, category, price) that apply to all its variants. If a product has no variations (like size/color), this acts as the main product record."
     _order = "is_favorite desc, name"
+    _storage = 'mongodb'
+    # D6 full shadow (orm_backend_contract.md §4): columns read in SQL by report_stock_quantity,
+    # stock_avco_report, vendor_delay_report, sale/purchase/account reports and _check_uom_not_in_invoice
+    _shadow_columns = ('uom_id', 'categ_id', 'is_storable', 'purchase_method')
     _check_company_auto = True
     _check_company_domain = models.check_company_domain_parent_of
 
@@ -100,12 +104,14 @@ class ProductTemplate(models.Model):
         'res.currency', 'Currency',
         compute='_compute_currency_id',
         compute_sql='_compute_sql_currency_id',
+        search='_search_currency_id',
         compute_sudo=True,
     )
     cost_currency_id = fields.Many2one(
         'res.currency', 'Cost Currency',
         compute='_compute_cost_currency_id',
         compute_sql='_compute_sql_cost_currency_id',
+        search='_search_cost_currency_id',
         compute_sudo=True,
     )
 
@@ -411,6 +417,26 @@ class ProductTemplate(models.Model):
 
     def _compute_sql_cost_currency_id(self, table):
         return SQL("COALESCE(%s, %s)", table.company_id.currency_id, self.env.company.currency_id.id)
+
+    def _search_currency_id(self, operator, value):
+        if self._storage != 'mongodb':
+            return NotImplemented  # PostgreSQL: the compute_sql expression
+        return self._currency_search_domain(operator, value, self.env['res.company']._get_main_company())
+
+    def _search_cost_currency_id(self, operator, value):
+        if self._storage != 'mongodb':
+            return NotImplemented
+        return self._currency_search_domain(operator, value, self.env.company)
+
+    def _currency_search_domain(self, operator, value, fallback_company):
+        # contract §5 R: COALESCE(company.currency_id, fallback.currency_id) as a domain on
+        # company_id (PostgreSQL, resolved two-step per §3); templates without a company
+        # match when the fallback company's currency does
+        currency_domain = Domain('currency_id', operator, value)
+        domain = Domain('company_id', 'any', currency_domain)
+        if fallback_company.sudo().filtered_domain(currency_domain):
+            domain |= Domain('company_id', '=', False)
+        return domain
 
     def _compute_template_field_from_variant_field(self, fname, default=False, multi_variant=False):
         """Set the value of the given field based on the template variant values.
@@ -965,6 +991,9 @@ class ProductTemplate(models.Model):
         if self.env.context.get('search_product_product', bool(value)):
             if operator in Domain.NEGATIVE_OPERATORS:
                 domain = Domain.AND([domain, [('product_variant_ids', operator, value)]])
+            elif self._storage == 'mongodb':
+                # contract §5 R: the UNION ALL only exists for the PostgreSQL planner
+                domain = Domain.OR([domain, [('product_variant_ids', operator, value)]])
             else:
                 query = SQL(
                     """((%s) UNION ALL (%s))""",

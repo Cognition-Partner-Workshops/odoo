@@ -30,9 +30,30 @@ if not Tag.search_count([]):
 BaseUnit = env['product.base.unit']
 if not BaseUnit.search_count([]):
     BaseUnit.create([{'name': 'per 100 g'}, {'name': 'per litre'}])
+
+# --- product-catalog (wave 2, w2-b01): product_uom and the four empty relation tables
+# product_product_uom_uom_rel (extra_uom_ids), product_template_uom_uom_rel (uom_ids),
+# product_tag_product_product_rel (additional_product_tag_ids), product_tag_product_template_rel
+# (product_tag_ids). Packagings come from wave 1's uom.uom (Pack of 6 / Dozens, xml ids), tags
+# from the rows above; products are the three lowest-id active variants with a barcode.
+ProductUom = env['product.uom']
+if not ProductUom.search_count([]):
+    pack6, dozen = env.ref('uom.product_uom_pack_6'), env.ref('uom.product_uom_dozen')
+    tags = Tag.search([], order='sequence, id')
+    products = env['product.product'].search([('barcode', '!=', False)], order='id', limit=3)
+    for i, product in enumerate(products):
+        ProductUom.create([
+            {'product_id': product.id, 'uom_id': pack6.id, 'barcode': f'SCN-PACK6-{product.id:06d}'},
+            {'product_id': product.id, 'uom_id': dozen.id, 'barcode': f'SCN-DOZEN-{product.id:06d}'},
+        ])
+        product.extra_uom_ids = [(6, 0, [pack6.id, dozen.id][: i + 1])]
+        product.additional_product_tag_ids = [(6, 0, tags[: i + 1].ids)]
+        product.product_tmpl_id.uom_ids = [(6, 0, [dozen.id, pack6.id][: i + 1])]
+        product.product_tmpl_id.product_tag_ids = [(6, 0, tags[-(i + 1):].ids)]
 env.flush_all()   # the pending translation write would re-stamp write_date after the pin
-for table in ('product_tag', 'product_base_unit'):
+for table in ('product_tag', 'product_base_unit', 'product_uom', 'product_product', 'product_template'):
     env.cr.execute(f"UPDATE {table} SET create_date = %(t)s, write_date = %(t)s", {'t': FIXED_INSTANT})
 env.invalidate_all()
 env.cr.commit()
-print('scenario rows:', Tag.search_count([]), 'tags,', BaseUnit.search_count([]), 'base units')
+print('scenario rows:', Tag.search_count([]), 'tags,', BaseUnit.search_count([]), 'base units,',
+      ProductUom.search_count([]), 'product uoms')

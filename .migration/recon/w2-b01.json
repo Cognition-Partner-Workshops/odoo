@@ -1,0 +1,24 @@
+{
+  "batch": "w2-b01",
+  "status": "PASS",
+  "recon_results": [
+    ".migration/recon/product-catalog/result.json"
+  ],
+  "fixture_results": [
+    ".migration/recon/product-catalog/fixture/result.json"
+  ],
+  "write_targets": [
+    "odoo_migration.productTemplate",
+    "odoo_migration.productProduct",
+    "odoo_migration.productTemplateAttributeLine",
+    "odoo_migration.productTemplateAttributeValue",
+    "odoo_migration.productDocument",
+    "odoo_migration.productUom"
+  ],
+  "pr_url": "",
+  "branch": "devin/1792359384-w2-b01-product-catalog",
+  "failure_class": "",
+  "manifest_sha": "0b73271c13bf",
+  "plugin_sha": "0d6bcfd528a4099449ad7f7d8c65eb620b017c79",
+  "one_line_summary": "product-catalog -> odoo_migration.productTemplate/productProduct/productTemplateAttributeLine/productTemplateAttributeValue/productDocument/productUom: live strict recon verdict PASS (T1 pass (61 checks), T2 pass (51 checks), T3 pass (622 checks), T4 pass (7 checks), mode=live, target_class=migration_cluster, merge_eligible=True, warnings=0), source = seeded clone odoo_w2b01_fix of odoo_fixture (seed_scenario_rows.py: 6 product_uom rows + the four empty relation tables, timestamps pinned to FIXED_INSTANT, two clones dump identical); fixture verdict PASS (T1 pass (19 checks), T2 pass (51 checks), T3 pass (594 checks), T4 pass (7 checks); productUom UNVERIFIED on the unseeded fixture); Tier 4 ops + ORM scenario (scenario_product_catalog.py, 24/24) read from result.json"
+}
