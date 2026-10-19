@@ -1214,6 +1214,7 @@ class DomainCondition(Domain):
             f"Must fully optimize before generating the query {(field_expr, operator, value)}"
         field = self._field(model)
         model.check_field_access(field, 'read')
+        model.flush_model([field.name])  # SQL flushes through SQL.to_flush; a MongoDB filter has no SQL
         return field.condition_to_filter(model, field_expr, operator, value)
 
 

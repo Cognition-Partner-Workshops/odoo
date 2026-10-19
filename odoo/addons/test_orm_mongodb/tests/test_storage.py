@@ -429,3 +429,11 @@ class TestStoragePath(TestMongoStorage):
         gamma.sequence = 1
         self.assertEqual(self.Line.search([], order='item_id, id'), line_g + line_a + line_b)
 
+    def test_search_flushes_pending_writes(self):
+        *_, items = self._make()
+        beta = items[1]
+        beta.name = 'Zulu'
+        self.assertEqual(self.Item.search([('name', '=', 'Zulu')]), beta)
+        beta.sequence = 1
+        self.assertEqual(self.Item.search([], order='sequence, id')[0], beta)
+
