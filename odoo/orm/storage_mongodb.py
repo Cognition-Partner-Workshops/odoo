@@ -383,12 +383,26 @@ class MongoStore:
     def _raise_unique(self, model: BaseModel, exc) -> typing.NoReturn:
         """Map a duplicate-key error to the constraint's ValidationError (like psycopg's IntegrityError)."""
         from odoo.exceptions import ValidationError  # noqa: PLC0415
+        from odoo.tools import format_list  # noqa: PLC0415
         details = getattr(exc, 'details', None) or {}
         errors = details.get('writeErrors') or [details]
         for error in errors:
             if error.get('code') == 11000:
                 match = re.search(r"index: (\S+)", error.get('errmsg', ''))
                 message = self._unique_messages.get((self.collection_name(model), match[1] if match else ''))
+                if not message:
+                    # like models._sql_error_to_exception for a UniqueViolation: the
+                    # columns are the index keys (``keyValue``), mapped back to field names
+                    paths = {self.field_path(model, f.name): f.name for f in model._fields.values() if f.store and f.column_type}
+                    key_value = error.get('keyValue') or {}
+                    columns = [paths.get(path, path) for path in key_value]
+                    if columns:
+                        names = [model._fields[c].string if c in model._fields else c for c in columns]
+                        message = model.env._(
+                            "The value for %(field_display)s already exists.\n\nDetail: %(detail)s\n",
+                            field_display=f"'{', '.join(columns)}' ({format_list(model.env, names)})",
+                            detail=f"Key ({', '.join(columns)})=({', '.join(map(str, key_value.values()))}) already exists.",
+                        )
                 raise ValidationError(message or model.env._("The operation cannot be completed: another record already has the same value for a unique key.")) from exc
         raise exc
 

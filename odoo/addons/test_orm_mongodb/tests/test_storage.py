@@ -466,3 +466,11 @@ class TestStoragePath(TestMongoStorage):
         found = Attachment.with_user(user).search(domain[:1] + [('res_id', '=', beta.id)])
         self.assertEqual(found, att_beta)
 
+    def test_unique_index_without_message(self):
+        *_, items = self._make()
+        self.Variant.create({'item_id': items[0].id, 'ref': 'R1'})
+        with self.assertRaises(ValidationError) as cm, self.cr.savepoint():
+            self.Variant.create({'item_id': items[1].id, 'ref': 'R1'})
+        self.assertIn('already exists', str(cm.exception))
+        self.assertIn('ref', str(cm.exception))
+
