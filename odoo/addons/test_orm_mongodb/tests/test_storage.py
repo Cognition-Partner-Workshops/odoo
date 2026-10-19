@@ -444,3 +444,9 @@ class TestStoragePath(TestMongoStorage):
         self.assertEqual(self.Category.search([('default_item_id.name', '=', 'Beta')]), cat_b)
         self.assertEqual(self.Category.search([('default_item_id.name', '=', 'Nope')]), self.Category)
 
+    def test_description_probes_tolerate_mongodb(self):
+        description = self.Item.fields_get(['line_ids', 'total', 'category_id'])
+        self.assertFalse(description['line_ids']['sortable'])
+        self.assertTrue(description['total']['sortable'])
+        self.assertTrue(description['category_id']['sortable'])
+

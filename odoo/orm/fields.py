@@ -1050,7 +1050,7 @@ class Field[T]:
         try:
             model._order_field_to_sql(query.table, self.name, SQL(), SQL())
             return True
-        except (ValueError, AccessError):
+        except (ValueError, AccessError, NotImplementedError):  # NotImplementedError: related through a MongoDB model
             return False
 
     def _description_groupable(self, env: Environment):
