@@ -8,6 +8,7 @@ from odoo.exceptions import UserError, ValidationError
 class ProductUom(models.Model):
     _name = 'product.uom'
     _description = 'Link between products and their UoMs'
+    _storage = 'mongodb'
     _rec_name = 'barcode'
 
     uom_id = fields.Many2one('uom.uom', 'Unit', required=True, index=True, ondelete='cascade')

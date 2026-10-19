@@ -1,0 +1,552 @@
+{
+  "unit": "product-catalog",
+  "mode": "fixture",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+  "tolerance_version": "v1",
+  "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68",
+  "collections": [
+    "productDocument",
+    "productProduct",
+    "productTemplate",
+    "productTemplateAttributeLine",
+    "productTemplateAttributeValue",
+    "productUom"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-18T21:46:03.581694+00:00",
+  "redacted": true,
+  "redaction_salted": false,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 19,
+      "stats": {
+        "source_counts": {
+          "productDocument": 2,
+          "productProduct": 108,
+          "productTemplate": 39,
+          "productTemplateAttributeLine": 12,
+          "productTemplateAttributeValue": 37,
+          "productUom": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 51,
+      "stats": {
+        "deferred_to_tier3": [
+          "productDocument.sequence",
+          "productDocument.createUid",
+          "productDocument.writeUid",
+          "productDocument.active",
+          "productDocument.createDate",
+          "productDocument.writeDate",
+          "productDocument.attachedOnSale",
+          "productProduct.baseUnitId",
+          "productProduct.createUid",
+          "productProduct.writeUid",
+          "productProduct.defaultCode",
+          "productProduct.barcode",
+          "productProduct.combinationIndices",
+          "productProduct.standardPrice",
+          "productProduct.qtyAvailable",
+          "productProduct.lstPrice",
+          "productProduct.volume",
+          "productProduct.weight",
+          "productProduct.active",
+          "productProduct.canImageVariant1024BeZoomed",
+          "productProduct.isFavorite",
+          "productProduct.writeDate",
+          "productProduct.createDate",
+          "productProduct.lotPropertiesDefinition",
+          "productTemplate.sequence",
+          "productTemplate.categId",
+          "productTemplate.companyId",
+          "productTemplate.color",
+          "productTemplate.baseUnitId",
+          "productTemplate.createUid",
+          "productTemplate.writeUid",
+          "productTemplate.type",
+          "productTemplate.serviceTracking",
+          "productTemplate.barcode",
+          "productTemplate.defaultCode",
+          "productTemplate.name",
+          "productTemplate.description",
+          "productTemplate.descriptionPurchase",
+          "productTemplate.descriptionSale",
+          "productTemplate.productProperties",
+          "productTemplate.listPrice",
+          "productTemplate.volume",
+          "productTemplate.weight",
+          "productTemplate.isStorable",
+          "productTemplate.saleOk",
+          "productTemplate.purchaseOk",
+          "productTemplate.active",
+          "productTemplate.canImage1024BeZoomed",
+          "productTemplate.hasConfigurableAttributes",
+          "productTemplate.isFavorite",
+          "productTemplate.createDate",
+          "productTemplate.writeDate",
+          "productTemplate.propertyAccountIncomeId",
+          "productTemplate.propertyAccountExpenseId",
+          "productTemplate.lotSequenceId",
+          "productTemplate.tracking",
+          "productTemplate.responsibleId",
+          "productTemplate.propertyStockProduction",
+          "productTemplate.propertyStockInventory",
+          "productTemplate.descriptionPicking",
+          "productTemplate.descriptionPickingout",
+          "productTemplate.descriptionPickingin",
+          "productTemplate.purchaseMethod",
+          "productTemplate.purchaseLineWarnMsg",
+          "productTemplate.lotValuated",
+          "productTemplate.serviceType",
+          "productTemplate.reinvoicePolicy",
+          "productTemplate.invoicePolicy",
+          "productTemplate.saleDelay",
+          "productTemplate.saleLineWarnMsg",
+          "productTemplateAttributeLine.sequence",
+          "productTemplateAttributeLine.valueCount",
+          "productTemplateAttributeLine.createUid",
+          "productTemplateAttributeLine.writeUid",
+          "productTemplateAttributeLine.active",
+          "productTemplateAttributeLine.createDate",
+          "productTemplateAttributeLine.writeDate",
+          "productTemplateAttributeValue.sequence",
+          "productTemplateAttributeValue.productTmplId",
+          "productTemplateAttributeValue.attributeId",
+          "productTemplateAttributeValue.color",
+          "productTemplateAttributeValue.createUid",
+          "productTemplateAttributeValue.writeUid",
+          "productTemplateAttributeValue.priceExtra",
+          "productTemplateAttributeValue.ptavActive",
+          "productTemplateAttributeValue.showPriceExtra",
+          "productTemplateAttributeValue.createDate",
+          "productTemplateAttributeValue.writeDate",
+          "productUom.companyId",
+          "productUom.createUid",
+          "productUom.writeUid",
+          "productUom.barcode",
+          "productUom.createDate",
+          "productUom.writeDate"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "productDocument.attachedOnSale",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productProduct.defaultCode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productProduct.barcode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productProduct.combinationIndices",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productProduct.standardPrice",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productProduct.qtyAvailable",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productProduct.lotPropertiesDefinition",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.type",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.serviceTracking",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.barcode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.defaultCode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.description",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.descriptionPurchase",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.descriptionSale",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.productProperties",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.propertyAccountIncomeId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.propertyAccountExpenseId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.tracking",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.responsibleId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.propertyStockProduction",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.propertyStockInventory",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.descriptionPicking",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.descriptionPickingout",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.descriptionPickingin",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.purchaseMethod",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.purchaseLineWarnMsg",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.serviceType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.reinvoicePolicy",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.invoicePolicy",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.saleDelay",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productTemplate.saleLineWarnMsg",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productUom.barcode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "productProduct.standardPrice",
+            "key": "productProduct"
+          },
+          {
+            "field": "productProduct.qtyAvailable",
+            "key": "productProduct"
+          },
+          {
+            "field": "productProduct.lotPropertiesDefinition",
+            "key": "productProduct"
+          },
+          {
+            "field": "productTemplate.name",
+            "key": "productTemplate"
+          },
+          {
+            "field": "productTemplate.description",
+            "key": "productTemplate"
+          },
+          {
+            "field": "productTemplate.descriptionPurchase",
+            "key": "productTemplate"
+          },
+          {
+            "field": "productTemplate.descriptionSale",
+            "key": "productTemplate"
+          },
+          {
+            "field": "productTemplate.productProperties",
+            "key": "productTemplate"
+          },
+          {
+            "field": "productTemplate.propertyAccountIncomeId",
+            "key": "productTemplate"
+          },
+          {
+            "field": "productTemplate.propertyAccountExpenseId",
+            "key": "productTemplate"
+          },
+          {
+            "field": "productTemplate.responsibleId",
+            "key": "productTemplate"
+          },
+          {
+            "field": "productTemplate.propertyStockProduction",
+            "key": "productTemplate"
+          },
+          {
+            "field": "productTemplate.propertyStockInventory",
+            "key": "productTemplate"
+          },
+          {
+            "field": "productTemplate.descriptionPicking",
+            "key": "productTemplate"
+          },
+          {
+            "field": "productTemplate.descriptionPickingout",
+            "key": "productTemplate"
+          },
+          {
+            "field": "productTemplate.descriptionPickingin",
+            "key": "productTemplate"
+          },
+          {
+            "field": "productTemplate.saleDelay",
+            "key": "productTemplate"
+          }
+        ],
+        "fields_fully_deferred": 54
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 594,
+      "stats": {
+        "productDocument": {
+          "mode": "full_diff",
+          "population": 2,
+          "duplicate_source_key_count": 0
+        },
+        "productProduct": {
+          "mode": "full_diff",
+          "population": 108,
+          "duplicate_source_key_count": 0
+        },
+        "embeds_graded": {
+          "productProduct.productVariantCombination": 200,
+          "productProduct.extraUomIds": 0,
+          "productProduct.additionalProductTagIds": 0,
+          "productTemplate.accountTagIds": 0,
+          "productTemplate.comboIds": 3,
+          "productTemplate.optionalProductIds": 3,
+          "productTemplate.supplierTaxesId": 76,
+          "productTemplate.productTagIds": 0,
+          "productTemplate.taxesId": 76,
+          "productTemplate.uomIds": 0,
+          "productTemplate.routeIds": 0,
+          "productTemplateAttributeLine.valueIds": 37,
+          "productTemplateAttributeValue.excludedValueIds": 1
+        },
+        "productTemplate": {
+          "mode": "full_diff",
+          "population": 39,
+          "duplicate_source_key_count": 0
+        },
+        "productTemplateAttributeLine": {
+          "mode": "full_diff",
+          "population": 12,
+          "duplicate_source_key_count": 0
+        },
+        "productTemplateAttributeValue": {
+          "mode": "full_diff",
+          "population": 37,
+          "duplicate_source_key_count": 0
+        },
+        "productUom": {
+          "mode": "full_diff",
+          "population": 0,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 7,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [
+    "UNVERIFIED collection productUom: 0 source rows, key/shape/field rules unexercised"
+  ],
+  "verdict": "PASS",
+  "merge_eligible": false,
+  "error": null
+}

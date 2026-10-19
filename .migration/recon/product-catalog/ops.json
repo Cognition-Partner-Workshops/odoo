@@ -1,0 +1,201 @@
+[
+  {
+    "name": "variants_per_template",
+    "collection": "productProduct",
+    "source_sql": "SELECT product_tmpl_id AS \"productTmplId\", COUNT(*) AS n FROM product_product GROUP BY product_tmpl_id ORDER BY product_tmpl_id",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": "$productTmplId",
+          "n": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "productTmplId": "$_id",
+          "n": 1
+        }
+      },
+      {
+        "$sort": {
+          "productTmplId": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "variant_by_barcode",
+    "collection": "productProduct",
+    "source_sql": "SELECT id AS \"_id\", barcode, default_code AS \"defaultCode\", product_tmpl_id AS \"productTmplId\", active FROM product_product WHERE barcode IS NOT NULL ORDER BY barcode",
+    "target_pipeline": [
+      {
+        "$match": {
+          "barcode": {
+            "$exists": true
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 1,
+          "barcode": 1,
+          "defaultCode": {
+            "$ifNull": [
+              "$defaultCode",
+              null
+            ]
+          },
+          "productTmplId": 1,
+          "active": 1
+        }
+      },
+      {
+        "$sort": {
+          "barcode": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "active_templates_catalog",
+    "collection": "productTemplate",
+    "source_sql": "SELECT id AS \"_id\", name->>'en_US' AS name, list_price AS \"listPrice\", categ_id AS \"categId\", uom_id AS \"uomId\", is_favorite AS \"isFavorite\" FROM product_template WHERE active IS TRUE ORDER BY id",
+    "target_pipeline": [
+      {
+        "$match": {
+          "active": true
+        }
+      },
+      {
+        "$project": {
+          "_id": 1,
+          "name": "$name.en_US",
+          "listPrice": 1,
+          "categId": 1,
+          "uomId": 1,
+          "isFavorite": {
+            "$ifNull": [
+              "$isFavorite",
+              null
+            ]
+          }
+        }
+      },
+      {
+        "$sort": {
+          "_id": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "values_per_attribute_line",
+    "collection": "productTemplateAttributeValue",
+    "source_sql": "SELECT attribute_line_id AS \"attributeLineId\", COUNT(*) AS n FROM product_template_attribute_value GROUP BY attribute_line_id ORDER BY attribute_line_id",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": "$attributeLineId",
+          "n": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "attributeLineId": "$_id",
+          "n": 1
+        }
+      },
+      {
+        "$sort": {
+          "attributeLineId": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "line_value_ids_embed_size",
+    "collection": "productTemplateAttributeLine",
+    "source_sql": "SELECT product_template_attribute_line_id AS \"_id\", COUNT(*) AS n FROM product_attribute_value_product_template_attribute_line_rel GROUP BY product_template_attribute_line_id ORDER BY product_template_attribute_line_id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 1,
+          "n": {
+            "$size": {
+              "$ifNull": [
+                "$valueIds",
+                []
+              ]
+            }
+          }
+        }
+      },
+      {
+        "$match": {
+          "n": {
+            "$gt": 0
+          }
+        }
+      },
+      {
+        "$sort": {
+          "_id": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "packagings_by_barcode",
+    "collection": "productUom",
+    "source_sql": "SELECT id AS \"_id\", product_id AS \"productId\", uom_id AS \"uomId\", barcode FROM product_uom ORDER BY barcode",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 1,
+          "productId": 1,
+          "uomId": 1,
+          "barcode": 1
+        }
+      },
+      {
+        "$sort": {
+          "barcode": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "documents_by_sequence",
+    "collection": "productDocument",
+    "source_sql": "SELECT id AS \"_id\", ir_attachment_id AS \"irAttachmentId\", sequence, active FROM product_document ORDER BY sequence, id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 1,
+          "irAttachmentId": 1,
+          "sequence": 1,
+          "active": 1
+        }
+      },
+      {
+        "$sort": {
+          "sequence": 1,
+          "_id": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]

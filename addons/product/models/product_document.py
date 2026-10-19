@@ -8,6 +8,7 @@ from odoo.exceptions import ValidationError
 class ProductDocument(models.Model):
     _name = 'product.document'
     _description = "Product Document"
+    _storage = 'mongodb'
     _inherits = {
         'ir.attachment': 'ir_attachment_id',
     }

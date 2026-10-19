@@ -19,6 +19,9 @@ class ProductProduct(models.Model):
     _inherits = {'product.template': 'product_tmpl_id'}
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'default_code, name, id'
+    _storage = 'mongodb'
+    # D6 full shadow (orm_backend_contract.md §4): columns read in SQL by the stock/sale/purchase/account reports
+    _shadow_columns = ('product_tmpl_id', 'weight', 'volume', 'standard_price')
     _clear_cache_name = 'default'
     _clear_cache_on_fields = {
         'active',  # _get_first_possible_variant_id
@@ -198,6 +201,10 @@ class ProductProduct(models.Model):
         parent_field = order._fields[line_field].inverse_name
 
         subquery = self.env[child_model]._search([(parent_field, "=", order.id)])
+        if self._storage == 'mongodb':
+            # contract §5 R (two-step): the order lines live in PostgreSQL, the variants in MongoDB
+            product_ids = [row[0] for row in self.env.execute_query(subquery.select(subquery.table.product_id))]
+            return [("id", "in", product_ids)]
         return [("id", "in", subquery.subselect(subquery.table.product_id))]
 
     @api.depends('image_variant_1920', 'image_variant_1024')
@@ -1119,6 +1126,19 @@ class ProductProduct(models.Model):
 
         # Disable active_test to simplify subqueries
         self_no_active_test = self.with_context(active_test=False)
+        if self._storage == 'mongodb':
+            # contract §5 R (two-step): no UNION ALL on a MongoDB model; each branch is a domain
+            # on this store, the product.supplierinfo branch (PostgreSQL) is materialized to
+            # template ids first
+            domains = [
+                [('product_tmpl_id', 'any', Domain.OR(template_domains))],
+                Domain.OR(product_domains),
+            ]
+            if supplier_domain:
+                supplierinfo = self_no_active_test.env['product.supplierinfo']._search(supplier_domain)
+                tmpl_ids = [row[0] for row in self.env.execute_query(supplierinfo.select(SQL('product_tmpl_id')))]
+                domains.append([('product_tmpl_id', 'in', tmpl_ids)])
+            return Domain.OR(domains)
         queries = [
             self_no_active_test._search([
                 ('product_tmpl_id', 'in', self_no_active_test.env['product.template']._search(Domain.OR(template_domains)))
