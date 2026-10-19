@@ -28,6 +28,12 @@
       "class": "wave 1 re-check",
       "severity": "info",
       "detail": "The seven wave 1 collections still reconcile: uom PASS (T1 3 / T2 8 / T3 30), product-taxonomy PASS from the verifier's seeded clone (T1 10 / T2 13 / T3 13 / T4 4), product-attributes PASS (T1 8 / T2 16 / T3 124 / T4 2) with the accepted warning `UNVERIFIED collection updateProductAttributeValue: 0 source rows` (merge_eligible=false on that run for that reason only; the committed wave 1 results carry the same warning)."
+    },
+    {
+      "batch": "w2-b01",
+      "class": "preflight grading note",
+      "severity": "info",
+      "detail": "The committed batch result `.migration/recon/w2-b01.json` has `pr_url: \"\"`, so `preflight.py --grade` on it verbatim downgrades the batch to FAIL/missing_pr and then rejects this verifier result (`unexpected verdicts for w2-b01`). Graded with the batch's PR URL filled in (https://github.com/Cognition-Partner-Workshops/odoo/pull/33, a scratch copy outside the repo), `--grade ... --verify verify-result.json --run-id UNT11-41` exits 0: batch PASS, merge_eligible, `verify_problems: []`, `wave 2 OK: 1 batches, manifest_sha 0b73271c13bf`. The verifier did not edit the worker's batch file."
     }
   ],
   "report_path": "recon/wave-2:.migration/recon/wave-2/verify-report.md"

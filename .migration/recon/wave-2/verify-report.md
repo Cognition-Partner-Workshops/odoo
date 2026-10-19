@@ -130,6 +130,16 @@ Atlas round-trip timing test the manager accepted as known (d-w2-timing-test = a
 expected 160/161). No other test failed or errored (uom 13.7 s incl. 3.0 s test; product 49.8 s incl.
 36.2 s at-install test; the post-install run took the remaining 24 min against Atlas).
 
+## Preflight
+
+`python3 skills/wave-preflight/preflight.py --wave .migration/waves/wave-2.json --root . --grade <w2-b01 batch result>
+--verify .migration/recon/wave-2/verify-result.json --run-id UNT11-41` (plugin `0d6bcfd`, after this branch was
+pushed). The committed `.migration/recon/w2-b01.json` has `pr_url: ""`, so graded verbatim the batch is downgraded to
+FAIL/missing_pr and the verifier result is rejected as `unexpected verdicts for w2-b01`. With the batch's PR URL
+filled in (https://github.com/Cognition-Partner-Workshops/odoo/pull/33, a scratch copy outside the repo) it exits 0:
+batch PASS, merge_eligible, `verify_problems: []`, `wave 2 OK: 1 batches, manifest_sha 0b73271c13bf`. The verifier
+did not edit the worker's batch file; the manager's graded copy carries the PR URL.
+
 ## Evidence
 
 - `.migration/recon/wave-2/w2-b01/product-catalog/result.json` (+ `report.md`, `recon.summary.md`): live, PASS, the batch verdict's evidence
