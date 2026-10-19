@@ -25,8 +25,11 @@ reload, no writes to any unprefixed collection). Odoo tests ran in a separate da
 |---|---|---|---|---|
 | w2-b01 | product-catalog | PASS | live from the freshly seeded clone `odoo_w2v_src`, `--collections` the six unit collections, `--ops .migration/recon/product-catalog/ops.json`: PASS, T1 61 / T2 51 / T3 348 / T4 7 checks, 0 warnings, merge_eligible | reproduces the committed `.migration/recon/product-catalog/result.json` check for check (61 / 51 / 348 / 7) |
 
-Wave verdict: **PASS**. Circuit breaker: no batch failed; not tripped. `auto_merge` is false for
-this wave, so the manager grades and merges.
+Wave verdict: **PASS** on the recon gate (the batch's PASS reproduces from an independent clone).
+Two storage-path findings past the gate (section "D6 readers" below: `-u product` fails on a database
+with `account` installed, and the three `_table_query` reports raise) need their own fix ticket; they
+are not data-parity defects and do not change the recon verdict. Circuit breaker: no batch failed;
+not tripped. `auto_merge` is false for this wave, so the manager grades and merges.
 
 Which collections the live recon graded from the seeded clone rather than `odoo_src`: `productUom`
 (6 rows, 0 in `odoo_src`) and the four arrays `productTemplate.uomIds`/`productTagIds`,
@@ -97,11 +100,41 @@ their parity is against the seeded clone, which is what the recon reads too):
 - The unprefixed namespace holds exactly the thirteen wave 1 + wave 2 collections (plus
   `_connectivity_probe`); no shared collection between batches.
 
-Not re-run by the verifier: the 3 PostgreSQL views that read the shadow columns
-(`report_stock_quantity`, `stock_avco_report`, `vendor_delay_report`) do not exist in the
-product + uom test database (`stock`, `stock_account`, `purchase_stock` are not installed there),
-and exercising them on an opted-in clone of the seeded source needs `-u product` through the
-storage path against the unprefixed collections, which writes documents.
+## D6 readers on an opted-in clone (probe past the gate: two storage-path findings)
+
+Clone `odoo_w2v_views` of the seeded source (sale, purchase, stock, account installed, as in
+`odoo_src`), run with the run-branch code at `72fca61` and `mongodb_migration_db = odoo_verify_mig`,
+so every collection the storage path touched was `odoo_w2v_views__*` (pre-populated with a copy of
+the 13 unprefixed collections so the fail-closed guard is satisfied); the unprefixed collections kept
+their counts throughout (`d6-readers-counts.json`).
+
+1. **`-u uom,product` fails to load the registry** on that clone: `Module loading account failed:
+   file account/security/ir.access.csv could not be processed: Invalid domain [('company_id', 'in',
+   company_ids)]: product.product is stored in MongoDB: no SQL for field 'uom_id' (not in
+   _shadow_columns)` (`d6-update-traceback.log`). The update rolled back, so the shadow reduction
+   never happened on this clone.
+2. **The three `_table_query` reports the contract lists as D6 readers raise** the same
+   `NotImplementedError` from `Query.__getitem__` (`odoo/orm/query.py:431`, reached from
+   `Many2one.property_to_sql`, `odoo/orm/fields_relational.py:499`, from `sale_report.py:197`
+   `table.product_id.uom_id`): `sale.report`, `purchase.report`, `account.invoice.report`
+   `search_count([])` all fail. Reproduced on a second, plain clone `odoo_w2v_plain` with
+   `mongodb_migration_db = odoo_w2v_plain` (unprefixed reads, no update, no writes): `d6-readers.log`.
+   `purchase.bill.line.match` (27 rows), `stock.quant` (57), `stock.move` (137) and the ORM
+   `product.product` search reading `uom_id` through `_inherits` work.
+
+Reading: `uom_id` is a `product.template` field reached from `product.product` through `_inherits`;
+`product_template.uom_id` and `product_product.product_tmpl_id` are both shadow columns, so the SQL
+path could join through them, but `Query.__getitem__` checks the delegated field against
+`product.product`'s own `_shadow_columns` and raises before the `_inherits` join. The product + uom
+test database does not install sale/purchase/account, which is why the suites show 160/161. This is
+not a data-parity defect (the recon PASS stands), but the migrated build breaks three reports and
+`-u product` on any database that has `account` installed. The verifier fixes no code; this needs
+its own storage-path ticket, as UNT11-42 was.
+
+3. The 3 PostgreSQL views `report_stock_quantity` (5263 rows), `stock_avco_report` (7) and
+   `vendor_delay_report` (10) exist and return rows on the clone, but because the update rolled back
+   they read the full PostgreSQL tables, not the shadow tables; not evidence that the views work on
+   the reduced tables. That probe stays open until finding 1 is fixed.
 
 ## Wave 1 collections re-checked (`wave-1-recheck/`)
 
@@ -146,4 +179,5 @@ did not edit the worker's batch file; the manager's graded copy carries the PR U
 - `.migration/recon/wave-2/wave-1-recheck/uom/result.json`, `product-taxonomy/result.json`, `product-attributes/result.json`: wave 1 re-checks
 - `.migration/recon/wave-2/probes.json`: probes past the gate and cross-unit checks
 - `.migration/recon/wave-2/odoo-tests.json`, `odoo-tests.log`: test namespace, unchanged unprefixed counts, shadow parity, test result
+- `.migration/recon/wave-2/d6-readers.log`, `d6-update-traceback.log`, `d6-readers-counts.json`: D6 reader probe on the opted-in clone (two findings)
 - `.migration/recon/wave-2/verify-result.json`

@@ -1,0 +1,21 @@
+# views clone odoo_w2v_views (prefixed namespace odoo_w2v_views__*), after the failed -u uom,product
+VIEW report_stock_quantity rows 5263
+VIEW stock_avco_report rows 7
+VIEW vendor_delay_report rows 10
+REPORT sale.report ERROR NotImplementedError product.product is stored in MongoDB: no SQL for field 'uom_id' (not in _shadow_columns)
+REPORT purchase.report ERROR NotImplementedError product.product is stored in MongoDB: no SQL for field 'uom_id' (not in _shadow_columns)
+REPORT account.invoice.report ERROR NotImplementedError product.product is stored in MongoDB: no SQL for field 'uom_id' (not in _shadow_columns)
+REPORT purchase.bill.line.match OK rows 27
+REPORT stock.quant OK rows 57
+REPORT stock.move OK rows 137
+ORM product.product search OK 3 uom via _inherits ['Units', 'Units', 'Units']
+SHADOW product_product ['id', 'product_tmpl_id', 'base_unit_id', 'create_uid', 'write_uid', 'default_code', 'barcode', 'combination_indices', 'standard_price', 'qty_available', 'lst_price', 'volume', 'weight', 'base_unit_count', 'active', 'can_image_variant_1024_be_zoomed', 'is_favorite', 'write_date', 'create_date', 'lot_properties_definition']
+SHADOW product_template ['id', 'sequence', 'categ_id', 'uom_id', 'company_id', 'color', 'base_unit_id', 'create_uid', 'write_uid', 'type', 'service_tracking', 'barcode', 'default_code', 'name', 'description', 'description_purchase', 'description_sale', 'product_properties', 'list_price', 'volume', 'weight', 'base_unit_count', 'is_storable', 'sale_ok', 'purchase_ok', 'active', 'can_image_1024_be_zoomed', 'has_configurable_attributes', 'is_favorite', 'create_date', 'write_date', 'property_account_income_id', 'property_account_expense_id', 'lot_sequence_id', 'tracking', 'responsible_id', 'property_stock_production', 'property_stock_inventory', 'description_picking', 'description_pickingout', 'description_pickingin', 'purchase_method', 'purchase_line_warn_msg', 'lot_valuated', 'service_type', 'reinvoice_policy', 'invoice_policy', 'sale_delay', 'sale_line_warn_msg']
+SHADOW uom_uom ['id', 'sequence', 'relative_uom_id', 'create_uid', 'write_uid', 'parent_path', 'name', 'relative_factor', 'factor', 'active', 'create_date', 'write_date', 'package_type_id', 'unece_code']
+SHADOW product_category ['id', 'parent_id', 'company_id', 'create_uid', 'write_uid', 'parent_path', 'name', 'product_properties_definition', 'create_date', 'write_date', 'property_account_income_categ_id', 'property_account_expense_categ_id', 'property_valuation', 'property_stock_valuation_account_id', 'property_stock_journal', 'property_cost_method', 'property_price_difference_account_id', 'removal_strategy_id', 'packaging_reserve_method', 'property_account_bills_to_receive_id', 'property_account_billed_not_received_id', 'property_account_invoices_to_issue_id', 'property_account_invoiced_not_delivered_id']
+
+# plain clone odoo_w2v_plain (mongodb_migration_db = odoo_w2v_plain, unprefixed reads, no update, no writes)
+REPORT sale.report ERROR NotImplementedError product.product is stored in MongoDB: no SQL for field 'uom_id' (not in _shadow_columns)
+REPORT purchase.report ERROR NotImplementedError product.product is stored in MongoDB: no SQL for field 'uom_id' (not in _shadow_columns)
+REPORT account.invoice.report ERROR NotImplementedError product.product is stored in MongoDB: no SQL for field 'uom_id' (not in _shadow_columns)
+product_product rows (full PG table, no update ran) 48

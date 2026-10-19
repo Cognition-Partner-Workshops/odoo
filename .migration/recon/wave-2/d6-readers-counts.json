@@ -1,0 +1,51 @@
+{
+ "clone": "odoo_w2v_views",
+ "unprefixed_before": {
+  "_connectivity_probe": 0,
+  "productAttribute": 14,
+  "productAttributeValue": 101,
+  "productBaseUnit": 2,
+  "productCategory": 8,
+  "productDocument": 2,
+  "productProduct": 48,
+  "productTag": 3,
+  "productTemplate": 38,
+  "productTemplateAttributeLine": 9,
+  "productTemplateAttributeValue": 24,
+  "productUom": 6,
+  "uomUom": 30,
+  "updateProductAttributeValue": 0
+ },
+ "unprefixed_after": {
+  "_connectivity_probe": 0,
+  "productAttribute": 14,
+  "productAttributeValue": 101,
+  "productBaseUnit": 2,
+  "productCategory": 8,
+  "productDocument": 2,
+  "productProduct": 48,
+  "productTag": 3,
+  "productTemplate": 38,
+  "productTemplateAttributeLine": 9,
+  "productTemplateAttributeValue": 24,
+  "productUom": 6,
+  "uomUom": 30,
+  "updateProductAttributeValue": 0
+ },
+ "unprefixed_unchanged": true,
+ "prefixed_views_clone": {
+  "odoo_w2v_views__productAttribute": 14,
+  "odoo_w2v_views__productAttributeValue": 101,
+  "odoo_w2v_views__productBaseUnit": 2,
+  "odoo_w2v_views__productCategory": 8,
+  "odoo_w2v_views__productDocument": 2,
+  "odoo_w2v_views__productProduct": 48,
+  "odoo_w2v_views__productTag": 3,
+  "odoo_w2v_views__productTemplate": 38,
+  "odoo_w2v_views__productTemplateAttributeLine": 9,
+  "odoo_w2v_views__productTemplateAttributeValue": 24,
+  "odoo_w2v_views__productUom": 6,
+  "odoo_w2v_views__uomUom": 30,
+  "odoo_w2v_views__updateProductAttributeValue": 0
+ }
+}
