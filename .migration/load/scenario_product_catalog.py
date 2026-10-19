@@ -31,7 +31,7 @@ store = env.registry.mongo_store
 check('storage opt-in', all(m._storage == 'mongodb' for m in (T, P, PTAL, PTAV, Doc, PUom)))
 before = {m._name: store.db[store.collection_name(m)].count_documents({}) for m in (T, P, PTAL, PTAV, Doc, PUom)}
 outlier = env.ref('__migration__.fixture_outlier_tee', raise_if_not_found=False)  # odoo_fixture clones only
-outlier_id = outlier_id if outlier else 0
+outlier_id = outlier.id if outlier else 0
 not_outlier_tmpl = [('product_tmpl_id', '!=', outlier_id)]
 
 cr.execute("SELECT id, name->>'en_US', categ_id, uom_id, list_price, active FROM product_template ORDER BY id")
@@ -69,8 +69,6 @@ check('variant _search_display_name (template OR default_code OR barcode)',
       set(P.search([('display_name', 'ilike', 'desk')], order='id').ids) == pg_variants_desk)
 check('variant _search_display_name [code] match',
       P.search([('display_name', 'ilike', f'[{variant.default_code}]')], order='id').ids == [variant.id] if variant.default_code else True)
-check('variant _search_display_name with partner_id (supplierinfo two-step)',
-      isinstance(P.with_context(partner_id=env.ref('base.res_partner_1').id).search([('display_name', 'ilike', 'desk')], order='id').ids, list))
 
 main_currency = env['res.company']._get_main_company().currency_id
 cr.execute("""SELECT t.id FROM product_template t LEFT JOIN res_company c ON c.id = t.company_id
@@ -121,6 +119,10 @@ with cr.savepoint(flush=False):
                 cr.execute(f'ALTER TABLE "{m._table}" ALTER COLUMN "{column}" DROP NOT NULL')
     # template and variant writes recompute template fields through a variant search with the default
     # order (UNT11-42); the write-through of the storage path is exercised on product.uom here
+    # the supplierinfo (PostgreSQL) branch of product.product._search_display_name needs a vendor code on a
+    # template; the source has none and product.supplierinfo.create recomputes product fields through a
+    # variant search with the default order (UNT11-42), so that branch is exercised once UNT11-42 lands
+    print('SKIP supplierinfo branch of _search_display_name: no vendor code in the source, create waits on UNT11-42')
     pu = PUom.create({'product_id': variant.id, 'uom_id': env.ref('uom.product_uom_dozen').id, 'barcode': 'SCN-UNIQUE-1'})
     env.flush_all()
     cr.execute("SELECT id FROM product_uom WHERE id = %s", (pu.id,))
@@ -141,3 +143,5 @@ after = {m._name: store.db[store.collection_name(m)].count_documents({}) for m i
 check('loaded collections unchanged after rollback', before == after, after)
 failed = [n for n, ok in checks if not ok]
 print(f"\n{len(checks) - len(failed)}/{len(checks)} checks passed" + (f"; FAILED: {failed}" if failed else ''))
+if failed:
+    raise SystemExit(1)
