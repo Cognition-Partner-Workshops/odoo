@@ -437,3 +437,10 @@ class TestStoragePath(TestMongoStorage):
         beta.sequence = 1
         self.assertEqual(self.Item.search([], order='sequence, id')[0], beta)
 
+    def test_many2one_condition_on_mongodb_comodel(self):
+        cat_a, cat_b, _x, _y, items = self._make()
+        cat_a.default_item_id = items[0]
+        cat_b.default_item_id = items[1]
+        self.assertEqual(self.Category.search([('default_item_id.name', '=', 'Beta')]), cat_b)
+        self.assertEqual(self.Category.search([('default_item_id.name', '=', 'Nope')]), self.Category)
+

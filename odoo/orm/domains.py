@@ -1510,6 +1510,17 @@ def _optimize_any_domain_at_level(level: OptimizationLevel, condition, model):
                     sub_query = model.sudo()._search(search_domain, active_test=False, bypass_access=True)
                     return SQL("%s IN %s", table.id, sub_query.subselect(sub_query.table[field.name]))
                 comodel_domain = Domain.custom(to_sql=restricted_domain_sql)
+            elif field.type == 'many2one' and field.store and level > OptimizationLevel.BASIC:
+                # model in MongoDB: no SQL for the whole domain, resolve the referenced
+                # ids in its own store (two-step cross-store rule, contract §3)
+                def restricted_domain_ids(_domain, _comodel):
+                    from .fields_relational import _check_cross_store_size  # noqa: PLC0415
+                    sub_query = model.sudo()._search(search_domain, active_test=False, bypass_access=True)
+                    ids = model.pool.mongo_store.distinct(
+                        model, model._mongodb_path(field), {'_id': {'$in': list(sub_query.get_result_ids())}})
+                    _check_cross_store_size(model, ids)
+                    return Domain('id', 'in', ids)
+                comodel_domain = Domain.custom(optimize=restricted_domain_ids)
             else:
                 # in general case, accept all
                 comodel_domain = Domain.TRUE
