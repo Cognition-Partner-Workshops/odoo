@@ -31,7 +31,8 @@ BaseUnit = env['product.base.unit']
 if not BaseUnit.search_count([]):
     BaseUnit.create([{'name': 'per 100 g'}, {'name': 'per litre'}])
 
-# --- product-catalog (wave 2, w2-b01): product_uom and the four empty relation tables
+# --- product-catalog (wave 2, w2-b01): product_uom and the four empty relation tables, seeded the
+# same way on a clone of odoo_src (createdb -T odoo_src odoo_w2b01_src; the live source, as wave 1)
 # product_product_uom_uom_rel (extra_uom_ids), product_template_uom_uom_rel (uom_ids),
 # product_tag_product_product_rel (additional_product_tag_ids), product_tag_product_template_rel
 # (product_tag_ids). Packagings come from wave 1's uom.uom (Pack of 6 / Dozens, xml ids), tags

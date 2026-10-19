@@ -7,7 +7,7 @@
 - Tolerance version: `v1` (sha256 `59f500708400`)
 - Collections: `productDocument`, `productProduct`, `productTemplate`, `productTemplateAttributeLine`, `productTemplateAttributeValue`, `productUom`
 - Seed: `0`
-- Generated: 2026-10-18T21:49:35.060554+00:00
+- Generated: 2026-10-19T10:08:51.768585+00:00
 - 94 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 33 string fields: min/max/distinct deferred to Tier 3
 
@@ -15,7 +15,7 @@
 |---|---|---|---|
 | 1 | counts_through_mapping | 61 | PASS |
 | 2 | per_field_aggregates | 51 | PASS |
-| 3 | keyed_diffs | 622 | PASS |
+| 3 | keyed_diffs | 348 | PASS |
 | 4 | app_level_parity | 7 | PASS |
 
 ## Tier 1 coverage
@@ -23,10 +23,10 @@
 {
   "source_counts": {
     "productDocument": 2,
-    "productProduct": 108,
-    "productTemplate": 39,
-    "productTemplateAttributeLine": 12,
-    "productTemplateAttributeValue": 37,
+    "productProduct": 48,
+    "productTemplate": 38,
+    "productTemplateAttributeLine": 9,
+    "productTemplateAttributeValue": 24,
     "productUom": 6
   }
 }
@@ -481,37 +481,37 @@
   },
   "productProduct": {
     "mode": "full_diff",
-    "population": 108,
+    "population": 48,
     "duplicate_source_key_count": 0
   },
   "embeds_graded": {
-    "productProduct.productVariantCombination": 200,
+    "productProduct.productVariantCombination": 20,
     "productProduct.extraUomIds": 5,
     "productProduct.additionalProductTagIds": 6,
     "productTemplate.accountTagIds": 0,
     "productTemplate.comboIds": 3,
     "productTemplate.optionalProductIds": 3,
-    "productTemplate.supplierTaxesId": 76,
+    "productTemplate.supplierTaxesId": 74,
     "productTemplate.productTagIds": 6,
-    "productTemplate.taxesId": 76,
+    "productTemplate.taxesId": 74,
     "productTemplate.uomIds": 5,
     "productTemplate.routeIds": 0,
-    "productTemplateAttributeLine.valueIds": 37,
+    "productTemplateAttributeLine.valueIds": 24,
     "productTemplateAttributeValue.excludedValueIds": 1
   },
   "productTemplate": {
     "mode": "full_diff",
-    "population": 39,
+    "population": 38,
     "duplicate_source_key_count": 0
   },
   "productTemplateAttributeLine": {
     "mode": "full_diff",
-    "population": 12,
+    "population": 9,
     "duplicate_source_key_count": 0
   },
   "productTemplateAttributeValue": {
     "mode": "full_diff",
-    "population": 37,
+    "population": 24,
     "duplicate_source_key_count": 0
   },
   "productUom": {
