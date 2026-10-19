@@ -28,7 +28,9 @@ class TestMongoStorage(TransactionCase):
         cls.Category = cls.env['test_orm_mongodb.category']
         cls.Tag = cls.env['test_orm_mongodb.tag']
         cls.Node = cls.env['test_orm_mongodb.node']
-        cls.mongo_models = [cls.Item, cls.Line, cls.Node]
+        cls.Variant = cls.env['test_orm_mongodb.variant']
+        cls.Card = cls.env['test_orm_mongodb.card']
+        cls.mongo_models = [cls.Item, cls.Line, cls.Node, cls.Variant, cls.Card]
         for model in cls.mongo_models:  # recreate what another test class dropped
             cls.store.ensure_collection(model)
         cls.addClassCleanup(cls._drop_collections)
@@ -391,3 +393,106 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual(self.store.count(self.Item, {'_id': created.id}), 0)
         self.assertEqual(self.store.count(self.Item, {}), before + 1)
         self.assertEqual(self.store.repair(self.Item), {'documents_removed': 0, 'shadow_rows_removed': 0})
+
+
+@tagged('post_install', '-at_install')
+class TestStoragePath(TestMongoStorage):
+    """Storage-path rules found by the first opted-in business models (wave 2)."""
+
+    def test_order_through_inherits_mongodb_parent(self):
+        *_, items = self._make()
+        alpha, beta, _gamma = items
+        v_beta, v_alpha = self.Variant.create([{'item_id': beta.id}, {'item_id': alpha.id}])
+        term = self.Variant._order_to_sort('name')[0]
+        self.assertEqual((term[0], term[1], term[4]), ('itemId', 1, self.store.collection_name(self.Item)))
+        self.assertEqual(self.Variant.search([]), v_alpha + v_beta)
+        self.assertEqual(self.Variant.search([], order='name desc'), v_beta + v_alpha)
+        self.assertTrue(self.Variant.fields_get(['name'])['name']['sortable'])
+
+    def test_order_through_inherits_postgresql_parent(self):
+        c_b, c_a = self.Card.create([{'name': 'B'}, {'name': 'A'}])
+        term = self.Card._order_to_sort('name')[0]
+        self.assertIsInstance(term[0], dict, "a PostgreSQL parent is ranked by its ids, not joined")
+        self.assertEqual(self.Card.search([]), c_a + c_b)
+        self.assertEqual(self.Card.search([], order='name desc'), c_b + c_a)
+        c_b.name = 'AA'
+        self.assertEqual(self.Card.search([]), c_b + c_a, "pending parent writes are flushed before the sort")
+
+    def test_order_many2one_follows_comodel_order(self):
+        _a, cat_b, _x, _y, items = self._make()
+        alpha, beta, gamma = items
+        alpha.category_id = cat_b
+        self.assertEqual(self.Item.with_context(active_test=False).search([], order='category_id, id'), beta + alpha + gamma)
+        self.assertEqual(self.Item.with_context(active_test=False).search([], order='category_id desc, id'), alpha + gamma + beta)
+        # only the references of the matching documents are ranked in PostgreSQL
+        with patch.object(MongoStore, 'distinct', autospec=True, side_effect=MongoStore.distinct) as distinct:
+            self.assertEqual(self.Item.with_context(active_test=False).search([('id', '=', gamma.id)], order='category_id, id'), gamma)
+        filter_ = distinct.call_args.args[3]
+        self.assertEqual(filter_.get('_id'), {'$in': [gamma.id]}, filter_)
+        line_a, line_b = alpha.line_ids
+        line_g = self.Line.create({'item_id': gamma.id, 'label': 'g'})
+        gamma.sequence = 1
+        self.assertEqual(self.Line.search([], order='item_id, id'), line_g + line_a + line_b)
+
+    def test_search_flushes_pending_writes(self):
+        *_, items = self._make()
+        beta = items[1]
+        beta.name = 'Zulu'
+        self.assertEqual(self.Item.search([('name', '=', 'Zulu')]), beta)
+        beta.sequence = 1
+        self.assertEqual(self.Item.search([], order='sequence, id')[0], beta)
+
+    def test_many2one_condition_on_mongodb_comodel(self):
+        cat_a, cat_b, _x, _y, items = self._make()
+        cat_a.default_item_id = items[0]
+        cat_b.default_item_id = items[1]
+        self.assertEqual(self.Category.search([('default_item_id.name', '=', 'Beta')]), cat_b)
+        self.assertEqual(self.Category.search([('default_item_id.name', '=', 'Nope')]), self.Category)
+
+    def test_description_probes_tolerate_mongodb(self):
+        with patch.object(MongoStore, 'distinct', side_effect=AssertionError("a probe queries no store")), \
+                patch.object(MongoStore, 'find', side_effect=AssertionError("a probe queries no store")):
+            description = self.Item.fields_get()
+        self.assertFalse(description['line_ids']['sortable'])
+        self.assertTrue(description['total']['sortable'])
+        self.assertTrue(description['category_id']['sortable'])
+
+    def test_attachment_access_two_steps_ids(self):
+        *_, items = self._make()
+        alpha, beta, _gamma = items
+        user = self.env['res.users'].create({'name': 'w2', 'login': 'w2', 'group_ids': [Command.link(self.env.ref('base.group_user').id)]})
+        Attachment = self.env['ir.attachment']
+        att_alpha, att_beta, att_ghost = Attachment.create([
+            {'name': 'a', 'res_model': self.Item._name, 'res_id': alpha.id, 'raw': b'a'},
+            {'name': 'b', 'res_model': self.Item._name, 'res_id': beta.id, 'raw': b'b'},
+            {'name': 'g', 'res_model': self.Item._name, 'res_id': alpha.id + 100000, 'raw': b'g'},
+        ])
+        domain = [('res_model', '=', self.Item._name), ('res_id', 'in', [alpha.id, beta.id, att_ghost.res_id])]
+        found = Attachment.with_user(user).search(domain)
+        self.assertEqual(found, att_alpha + att_beta, "the id restriction of the two-step keeps out the dangling res_id")
+        found = Attachment.with_user(user).search(domain[:1] + [('res_id', '=', beta.id)])
+        self.assertEqual(found, att_beta)
+
+    def test_unique_index_without_message(self):
+        *_, items = self._make()
+        self.Variant.create({'item_id': items[0].id, 'ref': 'R1'})
+        with self.assertRaises(ValidationError) as cm, self.cr.savepoint():
+            self.Variant.create({'item_id': items[1].id, 'ref': 'R1'})
+        self.assertIn('already exists', str(cm.exception))
+        self.assertIn('ref', str(cm.exception))
+
+    def test_many2many_array_ondelete(self):
+        _a, _b, tag_x, tag_y, items = self._make()
+        alpha = items[0]
+        field = self.Item._fields['tag_ids']
+        layout = (self.Item._name, 'tagIds', 'tagId')
+        original = MongoStore.m2m_layout
+        self.env.flush_all()
+        coll = self.store.db[self.store.collection_name(self.Item)]
+        coll.update_one({'_id': alpha.id}, {'$set': {'tagIds': [{'tagId': tag_x.id}, {'tagId': tag_y.id}]}})
+        with patch.object(MongoStore, 'm2m_layout', lambda store, model, f: layout if f is field else original(store, model, f)):
+            with patch.object(field, 'ondelete', 'restrict'), self.assertRaises(UserError), self.cr.savepoint():
+                tag_x.unlink()
+            tag_y.unlink()
+            self.env.flush_all()
+        self.assertEqual(coll.find_one({'_id': alpha.id})['tagIds'], [{'tagId': tag_x.id}])

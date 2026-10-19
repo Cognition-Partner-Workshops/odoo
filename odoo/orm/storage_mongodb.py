@@ -279,7 +279,7 @@ class MongoStore:
     # ------------------------------------------------------------------
     def find(self, model: BaseModel, filter_: dict, projection=None, sort=None, skip=0, limit=None) -> list[dict]:
         coll = self.db[self.collection_name(model)]
-        if sort and any(len(term) == 4 or isinstance(term[0], dict) for term in sort):
+        if sort and any(len(term) >= 4 or isinstance(term[0], dict) for term in sort):
             return list(coll.aggregate(self._parent_sort_pipeline(coll.name, filter_, projection, sort, skip, limit)))
         cursor = coll.find(filter_, projection)
         if sort:
@@ -290,47 +290,17 @@ class MongoStore:
             cursor = cursor.limit(limit)
         return list(cursor)
 
-    @staticmethod
-    def _parent_sort_pipeline(collection: str, filter_: dict, projection, sort: list, skip: int, limit) -> list[dict]:
-        """Sort through a self-referential many2one and/or on computed keys: a
-        ``(path, direction, parent_sort, nulls_first)`` term joins the parent document, a
+    @classmethod
+    def _parent_sort_pipeline(cls, collection: str, filter_: dict, projection, sort: list, skip: int, limit) -> list[dict]:
+        """Sort through many2one parents and/or on computed keys: a
+        ``(path, direction, parent_sort, nulls_first, parent_collection)`` term joins the
+        parent document (``$lookup``; recursively for the parent's own parent terms), a
         missing parent or parent value taking the requested NULLS placement (SQL default:
         last ascending, first descending); a term whose path is an expression (translated
-        field: ``{'$ifNull': [...]}``) is evaluated into a temporary field first."""
-        from bson import MaxKey, MinKey  # noqa: PLC0415
-        pipeline: list[dict] = [{'$match': filter_}]
-        sort_doc: dict[str, int] = {}
-        temporary = []
-        computed: dict[str, dict] = {}
-        for index, term in enumerate(sort):
-            if len(term) == 2:
-                path, direction = term
-                if isinstance(path, dict):
-                    path = f'__sort{index}'
-                    computed[path] = term[0]
-                    temporary.append(path)
-                sort_doc[path] = direction
-                continue
-            path, direction, parent_sort, nulls_first = term
-            if any(len(parent_term) != 2 for parent_term in parent_sort):
-                raise NotImplementedError(f"{collection}: MongoDB sort through nested parent orders is not supported")
-            alias = f'_parent{index}'
-            temporary.append(alias)
-            missing = MinKey() if nulls_first == (direction == 1) else MaxKey()
-            parent_keys = [(f'__psort{j}' if isinstance(parent_path, dict) else parent_path, parent_path, parent_direction)
-                           for j, (parent_path, parent_direction) in enumerate(parent_sort)]
-            pipeline += [
-                {'$lookup': {'from': collection, 'localField': path, 'foreignField': '_id', 'as': alias,
-                             'pipeline': [{'$project': {key: (expr if isinstance(expr, dict) else 1)
-                                                        for key, expr, _ in parent_keys}}]}},
-                {'$unwind': {'path': f'${alias}', 'preserveNullAndEmptyArrays': True}},
-                {'$addFields': {f'{alias}.{key}': {'$ifNull': [f'${alias}.{key}', missing]} for key, _, _ in parent_keys}},
-            ]
-            for key, _, parent_direction in parent_keys:
-                sort_doc[f'{alias}.{key}'] = parent_direction * direction
-        if computed:
-            pipeline.append({'$addFields': computed})
-        pipeline.append({'$sort': sort_doc})
+        field: ``{'$ifNull': [...]}``, cross-store rank) is evaluated into a temporary
+        field first."""
+        stages, keys, temporary = cls._sort_stages(sort)
+        pipeline: list[dict] = [{'$match': filter_}, *stages, {'$sort': dict(keys)}]
         if skip:
             pipeline.append({'$skip': skip})
         if limit:
@@ -341,6 +311,40 @@ class MongoStore:
         else:
             pipeline.append({'$unset': temporary})
         return pipeline
+
+    @classmethod
+    def _sort_stages(cls, sort: list, tag: str = '') -> tuple[list[dict], list[tuple[str, int]], list[str]]:
+        """Stages evaluating the sort keys of ``sort`` on the current document:
+        ``(stages, [(key, direction)], temporary fields)``."""
+        from bson import MaxKey, MinKey  # noqa: PLC0415
+        stages: list[dict] = []
+        keys: list[tuple[str, int]] = []
+        temporary: list[str] = []
+        computed: dict[str, dict] = {}
+        for index, term in enumerate(sort):
+            if len(term) == 2:
+                path, direction = term
+                if isinstance(path, dict):
+                    path = f'__sort{tag}{index}'
+                    computed[path] = term[0]
+                    temporary.append(path)
+                keys.append((path, direction))
+                continue
+            path, direction, parent_sort, nulls_first, parent_collection = term
+            alias = f'_parent{tag}{index}'
+            temporary.append(alias)
+            missing = MinKey() if nulls_first == (direction == 1) else MaxKey()
+            parent_stages, parent_keys, _ = cls._sort_stages(parent_sort, f'{tag}{index}_')
+            stages += [
+                {'$lookup': {'from': parent_collection, 'localField': path, 'foreignField': '_id', 'as': alias,
+                             'pipeline': [*parent_stages, {'$project': {key: 1 for key, _ in parent_keys}}]}},
+                {'$unwind': {'path': f'${alias}', 'preserveNullAndEmptyArrays': True}},
+                {'$addFields': {f'{alias}.{key}': {'$ifNull': [f'${alias}.{key}', missing]} for key, _ in parent_keys}},
+            ]
+            keys += [(f'{alias}.{key}', parent_direction * direction) for key, parent_direction in parent_keys]
+        if computed:
+            stages.insert(0, {'$addFields': computed})
+        return stages, keys, temporary
 
     def distinct(self, model: BaseModel, path: str, filter_: dict) -> list:
         return [v for v in self.db[self.collection_name(model)].distinct(path, filter_) if v is not None]
@@ -379,12 +383,26 @@ class MongoStore:
     def _raise_unique(self, model: BaseModel, exc) -> typing.NoReturn:
         """Map a duplicate-key error to the constraint's ValidationError (like psycopg's IntegrityError)."""
         from odoo.exceptions import ValidationError  # noqa: PLC0415
+        from odoo.tools import format_list  # noqa: PLC0415
         details = getattr(exc, 'details', None) or {}
         errors = details.get('writeErrors') or [details]
         for error in errors:
             if error.get('code') == 11000:
                 match = re.search(r"index: (\S+)", error.get('errmsg', ''))
                 message = self._unique_messages.get((self.collection_name(model), match[1] if match else ''))
+                if not message:
+                    # like models._sql_error_to_exception for a UniqueViolation: the
+                    # columns are the index keys (``keyValue``), mapped back to field names
+                    paths = {self.field_path(model, f.name): f.name for f in model._fields.values() if f.store and f.column_type}
+                    key_value = error.get('keyValue') or {}
+                    columns = [paths.get(path, path) for path in key_value]
+                    if columns:
+                        names = [model._fields[c].string if c in model._fields else c for c in columns]
+                        message = model.env._(
+                            "The value for %(field_display)s already exists.\n\nDetail: %(detail)s\n",
+                            field_display=f"'{', '.join(columns)}' ({format_list(model.env, names)})",
+                            detail=f"Key ({', '.join(columns)})=({', '.join(map(str, key_value.values()))}) already exists.",
+                        )
                 raise ValidationError(message or model.env._("The operation cannot be completed: another record already has the same value for a unique key.")) from exc
         raise exc
 

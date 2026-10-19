@@ -219,7 +219,7 @@ class Monetary(Field[float]):
         if not currency_field.column_type or not currency_field.store:
             try:
                 model._read_group_select(query.table, f"{currency_field_name}:array_agg_distinct")
-            except (ValueError, AccessError):
+            except (ValueError, AccessError, NotImplementedError):  # NotImplementedError: MongoDB model, no SQL
                 return None
 
         return super()._description_aggregator(env)
