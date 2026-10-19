@@ -2612,20 +2612,32 @@ class BaseModel(metaclass=MetaModel):
             if field is None:
                 raise ValueError(f"Invalid field {field_name!r} on model {self._name!r}")
             self.check_field_access(field, 'read')
+            self.flush_model([field_name])  # SQL flushes through SQL.to_flush; a MongoDB sort has no SQL
+            direction = -1 if (order_match['direction'] or '').upper() == 'DESC' else 1
+            nulls = (order_match['nulls'] or '').upper()
+            nulls_first = nulls == 'NULLS FIRST' if nulls else direction == -1  # SQL default
+            if field.inherited and field.related.count('.') == 1:
+                # _inherits delegate (product.product name -> product_tmpl_id.name): sort
+                # through the parent like the SQL join of _order_field_to_sql
+                parent_fname, parent_field_name = field.related.split('.')
+                parent_field = self._fields[parent_fname]
+                parent = self.env[parent_field.comodel_name].sudo().with_context(active_test=False)
+                sort.append(self._m2o_sort_term(parent_field, parent, parent_field_name, direction, nulls_first))
+                continue
             if not field.store or not field.column_type:
                 raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r}")
-            direction = -1 if (order_match['direction'] or '').upper() == 'DESC' else 1
-            if field.type == 'many2one' and field.comodel_name == self._name and self._order != 'id':
-                if field in seen:
+            if field.type == 'many2one':
+                comodel = self.env[field.comodel_name].sudo().with_context(active_test=False)
+                if comodel._order != 'id':
+                    # like _order_field_to_sql: a many2one sorts by the comodel's order
+                    # (contract C-10); the recursive occurrence is dropped
+                    if field in seen:
+                        continue
+                    comodel = comodel.with_context(__m2o_order_seen=frozenset((field, *seen)))
+                    sort.append(self._m2o_sort_term(field, comodel, comodel._order, direction, nulls_first))
                     continue
-                parent = self.sudo().with_context(__m2o_order_seen=frozenset((field, *seen)))
-                nulls = (order_match['nulls'] or '').upper()
-                nulls_first = nulls == 'NULLS FIRST' if nulls else direction == -1  # SQL default
-                sort.append((self._mongodb_path(field), direction, parent._order_to_sort(self._order), nulls_first))
-                continue
             if field.company_dependent:
                 raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r} (company dependent)")
-            # a many2one to another model sorts by its raw id (binary order, open_model_items C-10)
             path = self._mongodb_path(field)
             if field.translate is True:
                 # same COALESCE as the SQL branch: the current language, then its fallbacks
@@ -2634,6 +2646,30 @@ class BaseModel(metaclass=MetaModel):
                 path = f"{path}.{langs[0]}" if len(langs) == 1 else {'$ifNull': [f"${path}.{lang}" for lang in langs]}
             sort.append((path, direction))
         return sort
+
+    def _m2o_sort_term(self, field: Field, comodel: BaseModel, coorder: str, direction: int, nulls_first: bool) -> tuple:
+        """ Sort term for a many2one ``field`` ordered by ``coorder`` of ``comodel``.
+
+        A MongoDB comodel is joined by the store (``$lookup`` term
+        ``(path, direction, parent_sort, nulls_first, parent_collection)``); a
+        PostgreSQL comodel has its order materialized as an id list in its own
+        store and the documents are ranked by it (two-step cross-store rule,
+        contract §3, like ``array_position`` in ``_order_field_to_sql``).
+        """
+        from bson import MaxKey, MinKey  # noqa: PLC0415
+
+        from .fields_relational import _cross_store_ids  # noqa: PLC0415
+        store = self.pool.mongo_store
+        path = self._mongodb_path(field)
+        if comodel._storage == 'mongodb':
+            return (path, direction, comodel._order_to_sort(coorder), nulls_first, store.collection_name(comodel))
+        referenced = store.distinct(self, path, {})
+        ordered_ids = _cross_store_ids(self, comodel._search([('id', 'in', referenced)], order=coorder))
+        missing = MinKey() if nulls_first == (direction == 1) else MaxKey()
+        return ({'$let': {
+            'vars': {'rank': {'$indexOfArray': [ordered_ids, f'${path}']}},
+            'in': {'$cond': [{'$gte': ['$$rank', 0]}, '$$rank', missing]},
+        }}, direction)
 
     def _document_value_to_cache(self, field: Field, value):
         """ Convert a document value into the field's column format. """

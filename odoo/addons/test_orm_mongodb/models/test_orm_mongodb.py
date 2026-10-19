@@ -82,3 +82,31 @@ class Node(models.Model):
     parent_id = fields.Many2one('test_orm_mongodb.node', ondelete='cascade', index=True)
     parent_path = fields.Char(index=True)
     child_ids = fields.One2many('test_orm_mongodb.node', 'parent_id')
+
+
+class Variant(models.Model):
+    """MongoDB model delegating to a MongoDB parent (``_inherits``): its order
+    on the delegated ``name`` sorts through the parent collection."""
+    _name = 'test_orm_mongodb.variant'
+    _description = 'MongoDB test variant'
+    _storage = 'mongodb'
+    _inherits = {'test_orm_mongodb.item': 'item_id'}
+    _order = 'name, id'
+
+    item_id = fields.Many2one('test_orm_mongodb.item', required=True, ondelete='cascade')
+    ref = fields.Char()
+
+    _ref_uniq = models.Constraint('UNIQUE (ref)')
+
+
+class Card(models.Model):
+    """MongoDB model delegating to a PostgreSQL parent (``_inherits``): its order
+    on the delegated ``name`` is a two-step through the parent table."""
+    _name = 'test_orm_mongodb.card'
+    _description = 'MongoDB test card'
+    _storage = 'mongodb'
+    _inherits = {'test_orm_mongodb.category': 'category_id'}
+    _order = 'name, id'
+
+    category_id = fields.Many2one('test_orm_mongodb.category', required=True, ondelete='cascade')
+    color = fields.Integer()

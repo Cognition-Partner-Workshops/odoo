@@ -28,7 +28,9 @@ class TestMongoStorage(TransactionCase):
         cls.Category = cls.env['test_orm_mongodb.category']
         cls.Tag = cls.env['test_orm_mongodb.tag']
         cls.Node = cls.env['test_orm_mongodb.node']
-        cls.mongo_models = [cls.Item, cls.Line, cls.Node]
+        cls.Variant = cls.env['test_orm_mongodb.variant']
+        cls.Card = cls.env['test_orm_mongodb.card']
+        cls.mongo_models = [cls.Item, cls.Line, cls.Node, cls.Variant, cls.Card]
         for model in cls.mongo_models:  # recreate what another test class dropped
             cls.store.ensure_collection(model)
         cls.addClassCleanup(cls._drop_collections)
@@ -391,3 +393,39 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual(self.store.count(self.Item, {'_id': created.id}), 0)
         self.assertEqual(self.store.count(self.Item, {}), before + 1)
         self.assertEqual(self.store.repair(self.Item), {'documents_removed': 0, 'shadow_rows_removed': 0})
+
+
+@tagged('post_install', '-at_install')
+class TestStoragePath(TestMongoStorage):
+    """Storage-path rules found by the first opted-in business models (wave 2)."""
+
+    def test_order_through_inherits_mongodb_parent(self):
+        *_, items = self._make()
+        alpha, beta, _gamma = items
+        v_beta, v_alpha = self.Variant.create([{'item_id': beta.id}, {'item_id': alpha.id}])
+        term = self.Variant._order_to_sort('name')[0]
+        self.assertEqual((term[0], term[1], term[4]), ('itemId', 1, self.store.collection_name(self.Item)))
+        self.assertEqual(self.Variant.search([]), v_alpha + v_beta)
+        self.assertEqual(self.Variant.search([], order='name desc'), v_beta + v_alpha)
+        self.assertTrue(self.Variant.fields_get(['name'])['name']['sortable'])
+
+    def test_order_through_inherits_postgresql_parent(self):
+        c_b, c_a = self.Card.create([{'name': 'B'}, {'name': 'A'}])
+        term = self.Card._order_to_sort('name')[0]
+        self.assertIsInstance(term[0], dict, "a PostgreSQL parent is ranked by its ids, not joined")
+        self.assertEqual(self.Card.search([]), c_a + c_b)
+        self.assertEqual(self.Card.search([], order='name desc'), c_b + c_a)
+        c_b.name = 'AA'
+        self.assertEqual(self.Card.search([]), c_b + c_a, "pending parent writes are flushed before the sort")
+
+    def test_order_many2one_follows_comodel_order(self):
+        _a, cat_b, _x, _y, items = self._make()
+        alpha, beta, gamma = items
+        alpha.category_id = cat_b
+        self.assertEqual(self.Item.with_context(active_test=False).search([], order='category_id, id'), beta + alpha + gamma)
+        self.assertEqual(self.Item.with_context(active_test=False).search([], order='category_id desc, id'), alpha + gamma + beta)
+        line_a, line_b = alpha.line_ids
+        line_g = self.Line.create({'item_id': gamma.id, 'label': 'g'})
+        gamma.sequence = 1
+        self.assertEqual(self.Line.search([], order='item_id, id'), line_g + line_a + line_b)
+
