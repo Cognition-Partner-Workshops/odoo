@@ -2607,8 +2607,12 @@ class BaseModel(metaclass=MetaModel):
                 if not predicate(record):
                     raise ValidationError(message or self.env._("Constraint %s is violated", name))
 
-    def _order_to_sort(self, order: str) -> list[tuple]:
+    def _order_to_sort(self, order: str, filter_: dict | None = None, *, probe: bool = False) -> list[tuple]:
         """ Translate an ``order`` specification into a MongoDB sort list.
+
+        ``filter_`` is the search's filter: a many2one to a PostgreSQL comodel
+        ranks the references of the matching documents only. ``probe``
+        validates the order without querying any store (``fields_get``).
 
         A self-referential many2one (``_parent_name``) delegates to the
         comodel's order like ``_order_field_to_sql``: the term becomes
@@ -2639,7 +2643,7 @@ class BaseModel(metaclass=MetaModel):
                 parent_fname, parent_field_name = field.related.split('.')
                 parent_field = self._fields[parent_fname]
                 parent = self.env[parent_field.comodel_name].sudo().with_context(active_test=False)
-                sort.append(self._m2o_sort_term(parent_field, parent, parent_field_name, direction, nulls_first))
+                sort.append(self._m2o_sort_term(parent_field, parent, parent_field_name, direction, nulls_first, filter_, probe))
                 continue
             if not field.store or not field.column_type:
                 raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r}")
@@ -2651,7 +2655,7 @@ class BaseModel(metaclass=MetaModel):
                     if field in seen:
                         continue
                     comodel = comodel.with_context(__m2o_order_seen=frozenset((field, *seen)))
-                    sort.append(self._m2o_sort_term(field, comodel, comodel._order, direction, nulls_first))
+                    sort.append(self._m2o_sort_term(field, comodel, comodel._order, direction, nulls_first, filter_, probe))
                     continue
             if field.company_dependent:
                 raise NotImplementedError(f"{self._name} is stored in MongoDB: cannot sort on {field_name!r} (company dependent)")
@@ -2664,14 +2668,19 @@ class BaseModel(metaclass=MetaModel):
             sort.append((path, direction))
         return sort
 
-    def _m2o_sort_term(self, field: Field, comodel: BaseModel, coorder: str, direction: int, nulls_first: bool) -> tuple:
+    def _m2o_sort_term(
+        self, field: Field, comodel: BaseModel, coorder: str, direction: int, nulls_first: bool,
+        filter_: dict | None, probe: bool,
+    ) -> tuple:
         """ Sort term for a many2one ``field`` ordered by ``coorder`` of ``comodel``.
 
         A MongoDB comodel is joined by the store (``$lookup`` term
         ``(path, direction, parent_sort, nulls_first, parent_collection)``); a
-        PostgreSQL comodel has its order materialized as an id list in its own
-        store and the documents are ranked by it (two-step cross-store rule,
-        contract §3, like ``array_position`` in ``_order_field_to_sql``).
+        PostgreSQL comodel has the order of the ids referenced by the documents
+        matching ``filter_`` materialized in its own store and the documents
+        are ranked by it (two-step cross-store rule, contract §3, like
+        ``array_position`` in ``_order_field_to_sql``). A ``probe`` only
+        validates ``coorder``.
         """
         from bson import MaxKey, MinKey  # noqa: PLC0415
 
@@ -2679,8 +2688,11 @@ class BaseModel(metaclass=MetaModel):
         store = self.pool.mongo_store
         path = self._mongodb_path(field)
         if comodel._storage == 'mongodb':
-            return (path, direction, comodel._order_to_sort(coorder), nulls_first, store.collection_name(comodel))
-        referenced = store.distinct(self, path, {})
+            return (path, direction, comodel._order_to_sort(coorder, probe=probe), nulls_first, store.collection_name(comodel))
+        if probe:
+            comodel._check_qorder(coorder)
+            return (path, direction)
+        referenced = store.distinct(self, path, filter_ or {})
         ordered_ids = _cross_store_ids(self, comodel._search([('id', 'in', referenced)], order=coorder))
         missing = MinKey() if nulls_first == (direction == 1) else MaxKey()
         return ({'$let': {
@@ -5554,7 +5566,7 @@ class BaseModel(metaclass=MetaModel):
 
         # add order and limits
         if order and self._storage == 'mongodb':
-            query.sort = self._order_to_sort(order)
+            query.sort = self._order_to_sort(order, query.filter)
         elif order:
             query.order = self._order_to_sql(query.table, order)
 

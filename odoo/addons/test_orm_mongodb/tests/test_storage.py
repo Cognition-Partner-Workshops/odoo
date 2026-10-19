@@ -424,6 +424,11 @@ class TestStoragePath(TestMongoStorage):
         alpha.category_id = cat_b
         self.assertEqual(self.Item.with_context(active_test=False).search([], order='category_id, id'), beta + alpha + gamma)
         self.assertEqual(self.Item.with_context(active_test=False).search([], order='category_id desc, id'), alpha + gamma + beta)
+        # only the references of the matching documents are ranked in PostgreSQL
+        with patch.object(MongoStore, 'distinct', autospec=True, side_effect=MongoStore.distinct) as distinct:
+            self.assertEqual(self.Item.with_context(active_test=False).search([('id', '=', gamma.id)], order='category_id, id'), gamma)
+        filter_ = distinct.call_args.args[3]
+        self.assertEqual(filter_.get('_id'), {'$in': [gamma.id]}, filter_)
         line_a, line_b = alpha.line_ids
         line_g = self.Line.create({'item_id': gamma.id, 'label': 'g'})
         gamma.sequence = 1
@@ -445,7 +450,9 @@ class TestStoragePath(TestMongoStorage):
         self.assertEqual(self.Category.search([('default_item_id.name', '=', 'Nope')]), self.Category)
 
     def test_description_probes_tolerate_mongodb(self):
-        description = self.Item.fields_get(['line_ids', 'total', 'category_id'])
+        with patch.object(MongoStore, 'distinct', side_effect=AssertionError("a probe queries no store")), \
+                patch.object(MongoStore, 'find', side_effect=AssertionError("a probe queries no store")):
+            description = self.Item.fields_get()
         self.assertFalse(description['line_ids']['sortable'])
         self.assertTrue(description['total']['sortable'])
         self.assertTrue(description['category_id']['sortable'])

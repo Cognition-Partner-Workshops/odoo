@@ -1042,7 +1042,7 @@ class Field[T]:
             return False
         if model._storage == 'mongodb':
             try:
-                model._order_to_sort(self.name)
+                model._order_to_sort(self.name, probe=True)
                 return True
             except (ValueError, AccessError, NotImplementedError):
                 return False
