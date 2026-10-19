@@ -10,6 +10,7 @@ class Category(models.Model):
     name = fields.Char(required=True)
     item_ids = fields.One2many('test_orm_mongodb.item', 'category_id')
     default_item_id = fields.Many2one('test_orm_mongodb.item', ondelete='set null')
+    default_variant_id = fields.Many2one('test_orm_mongodb.variant', ondelete='set null')
     item_count = fields.Integer(compute='_compute_item_count')
 
     @api.depends('item_ids')
