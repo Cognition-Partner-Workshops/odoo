@@ -450,3 +450,19 @@ class TestStoragePath(TestMongoStorage):
         self.assertTrue(description['total']['sortable'])
         self.assertTrue(description['category_id']['sortable'])
 
+    def test_attachment_access_two_steps_ids(self):
+        *_, items = self._make()
+        alpha, beta, _gamma = items
+        user = self.env['res.users'].create({'name': 'w2', 'login': 'w2', 'group_ids': [Command.link(self.env.ref('base.group_user').id)]})
+        Attachment = self.env['ir.attachment']
+        att_alpha, att_beta, att_ghost = Attachment.create([
+            {'name': 'a', 'res_model': self.Item._name, 'res_id': alpha.id, 'raw': b'a'},
+            {'name': 'b', 'res_model': self.Item._name, 'res_id': beta.id, 'raw': b'b'},
+            {'name': 'g', 'res_model': self.Item._name, 'res_id': alpha.id + 100000, 'raw': b'g'},
+        ])
+        domain = [('res_model', '=', self.Item._name), ('res_id', 'in', [alpha.id, beta.id, att_ghost.res_id])]
+        found = Attachment.with_user(user).search(domain)
+        self.assertEqual(found, att_alpha + att_beta, "the id restriction of the two-step keeps out the dangling res_id")
+        found = Attachment.with_user(user).search(domain[:1] + [('res_id', '=', beta.id)])
+        self.assertEqual(found, att_beta)
+

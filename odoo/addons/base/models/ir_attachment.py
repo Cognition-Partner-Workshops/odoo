@@ -759,7 +759,10 @@ class IrAttachment(models.Model):
                 query = comodel._search(comodel_domain)
                 if query.is_empty():
                     continue
-                if query.where_clause:
+                # a MongoDB comodel restricts with a filter document instead of a where
+                # clause; the 'in' condition two-steps its ids (Query.subselect)
+                restricted = query.filter if comodel._storage == 'mongodb' else query.where_clause
+                if restricted:
                     codomain &= Domain('res_id', 'in', query)
                 if check_res_fields:
                     accessible_fields = [
