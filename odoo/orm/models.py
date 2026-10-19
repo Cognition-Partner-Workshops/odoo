@@ -2481,26 +2481,43 @@ class BaseModel(metaclass=MetaModel):
     def _mongodb_ondelete(self) -> None:
         """ Apply the ``ondelete`` of the Many2one fields of MongoDB models that
         point to ``self`` (PostgreSQL models have a foreign key to the shadow
-        table, which does it for them). """
-        for model_name in self.pool.mongodb_models:
+        table, which does it for them), and of the Many2many fields whose
+        relation is an id array on a MongoDB document (a PostgreSQL relation
+        table has the foreign key). """
+        store = self.pool.mongo_store
+        for model_name in self.pool.models:
             Model = self.env[model_name].sudo().with_context(active_test=False)
             for field in Model._fields.values():
-                if field.type != 'many2one' or field.comodel_name != self._name or not field.store:
+                if field.type not in ('many2one', 'many2many') or field.comodel_name != self._name or not field.store:
+                    continue
+                if field.type == 'many2one':
+                    if Model._storage != 'mongodb':
+                        continue
+                elif not (layout := store.m2m_layout(Model, field)):
                     continue
                 referrers = Model.search([(field.name, 'in', self.ids)])
                 if not referrers:
                     continue
-                if field.ondelete == 'cascade':
+                if field.type == 'many2many':
+                    if field.ondelete == 'cascade':
+                        # like the relation table's foreign key: drop the pairs, no write()
+                        if layout[0] != self._name:  # a deleted document takes its array with it
+                            field._write_mongo_pairs(Model, layout, [], [
+                                (referrer_id, id_) for referrer_id in referrers.ids for id_ in self.ids
+                            ])
+                        continue
+                elif field.ondelete == 'cascade':
                     referrers.unlink()
+                    continue
                 elif field.ondelete in ('set null', 'set default'):
                     referrers.write({field.name: False})
                     referrers.flush_recordset([field.name])
-                else:
-                    raise UserError(self.env._(
-                        "The operation cannot be completed: another model requires the record being deleted."
-                        " If possible, archive it instead.\n\nModel: %(model)s, Constraint: %(field)s",
-                        model=model_name, field=field.name,
-                    ))
+                    continue
+                raise UserError(self.env._(
+                    "The operation cannot be completed: another model requires the record being deleted."
+                    " If possible, archive it instead.\n\nModel: %(model)s, Constraint: %(field)s",
+                    model=model_name, field=field.name,
+                ))
 
     def _parent_store_compute_mongodb(self) -> None:
         """ Recompute every ``parent_path`` of the collection. """

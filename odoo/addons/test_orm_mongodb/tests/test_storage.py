@@ -474,3 +474,18 @@ class TestStoragePath(TestMongoStorage):
         self.assertIn('already exists', str(cm.exception))
         self.assertIn('ref', str(cm.exception))
 
+    def test_many2many_array_ondelete(self):
+        _a, _b, tag_x, tag_y, items = self._make()
+        alpha = items[0]
+        field = self.Item._fields['tag_ids']
+        layout = (self.Item._name, 'tagIds', 'tagId')
+        original = MongoStore.m2m_layout
+        self.env.flush_all()
+        coll = self.store.db[self.store.collection_name(self.Item)]
+        coll.update_one({'_id': alpha.id}, {'$set': {'tagIds': [{'tagId': tag_x.id}, {'tagId': tag_y.id}]}})
+        with patch.object(MongoStore, 'm2m_layout', lambda store, model, f: layout if f is field else original(store, model, f)):
+            with patch.object(field, 'ondelete', 'restrict'), self.assertRaises(UserError), self.cr.savepoint():
+                tag_x.unlink()
+            tag_y.unlink()
+            self.env.flush_all()
+        self.assertEqual(coll.find_one({'_id': alpha.id})['tagIds'], [{'tagId': tag_x.id}])
