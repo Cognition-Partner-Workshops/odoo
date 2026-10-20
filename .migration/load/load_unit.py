@@ -73,8 +73,8 @@ def validate(name, coll_spec, docs):
     """Refuse up front what the target would refuse mid-load: unencodable documents, duplicate unique keys."""
     for doc in docs:
         bson.encode(doc)
-    for key_spec, unique in index_specs(coll_spec):
-        if not unique:
+    for key_spec, options in index_specs(coll_spec):
+        if not options['unique']:
             continue
         seen = set()
         for doc in docs:
@@ -85,7 +85,7 @@ def validate(name, coll_spec, docs):
 
 
 def index_specs(coll_spec):
-    """The entries MongoStore.ensure_indexes creates."""
+    """The entries MongoStore.ensure_indexes creates, as (keys, create_index options)."""
     specs = []
     for index in coll_spec.get('indexes', []):
         keys = index.get('keys')
@@ -93,16 +93,23 @@ def index_specs(coll_spec):
             continue
         key_spec = [(k[0], k[1]) if isinstance(k, list) else (k, ASCENDING) for k in keys]
         if key_spec != [('_id', ASCENDING)]:
-            specs.append((key_spec, bool(index.get('unique'))))
+            specs.append((key_spec, {'unique': bool(index.get('unique'))}))
     return specs
+
+
+def index_definitions(coll):
+    """Every index of a live collection except _id, with its full options (name, unique,
+    partialFilterExpression, sparse, collation, ...), so a restore recreates it as it was."""
+    return [(list(info['key'].items()), {k: v for k, v in info.items() if k not in ('key', 'v', 'ns')})
+            for info in coll.list_indexes() if info['name'] != '_id_']
 
 
 def write_collection(coll, docs, indexes):
     coll.drop()
     if docs:
         coll.insert_many(docs, ordered=True)
-    for key_spec, unique in indexes:
-        coll.create_index(key_spec, unique=unique)
+    for keys, options in indexes:
+        coll.create_index(keys, **options)
 
 
 def load(unit_id, source_secret, target_secret, target_db, replace):
@@ -126,9 +133,7 @@ def load(unit_id, source_secret, target_secret, target_db, replace):
         raise SystemExit(f'{target_db}.{occupied} already hold documents: pass --replace to reload the whole unit '
                          f'(the ORM writes there once the models are opted in); nothing was changed')
     # 2. keep every collection's current documents and indexes so a failed reload is undone
-    originals = {name: (list(db[name].find()),
-                        [(list(info['key']), bool(info.get('unique'))) for key, info in db[name].index_information().items() if key != '_id_'])
-                 for name in names}
+    originals = {name: (list(db[name].find()), index_definitions(db[name])) for name in names}
     touched = []
     try:
         for name in names:
@@ -137,8 +142,13 @@ def load(unit_id, source_secret, target_secret, target_db, replace):
             print(f'{spec[name]["root_table"]} ({source_db}) -> {target_db}.{name}: {len(loads[name])} documents, '
                   f'{len(db[name].index_information())} indexes')
     except Exception:
+        # documents go back first; an index that cannot be rebuilt is reported, the documents stay
         for name in touched:
-            write_collection(db[name], *originals[name])
+            docs, indexes = originals[name]
+            try:
+                write_collection(db[name], docs, indexes)
+            except Exception as restore_exc:  # noqa: BLE001
+                print(f'restore of {target_db}.{name}: documents restored, index rebuild failed: {restore_exc}', file=sys.stderr)
         print(f'reload failed: {touched} restored to their pre-run documents and indexes', file=sys.stderr)
         raise
 
