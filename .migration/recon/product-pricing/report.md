@@ -7,7 +7,7 @@
 - Tolerance version: `v1` (sha256 `59f500708400`)
 - Collections: `productPricelist`, `productPricelistItem`
 - Seed: `0`
-- Generated: 2026-10-20T02:24:32.928521+00:00
+- Generated: 2026-10-20T11:51:48.258752+00:00
 - 32 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 4 string fields: min/max/distinct deferred to Tier 3
 

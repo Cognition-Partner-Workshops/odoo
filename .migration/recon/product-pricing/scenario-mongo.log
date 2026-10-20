@@ -1,3 +1,19 @@
+2026-10-20 11:50:35,758 27961 WARNING ? odoo.tools.config: unknown option 'mongodb_migration_db' in the config file at /home/ubuntu/w3b01/odoo_scn2.conf, option stored as-is, without parsing
+2026-10-20 11:50:35,758 27961 INFO ? odoo: Odoo version 20.0
+2026-10-20 11:50:35,758 27961 INFO ? odoo: Using configuration file at /home/ubuntu/w3b01/odoo_scn2.conf
+2026-10-20 11:50:35,758 27961 INFO ? odoo: addons paths: _NamespacePath(['/home/ubuntu/repos/odoo/odoo/addons', '/home/ubuntu/.local/share/Odoo/addons/20.0', '/home/ubuntu/repos/odoo/addons'])
+2026-10-20 11:50:35,758 27961 INFO ? odoo: database: default@default:5433
+2026-10-20 11:50:36,139 27961 INFO ? odoo.service.server.ThreadedServer: Initiating shutdown
+2026-10-20 11:50:36,139 27961 INFO ? odoo.service.server.ThreadedServer: Hit CTRL-C again or send a second signal to force the shutdown.
+2026-10-20 11:50:36,153 27961 INFO odoo_w3b01_scn2 odoo.modules.loading: loading 1 modules...
+2026-10-20 11:50:36,157 27961 INFO odoo_w3b01_scn2 odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra)
+2026-10-20 11:50:36,168 27961 INFO odoo_w3b01_scn2 odoo.modules.loading: loading 70 modules...
+2026-10-20 11:50:36,261 27961 WARNING odoo_w3b01_scn2 odoo.addons.mail.controllers.attachment: markdown2 is not installed, markdown will not be rendered
+2026-10-20 11:50:36,429 27961 INFO odoo_w3b01_scn2 odoo.modules.loading: 70 modules loaded in 0.26s, 0 queries (+0 extra)
+2026-10-20 11:50:36,541 27961 INFO odoo_w3b01_scn2 odoo.modules.loading: Modules loaded.
+2026-10-20 11:50:36,589 27961 INFO odoo_w3b01_scn2 odoo.registry: Registry loaded in 0.445s
+2026-10-20 11:50:44,417 27961 INFO odoo_w3b01_scn2 odoo.models.unlink: User #1 deleted product.pricelist.item records with IDs: [8]
+2026-10-20 11:50:44,622 27961 INFO odoo_w3b01_scn2 odoo.models.unlink: User #1 deleted product.pricelist records with IDs: [5]
 storage: mongodb
 PASS storage opt-in
 shadow columns () ()
@@ -13,16 +29,16 @@ PASS pricelist company_id = False
 PASS categ_id parent_of (Office -> Furniture)
 PASS product_id.product_tmpl_id traversal
 PASS date_start = False | <= date
-VALUE min_quantity = 0 | <= 2 ids: []
-VALUE min_quantity <= 2 ids: []
-VALUE min_quantity = 0 ids: []
-VALUE min_quantity > 1.5 ids: []
-FAIL min_quantity = 0 | <= qty (Decimal128)
-VALUE is_plain_discount ids: []
+VALUE min_quantity = 0 | <= 2 ids: [1, 2, 3, 4, 6, 7]
+VALUE min_quantity <= 2 ids: [1, 2, 3, 4, 6, 7]
+VALUE min_quantity = 0 ids: [1, 2, 3, 4, 6]
+VALUE min_quantity > 1.5 ids: [5, 7]
+PASS min_quantity = 0 | <= qty (Decimal128)
+VALUE is_plain_discount ids: [3]
 VALUE price_round = 0 ids (NULL column in PostgreSQL): [1, 2, 3, 4, 5, 6]
 VALUE price_round = False ids: [1, 2, 3, 4, 5, 6]
 VALUE price_round != 0 ids: [7]
-FAIL is_plain_discount searchable (_search_is_plain_discount)
+PASS is_plain_discount searchable (_search_is_plain_discount)
 PASS country_group_ids in (embedded array)
 PASS country_group_ids = False (empty array)
 PASS country_group_ids.country_ids traversal (France -> Europe)
@@ -38,22 +54,22 @@ VALUE europe rules chair qty=5 date=2026-06-01: [5, 4, 3, 2]
 VALUE europe price chair qty=5 date=2026-06-01: 89.0
 VALUE europe rules chair qty=1 date=2027-03-01: [5, 3, 2]
 VALUE europe price chair qty=1 date=2027-03-01: 46.356449999999995
-VALUE europe rules non-furniture: []
-VALUE europe price non-furniture: 10.9074
-VALUE fixture price product 38: 45.0
-VALUE us-company rules chair qty=1: []
-VALUE us-company price chair qty=1 (base=pricelist Europe, discount+round+surcharge+margins): 70.0
-VALUE us-company rules chair qty=2: []
-VALUE us-company price chair qty=2 (base=pricelist Europe, discount+round+surcharge+margins): 70.0
-VALUE price_rule_multi all pricelists: {5: {2: (54.54, False), 3: (70.0, False), 1: (70.0, False)}}
+VALUE europe rules non-furniture: [2]
+VALUE europe price non-furniture: 11.998140000000001
+VALUE fixture price product 38: 39.0
+VALUE us-company rules chair qty=1: [6]
+VALUE us-company price chair qty=1 (base=pricelist Europe, discount+round+surcharge+margins): 80.5
+VALUE us-company rules chair qty=2: [7, 6]
+VALUE us-company price chair qty=2 (base=pricelist Europe, discount+round+surcharge+margins): 100.9
+VALUE price_rule_multi all pricelists: {5: {2: (99.9, 4), 3: (129.22, 7), 1: (70.0, False)}}
 VALUE country pricelist multi (fr, us): {75: 2, 233: 1, False: 1}
 VALUE partner pricelist multi: False
 VALUE admin companies: [3, 1, 2]
 PASS company 1 sees company-less + own pricelists
 PASS company 2 sees its items
 PASS company 1 cannot read company-2 pricelist
-PASS pricelist create: document with embedded country group array: {'_id': 5, 'active': True, 'companyId': 1, 'createDate': datetime.datetime(2026, 10, 20, 2, 36, 13, 728000), 'createUid': 1, 'currencyId': 1, 'name': {'en_US': 'Scenario PL'}, 'sequence': 1, 'writeDate': datetime.datetime(2026, 10, 20, 2, 36, 13, 728000), 'writeUid': 1, 'resCountryGroupPricelistRel': [{'resCountryGroupId': 1}]}
-PASS item create: document (NULL omitted, Decimal128): {'_id': 8, 'appliedOn': '3_global', 'base': 'list_price', 'computePrice': 'markup', 'createDate': datetime.datetime(2026, 10, 20, 2, 36, 13, 728000), 'createUid': 1, 'minQuantity': '3.00', 'priceDiscount': '-20.00', 'pricelistId': 5, 'writeDate': datetime.datetime(2026, 10, 20, 2, 36, 13, 728000), 'writeUid': 1, 'companyId': 1, 'currencyId': 1}
+PASS pricelist create: document with embedded country group array: {'_id': 5, 'active': True, 'companyId': 1, 'createDate': datetime.datetime(2026, 10, 20, 11, 50, 36, 605000), 'createUid': 1, 'currencyId': 1, 'name': {'en_US': 'Scenario PL'}, 'sequence': 1, 'writeDate': datetime.datetime(2026, 10, 20, 11, 50, 36, 605000), 'writeUid': 1, 'resCountryGroupPricelistRel': [{'resCountryGroupId': 1}]}
+PASS item create: document (NULL omitted, Decimal128): {'_id': 8, 'appliedOn': '3_global', 'base': 'list_price', 'computePrice': 'markup', 'createDate': datetime.datetime(2026, 10, 20, 11, 50, 36, 605000), 'createUid': 1, 'minQuantity': Decimal128('3.00'), 'priceDiscount': Decimal128('-20.00'), 'pricelistId': 5, 'writeDate': datetime.datetime(2026, 10, 20, 11, 50, 36, 605000), 'writeUid': 1, 'companyId': 1, 'currencyId': 1}
 PASS new pricelist first in default order (sequence 1)
 VALUE new item price_discount (markup -> negative discount): -20.0
 PASS _check_company_auto rejects a cross-company base pricelist: UserError
@@ -61,5 +77,5 @@ PASS write recomputes applied_on
 PASS unlink cascades item document
 PASS unlink cascades item
 PASS loaded collections unchanged after rollback: {'product.pricelist': 4, 'product.pricelist.item': 7}
-25/27 checks passed; FAILED: ['min_quantity = 0 | <= qty (Decimal128)', 'is_plain_discount searchable (_search_is_plain_discount)']
-exit 1
+
+27/27 checks passed
