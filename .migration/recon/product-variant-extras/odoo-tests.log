@@ -1,7 +1,8 @@
-# odoo-bin -d odoo_w3b04_test4 -i product,uom --test-enable --test-tags /product,/uom on a fresh database (collections odoo_w3b04_test4__*), run branch 3ec94740b71
-2026-10-20 02:55:15,074 16210 ERROR odoo_w3b04_test4 odoo.addons.product.tests.test_product_attribute_value_config: FAIL: TestProductAttributeValueConfig.test_get_closest_possible_combinations
-2026-10-20 03:16:15,524 16210 INFO odoo_w3b04_test4 odoo.tests.stats: product: 201 tests 1726.27s 45063 queries
-2026-10-20 03:16:15,524 16210 INFO odoo_w3b04_test4 odoo.tests.stats: uom: 6 tests 4.09s 111 queries
-2026-10-20 03:16:15,524 16210 INFO odoo_w3b04_test4 odoo.tests.stats: web: 6 tests 0.09s 14 queries
-2026-10-20 03:16:15,525 16210 ERROR odoo_w3b04_test4 odoo.tests.result: 1 failed, 0 error(s) of 161 tests when loading database 'odoo_w3b04_test4'
+# odoo-bin -d odoo_w3b04_test5 -i product,uom --test-enable --test-tags /product,/uom on a fresh database (collections odoo_w3b04_test5__*, mongodb_migration_db elsewhere), run branch cb78eff96be (rebased on 3c877556359), second VM
+2026-10-20 12:48:24,308 8066 ERROR odoo_w3b04_test5 odoo.addons.product.tests.test_product_attribute_value_config: FAIL: TestProductAttributeValueConfig.test_get_closest_possible_combinations
+2026-10-20 13:07:59,816 8066 INFO odoo_w3b04_test5 odoo.tests.stats: product: 201 tests 1592.43s 44948 queries
+2026-10-20 13:07:59,816 8066 INFO odoo_w3b04_test5 odoo.tests.stats: uom: 6 tests 3.47s 111 queries
+2026-10-20 13:07:59,816 8066 INFO odoo_w3b04_test5 odoo.tests.stats: web: 6 tests 0.10s 14 queries
+2026-10-20 13:07:59,816 8066 ERROR odoo_w3b04_test5 odoo.tests.result: 1 failed, 0 error(s) of 161 tests when loading database 'odoo_w3b04_test5'
 exit 1
+# same single failure as round 1 at 3ec94740b71: test_get_closest_possible_combinations, the 0.5 s timing assertion accepted in wave 2 as Atlas latency
