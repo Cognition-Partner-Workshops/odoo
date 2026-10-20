@@ -12,5 +12,5 @@
   "mapping_version": "map-draft-2",
   "recon_tolerances_version": "unt12-3",
   "tier_checks": {"live": [18, 22, 27, 7], "fixture": [8, 22, 27, 7]},
-  "one_line_summary": "product-taxonomy: live PASS, merge_eligible true, 0 warnings; fixture PASS; 62/62 ORM scenario checks on the storage path; 1 storage-path gap reported (company-dependent writes)"
+  "one_line_summary": "product-taxonomy: live PASS, merge_eligible true, 0 warnings; fixture PASS; 62/62 ORM scenario checks on the storage path; 2 storage-path gaps reported (company-dependent writes, get_property_definition)"
 }
