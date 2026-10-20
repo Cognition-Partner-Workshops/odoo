@@ -32,5 +32,5 @@
       4
     ]
   },
-  "one_line_summary": "uom-packaging: live PASS, merge_eligible true, 0 warnings; fixture PASS; 45/45 ORM scenario checks on the storage path; purchase.report/vendor.delay.report/stock.avco.report (product-taxonomy rows) got the uom-factor substitution too"
+  "one_line_summary": "uom-packaging: live PASS, merge_eligible true, 0 warnings; fixture PASS; 54/54 ORM scenario checks on the storage path; GAP: product.template.uom_ids and product.product.extra_uom_ids (0 estate rows) are routed to the unloaded productTemplate/productProduct uomUomRel arrays and read back empty after an ORM link (UNT12-33); purchase.report/vendor.delay.report/stock.avco.report (product-taxonomy rows) got the uom-factor substitution too"
 }

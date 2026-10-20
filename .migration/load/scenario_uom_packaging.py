@@ -66,6 +66,7 @@ def same_groups(a, b):
 
 
 before = {name: collection_hash(name) for name in COLLECTIONS}
+collections_before = set(st.db.list_collection_names())
 
 # --- uom.uom reads -------------------------------------------------------------------------------
 pg_uoms = {r[0]: r for r in rows("""
@@ -135,6 +136,61 @@ check('package type order sequence, id', PackageType.search([]).ids
       == [r[0] for r in rows("SELECT id FROM stock_package_type ORDER BY sequence, id")])
 check('uom.package_type_id cross reference', Uom.search([('package_type_id', '!=', False)]).mapped('package_type_id.id')
       == [r[0] for r in rows("SELECT package_type_id FROM uom_uom WHERE package_type_id IS NOT NULL ORDER BY sequence, id")])
+
+# --- every stored many2many / one2many touching the opted-in models: exact equality vs PostgreSQL --
+# A relation whose table the spec embeds in a later wave's collection is routed there by the storage path
+# as soon as one side is opted in, and reads back empty until that collection is loaded (UNT12-33):
+# such relations are listed as GAP, never passed.
+gaps = []
+
+
+def check_relation(name, orm_pairs, expected_pairs):
+    orm_pairs, expected_pairs = sorted(orm_pairs), sorted(expected_pairs)
+    if orm_pairs == expected_pairs:
+        check(name, True, f'{len(expected_pairs)} pairs')
+    elif not orm_pairs and expected_pairs:
+        gaps.append(name)
+        print(f"GAP  {name} -- reads empty, expected {len(expected_pairs)} pairs")
+    else:
+        check(name, False, (orm_pairs[:3], expected_pairs[:3]))
+
+
+Template = env['product.template'].with_context(active_test=False)
+Product = env['product.product'].with_context(active_test=False)
+check_relation('uom.related_uom_ids', [(u.id, c.id) for u in Uom.search([]) for c in u.related_uom_ids],
+               rows("SELECT relative_uom_id, id FROM uom_uom WHERE relative_uom_id IS NOT NULL"))
+check_relation('uom.product_uom_ids', [(u.id, p.id) for u in Uom.search([]) for p in u.product_uom_ids],
+               rows("SELECT uom_id, id FROM product_uom"))
+check_relation('uom.route_ids (related through package_type_id)', [(u.id, r.id) for u in Uom.search([]) for r in u.route_ids],
+               rows("SELECT u.id, rel.stock_route_id FROM uom_uom u "
+                    "JOIN stock_package_type_stock_route_rel rel ON rel.stock_package_type_id = u.package_type_id"))
+check_relation('product.template.uom_ids', [(t.id, u.id) for t in Template.search([]) for u in t.uom_ids],
+               rows("SELECT product_template_id, uom_uom_id FROM product_template_uom_uom_rel"))
+check_relation('product.product.extra_uom_ids', [(p.id, u.id) for p in Product.search([]) for u in p.extra_uom_ids],
+               rows("SELECT product_product_id, uom_uom_id FROM product_product_uom_uom_rel"))
+check_relation('stock.package.type.storage_category_capacity_ids',
+               [(t.id, c.id) for t in PackageType.search([]) for c in t.storage_category_capacity_ids],
+               rows("SELECT package_type_id, id FROM stock_storage_category_capacity WHERE package_type_id IS NOT NULL"))
+check_relation('stock.package.type.route_ids', [(t.id, r.id) for t in PackageType.search([]) for r in t.route_ids], pg_routes)
+check_relation('stock.putaway.rule.package_type_ids', [(r.id, t.id) for r in PutawayRule.search([]) for t in r.package_type_ids],
+               [(b, a) for a, b in pg_rules])
+# the product-side relation tables are empty in the estate: link one pair through the ORM (rolled back below)
+# and read it back from both sides, so a relation routed to an unloaded collection shows up as a GAP
+probe_template = Template.search([('uom_id', '=', unit.id)], order='id', limit=1)
+probe_template.write({'uom_ids': [(4, dozen.id)]})
+probe_product = probe_template.product_variant_ids[:1]
+probe_product.write({'extra_uom_ids': [(4, dozen.id)]})
+env.flush_all()
+env.invalidate_all()
+check_relation('product.template.uom_ids after an ORM link', [(probe_template.id, u.id) for u in probe_template.uom_ids],
+               [(probe_template.id, dozen.id)])
+check_relation('product.template search on uom_ids', [(t.id, dozen.id) for t in Template.search([('uom_ids', 'in', dozen.ids)])],
+               [(probe_template.id, dozen.id)])
+check_relation('product.product.extra_uom_ids after an ORM link', [(probe_product.id, u.id) for u in probe_product.extra_uom_ids],
+               [(probe_product.id, dozen.id)])
+print(f"relation tables on PostgreSQL after the links: product_template_uom_uom_rel="
+      f"{rows('SELECT count(*) FROM product_template_uom_uom_rel')[0][0]}, product_product_uom_uom_rel="
+      f"{rows('SELECT count(*) FROM product_product_uom_uom_rel')[0][0]}")
 
 # --- rewritten SQL reports: factors from MongoDB vs the legacy column (A/B) ----------------------
 UomClass = env.registry['uom.uom']
@@ -269,6 +325,8 @@ check('indexes as in the mapping spec', sorted(st.collection('uomUom').index_inf
     '_id_', 'packageTypeId_1_sequence_1_relativeUomId_1__id_1', 'parentPath_1', 'relativeUomId_1',
     'uneceCode_1_sequence_1_relativeUomId_1__id_1'] and sorted(st.collection('stockPackageType').index_information()) == [
     '_id_', 'companyId_1', 'stockPutawayRuleRel.stockPutawayRuleId_1', 'stockRouteRel.stockRouteId_1'])
+check('no collection created outside the unit', set(st.db.list_collection_names()) == collections_before,
+      sorted(set(st.db.list_collection_names()) - collections_before))
 passed = sum(ok for _, ok in results)
-print(f"scenario uom-packaging: {passed}/{len(results)} checks passed")
+print(f"scenario uom-packaging: {passed}/{len(results)} checks passed; relations reading empty (GAP): {gaps or 'none'}")
 assert passed == len(results), [name for name, ok in results if not ok]
