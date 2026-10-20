@@ -301,6 +301,15 @@ class TestMongoStorage(TransactionCase):
         self.book_b1.review_m2m_ids = [(3, review.id)]
         self.env.flush_all()
         self.assertEqual(review.book_ids, self.book_a1)
+        # embedded variant: the review-tag relation is an array of the (not yet opted-in) review document
+        review.tag_ids = [(6, 0, (self.tag_x + self.tag_y).ids)]
+        self.env.flush_all()
+        self.env.cr.execute("SELECT tag_id FROM test_mongo_review_tag_rel WHERE review_id = %s ORDER BY tag_id", (review.id,))
+        self.assertEqual([r[0] for r in self.env.cr.fetchall()], sorted((self.tag_x + self.tag_y).ids))
+        review.invalidate_recordset()
+        self.assertEqual(review.tag_ids, self.tag_x + self.tag_y)
+        self.assertEqual(Review.search([('tag_ids', 'in', self.tag_y.ids)]), review)
+        self.assertEqual(self.env['test.mongo.tag'].search([('id', 'in', review.tag_ids.ids)]), self.tag_x + self.tag_y)
         self.assertEqual(set(self.store.db.list_collection_names()) - before, set())
         # the relation a MongoDB-stored model owns is served from MongoDB (books' own tag relation)
         self.assertEqual(self.store.collection('testMongoBookTagRel').count_documents({'bookId': self.book_a1.id}), 1)

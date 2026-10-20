@@ -164,9 +164,12 @@ class TestMongoReview(models.Model):
     _name = 'test.mongo.review'
     _description = 'PostgreSQL test review of a MongoDB book'
     _order = 'book_id, id'
-    # the spec maps relation tables owned by this (later-wave) model: they must not move before it does,
-    # whether the other side is PostgreSQL (partners) or already MongoDB-stored (books)
+    # the spec maps this (later-wave) model's collection, with the tag relation embedded in it, and two
+    # standalone relation collections it owns: none moves before the model does, whether the other side
+    # is PostgreSQL (partners) or already MongoDB-stored (books, tags)
     _mongodb_spec = [
+        _spec('test_mongo_review', 'testMongoReview', [('name', 'name', 'string'), ('book_id', 'bookId', 'int')],
+              embeds=[_embed('tagRel', 'test_mongo_review_tag_rel', 'review_id', 'tag_id', 'tagId')]),
         _spec('test_mongo_review_partner_rel', 'testMongoReviewPartnerRel',
               [('review_id', 'reviewId', 'int'), ('partner_id', 'partnerId', 'int')],
               key={'source': ['review_id', 'partner_id'], 'target': ['reviewId', 'partnerId']}),
