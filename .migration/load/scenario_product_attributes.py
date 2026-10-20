@@ -91,8 +91,14 @@ Line = env['product.template.attribute.line']
 n_lines = sql("SELECT count(*) FROM product_template_attribute_line l JOIN product_attribute a ON a.id = l.attribute_id WHERE a.create_variant = 'always'")[0][0]
 check("product.template.attribute.line (PostgreSQL) domain through many2one into MongoDB",
       Line.search_count([('attribute_id.create_variant', '=', 'always')]) == n_lines, n_lines)
-check("line.attribute_id / value_ids read through MongoDB", all(
-    l.attribute_id.name and set(l.value_ids.ids) <= set(pg_values.get(l.attribute_id.id, [])) for l in Line.search([])))
+pg_line_values = {}
+for line_id, value_id in sql("SELECT product_template_attribute_line_id, product_attribute_value_id "
+                             "FROM product_attribute_value_product_template_attribute_line_rel ORDER BY 1, 2"):
+    pg_line_values.setdefault(line_id, []).append(value_id)
+lines = Line.search([])
+check("line.attribute_id / value_ids read through MongoDB (exact, per line)",
+      all(l.attribute_id.name and sorted(l.value_ids.ids) == pg_line_values.get(l.id, []) for l in lines),
+      f"ORM {sum(len(l.value_ids) for l in lines)} vs PG {sum(map(len, pg_line_values.values()))} pairs over {len(lines)} lines")
 
 # 5. writes through the storage path, then rolled back
 new = Attr.create({'name': 'Scenario finish', 'create_variant': 'no_variant', 'sequence': 1,
