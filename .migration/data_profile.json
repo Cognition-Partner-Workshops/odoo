@@ -2,7 +2,7 @@
   "profile_version": 1,
   "source_family": "postgresql",
   "census_sha256": "f34de2c831f935b87f82eca66bfcf5090dff76511aa5b94ffa285eff010fe101",
-  "as_of": "2026-10-20T03:31:44.798509+00:00",
+  "as_of": "2026-10-20T03:39:39.245418+00:00",
   "origin": "live",
   "stats": [
     {

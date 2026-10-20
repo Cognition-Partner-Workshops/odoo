@@ -2,23 +2,23 @@
 
 ## Review
 
-- **Draft:** 66 collections, 76 embedded tables, 379 tables excluded.
+- **Draft:** 65 collections, 77 embedded tables, 379 tables excluded.
 - **Evidence:** of 357 relationship choices, 283 rest on measured data or app code and 0 on a recorded decision (`derived`); the rest follow the schema alone (`assumed`).
-- **Decisions:** 10 kinds of question, 578 items. The draft already applies each proposal; answer each group with one line in `.migration/answers.txt` (template below).
+- **Decisions:** 10 kinds of question, 580 items. The draft already applies each proposal; answer each group with one line in `.migration/answers.txt` (template below).
 
 1. **many_to_many_junction** (56): junction embedded via read evidence as an array in account_account; confirm the other side never needs the reverse lookup (else add a multikey index or keep a reference)  
    Applies to: account_account_account_tag, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_account_tax_default_rel, account_cash_rounding_account_payment_method_line_rel, account_fiscal_position_account_tax_rel, account_journal_account_reconcile_model_rel and 48 more
 2. **embed_unbounded** (8): 1:N embed: confirm the fan-out bound and document size (16 MB) against data, or bucket/reference  
    Applies to: account_cash_rounding_res_currency_rel, account_cash_rounding_res_partner_category_rel, account_fiscal_position_res_country_state_rel, account_reconcile_model_res_partner_rel, customer_product_reference, sale_order_transaction_rel, account_analytic_line_stock_move_rel, picking_type_favorite_user_rel
 3. **transient_tables** (1): 88 table(s) back transient models, scratch state the framework deletes on a timer, so they are not migrated: account_account_account_merge_wizard_rel, account_accrued_orders_wizard, account_automatic_entry_wizard, account_automatic_entry_wizard_account_move_line_rel, account_autopost_bills_wizard, account_financial_year_op, account_merge_wizard, account_merge_wizard_line, account_move_account_move_send_batch_wizard_rel, account_move_account_resequence_wizard_rel, account_move_reversal, account_move_reversal_move, account_move_reversal_new_move, account_move_send_batch_wizard, account_move_send_wizard, account_move_send_wizard_res_partner_rel, account_move_validate_account_move_rel, account_payment_register, account_payment_register_move_line_rel, account_resequence_wizard, account_secure_entries_wizard, account_setup_bank_manual_config, base_document_layout, bill_to_po_wizard, lot_label_layout, lot_label_layout_stock_lot_rel, lot_label_layout_stock_move_line_rel, mail_compose_message, mail_compose_message_ir_attachments_rel, mail_compose_message_res_partner_cc_rel, mail_compose_message_res_partner_rel, payment_link_wizard, picking_label_type, picking_label_type_stock_picking_rel, product_label_layout, product_label_layout_product_product_rel, product_label_layout_product_template_rel, product_label_layout_product_uom_rel, product_label_layout_stock_move_rel, product_replenish, product_supplierinfo_stock_replenishment_info_rel, res_config_settings, sale_advance_payment_inv, sale_advance_payment_inv_sale_order_rel, sale_mass_cancel_orders, sale_order_discount, sale_order_mass_cancel_wizard_rel, stock_add_to_wave, stock_add_to_wave_stock_move_line_rel, stock_add_to_wave_stock_picking_rel, stock_backorder_confirmation, stock_backorder_confirmation_line, stock_conflict_quant_rel, stock_inventory_adjustment_name, stock_inventory_adjustment_name_stock_quant_rel, stock_inventory_conflict, stock_inventory_conflict_stock_quant_rel, stock_inventory_warning, stock_inventory_warning_stock_quant_rel, stock_location_label_layout, stock_move_line_stock_package_destination_rel, stock_move_line_stock_put_in_pack_rel, stock_orderpoint_snooze, stock_orderpoint_snooze_stock_warehouse_orderpoint_rel, stock_orderpoint_suggest, stock_orderpoint_suggest_stock_warehouse_orderpoint_rel, stock_package_destination, stock_package_label_layout, stock_package_stock_put_in_pack_rel, stock_picking_backorder_rel, stock_picking_stock_zero_demand_confirmation_rel, stock_picking_to_batch, stock_picking_type_label_layout, stock_put_in_pack, stock_quant_relocate, stock_quant_stock_quant_relocate_rel, stock_quant_stock_request_count_rel, stock_replenishment_info, stock_replenishment_option, stock_request_count, stock_route_stock_rules_report_rel, stock_rules_report, stock_rules_report_stock_warehouse_rel, stock_traceability_report, stock_warn_insufficient_qty_scrap, stock_zero_demand_confirmation, update_product_attribute_value, validate_account_move; confirm none must survive cutover
-4. **extended_reference_candidate** (268): app reads account_account_tag with every account_account_account_tag: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference  
-   Applies to: account_account_account_tag, account_account_tax_default_rel, account_account, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_bank_statement, account_bank_statement_line and 93 more
+4. **extended_reference_candidate** (269): app reads account_account_tag with every account_account_account_tag: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference  
+   Applies to: account_account_account_tag, account_account_tax_default_rel, account_account, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_bank_statement, account_bank_statement_line and 94 more
 5. **source_index_not_exercised** (122): source index not exercised by any confirmed access pattern; keep or drop  
    Applies to: account_account, account_account_account_tag, account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_bank_statement, account_bank_statement_ir_attachment_rel and 80 more
 6. **fanout_unmeasured** (49): account_account_tax_default_rel has no rows per account_account in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding  
    Applies to: account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_cash_rounding_res_currency_rel, account_cash_rounding_res_partner_category_rel, account_cash_rounding_account_payment_method_line_rel, account_fiscal_position_account and 41 more
-7. **cascade_into_embed** (43): account_account_tax_default_rel is embedded in account_account, but deleting a account_tax row cascades to its account_account_tax_default_rel: the app must pull them from every account_account document, or keep account_account_tax_default_rel separate  
-   Applies to: account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_cash_rounding_account_payment_method_line_rel, account_fiscal_position_account_tax_rel, account_journal_account_reconcile_model_rel, account_move__account_payment and 35 more
+7. **cascade_into_embed** (44): account_account_tax_default_rel is embedded in account_account, but deleting a account_tax row cascades to its account_account_tax_default_rel: the app must pull them from every account_account document, or keep account_account_tax_default_rel separate  
+   Applies to: account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_cash_rounding_account_payment_method_line_rel, account_fiscal_position_account_tax_rel, account_journal_account_reconcile_model_rel, account_move__account_payment and 36 more
 8. **lob** (13): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)  
    Applies to: account_account, account_journal, account_move, account_move_line, account_report_expression, product_template, purchase_order, purchase_order_line and 5 more
 9. **single_valued_index_key** (11): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan  
@@ -32,10 +32,10 @@ accept ownership: <who said so, and why>  # 8 tables: account_analytic_line_stoc
 close many_to_many_junction: <who said so, and why>  # 56 questions
 close embed_unbounded: <who said so, and why>  # 8 questions
 close transient_tables: <who said so, and why>  # 1 questions
-close extended_reference_candidate: <who said so, and why>  # 268 questions
+close extended_reference_candidate: <who said so, and why>  # 269 questions
 close source_index_not_exercised: <who said so, and why>  # 122 questions
 close fanout_unmeasured: <who said so, and why>  # 49 questions
-close cascade_into_embed: <who said so, and why>  # 43 questions
+close cascade_into_embed: <who said so, and why>  # 44 questions
 close lob: <who said so, and why>  # 13 questions
 close single_valued_index_key: <who said so, and why>  # 11 questions
 close nullable_unique_key: <who said so, and why>  # 7 questions
@@ -515,7 +515,7 @@ Open questions (36):
 
 ## accountMoveLine
 
-From `account_move_line` with `account_partial_reconcile` embedded.
+From `account_move_line` with `account_move_line_account_tax_rel`, `account_partial_reconcile` embedded.
 
 ```js
 {
@@ -580,6 +580,9 @@ From `account_move_line` with `account_partial_reconcile` embedded.
   purchaseLineId: int,  // purchase_line_id
   isDownpayment: bool,  // is_downpayment
   stockMoveId: int,  // stock_move_id
+  accountTaxRel: [{  // account_move_line_account_tax_rel, 1:N derived
+    accountTaxId: int,  // account_tax_id
+  }],
   accountPartialReconcile: [{  // account_partial_reconcile, 1:N derived
     id: int,  // id
     creditMoveId: int,  // credit_move_id
@@ -605,13 +608,15 @@ Why:
 - account_move_line → account_account_tag_account_move_line_rel, sale_order_line_invoice_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_account, account_full_reconcile, account_tax, account_journal, account_move, account_payment, product_product, uom_uom, purchase_order_line, account_reconcile_model, account_bank_statement, account_bank_statement_line, stock_move, account_tax_group, account_tax_repartition_line → account_move_line: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - account_move_line → account_move_line: **reference**, other tables also point at it, so it keeps its own collection (derived)
-- account_move_line → account_move_line_account_tax_rel: **reference**, the app reads it on its own (derived)
+- account_move_line → account_move_line_account_tax_rel: **embed**, a link table, kept as an array on this side (derived)
+- account_tax → account_move_line_account_tax_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_move_line → account_partial_reconcile: **reference**, it is embedded under another parent; this one is referenced (derived)
 - account_move_line → account_partial_reconcile: **embed**, the app reads it with its parent (derived)
 - account_move, account_full_reconcile → account_partial_reconcile: **reference**, it is embedded under another parent; this one is referenced (derived)
 
-Open questions (27):
+Open questions (29):
 - **fanout_unmeasured** (account_partial_reconcile): account_partial_reconcile has no rows per account_move_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
+- **extended_reference_candidate** (account_move_line_account_tax_rel): app reads account_tax with every account_move_line_account_tax_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
 - **extended_reference_candidate** (account_partial_reconcile): app reads account_move_line with every account_partial_reconcile: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
 - **extended_reference_candidate** (account_partial_reconcile): app reads account_move with every account_partial_reconcile: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
 - **extended_reference_candidate** (account_partial_reconcile): app reads account_full_reconcile with every account_partial_reconcile: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
@@ -629,6 +634,7 @@ Open questions (27):
 - **extended_reference_candidate** (account_move_line): app reads stock_move with every account_move_line: copy up to 5 read fields of stock_move into account_move_line documents (extended reference) or keep the $lookup
 - **extended_reference_candidate** (account_move_line): app reads account_tax with every account_move_line: copy up to 5 read fields of account_tax into account_move_line documents (extended reference) or keep the $lookup
 - **extended_reference_candidate** (account_move_line): app reads account_tax_repartition_line with every account_move_line: copy up to 5 read fields of account_tax_repartition_line into account_move_line documents (extended reference) or keep the $lookup
+- **cascade_into_embed** (account_move_line_account_tax_rel): account_move_line_account_tax_rel is embedded in account_move_line, but deleting a account_tax row cascades to its account_move_line_account_tax_rel: the app must pull them from every account_move_line document, or keep account_move_line_account_tax_rel separate
 - **lob** (account_move_line): LOB column(s) name measured max 56 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
 - **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
 - **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
@@ -2473,14 +2479,6 @@ Why:
 ## accountLockException
 
 From `account_lock_exception`.
-
-## accountMoveLineAccountTaxRel
-
-From `account_move_line_account_tax_rel`.
-
-Why:
-- account_move_line → account_move_line_account_tax_rel: **reference**, the app reads it on its own (derived)
-- account_tax → account_move_line_account_tax_rel: **reference**, a link table, embedded on the other side (assumed)
 
 ## accountReconcileModelLineAccountTaxRel
 

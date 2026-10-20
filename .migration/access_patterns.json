@@ -1434,7 +1434,7 @@
         }
       ],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
@@ -1444,7 +1444,7 @@
         ]
       },
       "statement": "SELECT COUNT(foo.id), foo.account_id, foo.taxes FROM ( SELECT account_move_line__account_id.id AS account_id, %(account_code)s AS code, account_move_line.id, ARRAY_AGG(tax_rel.account_tax_id) FILTER (WHERE tax_rel.account_tax_id IS NOT NULL) AS taxes FROM %(from_clause)s LEFT JOIN account_move_line_",
-      "note": "addons/account/models/account_move.py:4548-4565 AccountMove._get_frequent_account_and_taxes raw SQL helper on the per-record posting/compute path"
+      "note": "addons/account/models/account_move.py:4548-4565 AccountMove._get_frequent_account_and_taxes raw SQL user-driven action/search/onchange"
     },
     {
       "id": "ap-b2d176d8f7",
@@ -38845,7 +38845,7 @@
         }
       ],
       "sort": [],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
@@ -38860,7 +38860,7 @@
         "method": "browse"
       },
       "routine": "AccountMove._get_quick_edit_suggestions",
-      "note": "addons/account/models/account_move.py:4589 AccountMove._get_quick_edit_suggestions browse per-record compute/post/reconcile/reservation path"
+      "note": "addons/account/models/account_move.py:4589 AccountMove._get_quick_edit_suggestions browse user-driven action/search/onchange"
     },
     {
       "id": "ap-bf41c9103d",
@@ -38894,7 +38894,7 @@
         "account_move.invoice_date",
         "account_move.id"
       ],
-      "frequency": "hot",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
@@ -38909,7 +38909,7 @@
         "method": "search"
       },
       "routine": "AccountMove._quick_edit_mode_suggest_invoice_date",
-      "note": "addons/account/models/account_move.py:4632-4636 AccountMove._quick_edit_mode_suggest_invoice_date search per-record compute/post/reconcile/reservation path"
+      "note": "addons/account/models/account_move.py:4632-4636 AccountMove._quick_edit_mode_suggest_invoice_date search user-driven action/search/onchange"
     },
     {
       "id": "ap-9db6694b1e",
