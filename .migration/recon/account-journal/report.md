@@ -7,7 +7,7 @@
 - Tolerance version: `unt12-3` (sha256 `7b426db21459`)
 - Collections: `accountJournal`, `accountPaymentMethod`, `accountReconcileModel`, `accountReconcileModelLineAccountTaxRel`
 - Seed: `0`
-- Generated: 2026-10-20T20:18:20.266170+00:00
+- Generated: 2026-10-20T21:08:24.191164+00:00
 - 57 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 20 string fields: min/max/distinct deferred to Tier 3
 
