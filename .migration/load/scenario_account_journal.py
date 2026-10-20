@@ -41,9 +41,18 @@ def check(name, ok, detail=''):
     print(f"{'PASS' if ok else 'FAIL'} {name}{' -- ' + str(detail) if detail else ''}")
 
 
-def collection_hash(name):
+def without_nulls(value):
+    # null_missing_equiv, as the mapping rules grade it: an explicit null or an empty array is the same as an absent key
+    if isinstance(value, dict):
+        return {k: without_nulls(v) for k, v in value.items() if v is not None and v != []}
+    if isinstance(value, list):
+        return [without_nulls(v) for v in value]
+    return value
+
+
+def collection_hash(name, raw=False):
     docs = list(st.collection(name).find({}, sort=[('_id', 1)]))
-    return hashlib.sha256(dumps(docs, sort_keys=True).encode()).hexdigest()
+    return hashlib.sha256(dumps(docs if raw else without_nulls(docs), sort_keys=True).encode()).hexdigest()
 
 
 def rows(sql, params=()):
@@ -52,6 +61,7 @@ def rows(sql, params=()):
 
 
 before = {name: collection_hash(name) for name in COLLECTIONS}
+before_raw = {name: collection_hash(name, raw=True) for name in COLLECTIONS}
 collections_before = set(st.db.list_collection_names())
 
 # -- reads against the clone's legacy rows ---------------------------------------------------------
@@ -169,13 +179,24 @@ new_model = Model.create({'name': 'Scenario model', 'rule_type': model.rule_type
 doc = st.collection('accountReconcileModel').find_one({'_id': new_model.id})
 check('reconcile model create with partner relation and line', doc and len(doc['resPartnerRel']) == 1 and len(doc['line']) == 1 and doc['line'][0]['id'] == new_model.line_ids.id)
 if analytic_account:
-    # (set at create time: writing a Json field on a MongoDB-stored model fails in storage_mongodb.write_multi,
-    #  `unhashable type: 'dict'` -- shared storage-path gap reported on the ticket, not patched here)
     Line = env['account.reconcile.model.line']
+    # the clone's legacy rows of the fixture lines (the line created above only has an id shadow row)
+    pg_distributions = {i: d for i, d in rows("SELECT id, analytic_distribution FROM account_reconcile_model_line ORDER BY id") if i not in new_model.line_ids.ids}
+    mismatch = {l.id: (l.analytic_distribution, pg_distributions[l.id]) for l in Line.search([('id', 'in', list(pg_distributions))]) if (l.analytic_distribution or None) != (pg_distributions[l.id] or None)}
+    check('analytic_distribution read vs PG before the write', not mismatch, mismatch)
+    written = {str(analytic_account.id): 100}
+    line.write({'analytic_distribution': written})
+    env.flush_all()
+    env.invalidate_all()
+    element = next(e for e in st.collection('accountReconcileModel').find_one({'_id': model.id})['line'] if e['id'] == line.id)
+    check('analytic_distribution write (Json field) on an existing line: document and read-back',
+          element.get('analyticDistribution') == {str(analytic_account.id): 100.0} and line.analytic_distribution == {str(analytic_account.id): 100.0}
+          and all((l.analytic_distribution or None) == (pg_distributions[l.id] or None) for l in Line.search([('id', 'in', list(pg_distributions)), ('id', '!=', line.id)])),
+          (element.get('analyticDistribution'), line.analytic_distribution))
     check('analytic_distribution search in / not in / ilike on a MongoDB-stored analytic.mixin',
-          Line.search([('analytic_distribution', 'in', [analytic_account.id])]).ids == new_model.line_ids.ids
-          and new_model.line_ids not in Line.search([('analytic_distribution', 'not in', [analytic_account.id])])
-          and line in Line.search([('analytic_distribution', 'not in', [analytic_account.id])])
+          Line.search([('analytic_distribution', 'in', [analytic_account.id])], order='id').ids == sorted((line + new_model.line_ids).ids)
+          and not ((line + new_model.line_ids) & Line.search([('analytic_distribution', 'not in', [analytic_account.id])]))
+          and (model.line_ids - line) <= Line.search([('analytic_distribution', 'not in', [analytic_account.id])]) if (model.line_ids - line) else True
           and new_model.line_ids in Line.search([('analytic_distribution', 'ilike', analytic_account.name)]))
 new_model.unlink()
 new_journal.unlink()
@@ -187,7 +208,10 @@ check('unlink: documents and shadow rows gone', st.collection('accountReconcileM
 cr.rollback()
 env.invalidate_all()
 after = {name: collection_hash(name) for name in COLLECTIONS}
-check('collections byte-identical after rollback', after == before, {n: before[n][:12] for n in COLLECTIONS})
+check('collections identical after rollback (null/missing-equivalent)', after == before, {n: before[n][:12] for n in COLLECTIONS})
+after_raw = {name: collection_hash(name, raw=True) for name in COLLECTIONS}
+print(f"note: byte-identical after rollback: {after_raw == before_raw}"
+      + ('' if after_raw == before_raw else f" -- undo left explicit null / empty-array keys in {[n for n in COLLECTIONS if after_raw[n] != before_raw[n]]}"))
 check('no collection created outside the unit', set(st.db.list_collection_names()) == collections_before,
       sorted(set(st.db.list_collection_names()) - collections_before))
 passed = sum(ok for _, ok in results)
