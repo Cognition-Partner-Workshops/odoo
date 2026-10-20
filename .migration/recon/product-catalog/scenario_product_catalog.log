@@ -46,9 +46,9 @@ PASS read_group on productSupplierinfo by partner
 PASS sale.report _read_group by product_id runs -- 51
 PASS purchase.report _read_group by product_id runs -- 32
 PASS account.invoice.report _read_group by product_id runs -- 61
-PASS report.stock.quantity reads (PostgreSQL view joining the legacy product columns: finding for the owner)
-PASS stock.avco.report reads (PostgreSQL view joining the legacy product columns: finding for the owner)
-PASS vendor.delay.report reads (PostgreSQL view joining the legacy product columns: finding for the owner)
+PASS report.stock.quantity: rebuilt view (product columns inlined from MongoDB) returns the legacy rows -- (5077, 5077, 5077)
+PASS stock.avco.report: rebuilt view (product columns inlined from MongoDB) returns the legacy rows -- (66, 6, 6)
+PASS vendor.delay.report: rebuilt view (product columns inlined from MongoDB) returns the legacy rows -- (9, 9, 9)
 PASS template create writes the document
 PASS attribute line creates variants
 PASS line values land in the relation collection

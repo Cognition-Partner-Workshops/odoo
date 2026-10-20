@@ -1,0 +1,11 @@
+load_unit.py aligned with PR #69 (identical file; relation_documents() from #69). Documents rebuilt from the seeded clone
+odoo_w2b02 with that loader, bson-encoded and sha256'd per collection (relation collection without the driver _id), vs the
+live odoo_unt12 collections (no reload, no write). 2026-10-20 21:5x UTC.
+productTemplate                                          37 docs  sha256 b79349b42a3a7a1e  live  37 docs b79349b42a3a7a1e  SAME
+productProduct                                           47 docs  sha256 1ae412281b044121  live  47 docs 1ae412281b044121  SAME
+productTemplateAttributeValue                            24 docs  sha256 a08b4dd6d256785a  live  24 docs a08b4dd6d256785a  SAME
+productAttributeValueProductTemplateAttributeLineRel     24 docs  sha256 41f8f02059a53e8e  live  24 docs 41f8f02059a53e8e  SAME
+productCombo                                              3 docs  sha256 60fea2fdde9d3de4  live   3 docs 60fea2fdde9d3de4  SAME
+productSupplierinfo                                      28 docs  sha256 9979cdbbe606ff60  live  28 docs 9979cdbbe606ff60  SAME
+productPricelist                                          2 docs  sha256 dd10408dedec21ce  live   2 docs dd10408dedec21ce  SAME
+productPricelistItem                                      2 docs  sha256 5a6e5c3c8991d029  live   2 docs 5a6e5c3c8991d029  SAME

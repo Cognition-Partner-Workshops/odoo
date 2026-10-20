@@ -6,6 +6,7 @@ from odoo.tools import SQL, float_is_zero
 class StockAverageCostReport(models.AbstractModel):
     _auto = False
     _uom_factor_view = True  # rebuilt by uom.uom._rebuild_factor_views()
+    _product_values_view = True  # rebuilt by product.product._rebuild_product_views()
     _name = 'stock.avco.report'
     _description = 'Stock AVCO Justifier'
     _order = 'date desc, id desc'
@@ -55,9 +56,7 @@ FROM
 LEFT JOIN
     stock_picking picking ON sm.picking_id = picking.id
 LEFT JOIN
-    product_product pp ON sm.product_id = pp.id
-LEFT JOIN
-    product_template pt ON pp.product_tmpl_id = pt.id
+    %(products)s pt(id, product_tmpl_id, categ_id, uom_id, is_storable) ON pt.id = sm.product_id
 LEFT JOIN
     %(uom_factors)s um(id, factor) ON um.id = sm.uom_id
 LEFT JOIN
@@ -82,7 +81,8 @@ FROM
 WHERE
     pv.move_id IS NULL
 );
-""", uom_factors=self.env['uom.uom']._factor_values_sql())  # uom_uom is stored in MongoDB: factors as of this (re)build
+""", uom_factors=self.env['uom.uom']._factor_values_sql(),  # uom_uom is stored in MongoDB: factors as of this (re)build
+     products=self.env['product.product']._values_sql())  # product tables too: columns as of this (re)build
         self.env.cr.execute(query)
 
     @api.model

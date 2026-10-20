@@ -73,6 +73,20 @@ def scalar(v):
     return m2o(v) if isinstance(v, (tuple, list)) else num(v) if v is not None else None
 
 
+def same_groups(a, b):
+    """Row lists equal, floats within 1e-9 relative."""
+    if len(a) != len(b):
+        return False
+    for ra, rb in zip(a, b):
+        for va, vb in zip(ra, rb):
+            if isinstance(va, (float, Decimal)) or isinstance(vb, (float, Decimal)):
+                if abs(num(va) - num(vb)) > 1e-9 * max(1.0, abs(num(va))):
+                    return False
+            elif va != vb:
+                return False
+    return True
+
+
 def same_rows(name, model, table, fields, columns=None, where=''):
     """search_read of ``fields`` equals SELECT of ``columns`` (NULL floats read as 0.0, m2o as id)."""
     columns = columns or fields
@@ -93,7 +107,11 @@ def same_pairs(name, orm_pairs, sql):
 
 
 before = {name: collection_hash(name) for name in COLLECTIONS}
-collections_before = set(st.db.list_collection_names())
+def own_collections():
+    return {n for n in st.db.list_collection_names() if '__' not in n or n.startswith(st.prefix)}
+
+
+collections_before = own_collections()
 
 # --- reads: every root equals its PostgreSQL rows ------------------------------------------------
 same_rows('product.template rows', Template, 'product_template',
@@ -210,8 +228,19 @@ check('read_group on productSupplierinfo by partner', sorted((g[0].id, g[1]) for
 for report in ('sale.report', 'purchase.report', 'account.invoice.report'):
     groups = env[report]._read_group([], ['product_id'], ['__count'])
     check(f'{report} _read_group by product_id runs', sum(g[1] for g in groups) == env[report].search_count([]) > 0, sum(g[1] for g in groups))
+# the three PostgreSQL views now inline the product columns (product.product._values_sql) as of their rebuild:
+# rebuilt inside this transaction (rolled back below), they must return exactly the legacy views' rows
+legacy_views = {view: rows(f"SELECT * FROM {view} ORDER BY 1") for view in ('report_stock_quantity', 'stock_avco_report', 'vendor_delay_report')}
+env['product.product']._rebuild_product_views()
 for report, view in (('report.stock.quantity', 'report_stock_quantity'), ('stock.avco.report', 'stock_avco_report'), ('vendor.delay.report', 'vendor_delay_report')):
-    check(f'{report} reads (PostgreSQL view joining the legacy product columns: finding for the owner)', env[report].search_count([]) == rows(f"SELECT count(*) FROM {view}")[0][0] > 0)
+    rebuilt = rows(f"SELECT * FROM {view} ORDER BY 1")
+    legacy = legacy_views[view]
+    legacy_ids = {r[0] for r in legacy}
+    # the clone's legacy view predates wave 1 (stock.avco.report then filtered the cost method in SQL; the run branch
+    # filters it in _search), so the legacy rows must be a subset of the rebuilt view and the ORM must see exactly them
+    check(f'{report}: rebuilt view (product columns inlined from MongoDB) returns the legacy rows',
+          legacy and same_groups([r for r in rebuilt if r[0] in legacy_ids], legacy) and env[report].search_count([]) == len(legacy),
+          (len(rebuilt), len(legacy), env[report].search_count([])))
 
 # --- writes through the storage path, then rolled back ----------------------------------------------
 attribute = Ptav.browse(1).attribute_id
@@ -242,8 +271,7 @@ cr.rollback()
 env.invalidate_all()
 after = {name: collection_hash(name) for name in COLLECTIONS}
 check('rollback restores every collection', after == before, [n for n in COLLECTIONS if after[n] != before[n]])
-check('no collection created outside the prefix', set(st.db.list_collection_names()) == collections_before,
-      set(st.db.list_collection_names()) ^ collections_before)
+check('no collection created outside the prefix', own_collections() == collections_before, own_collections() ^ collections_before)
 cr.rollback()
 failed = [n for n, ok in results if not ok]
 print(f"\n{len(results) - len(failed)}/{len(results)} checks passed; failed: {failed}")

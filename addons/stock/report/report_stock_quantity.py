@@ -9,6 +9,7 @@ class ReportStockQuantity(models.Model):
     _auto = False
     _description = 'Stock Quantity Report'
     _uom_factor_view = True  # rebuilt by uom.uom._rebuild_factor_views()
+    _product_values_view = True  # rebuilt by product.product._rebuild_product_views()
 
     _depends = {
         'product.product': ['product_tmpl_id'],
@@ -60,7 +61,7 @@ WITH
             OR sl.parent_path LIKE concat(w.view_location_id, '/%%')
     ),
     existing_sm (id, product_id, tmpl_id, product_qty, quantity, qty_done_product_uom, date, state, company_id, whs_id, whd_id) AS (
-        SELECT m.id, m.product_id, pt.id, m.product_qty, m.quantity,
+        SELECT m.id, m.product_id, pt.product_tmpl_id, m.product_qty, m.quantity,
                m.quantity * uom_move.factor / uom_product.factor,
                m.date, m.state, m.company_id, source.w_id, dest.w_id
         FROM stock_move m
@@ -69,8 +70,7 @@ WITH
             WHEN m.state != 'done' THEN COALESCE(m.forecasted_location_id, m.location_dest_id)
             ELSE m.location_dest_id
         END
-        LEFT JOIN product_product pp on pp.id=m.product_id
-        LEFT JOIN product_template pt on pt.id=pp.product_tmpl_id
+        LEFT JOIN %(products)s pt(id, product_tmpl_id, categ_id, uom_id, is_storable) ON pt.id = m.product_id
         LEFT JOIN %(uom_factors)s uom_move(id, factor) ON uom_move.id = m.uom_id
         LEFT JOIN %(uom_factors)s uom_product(id, factor) ON uom_product.id = pt.uom_id
         WHERE pt.is_storable = true AND
@@ -155,7 +155,7 @@ FROM (SELECT
     LEFT JOIN stock_warehouse wh
             ON l.parent_path LIKE concat('%%/', wh.view_location_id, '/%%')
             OR l.parent_path LIKE concat(wh.view_location_id, '/%%')
-    LEFT JOIN product_product pp on pp.id=q.product_id
+    LEFT JOIN %(products)s pp(id, product_tmpl_id, categ_id, uom_id, is_storable) on pp.id=q.product_id
     WHERE
         (l.usage = 'internal' AND wh.id IS NOT NULL) OR
         l.usage = 'transit'
@@ -193,5 +193,7 @@ GROUP BY product_id, product_tmpl_id, state, date, company_id, warehouse_id
 );
 """, product_qty_col=self._get_product_qty_col(), report_period=report_period,
            # uom_uom is stored in MongoDB: the view inlines the factors as of this (re)build
-           uom_factors=self.env['uom.uom']._factor_values_sql())
+           uom_factors=self.env['uom.uom']._factor_values_sql(),
+           # product_product / product_template too: their columns are inlined as of this (re)build
+           products=self.env['product.product']._values_sql())
         self.env.cr.execute(query)

@@ -857,6 +857,8 @@ class ProductTemplate(models.Model):
                 product_template.combo_ids = False
         if 'barcode' in vals or 'company_id' in vals:
             self._check_barcode_uniqueness()
+        if any(f in vals for f in ('categ_id', 'uom_id', 'is_storable')):
+            self.env['product.product']._rebuild_product_views()
         return res
 
     def action_archive(self):

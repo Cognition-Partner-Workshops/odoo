@@ -891,12 +891,15 @@ class ProductProduct(models.Model):
         products = products.with_env(self.env)
         if any('barcode' in vals or 'company_id' in vals for vals in vals_list):
             products._check_barcode_uniqueness()
+        products._rebuild_product_views()
         return products
 
     def write(self, vals):
         res = super().write(vals)
         if 'barcode' in vals or 'company_id' in vals:
             self._check_barcode_uniqueness()
+        if 'product_tmpl_id' in vals or 'active' in vals:
+            self._rebuild_product_views()
         return res
 
     def action_archive(self):
@@ -954,6 +957,7 @@ class ProductProduct(models.Model):
         # products due to ondelete='cascade'
         unlink_templates = self.env['product.template'].browse(unlink_templates_ids)
         unlink_templates.unlink()
+        self._rebuild_product_views()
         return res
 
     def _filter_to_unlink(self):
@@ -1085,6 +1089,27 @@ class ProductProduct(models.Model):
                 product.display_name = ", ".join(unique(temp))
             else:
                 product.display_name = get_display_name(name, product.default_code)
+
+    @api.model
+    def _values_sql(self):
+        """ ``(VALUES (id, product_tmpl_id, categ_id, uom_id, is_storable), ...)`` of every variant, for
+        FROM clauses of SQL views built in ``init()``: product_product and product_template live in
+        MongoDB, so a view inlines these columns as of its (re)build, like ``uom.uom._factor_values_sql``.
+        A model flagged ``_product_values_view = True`` is rebuilt by :meth:`_rebuild_product_views`
+        whenever one of those columns can change. """
+        storable = 'is_storable' in self.env['product.template']._fields
+        rows = [
+            SQL("(%s::integer, %s::integer, %s::integer, %s::integer, %s::boolean)", product.id, product.product_tmpl_id.id,
+                product.product_tmpl_id.categ_id.id or None, product.product_tmpl_id.uom_id.id or None,
+                product.product_tmpl_id.is_storable if storable else None)
+            for product in self.sudo().with_context(active_test=False).search([])
+        ]
+        return SQL("(VALUES %s)", SQL(", ").join(rows or [SQL("(NULL::integer, NULL::integer, NULL::integer, NULL::integer, NULL::boolean)")]))
+
+    def _rebuild_product_views(self):
+        for name, cls in self.env.registry.items():
+            if getattr(cls, '_product_values_view', False):
+                self.env[name].init()
 
     @api.model
     def _inline_sql(self, product_id, path, company_id=None):
