@@ -327,6 +327,8 @@ class AccountBankStatement(models.Model):
 
         self.env['account.bank.statement.line'].flush_model(['statement_id', 'internal_index'])
         self.env['account.bank.statement'].flush_model(['balance_start', 'balance_end_real', 'first_line_index'])
+        # account_journal is stored in MongoDB (``_storage``): its currency comes from the ORM, not a join
+        journals = self.env['account.journal'].sudo().with_context(active_test=False).search([]) if all_statements else self.journal_id
 
         self.env.cr.execute(f"""
              WITH statements AS (
@@ -340,7 +342,7 @@ class AccountBankStatement(models.Model):
                             currency.decimal_places
                        FROM account_bank_statement st
                   LEFT JOIN res_company co ON st.company_id = co.id
-                  LEFT JOIN account_journal j ON st.journal_id = j.id
+                  LEFT JOIN unnest(%(j_ids)s::int[], %(j_currency_ids)s::int[]) AS j(id, currency_id) ON st.journal_id = j.id
                   LEFT JOIN res_currency currency ON COALESCE(j.currency_id, co.currency_id) = currency.id
                       WHERE st.first_line_index IS NOT NULL
                       {"" if all_statements else "AND st.journal_id IN %(journal_ids)s"}
@@ -352,7 +354,9 @@ class AccountBankStatement(models.Model):
               {"" if all_statements else "AND id IN %(ids)s"};
         """, {
             'journal_ids': tuple(set(self.journal_id.ids)),
-            'ids': tuple(self.ids)
+            'ids': tuple(self.ids),
+            'j_ids': journals.ids,
+            'j_currency_ids': [journal.currency_id.id or None for journal in journals],
         })
         res = self.env.cr.fetchall()
         return [r[0] for r in res]

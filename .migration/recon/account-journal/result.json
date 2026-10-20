@@ -1,0 +1,330 @@
+{
+  "unit": "account-journal",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-2",
+  "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
+  "tolerance_version": "unt12-3",
+  "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
+  "collections": [
+    "accountJournal",
+    "accountPaymentMethod",
+    "accountReconcileModel",
+    "accountReconcileModelLineAccountTaxRel"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-20T20:18:20.266170+00:00",
+  "redacted": true,
+  "redaction_salted": false,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 36,
+      "stats": {
+        "source_counts": {
+          "accountJournal": 14,
+          "accountPaymentMethod": 2,
+          "accountReconcileModel": 8,
+          "accountReconcileModelLineAccountTaxRel": 1
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 38,
+      "stats": {
+        "deferred_to_tier3": [
+          "accountJournal.aliasId",
+          "accountJournal.defaultAccountId",
+          "accountJournal.suspenseAccountId",
+          "accountJournal.nonDeductibleAccountId",
+          "accountJournal.sequence",
+          "accountJournal.currencyId",
+          "accountJournal.invoiceTemplatePdfReportId",
+          "accountJournal.profitAccountId",
+          "accountJournal.lossAccountId",
+          "accountJournal.bankAccountId",
+          "accountJournal.journalGroupId",
+          "accountJournal.createUid",
+          "accountJournal.writeUid",
+          "accountJournal.color",
+          "accountJournal.accessToken",
+          "accountJournal.code",
+          "accountJournal.type",
+          "accountJournal.invoiceReferenceType",
+          "accountJournal.invoiceReferenceModel",
+          "accountJournal.bankStatementsSource",
+          "accountJournal.incomingEinvoiceNotificationEmail",
+          "accountJournal.name",
+          "accountJournal.sequenceOverrideRegex",
+          "accountJournal.active",
+          "accountJournal.isSelfBilling",
+          "accountJournal.restrictModeHashTable",
+          "accountJournal.refundSequence",
+          "accountJournal.paymentSequence",
+          "accountJournal.showOnDashboard",
+          "accountJournal.disableDashboardGraph",
+          "accountJournal.createDate",
+          "accountJournal.writeDate",
+          "accountPaymentMethod.createUid",
+          "accountPaymentMethod.writeUid",
+          "accountPaymentMethod.code",
+          "accountPaymentMethod.paymentType",
+          "accountPaymentMethod.name",
+          "accountPaymentMethod.createDate",
+          "accountPaymentMethod.writeDate",
+          "accountReconcileModel.nextActivityTypeId",
+          "accountReconcileModel.mappedPartnerId",
+          "accountReconcileModel.createUid",
+          "accountReconcileModel.writeUid",
+          "accountReconcileModel.trigger",
+          "accountReconcileModel.matchAmount",
+          "accountReconcileModel.matchLabel",
+          "accountReconcileModel.matchLabelParam",
+          "accountReconcileModel.paymentToleranceType",
+          "accountReconcileModel.matchingOrder",
+          "accountReconcileModel.ruleType",
+          "accountReconcileModel.name",
+          "accountReconcileModel.active",
+          "accountReconcileModel.canBeProposed",
+          "accountReconcileModel.createDate",
+          "accountReconcileModel.writeDate",
+          "accountReconcileModel.matchAmountMin",
+          "accountReconcileModel.matchAmountMax"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "accountJournal.accessToken",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountJournal.code",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountJournal.type",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountJournal.invoiceReferenceType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountJournal.invoiceReferenceModel",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountJournal.bankStatementsSource",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountJournal.incomingEinvoiceNotificationEmail",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountJournal.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountJournal.sequenceOverrideRegex",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountPaymentMethod.code",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountPaymentMethod.paymentType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountPaymentMethod.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountReconcileModel.trigger",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountReconcileModel.matchAmount",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountReconcileModel.matchLabel",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountReconcileModel.matchLabelParam",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountReconcileModel.paymentToleranceType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountReconcileModel.matchingOrder",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountReconcileModel.ruleType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountReconcileModel.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "accountJournal.name",
+            "key": "accountJournal"
+          },
+          {
+            "field": "accountPaymentMethod.name",
+            "key": "accountPaymentMethod"
+          },
+          {
+            "field": "accountReconcileModel.name",
+            "key": "accountReconcileModel"
+          }
+        ],
+        "fields_fully_deferred": 23
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 41,
+      "stats": {
+        "accountJournal": {
+          "mode": "full_diff",
+          "population": 14,
+          "duplicate_source_key_count": 0
+        },
+        "embeds_graded": {
+          "accountJournal.accountReconcileModelRel": 1,
+          "accountPaymentMethod.line": 4,
+          "accountReconcileModel.resPartnerRel": 1,
+          "accountReconcileModel.line": 10
+        },
+        "accountPaymentMethod": {
+          "mode": "full_diff",
+          "population": 2,
+          "duplicate_source_key_count": 0
+        },
+        "accountReconcileModel": {
+          "mode": "full_diff",
+          "population": 8,
+          "duplicate_source_key_count": 0
+        },
+        "accountReconcileModelLineAccountTaxRel": {
+          "mode": "full_diff",
+          "population": 1,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 5,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": true,
+  "error": null
+}

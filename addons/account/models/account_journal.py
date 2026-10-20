@@ -37,6 +37,7 @@ class AccountJournalGroup(models.Model):
 
 class AccountJournal(models.Model):
     _name = 'account.journal'
+    _storage = 'mongodb'
     _description = "Journal"
     _explanation = "Groups financial transactions. Every accounting entry must be posted in a specific journal. Controls default accounts and transaction sequencing."
     _order = 'sequence, type, code'
@@ -357,33 +358,21 @@ class AccountJournal(models.Model):
 
         # Collect the existing unique/electronic payment method lines.
         if unique_electronic_ids:
-            fnames = ['payment_method_id', 'journal_id']
-            if manage_providers:
-                fnames.append('payment_provider_id')
-            self.env['account.payment.method.line'].flush_model(fnames=fnames)
-
-            self.env.cr.execute(
-                f'''
-                    SELECT
-                        apm.id,
-                        journal.company_id,
-                        journal.id,
-                        {'apml.payment_provider_id' if manage_providers else 'NULL'}
-                    FROM account_payment_method_line apml
-                    JOIN account_journal journal ON journal.id = apml.journal_id
-                    JOIN account_payment_method apm ON apm.id = apml.payment_method_id
-                    WHERE apm.id IN %s
-                ''',
-                [tuple(unique_electronic_ids)],
-            )
-            for pay_method_id, company_id, journal_id, provider_id in self.env.cr.fetchall():
-                values = method_information_mapping[pay_method_id]
+            # account.payment.method.line, account.journal and account.payment.method are stored in MongoDB
+            # (``_storage``): the former SQL join is the ORM read of the lines and their journal.
+            lines = self.env['account.payment.method.line'].sudo().search([
+                ('payment_method_id', 'in', list(unique_electronic_ids)),
+                ('journal_id', '!=', False),
+            ])
+            for line in lines:
+                values = method_information_mapping[line.payment_method_id.id]
                 is_electronic = manage_providers and values['mode'] == 'electronic'
+                company_id = line.journal_id.company_id.id
                 if is_electronic:
-                    journal_ids = values['company_journals'].setdefault(company_id, {}).setdefault(provider_id, [])
+                    journal_ids = values['company_journals'].setdefault(company_id, {}).setdefault(line.payment_provider_id.id or None, [])
                 else:
                     journal_ids = values['company_journals'].setdefault(company_id, [])
-                journal_ids.append(journal_id)
+                journal_ids.append(line.journal_id.id)
         return {
             'pay_methods': pay_methods,
             'manage_providers': manage_providers,

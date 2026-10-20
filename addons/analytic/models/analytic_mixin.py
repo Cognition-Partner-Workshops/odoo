@@ -32,7 +32,7 @@ class AnalyticMixin(models.AbstractModel):
 
     def init(self):
         # Add a gin index for json search on the keys, on the models that actually have a table
-        if table_exists(self.env.cr, self._table) and self._fields['analytic_distribution'].store:
+        if table_exists(self.env.cr, self._table) and self._fields['analytic_distribution'].store and self._storage != 'mongodb':
             query = fr"""
                 CREATE INDEX IF NOT EXISTS {self._table}_analytic_distribution_accounts_gin_index
                                         ON {self._table} USING gin(regexp_split_to_array(jsonb_path_query_array(analytic_distribution, '$.keyvalue()."key"')::text, '\D+'));

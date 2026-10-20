@@ -6,6 +6,7 @@ from odoo.fields import Domain
 
 class AccountPaymentMethod(models.Model):
     _name = 'account.payment.method'
+    _storage = 'mongodb'
     _description = "Payment Method"
 
     name = fields.Char(required=True, translate=True)
@@ -94,6 +95,7 @@ class AccountPaymentMethod(models.Model):
 
 class AccountPaymentMethodLine(models.Model):
     _name = 'account.payment.method.line'
+    _storage = 'mongodb'
     _description = "Payment Method Line"
     _order = 'sequence, id'
     _check_company_domain = models.check_company_domain_parent_of
