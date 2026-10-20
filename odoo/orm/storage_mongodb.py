@@ -1599,6 +1599,44 @@ def on_delete(model: BaseModel, ids: list[int], check_only: bool = False) -> Non
             comodel.browse(child_ids).invalidate_recordset([field.name])
 
 
+def on_delete_company_dependent(model: BaseModel, field: Field, ids: list[int]) -> None:
+    """ The jsonb clean-up of :meth:`BaseModel.unlink` for a company-dependent
+    many2one of a MongoDB-stored holder ``model`` (its shadow table has no
+    column): ``restrict`` blocks on the first document holding a deleted id in
+    any company, otherwise those company values become null (the key stays,
+    like the SQL ``UPDATE``). """
+    from odoo.exceptions import UserError  # noqa: PLC0415
+    env = model.env
+    holder = model.sudo().with_context(active_test=False, prefetch_fields=False)
+    path = FilterCompiler(holder).path(field)
+    entries = {'$objectToArray': {'$ifNull': [f'${path}', {}]}}
+    filter = {'$expr': {'$gt': [{'$size': {'$filter': {'input': entries, 'cond': {'$in': ['$$this.v', ids]}}}}, 0]}}
+    docs = list(MongoQuery(holder, filter).run({'_id': 1, path: 1}))
+    if not docs:
+        return
+
+    def company_values(doc):
+        for key in path.split('.'):
+            doc = doc[key]
+        return doc
+
+    if field.ondelete == 'restrict' and not env.context.get('force_delete'):
+        doc = docs[0]
+        to_delete_id = next(value for value in company_values(doc).values() if value in ids)
+        raise UserError(env._('You cannot delete %(to_delete_record)s, as it is used by %(on_restrict_record)s',
+                              to_delete_record=env[field.comodel_name].browse(to_delete_id),
+                              on_restrict_record=holder.browse(doc['_id'])))
+    by_company = defaultdict(list)
+    for doc in docs:
+        for company_id, value in company_values(doc).items():
+            if value in ids:
+                by_company[int(company_id)].append(doc['_id'])
+    for company_id, holder_ids in by_company.items():
+        records = holder.browse(holder_ids)
+        records._write_multi([{field.name: {str(company_id): None}}] * len(holder_ids))     # merged into the object
+        records.invalidate_recordset([field.name])
+
+
 # ---------------------------------------------------------------------------
 # Schema
 # ---------------------------------------------------------------------------

@@ -54,7 +54,7 @@ class TestMongoAuthor(models.Model):
         [('name', 'name', 'string'), ('rating', 'rating', 'decimal'), ('score', 'score', 'double'),
          ('partner_id', 'partnerId', 'int'), ('birthday', 'birthday', 'date'), ('title', 'title', 'object'),
          ('state', 'state', 'string'), ('parent_id', 'parentId', 'int'), ('parent_path', 'parentPath', 'string'),
-         ('property_note', 'propertyNote', 'object'), ('property_currency_id', 'propertyCurrencyId', 'object'),
+         ('property_note', 'propertyNote', 'object'), ('property_currency_id', 'propertyCurrencyId', 'object'), ('property_country_id', 'propertyCountryId', 'object'),
          ('book_properties_definition', 'bookPropertiesDefinition', 'object')],
         embeds=[_embed('tagRel', 'test_mongo_author_tag_rel', 'author_id', 'tag_id', 'tagId'),
                 _embed('coauthorRel', 'test_mongo_coauthor_rel', 'author_id', 'coauthor_id', 'coauthorId'),
@@ -80,6 +80,7 @@ class TestMongoAuthor(models.Model):
     property_note = fields.Char(company_dependent=True)
     # company-dependent many2one (product.category property_account_*_id), searched through dotted paths
     property_currency_id = fields.Many2one('res.currency', company_dependent=True)
+    property_country_id = fields.Many2one('res.country', company_dependent=True, ondelete='restrict')
     book_properties_definition = fields.PropertiesDefinition()
     # a self-referential relation table embedded on the owning side's documents, read from both sides
     coauthor_ids = fields.Many2many('test.mongo.author', 'test_mongo_coauthor_rel', 'author_id', 'coauthor_id')
@@ -146,13 +147,14 @@ class TestMongoBook(models.Model):
     # non-stored with an SQL form, named by an _order (account.account code_path); NULL when unpublished
     shelf = fields.Char(compute='_compute_shelf', compute_sql='_compute_sql_shelf', compute_sudo=True)
 
-    @api.depends('published')
+    @api.depends('published', 'archived')
     def _compute_shelf(self):
         for book in self:
-            book.shelf = str(book.published.year) if book.published else False
+            book.shelf = str(book.published.year) if book.published else '' if book.archived else False
 
     def _compute_sql_shelf(self, table):
-        return SQL("EXTRACT(YEAR FROM %s)::text", table.published)
+        return SQL("CASE WHEN %s IS NOT NULL THEN EXTRACT(YEAR FROM %s)::text WHEN %s THEN '' END",
+                   table.published, table.published, table.archived)
 
     half_price = fields.Float(digits=(16, 2), compute='_compute_half_price', compute_sql='_compute_sql_half_price', compute_sudo=True)
 

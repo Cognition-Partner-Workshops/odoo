@@ -3,6 +3,7 @@ import datetime
 
 import psycopg2
 
+from odoo.exceptions import UserError
 from odoo.orm.storage_mongodb import _check_constraints, relax_registry_shadow_tables
 from odoo.tests import TransactionCase, tagged
 from odoo.tools import mute_logger, sql
@@ -447,6 +448,17 @@ class TestMongoStorage(TransactionCase):
         self.book_b1.published = '2023-01-01 00:00:00'
         self.book_b1.flush_recordset()
         self.assertEqual(Book.search([], order='shelf, name'), self.book_b1 + self.book_a2 + self.book_a1)
+        # an empty value is not NULL (compute and compute_sql agree): '' sorts before every year, the NULLs stay apart
+        late = Book.create({'name': 'Zed', 'author_id': self.author_b.id})
+        self.book_b1.write({'published': False, 'archived': True})
+        self.env.flush_all()
+        self.assertEqual((self.book_b1.shelf, late.shelf), ('', False))
+        all_books = Book.with_context(active_test=False)
+        self.assertEqual(all_books.search([], order='shelf, name'), self.book_b1 + self.book_a2 + self.book_a1 + late)
+        self.assertEqual(all_books.search([], order='shelf desc, name'), late + self.book_a2 + self.book_a1 + self.book_b1)
+        self.book_b1.write({'published': '2023-01-01 00:00:00', 'archived': False})
+        late.unlink()
+        self.env.flush_all()
         # the generic list view: search([]) with the model's default _order
         self.patch(type(Book), '_order', 'shelf desc, name, id')
         self.assertEqual(Book.search([]), self.book_a2 + self.book_a1 + self.book_b1)
@@ -512,6 +524,42 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual(positions(authors, domains[0], company_a), [1, 2])     # fallback: EUR for rb, rc
         self.assertEqual(positions(authors, domains[0], company_b), [1])        # no fallback in B
         self.assertEqual(positions(authors, domains[3], company_b), [0, 2])
+
+    def test_unlink_through_company_dependent_many2one(self):
+        # BaseModel.unlink cleans the jsonb values of the company-dependent many2ones targeting the deleted
+        # records with SQL on the holder's table: a MongoDB-stored holder (product.category property_account_*_id
+        # -> account.account) has an id-only shadow table, so the storage path does it on the documents
+        Review = self.env['test.mongo.review']
+        company_a, company_b = self.env.company, self.env['res.company'].create({'name': 'B'})
+        gone = self.env['res.currency'].create({'name': 'GON', 'symbol': 'G'})
+        kept = self.env.ref('base.USD')
+        review = Review.create({'name': 'r'})
+        for record in (self.author_a, review):      # MongoDB holder and its PostgreSQL twin
+            record.with_company(company_a).property_currency_id = gone
+            record.with_company(company_b).property_currency_id = kept
+        self.author_b.with_company(company_b).property_currency_id = gone
+        self.env.flush_all()
+        self.assertEqual(self.doc(self.author_a)['propertyCurrencyId'], {str(company_a.id): gone.id, str(company_b.id): kept.id})
+        # an ir.default fallback protects the record on both stores
+        self.env['ir.default'].set('test.mongo.author', 'property_currency_id', gone.id, company_id=company_b.id)
+        with self.assertRaisesRegex(UserError, 'default value'):
+            gone.unlink()
+        self.env['ir.default'].discard_records(gone)
+        # set null: the company values pointing at the deleted record become null, the others stay
+        gone.unlink()
+        for record in (self.author_a, review):
+            self.assertFalse(record.with_company(company_a).property_currency_id)
+            self.assertEqual(record.with_company(company_b).property_currency_id, kept)
+        self.assertFalse(self.author_b.with_company(company_b).property_currency_id)
+        self.assertEqual(self.doc(self.author_a)['propertyCurrencyId'], {str(company_a.id): None, str(company_b.id): kept.id})
+        self.assertEqual(self.doc(self.author_b)['propertyCurrencyId'], {str(company_b.id): None})
+        # restrict: blocked like the SQL probe, in any company
+        country = self.env['res.country'].create({'name': 'Nowhere', 'code': 'NW'})
+        self.author_a.with_company(company_b).property_country_id = country
+        self.env.flush_all()
+        with self.assertRaisesRegex(UserError, 'You cannot delete'):
+            country.unlink()
+        self.assertEqual(self.author_a.with_company(company_b).property_country_id, country)
 
     def test_shadow_table_relaxed_at_load(self):
         # a model opted in on an existing database keeps its NOT NULL data columns until the shadow is adapted
