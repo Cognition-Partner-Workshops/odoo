@@ -1,0 +1,16 @@
+{
+  "batch": "w3-b03",
+  "status": "PASS",
+  "recon_results": [
+    ".migration/recon/product-combo/result.json"
+  ],
+  "write_targets": [
+    "odoo_migration.productCombo",
+    "odoo_migration.productComboItem"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/45",
+  "branch": "devin/1792463356-w3-b03-product-combo",
+  "failure_class": "",
+  "manifest_sha": "3548af4a78e1",
+  "one_line_summary": "product-combo live strict recon PASS (merge_eligible true, 4 combos / 10 items from the seeded odoo_src clone, Tier 4 3/3), scenario 28/28 incl. a digits-Float extra_price written as Decimal128 and matched by a numeric domain (float_digits_bson_string not hit) incl. the currency_id R rewrite and the combo_id cascade; sale/product combo tests 17/17 on a fresh opted-in DB; full-estate clone odoo_w3b03_estate at run-branch tip 3c87755: pre-copy of the 15 unprefixed collections, -u product,sale exit 0 (0 ERROR lines) and the seven readers equal to the pre-opt-in baseline (51/32/62/27/5263/7/10), unprefixed collections unchanged by count and content digest (estate-probe.md)"
+}

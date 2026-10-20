@@ -1,0 +1,30 @@
+PASS storage opt-in
+PASS no shadow columns (no D2 / D6 reader on these tables)
+PASS combo search in default order (sequence, id) = PostgreSQL rows: 4 combos
+PASS combo item search = PostgreSQL rows: 10 items
+PASS combo_item_count (_read_group on the One2many) = PostgreSQL
+PASS seeded combo carries its company: ['Chicago Desk Set']
+PASS translated name: en_US and fr_FR from the jsonb document field
+PASS name ilike search hits the translation
+PASS items: stored related company_id = combo company
+PASS extra_price on the seeded item
+PASS item lst_price / currency_id related through product.product (wave 2)
+PASS base_price = min(lst_price) over items (same currency)
+PASS items of the taxed products carry taxes (account D5 relation table)
+PASS currency_id compute: company currency, main company as fallback
+PASS _search_currency_id (R rewrite) = main currency returns every combo
+PASS _search_currency_id = EUR returns none
+PASS _search_currency_id follows the company currency (EUR -> seeded combo only)
+PASS currency_id compute follows the company currency
+PASS combo create: document + 2 item documents with the stored related companyId: 30
+PASS combo_item_count on the new combo
+PASS digits Float extra_price written as a BSON number and matched by a numeric domain (not float_digits_bson_string): Decimal128('1.25')
+PASS combo write: document updated and default order re-sorts
+PASS _check_combo_item_ids_no_duplicates raises: ValidationError
+PASS check_company on items (_check_company_id / check_company=True) raises: UserError
+PASS account D5 writer clears taxesId when type becomes combo: 2 -> 0
+PASS account D5 writer leaves the combo documents untouched
+PASS unlink combo cascades to its items (ondelete=cascade through the storage path)
+PASS loaded collections unchanged after rollback: {'product.combo': 4, 'product.combo.item': 10}
+
+28/28 checks passed

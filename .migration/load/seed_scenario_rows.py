@@ -51,13 +51,31 @@ if not ProductUom.search_count([]):
         product.additional_product_tag_ids = [(6, 0, tags[: i + 1].ids)]
         product.product_tmpl_id.uom_ids = [(6, 0, [dozen.id, pack6.id][: i + 1])]
         product.product_tmpl_id.product_tag_ids = [(6, 0, tags[-(i + 1):].ids)]
+# --- product-combo (wave 3, w3-b03): the three source combos have company_id NULL, so the company
+# rule, _check_company_id, the stored related company_id on items, the translated name and extra_price
+# are only observable on a seeded combo (createdb -T odoo_src odoo_w3b03_src). Products: the two
+# lowest-id active non-combo variants whose template carries taxes (the account D5 tax writer).
+Combo = env['product.combo']
+if not Combo.search([('company_id', '!=', False)]):
+    taxed = env['product.product'].search([('type', '!=', 'combo'), ('taxes_id', '!=', False)], order='id', limit=2)
+    combo = Combo.create({
+        'name': 'Chicago Desk Set',
+        'sequence': 20,
+        'company_id': env['res.company'].search([], order='id desc', limit=1).id,  # My Company (Chicago), id 3
+        'combo_item_ids': [
+            (0, 0, {'product_id': taxed[0].id, 'extra_price': 7.5}),
+            (0, 0, {'product_id': taxed[1].id, 'extra_price': 0.0}),
+        ],
+    })
+    combo.with_context(lang='fr_FR').name = 'Ensemble bureau Chicago'
 env.flush_all()   # the pending translation write would re-stamp write_date after the pin
-for table in ('product_tag', 'product_base_unit', 'product_uom', 'product_product', 'product_template'):
+for table in ('product_tag', 'product_base_unit', 'product_uom', 'product_product', 'product_template',
+              'product_combo', 'product_combo_item'):
     env.cr.execute(f"UPDATE {table} SET create_date = %(t)s, write_date = %(t)s", {'t': FIXED_INSTANT})
 env.invalidate_all()
 env.cr.commit()
 print('scenario rows:', Tag.search_count([]), 'tags,', BaseUnit.search_count([]), 'base units,',
-      ProductUom.search_count([]), 'product uoms')
+      ProductUom.search_count([]), 'product uoms,', Combo.search_count([]), 'combos')
 
 # --- product-pricing (wave 3, w3-b01): odoo_src holds one pricelist and one item, seeded the same
 # way on a clone (createdb -T odoo_src odoo_w3b01_src). Adds the second currency (base.EUR is

@@ -7,6 +7,7 @@ from odoo.exceptions import ValidationError
 class ProductComboItem(models.Model):
     _name = 'product.combo.item'
     _description = "Product Combo Item"
+    _storage = 'mongodb'
     _check_company_auto = True
 
     company_id = fields.Many2one(related='combo_id.company_id', precompute=True, store=True)

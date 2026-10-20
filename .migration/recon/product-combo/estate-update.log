@@ -1,0 +1,2 @@
+2026-10-20 12:42:54,955 8632 WARNING ? odoo.tools.config: unknown option 'mongodb_migration_db' in the config file at /home/ubuntu/w3b03/estate.conf, option stored as-is, without parsing
+2026-10-20 12:42:56,055 8632 WARNING odoo_w3b03_estate odoo.addons.mail.controllers.attachment: markdown2 is not installed, markdown will not be rendered
