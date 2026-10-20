@@ -1,7 +1,21 @@
 run_id: ticket-385106c940014e95acae82191fc75d86
 manifest_sha: ae71ec6a28e6
 
-# Verify report: wave 2, batch w2-b01 (unit account-journal) - **PASS**
+# Verify report: wave 2, batch w2-b01 (unit account-journal) - **PASS** (current head `b7b71e6`, see Rerun-1)
+
+## Rerun-1 (reopened): PR #69 rebased head `b7b71e6931cc1eb185acb11ebd79bfb1c596f308` - **PASS**
+
+- Why: PR #69 was rebased onto `mongo-run/unt12@036360b` (includes the shared Json-field write fix #70); the batch head moved from `779e1db` to `b7b71e6` and the scenario now performs a `write()` of `analytic_distribution` on a reconcile model line (against its prefixed clone, not the live collections). Between the two heads only `scenario_account_journal.py`, the worker's recon artifacts (`generated_at`) and `odoo/orm/storage_mongodb.py` (the #70 fix) changed; mapping, tolerances, fixtures, seeds and `load_unit.py` are byte-identical (sha256 re-checked: `88650faf41b7` / `7b426db21459`).
+- Branch: `recon/verify-w2-b01` rebased onto `b7b71e6`; the first-run evidence (`.migration/recon/wave-2/w2-b01/account-journal/`, `probe-results.json`, `probe_w2_b01.py`) is kept unchanged, rerun-1 evidence lives under `.migration/recon/wave-2/w2-b01/rerun-1/`.
+- Source: `odoo_src` rebuilt again from scratch (`migration.fixture_source=3`, 70 modules), new clone `odoo_v42b`, both seed scripts applied on the clone only (crons 1, 19-23 off on the clone). Target `odoo_unt12` read-only; nothing written.
+- Recon rerun: `.migration/recon/wave-2/w2-b01/rerun-1/account-journal/result.json` - **PASS**, live / migration_cluster, merge_eligible True, tiers 1-4 checks 36, 38, 41, 5, 0 findings, warnings `[]`, generated `2026-10-20T21:10:52.297242+00:00`; source counts {"accountJournal": 14, "accountPaymentMethod": 2, "accountReconcileModel": 8, "accountReconcileModelLineAccountTaxRel": 1}, identical to the worker's rerun on `b7b71e6`.
+- Probes: `.migration/recon/wave-2/w2-b01/rerun-1/probe_w2_b01.py` / `.migration/recon/wave-2/w2-b01/rerun-1/probe-results.json` - 103 probes, {'PASS': 103}. Same families as the first run (count, null-vs-missing, duplicates, boundaries, embed lengths, outbound refs to merged wave-1 collections only, indexes, 5 ops replayed, source stability; none referencing sibling batch w2-b02), plus the new one:
+  - `analytic_distribution` on `accountReconcileModel.line[].analyticDistribution` vs PG `account_reconcile_model_line.analytic_distribution`, element by element: 10 source lines / 10 target elements, 0 non-NULL in PG and 0 present on the target, values equal after key-string/float canonicalization (`{}`), NULL rows have no key (null_missing_equiv), parent model ids match, no target-only elements - **PASS**.
+- Findings: none. The #70 fix is in the base, not in this batch; no plugin gap hit.
+
+---
+
+## First run (superseded head `779e1db`)
 
 Independent verifier; this session migrated none of wave 2 and wrote nothing to `odoo_unt12`.
 
@@ -48,4 +62,4 @@ Observations (not findings):
 - The worker result records `seed: 0`, `snapshot: null`; the rerun does the same (live mode).
 
 ## Verdict
-**PASS** - graded from the committed rerun `result.json` above, not asserted.
+**PASS** - graded from the committed rerun-1 `result.json` (head `b7b71e6`), not asserted; the first-run result on `779e1db` was also PASS.

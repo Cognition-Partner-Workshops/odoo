@@ -1,0 +1,837 @@
+{
+ "unit": "account-journal",
+ "clone": "odoo_v42b",
+ "probes": [
+  {
+   "probe": "count:accountJournal",
+   "status": "PASS",
+   "source": 14,
+   "target": 14,
+   "empty": false
+  },
+  {
+   "probe": "count:accountPaymentMethod",
+   "status": "PASS",
+   "source": 2,
+   "target": 2,
+   "empty": false
+  },
+  {
+   "probe": "count:accountReconcileModel",
+   "status": "PASS",
+   "source": 8,
+   "target": 8,
+   "empty": false
+  },
+  {
+   "probe": "count:accountReconcileModelLineAccountTaxRel",
+   "status": "PASS",
+   "source": 1,
+   "target": 1,
+   "empty": false
+  },
+  {
+   "probe": "null_missing:accountJournal.aliasId",
+   "status": "PASS",
+   "source_null": 8,
+   "target_missing": 8,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.defaultAccountId",
+   "status": "PASS",
+   "source_null": 8,
+   "target_missing": 8,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.suspenseAccountId",
+   "status": "PASS",
+   "source_null": 12,
+   "target_missing": 12,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.nonDeductibleAccountId",
+   "status": "PASS",
+   "source_null": 14,
+   "target_missing": 14,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.sequence",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.currencyId",
+   "status": "PASS",
+   "source_null": 14,
+   "target_missing": 14,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.companyId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.invoiceTemplatePdfReportId",
+   "status": "PASS",
+   "source_null": 14,
+   "target_missing": 14,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.profitAccountId",
+   "status": "PASS",
+   "source_null": 12,
+   "target_missing": 12,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.lossAccountId",
+   "status": "PASS",
+   "source_null": 12,
+   "target_missing": 12,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.bankAccountId",
+   "status": "PASS",
+   "source_null": 12,
+   "target_missing": 12,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.journalGroupId",
+   "status": "PASS",
+   "source_null": 14,
+   "target_missing": 14,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.createUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.writeUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.color",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.accessToken",
+   "status": "PASS",
+   "source_null": 14,
+   "target_missing": 14,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.code",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.type",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.invoiceReferenceType",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.invoiceReferenceModel",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.bankStatementsSource",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.incomingEinvoiceNotificationEmail",
+   "status": "PASS",
+   "source_null": 14,
+   "target_missing": 14,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.name",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.sequenceOverrideRegex",
+   "status": "PASS",
+   "source_null": 14,
+   "target_missing": 14,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.active",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.isSelfBilling",
+   "status": "PASS",
+   "source_null": 14,
+   "target_missing": 14,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.restrictModeHashTable",
+   "status": "PASS",
+   "source_null": 14,
+   "target_missing": 14,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.refundSequence",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.paymentSequence",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.showOnDashboard",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.disableDashboardGraph",
+   "status": "PASS",
+   "source_null": 14,
+   "target_missing": 14,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.createDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountJournal.writeDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountPaymentMethod.createUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountPaymentMethod.writeUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountPaymentMethod.code",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountPaymentMethod.paymentType",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountPaymentMethod.name",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountPaymentMethod.createDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountPaymentMethod.writeDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.sequence",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.companyId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.nextActivityTypeId",
+   "status": "PASS",
+   "source_null": 8,
+   "target_missing": 8,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.mappedPartnerId",
+   "status": "PASS",
+   "source_null": 8,
+   "target_missing": 8,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.createUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.writeUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.trigger",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.matchAmount",
+   "status": "PASS",
+   "source_null": 8,
+   "target_missing": 8,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.matchLabel",
+   "status": "PASS",
+   "source_null": 4,
+   "target_missing": 4,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.matchLabelParam",
+   "status": "PASS",
+   "source_null": 4,
+   "target_missing": 4,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.paymentToleranceType",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.matchingOrder",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.ruleType",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.name",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.active",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.canBeProposed",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.createDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.writeDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.matchAmountMin",
+   "status": "PASS",
+   "source_null": 8,
+   "target_missing": 8,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.matchAmountMax",
+   "status": "PASS",
+   "source_null": 8,
+   "target_missing": 8,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:accountReconcileModel.paymentTolerance",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "duplicates:accountJournal._id",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:accountJournal.companyId+code",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:accountPaymentMethod._id",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:accountPaymentMethod.code+paymentType",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:accountReconcileModel._id",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:accountReconcileModelLineAccountTaxRel.accountTaxId+accountReconcileModelLineId",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "boundaries:accountJournal",
+   "status": "PASS",
+   "sequence": {
+    "source": [
+     5,
+     10
+    ],
+    "target": [
+     5,
+     10
+    ]
+   },
+   "source": [
+    1,
+    14
+   ],
+   "target": [
+    1,
+    14
+   ]
+  },
+  {
+   "probe": "boundaries:accountPaymentMethod",
+   "status": "PASS",
+   "code": {
+    "source": [
+     "manual",
+     "manual"
+    ],
+    "target": [
+     "manual",
+     "manual"
+    ]
+   },
+   "source": [
+    1,
+    2
+   ],
+   "target": [
+    1,
+    2
+   ]
+  },
+  {
+   "probe": "boundaries:accountReconcileModel",
+   "status": "PASS",
+   "sequence": {
+    "source": [
+     10,
+     10
+    ],
+    "target": [
+     10,
+     10
+    ]
+   },
+   "source": [
+    1,
+    8
+   ],
+   "target": [
+    1,
+    8
+   ]
+  },
+  {
+   "probe": "boundary_doc:accountJournal.first",
+   "status": "PASS",
+   "id": 1,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:accountJournal.last",
+   "status": "PASS",
+   "id": 14,
+   "diffs": []
+  },
+  {
+   "probe": "embed_lengths:accountJournal.accountReconcileModelRel",
+   "status": "PASS",
+   "child_table": "account_journal_account_reconcile_model_rel",
+   "parents": 14,
+   "total_children_source": 1,
+   "total_children_target": 1,
+   "length_distribution": {
+    "0": 13,
+    "1": 1
+   },
+   "mismatches": {},
+   "children_without_parent_doc": []
+  },
+  {
+   "probe": "embed_lengths:accountPaymentMethod.line",
+   "status": "PASS",
+   "child_table": "account_payment_method_line",
+   "parents": 2,
+   "total_children_source": 4,
+   "total_children_target": 4,
+   "length_distribution": {
+    "2": 2
+   },
+   "mismatches": {},
+   "children_without_parent_doc": []
+  },
+  {
+   "probe": "embed_lengths:accountReconcileModel.resPartnerRel",
+   "status": "PASS",
+   "child_table": "account_reconcile_model_res_partner_rel",
+   "parents": 8,
+   "total_children_source": 1,
+   "total_children_target": 1,
+   "length_distribution": {
+    "0": 7,
+    "1": 1
+   },
+   "mismatches": {},
+   "children_without_parent_doc": []
+  },
+  {
+   "probe": "embed_lengths:accountReconcileModel.line",
+   "status": "PASS",
+   "child_table": "account_reconcile_model_line",
+   "parents": 8,
+   "total_children_source": 10,
+   "total_children_target": 10,
+   "length_distribution": {
+    "1": 6,
+    "2": 2
+   },
+   "mismatches": {},
+   "children_without_parent_doc": []
+  },
+  {
+   "probe": "reference:accountJournal.defaultAccountId->accountAccount._id",
+   "status": "PASS",
+   "target_wave": "merged",
+   "distinct_values": 6,
+   "dangling": []
+  },
+  {
+   "probe": "reference:accountJournal.journalGroupId->accountJournalGroup._id",
+   "status": "PASS",
+   "target_wave": "merged",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:accountJournal.lossAccountId->accountAccount._id",
+   "status": "PASS",
+   "target_wave": "merged",
+   "distinct_values": 2,
+   "dangling": []
+  },
+  {
+   "probe": "reference:accountJournal.nonDeductibleAccountId->accountAccount._id",
+   "status": "PASS",
+   "target_wave": "merged",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:accountJournal.profitAccountId->accountAccount._id",
+   "status": "PASS",
+   "target_wave": "merged",
+   "distinct_values": 2,
+   "dangling": []
+  },
+  {
+   "probe": "reference:accountJournal.suspenseAccountId->accountAccount._id",
+   "status": "PASS",
+   "target_wave": "merged",
+   "distinct_values": 2,
+   "dangling": []
+  },
+  {
+   "probe": "reference:accountJournal.accountReconcileModelRel.accountReconcileModelId->accountReconcileModel._id",
+   "status": "PASS",
+   "target_wave": "same_batch",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:accountPaymentMethod.line.journalId->accountJournal._id",
+   "status": "PASS",
+   "target_wave": "same_batch",
+   "distinct_values": 2,
+   "dangling": []
+  },
+  {
+   "probe": "reference:accountPaymentMethod.line.paymentAccountId->accountAccount._id",
+   "status": "PASS",
+   "target_wave": "merged",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:accountReconcileModel.line.accountId->accountAccount._id",
+   "status": "PASS",
+   "target_wave": "merged",
+   "distinct_values": 9,
+   "dangling": []
+  },
+  {
+   "probe": "reference:accountReconcileModelLineAccountTaxRel.accountReconcileModelLineId->accountReconcileModel._id",
+   "status": "PASS",
+   "target_wave": "same_batch",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:accountReconcileModelLineAccountTaxRel.accountTaxId->accountTax._id",
+   "status": "PASS",
+   "target_wave": "merged",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "indexes:accountJournal",
+   "status": "PASS",
+   "declared": 19,
+   "missing": []
+  },
+  {
+   "probe": "indexes:accountPaymentMethod",
+   "status": "PASS",
+   "declared": 4,
+   "missing": []
+  },
+  {
+   "probe": "indexes:accountReconcileModel",
+   "status": "PASS",
+   "declared": 3,
+   "missing": []
+  },
+  {
+   "probe": "indexes:accountReconcileModelLineAccountTaxRel",
+   "status": "PASS",
+   "declared": 2,
+   "missing": []
+  },
+  {
+   "probe": "ops_replay:journals_by_type_with_reconcile_model_count",
+   "status": "PASS",
+   "rows_source": 14,
+   "rows_target": 14,
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "ops_replay:dashboard_journals_per_company_and_type",
+   "status": "PASS",
+   "rows_source": 8,
+   "rows_target": 8,
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "ops_replay:payment_method_lines_per_journal",
+   "status": "PASS",
+   "rows_source": 4,
+   "rows_target": 4,
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "ops_replay:reconcile_models_with_line_and_partner_counts",
+   "status": "PASS",
+   "rows_source": 8,
+   "rows_target": 8,
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "ops_replay:reconcile_model_line_taxes",
+   "status": "PASS",
+   "rows_source": 1,
+   "rows_target": 1,
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "analytic_distribution:accountReconcileModel.line.analyticDistribution",
+   "status": "PASS",
+   "lines_source": 10,
+   "lines_target": 10,
+   "source_non_null": 0,
+   "target_present": 0,
+   "mismatches": {},
+   "target_only_lines": [],
+   "sample": {}
+  },
+  {
+   "probe": "source_stability",
+   "status": "PASS",
+   "counts": {
+    "accountJournal": 14,
+    "accountPaymentMethod": 2,
+    "accountReconcileModel": 8,
+    "accountReconcileModelLineAccountTaxRel": 1
+   }
+  }
+ ],
+ "sibling_units": [
+  "product-catalog"
+ ],
+ "sibling_collections": [
+  "productAttributeValueProductTemplateAttributeLineRel",
+  "productCombo",
+  "productPricelist",
+  "productPricelistItem",
+  "productProduct",
+  "productSupplierinfo",
+  "productTemplate",
+  "productTemplateAttributeValue"
+ ],
+ "merged_wave_collections": [
+  "accountAccount",
+  "accountAccountTag",
+  "accountCashRounding",
+  "accountFiscalPosition",
+  "accountIncoterms",
+  "accountJournalGroup",
+  "accountLockException",
+  "accountPaymentTerm",
+  "accountReport",
+  "accountReportExpression",
+  "accountReportExternalValue",
+  "accountTax",
+  "accountTaxGroup",
+  "accountTaxRepartitionLine",
+  "productAttribute",
+  "productBaseUnit",
+  "productCategory",
+  "productDocument",
+  "productRemoval",
+  "productTag",
+  "returnReason",
+  "stockPackageType",
+  "stockScrapReasonTag",
+  "stockStorageCategory",
+  "uomUom"
+ ],
+ "summary": {
+  "PASS": 103
+ },
+ "verdict": "PASS"
+}
