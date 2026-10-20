@@ -390,6 +390,26 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual([(e['id'], e['lang'], e['year']) for e in elements], [(e1.id, 'en', 2001), (e2.id, 'fr', 2002)])
         self.assertEqual(self.book_a1.edition_ids, e1 + e2)
         self.assertEqual(Edition.search([('book_id', '=', self.book_a1.id), ('lang', '=', 'fr')]), e2)
+        # the composite key is unique within its parent, like the SQL constraint on (book_id, lang, year)
+        with self.assertRaises(psycopg2.errors.UniqueViolation) as cm, mute_logger('odoo.sql_db'):
+            with self.env.cr.savepoint():
+                Edition.create({'book_id': self.book_a1.id, 'lang': 'en', 'year': 2001})
+        self.assertEqual(cm.exception.diag.constraint_name, 'test_mongo_edition_book_lang_year_uniq')
+        self.assertEqual(Edition._sql_error_to_message(cm.exception), 'One edition per language and year.')
+        with self.assertRaises(psycopg2.errors.UniqueViolation), mute_logger('odoo.sql_db'):
+            with self.env.cr.savepoint():
+                Edition.create([{'book_id': self.book_a2.id, 'lang': 'de', 'year': 2003}] * 2)
+        with self.assertRaises(psycopg2.errors.UniqueViolation), mute_logger('odoo.sql_db'):
+            with self.env.cr.savepoint():
+                e2.write({'lang': 'en', 'year': 2001})
+                e2.flush_recordset()
+        e3 = Edition.create({'book_id': self.book_a2.id, 'lang': 'fr', 'year': 2002})
+        with self.assertRaises(psycopg2.errors.UniqueViolation), mute_logger('odoo.sql_db'):
+            with self.env.cr.savepoint():
+                e2.write({'book_id': self.book_a2.id})
+                e2.flush_recordset()
+        self.assertEqual([(e['id'], e['lang'], e['year']) for e in self.doc(self.book_a1)['edition']], [(e1.id, 'en', 2001), (e2.id, 'fr', 2002)])
+        e3.unlink()
         e1.note = 'revised'
         e1.flush_recordset()
         self.assertEqual(self.doc(self.book_a1)['edition'][0]['note'], 'revised')

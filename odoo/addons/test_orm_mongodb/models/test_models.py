@@ -165,6 +165,8 @@ class TestMongoEdition(models.Model):
     year = fields.Integer(required=True)
     note = fields.Char()
 
+    _book_lang_year_uniq = models.Constraint('unique (book_id, lang, year)', 'One edition per language and year.')
+
 
 class TestMongoVariant(models.Model):
     _name = 'test.mongo.variant'

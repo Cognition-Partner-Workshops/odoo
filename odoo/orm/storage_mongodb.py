@@ -1193,12 +1193,47 @@ def _unique_constraint_name(model: BaseModel, index: str, key: dict) -> str:
     index name. """
     spec = store(model).storage(model)
     sources = {target: column for column, (target, _) in spec.fields.items()}
-    columns = {sources.get(target, target) for target in key}
+    return _unique_constraint_on(model, {sources.get(target, target) for target in key}) or index
+
+
+def _unique_constraint_on(model: BaseModel, columns: set[str]) -> str | None:
+    """ The name of the model's UNIQUE constraint on exactly ``columns``. """
     for cons in model._table_objects.values():
         definition = cons.get_definition(model.env.registry)
         if definition.upper().startswith('UNIQUE') and _columns_in(model, definition) == columns:
             return cons.full_name(model)
-    return index
+    return None
+
+
+def _check_element_keys(model: BaseModel, spec: CollectionSpec, coll, by_parent: dict[int, list[dict]]) -> None:
+    """ Embedded rows keyed by a composite (natural) key: the key is unique
+    within the parent's array, like the SQL UNIQUE constraint on the parent and
+    key columns. ``by_parent``: the elements about to be written (created,
+    moved or re-keyed), checked against each other and the parent's others. """
+    if isinstance(spec.key_target, str) or not by_parent:
+        return
+    paths = list(spec.key_target)
+
+    def violation(key: tuple) -> typing.NoReturn:
+        columns = {spec.parent_column, *spec.key_source}
+        name = _unique_constraint_on(model, columns) or f"{model._table}_{'_'.join(sorted(columns))}_key"
+        _pg_error(model.env.cr, 'unique_violation', f'duplicate key value violates unique constraint "{name}"',
+                  TABLE=model._table, CONSTRAINT=name,
+                  DETAIL=f"Key ({', '.join(spec.key_source)})=({', '.join(str(v) for v in key)}) already exists.")
+
+    written = {parent_id: {e[spec.element_key] for e in elements} for parent_id, elements in by_parent.items()}
+    seen: dict[int, set[tuple]] = defaultdict(set)
+    for parent_id, elements in by_parent.items():
+        for element in elements:
+            key = tuple(element.get(path) for path in paths)
+            if key in seen[parent_id]:
+                violation(key)
+            seen[parent_id].add(key)
+    for doc in coll.find({'_id': {'$in': list(by_parent)}}, {spec.array_path: 1}):
+        for element in doc.get(spec.array_path) or []:
+            key = tuple(element.get(path) for path in paths)
+            if element.get(spec.element_key) not in written[doc['_id']] and key in seen[doc['_id']]:
+                violation(key)
 
 
 def _check_constraints(model: BaseModel) -> list[tuple[TableObject, str, list[str]]]:
@@ -1304,6 +1339,7 @@ def create(model: BaseModel, data_list: list[dict]) -> tuple[list[int], OrderedS
         if missing := set(by_parent) - {d['_id'] for d in coll.find({'_id': {'$in': list(by_parent)}}, {'_id': 1})}:
             _foreign_key_violation(
                 model, f'insert on table "{model._table}" violates foreign key constraint: {spec.parent_column} {sorted(missing)} not found')
+        _check_element_keys(model, spec, coll, by_parent)
         st.push_elements(cr, coll, spec.array_path, by_parent, spec.element_key)
     else:
         for id_, doc in zip(ids, docs):
@@ -1387,7 +1423,20 @@ def write_multi(model: BaseModel, vals_list: list[dict]) -> None:
             for element in elements:
                 element.update(updates.pop(element[spec.element_key], {}))
                 by_parent[moves[element[spec.element_key]]].append(element)
+        _check_element_keys(model, spec, coll, by_parent)
         st.push_elements(cr, coll, spec.array_path, by_parent, spec.element_key)
+    if not isinstance(spec.key_target, str) and (rekeyed := [
+        id_ for id_, values in updates.items() if set(values) & set(spec.key_target)
+    ]):
+        by_parent = defaultdict(list)
+        for doc in coll.aggregate([
+            {'$match': {f'{spec.array_path}.{spec.element_key}': {'$in': rekeyed}}},
+            {'$project': {spec.array_path: {'$filter': {
+                'input': f'${spec.array_path}', 'as': 'e', 'cond': {'$in': [f'$$e.{spec.element_key}', rekeyed]}}}}},
+        ]):
+            for element in doc.get(spec.array_path) or []:
+                by_parent[doc['_id']].append({**element, **updates[element[spec.element_key]]})
+        _check_element_keys(model, spec, coll, by_parent)
     groups: dict[tuple, list[int]] = defaultdict(list)
     for id_, values in updates.items():
         groups[tuple(sorted(values.items(), key=lambda kv: kv[0]))].append(id_)
