@@ -111,7 +111,11 @@ class TestMongoBook(models.Model):
                 # child rows keyed by a natural composite key, with their id as a plain field
                 {'array_path': 'edition', 'child_table': 'test_mongo_edition', 'parent_key': ['book_id'], 'parent_ref': ['id'],
                  'key': {'source': ['lang', 'year'], 'target': ['lang', 'year']},
-                 'fields': [{'source': 'id', 'target': 'id', 'bson_type': 'int'}, {'source': 'note', 'target': 'note', 'bson_type': 'string'}]}],
+                 'fields': [{'source': 'id', 'target': 'id', 'bson_type': 'int'}, {'source': 'note', 'target': 'note', 'bson_type': 'string'}]},
+                # child rows keyed by a single column other than the id, with their id as a plain field
+                # (customer_product_reference keyed by partnerId in productProduct)
+                _embed('rating', 'test_mongo_rating', 'book_id', 'partner_id', 'partnerId',
+                       [('id', 'id', 'int'), ('score', 'score', 'int'), ('comment', 'comment', 'string')])],
     ), _spec(
         # the relation table as its own collection, like the spec's composite-key relations
         'test_mongo_book_tag_rel', 'testMongoBookTagRel',
@@ -134,6 +138,7 @@ class TestMongoBook(models.Model):
     tag_ids = fields.Many2many('test.mongo.tag', 'test_mongo_book_tag_rel', 'book_id', 'tag_id')
     review_ids = fields.One2many('test.mongo.review', 'book_id')
     edition_ids = fields.One2many('test.mongo.edition', 'book_id')
+    rating_ids = fields.One2many('test.mongo.rating', 'book_id')
     book_properties = fields.Properties(definition='author_id.book_properties_definition')
     chapter_properties_definition = fields.PropertiesDefinition()
     # relation table mapped by the spec but owned by the review's (later) unit: served by PostgreSQL until then
@@ -200,6 +205,35 @@ class TestMongoEdition(models.Model):
     note = fields.Char()
 
     _book_lang_year_uniq = models.Constraint('unique (book_id, lang, year)', 'One edition per language and year.')
+
+
+class TestMongoRating(models.Model):
+    _name = 'test.mongo.rating'
+    _description = 'MongoDB test rating (embedded in the book document under the partner key)'
+    _storage = 'mongodb'
+    _order = 'score desc, id'
+    _mongodb_spec = TestMongoBook._mongodb_spec
+
+    book_id = fields.Many2one('test.mongo.book', required=True, ondelete='cascade')
+    partner_id = fields.Many2one('res.partner', required=True, ondelete='cascade')
+    score = fields.Integer(required=True)
+    comment = fields.Char()
+
+    _book_partner_uniq = models.Constraint('unique (book_id, partner_id)', 'One rating per partner and book.')
+
+
+class TestMongoRatingTwin(models.Model):
+    """ The PostgreSQL twin of test.mongo.rating, for exact-equality checks. """
+    _name = 'test.mongo.rating.twin'
+    _description = 'PostgreSQL test rating'
+    _order = 'score desc, id'
+
+    book_id = fields.Many2one('test.mongo.book', required=True, ondelete='cascade')
+    partner_id = fields.Many2one('res.partner', required=True, ondelete='cascade')
+    score = fields.Integer(required=True)
+    comment = fields.Char()
+
+    _book_partner_uniq = models.Constraint('unique (book_id, partner_id)', 'One rating per partner and book.')
 
 
 class TestMongoVariant(models.Model):

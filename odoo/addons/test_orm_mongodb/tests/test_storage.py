@@ -421,6 +421,87 @@ class TestMongoStorage(TransactionCase):
         e1.unlink()
         self.assertFalse(self.doc(self.book_a1).get('edition'))
 
+    def test_embedded_single_natural_key_rows(self):
+        # elements keyed by a column other than the id (customer_product_reference keyed by partnerId): the
+        # records resolve by their real id, read/search/write/unlink behave like the PostgreSQL twin
+        Rating, Twin = self.env['test.mongo.rating'], self.env['test.mongo.rating.twin']
+        vals = [{'book_id': self.book_a1.id, 'partner_id': self.partner_a.id, 'score': 4, 'comment': 'good'},
+                {'book_id': self.book_a1.id, 'partner_id': self.partner_b.id, 'score': 2},
+                {'book_id': self.book_a2.id, 'partner_id': self.partner_a.id, 'score': 5}]
+        ratings, twins = Rating.create(vals), Twin.create(vals)
+        self.env.flush_all()
+        self.assertNotEqual(set(ratings.ids), {self.partner_a.id, self.partner_b.id})
+        self.assertEqual([(e['id'], e['partnerId'], e['score']) for e in self.doc(self.book_a1)['rating']],
+                         [(ratings[0].id, self.partner_a.id, 4), (ratings[1].id, self.partner_b.id, 2)])
+
+        def rows(records, domain=None, order='id'):
+            Model = records.browse()
+            if domain is not None:
+                records = Model.search(domain(records), order=order)
+            else:
+                records.invalidate_recordset()
+                records = records.exists()
+            return [(r.book_id.id, r.partner_id.id, r.score, r.comment) for r in records]
+
+        def same(domain=None, order='id'):
+            self.assertEqual(rows(ratings, domain, order), rows(twins, domain, order))
+
+        same()
+        self.assertEqual(rows(ratings), [(self.book_a1.id, self.partner_a.id, 4, 'good'),
+                                         (self.book_a1.id, self.partner_b.id, 2, False),
+                                         (self.book_a2.id, self.partner_a.id, 5, False)])
+        self.assertEqual(Rating.browse(ratings.ids).exists(), ratings)
+        self.assertEqual(self.book_a1.rating_ids, ratings[0] + ratings[1])          # score desc
+        for domain in (lambda r: [('partner_id', '=', self.partner_a.id)],
+                       lambda r: [('book_id', '=', self.book_a1.id)],
+                       lambda r: [('score', '>', 3)],
+                       lambda r: [('id', 'in', r[1:].ids)],
+                       lambda r: [('book_id.name', '=', 'Zebra'), ('partner_id.name', '=', 'Bob')]):
+            same(domain)
+            same(domain, order='score desc, id')
+        self.assertEqual(Rating.search([('id', 'in', ratings[1:].ids)]), ratings[2] + ratings[1])
+        # write a value, re-key to another partner, then move to the book that partner left
+        for records in (ratings, twins):
+            records[1].write({'score': 3, 'comment': 'ok'})
+            records[2].partner_id = self.partner_b
+            records.flush_recordset()
+            records[0].book_id = self.book_a2
+            records.flush_recordset()
+        same()
+        self.assertEqual([(e['id'], e['partnerId'], e['score'], e['comment']) for e in self.doc(self.book_a1)['rating']],
+                         [(ratings[1].id, self.partner_b.id, 3, 'ok')])
+        self.assertEqual([(e['id'], e['partnerId']) for e in self.doc(self.book_a2)['rating']],
+                         [(ratings[2].id, self.partner_b.id), (ratings[0].id, self.partner_a.id)])
+        # the key is unique within its parent, like the SQL constraint on (book_id, partner_id)
+        for records in (ratings, twins):
+            Model = records.browse()
+            with self.assertRaises(psycopg2.errors.UniqueViolation) as cm, mute_logger('odoo.sql_db'):
+                with self.env.cr.savepoint():
+                    Model.create({'book_id': self.book_a2.id, 'partner_id': self.partner_a.id, 'score': 1})
+            self.assertEqual(cm.exception.diag.constraint_name, f'{Model._table}_book_partner_uniq')
+            self.assertEqual(Model._sql_error_to_message(cm.exception), 'One rating per partner and book.')
+            with self.assertRaises(psycopg2.errors.UniqueViolation), mute_logger('odoo.sql_db'):
+                with self.env.cr.savepoint():
+                    records[1].partner_id = self.partner_a
+                    records[1].book_id = self.book_a2
+                    records.flush_recordset()
+            with self.assertRaises(psycopg2.errors.UniqueViolation), mute_logger('odoo.sql_db'):
+                with self.env.cr.savepoint():
+                    records[2].partner_id = self.partner_a
+                    records.flush_recordset()
+        same()
+        # unlink one, then cascade through the book
+        for records in (ratings, twins):
+            records[2].unlink()
+        same()
+        self.assertEqual([e['id'] for e in self.doc(self.book_a2)['rating']], [ratings[0].id])
+        self.env.cr.execute("SELECT id FROM test_mongo_rating ORDER BY id")
+        self.assertEqual([r[0] for r in self.env.cr.fetchall()], sorted((ratings[0] + ratings[1]).ids))
+        self.book_a2.unlink()
+        self.assertFalse(ratings[0].exists())
+        self.assertFalse(twins[0].exists())
+        self.assertEqual(Rating.search([]), ratings[1])
+
     def test_missing_field_sorts_as_null(self):
         # the loader omits NULL columns: a missing field orders like NULL in PostgreSQL (last on ASC, first on DESC)
         Book = self.env['test.mongo.book']

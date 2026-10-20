@@ -118,10 +118,21 @@ class CollectionSpec:
         return self.array_path is not None
 
     @property
+    def natural_key(self) -> bool:
+        """ Whether the key is not the row id: a composite key, or a single
+        other column (``customer_product_reference`` keyed by ``partnerId``). """
+        return self.key_source != ['id']
+
+    @property
+    def key_paths(self) -> list[str]:
+        """ The element paths of the key columns. """
+        return list(self.key_target) if isinstance(self.key_target, list) else [self.key_target]
+
+    @property
     def element_key(self) -> str:
         """ The element path holding the row id of an embedded table: the key
-        target, or the ``id`` field when the key is composite (natural key). """
-        if isinstance(self.key_target, str):
+        target when the key is the id, else the ``id`` field (natural key). """
+        if not self.natural_key:
             return self.key_target
         return self.fields['id'][0] if 'id' in self.fields else 'id'
 
@@ -140,9 +151,10 @@ class CollectionSpec:
 
 def _parse_fields(entries, key: dict | None = None) -> dict[str, tuple[str, str | None]]:
     fields = {f['source']: (f['target'], f.get('bson_type') or 'string') for f in entries}
-    if key and isinstance(key['target'], list):
-        # composite (natural) key columns are fields of the element, kept as the ORM passes them
-        for source, target in zip(key['source'], key['target']):
+    if key and key['source'] != ['id']:
+        # natural key columns are fields of the element, kept as the ORM passes them
+        targets = key['target'] if isinstance(key['target'], list) else [key['target']]
+        for source, target in zip(key['source'], targets):
             fields.setdefault(source, (target, None))
     return fields
 
@@ -1251,16 +1263,17 @@ def _unique_constraint_on(model: BaseModel, columns: set[str]) -> str | None:
 
 
 def _check_element_keys(model: BaseModel, spec: CollectionSpec, coll, by_parent: dict[int, list[dict]]) -> None:
-    """ Embedded rows keyed by a composite (natural) key: the key is unique
-    within the parent's array, like the SQL UNIQUE constraint on the parent and
-    key columns. ``by_parent``: the elements about to be written (created,
-    moved or re-keyed), checked against each other and the parent's others. """
-    if isinstance(spec.key_target, str) or not by_parent:
+    """ Embedded rows keyed by a natural key (composite, or a column other than
+    the id): the key is unique within the parent's array, like the SQL UNIQUE
+    constraint on the parent and key columns. ``by_parent``: the elements about
+    to be written (created, moved or re-keyed), checked against each other and
+    the parent's others. """
+    if not spec.natural_key or not by_parent:
         return
     # serialize writers of the same parents on their shadow rows, like the constraint's index would
     model.env.cr.execute(SQL("SELECT id FROM %s WHERE id IN %s FOR NO KEY UPDATE",
                              SQL.identifier(spec.parent_table), tuple(by_parent)))
-    paths = list(spec.key_target)
+    paths = spec.key_paths
 
     def violation(key: tuple) -> typing.NoReturn:
         columns = {spec.parent_column, *spec.key_source}
@@ -1479,12 +1492,13 @@ def write_multi(model: BaseModel, vals_list: list[dict]) -> None:
         by_parent: dict[int, list[dict]] = defaultdict(list)
         for elements in removed.values():
             for element in elements:
-                element.update(updates.pop(element[spec.element_key], {}))
-                by_parent[moves[element[spec.element_key]]].append(element)
+                # a copy: ``removed`` is what the journal pushes back on rollback
+                id_ = element[spec.element_key]
+                by_parent[moves[id_]].append({**element, **updates.pop(id_, {})})
         _check_element_keys(model, spec, coll, by_parent)
         st.push_elements(cr, coll, spec.array_path, by_parent, spec.element_key)
-    if not isinstance(spec.key_target, str) and (rekeyed := [
-        id_ for id_, values in updates.items() if set(values) & set(spec.key_target)
+    if spec.natural_key and (rekeyed := [
+        id_ for id_, values in updates.items() if set(values) & set(spec.key_paths)
     ]):
         by_parent = defaultdict(list)
         for doc in coll.aggregate([
