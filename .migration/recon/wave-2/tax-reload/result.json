@@ -1,0 +1,512 @@
+{
+  "unit": "account-chart",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-2",
+  "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
+  "tolerance_version": "unt12-3",
+  "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
+  "collections": [
+    "accountAccount",
+    "accountAccountTag",
+    "accountFiscalPosition",
+    "accountTax",
+    "accountTaxGroup",
+    "accountTaxRepartitionLine"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-20T22:52:48.979003+00:00",
+  "redacted": true,
+  "redaction_salted": false,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 62,
+      "stats": {
+        "source_counts": {
+          "accountAccount": 184,
+          "accountAccountTag": 10,
+          "accountFiscalPosition": 4,
+          "accountTax": 58,
+          "accountTaxGroup": 26,
+          "accountTaxRepartitionLine": 232
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 52,
+      "stats": {
+        "deferred_to_tier3": [
+          "accountAccount.currencyId",
+          "accountAccount.parentId",
+          "accountAccount.accountStockVariationId",
+          "accountAccount.accountStockExpenseId",
+          "accountAccount.createUid",
+          "accountAccount.writeUid",
+          "accountAccount.accountType",
+          "accountAccount.parentPath",
+          "accountAccount.name",
+          "accountAccount.description",
+          "accountAccount.codeStore",
+          "accountAccount.note",
+          "accountAccount.active",
+          "accountAccount.reconcile",
+          "accountAccount.nonTrade",
+          "accountAccount.createDate",
+          "accountAccount.writeDate",
+          "accountAccountTag.color",
+          "accountAccountTag.countryId",
+          "accountAccountTag.createUid",
+          "accountAccountTag.writeUid",
+          "accountAccountTag.applicability",
+          "accountAccountTag.name",
+          "accountAccountTag.active",
+          "accountAccountTag.createDate",
+          "accountAccountTag.writeDate",
+          "accountFiscalPosition.sequence",
+          "accountFiscalPosition.countryId",
+          "accountFiscalPosition.countryGroupId",
+          "accountFiscalPosition.createUid",
+          "accountFiscalPosition.writeUid",
+          "accountFiscalPosition.zipFrom",
+          "accountFiscalPosition.zipTo",
+          "accountFiscalPosition.foreignVat",
+          "accountFiscalPosition.name",
+          "accountFiscalPosition.note",
+          "accountFiscalPosition.active",
+          "accountFiscalPosition.autoApply",
+          "accountFiscalPosition.vatRequired",
+          "accountFiscalPosition.isDomestic",
+          "accountFiscalPosition.createDate",
+          "accountFiscalPosition.writeDate",
+          "accountTax.cashBasisTransitionAccountId",
+          "accountTax.createUid",
+          "accountTax.writeUid",
+          "accountTax.typeTaxUse",
+          "accountTax.taxScope",
+          "accountTax.amountType",
+          "accountTax.priceIncludeOverride",
+          "accountTax.taxExigibility",
+          "accountTax.name",
+          "accountTax.description",
+          "accountTax.invoiceLabel",
+          "accountTax.invoiceLegalNotes",
+          "accountTax.isDomestic",
+          "accountTax.active",
+          "accountTax.includeBaseAmount",
+          "accountTax.isBaseAffected",
+          "accountTax.analytic",
+          "accountTax.createDate",
+          "accountTax.writeDate",
+          "accountTax.ublCiiTaxCategoryCode",
+          "accountTax.ublCiiTaxExemptionReason",
+          "accountTax.ublCiiTaxExemptionReasonCode",
+          "accountTax.l10nUsStateId",
+          "accountTax.l10nUsCountyId",
+          "accountTax.l10nUsCityId",
+          "accountTax.l10nUsExemptParentTaxId",
+          "accountTax.l10nUsNontaxableParentTaxId",
+          "accountTax.l10nUsJurisdictionType",
+          "accountTaxGroup.sequence",
+          "accountTaxGroup.countryId",
+          "accountTaxGroup.createUid",
+          "accountTaxGroup.writeUid",
+          "accountTaxGroup.posReceiptLabel",
+          "accountTaxGroup.name",
+          "accountTaxGroup.precedingSubtotal",
+          "accountTaxGroup.createDate",
+          "accountTaxGroup.writeDate",
+          "accountTaxRepartitionLine.accountId",
+          "accountTaxRepartitionLine.taxId",
+          "accountTaxRepartitionLine.companyId",
+          "accountTaxRepartitionLine.sequence",
+          "accountTaxRepartitionLine.createUid",
+          "accountTaxRepartitionLine.writeUid",
+          "accountTaxRepartitionLine.repartitionType",
+          "accountTaxRepartitionLine.documentType",
+          "accountTaxRepartitionLine.useInTaxClosing",
+          "accountTaxRepartitionLine.createDate",
+          "accountTaxRepartitionLine.writeDate"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "accountAccount.accountType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountAccount.parentPath",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountAccount.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountAccount.description",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountAccount.codeStore",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountAccount.note",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountAccountTag.applicability",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountAccountTag.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountFiscalPosition.zipFrom",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountFiscalPosition.zipTo",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountFiscalPosition.foreignVat",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountFiscalPosition.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountFiscalPosition.note",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.typeTaxUse",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.taxScope",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.amountType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.priceIncludeOverride",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.taxExigibility",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.description",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.invoiceLabel",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.invoiceLegalNotes",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.ublCiiTaxCategoryCode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.ublCiiTaxExemptionReason",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.ublCiiTaxExemptionReasonCode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.l10nUsJurisdictionType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTaxGroup.posReceiptLabel",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTaxGroup.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTaxGroup.precedingSubtotal",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTaxRepartitionLine.repartitionType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTaxRepartitionLine.documentType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "accountAccount.name",
+            "key": "accountAccount"
+          },
+          {
+            "field": "accountAccount.description",
+            "key": "accountAccount"
+          },
+          {
+            "field": "accountAccount.codeStore",
+            "key": "accountAccount"
+          },
+          {
+            "field": "accountAccountTag.name",
+            "key": "accountAccountTag"
+          },
+          {
+            "field": "accountFiscalPosition.name",
+            "key": "accountFiscalPosition"
+          },
+          {
+            "field": "accountFiscalPosition.note",
+            "key": "accountFiscalPosition"
+          },
+          {
+            "field": "accountTax.name",
+            "key": "accountTax"
+          },
+          {
+            "field": "accountTax.description",
+            "key": "accountTax"
+          },
+          {
+            "field": "accountTax.invoiceLabel",
+            "key": "accountTax"
+          },
+          {
+            "field": "accountTax.invoiceLegalNotes",
+            "key": "accountTax"
+          },
+          {
+            "field": "accountTaxGroup.name",
+            "key": "accountTaxGroup"
+          },
+          {
+            "field": "accountTaxGroup.precedingSubtotal",
+            "key": "accountTaxGroup"
+          }
+        ],
+        "fields_fully_deferred": 46
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 999,
+      "stats": {
+        "accountAccount": {
+          "mode": "full_diff",
+          "population": 184,
+          "duplicate_source_key_count": 0
+        },
+        "embeds_graded": {
+          "accountAccount.resCompanyRel": 184,
+          "accountAccount.accountTag": 13,
+          "accountAccount.taxDefaultRel": 1,
+          "accountAccountTag.accountMoveLineRel": 1,
+          "accountAccountTag.accountTaxRepartitionLineRel": 1,
+          "accountAccountTag.productTemplateRel": 1,
+          "accountFiscalPosition.account": 1,
+          "accountFiscalPosition.resCountryStateRel": 2,
+          "accountFiscalPosition.accountTaxRel": 50,
+          "accountTax.alternatives": 2,
+          "accountTax.filiationRel": 2,
+          "accountTax.purchaseOrderLineRel": 32,
+          "accountTax.saleOrderLineRel": 51,
+          "accountTax.productSupplierTaxesRel": 72,
+          "accountTax.productTaxesRel": 72
+        },
+        "accountAccountTag": {
+          "mode": "full_diff",
+          "population": 10,
+          "duplicate_source_key_count": 0
+        },
+        "accountFiscalPosition": {
+          "mode": "full_diff",
+          "population": 4,
+          "duplicate_source_key_count": 0
+        },
+        "accountTax": {
+          "mode": "full_diff",
+          "population": 58,
+          "duplicate_source_key_count": 0
+        },
+        "accountTaxGroup": {
+          "mode": "full_diff",
+          "population": 26,
+          "duplicate_source_key_count": 0
+        },
+        "accountTaxRepartitionLine": {
+          "mode": "full_diff",
+          "population": 232,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 6,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": true,
+  "error": null
+}

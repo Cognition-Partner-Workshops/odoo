@@ -1,0 +1,17 @@
+{
+ "docs": 58,
+ "alternatives": 2,
+ "filiationRel": 2,
+ "purchaseOrderLineRel": 32,
+ "saleOrderLineRel": 51,
+ "productSupplierTaxesRel": 72,
+ "productTaxesRel": 72,
+ "extra_pairs": {
+  "saleOrderLineRel_line_52": [
+   3
+  ],
+  "purchaseOrderLineRel_line_33": [
+   4
+  ]
+ }
+}

@@ -1,0 +1,1 @@
+account_tax (odoo_unt12_taxreload) -> odoo_unt12.accountTax: 58 documents (2 alternatives, 2 filiationRel, 32 purchaseOrderLineRel, 51 saleOrderLineRel, 72 productSupplierTaxesRel, 72 productTaxesRel elements), 16 indexes
