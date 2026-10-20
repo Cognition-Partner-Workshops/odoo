@@ -66,6 +66,21 @@
             "evidence": "differing=[]"
         },
         {
+            "probe": "orm_reads_prefixed_collection",
+            "pass": true,
+            "evidence": "orm_collection=odoo_v_w1b05c__productAttribute live=productAttribute"
+        },
+        {
+            "probe": "verifier_reseed_equals_live_documents",
+            "pass": true,
+            "evidence": "live=14 verifier_prefixed=14 first_diff_id=None"
+        },
+        {
+            "probe": "verifier_reseed_equals_live_indexes",
+            "pass": true,
+            "evidence": "live=['_id_', 'productTemplateRel.productTemplateId_1', 'sequence_1', 'value.sequence_1_value.id_1'] verifier=['_id_', 'productTemplateRel.productTemplateId_1', 'sequence_1', 'value.sequence_1_value.id_1']"
+        },
+        {
             "probe": "relation_collection_zero_documents",
             "pass": true,
             "evidence": "documents=0"

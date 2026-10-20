@@ -19,6 +19,15 @@
     "accountTax",
     "accountTaxGroup",
     "accountTaxRepartitionLine",
+    "odoo_v_w1b04__accountCashRounding",
+    "odoo_v_w1b04__accountIncoterms",
+    "odoo_v_w1b04__accountJournalGroup",
+    "odoo_v_w1b04__accountLockException",
+    "odoo_v_w1b04__accountPaymentTerm",
+    "odoo_v_w1b04__accountReport",
+    "odoo_v_w1b04__accountReportExpression",
+    "odoo_v_w1b04__accountReportExternalValue",
+    "odoo_v_w1b05c__productAttribute",
     "productAttribute",
     "productAttributeValueProductTemplateAttributeLineRel",
     "productBaseUnit",
@@ -36,7 +45,7 @@
   {
    "probe": "other_collections_in_target_db",
    "pass": true,
-   "evidence": "not in this batch: ['_connectivity_probe', 'accountAccount', 'accountAccountTag', 'accountCashRounding', 'accountFiscalPosition', 'accountIncoterms', 'accountJournalGroup', 'accountLockException', 'accountPaymentTerm', 'accountReport', 'accountReportExpression', 'accountReportExternalValue', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'productAttributeValueProductTemplateAttributeLineRel', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+   "evidence": "not in this batch: ['_connectivity_probe', 'accountAccount', 'accountAccountTag', 'accountCashRounding', 'accountFiscalPosition', 'accountIncoterms', 'accountJournalGroup', 'accountLockException', 'accountPaymentTerm', 'accountReport', 'accountReportExpression', 'accountReportExternalValue', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'odoo_v_w1b04__accountCashRounding', 'odoo_v_w1b04__accountIncoterms', 'odoo_v_w1b04__accountJournalGroup', 'odoo_v_w1b04__accountLockException', 'odoo_v_w1b04__accountPaymentTerm', 'odoo_v_w1b04__accountReport', 'odoo_v_w1b04__accountReportExpression', 'odoo_v_w1b04__accountReportExternalValue', 'odoo_v_w1b05c__productAttribute', 'productAttributeValueProductTemplateAttributeLineRel', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
   },
   {
    "probe": "row_count",
@@ -166,7 +175,7 @@
   {
    "probe": "productTemplateRel.childless_parents_have_no_array",
    "pass": true,
-   "evidence": "childless=[14, 6, 1, 5, 13, 4, 2, 7, 8] with_key=[]"
+   "evidence": "childless=[1, 2, 4, 5, 6, 7, 8, 13, 14] with_key=[]"
   },
   {
    "probe": "productTemplateRel.length_distribution",
@@ -196,7 +205,7 @@
   {
    "probe": "value.childless_parents_have_no_array",
    "pass": true,
-   "evidence": "childless=[14, 5, 4] with_key=[]"
+   "evidence": "childless=[4, 5, 14] with_key=[]"
   },
   {
    "probe": "value.length_distribution",

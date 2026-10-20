@@ -3,16 +3,18 @@
     /home/ubuntu/.venvs/odoo/bin/python odoo-bin shell -c <conf> -d <verifier clone> --no-http \
         < .migration/recon/wave-1/w1-b05/verify-orm-probes.py
 
-The conf names the clone in mongodb_migration_db so the ORM reads the unprefixed loaded
-collections. Every ORM read is compared with the clone's PostgreSQL rows by exact equality; the
-cursor is rolled back at the end and nothing is written on either side.
+The conf must NOT set mongodb_migration_db: the ORM then reads the clone's ``<clone>__`` prefixed
+collections, which hold the verifier's own reseed (verify-load-prefixed.py), so no ORM write could
+ever reach a live batch collection. Every ORM read is compared with the clone's PostgreSQL rows by
+exact equality, and the verifier's prefixed documents are compared with the live collection
+document by document; the cursor is rolled back at the end and nothing is written on either side.
 """
 import json
 import sys
 
 cr = env.cr
 st = env.registry.mongo_store
-assert st.prefix == '', f"collections are prefixed {st.prefix!r}"
+assert st.prefix == f'{cr.dbname}__', f"ORM must read the clone's prefixed collections, got prefix {st.prefix!r}"
 Attr = env['product.attribute'].with_context(active_test=False)
 Value = env['product.attribute.value'].with_context(active_test=False)
 Line = env['product.template.attribute.line'].with_context(active_test=False)
@@ -89,6 +91,15 @@ orm_vscalars = {v.id: (v.name, v.sequence, v.html_color, v.is_custom, v.default_
 _vdiff = [i for i in value_ids if orm_vscalars[i] != pg_vscalars[i]]
 ok('product.attribute.value.scalars', not _vdiff, f'differing={_vdiff[:10]}' + (f' e.g. orm={orm_vscalars[_vdiff[0]]!r} pg={pg_vscalars[_vdiff[0]]!r}' if _vdiff else ''))
 
+live = st.db['productAttribute']
+mine = st.model_collection(Attr)
+ok('orm_reads_prefixed_collection', mine.name == f'{cr.dbname}__productAttribute', f'orm_collection={mine.name} live=productAttribute')
+live_docs = list(live.find().sort('_id', 1))
+my_docs = list(mine.find().sort('_id', 1))
+ok('verifier_reseed_equals_live_documents', live_docs == my_docs and len(my_docs) > 0,
+   f'live={len(live_docs)} verifier_prefixed={len(my_docs)} first_diff_id={next((a.get("_id") for a, b in zip(live_docs, my_docs) if a != b), None)}')
+ok('verifier_reseed_equals_live_indexes', {tuple(map(tuple, i['key'])) for i in live.index_information().values()} == {tuple(map(tuple, i['key'])) for i in mine.index_information().values()},
+   f'live={sorted(live.index_information())} verifier={sorted(mine.index_information())}')
 ok('relation_collection_zero_documents', st.db['productAttributeValueProductTemplateAttributeLineRel'].count_documents({}) == 0,
    f"documents={st.db['productAttributeValueProductTemplateAttributeLineRel'].count_documents({})}")
 
