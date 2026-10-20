@@ -35,7 +35,7 @@
   "Depth is the longest hard-dependency path. Hard edges are decision.references columns and the FK columns of 1:N embedded child rows (child_key id). Junction-array child_references (two-column key, one field) are not hard: the element holds only the referenced row's integer id, which is the same value on PostgreSQL (id shadow, s2.3 disposition S) and on MongoDB (_id), so the array loads and the ORM resolves it before or after the referenced collection migrates; NOTES.md s3.3 lists, from ir_model_fields in odoo_src, which model's Many2many field writes each forward junction. The two plain FK columns in forward_exceptions are cited to the code that creates the target row after the owning row.",
   "forward_refs = references to units at the same or a later depth; they resolve through the id shadow (s2.3 disposition S) until that unit migrates. No two units of the same depth reference each other (checked), so no batch references a sibling batch's collection.",
   "Waves are the depths (wave = depth + 1), one unit per batch. Batches within a wave are listed smallest fixture_rows first, the first being the wave's canary; the manager may merge small depth-0 batches at preflight (1-5 units per batch). Shared and reference collections (uom, product category, package types, chart of accounts, ...) sit at depth 0 and 1, waves 1 and 2.",
-  "Raw-SQL, cron, view and hook rows are copied from the s2.3 register with their disposition letter unchanged. A row is owned by the lowest-depth (earliest-wave) unit among every migrated table it names, because the statement breaks as soon as the first of those tables loses its PostgreSQL columns; the other units it names are listed in also_touches and carry the row under register_rows_touching_later, so their batch re-checks the rewrite when their own tables move. Hooks go to the unit owning the module's main model; rows naming no migrated table are listed under estate.register_rows_without_unit.",
+  "Raw-SQL, cron, view and hook rows are copied from the s2.3 register with their disposition letter unchanged. A row is owned by the first unit in migration order (wave, then batch position within the wave) among every migrated table it names, because the statement breaks as soon as the first of those tables loses its PostgreSQL columns; the other units it names are listed in also_touches (migration order) and carry the row under register_rows_touching_later with a scenario, so their batch re-checks the rewrite when their own tables move. Hooks go to the unit owning the module's main model; rows naming no migrated table are listed under estate.register_rows_without_unit.",
   "fixture_rows come from the committed fixture manifest (odoo_fixture = odoo_src clone + one outlier); a unit whose collection has 0 fixture rows is flagged recon_unverified and needs a seed scenario before its recon can grade PASS.",
   "Scenarios are the Odoo test files whose env[...] references land mostly on the unit's tables (run with --test-tags on the module), the register's report/view read_group checks, the cron bodies, and a seed for every 0-row collection."
  ],
@@ -323,6 +323,7 @@
      "stockPackageType.stockRouteRel.stock_route_id → stockRoute (junction)"
     ]
    },
+   "batch": "w1-b03",
    "raw_sql": [
     {
      "register": "s2.3 §3a row 19",
@@ -360,6 +361,26 @@
      "also_touches": [
       "product-catalog",
       "sale"
+     ]
+    },
+    {
+     "register": "s2.3 §2 row account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "what": "account_move_line, account_move, product_product, product_template, uom_uom, account_account",
+     "migrated_tables": [
+      "account_move_line",
+      "account_move",
+      "product_product",
+      "product_template",
+      "uom_uom",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-chart",
+      "product-catalog",
+      "account-ledger"
      ]
     },
     {
@@ -407,27 +428,6 @@
       "purchase"
      ],
      "owner": "product-taxonomy"
-    },
-    {
-     "register": "s2.3 §2 row account.invoice.report (addons/account/report/account_invoice_report.py:8)",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "account.invoice.report (addons/account/report/account_invoice_report.py:8)",
-     "what": "account_move_line, account_move, product_product, product_template, uom_uom, account_account",
-     "migrated_tables": [
-      "account_move_line",
-      "account_move",
-      "product_product",
-      "product_template",
-      "uom_uom",
-      "account_account"
-     ],
-     "also_touches": [
-      "uom-packaging",
-      "product-catalog",
-      "account-ledger"
-     ],
-     "owner": "account-chart"
     },
     {
      "register": "s2.3 §2 row stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
@@ -842,12 +842,38 @@
     },
     {
      "kind": "report_read_group",
+     "register": "s2.3 §2 row account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "model": "account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
      "register": "s2.3 §2 row report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
      "model": "report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
      "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "model": "purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "owner": "product-taxonomy",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "model": "stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "owner": "product-taxonomy",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "model": "vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "owner": "product-taxonomy",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
     }
-   ],
-   "batch": "w1-b03"
+   ]
   },
   {
    "id": "stock-reference",
@@ -889,6 +915,7 @@
    "depends_on": [],
    "depends_on_edges": {},
    "forward_refs": {},
+   "batch": "w1-b01",
    "raw_sql": [],
    "crons": [],
    "reports_and_views": [],
@@ -1038,8 +1065,7 @@
      "collection": "stockScrapReasonTag",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
     }
-   ],
-   "batch": "w1-b01"
+   ]
   },
   {
    "id": "product-taxonomy",
@@ -1127,7 +1153,47 @@
      "productCategory.stockPickingTypeRel.stock_picking_type_id → stockPickingType (junction)"
     ]
    },
-   "raw_sql": [],
+   "batch": "w1-b02",
+   "raw_sql": [
+    {
+     "register": "s2.3 §3a row 15",
+     "disposition": "R",
+     "disposition_text": "R — Mongo-backed targets and the account row itself; PostgreSQL-resident targets keep their statement",
+     "where": "account.account `_action_unmerge` (account_account.py:1341, 1362, 1391, 1420, 1441, 1472)",
+     "what": "UPDATE: dynamic (:1341–:1420): every table holding a many2one / many2many / reference / many2one_reference to account.account, in-scope (account_move_line, account_journal, account_payment_method_line, product_category, …) and PostgreSQL-resident (res_company); then account_account's own company-dependent JSON columns (:1441, :1472) — unmerge action (cold)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_journal",
+      "account_payment_method_line",
+      "product_category",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-chart",
+      "account-journal",
+      "account-ledger"
+     ]
+    },
+    {
+     "register": "s2.3 §3c row 1",
+     "disposition": "R",
+     "disposition_text": "R, and the discovery step is part of the rewrite: a Mongo-backed table has no `account_id` column or FK on PostgreSQL, so `pg_constraint` no longer lists it and the merge would silently leave its documents pointing at the deleted account. The account merge unit must enumerate Mongo-backed references from ORM field metadata (`ir_model_fields` where relation = 'account.account', same source `_action_unmerge` already uses) and update them before the source accounts are removed. PostgreSQL-resident targets keep the `pg_constraint` path (S)",
+     "where": "account.merge.wizard `_action_merge` (§3a row 16) → `base.partner.merge.automatic.wizard._update_foreign_keys_generic` (odoo/addons/base/wizard/base_partner_merge.py:119) and `_update_reference_fields_generic` (:198)",
+     "what": "account_move_line, account_journal, account_payment_method_line, account_tax_repartition_line, product_category, … plus PostgreSQL-resident res_company",
+     "migrated_tables": [
+      "account_move_line",
+      "account_journal",
+      "account_payment_method_line",
+      "account_tax_repartition_line",
+      "product_category"
+     ],
+     "also_touches": [
+      "account-chart",
+      "account-journal",
+      "account-ledger"
+     ]
+    }
+   ],
    "crons": [],
    "reports_and_views": [
     {
@@ -1196,48 +1262,7 @@
    ],
    "hooks": [],
    "blocked": [],
-   "register_rows_touching_later": [
-    {
-     "register": "s2.3 §3a row 15",
-     "disposition": "R",
-     "disposition_text": "R — Mongo-backed targets and the account row itself; PostgreSQL-resident targets keep their statement",
-     "where": "account.account `_action_unmerge` (account_account.py:1341, 1362, 1391, 1420, 1441, 1472)",
-     "what": "UPDATE: dynamic (:1341–:1420): every table holding a many2one / many2many / reference / many2one_reference to account.account, in-scope (account_move_line, account_journal, account_payment_method_line, product_category, …) and PostgreSQL-resident (res_company); then account_account's own company-dependent JSON columns (:1441, :1472) — unmerge action (cold)",
-     "migrated_tables": [
-      "account_move_line",
-      "account_journal",
-      "account_payment_method_line",
-      "product_category",
-      "account_account"
-     ],
-     "also_touches": [
-      "product-taxonomy",
-      "account-journal",
-      "account-ledger"
-     ],
-     "owner": "account-chart"
-    },
-    {
-     "register": "s2.3 §3c row 1",
-     "disposition": "R",
-     "disposition_text": "R, and the discovery step is part of the rewrite: a Mongo-backed table has no `account_id` column or FK on PostgreSQL, so `pg_constraint` no longer lists it and the merge would silently leave its documents pointing at the deleted account. The account merge unit must enumerate Mongo-backed references from ORM field metadata (`ir_model_fields` where relation = 'account.account', same source `_action_unmerge` already uses) and update them before the source accounts are removed. PostgreSQL-resident targets keep the `pg_constraint` path (S)",
-     "where": "account.merge.wizard `_action_merge` (§3a row 16) → `base.partner.merge.automatic.wizard._update_foreign_keys_generic` (odoo/addons/base/wizard/base_partner_merge.py:119) and `_update_reference_fields_generic` (:198)",
-     "what": "account_move_line, account_journal, account_payment_method_line, account_tax_repartition_line, product_category, … plus PostgreSQL-resident res_company",
-     "migrated_tables": [
-      "account_move_line",
-      "account_journal",
-      "account_payment_method_line",
-      "account_tax_repartition_line",
-      "product_category"
-     ],
-     "also_touches": [
-      "product-taxonomy",
-      "account-journal",
-      "account-ledger"
-     ],
-     "owner": "account-chart"
-    }
-   ],
+   "register_rows_touching_later": [],
    "models": {
     "product.base.unit": {
      "table": "product_base_unit",
@@ -1670,8 +1695,7 @@
      "collection": "productBaseUnit",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
     }
-   ],
-   "batch": "w1-b02"
+   ]
   },
   {
    "id": "product-attributes",
@@ -1722,6 +1746,7 @@
      "productAttribute.productTemplateRel.product_template_id → productTemplate (junction)"
     ]
    },
+   "batch": "w1-b05",
    "raw_sql": [],
    "crons": [],
    "reports_and_views": [],
@@ -1961,8 +1986,7 @@
      "module_tag": "/sale",
      "model_refs": 1
     }
-   ],
-   "batch": "w1-b05"
+   ]
   },
   {
    "id": "account-settings",
@@ -2094,7 +2118,23 @@
      "accountCashRounding.accountPaymentMethodLineRel.account_payment_method_line_id → accountPaymentMethod (junction)"
     ]
    },
+   "batch": "w1-b04",
    "raw_sql": [
+    {
+     "register": "s2.3 §3a row 17",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.account.tag `_translate_tax_tags` (addons/account/models/account_account_tag.py:125)",
+     "what": "UPDATE: account_account_tag, account_report_line, account_report — chart template load / language install (cold)",
+     "migrated_tables": [
+      "account_account_tag",
+      "account_report_line",
+      "account_report"
+     ],
+     "also_touches": [
+      "account-chart"
+     ]
+    },
     {
      "register": "s2.3 §3b row 14",
      "disposition": "R",
@@ -2103,6 +2143,20 @@
      "what": "SELECT: account_cash_rounding — invoice form (warm)",
      "migrated_tables": [
       "account_cash_rounding"
+     ]
+    },
+    {
+     "register": "s2.3 §3b row 22",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.account.tag `_compute_report_expression_id` (addons/account/models/account_account_tag.py:43)",
+     "what": "SELECT: account_account_tag (+ account_report_expression) — tag read (cold)",
+     "migrated_tables": [
+      "account_account_tag",
+      "account_report_expression"
+     ],
+     "also_touches": [
+      "account-chart"
      ]
     },
     {
@@ -2128,39 +2182,7 @@
    "reports_and_views": [],
    "hooks": [],
    "blocked": [],
-   "register_rows_touching_later": [
-    {
-     "register": "s2.3 §3a row 17",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "account.account.tag `_translate_tax_tags` (addons/account/models/account_account_tag.py:125)",
-     "what": "UPDATE: account_account_tag, account_report_line, account_report — chart template load / language install (cold)",
-     "migrated_tables": [
-      "account_account_tag",
-      "account_report_line",
-      "account_report"
-     ],
-     "also_touches": [
-      "account-settings"
-     ],
-     "owner": "account-chart"
-    },
-    {
-     "register": "s2.3 §3b row 22",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "account.account.tag `_compute_report_expression_id` (addons/account/models/account_account_tag.py:43)",
-     "what": "SELECT: account_account_tag (+ account_report_expression) — tag read (cold)",
-     "migrated_tables": [
-      "account_account_tag",
-      "account_report_expression"
-     ],
-     "also_touches": [
-      "account-settings"
-     ],
-     "owner": "account-chart"
-    }
-   ],
+   "register_rows_touching_later": [],
    "models": {
     "account.payment.term.line": {
      "table": "account_payment_term_line",
@@ -3127,8 +3149,7 @@
      "collection": "accountReportExternalValue",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
     }
-   ],
-   "batch": "w1-b04"
+   ]
   },
   {
    "id": "account-chart",
@@ -3323,6 +3344,7 @@
      "accountTax.saleOrderLineRel.sale_order_line_id → saleOrderLine (junction)"
     ]
    },
+   "batch": "w1-b06",
    "raw_sql": [
     {
      "register": "s2.3 §3a row 5",
@@ -3372,25 +3394,6 @@
      ]
     },
     {
-     "register": "s2.3 §3a row 15",
-     "disposition": "R",
-     "disposition_text": "R — Mongo-backed targets and the account row itself; PostgreSQL-resident targets keep their statement",
-     "where": "account.account `_action_unmerge` (account_account.py:1341, 1362, 1391, 1420, 1441, 1472)",
-     "what": "UPDATE: dynamic (:1341–:1420): every table holding a many2one / many2many / reference / many2one_reference to account.account, in-scope (account_move_line, account_journal, account_payment_method_line, product_category, …) and PostgreSQL-resident (res_company); then account_account's own company-dependent JSON columns (:1441, :1472) — unmerge action (cold)",
-     "migrated_tables": [
-      "account_move_line",
-      "account_journal",
-      "account_payment_method_line",
-      "product_category",
-      "account_account"
-     ],
-     "also_touches": [
-      "product-taxonomy",
-      "account-journal",
-      "account-ledger"
-     ]
-    },
-    {
      "register": "s2.3 §3a row 15b",
      "disposition": "S",
      "disposition_text": "S",
@@ -3408,21 +3411,6 @@
      "what": "UPDATE / DELETE: account_account (`name`, `code_store`, row delete) — merge wizard (cold)",
      "migrated_tables": [
       "account_account"
-     ]
-    },
-    {
-     "register": "s2.3 §3a row 17",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "account.account.tag `_translate_tax_tags` (addons/account/models/account_account_tag.py:125)",
-     "what": "UPDATE: account_account_tag, account_report_line, account_report — chart template load / language install (cold)",
-     "migrated_tables": [
-      "account_account_tag",
-      "account_report_line",
-      "account_report"
-     ],
-     "also_touches": [
-      "account-settings"
      ]
     },
     {
@@ -3504,20 +3492,6 @@
      ]
     },
     {
-     "register": "s2.3 §3b row 22",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "account.account.tag `_compute_report_expression_id` (addons/account/models/account_account_tag.py:43)",
-     "what": "SELECT: account_account_tag (+ account_report_expression) — tag read (cold)",
-     "migrated_tables": [
-      "account_account_tag",
-      "account_report_expression"
-     ],
-     "also_touches": [
-      "account-settings"
-     ]
-    },
-    {
      "register": "s2.3 §3b row 25",
      "disposition": "R",
      "disposition_text": "R (with §3a row 8)",
@@ -3572,29 +3546,23 @@
      "migrated_tables": [
       "account_account"
      ]
-    },
-    {
-     "register": "s2.3 §3c row 1",
-     "disposition": "R",
-     "disposition_text": "R, and the discovery step is part of the rewrite: a Mongo-backed table has no `account_id` column or FK on PostgreSQL, so `pg_constraint` no longer lists it and the merge would silently leave its documents pointing at the deleted account. The account merge unit must enumerate Mongo-backed references from ORM field metadata (`ir_model_fields` where relation = 'account.account', same source `_action_unmerge` already uses) and update them before the source accounts are removed. PostgreSQL-resident targets keep the `pg_constraint` path (S)",
-     "where": "account.merge.wizard `_action_merge` (§3a row 16) → `base.partner.merge.automatic.wizard._update_foreign_keys_generic` (odoo/addons/base/wizard/base_partner_merge.py:119) and `_update_reference_fields_generic` (:198)",
-     "what": "account_move_line, account_journal, account_payment_method_line, account_tax_repartition_line, product_category, … plus PostgreSQL-resident res_company",
-     "migrated_tables": [
-      "account_move_line",
-      "account_journal",
-      "account_payment_method_line",
-      "account_tax_repartition_line",
-      "product_category"
-     ],
-     "also_touches": [
-      "product-taxonomy",
-      "account-journal",
-      "account-ledger"
-     ]
     }
    ],
    "crons": [],
-   "reports_and_views": [
+   "reports_and_views": [],
+   "hooks": [
+    {
+     "register": "s2.3 §4 row account post_init",
+     "disposition": "orm",
+     "disposition_text": "orm",
+     "where": "account post_init `_account_post_init`",
+     "what": "`_set_fiscal_country` (res_company compute), `_create_batch_payment_sequence` (ir_sequence)"
+    }
+   ],
+   "blocked": [
+    "s2.3 §3a row 25"
+   ],
+   "register_rows_touching_later": [
     {
      "register": "s2.3 §2 row account.invoice.report (addons/account/report/account_invoice_report.py:8)",
      "disposition": "R",
@@ -3610,25 +3578,84 @@
       "account_account"
      ],
      "also_touches": [
-      "uom-packaging",
+      "account-chart",
       "product-catalog",
       "account-ledger"
-     ]
-    }
-   ],
-   "hooks": [
+     ],
+     "owner": "uom-packaging"
+    },
     {
-     "register": "s2.3 §4 row account post_init",
-     "disposition": "orm",
-     "disposition_text": "orm",
-     "where": "account post_init `_account_post_init`",
-     "what": "`_set_fiscal_country` (res_company compute), `_create_batch_payment_sequence` (ir_sequence)"
+     "register": "s2.3 §3a row 15",
+     "disposition": "R",
+     "disposition_text": "R — Mongo-backed targets and the account row itself; PostgreSQL-resident targets keep their statement",
+     "where": "account.account `_action_unmerge` (account_account.py:1341, 1362, 1391, 1420, 1441, 1472)",
+     "what": "UPDATE: dynamic (:1341–:1420): every table holding a many2one / many2many / reference / many2one_reference to account.account, in-scope (account_move_line, account_journal, account_payment_method_line, product_category, …) and PostgreSQL-resident (res_company); then account_account's own company-dependent JSON columns (:1441, :1472) — unmerge action (cold)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_journal",
+      "account_payment_method_line",
+      "product_category",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-chart",
+      "account-journal",
+      "account-ledger"
+     ],
+     "owner": "product-taxonomy"
+    },
+    {
+     "register": "s2.3 §3a row 17",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.account.tag `_translate_tax_tags` (addons/account/models/account_account_tag.py:125)",
+     "what": "UPDATE: account_account_tag, account_report_line, account_report — chart template load / language install (cold)",
+     "migrated_tables": [
+      "account_account_tag",
+      "account_report_line",
+      "account_report"
+     ],
+     "also_touches": [
+      "account-chart"
+     ],
+     "owner": "account-settings"
+    },
+    {
+     "register": "s2.3 §3b row 22",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.account.tag `_compute_report_expression_id` (addons/account/models/account_account_tag.py:43)",
+     "what": "SELECT: account_account_tag (+ account_report_expression) — tag read (cold)",
+     "migrated_tables": [
+      "account_account_tag",
+      "account_report_expression"
+     ],
+     "also_touches": [
+      "account-chart"
+     ],
+     "owner": "account-settings"
+    },
+    {
+     "register": "s2.3 §3c row 1",
+     "disposition": "R",
+     "disposition_text": "R, and the discovery step is part of the rewrite: a Mongo-backed table has no `account_id` column or FK on PostgreSQL, so `pg_constraint` no longer lists it and the merge would silently leave its documents pointing at the deleted account. The account merge unit must enumerate Mongo-backed references from ORM field metadata (`ir_model_fields` where relation = 'account.account', same source `_action_unmerge` already uses) and update them before the source accounts are removed. PostgreSQL-resident targets keep the `pg_constraint` path (S)",
+     "where": "account.merge.wizard `_action_merge` (§3a row 16) → `base.partner.merge.automatic.wizard._update_foreign_keys_generic` (odoo/addons/base/wizard/base_partner_merge.py:119) and `_update_reference_fields_generic` (:198)",
+     "what": "account_move_line, account_journal, account_payment_method_line, account_tax_repartition_line, product_category, … plus PostgreSQL-resident res_company",
+     "migrated_tables": [
+      "account_move_line",
+      "account_journal",
+      "account_payment_method_line",
+      "account_tax_repartition_line",
+      "product_category"
+     ],
+     "also_touches": [
+      "account-chart",
+      "account-journal",
+      "account-ledger"
+     ],
+     "owner": "product-taxonomy"
     }
    ],
-   "blocked": [
-    "s2.3 §3a row 25"
-   ],
-   "register_rows_touching_later": [],
    "models": {
     "account.fiscal.position.account": {
      "table": "account_fiscal_position_account",
@@ -6657,10 +6684,38 @@
      "kind": "report_read_group",
      "register": "s2.3 §2 row account.invoice.report (addons/account/report/account_invoice_report.py:8)",
      "model": "account.invoice.report (addons/account/report/account_invoice_report.py:8)",
-     "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
+     "owner": "uom-packaging",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3a row 15",
+     "where": "account.account `_action_unmerge` (account_account.py:1341, 1362, 1391, 1420, 1441, 1472)",
+     "owner": "product-taxonomy",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3a row 17",
+     "where": "account.account.tag `_translate_tax_tags` (addons/account/models/account_account_tag.py:125)",
+     "owner": "account-settings",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3b row 22",
+     "where": "account.account.tag `_compute_report_expression_id` (addons/account/models/account_account_tag.py:43)",
+     "owner": "account-settings",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3c row 1",
+     "where": "account.merge.wizard `_action_merge` (§3a row 16) → `base.partner.merge.automatic.wizard._update_foreign_keys_generic` (odoo/addons/base/wizard/base_partner_merge.py:119) and `_update_reference_fields_generic` (:198)",
+     "owner": "product-taxonomy",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
     }
-   ],
-   "batch": "w1-b06"
+   ]
   },
   {
    "id": "account-journal",
@@ -6758,6 +6813,7 @@
     ]
    },
    "forward_refs": {},
+   "batch": "w2-b01",
    "raw_sql": [
     {
      "register": "s2.3 §3a row 10",
@@ -6887,11 +6943,11 @@
       "account_account"
      ],
      "also_touches": [
-      "product-taxonomy",
+      "account-chart",
       "account-journal",
       "account-ledger"
      ],
-     "owner": "account-chart"
+     "owner": "product-taxonomy"
     },
     {
      "register": "s2.3 §3c row 1",
@@ -6907,11 +6963,11 @@
       "product_category"
      ],
      "also_touches": [
-      "product-taxonomy",
+      "account-chart",
       "account-journal",
       "account-ledger"
      ],
-     "owner": "account-chart"
+     "owner": "product-taxonomy"
     }
    ],
    "models": {
@@ -8509,12 +8565,32 @@
      "model_refs": 1
     },
     {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3a row 13",
+     "where": "account.account `_check_journal_consistency`, `_check_account_type_sales_purchase_journal`, `_check_account_is_bank_journal_bank_account` (addons/account/models/account_account.py:191, :275, :301)",
+     "owner": "account-chart",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3a row 15",
+     "where": "account.account `_action_unmerge` (account_account.py:1341, 1362, 1391, 1420, 1441, 1472)",
+     "owner": "product-taxonomy",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3c row 1",
+     "where": "account.merge.wizard `_action_merge` (§3a row 16) → `base.partner.merge.automatic.wizard._update_foreign_keys_generic` (odoo/addons/base/wizard/base_partner_merge.py:119) and `_update_reference_fields_generic` (:198)",
+     "owner": "product-taxonomy",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
      "kind": "seed",
      "collection": "accountReconcileModelLineAccountTaxRel",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
     }
-   ],
-   "batch": "w2-b01"
+   ]
   },
   {
    "id": "product-catalog",
@@ -8724,6 +8800,7 @@
      "productTemplateAttributeValue.templateAttributeValueStockMoveRel.move_id → stockMove (junction)"
     ]
    },
+   "batch": "w2-b02",
    "raw_sql": [
     {
      "register": "s2.3 §3a row 28",
@@ -8825,11 +8902,11 @@
       "account_account"
      ],
      "also_touches": [
-      "uom-packaging",
+      "account-chart",
       "product-catalog",
       "account-ledger"
      ],
-     "owner": "account-chart"
+     "owner": "uom-packaging"
     },
     {
      "register": "s2.3 §2 row report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
@@ -13011,6 +13088,55 @@
      "job": "res.company `_cron_post_stock_valuation` (addons/account/models/company.py:1454)"
     },
     {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row sale.report (addons/sale/report/sale_report.py:11)",
+     "model": "sale.report (addons/sale/report/sale_report.py:11)",
+     "owner": "uom-packaging",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "model": "purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "owner": "product-taxonomy",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "model": "account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "owner": "uom-packaging",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "model": "report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "owner": "uom-packaging",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "model": "stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "owner": "product-taxonomy",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "model": "vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "owner": "product-taxonomy",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3a row 19",
+     "where": "product.template `_check_uom_not_in_invoice` (addons/account/models/product.py:246)",
+     "owner": "uom-packaging",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
      "kind": "seed",
      "collection": "productPricelist",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
@@ -13020,8 +13146,7 @@
      "collection": "productPricelistItem",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
     }
-   ],
-   "batch": "w2-b02"
+   ]
   },
   {
    "id": "stock-config",
@@ -13182,6 +13307,7 @@
      "stockRoute.move.move_id → stockMove (junction)"
     ]
    },
+   "batch": "w3-b01",
    "raw_sql": [
     {
      "register": "s2.3 §3a row 31",
@@ -17544,6 +17670,13 @@
      "job": "ir.autovacuum `_run_vacuum_cleaner` → every `@api.autovacuum`; the only in-scope one is `stock.warehouse.orderpoint._unlink_processed_orderpoints` (addons/stock/models/stock_orderpoint.py:695)"
     },
     {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "model": "report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "owner": "uom-packaging",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
      "kind": "seed",
      "collection": "stockPutawayRule",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
@@ -17553,8 +17686,7 @@
      "collection": "stockStorageCategoryCapacity",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
     }
-   ],
-   "batch": "w3-b01"
+   ]
   },
   {
    "id": "sale",
@@ -17683,6 +17815,7 @@
      "saleOrderLine.invoiceRel.invoice_line_id → accountMoveLine (junction)"
     ]
    },
+   "batch": "w4-b01",
    "raw_sql": [
     {
      "register": "s2.3 §3a row 20",
@@ -19730,9 +19863,36 @@
      "kind": "cron",
      "register": "s2.3 §1 row 25",
      "job": "sale.order `_cron_send_pending_emails` (addons/sale/models/sale_order.py:1741)"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row sale.report (addons/sale/report/sale_report.py:11)",
+     "model": "sale.report (addons/sale/report/sale_report.py:11)",
+     "owner": "uom-packaging",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3a row 31",
+     "where": "sale.order `_init_column_warehouse_id` (addons/sale_stock/models/sale_order.py:67)",
+     "owner": "stock-config",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3b row 32",
+     "where": "res.currency.rate.consolidation.mixin `_compute_consolidation_rate` (addons/account/models/res_currency_rate_consolidation_mixin.py:33)",
+     "owner": "account-settings",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3c row 2",
+     "where": "module load of account.reconcile.model.line, account.move.line, sale.order.line, purchase.order.line → `analytic.mixin.init` (addons/analytic/models/analytic_mixin.py:33)",
+     "owner": "account-journal",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
     }
-   ],
-   "batch": "w4-b01"
+   ]
   },
   {
    "id": "purchase",
@@ -19822,6 +19982,7 @@
      "purchaseOrder.stockPickingRel.stock_picking_id → stockPicking (junction)"
     ]
    },
+   "batch": "w5-b01",
    "raw_sql": [
     {
      "register": "s2.3 §3a row 30",
@@ -21624,9 +21785,43 @@
      "kind": "cron",
      "register": "s2.3 §1 row 23",
      "job": "purchase.order `_send_reminder_mail` (addons/purchase/models/purchase_order.py:1122)"
+    },
+    {
+     "kind": "cron",
+     "register": "s2.3 §1 row 22",
+     "job": "stock.rule `run_scheduler` (addons/stock/models/stock_rule.py:722)",
+     "owner": "stock-config",
+     "check": "re-run the cron body after this unit's tables move"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "model": "purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "owner": "product-taxonomy",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "model": "vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "owner": "product-taxonomy",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3b row 32",
+     "where": "res.currency.rate.consolidation.mixin `_compute_consolidation_rate` (addons/account/models/res_currency_rate_consolidation_mixin.py:33)",
+     "owner": "account-settings",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3c row 2",
+     "where": "module load of account.reconcile.model.line, account.move.line, sale.order.line, purchase.order.line → `analytic.mixin.init` (addons/analytic/models/analytic_mixin.py:33)",
+     "owner": "account-journal",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
     }
-   ],
-   "batch": "w5-b01"
+   ]
   },
   {
    "id": "stock-ops",
@@ -21836,6 +22031,7 @@
      "stockMove.account_move_id → accountMove (reference); forward: addons/stock_account/models/stock_move.py:260-285 _create_account_move creates the valuation account.move from the validated stock.move and writes account_move_id back (:283)"
     ]
    },
+   "batch": "w6-b01",
    "raw_sql": [
     {
      "register": "s2.3 §3a row 26",
@@ -28976,12 +29172,39 @@
      "model_refs": 81
     },
     {
+     "kind": "cron",
+     "register": "s2.3 §1 row 22",
+     "job": "stock.rule `run_scheduler` (addons/stock/models/stock_rule.py:722)",
+     "owner": "stock-config",
+     "check": "re-run the cron body after this unit's tables move"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "model": "report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "owner": "uom-packaging",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "model": "stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "owner": "product-taxonomy",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "model": "vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "owner": "product-taxonomy",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
      "kind": "seed",
      "collection": "stockPackageHistory",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
     }
-   ],
-   "batch": "w6-b01"
+   ]
   },
   {
    "id": "account-ledger",
@@ -29143,6 +29366,7 @@
     ]
    },
    "forward_refs": {},
+   "batch": "w7-b01",
    "raw_sql": [
     {
      "register": "s2.3 §3a row 1",
@@ -29550,11 +29774,11 @@
       "account_account"
      ],
      "also_touches": [
-      "uom-packaging",
+      "account-chart",
       "product-catalog",
       "account-ledger"
      ],
-     "owner": "account-chart"
+     "owner": "uom-packaging"
     },
     {
      "register": "s2.3 §2 row purchase.bill.union (addons/purchase/report/purchase_bill.py:7)",
@@ -29669,11 +29893,11 @@
       "account_account"
      ],
      "also_touches": [
-      "product-taxonomy",
+      "account-chart",
       "account-journal",
       "account-ledger"
      ],
-     "owner": "account-chart"
+     "owner": "product-taxonomy"
     },
     {
      "register": "s2.3 §3a row 19",
@@ -29875,11 +30099,11 @@
       "product_category"
      ],
      "also_touches": [
-      "product-taxonomy",
+      "account-chart",
       "account-journal",
       "account-ledger"
      ],
-     "owner": "account-chart"
+     "owner": "product-taxonomy"
     },
     {
      "register": "s2.3 §3c row 2",
@@ -35953,6 +36177,160 @@
      "job": "digest.digest `_cron_send_digest_email` → `_compute_kpi_account_total_revenue_value` (addons/account/models/digest.py:13)"
     },
     {
+     "kind": "cron",
+     "register": "s2.3 §1 row 21",
+     "job": "res.company `_cron_post_stock_valuation` (addons/account/models/company.py:1454)",
+     "owner": "product-catalog",
+     "check": "re-run the cron body after this unit's tables move"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "model": "account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "owner": "uom-packaging",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row purchase.bill.union (addons/purchase/report/purchase_bill.py:7)",
+     "model": "purchase.bill.union (addons/purchase/report/purchase_bill.py:7)",
+     "owner": "purchase",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row purchase.bill.line.match (addons/purchase/models/purchase_bill_line_match.py:9)",
+     "model": "purchase.bill.line.match (addons/purchase/models/purchase_bill_line_match.py:9)",
+     "owner": "purchase",
+     "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3a row 5",
+     "where": "account.move.line `_compute_account_id` (addons/account/models/account_move_line.py:729)",
+     "owner": "account-chart",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3a row 8",
+     "where": "account.payment `_compute_stat_buttons_from_reconciliation` (addons/account/models/account_payment.py:761)",
+     "owner": "account-chart",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3a row 10",
+     "where": "account.bank.statement `_get_invalid_statement_ids` (addons/account/models/account_bank_statement.py:331)",
+     "owner": "account-journal",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3a row 12",
+     "where": "account.journal dashboard, 12 methods (addons/account/models/account_journal_dashboard.py:47, 148, 329, 364, 421, 477, 524, 646, 765, 781, 784, 1005, 1048, 1076): `_compute_last_bank_statement`, `_get_sale_purchase_kpi_amounts`, `_get_json_activity_data`, `_query_has_sequence_holes`, `_compute_has_entries`, `_get_bank_cash_graph_data`, `_get_sale_purchase_graph_data`, `_fill_bank_cash_dashboard_data`, `_fill_sale_purchase_dashboard_data`, `_get_journal_dashboard_bank_running_balance`, `_get_direct_bank_payments`, `_get_journal_dashboard_outstanding_payments`",
+     "owner": "account-journal",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3a row 15",
+     "where": "account.account `_action_unmerge` (account_account.py:1341, 1362, 1391, 1420, 1441, 1472)",
+     "owner": "product-taxonomy",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3a row 19",
+     "where": "product.template `_check_uom_not_in_invoice` (addons/account/models/product.py:246)",
+     "owner": "uom-packaging",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3a row 20",
+     "where": "sale.order `_search_invoice_ids` (addons/sale/models/sale_order.py:836)",
+     "owner": "sale",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3a row 23",
+     "where": "`get_kpi_summary` (addons/account/models/kpi_provider.py:39, :49)",
+     "owner": "account-journal",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3b row 4",
+     "where": "account.move `_compute_payment_state` (account_move.py:1314)",
+     "owner": "account-chart",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3b row 5",
+     "where": "account.move `_compute_reconciled_payment_ids` (account_move.py:2508)",
+     "owner": "account-chart",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3b row 19",
+     "where": "account.move.line `_search_panel_domain_image` (account_move_line.py:2458)",
+     "owner": "account-chart",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3b row 24",
+     "where": "account.journal `_fill_sale_purchase_dashboard_data` (account_journal_dashboard.py:757)",
+     "owner": "account-journal",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3b row 25",
+     "where": "account.payment `_compute_stat_buttons_from_reconciliation` (addons/account/models/account_payment.py:804)",
+     "owner": "account-chart",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3b row 28",
+     "where": "res.partner `_credit_debit_get` (addons/account/models/partner.py:419)",
+     "owner": "account-chart",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3b row 29",
+     "where": "res.partner `_asset_difference_search` (partner.py:449)",
+     "owner": "account-chart",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3b row 32",
+     "where": "res.currency.rate.consolidation.mixin `_compute_consolidation_rate` (addons/account/models/res_currency_rate_consolidation_mixin.py:33)",
+     "owner": "account-settings",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3c row 1",
+     "where": "account.merge.wizard `_action_merge` (§3a row 16) → `base.partner.merge.automatic.wizard._update_foreign_keys_generic` (odoo/addons/base/wizard/base_partner_merge.py:119) and `_update_reference_fields_generic` (:198)",
+     "owner": "product-taxonomy",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "raw_sql_recheck",
+     "register": "s2.3 §3c row 2",
+     "where": "module load of account.reconcile.model.line, account.move.line, sale.order.line, purchase.order.line → `analytic.mixin.init` (addons/analytic/models/analytic_mixin.py:33)",
+     "owner": "account-journal",
+     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
      "kind": "seed",
      "collection": "accountPartialReconcile",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
@@ -35967,8 +36345,7 @@
      "collection": "accountPayment",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
     }
-   ],
-   "batch": "w7-b01"
+   ]
   }
  ],
  "waves": [
@@ -35991,7 +36368,8 @@
      "mapping_version": "map-draft-2",
      "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
      "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
-     "fixture_rows": 11
+     "fixture_rows": 11,
+     "register_rows_owned": 0
     },
     {
      "id": "w1-b02",
@@ -36010,7 +36388,8 @@
      "mapping_version": "map-draft-2",
      "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
      "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
-     "fixture_rows": 13
+     "fixture_rows": 13,
+     "register_rows_owned": 5
     },
     {
      "id": "w1-b03",
@@ -36026,7 +36405,8 @@
      "mapping_version": "map-draft-2",
      "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
      "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
-     "fixture_rows": 32
+     "fixture_rows": 32,
+     "register_rows_owned": 4
     },
     {
      "id": "w1-b04",
@@ -36048,7 +36428,8 @@
      "mapping_version": "map-draft-2",
      "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
      "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
-     "fixture_rows": 47
+     "fixture_rows": 47,
+     "register_rows_owned": 4
     },
     {
      "id": "w1-b05",
@@ -36063,7 +36444,8 @@
      "mapping_version": "map-draft-2",
      "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
      "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
-     "fixture_rows": 124
+     "fixture_rows": 124,
+     "register_rows_owned": 0
     },
     {
      "id": "w1-b06",
@@ -36083,7 +36465,8 @@
      "mapping_version": "map-draft-2",
      "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
      "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
-     "fixture_rows": 981
+     "fixture_rows": 981,
+     "register_rows_owned": 16
     }
    ],
    "order": "batches listed smallest fixture_rows first; the first is the wave's canary"
@@ -36108,7 +36491,8 @@
      "mapping_version": "map-draft-2",
      "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
      "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
-     "fixture_rows": 38
+     "fixture_rows": 38,
+     "register_rows_owned": 6
     },
     {
      "id": "w2-b02",
@@ -36130,7 +36514,8 @@
      "mapping_version": "map-draft-2",
      "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
      "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
-     "fixture_rows": 269
+     "fixture_rows": 269,
+     "register_rows_owned": 3
     }
    ],
    "order": "batches listed smallest fixture_rows first; the first is the wave's canary"
@@ -36159,7 +36544,8 @@
      "mapping_version": "map-draft-2",
      "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
      "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
-     "fixture_rows": 75
+     "fixture_rows": 75,
+     "register_rows_owned": 3
     }
    ],
    "order": "batches listed smallest fixture_rows first; the first is the wave's canary"
@@ -36182,7 +36568,8 @@
      "mapping_version": "map-draft-2",
      "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
      "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
-     "fixture_rows": 82
+     "fixture_rows": 82,
+     "register_rows_owned": 6
     }
    ],
    "order": "batches listed smallest fixture_rows first; the first is the wave's canary"
@@ -36205,7 +36592,8 @@
      "mapping_version": "map-draft-2",
      "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
      "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
-     "fixture_rows": 52
+     "fixture_rows": 52,
+     "register_rows_owned": 9
     }
    ],
    "order": "batches listed smallest fixture_rows first; the first is the wave's canary"
@@ -36236,7 +36624,8 @@
      "mapping_version": "map-draft-2",
      "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
      "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
-     "fixture_rows": 485
+     "fixture_rows": 485,
+     "register_rows_owned": 8
     }
    ],
    "order": "batches listed smallest fixture_rows first; the first is the wave's canary"
@@ -36264,7 +36653,8 @@
      "mapping_version": "map-draft-2",
      "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
      "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
-     "fixture_rows": 307
+     "fixture_rows": 307,
+     "register_rows_owned": 36
     }
    ],
    "order": "batches listed smallest fixture_rows first; the first is the wave's canary"

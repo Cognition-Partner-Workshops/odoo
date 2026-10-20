@@ -308,10 +308,11 @@ def table_resolver(colls, unit_of):
     return resolve, known
 
 
-def assign_register(rows, resolve, depth):
-    """A row's rewrite must exist by the first wave in which any table it reads is Mongo-backed:
-    the owner is the lowest-depth unit among every migrated table the row names; every other
-    unit named is listed so its batch re-checks the rewrite when its own tables move."""
+def assign_register(rows, resolve, order):
+    """A row's rewrite must exist by the first batch in which any table it reads is Mongo-backed:
+    the owner is the first unit in migration order (wave, then batch position within the wave)
+    among every migrated table the row names; every other unit named is listed, in migration
+    order, so its batch re-checks the rewrite when its own tables move."""
     table_cell = {"1": "in-scope tables reached", "2": "source tables", "3a": "in-scope tables",
                   "3b": "in-scope tables", "3c": "in-scope tables"}
     for r in rows:
@@ -319,7 +320,7 @@ def assign_register(rows, resolve, depth):
         if sec in table_cell:
             named = resolve.all(r["cells"][table_cell[sec]])
             r["tables"] = [t for t, _ in named]
-            units = sorted({u for _, u in named}, key=lambda u: (depth[u], u))
+            units = sorted({u for _, u in named}, key=lambda u: order[u])
             r["unit"] = units[0] if units else None
             r["also_touches"] = units[1:]
         elif sec == "4":
@@ -563,7 +564,9 @@ def main(argv=None) -> int:
     if same:
         raise SystemExit(f"references between units of the same depth (sibling batches): {same}")
 
-    rows = assign_register(parse_register(notes), resolve, depth)
+    waves = build_waves(units, depth, spec, tol, contracts)
+    order = {b_unit: (w["wave"], i) for w in waves for i, b in enumerate(w["batches"]) for b_unit in b["units"]}
+    rows = assign_register(parse_register(notes), resolve, order)
     totals = register_totals(rows)
     expect = {"3a": {"rows": 32, "sites": 58, "R": 24, "S": 4, "B": 4},
               "3b": {"rows": 42, "sites": 45, "R": 40, "S": 2, "B": 0}}
@@ -587,8 +590,10 @@ def main(argv=None) -> int:
     for u in units.values():
         u["routines"] = routines.get(u["id"], [])
         u["scenarios"] = scenarios(u, tests.get(u["id"], []))
-
-    waves = build_waves(units, depth, spec, tol, contracts)
+    for w in waves:
+        for b in w["batches"]:
+            b["register_rows_owned"] = sum(len(units[x]["raw_sql"]) + len(units[x]["crons"])
+                                           + len(units[x]["reports_and_views"]) + len(units[x]["hooks"]) for x in b["units"])
 
     in_scope = sorted(t for t, v in buckets["tables"].items() if v["bucket"] == "in_scope" and v["kind"] == "table")
     transient = sorted(set(in_scope) - set(known_unit))
@@ -622,7 +627,7 @@ def main(argv=None) -> int:
             "Depth is the longest hard-dependency path. Hard edges are decision.references columns and the FK columns of 1:N embedded child rows (child_key id). Junction-array child_references (two-column key, one field) are not hard: the element holds only the referenced row's integer id, which is the same value on PostgreSQL (id shadow, s2.3 disposition S) and on MongoDB (_id), so the array loads and the ORM resolves it before or after the referenced collection migrates; NOTES.md s3.3 lists, from ir_model_fields in odoo_src, which model's Many2many field writes each forward junction. The two plain FK columns in forward_exceptions are cited to the code that creates the target row after the owning row.",
             "forward_refs = references to units at the same or a later depth; they resolve through the id shadow (s2.3 disposition S) until that unit migrates. No two units of the same depth reference each other (checked), so no batch references a sibling batch's collection.",
             "Waves are the depths (wave = depth + 1), one unit per batch. Batches within a wave are listed smallest fixture_rows first, the first being the wave's canary; the manager may merge small depth-0 batches at preflight (1-5 units per batch). Shared and reference collections (uom, product category, package types, chart of accounts, ...) sit at depth 0 and 1, waves 1 and 2.",
-            "Raw-SQL, cron, view and hook rows are copied from the s2.3 register with their disposition letter unchanged. A row is owned by the lowest-depth (earliest-wave) unit among every migrated table it names, because the statement breaks as soon as the first of those tables loses its PostgreSQL columns; the other units it names are listed in also_touches and carry the row under register_rows_touching_later, so their batch re-checks the rewrite when their own tables move. Hooks go to the unit owning the module's main model; rows naming no migrated table are listed under estate.register_rows_without_unit.",
+            "Raw-SQL, cron, view and hook rows are copied from the s2.3 register with their disposition letter unchanged. A row is owned by the first unit in migration order (wave, then batch position within the wave) among every migrated table it names, because the statement breaks as soon as the first of those tables loses its PostgreSQL columns; the other units it names are listed in also_touches (migration order) and carry the row under register_rows_touching_later with a scenario, so their batch re-checks the rewrite when their own tables move. Hooks go to the unit owning the module's main model; rows naming no migrated table are listed under estate.register_rows_without_unit.",
             "fixture_rows come from the committed fixture manifest (odoo_fixture = odoo_src clone + one outlier); a unit whose collection has 0 fixture rows is flagged recon_unverified and needs a seed scenario before its recon can grade PASS.",
             "Scenarios are the Odoo test files whose env[...] references land mostly on the unit's tables (run with --test-tags on the module), the register's report/view read_group checks, the cron bodies, and a seed for every 0-row collection.",
         ],
@@ -674,6 +679,21 @@ def scenarios(u, tests):
                     "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"})
     for c in u["crons"]:
         out.append({"kind": "cron", "register": c["register"], "job": c["where"]})
+    seen = {x["register"] for x in out if "register" in x}
+    for r in u["register_rows_touching_later"]:
+        if r["register"] in seen:
+            continue
+        seen.add(r["register"])
+        if r["register"].startswith("s2.3 §2 "):
+            out.append({"kind": "report_read_group", "register": r["register"], "model": r["where"], "owner": r["owner"],
+                        "check": "re-check after this unit's tables move: read_group / search_read of the report "
+                                 "(rewritten by the owner batch) equals the PostgreSQL result on the fixture"})
+        elif r["register"].startswith("s2.3 §1 "):
+            out.append({"kind": "cron", "register": r["register"], "job": r["where"], "owner": r["owner"],
+                        "check": "re-run the cron body after this unit's tables move"})
+        else:
+            out.append({"kind": "raw_sql_recheck", "register": r["register"], "where": r["where"], "owner": r["owner"],
+                        "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"})
     for c in u["recon_unverified"]["collections"]:
         out.append({"kind": "seed", "collection": c,
                     "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"})

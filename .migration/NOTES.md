@@ -292,12 +292,12 @@ Coverage: 223 = 66 roots + 76 embedded + 81 transient (s3.1 answers.txt `close t
 
 | unit | depth | batch | collections | embedded tables | fixture rows | depends_on | forward refs to | register rows owned (R/S/B/orm) | rows also touching it | 0-row collections |
 |---|---|---|---|---|---|---|---|---|---|---|
-| uom-packaging | 0 | w1-b03 | 2 | 2 | 32 | — | stock-config | 3/0/0/0 | 4 | — |
+| uom-packaging | 0 | w1-b03 | 2 | 2 | 32 | — | stock-config | 4/0/0/0 | 3 | — |
 | stock-reference | 0 | w1-b01 | 3 | 0 | 11 | — | — | 0/0/0/0 | 0 | stockScrapReasonTag |
-| product-taxonomy | 0 | w1-b02 | 5 | 3 | 13 | — | product-catalog, stock-config | 3/0/0/0 | 2 | productTag, productBaseUnit |
+| product-taxonomy | 0 | w1-b02 | 5 | 3 | 13 | — | product-catalog, stock-config | 5/0/0/0 | 0 | productTag, productBaseUnit |
 | product-attributes | 0 | w1-b05 | 1 | 2 | 124 | — | product-catalog | 0/0/0/0 | 0 | — |
-| account-settings | 0 | w1-b04 | 8 | 7 | 47 | — | account-journal | 2/0/0/0 | 2 | accountCashRounding, accountJournalGroup, accountLockException, accountReportExpression, accountReportExternalValue |
-| account-chart | 0 | w1-b06 | 6 | 15 | 981 | — | account-ledger, product-catalog, purchase, sale | 18/1/1/1 | 0 | — |
+| account-settings | 0 | w1-b04 | 8 | 7 | 47 | — | account-journal | 4/0/0/0 | 0 | accountCashRounding, accountJournalGroup, accountLockException, accountReportExpression, accountReportExternalValue |
+| account-chart | 0 | w1-b06 | 6 | 15 | 981 | — | account-ledger, product-catalog, purchase, sale | 13/1/1/1 | 5 | — |
 | account-journal | 1 | w2-b01 | 4 | 4 | 38 | account-chart, account-settings | — | 5/0/1/0 | 3 | accountReconcileModelLineAccountTaxRel |
 | product-catalog | 1 | w2-b02 | 8 | 13 | 269 | product-attributes, product-taxonomy, uom-packaging | purchase, sale, stock-ops | 0/0/2/1 | 7 | productPricelist, productPricelistItem |
 | stock-config | 2 | w3-b01 | 8 | 7 | 75 | account-chart, product-catalog, product-taxonomy, stock-reference, uom-packaging | stock-ops | 1/0/0/2 | 1 | stockPutawayRule, stockStorageCategoryCapacity |
@@ -365,13 +365,15 @@ first is the wave's canary. The manager may merge the small depth-0 batches at p
 | 7 | 6 | `w7-b01` account-ledger (307 rows) |
 
 Register placement. A raw-SQL statement, report or view breaks the moment the *first* table it reads loses its
-PostgreSQL columns, so every §1–§3 row is owned by the lowest-depth (earliest-wave) unit among all the migrated tables
-it names, and every other unit it names is listed in `also_touches`; those units carry the row again under
-`register_rows_touching_later` (owner named) so their batch re-checks the rewrite when their own tables move. This
+PostgreSQL columns, so every §1–§3 row is owned by the first unit in migration order (wave, then batch position within
+the wave, i.e. the smallest-first order below) among all the migrated tables it names, and every other unit it names is
+listed in `also_touches` in that order; those units carry the row again under `register_rows_touching_later` (owner
+named) and get a re-check scenario for it, so their batch re-tests the rewrite when their own tables move. This
 supersedes the §6 sentence that attaches the 5 `_table_sql` reports and 3 views to their driving table's unit: `sale.report`
 joins `uom_uom`, so it is rewritten (two-store: MongoDB for the migrated tables, PostgreSQL for the rest) in the uom batch
 of wave 1 and re-checked by product-catalog (wave 2) and sale (wave 4); the dashboard row 12 goes to account-journal
-(wave 2) and is re-checked by account-ledger (wave 7); `purchase.bill.union` reads `account_move` and `purchase_order`, so it goes to purchase (wave 5)
+(wave 2) and is re-checked by account-ledger (wave 7); `_translate_tax_tags` (account_account_tag, account_report_line,
+account_report) goes to account-settings (`w1-b04`, before account-chart `w1-b06`); `purchase.bill.union` reads `account_move` and `purchase_order`, so it goes to purchase (wave 5)
 and is re-checked by account-ledger. Hooks (§4) go to the unit owning
 the module's main model.
 
