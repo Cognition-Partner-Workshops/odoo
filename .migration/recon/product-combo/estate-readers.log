@@ -1,4 +1,4 @@
-# w3-b03 estate probe log. Run-branch tip 3c87755 (PR branch rebased, head 49dbcd8 + this evidence), 2026-10-20 UTC.
+# w3-b03 estate probe log. Run-branch tip 3c87755 (PR branch rebased on it), 2026-10-20 UTC. Every Mongo write ran from the checkout through the mongo_guard hook (plugin PR #111).
 # Pre-opt-in baseline: odoo-base worktree 03a3cb5 (PostgreSQL storage), clone odoo_w3b03_src = createdb -T odoo_src + seed_scenario_rows.py
 READER sale.report 51
 READER purchase.report 32
@@ -8,7 +8,24 @@ READER report.stock.quantity 5263
 READER stock.avco.report 7
 READER vendor.delay.report 10
 
-# Pre-copy of the 15 unprefixed collections into odoo_w3b03_estate__* (estate-precopy.py, run from the checkout through the mongo_guard hook)
+# Content digest of the 15 unprefixed collections before the run (estate-unprefixed-digest.py: sha256 over canonical extended JSON of every document, sorted by _id)
+DIGEST-BEFORE uomUom count 30 sha256 51210b18c83f5c18f6964f03b4d9dc99597a66973598dcff709d0d73ca783975
+DIGEST-BEFORE updateProductAttributeValue count 0 sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+DIGEST-BEFORE productAttribute count 14 sha256 d230a417aa708fa8c64217992c0f787fa7b02bba5350ca6ecdb83f9152c98e89
+DIGEST-BEFORE productBaseUnit count 2 sha256 4c41392252e402f499d0f893a1658ffdf84e45251ab0819a74dd2cb984078a3f
+DIGEST-BEFORE productAttributeValue count 101 sha256 44c97c55c6d956b0104f3267b41c2895a39ac8dc6b54cea017506cbb7d4a1e49
+DIGEST-BEFORE productTemplate count 38 sha256 e95dcdf9ca35da2fada9a550acab4c78be626d0276d58cdb425e44539c2c513d
+DIGEST-BEFORE productComboItem count 10 sha256 52fe6eed6c965c388b2609658ccd677e19c46c193f975fae6174396a2345659a
+DIGEST-BEFORE productTag count 3 sha256 5101eb7ace05d571795568b028a1a559fd99570fe4487f862f1b059edaa20064
+DIGEST-BEFORE productUom count 6 sha256 d36bfc6719b11599a99369bd46486753115f0cf65982ae8edf55cc82366b3a90
+DIGEST-BEFORE productProduct count 48 sha256 3a80ce34cd6d51a172cee9b52186766a20d17655c05c13a2d420a5b591fdd690
+DIGEST-BEFORE productTemplateAttributeLine count 9 sha256 face0237e3e9332da1711c9467b9752055b69586be5e011e2dc34c3565124da7
+DIGEST-BEFORE productCategory count 8 sha256 49f03c075d0118bc6a708d0cd9346f8b7b2ce4eed179499ff65a7eea205a5f11
+DIGEST-BEFORE productTemplateAttributeValue count 24 sha256 c7ca29f6b43860c26545366f0bfbb0a02852d9c630703d76c505936caec3f52a
+DIGEST-BEFORE productDocument count 2 sha256 b5c9260e7e20770353a053e4809228587564f31e4e1f70b134b18707478f6d92
+DIGEST-BEFORE productCombo count 4 sha256 547a9d1db373805c810f09b620b41e98aa4e549526ec19b6a23622f5a8a2a6e5
+
+# Pre-copy of the 15 unprefixed collections into odoo_w3b03_estate__* (estate-precopy.py)
 PRECOPY uomUom source 30 copied 30
 PRECOPY updateProductAttributeValue source 0 copied 0
 PRECOPY productAttribute source 14 copied 14
@@ -25,7 +42,7 @@ PRECOPY productTemplateAttributeValue source 24 copied 24
 PRECOPY productDocument source 2 copied 2
 PRECOPY productCombo source 4 copied 4
 
-# Opted-in clone odoo_w3b03_estate (prefix odoo_w3b03_estate__*), after -u product,sale at 3c87755 (exit 0, 57.8 s, update.log 2 lines: the known 'unknown option mongodb_migration_db' config warning only)
+# Opted-in clone odoo_w3b03_estate (prefix odoo_w3b03_estate__*), after -u product,sale at 3c87755 (exit 0, 0m58.446s, estate-update.log: the known 'unknown option mongodb_migration_db' config warning only, 0 ERROR / Traceback lines)
 READER sale.report 51
 READER purchase.report 32
 READER account.invoice.report 62
@@ -44,20 +61,20 @@ COUNT product.product orm 48 docs 48
 SHADOW product_product ['id', 'product_tmpl_id', 'base_unit_id', 'create_uid', 'write_uid', 'default_code', 'barcode', 'combination_indices', 'standard_price', 'qty_available', 'lst_price', 'volume', 'weight', 'base_unit_count', 'active', 'can_image_variant_1024_be_zoomed', 'is_favorite', 'write_date', 'create_date', 'lot_properties_definition']
 COMBOS [(1, 'Desk Accessories Combo', None, 'USD', 3, 1.98), (2, 'Desks Combo', None, 'USD', 2, 147.0), (3, 'Chairs Combo', None, 'USD', 3, 33.0), (4, 'Chicago Desk Set', 3, 'USD', 2, 14.0)]
 
-# Unprefixed collections after the -u run (read-only count)
-UNPREFIXED uomUom before 30 after 30 unchanged
-UNPREFIXED updateProductAttributeValue before 0 after 0 unchanged
-UNPREFIXED productAttribute before 14 after 14 unchanged
-UNPREFIXED productBaseUnit before 2 after 2 unchanged
-UNPREFIXED productAttributeValue before 101 after 101 unchanged
-UNPREFIXED productTemplate before 38 after 38 unchanged
-UNPREFIXED productComboItem before 10 after 10 unchanged
-UNPREFIXED productTag before 3 after 3 unchanged
-UNPREFIXED productUom before 6 after 6 unchanged
-UNPREFIXED productProduct before 48 after 48 unchanged
-UNPREFIXED productTemplateAttributeLine before 9 after 9 unchanged
-UNPREFIXED productCategory before 8 after 8 unchanged
-UNPREFIXED productTemplateAttributeValue before 24 after 24 unchanged
-UNPREFIXED productDocument before 2 after 2 unchanged
-UNPREFIXED productCombo before 4 after 4 unchanged
+# Unprefixed collections after the -u run: count and content digest equal to before (estate-unprefixed.digest.json is the after-run file, byte-identical to the before-run one)
+UNPREFIXED uomUom count 30 -> 30 sha256 51210b18c83f5c18 -> 51210b18c83f5c18 unchanged
+UNPREFIXED updateProductAttributeValue count 0 -> 0 sha256 e3b0c44298fc1c14 -> e3b0c44298fc1c14 unchanged
+UNPREFIXED productAttribute count 14 -> 14 sha256 d230a417aa708fa8 -> d230a417aa708fa8 unchanged
+UNPREFIXED productBaseUnit count 2 -> 2 sha256 4c41392252e402f4 -> 4c41392252e402f4 unchanged
+UNPREFIXED productAttributeValue count 101 -> 101 sha256 44c97c55c6d956b0 -> 44c97c55c6d956b0 unchanged
+UNPREFIXED productTemplate count 38 -> 38 sha256 e95dcdf9ca35da2f -> e95dcdf9ca35da2f unchanged
+UNPREFIXED productComboItem count 10 -> 10 sha256 52fe6eed6c965c38 -> 52fe6eed6c965c38 unchanged
+UNPREFIXED productTag count 3 -> 3 sha256 5101eb7ace05d571 -> 5101eb7ace05d571 unchanged
+UNPREFIXED productUom count 6 -> 6 sha256 d36bfc6719b11599 -> d36bfc6719b11599 unchanged
+UNPREFIXED productProduct count 48 -> 48 sha256 3a80ce34cd6d51a1 -> 3a80ce34cd6d51a1 unchanged
+UNPREFIXED productTemplateAttributeLine count 9 -> 9 sha256 face0237e3e9332d -> face0237e3e9332d unchanged
+UNPREFIXED productCategory count 8 -> 8 sha256 49f03c075d0118bc -> 49f03c075d0118bc unchanged
+UNPREFIXED productTemplateAttributeValue count 24 -> 24 sha256 c7ca29f6b43860c2 -> c7ca29f6b43860c2 unchanged
+UNPREFIXED productDocument count 2 -> 2 sha256 b5c9260e7e207703 -> b5c9260e7e207703 unchanged
+UNPREFIXED productCombo count 4 -> 4 sha256 547a9d1db373805c -> 547a9d1db373805c unchanged
 ALL-UNCHANGED
