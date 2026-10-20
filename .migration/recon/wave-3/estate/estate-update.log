@@ -1,0 +1,574 @@
+2026-10-20 15:31:29,964 7407 WARNING ? odoo.tools.config: unknown option 'mongodb_migration_db' in the config file at /home/ubuntu/w3verify/odoo.conf, option stored as-is, without parsing
+2026-10-20 15:31:29,964 7407 INFO ? odoo: Odoo version 20.0
+2026-10-20 15:31:29,964 7407 INFO ? odoo: Using configuration file at /home/ubuntu/w3verify/odoo.conf
+2026-10-20 15:31:29,964 7407 INFO ? odoo: addons paths: _NamespacePath(['/home/ubuntu/repos/odoo/odoo/addons', '/home/ubuntu/.local/share/Odoo/addons/20.0', '/home/ubuntu/repos/odoo/addons'])
+2026-10-20 15:31:29,964 7407 INFO ? odoo: database: default@/var/run/postgresql:5433
+2026-10-20 15:31:30,262 7407 INFO odoo_w3v_estate odoo.modules.loading: loading 1 modules...
+2026-10-20 15:31:30,265 7407 INFO odoo_w3v_estate odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra)
+2026-10-20 15:31:30,283 7407 INFO odoo_w3v_estate odoo.modules.loading: updating modules list
+2026-10-20 15:31:30,285 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: ALLOW access to module.update_list on [] to user __system__ #1 via n/a
+2026-10-20 15:31:30,674 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: ALLOW access to module.button_upgrade on ['Inventory', 'Purchase', 'Products & Pricelists', 'Sales', 'Units of measure'] to user __system__ #1 via n/a
+2026-10-20 15:31:30,675 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: ALLOW access to module.update_list on ['Inventory', 'Purchase', 'Products & Pricelists', 'Sales', 'Units of measure'] to user __system__ #1 via n/a
+2026-10-20 15:31:30,929 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: ALLOW access to module.button_install on [] to user __system__ #1 via n/a
+2026-10-20 15:31:31,018 7407 INFO odoo_w3v_estate odoo.modules.loading: loading 70 modules...
+2026-10-20 15:31:31,019 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module uom (4/70)
+2026-10-20 15:31:31,025 7407 INFO odoo_w3v_estate odoo.registry: module uom: creating or updating database tables
+2026-10-20 15:31:31,031 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'uom_uom': column 'name' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:31,031 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'uom_uom': column 'relative_factor' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:32,216 7407 INFO odoo_w3v_estate odoo.modules.loading: loading uom/data/uom_data.xml
+2026-10-20 15:31:33,967 7407 INFO odoo_w3v_estate odoo.modules.loading: loading uom/security/uom_security.xml
+2026-10-20 15:31:34,003 7407 INFO odoo_w3v_estate odoo.modules.loading: loading uom/views/uom_uom_views.xml
+2026-10-20 15:31:34,037 7407 INFO odoo_w3v_estate odoo.modules.loading: loading uom/security/ir.access.csv
+2026-10-20 15:31:34,150 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module uom: loading translation file /home/ubuntu/repos/odoo/addons/uom/i18n/fr.po for language fr_FR
+2026-10-20 15:31:34,172 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:31:34,174 7407 INFO odoo_w3v_estate odoo.modules.loading: Module uom loaded in 3.15s, 212 queries (+212 other)
+2026-10-20 15:31:34,272 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module barcodes_gs1_nomenclature (21/70)
+2026-10-20 15:31:34,303 7407 INFO odoo_w3v_estate odoo.registry: module barcodes_gs1_nomenclature: creating or updating database tables
+2026-10-20 15:31:34,324 7407 INFO odoo_w3v_estate odoo.modules.loading: loading barcodes_gs1_nomenclature/data/barcodes_gs1_rules.xml
+2026-10-20 15:31:34,333 7407 INFO odoo_w3v_estate odoo.modules.loading: loading barcodes_gs1_nomenclature/views/barcodes_view.xml
+2026-10-20 15:31:34,379 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module barcodes_gs1_nomenclature: loading translation file /home/ubuntu/repos/odoo/addons/barcodes_gs1_nomenclature/i18n/fr.po for language fr_FR
+2026-10-20 15:31:34,397 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:31:34,398 7407 INFO odoo_w3v_estate odoo.modules.loading: Module barcodes_gs1_nomenclature loaded in 0.13s, 165 queries (+165 other)
+2026-10-20 15:31:34,446 7407 WARNING odoo_w3v_estate odoo.addons.mail.controllers.attachment: markdown2 is not installed, markdown will not be rendered
+2026-10-20 15:31:34,461 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module analytic (27/70)
+2026-10-20 15:31:34,527 7407 INFO odoo_w3v_estate odoo.registry: module analytic: creating or updating database tables
+2026-10-20 15:31:34,570 7407 INFO odoo_w3v_estate odoo.modules.loading: loading analytic/security/analytic_security.xml
+2026-10-20 15:31:34,624 7407 INFO odoo_w3v_estate odoo.modules.loading: loading analytic/views/analytic_line_views.xml
+2026-10-20 15:31:34,683 7407 INFO odoo_w3v_estate odoo.modules.loading: loading analytic/views/analytic_account_views.xml
+2026-10-20 15:31:34,718 7407 INFO odoo_w3v_estate odoo.modules.loading: loading analytic/views/analytic_plan_views.xml
+2026-10-20 15:31:34,735 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [28, 29]
+2026-10-20 15:31:34,739 7407 INFO odoo_w3v_estate odoo.modules.loading: loading analytic/views/analytic_distribution_model_views.xml
+2026-10-20 15:31:34,751 7407 INFO odoo_w3v_estate odoo.modules.loading: loading analytic/data/analytic_data.xml
+2026-10-20 15:31:34,753 7407 INFO odoo_w3v_estate odoo.modules.loading: loading analytic/security/ir.access.csv
+2026-10-20 15:31:34,810 7407 INFO odoo_w3v_estate odoo.modules.loading: Module analytic: loading demo
+2026-10-20 15:31:34,810 7407 INFO odoo_w3v_estate odoo.modules.loading: loading analytic/data/analytic_account_demo.xml
+2026-10-20 15:31:34,824 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module analytic: loading translation file /home/ubuntu/repos/odoo/addons/analytic/i18n/fr.po for language fr_FR
+2026-10-20 15:31:34,855 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:31:34,856 7407 INFO odoo_w3v_estate odoo.modules.loading: Module analytic loaded in 0.40s, 567 queries (+567 other)
+2026-10-20 15:31:34,870 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module product (37/70)
+2026-10-20 15:31:34,942 7407 INFO odoo_w3v_estate odoo.registry: module product: creating or updating database tables
+2026-10-20 15:31:34,948 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_template': column 'type' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:34,948 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_template': column 'service_tracking' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:34,948 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_template': column 'name' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:34,948 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_template': column 'base_unit_count' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:34,948 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_template': column 'invoice_policy' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:37,599 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_product': column 'base_unit_count' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:39,453 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_attribute': column 'create_variant' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:39,453 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_attribute': column 'display_type' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:39,453 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_attribute': column 'name' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:39,902 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_attribute_custom_value': column 'custom_product_template_attribute_value_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:40,086 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_attribute_value': column 'attribute_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:40,086 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_attribute_value': column 'name' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:40,551 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_base_unit': column 'name' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:40,729 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_category': column 'name' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:41,671 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_combo': column 'name' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:41,978 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_combo_item': column 'combo_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:41,978 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_combo_item': column 'product_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:42,427 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_document': column 'ir_attachment_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:42,427 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_document': column 'attached_on_sale' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:42,737 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_pricelist': column 'currency_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:42,737 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_pricelist': column 'name' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:43,466 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_pricelist_item': column 'applied_on' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:43,466 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_pricelist_item': column 'base' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:43,466 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_pricelist_item': column 'compute_price' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:45,169 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_supplierinfo': column 'partner_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:45,170 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_supplierinfo': column 'uom_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:45,170 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_supplierinfo': column 'currency_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:45,170 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_supplierinfo': column 'product_tmpl_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:45,170 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_supplierinfo': column 'delay' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:45,170 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_supplierinfo': column 'min_qty' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:46,194 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_tag': column 'name' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:46,518 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_template_attribute_line': column 'product_tmpl_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:46,518 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_template_attribute_line': column 'attribute_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:47,107 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_template_attribute_value': column 'product_attribute_value_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:47,107 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_template_attribute_value': column 'attribute_line_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:48,003 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_uom': column 'uom_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:48,003 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_uom': column 'product_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:48,003 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_uom': column 'barcode' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:48,988 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_label_layout': column 'custom_quantity' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:48,988 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_label_layout': column 'print_format' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:48,988 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_label_layout': column 'zpl_template' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:48,988 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'product_label_layout': column 'move_quantity' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:49,733 7407 INFO odoo_w3v_estate odoo.orm.storage_mongodb: Table 'update_product_attribute_value': column 'attribute_value_id' moved to MongoDB, dropped NOT NULL and default
+2026-10-20 15:31:50,078 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/data/product_data.xml
+2026-10-20 15:31:50,276 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/security/product_security.xml
+2026-10-20 15:31:50,401 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/data/product_attribute_data.xml
+2026-10-20 15:31:50,719 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/wizard/product_label_layout_views.xml
+2026-10-20 15:31:50,749 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [30]
+2026-10-20 15:31:50,755 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/wizard/update_product_attribute_value_views.xml
+2026-10-20 15:31:50,760 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/product_tag_views.xml
+2026-10-20 15:31:50,774 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/product_views.xml
+2026-10-20 15:31:50,785 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [31]
+2026-10-20 15:31:50,919 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/res_config_settings_views.xml
+2026-10-20 15:31:50,949 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/product_attribute_views.xml
+2026-10-20 15:31:50,984 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/product_attribute_value_views.xml
+2026-10-20 15:31:50,994 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/product_base_unit_views.xml
+2026-10-20 15:31:50,996 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/product_category_views.xml
+2026-10-20 15:31:51,013 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/product_combo_views.xml
+2026-10-20 15:31:51,023 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/product_document_views.xml
+2026-10-20 15:31:51,043 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/product_pricelist_item_views.xml
+2026-10-20 15:31:51,102 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/product_pricelist_views.xml
+2026-10-20 15:31:51,133 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/product_supplierinfo_views.xml
+2026-10-20 15:31:51,199 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/product_template_attribute_line_views.xml
+2026-10-20 15:31:51,211 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/product_template_views.xml
+2026-10-20 15:31:51,280 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/res_country_group_views.xml
+2026-10-20 15:31:51,293 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/res_partner_views.xml
+2026-10-20 15:31:51,314 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/views/uom_views.xml
+2026-10-20 15:31:51,342 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/report/product_reports.xml
+2026-10-20 15:31:51,353 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/report/product_product_templates.xml
+2026-10-20 15:31:51,438 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/report/product_template_templates.xml
+2026-10-20 15:31:51,450 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/report/product_pricelist_report_templates.xml
+2026-10-20 15:31:51,460 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/security/ir.access.csv
+2026-10-20 15:31:51,707 7407 INFO odoo_w3v_estate odoo.modules.loading: Module product: loading demo
+2026-10-20 15:31:51,707 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/data/product_attribute_demo.xml
+2026-10-20 15:31:58,566 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/data/product_category_demo.xml
+2026-10-20 15:31:58,799 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/data/product_demo.xml
+2026-10-20 15:32:02,181 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/data/product_document_demo.xml
+2026-10-20 15:32:02,297 7407 INFO odoo_w3v_estate odoo.modules.loading: loading product/data/product_supplierinfo_demo.xml
+2026-10-20 15:32:03,947 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module product: loading translation file /home/ubuntu/repos/odoo/addons/product/i18n/fr.po for language fr_FR
+2026-10-20 15:32:04,067 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:04,068 7407 INFO odoo_w3v_estate odoo.modules.loading: Module product loaded in 29.20s, 2393 queries (+2393 other)
+2026-10-20 15:32:04,161 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module account (49/70)
+2026-10-20 15:32:04,565 7407 INFO odoo_w3v_estate odoo.registry: module account: creating or updating database tables
+2026-10-20 15:32:05,592 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/security/account_security.xml
+2026-10-20 15:32:05,911 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/data/account_data.xml
+2026-10-20 15:32:05,917 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/data/digest_data.xml
+2026-10-20 15:32:05,922 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_report.xml
+2026-10-20 15:32:05,931 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/data/mail_template_data.xml
+2026-10-20 15:32:05,934 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/data/onboarding_data.xml
+2026-10-20 15:32:05,937 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/data/account_tour.xml
+2026-10-20 15:32:05,940 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/data/ir_sequence.xml
+2026-10-20 15:32:05,942 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/data/res_country_group.xml
+2026-10-20 15:32:05,944 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/data/portal_entry_data.xml
+2026-10-20 15:32:05,948 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_payment_view.xml
+2026-10-20 15:32:06,031 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/wizard/account_automatic_entry_wizard_views.xml
+2026-10-20 15:32:06,040 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/wizard/account_autopost_bills_wizard.xml
+2026-10-20 15:32:06,045 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/wizard/account_unreconcile_view.xml
+2026-10-20 15:32:06,053 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/wizard/account_move_reversal_view.xml
+2026-10-20 15:32:06,060 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/wizard/account_resequence_views.xml
+2026-10-20 15:32:06,064 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/wizard/account_payment_register_views.xml
+2026-10-20 15:32:06,075 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_move_views.xml
+2026-10-20 15:32:06,950 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/wizard/setup_wizards_view.xml
+2026-10-20 15:32:06,967 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_account_views.xml
+2026-10-20 15:32:07,003 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_journal_views.xml
+2026-10-20 15:32:07,037 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [32, 33, 34]
+2026-10-20 15:32:07,052 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_account_tag_views.xml
+2026-10-20 15:32:07,066 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_bank_statement_views.xml
+2026-10-20 15:32:07,120 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [36, 37]
+2026-10-20 15:32:07,124 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_reconcile_model_views.xml
+2026-10-20 15:32:07,145 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_tax_views.xml
+2026-10-20 15:32:07,234 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_full_reconcile_views.xml
+2026-10-20 15:32:07,240 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_payment_term_views.xml
+2026-10-20 15:32:07,266 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_payment_method.xml
+2026-10-20 15:32:07,276 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/res_partner_bank_views.xml
+2026-10-20 15:32:07,304 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/report_statement.xml
+2026-10-20 15:32:07,321 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/terms_template.xml
+2026-10-20 15:32:07,334 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/wizard/account_validate_move_view.xml
+2026-10-20 15:32:07,357 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/res_company_views.xml
+2026-10-20 15:32:07,386 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/product_view.xml
+2026-10-20 15:32:07,429 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [38, 39, 40, 41]
+2026-10-20 15:32:07,445 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [42, 43, 44, 45]
+2026-10-20 15:32:07,484 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_analytic_plan_views.xml
+2026-10-20 15:32:07,495 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_analytic_account_views.xml
+2026-10-20 15:32:07,526 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_analytic_distribution_model_views.xml
+2026-10-20 15:32:07,549 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_analytic_line_views.xml
+2026-10-20 15:32:07,591 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/report_invoice.xml
+2026-10-20 15:32:07,628 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/report/account_invoice_report_view.xml
+2026-10-20 15:32:07,661 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_cash_rounding_view.xml
+2026-10-20 15:32:07,685 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/ir_actions_views.xml
+2026-10-20 15:32:07,697 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/ir_module_views.xml
+2026-10-20 15:32:07,710 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/base_document_layout_views.xml
+2026-10-20 15:32:07,722 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/res_config_settings_views.xml
+2026-10-20 15:32:07,804 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/partner_view.xml
+2026-10-20 15:32:07,915 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_journal_dashboard_view.xml
+2026-10-20 15:32:07,934 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_portal_templates.xml
+2026-10-20 15:32:07,997 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/report_payment_receipt_templates.xml
+2026-10-20 15:32:08,008 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/data/service_cron.xml
+2026-10-20 15:32:08,054 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_incoterms_view.xml
+2026-10-20 15:32:08,068 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/data/account_incoterms_data.xml
+2026-10-20 15:32:08,075 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/digest_views.xml
+2026-10-20 15:32:08,089 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/wizard/account_move_send_wizard.xml
+2026-10-20 15:32:08,096 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/wizard/account_move_send_batch_wizard.xml
+2026-10-20 15:32:08,102 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/report/account_hash_integrity_templates.xml
+2026-10-20 15:32:08,110 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/report/account_stock_valuation_report.xml
+2026-10-20 15:32:08,114 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/res_currency.xml
+2026-10-20 15:32:08,125 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/res_country_group_view.xml
+2026-10-20 15:32:08,136 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_menuitem.xml
+2026-10-20 15:32:08,240 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/wizard/account_secure_entries_wizard.xml
+2026-10-20 15:32:08,251 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/mail_message_views.xml
+2026-10-20 15:32:08,273 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/wizard/accrued_orders.xml
+2026-10-20 15:32:08,283 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/bill_preview_template.xml
+2026-10-20 15:32:08,293 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/data/account_reports_data.xml
+2026-10-20 15:32:08,312 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/uom_uom_views.xml
+2026-10-20 15:32:08,326 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/product_views.xml
+2026-10-20 15:32:08,336 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/tests_shared_js_python.xml
+2026-10-20 15:32:08,342 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/account_lock_exception_views.xml
+2026-10-20 15:32:08,348 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/views/report_templates.xml
+2026-10-20 15:32:08,377 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/wizard/account_merge_wizard_views.xml
+2026-10-20 15:32:08,386 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/data/ir_config_parameter_data.xml
+2026-10-20 15:32:08,388 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/security/ir.access.csv
+2026-10-20 15:32:09,092 7407 INFO odoo_w3v_estate odoo.modules.loading: Module account: loading demo
+2026-10-20 15:32:09,092 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/demo/account_demo.xml
+2026-10-20 15:32:09,098 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account/demo/res_partner_bank_demo.xml
+2026-10-20 15:32:09,140 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module account: loading translation file /home/ubuntu/repos/odoo/addons/account/i18n/fr.po for language fr_FR
+2026-10-20 15:32:09,554 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:09,558 7407 INFO odoo_w3v_estate odoo.modules.loading: Module account loaded in 5.40s, 5740 queries (+5740 other)
+2026-10-20 15:32:09,564 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module stock (51/70)
+2026-10-20 15:32:09,752 7407 INFO odoo_w3v_estate odoo.registry: module stock: creating or updating database tables
+2026-10-20 15:32:10,681 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/security/stock_security.xml
+2026-10-20 15:32:10,957 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/data/digest_data.xml
+2026-10-20 15:32:10,962 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/data/mail_message_subtype_data.xml
+2026-10-20 15:32:10,963 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/data/mail_templates.xml
+2026-10-20 15:32:10,973 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/data/default_barcode_patterns.xml
+2026-10-20 15:32:10,975 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/data/stock_data.xml
+2026-10-20 15:32:10,981 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/data/stock_sequence_data.xml
+2026-10-20 15:32:10,984 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/data/stock_traceability_report_data.xml
+2026-10-20 15:32:10,986 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/report_stock_quantity.xml
+2026-10-20 15:32:11,002 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/report_stock_reception.xml
+2026-10-20 15:32:11,007 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/stock_report_views.xml
+2026-10-20 15:32:11,019 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/report_package_barcode.xml
+2026-10-20 15:32:11,041 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/report_lot_barcode.xml
+2026-10-20 15:32:11,051 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/report_location_barcode.xml
+2026-10-20 15:32:11,061 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/report_picking_batch.xml
+2026-10-20 15:32:11,072 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/report_stockpicking_operations.xml
+2026-10-20 15:32:11,088 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/report_deliveryslip.xml
+2026-10-20 15:32:11,122 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/report_stockinventory.xml
+2026-10-20 15:32:11,128 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/report_stock_rule.xml
+2026-10-20 15:32:11,163 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/package_templates.xml
+2026-10-20 15:32:11,173 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/picking_templates.xml
+2026-10-20 15:32:11,178 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/product_templates.xml
+2026-10-20 15:32:11,187 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/report_return_slip.xml
+2026-10-20 15:32:11,203 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/report/stock_allocation_report.xml
+2026-10-20 15:32:11,205 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/data/mail_template_data.xml
+2026-10-20 15:32:11,210 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_menu_views.xml
+2026-10-20 15:32:11,241 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_add_to_wave_views.xml
+2026-10-20 15:32:11,251 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_inventory_conflict.xml
+2026-10-20 15:32:11,260 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_backorder_confirmation_views.xml
+2026-10-20 15:32:11,266 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_zero_demand_confirmation_views.xml
+2026-10-20 15:32:11,272 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_request_count.xml
+2026-10-20 15:32:11,283 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_replenishment_info.xml
+2026-10-20 15:32:11,302 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_rules_report_views.xml
+2026-10-20 15:32:11,310 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_warn_insufficient_qty_views.xml
+2026-10-20 15:32:11,323 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/product_replenish_views.xml
+2026-10-20 15:32:11,331 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/product_label_layout_views.xml
+2026-10-20 15:32:11,341 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_orderpoint_snooze_views.xml
+2026-10-20 15:32:11,348 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_orderpoint_suggest.xml
+2026-10-20 15:32:11,356 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_package_destination_views.xml
+2026-10-20 15:32:11,362 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_picking_to_batch_views.xml
+2026-10-20 15:32:11,371 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_inventory_adjustment_name.xml
+2026-10-20 15:32:11,379 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_inventory_warning.xml
+2026-10-20 15:32:11,390 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_label_type.xml
+2026-10-20 15:32:11,396 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_lot_label_layout.xml
+2026-10-20 15:32:11,403 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_quant_relocate.xml
+2026-10-20 15:32:11,409 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/wizard/stock_put_in_pack_views.xml
+2026-10-20 15:32:11,417 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/res_partner_views.xml
+2026-10-20 15:32:11,473 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/product_strategy_views.xml
+2026-10-20 15:32:11,497 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_lot_views.xml
+2026-10-20 15:32:11,544 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [46, 47, 48]
+2026-10-20 15:32:11,555 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [49, 50, 51]
+2026-10-20 15:32:11,583 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_quant_views.xml
+2026-10-20 15:32:11,821 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_warehouse_views.xml
+2026-10-20 15:32:11,842 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_move_line_views.xml
+2026-10-20 15:32:11,926 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_move_views.xml
+2026-10-20 15:32:12,032 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [57, 58]
+2026-10-20 15:32:12,045 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_picking_views.xml
+2026-10-20 15:32:12,230 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [59]
+2026-10-20 15:32:12,244 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_picking_batch_views.xml
+2026-10-20 15:32:12,291 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_picking_type_views.xml
+2026-10-20 15:32:12,329 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/product_views.xml
+2026-10-20 15:32:12,569 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_location_views.xml
+2026-10-20 15:32:12,635 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_orderpoint_views.xml
+2026-10-20 15:32:12,695 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_storage_category_views.xml
+2026-10-20 15:32:12,720 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/res_config_settings_views.xml
+2026-10-20 15:32:12,773 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/report_stock_traceability.xml
+2026-10-20 15:32:12,786 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_template.xml
+2026-10-20 15:32:12,804 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_rule_views.xml
+2026-10-20 15:32:12,835 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_scrap_reason_tag_views.xml
+2026-10-20 15:32:12,839 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_package_history_views.xml
+2026-10-20 15:32:12,859 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_package_type_view.xml
+2026-10-20 15:32:12,877 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [60, 61]
+2026-10-20 15:32:12,883 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_package_views.xml
+2026-10-20 15:32:12,928 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_forecasted.xml
+2026-10-20 15:32:12,932 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/stock_reference_views.xml
+2026-10-20 15:32:12,950 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/uom_uom_views.xml
+2026-10-20 15:32:12,969 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/views/digest_digest_views.xml
+2026-10-20 15:32:12,982 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/security/ir.access.csv
+2026-10-20 15:32:13,472 7407 INFO odoo_w3v_estate odoo.modules.loading: Module stock: loading demo
+2026-10-20 15:32:13,473 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/data/stock_demo_pre.xml
+2026-10-20 15:32:15,003 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/data/stock_demo.xml
+2026-10-20 15:32:15,078 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/data/stock_demo2.xml
+2026-10-20 15:32:15,146 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/data/stock_demo3_batch.xml
+2026-10-20 15:32:15,150 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/data/stock_orderpoint_demo.xml
+2026-10-20 15:32:15,152 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock/data/stock_storage_category_demo.xml
+2026-10-20 15:32:15,186 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module stock: loading translation file /home/ubuntu/repos/odoo/addons/stock/i18n/fr.po for language fr_FR
+2026-10-20 15:32:15,459 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:15,462 7407 INFO odoo_w3v_estate odoo.modules.loading: Module stock loaded in 5.90s, 5238 queries (+5238 other)
+2026-10-20 15:32:15,462 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module account_edi_ubl_cii (52/70)
+2026-10-20 15:32:15,569 7407 INFO odoo_w3v_estate odoo.registry: module account_edi_ubl_cii: creating or updating database tables
+2026-10-20 15:32:16,035 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_edi_ubl_cii/data/uom_data.xml
+2026-10-20 15:32:17,800 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_edi_ubl_cii/data/cii_22_templates.xml
+2026-10-20 15:32:17,831 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_edi_ubl_cii/data/ir_config_parameter_data.xml
+2026-10-20 15:32:17,833 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_edi_ubl_cii/views/account_tax_views.xml
+2026-10-20 15:32:17,865 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_edi_ubl_cii/views/account_move_views.xml
+2026-10-20 15:32:17,886 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_edi_ubl_cii/views/res_partner_views.xml
+2026-10-20 15:32:17,922 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_edi_ubl_cii/views/uom_uom_views.xml
+2026-10-20 15:32:17,936 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_edi_ubl_cii/report/account_edi_ubl_cii_report_templates.xml
+2026-10-20 15:32:17,979 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module account_edi_ubl_cii: loading translation file /home/ubuntu/repos/odoo/addons/account_edi_ubl_cii/i18n/fr.po for language fr_FR
+2026-10-20 15:32:18,020 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:18,021 7407 INFO odoo_w3v_estate odoo.modules.loading: Module account_edi_ubl_cii loaded in 2.56s, 527 queries (+527 other)
+2026-10-20 15:32:18,021 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module account_payment (53/70)
+2026-10-20 15:32:18,076 7407 INFO odoo_w3v_estate odoo.registry: module account_payment: creating or updating database tables
+2026-10-20 15:32:18,176 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_payment/data/ir_config_parameter.xml
+2026-10-20 15:32:18,178 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_payment/data/portal_entry_data.xml
+2026-10-20 15:32:18,179 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_payment/views/account_payment_menus.xml
+2026-10-20 15:32:18,185 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_payment/views/account_portal_templates.xml
+2026-10-20 15:32:18,275 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_payment/views/account_move_views.xml
+2026-10-20 15:32:18,348 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_payment/views/account_journal_views.xml
+2026-10-20 15:32:18,370 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_payment/views/account_payment_views.xml
+2026-10-20 15:32:18,386 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_payment/views/payment_form_templates.xml
+2026-10-20 15:32:18,394 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_payment/views/payment_provider_views.xml
+2026-10-20 15:32:18,405 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_payment/views/payment_transaction_views.xml
+2026-10-20 15:32:18,415 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_payment/wizards/account_payment_register_views.xml
+2026-10-20 15:32:18,427 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_payment/wizards/payment_link_wizard_views.xml
+2026-10-20 15:32:18,446 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_payment/wizards/payment_refund_wizard_views.xml
+2026-10-20 15:32:18,452 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_payment/wizards/res_config_settings_views.xml
+2026-10-20 15:32:18,493 7407 INFO odoo_w3v_estate odoo.modules.loading: loading account_payment/security/ir.access.csv
+2026-10-20 15:32:18,540 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module account_payment: loading translation file /home/ubuntu/repos/odoo/addons/account_payment/i18n/fr.po for language fr_FR
+2026-10-20 15:32:18,567 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:18,567 7407 INFO odoo_w3v_estate odoo.modules.loading: Module account_payment loaded in 0.55s, 665 queries (+665 other)
+2026-10-20 15:32:18,568 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module account_qr_code_sepa (54/70)
+2026-10-20 15:32:18,586 7407 INFO odoo_w3v_estate odoo.registry: module account_qr_code_sepa: creating or updating database tables
+2026-10-20 15:32:18,627 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module account_qr_code_sepa: loading translation file /home/ubuntu/repos/odoo/addons/account_qr_code_sepa/i18n/fr.po for language fr_FR
+2026-10-20 15:32:18,634 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:18,635 7407 INFO odoo_w3v_estate odoo.modules.loading: Module account_qr_code_sepa loaded in 0.07s, 55 queries (+55 other)
+2026-10-20 15:32:18,635 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module l10n_us_account (55/70)
+2026-10-20 15:32:18,656 7407 INFO odoo_w3v_estate odoo.registry: module l10n_us_account: creating or updating database tables
+2026-10-20 15:32:18,707 7407 INFO odoo_w3v_estate odoo.modules.loading: loading l10n_us_account/views/l10n_us_account_menus.xml
+2026-10-20 15:32:18,716 7407 INFO odoo_w3v_estate odoo.modules.loading: loading l10n_us_account/views/account_tax_views.xml
+2026-10-20 15:32:18,752 7407 INFO odoo_w3v_estate odoo.modules.loading: loading l10n_us_account/views/res_partner_bank_views.xml
+2026-10-20 15:32:18,767 7407 INFO odoo_w3v_estate odoo.modules.loading: loading l10n_us_account/views/res_config_settings_views.xml
+2026-10-20 15:32:18,810 7407 INFO odoo_w3v_estate odoo.modules.loading: loading l10n_us_account/data/tax_report.xml
+2026-10-20 15:32:18,820 7407 INFO odoo_w3v_estate odoo.modules.loading: loading l10n_us_account/data/uom_data.xml
+2026-10-20 15:32:19,172 7407 INFO odoo_w3v_estate odoo.modules.loading: Module l10n_us_account: loading demo
+2026-10-20 15:32:19,172 7407 INFO odoo_w3v_estate odoo.modules.loading: loading l10n_us_account/demo/demo_company.xml
+2026-10-20 15:32:19,179 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module l10n_us_account: no translation for language fr_FR
+2026-10-20 15:32:19,185 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:19,186 7407 INFO odoo_w3v_estate odoo.modules.loading: Module l10n_us_account loaded in 0.55s, 254 queries (+254 other)
+2026-10-20 15:32:19,186 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module purchase (56/70)
+2026-10-20 15:32:19,285 7407 INFO odoo_w3v_estate odoo.registry: module purchase: creating or updating database tables
+2026-10-20 15:32:19,976 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/security/purchase_security.xml
+2026-10-20 15:32:20,100 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/data/digest_data.xml
+2026-10-20 15:32:20,104 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/data/portal_entry_data.xml
+2026-10-20 15:32:20,106 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/views/account_move_views.xml
+2026-10-20 15:32:20,169 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/data/purchase_data.xml
+2026-10-20 15:32:20,171 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/data/ir_cron_data.xml
+2026-10-20 15:32:20,172 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/report/purchase_reports.xml
+2026-10-20 15:32:20,176 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/views/product_views.xml
+2026-10-20 15:32:20,408 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/views/purchase_views.xml
+2026-10-20 15:32:20,443 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [62, 63, 64, 65]
+2026-10-20 15:32:20,541 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [66, 67]
+2026-10-20 15:32:20,618 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/views/purchase_bill_line_match_views.xml
+2026-10-20 15:32:20,633 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/views/res_config_settings_views.xml
+2026-10-20 15:32:20,676 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/views/res_partner_views.xml
+2026-10-20 15:32:20,715 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [68, 69]
+2026-10-20 15:32:20,762 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/report/purchase_bill_views.xml
+2026-10-20 15:32:20,777 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/report/purchase_report_views.xml
+2026-10-20 15:32:20,802 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/data/mail_templates.xml
+2026-10-20 15:32:20,811 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/data/mail_template_data.xml
+2026-10-20 15:32:20,813 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/views/portal_templates.xml
+2026-10-20 15:32:20,861 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/report/purchase_order_templates.xml
+2026-10-20 15:32:20,880 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/report/purchase_quotation_templates.xml
+2026-10-20 15:32:20,893 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/views/analytic_account_views.xml
+2026-10-20 15:32:20,903 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/wizard/bill_to_po_wizard_views.xml
+2026-10-20 15:32:20,909 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/data/purchase_tour.xml
+2026-10-20 15:32:20,911 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/security/ir.access.csv
+2026-10-20 15:32:21,106 7407 INFO odoo_w3v_estate odoo.modules.loading: Module purchase: loading demo
+2026-10-20 15:32:21,107 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase/data/purchase_demo.xml
+2026-10-20 15:32:21,133 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module purchase: loading translation file /home/ubuntu/repos/odoo/addons/purchase/i18n/fr.po for language fr_FR
+2026-10-20 15:32:21,224 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:21,225 7407 INFO odoo_w3v_estate odoo.modules.loading: Module purchase loaded in 2.04s, 2098 queries (+2098 other)
+2026-10-20 15:32:21,225 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module spreadsheet_account (57/70)
+2026-10-20 15:32:21,261 7407 INFO odoo_w3v_estate odoo.registry: module spreadsheet_account: creating or updating database tables
+2026-10-20 15:32:21,337 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module spreadsheet_account: loading translation file /home/ubuntu/repos/odoo/addons/spreadsheet_account/i18n/fr.po for language fr_FR
+2026-10-20 15:32:21,345 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:21,346 7407 INFO odoo_w3v_estate odoo.modules.loading: Module spreadsheet_account loaded in 0.12s, 72 queries (+72 other)
+2026-10-20 15:32:21,346 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module stock_account (58/70)
+2026-10-20 15:32:21,405 7407 INFO odoo_w3v_estate odoo.registry: module stock_account: creating or updating database tables
+2026-10-20 15:32:21,969 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_account/security/stock_account_security.xml
+2026-10-20 15:32:21,972 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_account/data/stock_account_data.xml
+2026-10-20 15:32:21,973 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_account/views/account_move_views.xml
+2026-10-20 15:32:22,043 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_account/views/res_config_settings_views.xml
+2026-10-20 15:32:22,092 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_account/views/report_invoice.xml
+2026-10-20 15:32:22,111 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_account/views/stock_quant_views.xml
+2026-10-20 15:32:22,425 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_account/views/product_views.xml
+2026-10-20 15:32:22,503 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_account/views/product_value_views.xml
+2026-10-20 15:32:22,524 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_account/views/stock_location_views.xml
+2026-10-20 15:32:22,539 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_account/views/stock_lot_views.xml
+2026-10-20 15:32:22,552 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_account/views/stock_move_views.xml
+2026-10-20 15:32:22,608 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_account/wizard/stock_inventory_adjustment_name_views.xml
+2026-10-20 15:32:22,619 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_account/report/account_invoice_report_view.xml
+2026-10-20 15:32:22,625 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_account/report/stock_avco_audit_report_views.xml
+2026-10-20 15:32:22,633 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_account/security/ir.access.csv
+2026-10-20 15:32:22,749 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module stock_account: loading translation file /home/ubuntu/repos/odoo/addons/stock_account/i18n/fr.po for language fr_FR
+2026-10-20 15:32:22,786 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:22,790 7407 INFO odoo_w3v_estate odoo.modules.loading: Module stock_account loaded in 1.44s, 954 queries (+954 other)
+2026-10-20 15:32:22,790 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module stock_sms (59/70)
+2026-10-20 15:32:22,839 7407 INFO odoo_w3v_estate odoo.registry: module stock_sms: creating or updating database tables
+2026-10-20 15:32:22,915 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_sms/data/sms_data.xml
+2026-10-20 15:32:22,917 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_sms/views/res_config_settings_views.xml
+2026-10-20 15:32:22,987 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_sms/wizard/confirm_stock_sms_views.xml
+2026-10-20 15:32:22,994 7407 INFO odoo_w3v_estate odoo.modules.loading: loading stock_sms/security/ir.access.csv
+2026-10-20 15:32:23,052 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module stock_sms: loading translation file /home/ubuntu/repos/odoo/addons/stock_sms/i18n/fr.po for language fr_FR
+2026-10-20 15:32:23,069 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:23,070 7407 INFO odoo_w3v_estate odoo.modules.loading: Module stock_sms loaded in 0.28s, 247 queries (+247 other)
+2026-10-20 15:32:23,072 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module purchase_edi_ubl_bis3 (60/70)
+2026-10-20 15:32:23,105 7407 INFO odoo_w3v_estate odoo.registry: module purchase_edi_ubl_bis3: creating or updating database tables
+2026-10-20 15:32:23,172 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module purchase_edi_ubl_bis3: loading translation file /home/ubuntu/repos/odoo/addons/purchase_edi_ubl_bis3/i18n/fr.po for language fr_FR
+2026-10-20 15:32:23,180 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:23,181 7407 INFO odoo_w3v_estate odoo.modules.loading: Module purchase_edi_ubl_bis3 loaded in 0.11s, 113 queries (+113 other)
+2026-10-20 15:32:23,181 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module purchase_stock (61/70)
+2026-10-20 15:32:23,273 7407 INFO odoo_w3v_estate odoo.registry: module purchase_stock: creating or updating database tables
+2026-10-20 15:32:23,815 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/data/purchase_stock_data.xml
+2026-10-20 15:32:23,819 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/data/mail_templates.xml
+2026-10-20 15:32:23,833 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/report/vendor_delay_report.xml
+2026-10-20 15:32:23,864 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/views/purchase_views.xml
+2026-10-20 15:32:23,923 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/views/stock_views.xml
+2026-10-20 15:32:23,980 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/views/stock_picking_views.xml
+2026-10-20 15:32:24,027 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/views/stock_rule_views.xml
+2026-10-20 15:32:24,043 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/views/res_config_settings_views.xml
+2026-10-20 15:32:24,134 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/views/res_partner_views.xml
+2026-10-20 15:32:24,171 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/views/stock_lot_views.xml
+2026-10-20 15:32:24,185 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/views/stock_orderpoint_views.xml
+2026-10-20 15:32:24,196 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/views/stock_reference_views.xml
+2026-10-20 15:32:24,209 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/views/product_views.xml
+2026-10-20 15:32:24,317 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/report/purchase_report_views.xml
+2026-10-20 15:32:24,327 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/report/purchase_report_templates.xml
+2026-10-20 15:32:24,349 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/report/report_stock_rule.xml
+2026-10-20 15:32:24,359 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/wizard/stock_replenishment_info.xml
+2026-10-20 15:32:24,382 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/wizard/product_replenish_views.xml
+2026-10-20 15:32:24,391 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/security/ir.access.csv
+2026-10-20 15:32:24,485 7407 INFO odoo_w3v_estate odoo.modules.loading: Module purchase_stock: loading demo
+2026-10-20 15:32:24,486 7407 INFO odoo_w3v_estate odoo.modules.loading: loading purchase_stock/data/purchase_stock_demo.xml
+2026-10-20 15:32:24,614 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module purchase_stock: loading translation file /home/ubuntu/repos/odoo/addons/purchase_stock/i18n/fr.po for language fr_FR
+2026-10-20 15:32:24,646 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:24,648 7407 INFO odoo_w3v_estate odoo.modules.loading: Module purchase_stock loaded in 1.47s, 1293 queries (+1293 other)
+2026-10-20 15:32:24,648 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module sale (62/70)
+2026-10-20 15:32:24,763 7407 INFO odoo_w3v_estate odoo.registry: module sale: creating or updating database tables
+2026-10-20 15:32:25,903 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/security/res_groups.xml
+2026-10-20 15:32:26,017 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/report/account_invoice_report_views.xml
+2026-10-20 15:32:26,050 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/report/ir_actions_report_templates.xml
+2026-10-20 15:32:26,082 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/report/ir_actions_report.xml
+2026-10-20 15:32:26,088 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/report/sale_report_views.xml
+2026-10-20 15:32:26,135 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/data/ir_cron.xml
+2026-10-20 15:32:26,136 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/data/ir_sequence_data.xml
+2026-10-20 15:32:26,138 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/data/mail_message_subtype_data.xml
+2026-10-20 15:32:26,140 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/data/mail_template_data.xml
+2026-10-20 15:32:26,143 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/data/portal_entry_data.xml
+2026-10-20 15:32:26,145 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/data/sale_tour.xml
+2026-10-20 15:32:26,147 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/data/ir_config_parameter.xml
+2026-10-20 15:32:26,149 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/wizard/account_accrued_orders_wizard_views.xml
+2026-10-20 15:32:26,166 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/wizard/mass_cancel_orders_views.xml
+2026-10-20 15:32:26,173 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/wizard/payment_link_wizard_views.xml
+2026-10-20 15:32:26,183 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/wizard/res_config_settings_views.xml
+2026-10-20 15:32:26,281 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/wizard/sale_make_invoice_advance_views.xml
+2026-10-20 15:32:26,295 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/wizard/sale_order_discount_views.xml
+2026-10-20 15:32:26,301 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/views/sale_order_views.xml
+2026-10-20 15:32:26,551 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/views/account_views.xml
+2026-10-20 15:32:26,675 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/views/account_analytic_line_views.xml
+2026-10-20 15:32:26,688 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/views/crm_team_views.xml
+2026-10-20 15:32:26,705 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/views/mail_activity_views.xml
+2026-10-20 15:32:26,708 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/views/payment_views.xml
+2026-10-20 15:32:26,733 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/views/product_document_views.xml
+2026-10-20 15:32:26,771 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/views/product_template_views.xml
+2026-10-20 15:32:26,845 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/views/product_views.xml
+2026-10-20 15:32:26,945 7407 INFO odoo_w3v_estate odoo.models.unlink: User #1 deleted ir.actions.act_window.view records with IDs: [86, 87, 88, 89]
+2026-10-20 15:32:27,033 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/views/res_partner_views.xml
+2026-10-20 15:32:27,129 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/views/sale_order_line_views.xml
+2026-10-20 15:32:27,150 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/views/sale_portal_templates.xml
+2026-10-20 15:32:27,214 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/views/utm_campaign_views.xml
+2026-10-20 15:32:27,232 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/views/sale_menus.xml
+2026-10-20 15:32:27,285 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/security/ir.access.csv
+2026-10-20 15:32:27,594 7407 INFO odoo_w3v_estate odoo.modules.loading: Module sale: loading demo
+2026-10-20 15:32:27,594 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/data/product_demo.xml
+2026-10-20 15:32:29,763 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale/data/sale_demo.xml
+2026-10-20 15:32:29,816 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module sale: loading translation file /home/ubuntu/repos/odoo/addons/sale/i18n/fr.po for language fr_FR
+2026-10-20 15:32:29,965 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:29,967 7407 INFO odoo_w3v_estate odoo.modules.loading: Module sale loaded in 5.32s, 3105 queries (+3105 other)
+2026-10-20 15:32:29,967 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module spreadsheet_dashboard_account (63/70)
+2026-10-20 15:32:30,012 7407 INFO odoo_w3v_estate odoo.modules.loading: loading spreadsheet_dashboard_account/data/dashboards.xml
+2026-10-20 15:32:30,033 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module spreadsheet_dashboard_account: loading translation file /home/ubuntu/repos/odoo/addons/spreadsheet_dashboard_account/i18n/fr.po for language fr_FR
+2026-10-20 15:32:30,040 7407 INFO odoo_w3v_estate odoo.registry: Caches invalidated, signaling through the database: ['default', 'stable']
+2026-10-20 15:32:30,041 7407 INFO odoo_w3v_estate odoo.modules.loading: Module spreadsheet_dashboard_account loaded in 0.07s, 33 queries (+33 other)
+2026-10-20 15:32:30,041 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module spreadsheet_dashboard_stock_account (64/70)
+2026-10-20 15:32:30,080 7407 INFO odoo_w3v_estate odoo.modules.loading: loading spreadsheet_dashboard_stock_account/data/dashboards.xml
+2026-10-20 15:32:30,096 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module spreadsheet_dashboard_stock_account: loading translation file /home/ubuntu/repos/odoo/addons/spreadsheet_dashboard_stock_account/i18n/fr.po for language fr_FR
+2026-10-20 15:32:30,101 7407 INFO odoo_w3v_estate odoo.registry: Caches invalidated, signaling through the database: ['default', 'stable']
+2026-10-20 15:32:30,102 7407 INFO odoo_w3v_estate odoo.modules.loading: Module spreadsheet_dashboard_stock_account loaded in 0.06s, 32 queries (+32 other)
+2026-10-20 15:32:30,102 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module sale_edi_ubl (65/70)
+2026-10-20 15:32:30,126 7407 INFO odoo_w3v_estate odoo.registry: module sale_edi_ubl: creating or updating database tables
+2026-10-20 15:32:30,322 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_edi_ubl/security/ir.access.csv
+2026-10-20 15:32:30,348 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module sale_edi_ubl: loading translation file /home/ubuntu/repos/odoo/addons/sale_edi_ubl/i18n/fr.po for language fr_FR
+2026-10-20 15:32:30,356 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:30,357 7407 INFO odoo_w3v_estate odoo.modules.loading: Module sale_edi_ubl loaded in 0.26s, 159 queries (+159 other)
+2026-10-20 15:32:30,357 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module sale_purchase (66/70)
+2026-10-20 15:32:30,388 7407 INFO odoo_w3v_estate odoo.registry: module sale_purchase: creating or updating database tables
+2026-10-20 15:32:30,690 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_purchase/data/mail_templates.xml
+2026-10-20 15:32:30,704 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_purchase/views/product_views.xml
+2026-10-20 15:32:30,764 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_purchase/views/sale_order_views.xml
+2026-10-20 15:32:30,808 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_purchase/views/purchase_order_views.xml
+2026-10-20 15:32:30,845 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module sale_purchase: loading translation file /home/ubuntu/repos/odoo/addons/sale_purchase/i18n/fr.po for language fr_FR
+2026-10-20 15:32:30,858 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:30,858 7407 INFO odoo_w3v_estate odoo.modules.loading: Module sale_purchase loaded in 0.50s, 252 queries (+252 other)
+2026-10-20 15:32:30,858 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module sale_sms (67/70)
+2026-10-20 15:32:30,899 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_sms/security/ir.access.csv
+2026-10-20 15:32:30,928 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module sale_sms: loading translation file /home/ubuntu/repos/odoo/addons/sale_sms/i18n/fr.po for language fr_FR
+2026-10-20 15:32:30,929 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module sale_sms: no translation for language fr_FR
+2026-10-20 15:32:30,932 7407 INFO odoo_w3v_estate odoo.registry: Caches invalidated, signaling through the database: ['default', 'stable']
+2026-10-20 15:32:30,933 7407 INFO odoo_w3v_estate odoo.modules.loading: Module sale_sms loaded in 0.07s, 73 queries (+73 other)
+2026-10-20 15:32:30,933 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module sale_stock (68/70)
+2026-10-20 15:32:30,997 7407 INFO odoo_w3v_estate odoo.registry: module sale_stock: creating or updating database tables
+2026-10-20 15:32:31,389 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/views/product_views.xml
+2026-10-20 15:32:31,449 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/views/sale_order_views.xml
+2026-10-20 15:32:31,551 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/views/sale_order_line_views.xml
+2026-10-20 15:32:31,562 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/views/stock_route_views.xml
+2026-10-20 15:32:31,576 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/views/return_reason_views.xml
+2026-10-20 15:32:31,585 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/views/res_config_settings_views.xml
+2026-10-20 15:32:31,634 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/views/sale_stock_portal_template.xml
+2026-10-20 15:32:31,657 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/views/stock_lot_views.xml
+2026-10-20 15:32:31,671 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/views/res_users_views.xml
+2026-10-20 15:32:31,715 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/views/stock_picking_views.xml
+2026-10-20 15:32:31,774 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/views/stock_reference_views.xml
+2026-10-20 15:32:31,784 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/report/stock_report_deliveryslip.xml
+2026-10-20 15:32:31,794 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/report/return_label.xml
+2026-10-20 15:32:31,802 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/data/mail_templates.xml
+2026-10-20 15:32:31,813 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/data/return_reason_data.xml
+2026-10-20 15:32:31,818 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/data/sale_stock_data.xml
+2026-10-20 15:32:31,820 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/wizard/stock_replenishment_info.xml
+2026-10-20 15:32:31,834 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/wizard/stock_rules_report_views.xml
+2026-10-20 15:32:31,844 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/security/ir.access.csv
+2026-10-20 15:32:31,949 7407 INFO odoo_w3v_estate odoo.modules.loading: Module sale_stock: loading demo
+2026-10-20 15:32:31,950 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_stock/data/sale_order_demo.xml
+2026-10-20 15:32:32,032 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module sale_stock: loading translation file /home/ubuntu/repos/odoo/addons/sale_stock/i18n/fr.po for language fr_FR
+2026-10-20 15:32:32,062 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:32,063 7407 INFO odoo_w3v_estate odoo.modules.loading: Module sale_stock loaded in 1.13s, 1233 queries (+1233 other)
+2026-10-20 15:32:32,063 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module spreadsheet_dashboard_sale (69/70)
+2026-10-20 15:32:32,105 7407 INFO odoo_w3v_estate odoo.modules.loading: loading spreadsheet_dashboard_sale/data/dashboards.xml
+2026-10-20 15:32:32,132 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module spreadsheet_dashboard_sale: loading translation file /home/ubuntu/repos/odoo/addons/spreadsheet_dashboard_sale/i18n/fr.po for language fr_FR
+2026-10-20 15:32:32,139 7407 INFO odoo_w3v_estate odoo.registry: Caches invalidated, signaling through the database: ['default', 'stable']
+2026-10-20 15:32:32,140 7407 INFO odoo_w3v_estate odoo.modules.loading: Module spreadsheet_dashboard_sale loaded in 0.08s, 40 queries (+40 other)
+2026-10-20 15:32:32,140 7407 INFO odoo_w3v_estate odoo.modules.loading: Loading module sale_purchase_stock (70/70)
+2026-10-20 15:32:32,160 7407 INFO odoo_w3v_estate odoo.registry: module sale_purchase_stock: creating or updating database tables
+2026-10-20 15:32:32,216 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_purchase_stock/views/purchase_order_views.xml
+2026-10-20 15:32:32,278 7407 INFO odoo_w3v_estate odoo.modules.loading: loading sale_purchase_stock/views/stock_picking_views.xml
+2026-10-20 15:32:32,325 7407 INFO odoo_w3v_estate odoo.addons.base.models.ir_module: module sale_purchase_stock: loading translation file /home/ubuntu/repos/odoo/addons/sale_purchase_stock/i18n/fr.po for language fr_FR
+2026-10-20 15:32:32,333 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:32,334 7407 INFO odoo_w3v_estate odoo.modules.loading: Module sale_purchase_stock loaded in 0.19s, 192 queries (+192 other)
+2026-10-20 15:32:32,335 7407 INFO odoo_w3v_estate odoo.modules.loading: 70 modules loaded in 61.32s, 25712 queries (+25712 extra)
+2026-10-20 15:32:32,536 7407 INFO odoo_w3v_estate odoo.registry: verifying fields for every extended model
+2026-10-20 15:32:32,952 7407 INFO odoo_w3v_estate odoo.modules.loading: Modules loaded.
+2026-10-20 15:32:33,464 7407 INFO odoo_w3v_estate odoo.registry: Registry changed, signaling through the database
+2026-10-20 15:32:33,465 7407 INFO odoo_w3v_estate odoo.registry: Registry loaded in 63.217s
+2026-10-20 15:32:33,465 7407 INFO odoo_w3v_estate odoo.service.server.ThreadedServer: Initiating shutdown
+2026-10-20 15:32:33,465 7407 INFO odoo_w3v_estate odoo.service.server.ThreadedServer: Hit CTRL-C again or send a second signal to force the shutdown.
+2026-10-20 15:32:33,465 7407 INFO odoo_w3v_estate odoo.addons.bus.websocket: Disconnecting 0 websockets
+2026-10-20 15:32:33,570 7407 INFO odoo_w3v_estate odoo.sql_db: ConnectionPool(read/write;used=0/count=0/max=64): Closed 1 connections 

@@ -1,0 +1,152 @@
+{
+  "unit": "product-variant-extras",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+  "tolerance_version": "v1",
+  "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68",
+  "collections": [
+    "productLabelLayout",
+    "productAttributeCustomValue"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-20T15:28:17.504586+00:00",
+  "redacted": true,
+  "redaction_salted": false,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 10,
+      "stats": {
+        "source_counts": {
+          "productLabelLayout": 5,
+          "productAttributeCustomValue": 6
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 12,
+      "stats": {
+        "deferred_to_tier3": [
+          "productLabelLayout.packagingId",
+          "productLabelLayout.pricelistId",
+          "productLabelLayout.createUid",
+          "productLabelLayout.writeUid",
+          "productLabelLayout.barcodeFormat",
+          "productLabelLayout.printFormat",
+          "productLabelLayout.zplTemplate",
+          "productLabelLayout.extraHtml",
+          "productLabelLayout.withPrice",
+          "productLabelLayout.createDate",
+          "productLabelLayout.writeDate",
+          "productLabelLayout.moveQuantity",
+          "productLabelLayout.printPackaging",
+          "productAttributeCustomValue.createUid",
+          "productAttributeCustomValue.writeUid",
+          "productAttributeCustomValue.customValue",
+          "productAttributeCustomValue.createDate",
+          "productAttributeCustomValue.writeDate",
+          "productAttributeCustomValue.saleOrderLineId"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "productLabelLayout.barcodeFormat",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productLabelLayout.printFormat",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productLabelLayout.zplTemplate",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productLabelLayout.extraHtml",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productLabelLayout.moveQuantity",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productAttributeCustomValue.customValue",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "fields_fully_deferred": 9
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 28,
+      "stats": {
+        "productLabelLayout": {
+          "mode": "full_diff",
+          "population": 5,
+          "duplicate_source_key_count": 0
+        },
+        "embeds_graded": {
+          "productLabelLayout.productIds": 6,
+          "productLabelLayout.productTmplIds": 3,
+          "productLabelLayout.productUomIds": 2,
+          "productLabelLayout.moveIds": 6
+        },
+        "productAttributeCustomValue": {
+          "mode": "full_diff",
+          "population": 6,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 9,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": true,
+  "error": null
+}

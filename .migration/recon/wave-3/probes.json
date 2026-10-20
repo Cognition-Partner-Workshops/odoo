@@ -1,0 +1,828 @@
+{
+ "bad_dates": {},
+ "collections": {
+  "productAttributeCustomValue": {
+   "count": 6,
+   "distinct_ids": 6,
+   "id_types": [
+    "int"
+   ],
+   "mongo_count": 6
+  },
+  "productCombo": {
+   "count": 4,
+   "distinct_ids": 4,
+   "id_types": [
+    "int"
+   ],
+   "mongo_count": 4
+  },
+  "productComboItem": {
+   "count": 10,
+   "distinct_ids": 10,
+   "id_types": [
+    "int"
+   ],
+   "mongo_count": 10
+  },
+  "productLabelLayout": {
+   "count": 5,
+   "distinct_ids": 5,
+   "id_types": [
+    "int"
+   ],
+   "mongo_count": 5
+  },
+  "productPricelist": {
+   "count": 4,
+   "distinct_ids": 4,
+   "id_types": [
+    "int"
+   ],
+   "mongo_count": 4
+  },
+  "productPricelistItem": {
+   "count": 7,
+   "distinct_ids": 7,
+   "id_types": [
+    "int"
+   ],
+   "mongo_count": 7
+  },
+  "productSupplierinfo": {
+   "count": 32,
+   "distinct_ids": 32,
+   "id_types": [
+    "int"
+   ],
+   "mongo_count": 32
+  },
+  "productTemplate": {
+   "count": 38,
+   "distinct_ids": 38,
+   "id_types": [
+    "int"
+   ],
+   "mongo_count": 38
+  }
+ },
+ "decimals": {
+  "productComboItem.extraPrice": {
+   "non_decimal_non_null": 0,
+   "present": 10,
+   "types": [
+    "Decimal128"
+   ]
+  },
+  "productPricelistItem.fixedPrice": {
+   "non_decimal_non_null": 0,
+   "present": 3,
+   "types": [
+    "Decimal128"
+   ]
+  },
+  "productPricelistItem.minQuantity": {
+   "non_decimal_non_null": 0,
+   "present": 7,
+   "types": [
+    "Decimal128"
+   ]
+  },
+  "productPricelistItem.priceDiscount": {
+   "non_decimal_non_null": 0,
+   "present": 7,
+   "types": [
+    "Decimal128"
+   ]
+  },
+  "productPricelistItem.priceMaxMargin": {
+   "non_decimal_non_null": 0,
+   "present": 1,
+   "types": [
+    "Decimal128"
+   ]
+  },
+  "productPricelistItem.priceMinMargin": {
+   "non_decimal_non_null": 0,
+   "present": 1,
+   "types": [
+    "Decimal128"
+   ]
+  },
+  "productPricelistItem.priceRound": {
+   "non_decimal_non_null": 0,
+   "present": 1,
+   "types": [
+    "Decimal128"
+   ]
+  },
+  "productPricelistItem.priceSurcharge": {
+   "non_decimal_non_null": 0,
+   "present": 1,
+   "types": [
+    "Decimal128"
+   ]
+  },
+  "productSupplierinfo.discount": {
+   "non_decimal_non_null": 0,
+   "present": 4,
+   "types": [
+    "Decimal128"
+   ]
+  },
+  "productSupplierinfo.minQty": {
+   "non_decimal_non_null": 0,
+   "present": 32,
+   "types": [
+    "Decimal128"
+   ]
+  },
+  "productSupplierinfo.price": {
+   "non_decimal_non_null": 0,
+   "present": 32,
+   "types": [
+    "Decimal128"
+   ]
+  }
+ },
+ "field_shapes": {
+  "productAttributeCustomValue": {
+   "_id": [
+    "int"
+   ],
+   "createDate": [
+    "datetime"
+   ],
+   "createUid": [
+    "int"
+   ],
+   "customProductTemplateAttributeValueId": [
+    "int"
+   ],
+   "customValue": [
+    "str"
+   ],
+   "saleOrderLineId": [
+    "int"
+   ],
+   "writeDate": [
+    "datetime"
+   ],
+   "writeUid": [
+    "int"
+   ]
+  },
+  "productCombo": {
+   "_id": [
+    "int"
+   ],
+   "companyId": [
+    "int"
+   ],
+   "createDate": [
+    "datetime"
+   ],
+   "createUid": [
+    "int"
+   ],
+   "name": [
+    "dict"
+   ],
+   "sequence": [
+    "int"
+   ],
+   "writeDate": [
+    "datetime"
+   ],
+   "writeUid": [
+    "int"
+   ]
+  },
+  "productComboItem": {
+   "_id": [
+    "int"
+   ],
+   "comboId": [
+    "int"
+   ],
+   "companyId": [
+    "int"
+   ],
+   "createDate": [
+    "datetime"
+   ],
+   "createUid": [
+    "int"
+   ],
+   "extraPrice": [
+    "Decimal128"
+   ],
+   "productId": [
+    "int"
+   ],
+   "writeDate": [
+    "datetime"
+   ],
+   "writeUid": [
+    "int"
+   ]
+  },
+  "productLabelLayout": {
+   "_id": [
+    "int"
+   ],
+   "barcodeFormat": [
+    "str"
+   ],
+   "createDate": [
+    "datetime"
+   ],
+   "createUid": [
+    "int"
+   ],
+   "customQuantity": [
+    "int"
+   ],
+   "extraHtml": [
+    "str"
+   ],
+   "moveIds": [
+    "list"
+   ],
+   "moveQuantity": [
+    "str"
+   ],
+   "packagingId": [
+    "int"
+   ],
+   "pricelistId": [
+    "int"
+   ],
+   "printFormat": [
+    "str"
+   ],
+   "printPackaging": [
+    "bool"
+   ],
+   "productIds": [
+    "list"
+   ],
+   "productTmplIds": [
+    "list"
+   ],
+   "productUomIds": [
+    "list"
+   ],
+   "withPrice": [
+    "bool"
+   ],
+   "writeDate": [
+    "datetime"
+   ],
+   "writeUid": [
+    "int"
+   ],
+   "zplTemplate": [
+    "str"
+   ]
+  },
+  "productPricelist": {
+   "_id": [
+    "int"
+   ],
+   "active": [
+    "bool"
+   ],
+   "companyId": [
+    "int"
+   ],
+   "createDate": [
+    "datetime"
+   ],
+   "createUid": [
+    "int"
+   ],
+   "currencyId": [
+    "int"
+   ],
+   "name": [
+    "dict"
+   ],
+   "resCountryGroupPricelistRel": [
+    "list"
+   ],
+   "sequence": [
+    "int"
+   ],
+   "writeDate": [
+    "datetime"
+   ],
+   "writeUid": [
+    "int"
+   ]
+  },
+  "productPricelistItem": {
+   "_id": [
+    "int"
+   ],
+   "appliedOn": [
+    "str"
+   ],
+   "base": [
+    "str"
+   ],
+   "basePricelistId": [
+    "int"
+   ],
+   "categId": [
+    "int"
+   ],
+   "companyId": [
+    "int"
+   ],
+   "computePrice": [
+    "str"
+   ],
+   "createDate": [
+    "datetime"
+   ],
+   "createUid": [
+    "int"
+   ],
+   "currencyId": [
+    "int"
+   ],
+   "dateEnd": [
+    "datetime"
+   ],
+   "dateStart": [
+    "datetime"
+   ],
+   "fixedPrice": [
+    "Decimal128"
+   ],
+   "minQuantity": [
+    "Decimal128"
+   ],
+   "priceDiscount": [
+    "Decimal128"
+   ],
+   "priceMaxMargin": [
+    "Decimal128"
+   ],
+   "priceMinMargin": [
+    "Decimal128"
+   ],
+   "priceRound": [
+    "Decimal128"
+   ],
+   "priceSurcharge": [
+    "Decimal128"
+   ],
+   "pricelistId": [
+    "int"
+   ],
+   "productId": [
+    "int"
+   ],
+   "productTmplId": [
+    "int"
+   ],
+   "uomId": [
+    "int"
+   ],
+   "writeDate": [
+    "datetime"
+   ],
+   "writeUid": [
+    "int"
+   ]
+  },
+  "productSupplierinfo": {
+   "_id": [
+    "int"
+   ],
+   "companyId": [
+    "int"
+   ],
+   "createDate": [
+    "datetime"
+   ],
+   "createUid": [
+    "int"
+   ],
+   "currencyId": [
+    "int"
+   ],
+   "dateEnd": [
+    "datetime"
+   ],
+   "dateStart": [
+    "datetime"
+   ],
+   "delay": [
+    "int"
+   ],
+   "discount": [
+    "Decimal128"
+   ],
+   "minQty": [
+    "Decimal128"
+   ],
+   "partnerId": [
+    "int"
+   ],
+   "price": [
+    "Decimal128"
+   ],
+   "productCode": [
+    "str"
+   ],
+   "productId": [
+    "int"
+   ],
+   "productName": [
+    "str"
+   ],
+   "productTmplId": [
+    "int"
+   ],
+   "sequence": [
+    "int"
+   ],
+   "uomId": [
+    "int"
+   ],
+   "writeDate": [
+    "datetime"
+   ],
+   "writeUid": [
+    "int"
+   ]
+  },
+  "productTemplate": {
+   "_id": [
+    "int"
+   ],
+   "active": [
+    "bool"
+   ],
+   "barcode": [
+    "str"
+   ],
+   "baseUnitCount": [
+    "Decimal128"
+   ],
+   "canImage1024BeZoomed": [
+    "bool"
+   ],
+   "categId": [
+    "int"
+   ],
+   "comboIds": [
+    "list"
+   ],
+   "createDate": [
+    "datetime"
+   ],
+   "createUid": [
+    "int"
+   ],
+   "defaultCode": [
+    "str"
+   ],
+   "description": [
+    "dict"
+   ],
+   "descriptionSale": [
+    "dict"
+   ],
+   "hasConfigurableAttributes": [
+    "bool"
+   ],
+   "invoicePolicy": [
+    "str"
+   ],
+   "isStorable": [
+    "bool"
+   ],
+   "listPrice": [
+    "Decimal128"
+   ],
+   "lotSequenceId": [
+    "int"
+   ],
+   "lotValuated": [
+    "bool"
+   ],
+   "name": [
+    "dict"
+   ],
+   "optionalProductIds": [
+    "list"
+   ],
+   "productTagIds": [
+    "list"
+   ],
+   "purchaseMethod": [
+    "str"
+   ],
+   "purchaseOk": [
+    "bool"
+   ],
+   "reinvoicePolicy": [
+    "str"
+   ],
+   "saleOk": [
+    "bool"
+   ],
+   "sequence": [
+    "int"
+   ],
+   "serviceTracking": [
+    "str"
+   ],
+   "serviceType": [
+    "str"
+   ],
+   "supplierTaxesId": [
+    "list"
+   ],
+   "taxesId": [
+    "list"
+   ],
+   "tracking": [
+    "str"
+   ],
+   "type": [
+    "str"
+   ],
+   "uomId": [
+    "int"
+   ],
+   "uomIds": [
+    "list"
+   ],
+   "volume": [
+    "Decimal128"
+   ],
+   "weight": [
+    "Decimal128"
+   ],
+   "writeDate": [
+    "datetime"
+   ],
+   "writeUid": [
+    "int"
+   ]
+  }
+ },
+ "indexes": {
+  "productAttributeCustomValue": [
+   "_id_"
+  ],
+  "productCombo": [
+   "_id_",
+   "companyId_1"
+  ],
+  "productComboItem": [
+   "_id_",
+   "comboId_1",
+   "productId_1"
+  ],
+  "productLabelLayout": [
+   "_id_",
+   "moveIds.stockMoveId_1",
+   "productIds.productProductId_1",
+   "productTmplIds.productTemplateId_1",
+   "productUomIds.productUomId_1"
+  ],
+  "productPricelist": [
+   "_id_",
+   "companyId_1_sequence_1__id_1_name_1",
+   "currencyId_1",
+   "resCountryGroupPricelistRel.resCountryGroupId_1",
+   "sequence_1__id_1_name_1"
+  ],
+  "productPricelistItem": [
+   "_id_",
+   "appliedOn_1_minQuantity_1_categId_1__id_1",
+   "basePricelistId_1",
+   "base_1_basePricelistId_1_pricelistId_1_appliedOn_1_minQuantity_1_categId_1__id_1",
+   "categId_1",
+   "companyId_1",
+   "computePrice_1",
+   "currencyId_1",
+   "pricelistId_1_base_1",
+   "productId_1",
+   "productTmplId_1__id_1",
+   "uomId_1"
+  ],
+  "productSupplierinfo": [
+   "_id_",
+   "companyId_1",
+   "currencyId_1",
+   "partnerId_1",
+   "productId_1",
+   "productTmplId_1_partnerId_1_sequence_1_minQty_1_price_1__id_1",
+   "uomId_1"
+  ],
+  "productTemplate": [
+   "_id_",
+   "accountTagIds.accountAccountTagId_1",
+   "active_1",
+   "baseUnitId_1",
+   "categId_1_isFavorite_1_name_1_companyId_1",
+   "comboIds.productComboId_1",
+   "companyId_1",
+   "defaultCode_1",
+   "isFavorite_1_name_1",
+   "isStorable_1_name_1",
+   "lotSequenceId_1",
+   "name_1",
+   "optionalProductIds.destId_1",
+   "productTagIds.productTagId_1",
+   "routeIds.routeId_1",
+   "supplierTaxesId.taxId_1",
+   "taxesId.taxId_1",
+   "uomId_1",
+   "uomIds.uomUomId_1"
+  ]
+ },
+ "refs": {
+  "productAttributeCustomValue.customProductTemplateAttributeValueId": {
+   "dangling": [],
+   "dict_keys": [],
+   "docs_with_field": 6,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "productTemplateAttributeValue",
+   "values": 6
+  },
+  "productComboItem.comboId": {
+   "dangling": [],
+   "dict_keys": [],
+   "docs_with_field": 10,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "productCombo",
+   "values": 10
+  },
+  "productComboItem.productId": {
+   "dangling": [],
+   "dict_keys": [],
+   "docs_with_field": 10,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "productProduct",
+   "values": 10
+  },
+  "productLabelLayout.moveIds": {
+   "dict_keys": [
+    [
+     "stockMoveId"
+    ]
+   ],
+   "docs_with_field": 2,
+   "non_int_values": 0,
+   "nulls": 0,
+   "values": 6
+  },
+  "productLabelLayout.packagingId": {
+   "dict_keys": [],
+   "docs_with_field": 1,
+   "non_int_values": 0,
+   "nulls": 0,
+   "values": 1
+  },
+  "productLabelLayout.pricelistId": {
+   "dangling": [],
+   "dict_keys": [],
+   "docs_with_field": 1,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "productPricelist",
+   "values": 1
+  },
+  "productLabelLayout.productIds": {
+   "dangling": [],
+   "dict_keys": [
+    [
+     "productProductId"
+    ]
+   ],
+   "docs_with_field": 3,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "productProduct",
+   "values": 6
+  },
+  "productLabelLayout.productTmplIds": {
+   "dangling": [],
+   "dict_keys": [
+    [
+     "productTemplateId"
+    ]
+   ],
+   "docs_with_field": 1,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "productTemplate",
+   "values": 3
+  },
+  "productPricelistItem.basePricelistId": {
+   "dangling": [],
+   "dict_keys": [],
+   "docs_with_field": 1,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "productPricelist",
+   "values": 1
+  },
+  "productPricelistItem.categId": {
+   "dangling": [],
+   "dict_keys": [],
+   "docs_with_field": 2,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "productCategory",
+   "values": 2
+  },
+  "productPricelistItem.pricelistId": {
+   "dangling": [],
+   "dict_keys": [],
+   "docs_with_field": 7,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "productPricelist",
+   "values": 7
+  },
+  "productPricelistItem.productId": {
+   "dangling": [],
+   "dict_keys": [],
+   "docs_with_field": 1,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "productProduct",
+   "values": 1
+  },
+  "productPricelistItem.productTmplId": {
+   "dangling": [],
+   "dict_keys": [],
+   "docs_with_field": 3,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "productTemplate",
+   "values": 3
+  },
+  "productPricelistItem.uomId": {
+   "dangling": [],
+   "dict_keys": [],
+   "docs_with_field": 1,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "uomUom",
+   "values": 1
+  },
+  "productSupplierinfo.productId": {
+   "dangling": [],
+   "dict_keys": [],
+   "docs_with_field": 3,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "productProduct",
+   "values": 3
+  },
+  "productSupplierinfo.productTmplId": {
+   "dangling": [],
+   "dict_keys": [],
+   "docs_with_field": 32,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "productTemplate",
+   "values": 32
+  },
+  "productSupplierinfo.uomId": {
+   "dangling": [],
+   "dict_keys": [],
+   "docs_with_field": 32,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "uomUom",
+   "values": 32
+  },
+  "productTemplate.comboIds": {
+   "dangling": [],
+   "dict_keys": [
+    [
+     "productComboId"
+    ]
+   ],
+   "docs_with_field": 1,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "productCombo",
+   "values": 3
+  }
+ }
+}

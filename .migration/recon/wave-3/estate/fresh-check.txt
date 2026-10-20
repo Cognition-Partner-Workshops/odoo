@@ -1,0 +1,15 @@
+STORE prefix 'odoo_w3v_fresh__'
+FRESH uom.uom orm 30 docs 30 pg_shadow 30
+FRESH product.category orm 3 docs 3 pg_shadow 3
+FRESH product.attribute orm 5 docs 5 pg_shadow 5
+FRESH product.template orm 0 docs 0 pg_shadow 0
+FRESH product.product orm 0 docs 0 pg_shadow 0
+FRESH product.pricelist orm 0 docs 0 pg_shadow 0
+FRESH product.pricelist.item orm 0 docs 0 pg_shadow 0
+FRESH product.supplierinfo orm 0 docs 0 pg_shadow 0
+FRESH product.combo orm 0 docs 0 pg_shadow 0
+FRESH product.label.layout orm 0 docs 0 pg_shadow 0
+FRESH stock.quant orm 0 docs 0 pg_shadow 0
+FRESH stock.move orm 0 docs 0 pg_shadow 0
+FRESH purchase.order orm 0 docs 0 pg_shadow 0
+MODULES {'account': 'installed', 'stock': 'installed', 'purchase_stock': 'installed', 'product': 'installed', 'sale': 'uninstalled', 'uom': 'installed'}

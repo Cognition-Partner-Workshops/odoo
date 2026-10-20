@@ -1,0 +1,58 @@
+{
+ "run_id": "UNT11-49",
+ "manifest_sha": "3548af4a78e1",
+ "wave_verdict": "PASS",
+ "unit_verdicts": {
+  "w3-b01": "PASS",
+  "w3-b02": "PASS",
+  "w3-b03": "PASS",
+  "w3-b04": "PASS"
+ },
+ "recon_results": {
+  "w3-b01": [
+   ".migration/recon/wave-3/w3-b01/product-pricing/result.json"
+  ],
+  "w3-b02": [
+   ".migration/recon/wave-3/w3-b02/product-supplierinfo/result.json"
+  ],
+  "w3-b03": [
+   ".migration/recon/wave-3/w3-b03/product-combo/result.json"
+  ],
+  "w3-b04": [
+   ".migration/recon/wave-3/w3-b04/product-variant-extras/result.json"
+  ]
+ },
+ "previous_wave_rechecks": [
+  ".migration/recon/wave-3/wave-1-recheck/uom/result.json",
+  ".migration/recon/wave-3/wave-1-recheck/product-taxonomy/result.json",
+  ".migration/recon/wave-3/wave-1-recheck/product-attributes/result.json",
+  ".migration/recon/wave-3/wave-2-recheck/product-catalog/result.json"
+ ],
+ "findings": [
+  {
+   "batch": "all",
+   "class": "unsalted redaction (engagement-wide)",
+   "severity": "info",
+   "detail": "RECON_REDACT_SALT is unset for every session of this run; all committed live results (workers and verifiers) carry redaction_salted=false. Not a wave-3 defect; no ticket."
+  },
+  {
+   "batch": "w3-b03",
+   "class": "no fixture_results in batch result",
+   "severity": "info",
+   "detail": ".migration/recon/w3-b03.json lists no fixture_results; preflight --grade accepts it and the live recon is the merge authority."
+  }
+ ],
+ "probes": {
+  "probes_json": ".migration/recon/wave-3/probes.json",
+  "problems": 0,
+  "estate_update": "-u product,uom,sale,purchase,stock on odoo_w3v_estate at 1c12182: exit 0, 0 errors",
+  "d6_readers_equal": "7/7 (51, 32, 62, 27, 5263, 7, 10)",
+  "fresh_install": "-i stock,purchase_stock on odoo_w3v_fresh: exit 0, 59 modules, 0 errors",
+  "odoo_tests": "1 failed, 0 error(s) of 161 (test_get_closest_possible_combinations, accepted Atlas timing test)",
+  "unprefixed_unchanged": true
+ },
+ "report_path": "recon/wave-3:.migration/recon/wave-3/verify-report.md",
+ "plugin_sha": "0d6bcfd528a4099449ad7f7d8c65eb620b017c79",
+ "run_branch_tip": "1c12182bb21",
+ "one_line_summary": "Wave 3 PASS: all four batches re-reconned live strict from the verifier's own seeded clone (PASS, merge_eligible, identical check counts to the worker results), 0 probe problems, 0 dangling cross-unit references, estate update + 7/7 D6 readers + fresh stock install clean, 160/161 product,uom tests (accepted Atlas timing failure only), unprefixed collections unchanged."
+}
