@@ -12,6 +12,7 @@ REFS = {  # (collection, field) -> referenced collection
  ('productComboItem','comboId'):'productCombo', ('productComboItem','productId'):'productProduct',
  ('productAttributeCustomValue','customProductTemplateAttributeValueId'):'productTemplateAttributeValue',
  ('productLabelLayout','pricelistId'):'productPricelist', ('productLabelLayout','productIds'):'productProduct', ('productLabelLayout','productTmplIds'):'productTemplate',
+ ('productLabelLayout','productUomIds'):'productUom',
  ('productLabelLayout','moveIds'):None, ('productLabelLayout','packagingId'):None,
  ('productTemplate','comboIds'):'productCombo',
 }
@@ -58,10 +59,29 @@ for c in W3:
         for k in ('createDate','writeDate','dateStart','dateEnd'):
             if k in d and d[k] is not None and not isinstance(d[k], datetime): bad_dates[f'{c}.{k}'] = bad_dates.get(f'{c}.{k}', 0) + 1
 out['bad_dates'] = bad_dates
+# expected counts: the verifier's own live recon results (Tier 1 source_counts) for the seven wave-3 collections
+expected = {}
+for sub in ('w3-b01/product-pricing', 'w3-b02/product-supplierinfo', 'w3-b03/product-combo', 'w3-b04/product-variant-extras'):
+    expected.update(json.load(open(f'.migration/recon/wave-3/{sub}/result.json'))['tiers'][0]['stats']['source_counts'])
+problems = []
+for c in W3:
+    v = out['collections'][c]
+    if c not in expected or v['count'] != expected[c]: problems.append(f'{c}: count {v["count"]} != source {expected.get(c)}')
+    if v['distinct_ids'] != v['count'] or v['id_types'] != ['int']: problems.append(f'{c}: _id not distinct ints')
+for k, v in out['refs'].items():
+    if v['non_int_values']: problems.append(f'{k}: {v["non_int_values"]} non-int reference values')
+    if v.get('dangling'): problems.append(f'{k}: dangling {v["dangling"]}')
+for k, v in out['decimals'].items():
+    if v['non_decimal_non_null']: problems.append(f'{k}: {v["non_decimal_non_null"]} non-Decimal128 values')
+for k, n in bad_dates.items(): problems.append(f'{k}: {n} non-datetime values')
+out['expected_source_counts'] = expected
+out['problems'] = problems
 json.dump(out, open(sys.argv[1], 'w'), indent=1, sort_keys=True, default=str)
 for c,v in out['collections'].items(): print('COLL', c, v['count'], v['distinct_ids'], v['id_types'], 'idx', out['indexes'][c])
 for k,v in out['refs'].items(): print('REF', k, 'present', v['docs_with_field'], 'nulls', v['nulls'], 'vals', v['values'], 'nonint', v['non_int_values'], 'dangling', v.get('dangling'))
 for k,v in out['decimals'].items(): print('DEC', k, v)
 print('BAD_DATES', bad_dates)
+print('PROBLEMS', len(problems), problems)
+sys.exit(1 if problems else 0)
 print('LABEL shapes', out['field_shapes']['productLabelLayout'])
 print('TMPL comboIds shapes', out['field_shapes']['productTemplate'].get('comboIds'))

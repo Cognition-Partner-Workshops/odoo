@@ -145,6 +145,15 @@
    ]
   }
  },
+ "expected_source_counts": {
+  "productAttributeCustomValue": 6,
+  "productCombo": 4,
+  "productComboItem": 10,
+  "productLabelLayout": 5,
+  "productPricelist": 4,
+  "productPricelistItem": 7,
+  "productSupplierinfo": 32
+ },
  "field_shapes": {
   "productAttributeCustomValue": {
    "_id": [
@@ -649,6 +658,7 @@
    "uomIds.uomUomId_1"
   ]
  },
+ "problems": [],
  "refs": {
   "productAttributeCustomValue.customProductTemplateAttributeValueId": {
    "dangling": [],
@@ -729,6 +739,19 @@
    "nulls": 0,
    "ref": "productTemplate",
    "values": 3
+  },
+  "productLabelLayout.productUomIds": {
+   "dangling": [],
+   "dict_keys": [
+    [
+     "productUomId"
+    ]
+   ],
+   "docs_with_field": 1,
+   "non_int_values": 0,
+   "nulls": 0,
+   "ref": "productUom",
+   "values": 2
   },
   "productPricelistItem.basePricelistId": {
    "dangling": [],

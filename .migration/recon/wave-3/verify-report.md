@@ -45,7 +45,10 @@ sha256 as the worker results. Like the worker results, the live output is redact
 
 ## Probes past the gate (`probes.json`, read-only, 0 problems)
 
-`probes.py` reads the seven real wave-3 collections plus `productTemplate` and records counts only:
+`probes.py` reads the seven real wave-3 collections plus `productTemplate` and records counts only. It derives a
+`problems` list (count != the verifier's recon Tier 1 source count, non-distinct or non-int `_id`, non-int or dangling
+reference, non-Decimal128 decimal, non-datetime date) and exits 1 when that list is non-empty; `verify-result.json`
+`probes.problems` is copied from it. This run: `problems: []`, exit 0.
 
 - Counts equal the seeded source (`productPricelist` 4, `productPricelistItem` 7, `productSupplierinfo` 32,
   `productCombo` 4, `productComboItem` 10, `productAttributeCustomValue` 6, `productLabelLayout` 5); every
@@ -75,6 +78,7 @@ sha256 as the worker results. Like the worker results, the live output is redact
 | `productAttributeCustomValue.customProductTemplateAttributeValueId` 6 | 6 | `productTemplateAttributeValue` (wave 2) |
 | `productLabelLayout.productIds[].productProductId` (3 docs) | 6 | `productProduct` (wave 2) |
 | `productLabelLayout.productTmplIds[].productTemplateId` (1 doc) | 3 | `productTemplate` (wave 2) |
+| `productLabelLayout.productUomIds[].productUomId` (2 docs) | 2 | `productUom` (wave 2) |
 | `productTemplate.comboIds[].productComboId` (1 doc) | 3 | `productCombo` (wave 2 -> wave 3) |
 
 `productLabelLayout.moveIds[].stockMoveId` (6 values, 2 docs) and `packagingId` (1) point at tables that are not

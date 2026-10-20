@@ -49,7 +49,9 @@
   "d6_readers_equal": "7/7 (51, 32, 62, 27, 5263, 7, 10)",
   "fresh_install": "-i stock,purchase_stock on odoo_w3v_fresh: exit 0, 59 modules, 0 errors",
   "odoo_tests": "1 failed, 0 error(s) of 161 (test_get_closest_possible_combinations, accepted Atlas timing test)",
-  "unprefixed_unchanged": true
+  "unprefixed_unchanged": true,
+  "problems_detail": [],
+  "probe_exit_code": 0
  },
  "report_path": "recon/wave-3:.migration/recon/wave-3/verify-report.md",
  "plugin_sha": "0d6bcfd528a4099449ad7f7d8c65eb620b017c79",
