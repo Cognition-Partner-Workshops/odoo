@@ -10,6 +10,7 @@ class ProductAttribute(models.Model):
     # if you change this _order, keep it in sync with the method
     # `_sort_key_attribute_value` in `product.template`
     _order = 'sequence, id'
+    _storage = 'mongodb'
 
     _check_multi_checkbox_no_variant = models.Constraint(
         "CHECK(display_type != 'multi' OR create_variant = 'no_variant')",

@@ -1,0 +1,37 @@
+{
+  "batch": "w1-b05",
+  "status": "PASS",
+  "recon_results": [
+    ".migration/recon/product-attributes/result.json"
+  ],
+  "fixture_results": [
+    ".migration/recon/product-attributes/fixture/result.json"
+  ],
+  "write_targets": [
+    "odoo_unt12.productAttribute"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/59",
+  "branch": "devin/1792505471-w1-b05-product-attributes",
+  "head_sha": "6d86ea35ad6",
+  "base_sha": "a25acb9ede8",
+  "failure_class": "",
+  "manifest_sha": "b965d1e5f34e",
+  "plugin_sha": "9a584b4cdb311ddd64fb07cbd1cf35fc9485062c",
+  "mapping_version": "map-draft-2",
+  "recon_tolerances_version": "unt12-3",
+  "tier_checks": {
+    "live": [
+      6,
+      6,
+      124,
+      3
+    ],
+    "fixture": [
+      3,
+      6,
+      124,
+      3
+    ]
+  },
+  "one_line_summary": "product-attributes on mongo-run/unt12 a25acb9: live PASS, merge_eligible true, 0 warnings (salted redaction); fixture PASS; 34/34 ORM scenario checks (exact two-sided relation parity incl. line.value_ids = 24 PG rel rows, link/unlink leaves the w2-b02 rel collection untouched, SQL CHECK enforced without a mirror)"
+}
