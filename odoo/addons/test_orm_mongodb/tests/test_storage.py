@@ -429,6 +429,50 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual(Book.search([], order='pages desc, id')[0], book)
         self.assertEqual(Book.search([], order='pages asc nulls first, id')[0], book)
 
+    def test_order_by_compute_sql_field(self):
+        # account.account's default _order names code_path (compute_sql, no document path): the field is
+        # computed in Python over the filtered records; ties fall through to the next term, NULLs place
+        # like PostgreSQL's (last on ASC, first on DESC)
+        Book = self.env['test.mongo.book']
+        self.assertEqual((self.book_a1.shelf, self.book_a2.shelf, self.book_b1.shelf), ('2024', '2024', False))
+        self.assertEqual(Book.search([], order='shelf, name'), self.book_a2 + self.book_a1 + self.book_b1)
+        self.assertEqual(Book.search([], order='shelf desc, name desc'), self.book_b1 + self.book_a1 + self.book_a2)
+        self.assertEqual(Book.search([], order='shelf asc nulls first, name'), self.book_b1 + self.book_a2 + self.book_a1)
+        self.assertEqual(Book.search([('pages', '>', 60)], order='shelf desc, name'), self.book_b1 + self.book_a1)
+        self.assertEqual(Book.search([], order='shelf, name', limit=1, offset=1), self.book_a1)
+        self.book_b1.published = '2023-01-01 00:00:00'
+        self.book_b1.flush_recordset()
+        self.assertEqual(Book.search([], order='shelf, name'), self.book_b1 + self.book_a2 + self.book_a1)
+        # the generic list view: search([]) with the model's default _order
+        self.patch(type(Book), '_order', 'shelf desc, name, id')
+        self.assertEqual(Book.search([]), self.book_a2 + self.book_a1 + self.book_b1)
+        self.assertEqual(Book.search([('author_id', '=', self.author_a.id)]), self.book_a2 + self.book_a1)
+
+    def test_postgresql_domain_through_many2many_with_comodel_domain(self):
+        # product.template.taxes_id carries domain=[('type_tax_use', '=', 'sale')]: ('taxes_id', 'in', ids) on the
+        # PostgreSQL model becomes 'any!' over the comodel's ids as a MongoQuery, and the field's domain
+        # has to join its filter instead of being added as SQL
+        Review = self.env['test.mongo.review']
+        review = Review.create({'name': 'dom', 'book_ids': [(6, 0, (self.book_a1 + self.book_a2).ids)],
+                                'author_ids': [(6, 0, (self.author_a + self.author_b).ids)]})
+        other = Review.create({'name': 'none'})
+        self.env.flush_all()
+        self.assertEqual(review.cheap_book_ids, self.book_a1)                       # 10.5 < 15, Apple is 20
+        # PostgreSQL relation table
+        self.assertEqual(Review.search([('cheap_book_ids', 'in', self.book_a1.ids)]), review)
+        self.assertFalse(Review.search([('cheap_book_ids', 'in', self.book_a2.ids)]))
+        self.assertEqual(Review.search([('cheap_book_ids', 'in', (self.book_a1 + self.book_a2).ids)]), review)
+        self.assertEqual(Review.search([('cheap_book_ids', 'not in', self.book_a2.ids)]), review + other)
+        self.assertEqual(Review.search([('cheap_book_ids', 'not in', self.book_a1.ids)]), other)
+        self.assertEqual(Review.search([('cheap_book_ids', 'any', [('name', '=', 'Zebra')])]), review)
+        self.assertFalse(Review.search([('cheap_book_ids', 'any', [('name', '=', 'Apple')])]))
+        # relation embedded in the comodel's documents (product_taxes_rel in accountTax)
+        self.assertEqual(review.rated_author_ids, self.author_a)                   # 4.5 > 4, Ben is 3.0
+        self.assertEqual(Review.search([('rated_author_ids', 'in', self.author_a.ids)]), review)
+        self.assertFalse(Review.search([('rated_author_ids', 'in', self.author_b.ids)]))
+        self.assertEqual(Review.search([('rated_author_ids', 'not in', self.author_b.ids)]), review + other)
+        self.assertEqual(Review.search([('rated_author_ids', 'in', [False])]), other)
+
     def test_shadow_table_relaxed_at_load(self):
         # a model opted in on an existing database keeps its NOT NULL data columns until the shadow is adapted
         Tag = self.env['test.mongo.tag']

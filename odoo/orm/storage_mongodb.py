@@ -653,6 +653,15 @@ class MongoQuery(Query):
     def add_where(self, where_clause, where_params=()) -> None:
         raise NotImplementedError(f"{self._model._name} is stored in MongoDB: add a Domain to the filter instead of SQL")
 
+    def add_domain(self, domain: Domain, model: BaseModel | None = None) -> None:
+        """ Restrict the query to ``domain`` (the MongoDB form of ``add_where``). """
+        if domain.is_true():
+            return
+        condition = FilterCompiler(model if model is not None else self._model).compile(domain)
+        self.filter = {'$and': [self.filter, condition]} if self.filter else condition
+        self._ids = None
+        self._ordered_ids = False
+
     def add_join(self, kind, alias, table, condition) -> None:
         raise NotImplementedError(f"{self._model._name} is stored in MongoDB and cannot be joined in SQL")
 
@@ -972,13 +981,34 @@ def _index_or_null(array: list, expr) -> dict:
                      'in': {'$cond': [{'$eq': ['$$i', -1]}, None, '$$i']}}}
 
 
+def computed_rank_expr(model: BaseModel, field: Field, filter: dict) -> dict:
+    """ Sort key of a non-stored field with ``compute_sql``: it has no document
+    path, so like :meth:`FilterCompiler.computed` the field is computed in Python
+    over the records the filter selects. Equal values share a rank (the next
+    order terms break the ties, as in SQL) and a NULL value stays NULL, so the
+    NULLS FIRST/LAST placement of :func:`sort_stages` applies. """
+    records = model.with_context(active_test=False)
+    if field.compute_sudo:
+        records = records.sudo()
+    records = records.browse(doc['_id'] for doc in MongoQuery(model, filter).run({'_id': 1}))
+    values = {}
+    for record in records:
+        value = field.convert_to_column(field.convert_to_write(record[field.name], record), record)
+        if value is not None:
+            values[record.id] = value
+    rank = {value: index for index, value in enumerate(sorted(set(values.values())))}
+    ids = list(values)
+    return {'$let': {'vars': {'i': {'$indexOfArray': [ids, '$_id']}},
+                     'in': {'$cond': [{'$eq': ['$$i', -1]}, None, {'$arrayElemAt': [[rank[values[id_]] for id_ in ids], '$$i']}]}}}
+
+
 def sort_key_expr(model: BaseModel, fname: str, property_name: str | None, direction: str, filter: dict):
     """ The aggregation expression a record is ordered by for one order term. """
     field = model._fields.get(fname)
     if not field:
         raise ValueError(f"Invalid field {fname!r} on model {model._name!r}")
     if not field.store and field.compute_sql and not field.inherited:
-        raise NotImplementedError(f"Ordering by compute_sql field {field} is not supported on MongoDB-stored model {model._name}")
+        return computed_rank_expr(model, field, filter)
     spec = store(model).storage(model)
     path = spec.target(fname)
     env = model.env

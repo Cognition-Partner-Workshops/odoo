@@ -140,6 +140,17 @@ class TestMongoBook(models.Model):
     def _compute_sql_active(self, table):
         return SQL("NOT COALESCE(%s, FALSE)", table.archived)
 
+    # non-stored with an SQL form, named by an _order (account.account code_path); NULL when unpublished
+    shelf = fields.Char(compute='_compute_shelf', compute_sql='_compute_sql_shelf', compute_sudo=True)
+
+    @api.depends('published')
+    def _compute_shelf(self):
+        for book in self:
+            book.shelf = str(book.published.year) if book.published else False
+
+    def _compute_sql_shelf(self, table):
+        return SQL("EXTRACT(YEAR FROM %s)::text", table.published)
+
 
 class TestMongoChapter(models.Model):
     _name = 'test.mongo.chapter'
@@ -209,3 +220,9 @@ class TestMongoReview(models.Model):
     author_ids = fields.Many2many('test.mongo.author', 'test_mongo_author_review_rel', 'review_id', 'author_id')
     archived_book_ids = fields.Many2many('test.mongo.book', 'test_mongo_review_book_rel', 'review_id', 'book_id',
                                          context={'active_test': False})
+    # relations carrying a comodel domain (product.template.taxes_id: domain on type_tax_use), on a PostgreSQL
+    # relation table and on one embedded in the comodel's documents
+    cheap_book_ids = fields.Many2many('test.mongo.book', 'test_mongo_review_book_rel', 'review_id', 'book_id',
+                                      domain=[('price', '<', 15)])
+    rated_author_ids = fields.Many2many('test.mongo.author', 'test_mongo_author_review_rel', 'review_id', 'author_id',
+                                        domain=[('rating', '>', 4)])

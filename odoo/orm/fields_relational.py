@@ -878,9 +878,16 @@ class _RelationalMulti(_Relational):
             assert isinstance(query, Query)
         elif isinstance(value, Query):
             domain = field_domain.optimize_full(comodel)
+            if comodel._storage == 'mongodb' and not isinstance(value, storage_mongodb.MongoQuery) and not value.where_clause:
+                # Query(comodel) of the domain optimizer (x2m in {False, ...}): the comodel's own query form
+                value = storage_mongodb.MongoQuery(comodel)
             if not domain.is_true():
                 value = copy.copy(value)
-                value.add_where(domain._to_sql(value.table._with_model(comodel)))
+                if isinstance(value, storage_mongodb.MongoQuery):
+                    # the comodel's ids as a MongoDB query: the field's domain joins its filter
+                    value.add_domain(domain, comodel)
+                else:
+                    value.add_where(domain._to_sql(value.table._with_model(comodel)))
             query = value
         elif isinstance(value, SQL):
             query = comodel._search(field_domain & Domain('id', 'any!', value), active_test=False, bypass_access=True)
