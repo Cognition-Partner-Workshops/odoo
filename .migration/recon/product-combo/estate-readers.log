@@ -1,0 +1,63 @@
+# w3-b03 estate probe log. Run-branch tip 3c87755 (PR branch rebased, head 49dbcd8 + this evidence), 2026-10-20 UTC.
+# Pre-opt-in baseline: odoo-base worktree 03a3cb5 (PostgreSQL storage), clone odoo_w3b03_src = createdb -T odoo_src + seed_scenario_rows.py
+READER sale.report 51
+READER purchase.report 32
+READER account.invoice.report 62
+READER purchase.bill.line.match 27
+READER report.stock.quantity 5263
+READER stock.avco.report 7
+READER vendor.delay.report 10
+
+# Pre-copy of the 15 unprefixed collections into odoo_w3b03_estate__* (estate-precopy.py, run from the checkout through the mongo_guard hook)
+PRECOPY uomUom source 30 copied 30
+PRECOPY updateProductAttributeValue source 0 copied 0
+PRECOPY productAttribute source 14 copied 14
+PRECOPY productBaseUnit source 2 copied 2
+PRECOPY productAttributeValue source 101 copied 101
+PRECOPY productTemplate source 38 copied 38
+PRECOPY productComboItem source 10 copied 10
+PRECOPY productTag source 3 copied 3
+PRECOPY productUom source 6 copied 6
+PRECOPY productProduct source 48 copied 48
+PRECOPY productTemplateAttributeLine source 9 copied 9
+PRECOPY productCategory source 8 copied 8
+PRECOPY productTemplateAttributeValue source 24 copied 24
+PRECOPY productDocument source 2 copied 2
+PRECOPY productCombo source 4 copied 4
+
+# Opted-in clone odoo_w3b03_estate (prefix odoo_w3b03_estate__*), after -u product,sale at 3c87755 (exit 0, 57.8 s, update.log 2 lines: the known 'unknown option mongodb_migration_db' config warning only)
+READER sale.report 51
+READER purchase.report 32
+READER account.invoice.report 62
+READER purchase.bill.line.match 27
+READER report.stock.quantity 5263
+READER stock.avco.report 7
+READER vendor.delay.report 10
+STORE prefix 'odoo_w3b03_estate__'
+COUNT product.combo orm 4 docs 4
+SHADOW product_combo ['id', 'sequence', 'company_id', 'create_uid', 'write_uid', 'name', 'create_date', 'write_date']
+COUNT product.combo.item orm 10 docs 10
+SHADOW product_combo_item ['id', 'company_id', 'combo_id', 'product_id', 'create_uid', 'write_uid', 'extra_price', 'create_date', 'write_date']
+COUNT product.template orm 38 docs 38
+SHADOW product_template ['id', 'sequence', 'categ_id', 'uom_id', 'company_id', 'color', 'base_unit_id', 'create_uid', 'write_uid', 'type', 'service_tracking', 'barcode', 'default_code', 'name', 'description', 'description_purchase', 'description_sale', 'product_properties', 'list_price', 'volume', 'weight', 'base_unit_count', 'is_storable', 'sale_ok', 'purchase_ok', 'active', 'can_image_1024_be_zoomed', 'has_configurable_attributes', 'is_favorite', 'create_date', 'write_date', 'property_account_income_id', 'property_account_expense_id', 'lot_sequence_id', 'tracking', 'responsible_id', 'property_stock_production', 'property_stock_inventory', 'description_picking', 'description_pickingout', 'description_pickingin', 'purchase_method', 'purchase_line_warn_msg', 'lot_valuated', 'service_type', 'reinvoice_policy', 'invoice_policy', 'sale_delay', 'sale_line_warn_msg']
+COUNT product.product orm 48 docs 48
+SHADOW product_product ['id', 'product_tmpl_id', 'base_unit_id', 'create_uid', 'write_uid', 'default_code', 'barcode', 'combination_indices', 'standard_price', 'qty_available', 'lst_price', 'volume', 'weight', 'base_unit_count', 'active', 'can_image_variant_1024_be_zoomed', 'is_favorite', 'write_date', 'create_date', 'lot_properties_definition']
+COMBOS [(1, 'Desk Accessories Combo', None, 'USD', 3, 1.98), (2, 'Desks Combo', None, 'USD', 2, 147.0), (3, 'Chairs Combo', None, 'USD', 3, 33.0), (4, 'Chicago Desk Set', 3, 'USD', 2, 14.0)]
+
+# Unprefixed collections after the -u run (read-only count)
+UNPREFIXED uomUom before 30 after 30 unchanged
+UNPREFIXED updateProductAttributeValue before 0 after 0 unchanged
+UNPREFIXED productAttribute before 14 after 14 unchanged
+UNPREFIXED productBaseUnit before 2 after 2 unchanged
+UNPREFIXED productAttributeValue before 101 after 101 unchanged
+UNPREFIXED productTemplate before 38 after 38 unchanged
+UNPREFIXED productComboItem before 10 after 10 unchanged
+UNPREFIXED productTag before 3 after 3 unchanged
+UNPREFIXED productUom before 6 after 6 unchanged
+UNPREFIXED productProduct before 48 after 48 unchanged
+UNPREFIXED productTemplateAttributeLine before 9 after 9 unchanged
+UNPREFIXED productCategory before 8 after 8 unchanged
+UNPREFIXED productTemplateAttributeValue before 24 after 24 unchanged
+UNPREFIXED productDocument before 2 after 2 unchanged
+UNPREFIXED productCombo before 4 after 4 unchanged
+ALL-UNCHANGED
