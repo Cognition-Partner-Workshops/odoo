@@ -1,12 +1,13 @@
 from odoo import api, fields, models, _
 from odoo.fields import Domain
 from odoo.tools import SQL
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class AccountAccountTag(models.Model):
     _name = 'account.account.tag'
     _description = 'Account Tag'
+    _storage = 'mongodb'
 
     name = fields.Char('Tag Name', required=True, translate=True)
     applicability = fields.Selection([('accounts', 'Accounts'), ('taxes', 'Taxes'), ('products', 'Products')], required=True, default='accounts')
@@ -23,6 +24,18 @@ class AccountAccountTag(models.Model):
         'unique(name, applicability, country_id)',
         'A tag with the same name and applicability already exists in this country.',
     )
+
+    @api.constrains('name', 'applicability', 'country_id')
+    def _check_name_uniq(self):
+        # mirrors _name_uniq (SQL unique constraints are not enforced for MongoDB-stored models): a NULL
+        # country never collides, as in PostgreSQL; names are compared in en_US, the stored source value
+        Tag = self.sudo().with_context(active_test=False, lang='en_US')
+        for tag in Tag.filtered('country_id'):
+            if Tag.search_count([
+                ('id', '!=', tag.id), ('name', '=', tag.name), ('applicability', '=', tag.applicability),
+                ('country_id', '=', tag.country_id.id),
+            ], limit=1):
+                raise ValidationError(self.env._('A tag with the same name and applicability already exists in this country.'))
 
     @api.depends('applicability', 'country_id')
     @api.depends_context('company')

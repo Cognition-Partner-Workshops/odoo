@@ -32,6 +32,7 @@ SQL_OPERATORS = {
 
 class AccountFiscalPosition(models.Model):
     _name = 'account.fiscal.position'
+    _storage = 'mongodb'
     _description = 'Fiscal Position'
     _order = 'sequence, id'
     _check_company_auto = True
@@ -322,6 +323,7 @@ class AccountFiscalPosition(models.Model):
 
 class AccountFiscalPositionAccount(models.Model):
     _name = 'account.fiscal.position.account'
+    _storage = 'mongodb'
     _description = 'Accounts Mapping of Fiscal Position'
     _rec_name = 'position_id'
     _check_company_auto = True
@@ -341,6 +343,16 @@ class AccountFiscalPositionAccount(models.Model):
         'unique (position_id,account_src_id,account_dest_id)',
         'An account fiscal position could be defined only one time on same accounts.',
     )
+
+    @api.constrains('position_id', 'account_src_id', 'account_dest_id')
+    def _check_account_src_dest_uniq(self):
+        # mirrors _account_src_dest_uniq: SQL unique constraints are not enforced for MongoDB-stored models
+        for mapping in self:
+            if self.sudo().search_count([
+                ('id', '!=', mapping.id), ('position_id', '=', mapping.position_id.id),
+                ('account_src_id', '=', mapping.account_src_id.id), ('account_dest_id', '=', mapping.account_dest_id.id),
+            ], limit=1):
+                raise ValidationError(self.env._('An account fiscal position could be defined only one time on same accounts.'))
 
 
 class ResPartner(models.Model):
@@ -401,17 +413,22 @@ class ResPartner(models.Model):
             ['account_id', 'amount_residual', 'company_id', 'parent_state', 'partner_id', 'reconciled']
         )
         self.env['account.account'].flush_model(['account_type'])
+        receivable_ids = self.env['account.account']._ids_by_type(('asset_receivable',))
+        payable_ids = self.env['account.account']._ids_by_type(('liability_payable',))
         sql = SQL("""
-            SELECT account_move_line.partner_id, a.account_type, SUM(account_move_line.amount_residual)
+            SELECT account_move_line.partner_id,
+                   CASE WHEN account_move_line.account_id = ANY(%s) THEN 'asset_receivable' ELSE 'liability_payable' END AS account_type,
+                   SUM(account_move_line.amount_residual)
             FROM %s
-            LEFT JOIN account_account a ON (account_move_line.account_id=a.id)
-            WHERE a.account_type IN ('asset_receivable','liability_payable')
+            WHERE account_move_line.account_id = ANY(%s)
             AND account_move_line.partner_id IN %s
             AND account_move_line.reconciled IS NOT TRUE
             AND %s
-            GROUP BY account_move_line.partner_id, a.account_type
+            GROUP BY 1, 2
             """,
+            receivable_ids,
             query.from_clause,
+            receivable_ids + payable_ids,
             tuple(self.ids),
             query.where_clause or SQL("TRUE"),
         )
@@ -452,14 +469,13 @@ class ResPartner(models.Model):
          LEFT JOIN account_move_line aml ON aml.partner_id = partner.id
               JOIN account_move move ON move.id = aml.move_id
               JOIN res_company line_company ON line_company.id = aml.company_id
-        RIGHT JOIN account_account acc ON aml.account_id = acc.id
-             WHERE acc.account_type = %s
-               AND acc.active
+             WHERE aml.account_id = ANY(%s)
                AND SPLIT_PART(line_company.parent_path, '/', 1)::int = %s
                AND move.state = 'posted'
           GROUP BY aml.partner_id
             HAVING %s * COALESCE(SUM(aml.amount_residual), 0) %s %s''',
-            account_type, self.env.company.root_id.id, sign, operator_sql, operand
+            self.env['account.account']._ids_by_type((account_type,), active_only=True),
+            self.env.company.root_id.id, sign, operator_sql, operand
         ))
         return [('id', 'in', [r[0] for r in res])]
 

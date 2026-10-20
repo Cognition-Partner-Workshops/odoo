@@ -26,6 +26,7 @@ class AccountAccount(models.Model):
     _name = 'account.account'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = "Account"
+    _storage = 'mongodb'
     _order = "code_path, account_type, name_path"
     _parent_store = True
     _check_company_auto = True
@@ -176,73 +177,23 @@ class AccountAccount(models.Model):
         ''' Ensure the currency set on the journal is the same as the currency set on the
         linked accounts.
         '''
-        if not self:
+        accounts = self.filtered('currency_id')
+        if not accounts:
             return
-
-        self.env['account.account'].flush_model(['currency_id'])
-        self.env['account.journal'].flush_model([
-            'currency_id',
-            'default_account_id',
-            'suspense_account_id',
-        ])
-        self.env['account.payment.method'].flush_model(['payment_type'])
-        self.env['account.payment.method.line'].flush_model(['payment_method_id', 'payment_account_id'])
-
-        self.env.cr.execute('''
-            SELECT
-                account.id,
-                journal.id
-            FROM account_journal journal
-            JOIN res_company company ON company.id = journal.company_id
-            JOIN account_account account ON account.id = journal.default_account_id
-            WHERE journal.currency_id IS NOT NULL
-            AND journal.currency_id != company.currency_id
-            AND account.currency_id != journal.currency_id
-            AND account.id IN %(accounts)s
-
-            UNION ALL
-
-            SELECT
-                account.id,
-                journal.id
-            FROM account_journal journal
-            JOIN res_company company ON company.id = journal.company_id
-            JOIN account_payment_method_line apml ON apml.journal_id = journal.id
-            JOIN account_payment_method apm on apm.id = apml.payment_method_id
-            JOIN account_account account ON account.id = apml.payment_account_id
-            WHERE journal.currency_id IS NOT NULL
-            AND journal.currency_id != company.currency_id
-            AND account.currency_id != journal.currency_id
-            AND apm.payment_type = 'inbound'
-            AND account.id IN %(accounts)s
-
-            UNION ALL
-
-            SELECT
-                account.id,
-                journal.id
-            FROM account_journal journal
-            JOIN res_company company ON company.id = journal.company_id
-            JOIN account_payment_method_line apml ON apml.journal_id = journal.id
-            JOIN account_payment_method apm on apm.id = apml.payment_method_id
-            JOIN account_account account ON account.id = apml.payment_account_id
-            WHERE journal.currency_id IS NOT NULL
-            AND journal.currency_id != company.currency_id
-            AND account.currency_id != journal.currency_id
-            AND apm.payment_type = 'outbound'
-            AND account.id IN %(accounts)s
-        ''', {
-            'accounts': tuple(self.ids)
-        })
-        res = self.env.cr.fetchone()
-        if res:
-            account = self.env['account.account'].browse(res[0])
-            journal = self.env['account.journal'].browse(res[1])
-            raise ValidationError(_(
-                "The foreign currency set on the journal '%(journal)s' and the account '%(account)s' must be the same.",
-                journal=journal.display_name,
-                account=account.display_name
-            ))
+        journals = self.env['account.journal'].sudo().search([('currency_id', '!=', False)])
+        for journal in journals.filtered(lambda journal: journal.currency_id != journal.company_id.currency_id):
+            linked = (
+                journal.default_account_id
+                | journal.inbound_payment_method_line_ids.payment_account_id
+                | journal.outbound_payment_method_line_ids.payment_account_id
+            )
+            for account in linked & accounts:
+                if account.currency_id != journal.currency_id:
+                    raise ValidationError(_(
+                        "The foreign currency set on the journal '%(journal)s' and the account '%(account)s' must be the same.",
+                        journal=journal.display_name,
+                        account=account.display_name,
+                    ))
 
     @api.constrains('company_ids', 'account_type')
     def _check_company_consistency(self):
@@ -270,19 +221,11 @@ class AccountAccount(models.Model):
         if not self:
             return
 
-        self.env['account.account'].flush_model(['account_type'])
-        self.env['account.journal'].flush_model(['type', 'default_account_id'])
-        self.env.cr.execute('''
-            SELECT account.id
-            FROM account_account account
-            JOIN account_journal journal ON journal.default_account_id = account.id
-            WHERE account.id IN %s
-            AND account.account_type IN ('asset_receivable', 'liability_payable')
-            AND journal.type IN ('sale', 'purchase')
-            LIMIT 1;
-        ''', [tuple(self.ids)])
-
-        if self.env.cr.fetchone():
+        accounts = self.filtered(lambda account: account.account_type in ('asset_receivable', 'liability_payable'))
+        if accounts and self.env['account.journal'].sudo().search_count([
+            ('default_account_id', 'in', accounts.ids),
+            ('type', 'in', ('sale', 'purchase')),
+        ], limit=1):
             raise ValidationError(_("The account is already in use in a 'sale' or 'purchase' journal. This means that the account's type couldn't be 'receivable' or 'payable'."))
 
     @api.constrains('code')
@@ -296,19 +239,15 @@ class AccountAccount(models.Model):
 
     @api.constrains('account_type')
     def _check_account_is_bank_journal_bank_account(self):
-        self.env['account.account'].flush_model(['account_type'])
-        self.env['account.journal'].flush_model(['type', 'default_account_id'])
-        self.env.cr.execute('''
-            SELECT journal.id
-              FROM account_journal journal
-              JOIN account_account account ON journal.default_account_id = account.id
-             WHERE account.account_type IN ('asset_receivable', 'liability_payable')
-               AND account.id IN %s
-             LIMIT 1;
-        ''', [tuple(self.ids)])
-
-        if self.env.cr.fetchone():
+        accounts = self.filtered(lambda account: account.account_type in ('asset_receivable', 'liability_payable'))
+        if accounts and self.env['account.journal'].sudo().search_count([('default_account_id', 'in', accounts.ids)], limit=1):
             raise ValidationError(_("You cannot change the type of an account set as Bank Account on a journal to Receivable or Payable."))
+
+    @api.model
+    def _ids_by_type(self, account_types, active_only=False):
+        ''' Ids of the accounts of ``account_types``, for raw SQL on PostgreSQL tables: the account
+        columns live in MongoDB (``_storage``), so a join on account_account is replaced by this list. '''
+        return self.sudo().with_context(active_test=active_only).search([('account_type', 'in', tuple(account_types))]).ids
 
     @api.depends_context('company')
     @api.depends('code_store')
@@ -394,13 +333,16 @@ class AccountAccount(models.Model):
     def _search_placeholder_code(self, operator, value):
         if operator not in ('=ilike', 'in'):
             return NotImplemented
-        query = Query(self)
-        placeholder_code_sql = self.env['account.account']._field_to_sql('account_account', 'placeholder_code', query)
+        # placeholder_code is compute_sql; the account documents live in MongoDB, so the codes are
+        # computed by the ORM and matched in Python (ILIKE: % and _ wildcards, case-insensitive)
+        accounts = self.env['account.account'].sudo().with_context(active_test=False).search([])
         if operator == 'in':
-            query.add_where(SQL("%s IN %s", placeholder_code_sql, tuple(value)))
+            values = set(value)
+            matches = accounts.filtered(lambda account: account.placeholder_code in values)
         else:
-            query.add_where(SQL("%s ILIKE %s", placeholder_code_sql, value))
-        return [('id', 'in', query)]
+            pattern = re.compile(''.join('.*' if c == '%' else '.' if c == '_' else re.escape(c) for c in value), re.IGNORECASE | re.DOTALL)
+            matches = accounts.filtered(lambda account: account.placeholder_code and pattern.fullmatch(account.placeholder_code))
+        return [('id', 'in', matches.ids)]
 
     @api.depends('parent_path')
     def _compute_parent_ids(self):
@@ -481,18 +423,16 @@ class AccountAccount(models.Model):
         if domain.is_false():
             return {}
 
-        query_account = self.env['account.account']._search(domain, limit=limit)
-        placeholder_code_alias = self.env['account.account']._field_to_sql('account_account', 'code', query_account)
-
-        placeholder_codes = self.env.execute_query(query_account.select(placeholder_code_alias))
+        placeholder_codes = self.env['account.account'].search(domain, limit=limit).mapped('code')
         return {
             (root := self.env['account.root']._from_account_code(code)).id: {'id': root.id, 'display_name': root.display_name}
-            for code, in placeholder_codes if code
+            for code in placeholder_codes if code
         }
 
     def _compute_used(self):
-        domain = Domain('id', 'in', self.ids) & Domain('used', '=', True)
-        used_ids = set(self.sudo().with_context(active_test=False)._search(domain))
+        # the SQL of _compute_sql_used cannot run against the MongoDB-stored account: ask the move lines
+        used_ids = {account.id for [account] in self.env['account.move.line'].sudo().with_context(active_test=False)._read_group(
+            [('account_id', 'in', self.ids)], ['account_id'])}
         for record in self:
             record.used = record.id in used_ids
 

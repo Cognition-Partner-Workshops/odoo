@@ -737,23 +737,8 @@ class AccountMoveLine(models.Model):
                      WHERE line.move_id = ANY(%(move_ids)s)
                        AND line.display_type = 'payment_term'
                        AND line.id != ANY(%(current_ids)s)
-                ),
-                fallback AS (
-                    SELECT DISTINCT ON (account_companies.res_company_id, account.account_type)
-                           'res.company' AS model,
-                           account_companies.res_company_id AS id,
-                           account.account_type AS account_type,
-                           account.id AS account_id
-                      FROM account_account account
-                      JOIN account_account_res_company_rel account_companies
-                           ON account_companies.account_account_id = account.id
-                     WHERE account_companies.res_company_id = ANY(%(company_ids)s)
-                       AND account.account_type IN ('asset_receivable', 'liability_payable')
-                       AND account.active IS TRUE
                 )
                 SELECT * FROM previous
-                UNION ALL
-                SELECT * FROM fallback
             """, {
                 'company_ids': moves.company_id.ids,
                 'move_ids': moves.ids,
@@ -764,6 +749,12 @@ class AccountMoveLine(models.Model):
                 (model, id, account_type): account_id
                 for model, id, account_type, account_id in self.env.cr.fetchall()
             }
+            for company in moves.company_id:
+                for account in self.env['account.account'].sudo().search([
+                    ('company_ids', 'in', company.id),
+                    ('account_type', 'in', ('asset_receivable', 'liability_payable')),
+                ], order='id'):
+                    accounts.setdefault(('res.company', company.id, account.account_type), account.id)
             for line in term_lines:
                 account_type = 'asset_receivable' if line.move_id.is_sale_document(include_receipts=True) else 'liability_payable'
                 move = line.move_id
@@ -815,9 +806,10 @@ class AccountMoveLine(models.Model):
             if operator in ('any', 'not any'):
                 operator = {'any': 'in', 'not any': 'not in'}[operator]
 
-            if isinstance(value, (Query, SQL)):
-                query_value = value.select() if isinstance(value, Query) else value
-                value = [row[0] for row in self.env.execute_query(query_value)]
+            if isinstance(value, Query):
+                value = list(value.get_result_ids())
+            elif isinstance(value, SQL):
+                value = [row[0] for row in self.env.execute_query(value)]
             else:  # isinstance(value, Domain) is True
                 # sudo reason: ignore ir.rules, `account_id` is with `bypass_search_access=True`
                 value = self.env['account.account'].sudo()._search(value).get_result_ids()
@@ -2446,19 +2438,14 @@ class AccountMoveLine(models.Model):
         if domain.is_false():
             return {}
 
-        query_line = self._search(domain, limit=1)
-        query_line.add_where(SQL('account_account.id = account_move_line.account_id'))
-
-        # Override in order to not read the complete move line table and use the index instead
-        query_account = self.env['account.account']._search([
-            ('company_ids', 'in', self.env.companies.ids),
-            ('code', '!=', False),
-        ])
-        query_account.add_where(SQL('EXISTS(%s)', query_line.select()))
-        account_codes = self.env.execute_query(query_account.select(SQL("DISTINCT %s", query_account.table.code)))
+        query_line = self._search(domain)
+        account_ids = [account_id for account_id, in self.env.execute_query(
+            query_line.select(SQL("DISTINCT %s", query_line.table.account_id)))]
+        accounts = self.env['account.account'].browse(account_ids).filtered(
+            lambda account: account.code and account.company_ids & self.env.companies)
         return {
             (root := self.env['account.root']._from_account_code(code)).id: {'id': root.id, 'display_name': root.display_name}
-            for code, in account_codes
+            for code in set(accounts.mapped('code'))
         }
 
     # -------------------------------------------------------------------------

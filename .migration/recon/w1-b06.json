@@ -1,0 +1,48 @@
+{
+  "batch": "w1-b06",
+  "status": "PASS",
+  "recon_results": [
+    ".migration/recon/account-chart/result.json"
+  ],
+  "fixture_results": [
+    ".migration/recon/account-chart/fixture/result.json"
+  ],
+  "write_targets": [
+    "odoo_unt12.accountAccount",
+    "odoo_unt12.accountAccountTag",
+    "odoo_unt12.accountTax",
+    "odoo_unt12.accountTaxGroup",
+    "odoo_unt12.accountTaxRepartitionLine",
+    "odoo_unt12.accountFiscalPosition"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/64",
+  "branch": "devin/1792506997-w1-b06-account-chart",
+  "failure_class": "",
+  "manifest_sha": "b965d1e5f34e",
+  "plugin_sha": "9a584b4cdb311ddd64fb07cbd1cf35fc9485062c",
+  "mapping_version": "map-draft-2",
+  "recon_tolerances_version": "unt12-3",
+  "tier_checks": {
+    "live": [
+      62,
+      52,
+      981,
+      6
+    ],
+    "fixture": [
+      21,
+      52,
+      981,
+      6
+    ]
+  },
+  "storage_path_findings": [],
+  "one_line_summary": "account-chart: live PASS on a25acb9 (source odoo_src, PR #68 loader), merge_eligible true, 0 warnings; fixture PASS; ORM scenario 79/79, no storage-path gap left",
+  "head_sha": "201cc381645e5e07c9031bdf3aacb2efe876044d",
+  "base": "mongo-run/unt12@a25acb9ede8",
+  "scenario": {
+    "path": ".migration/load/scenario_account_chart.py",
+    "passed": 79,
+    "total": 79
+  }
+}

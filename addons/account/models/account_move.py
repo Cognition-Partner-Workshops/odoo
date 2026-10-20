@@ -1294,7 +1294,7 @@ class AccountMove(models.Model):
                     SELECT
                         source_line.id AS source_line_id,
                         source_line.move_id AS source_move_id,
-                        account.account_type AS source_line_account_type,
+                        source_line.account_id AS source_line_account_id,
                         ARRAY_AGG(counterpart_move.move_type) AS counterpart_move_types,
                         COALESCE(BOOL_AND(COALESCE(pay.is_matched, FALSE))
                             FILTER (WHERE counterpart_move.origin_payment_id IS NOT NULL), TRUE) AS all_payments_matched,
@@ -1302,12 +1302,11 @@ class AccountMove(models.Model):
                         BOOL_OR(COALESCE(BOOL(counterpart_move.statement_line_id), FALSE)) as has_st_line
                     FROM account_partial_reconcile part
                     JOIN account_move_line source_line ON source_line.id = part.%s
-                    JOIN account_account account ON account.id = source_line.account_id
                     JOIN account_move_line counterpart_line ON counterpart_line.id = part.%s
                     JOIN account_move counterpart_move ON counterpart_move.id = counterpart_line.move_id
                     LEFT JOIN account_payment pay ON pay.id = counterpart_move.origin_payment_id
                     WHERE source_line.move_id IN %s AND counterpart_line.move_id != source_line.move_id
-                    GROUP BY source_line.id, source_line.move_id, account.account_type
+                    GROUP BY source_line.id, source_line.move_id, source_line.account_id
                 ''', SQL.identifier(source_field), SQL.identifier(counterpart_field), stored_ids))
 
             payment_data = defaultdict(list)
@@ -1316,12 +1315,13 @@ class AccountMove(models.Model):
         else:
             payment_data = {}
 
+        receivable_payable_ids = set(self.env['account.account']._ids_by_type(('asset_receivable', 'liability_payable'))) if payment_data else set()
         for invoice in invoices:
             currency = invoice.currency_id or invoice.company_id.currency_id or self.env.company.currency_id
             reconciliation_vals = payment_data.get(invoice.id, [])
 
             # Restrict on 'receivable'/'payable' lines for invoices/expense entries.
-            reconciliation_vals = [x for x in reconciliation_vals if x['source_line_account_type'] in ('asset_receivable', 'liability_payable')]
+            reconciliation_vals = [x for x in reconciliation_vals if x['source_line_account_id'] in receivable_payable_ids]
 
             new_pmt_state = 'not_paid'
             if currency.is_zero(invoice.amount_residual):
@@ -2522,13 +2522,13 @@ class AccountMove(models.Model):
                 OR
                 part.credit_move_id = counterpart_line.id
             JOIN account_move invoice ON invoice.id = counterpart_line.move_id
-            JOIN account_account account ON account.id = line.account_id
-            WHERE account.account_type IN ('asset_receivable', 'liability_payable')
+            WHERE line.account_id = ANY(%(account_ids)s)
                 AND invoice.id IN %(invoice_ids)s
                 AND line.id != counterpart_line.id
             GROUP BY invoice.id, invoice.move_type
             """,
             invoice_ids=tuple(self.ids),
+            account_ids=self.env['account.account']._ids_by_type(('asset_receivable', 'liability_payable')),
         ))) if self.ids else {}
         for move in self:
             move.reconciled_payment_ids = self.env['account.payment'].browse(invoice_payment_links.get(move.id))._filtered_access('read') | move.matched_payment_ids
