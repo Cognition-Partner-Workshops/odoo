@@ -1,6 +1,6 @@
 {
   "batch": "w3-b02",
-  "status": "PASS",
+  "status": "FAIL",
   "recon_results": [
     ".migration/recon/product-supplierinfo/result.json"
   ],
@@ -12,8 +12,8 @@
   ],
   "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/43",
   "branch": "devin/1792462599-w3-b02-supplierinfo",
-  "failure_class": "",
+  "failure_class": "float_digits_bson_string",
   "manifest_sha": "3548af4a78e1",
   "plugin_sha": "0d6bcfd528a4099449ad7f7d8c65eb620b017c79",
-  "one_line_summary": "product-supplierinfo -> odoo_migration.productSupplierinfo: live strict recon verdict PASS (T1 pass (7 checks), T2 pass (13 checks), T3 pass (32 checks), T4 pass (5 checks), mode=live, target_class=migration_cluster, merge_eligible=True, warnings=0), source = odoo_w3b02_src, a seeded clone of the deterministic odoo_src (seed_scenario_rows.py supplierinfo section: 3 variant-level EUR sellers with product_code/product_name/discount/2026 window + 1 template-level seller, 32 rows, timestamps pinned to FIXED_INSTANT, two clones dump identical); fixture verdict PASS on odoo_fixture (T1 pass (1 checks), T2 pass (13 checks), T3 pass (28 checks), T4 pass (5 checks), merge_eligible=False, diagnostic only); product.supplierinfo opted in on its own class, vendor-code search branch of product.product._search_display_name rewritten to search_fetch(product_tmpl_id) (store-agnostic, contract R two-step); ORM scenario scenario_product_supplierinfo.py 24/24 on the opted-in clone vs 17/17 baseline with identical RESULT lines (vendor-code/name search with partner_id, _select_seller/_prepare_sellers, D5 currency writer + savepoint rollback, template unlink cascade, loaded collection unchanged); product/uom tests on fresh odoo_w3b02_test (1 failed, 0 error(s) of 161 tests, only test_get_closest_possible_combinations), 21 unprefixed collections identical before/after; NOT RUN: full-estate -u product,purchase,purchase_stock (mongo_guard blocked the ticket-prescribed pymongo pre-copy into odoo_w3b02_estate__*: hook cwd cannot resolve the committed allowlist; baseline readers captured in d6-readers.log) and /purchase_stock:TestSupplier (fresh -i purchase_stock dies in stock's post_init_hook raw SQL on the Mongo-backed product_product, shared storage path, reported not fixed)"
+  "one_line_summary": "product-supplierinfo -> odoo_migration.productSupplierinfo: live strict recon PASS (T1 7, T2 13, T3 32, T4 5 checks, merge_eligible) on the harness-loaded collection; scenario 24/24 vs baseline 17/17; product/uom 160/161 (accepted failure); FAIL on shared storage-path bug float_digits_bson_string (UNT11-50): ORM writes min_qty/discount (digits Floats) as BSON strings and ORM numeric domains on them match none of the loaded Decimal128 rows (.migration/recon/product-supplierinfo/float-digits-probe.log); full-estate -u probe not run (mongo_guard blocks the pre-copy), /purchase_stock:TestSupplier not run (stock post_init_hook raw SQL on Mongo-backed product_product). Rebase once UNT11-50 merges."
 }

@@ -1,0 +1,11 @@
+# float_digits_bson_string probe (UNT11-50 owns the fix) - opted-in clone odoo_w3b02_scn, odoo-bin shell, savepoint rolled back
+# ORM create of a seller with price=2.0 min_qty=3.0 discount=4.5, then raw document types and ORM numeric domains
+# min_qty (digits='Product Unit') and discount (digits='Discount') land as strings; price (min_display_digits only) lands as Decimal128 per mapping spec
+# the same ORM domains against the 32 harness-loaded (Decimal128) documents match nothing
+DOC {'price': ('Decimal128', Decimal128('2.0')), 'minQty': ('str', '3.00'), 'discount': ('str', '4.50')}
+DOMAIN discount>0 -> 1
+DOMAIN min_qty>=3 -> 1
+DOMAIN price=2 -> 1
+LOADED discount>0 -> 0 expected 3 seeded
+LOADED min_qty>=1 -> 0 of 32
+AFTER count 32
