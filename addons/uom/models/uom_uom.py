@@ -20,6 +20,7 @@ class UomUom(models.Model):
     _parent_name = 'relative_uom_id'
     _parent_store = True
     _order = 'sequence, relative_uom_id, id'
+    _storage = 'mongodb'
 
     def _unprotected_uom_xml_ids(self):
         """ Return a list of UoM XML IDs that are not protected by default.
@@ -46,6 +47,53 @@ class UomUom(models.Model):
         'CHECK (relative_factor!=0)',
         'The conversion ratio for a unit of measure cannot be 0!',
     )
+
+    @api.model
+    def _factor_rows(self):
+        return self.sudo().with_context(active_test=False).search_read([], ['factor'], order='id')
+
+    @api.model
+    def _factor_sql(self, uom_id: tools.SQL) -> tools.SQL:
+        """ SQL expression of the absolute factor of the unit whose id is ``uom_id``.
+
+        uom_uom lives in MongoDB, so SQL reports cannot join it: the factors are
+        read through the ORM and inlined, keyed by the PostgreSQL foreign key column.
+        """
+        rows = self._factor_rows()
+        if not rows:
+            return tools.SQL("NULL::numeric")
+        return tools.SQL("(CASE %s %s END)", uom_id, tools.SQL(" ").join(
+            tools.SQL("WHEN %s THEN %s::numeric", row['id'], row['factor']) for row in rows))
+
+    @api.model
+    def _factor_values_sql(self) -> tools.SQL:
+        """ ``(VALUES (id, factor), ...)`` of every unit, for FROM clauses of SQL views
+        built in ``init()``. A model flagged ``_uom_factor_view = True`` is rebuilt by
+        :meth:`_rebuild_factor_views` whenever a factor can change. """
+        rows = [tools.SQL("(%s, %s::numeric)", row['id'], row['factor']) for row in self._factor_rows()]
+        return tools.SQL("(VALUES %s)", tools.SQL(", ").join(rows or [tools.SQL("(NULL::integer, NULL::numeric)")]))
+
+    def _rebuild_factor_views(self):
+        for name, cls in self.env.registry.items():
+            if getattr(cls, '_uom_factor_view', False):
+                self.env[name].init()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        uoms = super().create(vals_list)
+        uoms._rebuild_factor_views()
+        return uoms
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'relative_factor' in vals or 'relative_uom_id' in vals:
+            self._rebuild_factor_views()
+        return result
+
+    def unlink(self):
+        result = super().unlink()
+        self._rebuild_factor_views()
+        return result
 
     # === COMPUTE METHODS === #
 

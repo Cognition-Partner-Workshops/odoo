@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class StockPackageType(models.Model):
     _name = 'stock.package.type'
     _description = "Stock package type"
     _order = "sequence, id"
+    _storage = 'mongodb'
 
     def _get_default_length_uom(self):
         return self.env['product.template']._get_length_uom_name_from_ir_config_parameter()
@@ -58,6 +60,13 @@ class StockPackageType(models.Model):
         'CHECK(max_weight>=0.0)',
         'Max Weight must be positive',
     )
+
+    @api.constrains('barcode')
+    def _check_barcode_unique(self):
+        # mirrors _barcode_uniq: the spec has no unique index on barcode, so the storage path cannot refuse a duplicate
+        for package_type in self.filtered('barcode'):
+            if self.search_count([('barcode', '=', package_type.barcode), ('id', '!=', package_type.id)], limit=1):
+                raise ValidationError(_("A barcode can only be assigned to one package type!"))
 
     @api.depends('name', 'packaging_length', 'width', 'height')
     @api.depends_context('formatted_display_name')
