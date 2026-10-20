@@ -1,0 +1,75 @@
+{
+ "probes": [
+  {
+   "probe": "ORM prefix is the clone's own, never unprefixed",
+   "pass": true,
+   "evidence": "odoo_v_w1b03__"
+  },
+  {
+   "probe": "product.category opted in and read from the prefixed collection",
+   "pass": true,
+   "evidence": "storage=mongodb coll=odoo_v_w1b03__productCategory docs=7"
+  },
+  {
+   "probe": "uom.uom opted in and read from the prefixed collection",
+   "pass": true,
+   "evidence": "storage=mongodb coll=odoo_v_w1b03__uomUom docs=30"
+  },
+  {
+   "probe": "product.category documents in the prefix equal PostgreSQL product_category rows (id set)",
+   "pass": true,
+   "evidence": "7 docs"
+  },
+  {
+   "probe": "every opted-in root model has its prefixed collection loaded from the clone (document count == PostgreSQL row count)",
+   "pass": true,
+   "evidence": "25 root models equal; embedded child models (arrays of a root): ['account.fiscal.position.account', 'account.payment.term.line', 'account.report.column', 'account.report.line', 'product.attribute.value']"
+  },
+  {
+   "probe": "stock.avco.report: ORM rows on the PR head == legacy PostgreSQL view rows (every field, ordered by id)",
+   "pass": true,
+   "evidence": "orm=6 pg=6 first_diff=[]"
+  },
+  {
+   "probe": "stock.avco.report: search_count == PostgreSQL view count",
+   "pass": true,
+   "evidence": "orm=6 pg=6"
+  },
+  {
+   "probe": "stock.avco.report: cost-method / category filter leaves no row the legacy view lacks and drops none it has",
+   "pass": true,
+   "evidence": "ids orm=6 pg=6"
+  },
+  {
+   "probe": "vendor.delay.report: ORM rows on the PR head == legacy PostgreSQL view rows (every field, ordered by id)",
+   "pass": true,
+   "evidence": "orm=9 pg=9 first_diff=[]"
+  },
+  {
+   "probe": "vendor.delay.report: search_count == PostgreSQL view count",
+   "pass": true,
+   "evidence": "orm=9 pg=9"
+  },
+  {
+   "probe": "vendor.delay.report: cost-method / category filter leaves no row the legacy view lacks and drops none it has",
+   "pass": true,
+   "evidence": "ids orm=9 pg=9"
+  },
+  {
+   "probe": "vendor.delay.report read_group by category_id (MongoDB product.category) == legacy view aggregation",
+   "pass": true,
+   "evidence": "orm=[[5, 9, 715.0, 25.0]] pg=[[5, 9, 715.0, 25.0]]"
+  },
+  {
+   "probe": "prefixed collections untouched by the report reads (sha256 before == after)",
+   "pass": true,
+   "evidence": "{'uomUom': '7c699d1724d5', 'stockPackageType': '158cce7ed884', 'productCategory': 'b1ee18ce3af5'}"
+  },
+  {
+   "probe": "transaction rolled back, no PostgreSQL write in the probe",
+   "pass": true,
+   "evidence": "env.cr.rollback()"
+  }
+ ],
+ "findings": []
+}

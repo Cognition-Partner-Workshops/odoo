@@ -1,0 +1,164 @@
+{
+  "unit": "uom-packaging",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-2",
+  "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
+  "tolerance_version": "unt12-3",
+  "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
+  "collections": [
+    "stockPackageType",
+    "uomUom"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-20T19:26:32.099879+00:00",
+  "redacted": true,
+  "redaction_salted": false,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 11,
+      "stats": {
+        "source_counts": {
+          "stockPackageType": 3,
+          "uomUom": 30
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 20,
+      "stats": {
+        "deferred_to_tier3": [
+          "stockPackageType.sequence",
+          "stockPackageType.sequenceId",
+          "stockPackageType.companyId",
+          "stockPackageType.createUid",
+          "stockPackageType.writeUid",
+          "stockPackageType.name",
+          "stockPackageType.barcode",
+          "stockPackageType.packageUse",
+          "stockPackageType.createDate",
+          "stockPackageType.writeDate",
+          "stockPackageType.height",
+          "stockPackageType.width",
+          "stockPackageType.packagingLength",
+          "stockPackageType.baseWeight",
+          "stockPackageType.maxWeight",
+          "uomUom.sequence",
+          "uomUom.relativeUomId",
+          "uomUom.createUid",
+          "uomUom.writeUid",
+          "uomUom.parentPath",
+          "uomUom.name",
+          "uomUom.factor",
+          "uomUom.active",
+          "uomUom.createDate",
+          "uomUom.writeDate",
+          "uomUom.packageTypeId",
+          "uomUom.uneceCode"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "stockPackageType.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "stockPackageType.barcode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "stockPackageType.packageUse",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "uomUom.parentPath",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "uomUom.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "uomUom.uneceCode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "uomUom.name",
+            "key": "uomUom"
+          }
+        ],
+        "fields_fully_deferred": 8
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 37,
+      "stats": {
+        "stockPackageType": {
+          "mode": "full_diff",
+          "population": 3,
+          "duplicate_source_key_count": 0
+        },
+        "embeds_graded": {
+          "stockPackageType.stockPutawayRuleRel": 2,
+          "stockPackageType.stockRouteRel": 2
+        },
+        "uomUom": {
+          "mode": "full_diff",
+          "population": 30,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 4,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": true,
+  "error": null
+}

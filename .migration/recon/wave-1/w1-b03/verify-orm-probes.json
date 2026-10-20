@@ -1,0 +1,150 @@
+{
+ "probes": [
+  {
+   "probe": "ORM reads the prefixed namespace only",
+   "pass": true,
+   "evidence": "['odoo_v_w1b03__uomUom', 'odoo_v_w1b03__stockPackageType']"
+  },
+  {
+   "probe": "uom.uom count",
+   "pass": true,
+   "evidence": "30"
+  },
+  {
+   "probe": "stock.package.type count",
+   "pass": true,
+   "evidence": "3"
+  },
+  {
+   "probe": "uom.uom scalar fields equal PostgreSQL rows",
+   "pass": true,
+   "evidence": "[]"
+  },
+  {
+   "probe": "stock.package.type scalar fields equal PostgreSQL rows",
+   "pass": true,
+   "evidence": "3 rows"
+  },
+  {
+   "probe": "product.template.uom_ids (ORM) == product_template_uom_uom_rel",
+   "pass": true,
+   "evidence": "orm=0 pg=0 pairs"
+  },
+  {
+   "probe": "product.product.extra_uom_ids (ORM) == product_product_uom_uom_rel",
+   "pass": true,
+   "evidence": "orm=0 pg=0 pairs"
+  },
+  {
+   "probe": "product.template search on uom_ids over every uom",
+   "pass": true,
+   "evidence": "orm=0 pg=0 pairs"
+  },
+  {
+   "probe": "product.product search on extra_uom_ids over every uom",
+   "pass": true,
+   "evidence": "orm=0 pg=0 pairs"
+  },
+  {
+   "probe": "uom.uom.product_ids reverse side (if declared)",
+   "pass": true,
+   "evidence": "orm=0 pg=0 pairs"
+  },
+  {
+   "probe": "uom_ids / extra_uom_ids relation tables are still PostgreSQL tables (row counts)",
+   "pass": true,
+   "evidence": "product_template_uom_uom_rel=0 product_product_uom_uom_rel=0 (0 estate rows: equality is of empty sets on both sides; no link was made because this verify writes nothing)"
+  },
+  {
+   "probe": "no productTemplate / productProduct documents are consulted for these relations",
+   "pass": true,
+   "evidence": "productTemplate present=False"
+  },
+  {
+   "probe": "stockRouteRel documents == stock_package_type_stock_route_rel [prefixed, what the ORM reads]",
+   "pass": true,
+   "evidence": "orm=2 pg=2 pairs"
+  },
+  {
+   "probe": "stockPutawayRuleRel documents == stock_package_type_stock_putaway_rule_rel [prefixed, what the ORM reads]",
+   "pass": true,
+   "evidence": "orm=2 pg=2 pairs"
+  },
+  {
+   "probe": "stockRouteRel documents == stock_package_type_stock_route_rel [live batch collection, read-only]",
+   "pass": true,
+   "evidence": "orm=2 pg=2 pairs"
+  },
+  {
+   "probe": "stockPutawayRuleRel documents == stock_package_type_stock_putaway_rule_rel [live batch collection, read-only]",
+   "pass": true,
+   "evidence": "orm=2 pg=2 pairs"
+  },
+  {
+   "probe": "uomUom: prefixed documents (verifier load from the clone) == live batch documents",
+   "pass": true,
+   "evidence": "30 vs 30 docs"
+  },
+  {
+   "probe": "stockPackageType: prefixed documents (verifier load from the clone) == live batch documents",
+   "pass": true,
+   "evidence": "3 vs 3 docs"
+  },
+  {
+   "probe": "stock.package.type.route_ids (owner side, ORM)",
+   "pass": true,
+   "evidence": "orm=2 pg=2 pairs"
+  },
+  {
+   "probe": "stock.package.type search on route_ids over every route",
+   "pass": true,
+   "evidence": "orm=2 pg=2 pairs"
+  },
+  {
+   "probe": "stock.route has no package_type_ids field; other side covered by the search through the array",
+   "pass": true,
+   "evidence": "['package_type_selectable']"
+  },
+  {
+   "probe": "stock.putaway.rule.package_type_ids (other side, ORM)",
+   "pass": true,
+   "evidence": "orm=2 pg=2 pairs"
+  },
+  {
+   "probe": "stock.putaway.rule search on package_type_ids over every package type",
+   "pass": true,
+   "evidence": "orm=2 pg=2 pairs"
+  },
+  {
+   "probe": "stock.package.type has no putaway_rule_ids field; owner side covered by the putaway-rule search",
+   "pass": true,
+   "evidence": "['route_ids']"
+  },
+  {
+   "probe": "uom.uom.package_type_id -> stock.package.type (cross-store m2o, ORM) == live documents",
+   "pass": true,
+   "evidence": "orm=0 pg=0 pairs"
+  },
+  {
+   "probe": "uom.uom.relative_uom_id / related_uom_ids both sides",
+   "pass": true,
+   "evidence": "orm=23 pg=23 pairs"
+  },
+  {
+   "probe": "uom.uom.related_uom_ids == PostgreSQL",
+   "pass": true,
+   "evidence": "orm=23 pg=23 pairs"
+  },
+  {
+   "probe": "live and prefixed collections untouched (sha256 of every document before == after)",
+   "pass": true,
+   "evidence": "{'uomUom': '30 docs 7c699d1724d5', 'stockPackageType': '3 docs 158cce7ed884', 'odoo_v_w1b03__uomUom': '30 docs 7c699d1724d5', 'odoo_v_w1b03__stockPackageType': '3 docs 158cce7ed884'}"
+  },
+  {
+   "probe": "transaction rolled back, no PostgreSQL write in the probe",
+   "pass": true,
+   "evidence": "cr.rollback()"
+  }
+ ],
+ "findings": []
+}

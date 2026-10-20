@@ -1,0 +1,21 @@
+{
+ "batch": "w1-b03",
+ "verdict": "PASS",
+ "verified_head": "9fba21dcbe4b1b371b79c8fda481138f56d3d371",
+ "code_head": "128305b39a5db3e58946a4b94ea3fe964e0fd617",
+ "base": "mongo-run/unt12@68bcca0d81fbbc45b3f4a181652364272d57b8d0",
+ "recon_results": [
+  ".migration/recon/wave-1/w1-b03/result.json"
+ ],
+ "findings": [
+  "stock.avco.report (6 rows) and vendor.delay.report (9 rows, plus count and read_group by category_id) read through the ORM on the head, with product.category and uom.uom opted in, equal the legacy PostgreSQL views field for field (14/14), on a prefixed clone holding every merged opted-in unit.",
+  "Verifier-harness lesson: with only the batch's and product.category's collections in the prefix, vendor.delay.report.product_id read back False for 5/9 rows because product.product.display_name reads product.attribute (absent from the prefix) and convert_to_read swallows the MissingError; a partially loaded namespace degrades many2one reads to False instead of raising. Not a live-namespace defect; the compare pass now asserts full opted-in coverage.",
+  "product.template.uom_ids / product.product.extra_uom_ids read from PostgreSQL and equal it exactly through the ORM (record side and search side), but both relation tables hold zero estate rows, so the equality is of empty sets; the link-then-read case is an ORM write and stays outside this read-only verify.",
+  "stockRouteRel / stockPutawayRuleRel match from both sides (prefixed and live documents, owner-side reads, other-side reads and searches) only through the committed seed (TOTE-SEED): both junction tables are empty in the unseeded odoo_src.",
+  "ORM probes ran only through the clone's own prefix odoo_v_w1b03__ (asserted; no mongodb_migration_db set), on a verifier load of the clone through the head's unified loader; the prefixed batch documents equal the live batch documents one for one, the temporary prefixed collections were dropped afterwards, and the live collections were never written (sha256 of every document unchanged).",
+  "Plan gap, unpatched: .migration/load/load_unit.py has no prefix/namespace option, so a verifier cannot load into a temporary prefix with the committed tool alone; this verify wrapped its Database handle from outside (verify-prefixed-load.py).",
+  "Both the worker's run and this re-run are redacted with unsalted hashes because no RECON_REDACT_SALT secret exists (harness stderr warning; result.json warnings stay empty, so the verdict is unaffected).",
+  "Plugin gap, unpatched: the installed mongo-recon-harness skill text (plugin 0.7.0) names a `--source-concurrency` flag that the pinned CLI at 9a584b4cdb311ddd64fb07cbd1cf35fc9485062c rejects; the flag was omitted and recon_tolerances.json's source_concurrency key was accepted as-is."
+ ],
+ "report_path": "recon/verify-w1-b03:.migration/recon/wave-1/w1-b03/verify-report.md"
+}
