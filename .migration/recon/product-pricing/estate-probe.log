@@ -1,0 +1,28 @@
+# w3-b01 full-estate clone probe: odoo_w3b01_estate = createdb -T odoo_w3b01_src (sale, purchase, stock, account installed), run-branch code at 7786621fa6e with conf mongodb_migration_db=odoo_w3b01_scn (so the clone reads/writes odoo_w3b01_estate__*), the 13 wave-1/2 collections + productPricelist/productPricelistItem pre-copied into odoo_w3b01_estate__* (counts below).
+# -u product,sale --no-http --stop-after-init: real 0m49.849s, ERROR/Traceback lines: 0, log lines: 533
+2026-10-20 02:39:57,004 13670 INFO odoo_w3b01_estate odoo.modules.loading: Modules loaded.
+2026-10-20 02:39:57,799 13670 INFO odoo_w3b01_estate odoo.registry: Registry loaded in 48.501s
+
+# pre-opt-in baseline: odoo_w3b01_base (same seeded source) run from ../odoo-base (PostgreSQL storage)
+REPORT sale.report OK rows 51
+REPORT purchase.report OK rows 32
+REPORT account.invoice.report OK rows 62
+REPORT purchase.bill.line.match OK rows 27
+VIEW report_stock_quantity rows 5263
+VIEW stock_avco_report rows 7
+VIEW vendor_delay_report rows 10
+
+# opted-in clone odoo_w3b01_estate after -u product,sale
+REPORT sale.report OK rows 51
+REPORT purchase.report OK rows 32
+REPORT account.invoice.report OK rows 62
+REPORT purchase.bill.line.match OK rows 27
+VIEW report_stock_quantity rows 5263
+VIEW stock_avco_report rows 7
+VIEW vendor_delay_report rows 10
+
+# readers diff: identical (report_stock_quantity is date-projected: both sides read the same day; wave-2 log had 5268 on 2026-10-19)
+
+# unprefixed odoo_migration collections after all probes (targets of this batch: productPricelist 4, productPricelistItem 7 as loaded):
+{'productAttribute': 14, 'productAttributeValue': 101, 'productBaseUnit': 2, 'productCategory': 8, 'productDocument': 2, 'productProduct': 48, 'productTag': 3, 'productTemplate': 38, 'productTemplateAttributeLine': 9, 'productTemplateAttributeValue': 24, 'productUom': 6, 'uomUom': 30, 'updateProductAttributeValue': 0, 'productPricelist': 4, 'productPricelistItem': 7}
+# odoo_w3b01_estate__ namespace: {'productAttribute': 14, 'productAttributeValue': 101, 'productBaseUnit': 2, 'productCategory': 8, 'productDocument': 2, 'productProduct': 48, 'productTag': 3, 'productTemplate': 38, 'productTemplateAttributeLine': 9, 'productTemplateAttributeValue': 24, 'productUom': 6, 'uomUom': 30, 'updateProductAttributeValue': 0, 'productPricelist': 4, 'productPricelistItem': 7}

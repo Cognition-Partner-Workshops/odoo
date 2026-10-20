@@ -1,0 +1,65 @@
+storage: mongodb
+PASS storage opt-in
+shadow columns () ()
+PASS pricelist search (sequence, id, name) = PostgreSQL rows: 4 pricelists
+VALUE pricelist order: [2, 3, 1, 4]
+VALUE active pricelists: [2, 3, 1]
+PASS item default order (applied_on, min_quantity desc, categ_id desc, id desc) = PostgreSQL: orm=[5, 4, 1, 7, 3, 6, 2] pg=[5, 4, 1, 7, 3, 6, 2] pg_nulls_last=[5, 4, 1, 7, 3, 6, 2]
+VALUE item order: [5, 4, 1, 7, 3, 6, 2]
+PASS item fields = PostgreSQL rows: 7 items
+PASS categ_id = False matches missing keys
+PASS product_id != False
+PASS pricelist company_id = False
+PASS categ_id parent_of (Office -> Furniture)
+PASS product_id.product_tmpl_id traversal
+PASS date_start = False | <= date
+VALUE min_quantity = 0 | <= 2 ids: []
+VALUE min_quantity <= 2 ids: []
+VALUE min_quantity = 0 ids: []
+VALUE min_quantity > 1.5 ids: []
+FAIL min_quantity = 0 | <= qty (Decimal128)
+VALUE is_plain_discount ids: []
+VALUE price_round = 0 ids (NULL column in PostgreSQL): [1, 2, 3, 4, 5, 6]
+VALUE price_round = False ids: [1, 2, 3, 4, 5, 6]
+VALUE price_round != 0 ids: [7]
+FAIL is_plain_discount searchable (_search_is_plain_discount)
+PASS country_group_ids in (embedded array)
+PASS country_group_ids = False (empty array)
+PASS country_group_ids.country_ids traversal (France -> Europe)
+PASS read_group items by pricelist_id
+VALUE name_search EUR: [(2, 'Europe Wholesale (EUR)')]
+VALUE name_search Wholesale: [(2, 'Europe Wholesale (EUR)')]
+VALUE name_search fr: [(2, 'Europe grossistes (EUR)')]
+VALUE display_name fr: ['Europe grossistes (EUR)']
+VALUE item display_name: ['$\xa039.00 - Fixture Desk Lamp', '10 % surcharge on sales price  - All Products', '15 % discount on sales price  - Furniture', '99.90\xa0€ - [FURN_7777] Office Chair', '89.00\xa0€ - [FURN_7777] Office Chair', '15 % surcharge on sales price  - All Products', '5 % discount on Europe Wholesale (EUR) + $\xa01.50 extra fee - Furniture']
+VALUE europe rules chair qty=1 date=2026-06-01: [5, 4, 3, 2]
+VALUE europe price chair qty=1 date=2026-06-01: 99.9
+VALUE europe rules chair qty=5 date=2026-06-01: [5, 4, 3, 2]
+VALUE europe price chair qty=5 date=2026-06-01: 89.0
+VALUE europe rules chair qty=1 date=2027-03-01: [5, 3, 2]
+VALUE europe price chair qty=1 date=2027-03-01: 46.356449999999995
+VALUE europe rules non-furniture: []
+VALUE europe price non-furniture: 10.9074
+VALUE fixture price product 38: 45.0
+VALUE us-company rules chair qty=1: []
+VALUE us-company price chair qty=1 (base=pricelist Europe, discount+round+surcharge+margins): 70.0
+VALUE us-company rules chair qty=2: []
+VALUE us-company price chair qty=2 (base=pricelist Europe, discount+round+surcharge+margins): 70.0
+VALUE price_rule_multi all pricelists: {5: {2: (54.54, False), 3: (70.0, False), 1: (70.0, False)}}
+VALUE country pricelist multi (fr, us): {75: 2, 233: 1, False: 1}
+VALUE partner pricelist multi: False
+VALUE admin companies: [3, 1, 2]
+PASS company 1 sees company-less + own pricelists
+PASS company 2 sees its items
+PASS company 1 cannot read company-2 pricelist
+PASS pricelist create: document with embedded country group array: {'_id': 5, 'active': True, 'companyId': 1, 'createDate': datetime.datetime(2026, 10, 20, 2, 36, 13, 728000), 'createUid': 1, 'currencyId': 1, 'name': {'en_US': 'Scenario PL'}, 'sequence': 1, 'writeDate': datetime.datetime(2026, 10, 20, 2, 36, 13, 728000), 'writeUid': 1, 'resCountryGroupPricelistRel': [{'resCountryGroupId': 1}]}
+PASS item create: document (NULL omitted, Decimal128): {'_id': 8, 'appliedOn': '3_global', 'base': 'list_price', 'computePrice': 'markup', 'createDate': datetime.datetime(2026, 10, 20, 2, 36, 13, 728000), 'createUid': 1, 'minQuantity': '3.00', 'priceDiscount': '-20.00', 'pricelistId': 5, 'writeDate': datetime.datetime(2026, 10, 20, 2, 36, 13, 728000), 'writeUid': 1, 'companyId': 1, 'currencyId': 1}
+PASS new pricelist first in default order (sequence 1)
+VALUE new item price_discount (markup -> negative discount): -20.0
+PASS _check_company_auto rejects a cross-company base pricelist: UserError
+PASS write recomputes applied_on
+PASS unlink cascades item document
+PASS unlink cascades item
+PASS loaded collections unchanged after rollback: {'product.pricelist': 4, 'product.pricelist.item': 7}
+25/27 checks passed; FAILED: ['min_quantity = 0 | <= qty (Decimal128)', 'is_plain_discount searchable (_search_is_plain_discount)']
+exit 1

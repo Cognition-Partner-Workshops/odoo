@@ -1,0 +1,28 @@
+# w3-b01 Odoo tests on a fresh database (odoo_w3b01_test, conf mongodb_migration_db=odoo_w3b01_scn so the run uses odoo_w3b01_test__* collections; unprefixed odoo_migration collections untouched)
+# cmd: odoo-bin -d odoo_w3b01_test -i product,uom --test-enable --test-tags /product,/uom --no-http --stop-after-init -c ~/w3b01/odoo_scn.conf
+2026-10-20 03:06:34,793 13062 ERROR odoo_w3b01_test odoo.tests.result: 1 failed, 7 error(s) of 161 tests when loading database 'odoo_w3b01_test'
+real	29m1.206s
+
+# wave-2 baseline on the same harness: 160/161, the only failure being the accepted 0.5 s Atlas-latency timing test. This batch: 1 failed (same timing test) + 7 errors, all in the two pricelist test files and all one root cause (see float-digits-probe.log):
+product.tests.test_product_pricelist: ERROR: TestProductPricelist.test_10_calculation_price_of_products_pricelist
+product.tests.test_product_pricelist: ERROR: TestProductPricelist.test_remove_product_on_0_product_variant_applied_on_rule
+product.tests.test_pricelist: ERROR: TestPricelist.test_10_discount
+product.tests.test_pricelist: ERROR: TestPricelist.test_11_markup
+product.tests.test_pricelist: ERROR: TestPricelist.test_pricelist_applied_on_product_variant
+product.tests.test_pricelist: ERROR: TestPricelist.test_pricelist_change_between_discount_and_surcharge
+product.tests.test_pricelist: ERROR: TestPricelist.test_pricelist_change_to_fixed_and_back
+product.tests.test_product_attribute_value_config: FAIL: TestProductAttributeValueConfig.test_get_closest_possible_combinations
+
+# root exception of each of the 8 (the AssertionError is the accepted timing test; the 7 others are the one shared bug: Float fields with digits are written to BSON and compared in filters as float_repr strings, e.g. '20.00'):
+      1 AssertionError: 0.7453134059906006 not less than 0.5
+      2 TypeError: '<' not supported between instances of 'float' and 'str'
+      3 TypeError: bad operand type for unary -: 'str'
+      2 ValueError: invalid literal for int() with base 10: '20.00'
+
+# recommended /sale:TestSalePrices on a fresh odoo_w3b01_sale (-i sale --test-enable --test-tags /sale:TestSalePrices):
+2026-10-20 02:44:14,978 14568 ERROR odoo_w3b01_sale odoo.tests.result: 0 failed, 1 error(s) of 28 tests when loading database 'odoo_w3b01_sale'
+real	2m53.900s
+sale.tests.test_sale_prices: ERROR: TestSalePrices.test_pricelist_price_recompute_on_quantity_change
+  root: TypeError: '<' not supported between instances of 'float' and 'str'
+
+# collections after the two runs: odoo_w3b01_test__* 15 collections (productPricelist 0 / productPricelistItem 0 documents - test data rolled back), odoo_w3b01_sale__* 15 collections (0 / 0); unprefixed odoo_migration.productPricelist 4, productPricelistItem 7 (as loaded); 21 unprefixed collections, counts unchanged (see estate-probe.log)
