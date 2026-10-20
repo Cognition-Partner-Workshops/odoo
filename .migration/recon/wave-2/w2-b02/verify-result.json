@@ -1,0 +1,10 @@
+{
+ "batch": "w2-b02",
+ "verdict": "PASS",
+ "head_sha": "c8f81e30931c150f8da4fd9da0b68349435c4787",
+ "recon_results": [
+  ".migration/recon/wave-2/w2-b02/product-catalog/result.json"
+ ],
+ "findings": [],
+ "report_path": "recon/verify-w2-b02:.migration/recon/wave-2/w2-b02/verify-report.md"
+}

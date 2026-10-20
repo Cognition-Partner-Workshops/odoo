@@ -1,0 +1,106 @@
+[
+ {
+  "name": "template_embed_counts",
+  "collection": "productTemplate",
+  "source_sql": "SELECT t.id, t.categ_id, t.uom_id, t.type, t.list_price, t.active, (SELECT count(*) FROM product_template_attribute_line l WHERE l.product_tmpl_id = t.id) AS attribute_lines, (SELECT count(*) FROM product_optional_rel o WHERE o.dest_id = t.id) AS optional_products, (SELECT count(*) FROM product_template_uom_uom_rel u WHERE u.product_template_id = t.id) AS extra_uoms FROM product_template t",
+  "target_pipeline": [
+   {"$project": {"_id": 0, "id": "$_id", "categ_id": {"$ifNull": ["$categId", null]}, "uom_id": "$uomId", "type": 1,
+                 "list_price": {"$ifNull": ["$listPrice", null]}, "active": 1,
+                 "attribute_lines": {"$size": {"$ifNull": ["$attributeLine", []]}},
+                 "optional_products": {"$size": {"$ifNull": ["$productOptionalRel", []]}},
+                 "extra_uoms": {"$size": {"$ifNull": ["$uomUomRel", []]}}}}
+  ]
+ },
+ {
+  "name": "variant_embed_counts",
+  "collection": "productProduct",
+  "source_sql": "SELECT p.id, p.product_tmpl_id, p.default_code, p.active, p.lst_price, (SELECT count(*) FROM product_variant_combination c WHERE c.product_product_id = p.id) AS combination_values, (SELECT count(*) FROM product_uom u WHERE u.product_id = p.id) AS packagings, (SELECT count(*) FROM customer_product_reference r WHERE r.product_id = p.id) AS customer_references, (SELECT count(*) FROM product_product_uom_uom_rel x WHERE x.product_product_id = p.id) AS extra_uoms FROM product_product p",
+  "target_pipeline": [
+   {"$project": {"_id": 0, "id": "$_id", "product_tmpl_id": "$productTmplId", "default_code": {"$ifNull": ["$defaultCode", null]},
+                 "active": 1, "lst_price": {"$ifNull": ["$lstPrice", null]},
+                 "combination_values": {"$size": {"$ifNull": ["$productVariantCombination", []]}},
+                 "packagings": {"$size": {"$ifNull": ["$productUom", []]}},
+                 "customer_references": {"$size": {"$ifNull": ["$customerProductReference", []]}},
+                 "extra_uoms": {"$size": {"$ifNull": ["$uomUomRel", []]}}}}
+  ]
+ },
+ {
+  "name": "variant_combination_pairs",
+  "collection": "productProduct",
+  "source_sql": "SELECT c.product_product_id, c.product_template_attribute_value_id FROM product_variant_combination c",
+  "target_pipeline": [
+   {"$unwind": "$productVariantCombination"},
+   {"$project": {"_id": 0, "product_product_id": "$_id", "product_template_attribute_value_id": "$productVariantCombination.productTemplateAttributeValueId"}}
+  ]
+ },
+ {
+  "name": "ptav_relation_counts",
+  "collection": "productTemplateAttributeValue",
+  "source_sql": "SELECT v.id, v.product_tmpl_id, v.attribute_id, v.product_attribute_value_id, v.price_extra, v.ptav_active, (SELECT count(*) FROM product_template_attribute_excluded_value_ids_rel e WHERE e.excluded_product_template_attribute_value_id = v.id) AS excluded_values, (SELECT count(*) FROM product_template_attribute_value_sale_order_line_rel s WHERE s.product_template_attribute_value_id = v.id) AS sale_lines, (SELECT count(*) FROM product_template_attribute_value_purchase_order_line_rel pu WHERE pu.product_template_attribute_value_id = v.id) AS purchase_lines, (SELECT count(*) FROM template_attribute_value_stock_move_rel m WHERE m.template_attribute_value_id = v.id) AS stock_moves FROM product_template_attribute_value v",
+  "target_pipeline": [
+   {"$project": {"_id": 0, "id": "$_id", "product_tmpl_id": {"$ifNull": ["$productTmplId", null]}, "attribute_id": {"$ifNull": ["$attributeId", null]},
+                 "product_attribute_value_id": "$productAttributeValueId", "price_extra": {"$ifNull": ["$priceExtra", null]},
+                 "ptav_active": {"$ifNull": ["$ptavActive", null]},
+                 "excluded_values": {"$size": {"$ifNull": ["$productTemplateAttributeExcludedValueIdsRel", []]}},
+                 "sale_lines": {"$size": {"$ifNull": ["$saleOrderLineRel", []]}},
+                 "purchase_lines": {"$size": {"$ifNull": ["$purchaseOrderLineRel", []]}},
+                 "stock_moves": {"$size": {"$ifNull": ["$templateAttributeValueStockMoveRel", []]}}}}
+  ]
+ },
+ {
+  "name": "attribute_line_value_counts",
+  "collection": "productAttributeValueProductTemplateAttributeLineRel",
+  "source_sql": "SELECT product_template_attribute_line_id, count(*) AS n, min(product_attribute_value_id) AS min_value_id, max(product_attribute_value_id) AS max_value_id FROM product_attribute_value_product_template_attribute_line_rel GROUP BY product_template_attribute_line_id",
+  "target_pipeline": [
+   {"$group": {"_id": "$productTemplateAttributeLineId", "n": {"$sum": 1}, "min_value_id": {"$min": "$productAttributeValueId"}, "max_value_id": {"$max": "$productAttributeValueId"}}},
+   {"$project": {"_id": 0, "product_template_attribute_line_id": "$_id", "n": 1, "min_value_id": 1, "max_value_id": 1}}
+  ]
+ },
+ {
+  "name": "combo_item_lines",
+  "collection": "productCombo",
+  "source_sql": "SELECT i.combo_id, i.id AS item_id, i.product_id, i.extra_price, c.sequence AS combo_sequence FROM product_combo_item i JOIN product_combo c ON c.id = i.combo_id",
+  "target_pipeline": [
+   {"$unwind": "$item"},
+   {"$project": {"_id": 0, "combo_id": "$_id", "item_id": "$item.id", "product_id": "$item.productId", "extra_price": {"$ifNull": ["$item.extraPrice", null]}, "combo_sequence": {"$ifNull": ["$sequence", null]}}}
+  ]
+ },
+ {
+  "name": "combo_templates",
+  "collection": "productCombo",
+  "source_sql": "SELECT r.product_combo_id, r.product_template_id FROM product_combo_product_template_rel r",
+  "target_pipeline": [
+   {"$unwind": "$productTemplateRel"},
+   {"$project": {"_id": 0, "product_combo_id": "$_id", "product_template_id": "$productTemplateRel.productTemplateId"}}
+  ]
+ },
+ {
+  "name": "vendor_lines_per_partner",
+  "collection": "productSupplierinfo",
+  "source_sql": "SELECT partner_id, count(*) AS lines, min(price) AS min_price, max(price) AS max_price, sum(min_qty) AS total_min_qty, max(delay) AS max_delay FROM product_supplierinfo GROUP BY partner_id",
+  "target_pipeline": [
+   {"$group": {"_id": "$partnerId", "lines": {"$sum": 1}, "min_price": {"$min": "$price"}, "max_price": {"$max": "$price"}, "total_min_qty": {"$sum": "$minQty"}, "max_delay": {"$max": "$delay"}}},
+   {"$project": {"_id": 0, "partner_id": "$_id", "lines": 1, "min_price": {"$ifNull": ["$min_price", null]}, "max_price": {"$ifNull": ["$max_price", null]}, "total_min_qty": 1, "max_delay": 1}}
+  ]
+ },
+ {
+  "name": "pricelists_with_rule_counts",
+  "collection": "productPricelist",
+  "source_sql": "SELECT p.id, p.name->>'en_US' AS name, p.active, p.sequence, p.company_id, p.currency_id, (SELECT count(*) FROM product_pricelist_item i WHERE i.pricelist_id = p.id) AS rules FROM product_pricelist p",
+  "target_pipeline": [
+   {"$lookup": {"from": "productPricelistItem", "localField": "_id", "foreignField": "pricelistId", "as": "r"}},
+   {"$project": {"_id": 0, "id": "$_id", "name": "$name.en_US", "active": 1, "sequence": {"$ifNull": ["$sequence", null]}, "company_id": {"$ifNull": ["$companyId", null]}, "currency_id": "$currencyId", "rules": {"$size": "$r"}}}
+  ]
+ },
+ {
+  "name": "pricelist_rules_detail",
+  "collection": "productPricelistItem",
+  "source_sql": "SELECT i.id, i.pricelist_id, i.applied_on, i.base, i.compute_price, i.min_quantity, i.fixed_price, i.price_discount, i.price_surcharge, i.product_tmpl_id, i.product_id, i.categ_id, i.company_id, i.currency_id FROM product_pricelist_item i",
+  "target_pipeline": [
+   {"$project": {"_id": 0, "id": "$_id", "pricelist_id": {"$ifNull": ["$pricelistId", null]}, "applied_on": "$appliedOn", "base": 1, "compute_price": "$computePrice",
+                 "min_quantity": {"$ifNull": ["$minQuantity", null]}, "fixed_price": {"$ifNull": ["$fixedPrice", null]}, "price_discount": {"$ifNull": ["$priceDiscount", null]},
+                 "price_surcharge": {"$ifNull": ["$priceSurcharge", null]}, "product_tmpl_id": {"$ifNull": ["$productTmplId", null]}, "product_id": {"$ifNull": ["$productId", null]},
+                 "categ_id": {"$ifNull": ["$categId", null]}, "company_id": {"$ifNull": ["$companyId", null]}, "currency_id": {"$ifNull": ["$currencyId", null]}}}
+  ]
+ }
+]
