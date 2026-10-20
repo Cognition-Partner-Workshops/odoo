@@ -28,15 +28,20 @@ cr = env.cr
 CV, Layout = env['product.attribute.custom.value'], env['product.label.layout']
 store = env.registry.mongo_store
 prefix = store.collection_prefix
-check('scratch namespace is prefixed', prefix == f"{cr.dbname}__", prefix)
+if prefix != f"{cr.dbname}__":   # fail before any write: an unprefixed run would clean and drop the migrated collections
+    raise SystemExit(f"refusing: {cr.dbname!r} resolves to namespace {prefix!r}; run this scenario against a scratch clone "
+                     "whose name is not mongodb_migration_db")
+check('scratch namespace is prefixed', True, prefix)
 loaded = {n: store.db[n].count_documents({}) for n in ('productAttributeCustomValue', 'productLabelLayout')}
 cv_coll, layout_coll = store.db[store.collection_name(CV)], store.db[store.collection_name(Layout)]
 store.ensure_collection(CV)
 store.ensure_collection(Layout)
-check('scratch namespace holds a copy of the loaded collections',
-      (cv_coll.name, layout_coll.name) == (prefix + 'productAttributeCustomValue', prefix + 'productLabelLayout')
-      and cv_coll.count_documents({}) == loaded['productAttributeCustomValue'] > 0
-      and layout_coll.count_documents({}) == loaded['productLabelLayout'] > 0, loaded)
+copied = ((cv_coll.name, layout_coll.name) == (prefix + 'productAttributeCustomValue', prefix + 'productLabelLayout')
+          and cv_coll.count_documents({}) == loaded['productAttributeCustomValue'] > 0
+          and layout_coll.count_documents({}) == loaded['productLabelLayout'] > 0)
+if not copied:   # prerequisite for every check below, including the clean and the final drops
+    raise SystemExit(f"refusing: {prefix}* does not hold a copy of the loaded collections {loaded}")
+check('scratch namespace holds a copy of the loaded collections', True, loaded)
 
 # -- indexes: sale's unique(custom_ptav, sale_order_line_id) is a partial unique index
 unique = [ix for ix in cv_coll.list_indexes() if ix.get('unique')]
