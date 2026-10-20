@@ -21,14 +21,14 @@ every other seeded value is a literal. Prove it with two clones and a data-only 
 FIXED_INSTANT = '2026-10-14 00:00:00'   # UTC; keep equal to build_source.sh FIXED_INSTANT
 
 Tag = env['product.tag']
-if not Tag.search_count([]):
+if not Tag.with_context(lang='en_US').search_count([('name', '=', 'Seasonal')]):
     seasonal = Tag.create({'name': 'Seasonal', 'sequence': 1, 'color': '#FF7F0E', 'visible_to_customers': True})
     env['res.lang']._activate_lang('fr_FR')  # one translated value exercises the {lang: value} shape
     seasonal.with_context(lang='fr_FR').name = 'Saisonnier'
     Tag.create({'name': 'Clearance', 'sequence': 5, 'color': '#3C3C3C', 'visible_to_customers': False})
     Tag.create({'name': 'Staff pick', 'sequence': 10, 'color': '#2CA02C', 'visible_to_customers': True})
 BaseUnit = env['product.base.unit']
-if not BaseUnit.search_count([]):
+if not BaseUnit.with_context(lang='en_US').search_count([('name', '=', 'per 100 g')]):
     BaseUnit.create([{'name': 'per 100 g'}, {'name': 'per litre'}])
 
 # --- product-catalog (wave 2, w2-b01): product_uom and the four empty relation tables, seeded the
@@ -38,7 +38,7 @@ if not BaseUnit.search_count([]):
 # (product_tag_ids). Packagings come from wave 1's uom.uom (Pack of 6 / Dozens, xml ids), tags
 # from the rows above; products are the three lowest-id active variants with a barcode.
 ProductUom = env['product.uom']
-if not ProductUom.search_count([]):
+if not ProductUom.search_count([('barcode', '=like', 'SCN-%')]):
     pack6, dozen = env.ref('uom.product_uom_pack_6'), env.ref('uom.product_uom_dozen')
     tags = env['product.tag'].search([], order='sequence, id')
     products = env['product.product'].search([('barcode', '!=', False)], order='id', limit=3)
@@ -56,7 +56,7 @@ if not ProductUom.search_count([]):
 # are only observable on a seeded combo (createdb -T odoo_src odoo_w3b03_src). Products: the two
 # lowest-id active non-combo variants whose template carries taxes (the account D5 tax writer).
 Combo = env['product.combo']
-if not Combo.search([('company_id', '!=', False)]):
+if not Combo.with_context(lang='en_US').search_count([('name', '=', 'Chicago Desk Set')]):
     env['res.lang']._activate_lang('fr_FR')
     taxed = env['product.product'].search([('type', '!=', 'combo'), ('taxes_id', '!=', False)], order='id', limit=2)
     combo = Combo.create({
@@ -77,7 +77,7 @@ if not Combo.search([('company_id', '!=', False)]):
 # belong to sale order lines. Wizard rows cover every print_format, the three product arrays,
 # pricelist, packaging and stock's move_ids / move_quantity / print_packaging.
 CustomValue = env['product.attribute.custom.value']
-if not CustomValue.search_count([]):
+if not CustomValue.search_count([('custom_value', '=', 'Walnut legs, 72 cm')]):
     ptavs = env['product.template.attribute.value'].search(
         [('product_attribute_value_id.is_custom', '=', True)], order='id')
     lines = env['sale.order.line'].search([], order='id', limit=3)
@@ -91,7 +91,7 @@ if not CustomValue.search_count([]):
         for i, line in enumerate(lines)
     ])
 Layout = env['product.label.layout']
-if not Layout.search_count([]):
+if not Layout.search_count([('print_format', '=', 'dymo'), ('pricelist_id', '!=', False)]):
     # Transient rows can be vacuumed; a re-seed into an emptied clone would allocate new wizard ids and no
     # longer match a load keyed on the first run's ids. Seed a fresh clone of odoo_src instead.
     env.cr.execute("SELECT is_called FROM product_label_layout_id_seq")
@@ -115,7 +115,8 @@ if not Layout.search_count([]):
          'move_ids': [(6, 0, moves[:2].ids)], 'move_quantity': 'custom', 'custom_quantity': 3},
     ])
 
-# Guard every section on the presence of its own rows, never on a table's total count: a
+# Every section is guarded on the presence of its own named rows (compared in en_US, the language they
+# are created in), never on a table's total count: a
 # neighbouring section can add rows to a shared table as a side effect (activating a currency makes
 # `res.company._activate_or_create_pricelists` add a Default pricelist per company), which turned the
 # former `search_count([]) == 1` guard false and skipped the whole section. Each section also looks
