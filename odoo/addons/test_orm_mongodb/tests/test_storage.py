@@ -136,6 +136,40 @@ class TestMongoStorage(TransactionCase):
             })
             self.assertEqual(select_prices(as_admin), [(cat_a.id, 3.5), (cat_b.id, None)])
 
+    def test_sql_join_delegated_field_through_parent_shadow(self):
+        # an ``_inherits``-delegated field read through SQL (sale.report's
+        # ``product_id.uom_id``: product.product -> product_tmpl_id -> product_template.uom_id)
+        # has no column on the variant; it resolves through the parent join when the
+        # delegate field and the parent column are shadow columns (contract §4)
+        with patch.object(type(self.Variant), '_shadow_columns', ('item_id',)), \
+             patch.object(type(self.Item), '_shadow_columns', ('name',)):
+            self.store.ensure_shadow_table(self.Item)
+            with patch.object(self.env.registry, '_post_init_queue', [], create=True):
+                self.store.ensure_shadow_table(self.Variant)  # queues the item_id foreign key
+            cat_a, cat_b, _tag_x, _tag_y, (alpha, beta, _gamma) = self._make()
+            var_a, var_b = self.Variant.create([
+                {'item_id': alpha.id, 'ref': 'VA'}, {'item_id': beta.id, 'ref': 'VB'},
+            ])
+            cat_a.default_variant_id = var_a
+            cat_b.default_variant_id = var_b
+            self.env.flush_all()
+
+            def select_names(Category):
+                query = Category._search([('id', 'in', (cat_a | cat_b).ids)], order='id')
+                return Category.env.execute_query(query.select(query.table.id, query.table.default_variant_id.name))
+
+            self.assertEqual(select_names(self.Category), [(cat_a.id, 'Alpha'), (cat_b.id, 'Beta')])
+            var_a.name = 'Alpha prime'  # delegated write, shadowed on the parent at flush
+            self.assertEqual(select_names(self.Category), [(cat_a.id, 'Alpha prime'), (cat_b.id, 'Beta')])
+            query = Query(self.Category)
+            with self.assertRaises(NotImplementedError):
+                query.table.default_variant_id.ref  # own column, not shadowed
+            with self.assertRaises(NotImplementedError):
+                query.table.default_variant_id.code  # delegated, parent column not shadowed
+        with patch.object(type(self.Variant), '_shadow_columns', ()):
+            with self.assertRaises(NotImplementedError):
+                Query(self.Category).table.default_variant_id.name  # delegate field not shadowed
+
     def test_registry_opt_in(self):
         self.assertEqual(self.Item._storage, 'mongodb')
         self.assertEqual(self.Category._storage, 'postgresql')

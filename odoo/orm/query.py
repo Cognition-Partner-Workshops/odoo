@@ -427,7 +427,13 @@ class TableSQL(SQL):
         field = model._fields.get(field_name)
         if field is None:
             raise ValueError(f"Invalid field {field_name!r} on model {model._name!r}")
-        if model._storage == 'mongodb' and field_name != 'id' and field_name not in model._shadow_columns:
+        if (
+            model._storage == 'mongodb' and field_name != 'id' and field_name not in model._shadow_columns
+            # a non-stored related field (an ``_inherits`` delegate in particular) has no
+            # column of its own: its SQL is the chain's, and each hop is checked on its
+            # own model when ``Field.to_sql`` traverses it (contract §4)
+            and not (field.related and not field.store)
+        ):
             raise NotImplementedError(
                 f"{model._name} is stored in MongoDB: no SQL for field {field_name!r} (not in _shadow_columns)",
             )
