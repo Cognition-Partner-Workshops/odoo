@@ -1,0 +1,415 @@
+{
+ "probes": [
+  {
+   "probe": "declared_collections_present",
+   "pass": true,
+   "evidence": [
+    "_connectivity_probe",
+    "returnReason",
+    "stockScrapReasonTag",
+    "stockStorageCategory"
+   ]
+  },
+  {
+   "probe": "other_collections_in_target_db",
+   "pass": true,
+   "evidence": "not in this batch: ['_connectivity_probe']"
+  },
+  {
+   "probe": "stockStorageCategory.row_count",
+   "pass": true,
+   "evidence": "source=6 target=6"
+  },
+  {
+   "probe": "stockStorageCategory.not_empty",
+   "pass": true,
+   "evidence": "target=6"
+  },
+  {
+   "probe": "stockStorageCategory.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "stockStorageCategory.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "stockStorageCategory.boundary_max_id",
+   "pass": true,
+   "evidence": "id=6 present=True"
+  },
+  {
+   "probe": "stockStorageCategory.companyId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=6/6 target_missing_or_null=6/6"
+  },
+  {
+   "probe": "stockStorageCategory.companyId.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "stockStorageCategory.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/6 target_missing_or_null=0/6"
+  },
+  {
+   "probe": "stockStorageCategory.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "stockStorageCategory.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/6 target_missing_or_null=0/6"
+  },
+  {
+   "probe": "stockStorageCategory.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "stockStorageCategory.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/6 target_missing_or_null=0/6"
+  },
+  {
+   "probe": "stockStorageCategory.name.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "stockStorageCategory.allowNewProduct.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/6 target_missing_or_null=0/6"
+  },
+  {
+   "probe": "stockStorageCategory.allowNewProduct.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "stockStorageCategory.maxWeight.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/6 target_missing_or_null=0/6"
+  },
+  {
+   "probe": "stockStorageCategory.maxWeight.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "stockStorageCategory.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/6 target_missing_or_null=0/6"
+  },
+  {
+   "probe": "stockStorageCategory.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "stockStorageCategory.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/6 target_missing_or_null=0/6"
+  },
+  {
+   "probe": "stockStorageCategory.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "stockStorageCategory.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "stockStorageCategory.index[('companyId', 1)]",
+   "pass": true,
+   "evidence": "matching=['companyId_1'] unique_required=False all=['_id_', 'companyId_1']"
+  },
+  {
+   "probe": "stockStorageCategory.embeds_declared_none",
+   "pass": true,
+   "evidence": "embeds=[]"
+  },
+  {
+   "probe": "stockScrapReasonTag.row_count",
+   "pass": true,
+   "evidence": "source=3 target=3"
+  },
+  {
+   "probe": "stockScrapReasonTag.not_empty",
+   "pass": true,
+   "evidence": "target=3"
+  },
+  {
+   "probe": "stockScrapReasonTag.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "stockScrapReasonTag.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "stockScrapReasonTag.boundary_max_id",
+   "pass": true,
+   "evidence": "id=3 present=True"
+  },
+  {
+   "probe": "stockScrapReasonTag.sequence.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "stockScrapReasonTag.sequence.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "stockScrapReasonTag.color.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "stockScrapReasonTag.color.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "stockScrapReasonTag.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "stockScrapReasonTag.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "stockScrapReasonTag.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "stockScrapReasonTag.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "stockScrapReasonTag.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "stockScrapReasonTag.name.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "stockScrapReasonTag.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "stockScrapReasonTag.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "stockScrapReasonTag.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "stockScrapReasonTag.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "stockScrapReasonTag.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "stockScrapReasonTag.natural_key_unique[stock_scrap_reason_tag_name_uniq]",
+   "pass": true,
+   "evidence": "duplicates=[]"
+  },
+  {
+   "probe": "stockScrapReasonTag.index[('name', 1)]",
+   "pass": true,
+   "evidence": "matching=['name_1'] unique_required=True all=['_id_', 'name_1']"
+  },
+  {
+   "probe": "stockScrapReasonTag.embeds_declared_none",
+   "pass": true,
+   "evidence": "embeds=[]"
+  },
+  {
+   "probe": "returnReason.row_count",
+   "pass": true,
+   "evidence": "source=5 target=5"
+  },
+  {
+   "probe": "returnReason.not_empty",
+   "pass": true,
+   "evidence": "target=5"
+  },
+  {
+   "probe": "returnReason.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "returnReason.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "returnReason.boundary_max_id",
+   "pass": true,
+   "evidence": "id=5 present=True"
+  },
+  {
+   "probe": "returnReason.sequence.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "returnReason.sequence.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "returnReason.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "returnReason.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "returnReason.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "returnReason.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "returnReason.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "returnReason.name.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "returnReason.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "returnReason.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "returnReason.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "returnReason.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "returnReason.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "returnReason.embeds_declared_none",
+   "pass": true,
+   "evidence": "embeds=[]"
+  },
+  {
+   "probe": "stockStorageCategory.maxWeight.boundary_values",
+   "pass": true,
+   "evidence": "source=(200.00,3000.00) target=(200.00,3000.00)"
+  },
+  {
+   "probe": "stockScrapReasonTag.sequence.boundary_values",
+   "pass": true,
+   "evidence": "source=(5,20) target=(5,20)"
+  },
+  {
+   "probe": "returnReason.sequence.boundary_values",
+   "pass": true,
+   "evidence": "source=(10,50) target=(10,50)"
+  },
+  {
+   "probe": "stockStorageCategory.companyId->res_company.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[] missing_in_source_table=[]"
+  },
+  {
+   "probe": "stockStorageCategory.writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing_in_source_table=[]"
+  },
+  {
+   "probe": "stockScrapReasonTag.writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing_in_source_table=[]"
+  },
+  {
+   "probe": "returnReason.writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing_in_source_table=[]"
+  },
+  {
+   "probe": "stockStorageCategory.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "references=[]"
+  },
+  {
+   "probe": "stockScrapReasonTag.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "references=[]"
+  },
+  {
+   "probe": "returnReason.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "references=[]"
+  },
+  {
+   "probe": "tier4_replay.return_reason_choices",
+   "pass": true,
+   "evidence": "source_rows=5 target_rows=5 first_diff=None"
+  },
+  {
+   "probe": "tier4_replay.storage_category_rules",
+   "pass": true,
+   "evidence": "source_rows=6 target_rows=6 first_diff=None"
+  },
+  {
+   "probe": "tier4_replay.scrap_reason_tags",
+   "pass": true,
+   "evidence": "source_rows=3 target_rows=3 first_diff=None"
+  }
+ ],
+ "findings": []
+}
