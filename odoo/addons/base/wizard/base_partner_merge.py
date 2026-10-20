@@ -129,6 +129,8 @@ class BasePartnerMergeAutomaticWizard(models.TransientModel):
         # this guarantees cache consistency
         self.env.invalidate_all()
 
+        self._update_mongodb_foreign_keys(model, src_records, dst_record)
+
         for table, column in relations:
             if 'base_partner_merge_' in table:  # ignore two tables
                 continue
@@ -193,6 +195,32 @@ class BasePartnerMergeAutomaticWizard(models.TransientModel):
                         column=column_sql,
                         src_record_ids=src_records.ids,
                     ))
+
+    @api.model
+    def _update_mongodb_foreign_keys(self, model: str, src_records, dst_record):
+        """ The many2one / many2many fields to ``model`` of the models stored in MongoDB
+            (``_storage = 'mongodb'``): their PostgreSQL shadow table has no column for them, so
+            ``_get_fk_on`` does not list them. Same scope as the pg_constraint path: stored,
+            not company-dependent (a company-dependent many2one has no foreign key either).
+        """
+        fields = self.env['ir.model.fields'].sudo().search([
+            ('relation', '=', model),
+            ('ttype', 'in', ('many2one', 'many2many')),
+            ('store', '=', True),
+            ('company_dependent', '=', False),
+        ])
+        for field in fields:
+            Model = self.env.get(field.model)
+            if Model is None or Model._storage != 'mongodb' or Model._abstract or Model._transient:
+                continue
+            records = Model.sudo().with_context(active_test=False).search([(field.name, 'in', src_records.ids)])
+            if not records:
+                continue
+            if field.ttype == 'many2one':
+                records.write({field.name: dst_record.id})
+            else:
+                records.write({field.name: [Command.unlink(src.id) for src in src_records] + [Command.link(dst_record.id)]})
+        self.env.flush_all()
 
     @api.model
     def _update_reference_fields_generic(self, referenced_model, src_records, dst_record, additional_update_records=None):

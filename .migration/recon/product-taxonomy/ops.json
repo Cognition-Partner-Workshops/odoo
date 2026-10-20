@@ -1,0 +1,44 @@
+[
+  {
+    "name": "category_tree",
+    "collection": "productCategory",
+    "source_sql": "SELECT id, parent_id, parent_path, name->>'en_US' AS name, removal_strategy_id FROM product_category",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "parent_id": {"$ifNull": ["$parentId", null]}, "parent_path": "$parentPath", "name": "$name.en_US", "removal_strategy_id": {"$ifNull": ["$removalStrategyId", null]}}}]
+  },
+  {
+    "name": "category_wave_picking_types",
+    "collection": "productCategory",
+    "source_sql": "SELECT product_category_id AS id, stock_picking_type_id FROM product_category_stock_picking_type_rel",
+    "target_pipeline": [{"$unwind": "$stockPickingTypeRel"}, {"$project": {"_id": 0, "id": "$_id", "stock_picking_type_id": "$stockPickingTypeRel.stockPickingTypeId"}}]
+  },
+  {
+    "name": "removal_strategies",
+    "collection": "productRemoval",
+    "source_sql": "SELECT id, name->>'en_US' AS name, method->>'en_US' AS method FROM product_removal",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "name": "$name.en_US", "method": "$method.en_US"}}]
+  },
+  {
+    "name": "tags_with_templates",
+    "collection": "productTag",
+    "source_sql": "SELECT t.id, t.name->>'en_US' AS name, t.sequence, t.color, t.visible_to_customers, r.product_template_id FROM product_tag t LEFT JOIN product_tag_product_template_rel r ON r.product_tag_id = t.id",
+    "target_pipeline": [{"$unwind": {"path": "$productTemplateRel", "preserveNullAndEmptyArrays": true}}, {"$project": {"_id": 0, "id": "$_id", "name": "$name.en_US", "sequence": 1, "color": 1, "visible_to_customers": "$visibleToCustomers", "product_template_id": {"$ifNull": ["$productTemplateRel.productTemplateId", null]}}}]
+  },
+  {
+    "name": "tag_variants",
+    "collection": "productTag",
+    "source_sql": "SELECT product_tag_id AS id, product_product_id FROM product_tag_product_product_rel",
+    "target_pipeline": [{"$unwind": "$productProductRel"}, {"$project": {"_id": 0, "id": "$_id", "product_product_id": "$productProductRel.productProductId"}}]
+  },
+  {
+    "name": "documents_by_attachment",
+    "collection": "productDocument",
+    "source_sql": "SELECT id, ir_attachment_id, sequence, active, attached_on_sale FROM product_document",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "ir_attachment_id": "$irAttachmentId", "sequence": 1, "active": 1, "attached_on_sale": {"$ifNull": ["$attachedOnSale", null]}}}]
+  },
+  {
+    "name": "base_units",
+    "collection": "productBaseUnit",
+    "source_sql": "SELECT id, name->>'en_US' AS name FROM product_base_unit",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "name": "$name.en_US"}}]
+  }
+]

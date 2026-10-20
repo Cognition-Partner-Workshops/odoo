@@ -7,6 +7,7 @@ from odoo.exceptions import UserError
 
 class ProductRemoval(models.Model):
     _name = 'product.removal'
+    _storage = 'mongodb'
     _description = 'Removal Strategy'
 
     name = fields.Char('Name', required=True, translate=True)
