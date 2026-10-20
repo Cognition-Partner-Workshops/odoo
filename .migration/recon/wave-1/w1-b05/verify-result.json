@@ -5,6 +5,7 @@
   ".migration/recon/wave-1/w1-b05/result.json"
  ],
  "findings": [
+  "Storage-path gap (UNT12-33, not patched): my fresh `createdb -T odoo_src` clone still carries PostgreSQL NOT NULL on product_attribute(create_variant, display_type, name) and product_attribute_value(attribute_id, name); head be4415b9 relaxes them in `auto_init` (`relax_shadow_tables`), which only runs on install/update, so a clone that never ran `-u product` would still hit NotNullViolation on its first ORM create. This verify ran no ORM create, `-u product` or `--replace` reload (reads only), so the gap was reachable but not exercised.",
   "Both the worker's run and this re-run are redacted with unsalted hashes because no RECON_REDACT_SALT secret is available to this session (harness stderr warning; result.json warnings stay empty, so the verdict is unaffected). The worker's committed result at head has redaction_salted=true, so the two result.json files differ in `generated_at` and `redaction_salted` only.",
   "Plugin gap, unpatched: the installed mongo-recon-harness skill text (plugin 0.7.0) names a `--source-concurrency` flag that the pinned CLI at 9a584b4cdb311ddd64fb07cbd1cf35fc9485062c rejects; the flag was omitted.",
   "Odoo's config parser warns `unknown option 'mongodb_migration_db'` and stores it unparsed; the storage path still honours it (prefix '' asserted), so the ORM probes read the loaded collections. Cosmetic, for the storage-path owner.",
