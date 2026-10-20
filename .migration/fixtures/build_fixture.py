@@ -5,7 +5,9 @@ pricelist lines; product_supplierinfo is a leaf in the in-scope fan-outs, so the
 extra rows do not pull any other fan-out's percentiles below the profile),
 counts every in-scope table, recomputes every in-scope fan-out with the pinned
 profile's query shape and nearest-rank percentiles, fails if the fixture is below
-the profile on p50/p99/max, lists fan-outs skipped for an empty parent table and
+the profile on p50/p99/max or if a mapping_spec embed has no profile fan-out,
+tags each fan-out with the spec embeds it backs, lists fan-outs skipped for an
+empty parent table and
 writes the manifest accepted by preflight.py::validate_fixture_manifest. Database
 ACLs are not part of a template copy, so the source's PUBLIC revoke and odoo_ro
 CONNECT grant are re-applied here.
@@ -32,6 +34,19 @@ buckets = json.load(open(f"{root}/.migration/table_buckets.json"))["tables"]
 inScope = sorted(t for t, v in buckets.items() if v["bucket"] == "in_scope" and v["kind"] == "table")
 fanouts = [s for s in profile["stats"] if s["query_id"] == "fanout"
            and s["subject"]["parent"] in inScope and s["subject"]["child"] in inScope]
+fanoutIds = {s["id"] for s in profile["stats"] if s["query_id"] == "fanout"}
+
+# every embed in the signed-off spec must have its fan-out in the table
+spec = json.load(open(f"{root}/.migration/mapping_spec.json"))
+embedsByFanout, failures = {}, []
+for coll in spec["collections"]:
+    for embed in coll.get("embeds") or []:
+        fanoutId = f"fanout:{embed['child_table']}->{coll['root_table']}({','.join(embed['parent_key'])})"
+        embedsByFanout.setdefault(fanoutId, []).append(f"{coll['collection']}.{embed['array_path']}")
+        if fanoutId not in fanoutIds:
+            failures.append(f"{coll['collection']}.{embed['array_path']}: {fanoutId} is not in data_profile.json")
+        elif fanoutId not in {s["id"] for s in fanouts}:
+            fanouts.append(next(s for s in profile["stats"] if s["id"] == fanoutId))
 
 conn = psycopg2.connect(dbname=fixtureDb)
 cur = conn.cursor()
@@ -108,11 +123,14 @@ cur.execute(f"INSERT INTO product_product (product_tmpl_id, default_code, {cols}
             f"SELECT %s, 'FIXTURE-OUTLIER', {cols} FROM product_product WHERE id=%s RETURNING id",
             (outlierTmpl, baseVariant))
 outlierVariant = cur.fetchone()[0]
-# unreserved, lot-free, unowned copies of the sibling's quants: stock without a
-# reservation or lot has no move line or lot record to stay consistent with
-cols = ", ".join(map(q, columns("stock_quant", {"id", "product_id", "reserved_quantity", "lot_id", "package_id", "owner_id"})))
-cur.execute(f"INSERT INTO stock_quant (product_id, reserved_quantity, lot_id, package_id, owner_id, {cols}) "
-            f"SELECT %s, 0, NULL, NULL, NULL, {cols} FROM stock_quant WHERE product_id=%s AND lot_id IS NULL",
+# the sibling's quant positions at zero quantity, unreserved, lot-free and unowned:
+# a zero position needs no move line, lot or valuation history to be consistent
+quantCols = columns("stock_quant", {"id", "product_id", "lot_id", "package_id", "owner_id"})
+zeroed = [c for c in ("quantity", "reserved_quantity", "inventory_quantity", "inventory_diff_quantity") if c in quantCols]
+cols = ", ".join(map(q, [c for c in quantCols if c not in zeroed]))
+zeroes = ", ".join(["0"] * len(zeroed))
+cur.execute(f"INSERT INTO stock_quant (product_id, lot_id, package_id, owner_id, {', '.join(map(q, zeroed))}, {cols}) "
+            f"SELECT %s, NULL, NULL, NULL, {zeroes}, {cols} FROM stock_quant WHERE product_id=%s AND lot_id IS NULL",
             (outlierVariant, baseVariant))
 quants = cur.rowcount
 cols = ", ".join(map(q, columns("product_supplierinfo",
@@ -129,11 +147,12 @@ for t in inScope:
     cur.execute(f"SELECT COUNT(*) FROM {q(t)}")
     rowCounts[t] = cur.fetchone()[0]
 
-compared, skipped, failures = [], [], []
+compared, skipped = [], []
 for stat in fanouts:
     subj = stat["subject"]
     parent, child, childCols = subj["parent"], subj["child"], subj["child_columns"]
     entry = {"id": stat["id"], "parent": parent, "child": child,
+             "embeds": embedsByFanout.get(stat["id"], []),
              "profile": {k: stat["values"][k] for k in PCTS}}
     if rowCounts[parent] == 0:
         skipped.append({**entry, "reason": "parent table empty"})
@@ -182,7 +201,7 @@ manifest = {
         "relationship": outlierRel,
         "product_template_id": outlierTmpl,
         "product_product_id": outlierVariant,
-        "stock_quants_copied_from_sibling": quants,
+        "zero_quants_at_sibling_locations": quants,
         "children": outlierChildren,
         "uom_id": f"round-robin over the {len(uomIds)} units related to the product's unit",
         "product_code_prefix": "FIXTURE-OUTLIER-",
@@ -193,6 +212,12 @@ manifest = {
         "compared": len(compared),
         "skipped_empty_parent": len(skipped),
         "rule": "fixture p50/p99/max >= profile p50/p99/max for every compared fan-out",
+    },
+    "embed_coverage": {
+        "spec_version": spec["version"],
+        "spec_embeds": sum(len(v) for v in embedsByFanout.values()),
+        "compared": sum(len(e["embeds"]) for e in compared),
+        "skipped_empty_parent": sum(len(e["embeds"]) for e in skipped),
     },
     "fanouts": compared,
     "fanouts_skipped": skipped,
@@ -206,4 +231,6 @@ conn.commit()
 os.replace(manifestPath + ".tmp", manifestPath)
 print(f"build_fixture: {fixtureDb} outlier product_template id={outlierTmpl} variant id={outlierVariant} supplierinfo_lines={outlierChildren}; "
       f"fan-outs compared={len(compared)} skipped_empty_parent={len(skipped)}; "
+      f"spec embeds covered={manifest['embed_coverage']['compared']}+{manifest['embed_coverage']['skipped_empty_parent']}"
+      f"/{manifest['embed_coverage']['spec_embeds']}; "
       f"tables={len(rowCounts)} rows={sum(rowCounts.values())}")
