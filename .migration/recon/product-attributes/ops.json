@@ -1,0 +1,105 @@
+[
+  {
+    "name": "attribute_list",
+    "collection": "productAttribute",
+    "source_sql": "SELECT id, sequence, name->>'en_US' AS name, create_variant, display_type, active FROM product_attribute",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "sequence": {
+            "$ifNull": [
+              "$sequence",
+              null
+            ]
+          },
+          "name": "$name.en_US",
+          "create_variant": {
+            "$ifNull": [
+              "$createVariant",
+              null
+            ]
+          },
+          "display_type": {
+            "$ifNull": [
+              "$displayType",
+              null
+            ]
+          },
+          "active": {
+            "$ifNull": [
+              "$active",
+              null
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "attribute_values_by_attribute",
+    "collection": "productAttribute",
+    "source_sql": "SELECT attribute_id, id, sequence, name->>'en_US' AS name, html_color, is_custom, default_extra_price, active FROM product_attribute_value",
+    "target_pipeline": [
+      {
+        "$unwind": "$value"
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "attribute_id": "$_id",
+          "id": "$value.id",
+          "sequence": {
+            "$ifNull": [
+              "$value.sequence",
+              null
+            ]
+          },
+          "name": "$value.name.en_US",
+          "html_color": {
+            "$ifNull": [
+              "$value.htmlColor",
+              null
+            ]
+          },
+          "is_custom": {
+            "$ifNull": [
+              "$value.isCustom",
+              null
+            ]
+          },
+          "default_extra_price": {
+            "$ifNull": [
+              "$value.defaultExtraPrice",
+              null
+            ]
+          },
+          "active": {
+            "$ifNull": [
+              "$value.active",
+              null
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "attribute_template_pairs",
+    "collection": "productAttribute",
+    "source_sql": "SELECT product_attribute_id, product_template_id FROM product_attribute_product_template_rel",
+    "target_pipeline": [
+      {
+        "$unwind": "$productTemplateRel"
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "product_attribute_id": "$_id",
+          "product_template_id": "$productTemplateRel.productTemplateId"
+        }
+      }
+    ]
+  }
+]
