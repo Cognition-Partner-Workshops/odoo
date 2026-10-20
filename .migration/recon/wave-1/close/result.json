@@ -1,0 +1,175 @@
+{
+  "unit": "wave-1-close",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-2",
+  "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
+  "tolerance_version": "unt12-3",
+  "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
+  "collections": [
+    "accountAccount",
+    "accountAccountTag",
+    "accountCashRounding",
+    "accountFiscalPosition",
+    "accountIncoterms",
+    "accountJournalGroup",
+    "accountLockException",
+    "accountPaymentTerm",
+    "accountReport",
+    "accountReportExpression",
+    "accountReportExternalValue",
+    "accountTax",
+    "accountTaxGroup",
+    "accountTaxRepartitionLine",
+    "productAttribute",
+    "productBaseUnit",
+    "productCategory",
+    "productDocument",
+    "productRemoval",
+    "productTag",
+    "returnReason",
+    "stockPackageType",
+    "stockScrapReasonTag",
+    "stockStorageCategory",
+    "uomUom"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-20T19:42:07.749708+00:00",
+  "redacted": true,
+  "redaction_salted": false,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": false,
+      "checks_run": 141,
+      "stats": {
+        "source_counts": {
+          "accountAccount": 184,
+          "accountAccountTag": 10,
+          "accountCashRounding": 2,
+          "accountFiscalPosition": 4,
+          "accountIncoterms": 11,
+          "accountJournalGroup": 2,
+          "accountLockException": 1,
+          "accountPaymentTerm": 11,
+          "accountReport": 5,
+          "accountReportExpression": 3,
+          "accountReportExternalValue": 1,
+          "accountTax": 58,
+          "accountTaxGroup": 26,
+          "accountTaxRepartitionLine": 232,
+          "productAttribute": 14,
+          "productBaseUnit": 2,
+          "productCategory": 7,
+          "productDocument": 2,
+          "productRemoval": 4,
+          "productTag": 3,
+          "returnReason": 5,
+          "stockPackageType": 3,
+          "stockScrapReasonTag": 3,
+          "stockStorageCategory": 6,
+          "uomUom": 30
+        }
+      },
+      "findings": [
+        {
+          "collection": "accountAccount",
+          "check": "embed_cardinality",
+          "detail": "rows(account_account_tax_default_rel)=1 vs sum(len(taxDefaultRel))=0",
+          "source_value": "null",
+          "target_value": "null",
+          "rules_applied": [],
+          "rules_configured": []
+        },
+        {
+          "collection": "accountAccountTag",
+          "check": "root_count",
+          "detail": "rows(account_account_tag)=10 vs docs=8",
+          "source_value": "null",
+          "target_value": "null",
+          "rules_applied": [],
+          "rules_configured": []
+        },
+        {
+          "collection": "accountAccountTag",
+          "check": "embed_cardinality",
+          "detail": "rows(account_account_tag_account_move_line_rel)=1 vs sum(len(accountMoveLineRel))=0",
+          "source_value": "null",
+          "target_value": "null",
+          "rules_applied": [],
+          "rules_configured": []
+        },
+        {
+          "collection": "accountAccountTag",
+          "check": "embed_cardinality",
+          "detail": "rows(account_account_tag_account_tax_repartition_line_rel)=1 vs sum(len(accountTaxRepartitionLineRel))=0",
+          "source_value": "null",
+          "target_value": "null",
+          "rules_applied": [],
+          "rules_configured": []
+        },
+        {
+          "collection": "accountAccountTag",
+          "check": "embed_cardinality",
+          "detail": "rows(account_account_tag_product_template_rel)=1 vs sum(len(productTemplateRel))=0",
+          "source_value": "null",
+          "target_value": "null",
+          "rules_applied": [],
+          "rules_configured": []
+        },
+        {
+          "collection": "accountFiscalPosition",
+          "check": "embed_cardinality",
+          "detail": "rows(account_fiscal_position_account)=1 vs sum(len(account))=0",
+          "source_value": "null",
+          "target_value": "null",
+          "rules_applied": [],
+          "rules_configured": []
+        },
+        {
+          "collection": "accountFiscalPosition",
+          "check": "embed_cardinality",
+          "detail": "rows(account_fiscal_position_res_country_state_rel)=2 vs sum(len(resCountryStateRel))=0",
+          "source_value": "null",
+          "target_value": "null",
+          "rules_applied": [],
+          "rules_configured": []
+        },
+        {
+          "collection": "accountTax",
+          "check": "root_count",
+          "detail": "rows(account_tax)=58 vs docs=57",
+          "source_value": "null",
+          "target_value": "null",
+          "rules_applied": [],
+          "rules_configured": []
+        },
+        {
+          "collection": "accountTax",
+          "check": "embed_cardinality",
+          "detail": "rows(account_tax_filiation_rel)=2 vs sum(len(filiationRel))=0",
+          "source_value": "null",
+          "target_value": "null",
+          "rules_applied": [],
+          "rules_configured": []
+        },
+        {
+          "collection": "accountTaxRepartitionLine",
+          "check": "root_count",
+          "detail": "rows(account_tax_repartition_line)=232 vs docs=228",
+          "source_value": "null",
+          "target_value": "null",
+          "rules_applied": [],
+          "rules_configured": []
+        }
+      ]
+    }
+  ],
+  "warnings": [],
+  "verdict": "FAIL",
+  "merge_eligible": false,
+  "error": null
+}
