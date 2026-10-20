@@ -32,7 +32,7 @@
       4
     ]
   },
-  "one_line_summary": "uom-packaging: live PASS, merge_eligible true, 0 warnings; fixture PASS; 64/64 ORM scenario checks on mongo-run/unt12@a25acb9 (unified loader #68) (CHECK mirrors dropped, barcode unique mirror kept: no unique index in the spec); uom_ids/extra_uom_ids stay on PostgreSQL and read equal after an ORM link",
-  "head_sha": "04dc5fef78b81b7b07140bdf88ba73d68acb79b7",
-  "base": "mongo-run/unt12@83cc4af173e"
+  "one_line_summary": "uom-packaging: live PASS, merge_eligible true, 0 warnings (tiers 11/20/37/4, re-run 2026-10-20T18:58Z, no reload); fixture PASS; 66/66 ORM scenario checks on a prefixed clone of mongo-run/unt12@68bcca0 (#59/#60/#61/#64 in), incl. stock.avco.report and vendor.delay.report row-parity with the legacy PostgreSQL views with product.category and uom.uom both opted in; stock_avco_audit_report.py reconciled with #61 (cost-method filter in _search, UoM factors inlined); barcode unique mirror kept (no unique index in the spec); uom_ids/extra_uom_ids stay on PostgreSQL",
+  "head_sha": "128305b39a5db3e58946a4b94ea3fe964e0fd617",
+  "base": "mongo-run/unt12@68bcca0d81f"
 }
