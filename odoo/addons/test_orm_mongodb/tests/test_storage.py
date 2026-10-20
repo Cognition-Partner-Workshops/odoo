@@ -323,11 +323,12 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual(coll.find_one({'_id': self.author_b.id})['name'], 'Ben')
         # a value committed by another cursor in between is kept on rollback
         with self.assertRaises(ZeroDivisionError), self.env.cr.savepoint():
-            self.author_a.write({'name': 'Mine'})
+            self.author_a.write({'name': 'Mine', 'state': 'done'})
             self.env.flush_all()
             coll.update_one({'_id': self.author_a.id}, {'$set': {'name': 'Theirs'}})
             1 / 0
         self.assertEqual(coll.find_one({'_id': self.author_a.id})['name'], 'Theirs')
+        self.assertEqual(coll.find_one({'_id': self.author_a.id})['state'], 'draft')    # the other field is undone
         coll.update_one({'_id': self.author_a.id}, {'$set': {'name': 'Ann'}})
         # the first MongoDB write of a cursor made inside a savepoint rolls back with it
         with self.registry.cursor() as cr:

@@ -400,15 +400,14 @@ class MongoStore:
 
         def undo():
             for doc in old:
-                sets = {top: doc[top] for top in tops if top in doc}
-                unsets = {top: '' for top in tops if top not in doc}
-                ops = {}
-                if sets:
-                    ops['$set'] = sets
-                if unsets:
-                    ops['$unset'] = unsets
-                # only where the document still holds the values written here
-                coll.update_one({'_id': doc['_id'], **updates[doc['_id']]}, ops)
+                written = updates[doc['_id']]
+                for top in tops:
+                    # per field, and only where the document still holds the value written here
+                    condition = {path: value for path, value in written.items() if path.split('.', 1)[0] == top}
+                    if not condition:
+                        continue
+                    op = {'$set': {top: doc[top]}} if top in doc else {'$unset': {top: ''}}
+                    coll.update_one({'_id': doc['_id'], **condition}, op)
         self.journal(cr).record(undo)
 
     # -- embedded elements ----------------------------------------------------------
@@ -460,13 +459,14 @@ class MongoStore:
         )
 
         def undo():
-            written = {f'e.{path}': value for path, value in values.items()}
             for element_id, previous in old.items():
-                coll.update_many(
-                    {f'{array_path}.{key}': element_id},
-                    {'$set': {f'{array_path}.$[e].{path}': value for path, value in previous.items()}},
-                    array_filters=[{f'e.{key}': element_id, **written}],    # still holds the values written here
-                )
+                for path, value in previous.items():
+                    # per field, and only where the element still holds the value written here
+                    coll.update_many(
+                        {f'{array_path}.{key}': element_id},
+                        {'$set': {f'{array_path}.$[e].{path}': value}},
+                        array_filters=[{f'e.{key}': element_id, f'e.{path}': values[path]}],
+                    )
         self.journal(cr).record(undo)
 
     # -- id shadow ------------------------------------------------------------------
@@ -1172,10 +1172,13 @@ def unlink_rows(model: BaseModel, ids: list[int]) -> None:
     # many2many links stored in MongoDB have no foreign key to cascade them
     for field in many2many_fields_of(model):
         Model = model.env[field.model_name].sudo()
-        own = field.model_name == model._name
-        pairs = _rel_pairs(field, Model, ids=ids) if own else _rel_pairs(field, Model, coids=ids)
+        pairs = set()
+        if field.model_name == model._name:
+            pairs.update(_rel_pairs(field, Model, ids=ids))
+        if field.comodel_name == model._name:       # both for a self-referential relation
+            pairs.update(_rel_pairs(field, Model, coids=ids))
         if pairs:
-            many2many_write_pairs(field, Model, [], pairs)
+            many2many_write_pairs(field, Model, [], sorted(pairs))
             Model.invalidate_model([field.name])
     cr.execute(SQL("DELETE FROM %s WHERE id IN %s", SQL.identifier(model._table), tuple(ids)))
     if spec.embedded:
