@@ -12,8 +12,10 @@ The owner of a model table is derived from the ir_model_data rows that register 
 model (model = 'ir.model'); the owner of a relation table from the rows that register
 the many2many fields using it (model = 'ir.model.fields'). The owner is the registering
 module every other registering module depends on transitively ("dependency root"),
-which does not depend on ir_model_data row order; the lowest-id owner is computed too
-and every table where the two differ is listed under owner_flips.
+which does not depend on ir_model_data row order; when no unique root exists the
+alphabetically first registering module is taken and the table is listed under
+owner_ambiguous. The lowest-id owner is computed too and every table where the two differ
+is listed under owner_flips.
 
 Reads only. The source is reached through the JSON secret named by --source-dsn-secret
 (bound in a one-shot exec); the value is never printed.
@@ -107,12 +109,12 @@ def main():
         if rows:
             lowest = rows[0][1]
             modules = {module for _, module, _ in rows}
-            roots = [m for m in modules if all(m == o or m in depends_on[o] for o in modules)]
-            if len(roots) == 1:
-                owner = roots[0]
-            else:
-                owner = lowest
-                ambiguous.append({"table": name, "modules": sorted(modules), "roots": sorted(roots)})
+            roots = sorted(m for m in modules if all(m == o or m in depends_on[o] for o in modules))
+            # No unique root: fall back to the alphabetically first module, which also does
+            # not depend on registration order; the table is listed for the manager.
+            owner = roots[0] if roots else min(modules)
+            if len(roots) != 1:
+                ambiguous.append({"table": name, "modules": sorted(modules), "roots": roots})
             row_id, _, xmlid = next(r for r in rows if r[1] == owner)
             cite = f"ir_model_data id={row_id} {xmlid}"
             if owner != lowest:
