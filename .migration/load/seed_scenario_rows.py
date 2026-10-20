@@ -130,7 +130,7 @@ if not Layout.search_count([]):
 # min_quantity > 0 and a uom_id. mail.thread rows are suppressed so only the unit's tables change.
 Pricelist = env['product.pricelist'].with_context(tracking_disable=True, mail_create_nolog=True)
 Item = env['product.pricelist.item']
-if not Pricelist.with_context(active_test=False).search_count([('name', '=', 'Europe Wholesale')]):
+if not Pricelist.with_context(active_test=False, lang='en_US').search_count([('name', '=', 'Europe Wholesale')]):
     env['res.lang']._activate_lang('fr_FR')
     furniture = env['product.category'].search([('name', '=', 'Furniture')], limit=1)
     chair = env['product.template'].search([('categ_id', 'child_of', furniture.id)], order='id', limit=1)
