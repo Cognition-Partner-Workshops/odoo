@@ -1,0 +1,131 @@
+{
+ "collections": {
+  "accountAccount": {
+   "count": 184,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "accountAccountTag": {
+   "count": 8,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "accountCashRounding": {
+   "count": 2,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "accountFiscalPosition": {
+   "count": 4,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "accountIncoterms": {
+   "count": 11,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "accountJournalGroup": {
+   "count": 2,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "accountLockException": {
+   "count": 1,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "accountPaymentTerm": {
+   "count": 11,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "accountReport": {
+   "count": 5,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "accountReportExpression": {
+   "count": 3,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "accountReportExternalValue": {
+   "count": 1,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "accountTax": {
+   "count": 57,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "accountTaxGroup": {
+   "count": 26,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "accountTaxRepartitionLine": {
+   "count": 228,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "productAttribute": {
+   "count": 14,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "productBaseUnit": {
+   "count": 2,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "productCategory": {
+   "count": 7,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "productDocument": {
+   "count": 2,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "productRemoval": {
+   "count": 4,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "productTag": {
+   "count": 3,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "returnReason": {
+   "count": 5,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "stockPackageType": {
+   "count": 3,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "stockScrapReasonTag": {
+   "count": 3,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "stockStorageCategory": {
+   "count": 6,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  },
+  "uomUom": {
+   "count": 30,
+   "max_createDate": "2026-10-20T00:00:00",
+   "max_writeDate": "2026-10-20T00:00:00"
+  }
+ },
+ "database": "odoo_unt12",
+ "taken_at": "2026-10-20T19:53:34.534134+00:00"
+}
