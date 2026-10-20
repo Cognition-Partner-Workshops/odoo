@@ -5,6 +5,7 @@ class StockScrapReasonTag(models.Model):
     _name = 'stock.scrap.reason.tag'
     _description = 'Scrap Reason Tag'
     _order = 'sequence, id'
+    _storage = 'mongodb'
 
     name = fields.Char(string="Name", required=True, translate=True)
     sequence = fields.Integer(default=10)

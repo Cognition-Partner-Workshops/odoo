@@ -1,0 +1,149 @@
+{
+  "unit": "stock-reference",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-2",
+  "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
+  "tolerance_version": "unt12-3",
+  "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
+  "collections": [
+    "returnReason",
+    "stockScrapReasonTag",
+    "stockStorageCategory"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-20T13:26:23.464976+00:00",
+  "redacted": true,
+  "redaction_salted": false,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 5,
+      "stats": {
+        "source_counts": {
+          "returnReason": 5,
+          "stockScrapReasonTag": 3,
+          "stockStorageCategory": 6
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 15,
+      "stats": {
+        "deferred_to_tier3": [
+          "returnReason.sequence",
+          "returnReason.createUid",
+          "returnReason.writeUid",
+          "returnReason.name",
+          "returnReason.createDate",
+          "returnReason.writeDate",
+          "stockScrapReasonTag.sequence",
+          "stockScrapReasonTag.color",
+          "stockScrapReasonTag.createUid",
+          "stockScrapReasonTag.writeUid",
+          "stockScrapReasonTag.name",
+          "stockScrapReasonTag.createDate",
+          "stockScrapReasonTag.writeDate",
+          "stockStorageCategory.companyId",
+          "stockStorageCategory.createUid",
+          "stockStorageCategory.writeUid",
+          "stockStorageCategory.name",
+          "stockStorageCategory.allowNewProduct",
+          "stockStorageCategory.maxWeight",
+          "stockStorageCategory.createDate",
+          "stockStorageCategory.writeDate"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "returnReason.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "stockScrapReasonTag.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "stockStorageCategory.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "stockStorageCategory.allowNewProduct",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "returnReason.name",
+            "key": "returnReason"
+          },
+          {
+            "field": "stockScrapReasonTag.name",
+            "key": "stockScrapReasonTag"
+          }
+        ],
+        "fields_fully_deferred": 6
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 14,
+      "stats": {
+        "returnReason": {
+          "mode": "full_diff",
+          "population": 5,
+          "duplicate_source_key_count": 0
+        },
+        "stockScrapReasonTag": {
+          "mode": "full_diff",
+          "population": 3,
+          "duplicate_source_key_count": 0
+        },
+        "stockStorageCategory": {
+          "mode": "full_diff",
+          "population": 6,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 3,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": true,
+  "error": null
+}
