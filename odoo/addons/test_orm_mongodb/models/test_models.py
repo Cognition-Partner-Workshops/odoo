@@ -54,7 +54,8 @@ class TestMongoAuthor(models.Model):
         [('name', 'name', 'string'), ('rating', 'rating', 'decimal'), ('score', 'score', 'double'),
          ('partner_id', 'partnerId', 'int'), ('birthday', 'birthday', 'date'), ('title', 'title', 'object'),
          ('state', 'state', 'string'), ('parent_id', 'parentId', 'int'), ('parent_path', 'parentPath', 'string'),
-         ('property_note', 'propertyNote', 'object'), ('book_properties_definition', 'bookPropertiesDefinition', 'object')],
+         ('property_note', 'propertyNote', 'object'), ('property_partner_id', 'propertyPartnerId', 'object'),
+         ('book_properties_definition', 'bookPropertiesDefinition', 'object')],
         embeds=[_embed('tagRel', 'test_mongo_author_tag_rel', 'author_id', 'tag_id', 'tagId'),
                 _embed('coauthorRel', 'test_mongo_coauthor_rel', 'author_id', 'coauthor_id', 'coauthorId'),
                 # a PostgreSQL model's relation held by this document (product.template.taxes_id in accountTax)
@@ -77,6 +78,8 @@ class TestMongoAuthor(models.Model):
     child_ids = fields.One2many('test.mongo.author', 'parent_id')
     tag_ids = fields.Many2many('test.mongo.tag', 'test_mongo_author_tag_rel', 'author_id', 'tag_id')
     property_note = fields.Char(company_dependent=True)
+    # company-dependent many2one (product.category property_account_*_id), searched through dotted paths
+    property_partner_id = fields.Many2one('res.partner', company_dependent=True)
     book_properties_definition = fields.PropertiesDefinition()
     # a self-referential relation table embedded on the owning side's documents, read from both sides
     coauthor_ids = fields.Many2many('test.mongo.author', 'test_mongo_coauthor_rel', 'author_id', 'coauthor_id')
@@ -214,6 +217,8 @@ class TestMongoReview(models.Model):
     name = fields.Char()
     book_id = fields.Many2one('test.mongo.book', ondelete='cascade')
     author_id = fields.Many2one('test.mongo.author', ondelete='restrict')
+    # the PostgreSQL twin of test.mongo.author.property_partner_id, for exact-equality checks of searches
+    property_partner_id = fields.Many2one('res.partner', company_dependent=True)
     tag_ids = fields.Many2many('test.mongo.tag', 'test_mongo_review_tag_rel', 'review_id', 'tag_id')
     partner_ids = fields.Many2many('res.partner', 'test_mongo_review_partner_rel', 'review_id', 'partner_id')
     book_ids = fields.Many2many('test.mongo.book', 'test_mongo_review_book_rel', 'review_id', 'book_id')

@@ -473,6 +473,42 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual(Review.search([('rated_author_ids', 'not in', self.author_b.ids)]), review + other)
         self.assertEqual(Review.search([('rated_author_ids', 'in', [False])]), other)
 
+    def test_dotted_search_over_company_dependent_many2one(self):
+        # product.category property_account_*_id.active: a document holds the company's value or nothing, and
+        # nothing means the ir.default fallback (COALESCE(col->>company, fallback) in SQL). Every search is
+        # compared with the same search on the PostgreSQL twin field, in two companies.
+        Author, Review = self.env['test.mongo.author'], self.env['test.mongo.review']
+        company_a, company_b = self.env.company, self.env['res.company'].create({'name': 'B'})
+        alice, bob = self.partner_a, self.partner_b
+        authors = self.author_a + self.author_b + Author.create({'name': 'Cid'})
+        reviews = Review.create([{'name': 'ra'}, {'name': 'rb'}, {'name': 'rc'}])
+        for model in (Author, Review):
+            self.env['ir.default'].set(model._name, 'property_partner_id', alice.id, company_id=company_a.id)
+        for recs in (authors, reviews):
+            recs[0].with_company(company_a).property_partner_id = bob      # explicit in A, fallback-less in B
+            recs[1].with_company(company_b).property_partner_id = alice    # fallback (Alice) in A, explicit in B
+        self.env.flush_all()
+        doc = self.doc(authors[0])
+        self.assertEqual(doc['propertyPartnerId'], {str(company_a.id): bob.id})
+        self.assertNotIn('propertyPartnerId', self.doc(authors[2]))
+        domains = [
+            [('property_partner_id.name', '=', 'Alice')], [('property_partner_id.name', '=', 'Bob')],
+            [('property_partner_id.active', '=', True)], [('property_partner_id', '=', False)],
+            [('property_partner_id', '!=', False)], [('property_partner_id.name', '!=', 'Alice')],
+            [('property_partner_id', 'not any', [('name', '=', 'Alice')])], [('property_partner_id', 'in', [alice.id])],
+            [('property_partner_id', 'in', [alice.id, False])], [('property_partner_id.name', 'ilike', 'b')],
+        ]
+        def positions(recs, domain, company):
+            found = recs.with_company(company).search([('id', 'in', recs.ids), *domain])
+            return sorted(recs.ids.index(id_) for id_ in found.ids)
+        for company in (company_a, company_b):
+            for domain in domains:
+                with self.subTest(company=company.name, domain=domain):
+                    self.assertEqual(positions(authors, domain, company), positions(reviews, domain, company))
+        self.assertEqual(positions(authors, domains[0], company_a), [1, 2])     # fallback: Alice for rb, rc
+        self.assertEqual(positions(authors, domains[0], company_b), [1])        # no fallback in B
+        self.assertEqual(positions(authors, domains[3], company_b), [0, 2])
+
     def test_shadow_table_relaxed_at_load(self):
         # a model opted in on an existing database keeps its NOT NULL data columns until the shadow is adapted
         Tag = self.env['test.mongo.tag']
