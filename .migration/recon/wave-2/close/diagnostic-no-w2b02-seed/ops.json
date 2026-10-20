@@ -1,0 +1,880 @@
+[
+ {
+  "name": "return_reason_choices",
+  "collection": "returnReason",
+  "source_sql": "SELECT id, sequence, name->>'en_US' AS name FROM return_reason",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "sequence": 1,
+     "name": "$name.en_US"
+    }
+   }
+  ]
+ },
+ {
+  "name": "storage_category_rules",
+  "collection": "stockStorageCategory",
+  "source_sql": "SELECT id, name, allow_new_product, max_weight, company_id FROM stock_storage_category",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": 1,
+     "allow_new_product": "$allowNewProduct",
+     "max_weight": "$maxWeight",
+     "company_id": {
+      "$ifNull": [
+       "$companyId",
+       null
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "scrap_reason_tags",
+  "collection": "stockScrapReasonTag",
+  "source_sql": "SELECT id, name->>'en_US' AS name, sequence, color FROM stock_scrap_reason_tag",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "sequence": 1,
+     "color": 1
+    }
+   }
+  ]
+ },
+ {
+  "name": "category_tree",
+  "collection": "productCategory",
+  "source_sql": "SELECT id, parent_id, parent_path, name->>'en_US' AS name, removal_strategy_id FROM product_category",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "parent_id": {
+      "$ifNull": [
+       "$parentId",
+       null
+      ]
+     },
+     "parent_path": "$parentPath",
+     "name": "$name.en_US",
+     "removal_strategy_id": {
+      "$ifNull": [
+       "$removalStrategyId",
+       null
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "category_wave_picking_types",
+  "collection": "productCategory",
+  "source_sql": "SELECT product_category_id AS id, stock_picking_type_id FROM product_category_stock_picking_type_rel",
+  "target_pipeline": [
+   {
+    "$unwind": "$stockPickingTypeRel"
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "stock_picking_type_id": "$stockPickingTypeRel.stockPickingTypeId"
+    }
+   }
+  ]
+ },
+ {
+  "name": "removal_strategies",
+  "collection": "productRemoval",
+  "source_sql": "SELECT id, name->>'en_US' AS name, method->>'en_US' AS method FROM product_removal",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "method": "$method.en_US"
+    }
+   }
+  ]
+ },
+ {
+  "name": "tags_with_templates",
+  "collection": "productTag",
+  "source_sql": "SELECT t.id, t.name->>'en_US' AS name, t.sequence, t.color, t.visible_to_customers, r.product_template_id FROM product_tag t LEFT JOIN product_tag_product_template_rel r ON r.product_tag_id = t.id",
+  "target_pipeline": [
+   {
+    "$unwind": {
+     "path": "$productTemplateRel",
+     "preserveNullAndEmptyArrays": true
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "sequence": 1,
+     "color": 1,
+     "visible_to_customers": "$visibleToCustomers",
+     "product_template_id": {
+      "$ifNull": [
+       "$productTemplateRel.productTemplateId",
+       null
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "tag_variants",
+  "collection": "productTag",
+  "source_sql": "SELECT product_tag_id AS id, product_product_id FROM product_tag_product_product_rel",
+  "target_pipeline": [
+   {
+    "$unwind": "$productProductRel"
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "product_product_id": "$productProductRel.productProductId"
+    }
+   }
+  ]
+ },
+ {
+  "name": "documents_by_attachment",
+  "collection": "productDocument",
+  "source_sql": "SELECT id, ir_attachment_id, sequence, active, attached_on_sale FROM product_document",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "ir_attachment_id": "$irAttachmentId",
+     "sequence": 1,
+     "active": 1,
+     "attached_on_sale": {
+      "$ifNull": [
+       "$attachedOnSale",
+       null
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "base_units",
+  "collection": "productBaseUnit",
+  "source_sql": "SELECT id, name->>'en_US' AS name FROM product_base_unit",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US"
+    }
+   }
+  ]
+ },
+ {
+  "name": "uom_choices",
+  "collection": "uomUom",
+  "source_sql": "SELECT id, name->>'en_US' AS name, relative_uom_id, active, unece_code FROM uom_uom",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "relative_uom_id": {
+      "$ifNull": [
+       "$relativeUomId",
+       null
+      ]
+     },
+     "active": 1,
+     "unece_code": {
+      "$ifNull": [
+       "$uneceCode",
+       null
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "package_type_catalog",
+  "collection": "stockPackageType",
+  "source_sql": "SELECT id, name, barcode, package_use, max_weight, company_id FROM stock_package_type",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": 1,
+     "barcode": {
+      "$ifNull": [
+       "$barcode",
+       null
+      ]
+     },
+     "package_use": "$packageUse",
+     "max_weight": "$maxWeight",
+     "company_id": {
+      "$ifNull": [
+       "$companyId",
+       null
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "package_type_routes",
+  "collection": "stockPackageType",
+  "source_sql": "SELECT stock_package_type_id AS id, count(*) AS routes FROM stock_package_type_stock_route_rel GROUP BY stock_package_type_id",
+  "target_pipeline": [
+   {
+    "$match": {
+     "stockRouteRel.0": {
+      "$exists": true
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "routes": {
+      "$size": "$stockRouteRel"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "package_type_putaway_rules",
+  "collection": "stockPackageType",
+  "source_sql": "SELECT stock_package_type_id AS id, count(*) AS rules FROM stock_package_type_stock_putaway_rule_rel GROUP BY stock_package_type_id",
+  "target_pipeline": [
+   {
+    "$match": {
+     "stockPutawayRuleRel.0": {
+      "$exists": true
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "rules": {
+      "$size": "$stockPutawayRuleRel"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "payment_terms_with_line_count",
+  "collection": "accountPaymentTerm",
+  "source_sql": "SELECT t.id, t.name->>'en_US' AS name, t.sequence, t.early_discount, (SELECT count(*) FROM account_payment_term_line l WHERE l.payment_id = t.id) AS line_count FROM account_payment_term t",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "sequence": {
+      "$ifNull": [
+       "$sequence",
+       null
+      ]
+     },
+     "early_discount": {
+      "$ifNull": [
+       "$earlyDiscount",
+       null
+      ]
+     },
+     "line_count": {
+      "$size": {
+       "$ifNull": [
+        "$line",
+        []
+       ]
+      }
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "incoterm_codes",
+  "collection": "accountIncoterms",
+  "source_sql": "SELECT id, code, name->>'en_US' AS name, active FROM account_incoterms",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "code": 1,
+     "name": "$name.en_US",
+     "active": 1
+    }
+   }
+  ]
+ },
+ {
+  "name": "cash_roundings_with_relation_counts",
+  "collection": "accountCashRounding",
+  "source_sql": "SELECT r.id, r.name->>'en_US' AS name, r.rounding, r.strategy, r.rounding_method, (SELECT count(*) FROM account_cash_rounding_res_currency_rel c WHERE c.account_cash_rounding_id = r.id) AS currencies, (SELECT count(*) FROM account_cash_rounding_account_payment_method_line_rel p WHERE p.account_cash_rounding_id = r.id) AS payment_method_lines FROM account_cash_rounding r",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "rounding": 1,
+     "strategy": 1,
+     "rounding_method": "$roundingMethod",
+     "currencies": {
+      "$size": {
+       "$ifNull": [
+        "$resCurrencyRel",
+        []
+       ]
+      }
+     },
+     "payment_method_lines": {
+      "$size": {
+       "$ifNull": [
+        "$accountPaymentMethodLineRel",
+        []
+       ]
+      }
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "reports_with_line_column_section_counts",
+  "collection": "accountReport",
+  "source_sql": "SELECT r.id, r.name->>'en_US' AS name, r.sequence, (SELECT count(*) FROM account_report_line l WHERE l.report_id = r.id) AS lines, (SELECT count(*) FROM account_report_column c WHERE c.report_id = r.id) AS columns, (SELECT count(*) FROM account_report_section_rel s WHERE s.main_report_id = r.id) AS sections FROM account_report r",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "sequence": {
+      "$ifNull": [
+       "$sequence",
+       null
+      ]
+     },
+     "lines": {
+      "$size": {
+       "$ifNull": [
+        "$line",
+        []
+       ]
+      }
+     },
+     "columns": {
+      "$size": {
+       "$ifNull": [
+        "$column",
+        []
+       ]
+      }
+     },
+     "sections": {
+      "$size": {
+       "$ifNull": [
+        "$sectionRel",
+        []
+       ]
+      }
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "report_expressions_by_line",
+  "collection": "accountReportExpression",
+  "source_sql": "SELECT id, report_line_id, label, engine, formula FROM account_report_expression",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "report_line_id": "$reportLineId",
+     "label": 1,
+     "engine": 1,
+     "formula": 1
+    }
+   }
+  ]
+ },
+ {
+  "name": "attribute_list",
+  "collection": "productAttribute",
+  "source_sql": "SELECT id, sequence, name->>'en_US' AS name, create_variant, display_type, active FROM product_attribute",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "sequence": {
+      "$ifNull": [
+       "$sequence",
+       null
+      ]
+     },
+     "name": "$name.en_US",
+     "create_variant": {
+      "$ifNull": [
+       "$createVariant",
+       null
+      ]
+     },
+     "display_type": {
+      "$ifNull": [
+       "$displayType",
+       null
+      ]
+     },
+     "active": {
+      "$ifNull": [
+       "$active",
+       null
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "attribute_values_by_attribute",
+  "collection": "productAttribute",
+  "source_sql": "SELECT attribute_id, id, sequence, name->>'en_US' AS name, html_color, is_custom, default_extra_price, active FROM product_attribute_value",
+  "target_pipeline": [
+   {
+    "$unwind": "$value"
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "attribute_id": "$_id",
+     "id": "$value.id",
+     "sequence": {
+      "$ifNull": [
+       "$value.sequence",
+       null
+      ]
+     },
+     "name": "$value.name.en_US",
+     "html_color": {
+      "$ifNull": [
+       "$value.htmlColor",
+       null
+      ]
+     },
+     "is_custom": {
+      "$ifNull": [
+       "$value.isCustom",
+       null
+      ]
+     },
+     "default_extra_price": {
+      "$ifNull": [
+       "$value.defaultExtraPrice",
+       null
+      ]
+     },
+     "active": {
+      "$ifNull": [
+       "$value.active",
+       null
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "attribute_template_pairs",
+  "collection": "productAttribute",
+  "source_sql": "SELECT product_attribute_id, product_template_id FROM product_attribute_product_template_rel",
+  "target_pipeline": [
+   {
+    "$unwind": "$productTemplateRel"
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "product_attribute_id": "$_id",
+     "product_template_id": "$productTemplateRel.productTemplateId"
+    }
+   }
+  ]
+ },
+ {
+  "name": "account_types_and_tags",
+  "collection": "accountAccount",
+  "source_sql": "SELECT a.id, a.account_type, a.reconcile, a.active, a.parent_path, count(t.account_account_tag_id) AS tag_count FROM account_account a LEFT JOIN account_account_account_tag t ON t.account_account_id = a.id GROUP BY a.id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "account_type": "$accountType",
+     "reconcile": 1,
+     "active": 1,
+     "parent_path": "$parentPath",
+     "tag_count": {
+      "$size": {
+       "$ifNull": [
+        "$accountTag",
+        []
+       ]
+      }
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "account_tags",
+  "collection": "accountAccountTag",
+  "source_sql": "SELECT g.id, g.name->>'en_US' AS name, g.applicability, g.active, count(r.account_tax_repartition_line_id) AS repartition_count FROM account_account_tag g LEFT JOIN account_account_tag_account_tax_repartition_line_rel r ON r.account_account_tag_id = g.id GROUP BY g.id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "applicability": 1,
+     "active": 1,
+     "repartition_count": {
+      "$size": {
+       "$ifNull": [
+        "$accountTaxRepartitionLineRel",
+        []
+       ]
+      }
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "taxes_by_use",
+  "collection": "accountTax",
+  "source_sql": "SELECT t.id, t.name->>'en_US' AS name, t.type_tax_use, t.amount_type, t.amount, t.sequence, t.company_id, t.tax_group_id, count(c.parent_tax) AS child_count FROM account_tax t LEFT JOIN account_tax_filiation_rel c ON c.parent_tax = t.id GROUP BY t.id",
+  "target_pipeline": [
+   {
+    "$lookup": {
+     "from": "accountTax",
+     "localField": "_id",
+     "foreignField": "filiationRel.parentTax",
+     "as": "children"
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "type_tax_use": "$typeTaxUse",
+     "amount_type": "$amountType",
+     "amount": 1,
+     "sequence": 1,
+     "company_id": "$companyId",
+     "tax_group_id": "$taxGroupId",
+     "child_count": {
+      "$size": "$children"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "tax_groups",
+  "collection": "accountTaxGroup",
+  "source_sql": "SELECT id, name->>'en_US' AS name, sequence, company_id FROM account_tax_group",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "sequence": 1,
+     "company_id": "$companyId"
+    }
+   }
+  ]
+ },
+ {
+  "name": "repartition_lines",
+  "collection": "accountTaxRepartitionLine",
+  "source_sql": "SELECT id, tax_id, account_id, document_type, repartition_type, factor_percent, sequence FROM account_tax_repartition_line",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "tax_id": "$taxId",
+     "account_id": {
+      "$ifNull": [
+       "$accountId",
+       null
+      ]
+     },
+     "document_type": "$documentType",
+     "repartition_type": "$repartitionType",
+     "factor_percent": "$factorPercent",
+     "sequence": 1
+    }
+   }
+  ]
+ },
+ {
+  "name": "fiscal_positions_with_mappings",
+  "collection": "accountFiscalPosition",
+  "source_sql": "SELECT p.id, p.name->>'en_US' AS name, p.sequence, p.company_id, p.auto_apply, (SELECT count(*) FROM account_fiscal_position_account_tax_rel r WHERE r.account_fiscal_position_id = p.id) AS tax_count, (SELECT count(*) FROM account_fiscal_position_account m WHERE m.position_id = p.id) AS account_count FROM account_fiscal_position p",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "sequence": {
+      "$ifNull": [
+       "$sequence",
+       null
+      ]
+     },
+     "company_id": "$companyId",
+     "auto_apply": "$autoApply",
+     "tax_count": {
+      "$size": {
+       "$ifNull": [
+        "$accountTaxRel",
+        []
+       ]
+      }
+     },
+     "account_count": {
+      "$size": {
+       "$ifNull": [
+        "$account",
+        []
+       ]
+      }
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "journals_by_type_with_reconcile_model_count",
+  "collection": "accountJournal",
+  "source_sql": "SELECT j.id, j.code, j.type, j.company_id, j.currency_id, j.default_account_id, j.active, j.name->>'en_US' AS name, (SELECT count(*) FROM account_journal_account_reconcile_model_rel r WHERE r.account_journal_id = j.id) AS reconcile_model_count FROM account_journal j",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "code": "$code",
+     "type": "$type",
+     "company_id": "$companyId",
+     "currency_id": {
+      "$ifNull": [
+       "$currencyId",
+       null
+      ]
+     },
+     "default_account_id": {
+      "$ifNull": [
+       "$defaultAccountId",
+       null
+      ]
+     },
+     "active": "$active",
+     "name": "$name.en_US",
+     "reconcile_model_count": {
+      "$size": {
+       "$ifNull": [
+        "$accountReconcileModelRel",
+        []
+       ]
+      }
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "dashboard_journals_per_company_and_type",
+  "collection": "accountJournal",
+  "source_sql": "SELECT company_id, type, count(*) AS journals, count(*) FILTER (WHERE show_on_dashboard) AS on_dashboard FROM account_journal GROUP BY company_id, type",
+  "target_pipeline": [
+   {
+    "$group": {
+     "_id": {
+      "company_id": "$companyId",
+      "type": "$type"
+     },
+     "journals": {
+      "$sum": 1
+     },
+     "on_dashboard": {
+      "$sum": {
+       "$cond": [
+        {
+         "$eq": [
+          "$showOnDashboard",
+          true
+         ]
+        },
+        1,
+        0
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "company_id": "$_id.company_id",
+     "type": "$_id.type",
+     "journals": 1,
+     "on_dashboard": 1
+    }
+   }
+  ]
+ },
+ {
+  "name": "payment_method_lines_per_journal",
+  "collection": "accountPaymentMethod",
+  "source_sql": "SELECT l.id, l.journal_id, l.payment_method_id, m.code, m.payment_type, l.sequence, l.payment_account_id FROM account_payment_method_line l JOIN account_payment_method m ON m.id = l.payment_method_id",
+  "target_pipeline": [
+   {
+    "$unwind": "$line"
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$line.id",
+     "journal_id": {
+      "$ifNull": [
+       "$line.journalId",
+       null
+      ]
+     },
+     "payment_method_id": "$_id",
+     "code": "$code",
+     "payment_type": "$paymentType",
+     "sequence": {
+      "$ifNull": [
+       "$line.sequence",
+       null
+      ]
+     },
+     "payment_account_id": {
+      "$ifNull": [
+       "$line.paymentAccountId",
+       null
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "reconcile_models_with_line_and_partner_counts",
+  "collection": "accountReconcileModel",
+  "source_sql": "SELECT r.id, r.name->>'en_US' AS name, r.rule_type, r.company_id, r.sequence, r.active, (SELECT count(*) FROM account_reconcile_model_line l WHERE l.model_id = r.id) AS line_count, (SELECT count(*) FROM account_reconcile_model_res_partner_rel p WHERE p.account_reconcile_model_id = r.id) AS partner_count FROM account_reconcile_model r",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "rule_type": "$ruleType",
+     "company_id": "$companyId",
+     "sequence": "$sequence",
+     "active": "$active",
+     "line_count": {
+      "$size": {
+       "$ifNull": [
+        "$line",
+        []
+       ]
+      }
+     },
+     "partner_count": {
+      "$size": {
+       "$ifNull": [
+        "$resPartnerRel",
+        []
+       ]
+      }
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "reconcile_model_line_taxes",
+  "collection": "accountReconcileModelLineAccountTaxRel",
+  "source_sql": "SELECT t.account_reconcile_model_line_id, t.account_tax_id, l.model_id FROM account_reconcile_model_line_account_tax_rel t JOIN account_reconcile_model_line l ON l.id = t.account_reconcile_model_line_id",
+  "target_pipeline": [
+   {
+    "$lookup": {
+     "from": "accountReconcileModel",
+     "localField": "accountReconcileModelLineId",
+     "foreignField": "line.id",
+     "as": "model"
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "account_reconcile_model_line_id": "$accountReconcileModelLineId",
+     "account_tax_id": "$accountTaxId",
+     "model_id": {
+      "$arrayElemAt": [
+       "$model._id",
+       0
+      ]
+     }
+    }
+   }
+  ]
+ }
+]
