@@ -1,24 +1,24 @@
-2026-10-20 02:28:29,280 10578 WARNING ? odoo.tools.config: unknown option 'mongodb_uri' in the config file at /home/ubuntu/w3b02/odoo-scn.conf, option stored as-is, without parsing
-2026-10-20 02:28:29,280 10578 WARNING ? odoo.tools.config: unknown option 'mongodb_migration_db' in the config file at /home/ubuntu/w3b02/odoo-scn.conf, option stored as-is, without parsing
-2026-10-20 02:28:29,280 10578 INFO ? odoo: Odoo version 20.0
-2026-10-20 02:28:29,280 10578 INFO ? odoo: Using configuration file at /home/ubuntu/w3b02/odoo-scn.conf
-2026-10-20 02:28:29,280 10578 INFO ? odoo: addons paths: _NamespacePath(['/home/ubuntu/repos/odoo/odoo/addons', '/home/ubuntu/.local/share/Odoo/addons/20.0', '/home/ubuntu/repos/odoo/addons'])
-2026-10-20 02:28:29,280 10578 INFO ? odoo: database: default@/var/run/postgresql:5433
-2026-10-20 02:28:29,540 10578 INFO ? odoo.service.server.ThreadedServer: Initiating shutdown
-2026-10-20 02:28:29,540 10578 INFO ? odoo.service.server.ThreadedServer: Hit CTRL-C again or send a second signal to force the shutdown.
-2026-10-20 02:28:29,558 10578 INFO odoo_w3b02_scn odoo.modules.loading: loading 1 modules...
-2026-10-20 02:28:29,562 10578 INFO odoo_w3b02_scn odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra)
-2026-10-20 02:28:29,590 10578 INFO odoo_w3b02_scn odoo.modules.loading: loading 70 modules...
-2026-10-20 02:28:29,709 10578 WARNING odoo_w3b02_scn odoo.addons.mail.controllers.attachment: markdown2 is not installed, markdown will not be rendered
-2026-10-20 02:28:29,921 10578 INFO odoo_w3b02_scn odoo.modules.loading: 70 modules loaded in 0.33s, 0 queries (+0 extra)
-2026-10-20 02:28:30,050 10578 INFO odoo_w3b02_scn odoo.modules.loading: Modules loaded.
-2026-10-20 02:28:30,116 10578 INFO odoo_w3b02_scn odoo.registry: Registry loaded in 0.570s
-2026-10-20 02:28:37,432 10578 INFO odoo_w3b02_scn odoo.models.unlink: User #1 deleted mail.message records with IDs: [1294]
-2026-10-20 02:28:38,954 10578 INFO odoo_w3b02_scn odoo.models.unlink: User #1 deleted mail.message records with IDs: [1295]
-2026-10-20 02:28:40,954 10578 INFO odoo_w3b02_scn odoo.models.unlink: User #1 deleted product.product records with IDs: [57]
-2026-10-20 02:28:43,152 10578 INFO odoo_w3b02_scn odoo.models.unlink: User #1 deleted product.supplierinfo records with IDs: [33]
-2026-10-20 02:28:44,034 10578 INFO odoo_w3b02_scn odoo.models.unlink: User #1 deleted product.template records with IDs: [40]
-2026-10-20 02:28:44,642 10578 INFO odoo_w3b02_scn odoo.models.unlink: User #1 deleted product.template records with IDs: [40]
+2026-10-20 03:08:24,999 22602 WARNING ? odoo.tools.config: unknown option 'mongodb_uri' in the config file at /home/ubuntu/w3b02/odoo-scn.conf, option stored as-is, without parsing
+2026-10-20 03:08:24,999 22602 WARNING ? odoo.tools.config: unknown option 'mongodb_migration_db' in the config file at /home/ubuntu/w3b02/odoo-scn.conf, option stored as-is, without parsing
+2026-10-20 03:08:24,999 22602 INFO ? odoo: Odoo version 20.0
+2026-10-20 03:08:24,999 22602 INFO ? odoo: Using configuration file at /home/ubuntu/w3b02/odoo-scn.conf
+2026-10-20 03:08:24,999 22602 INFO ? odoo: addons paths: _NamespacePath(['/home/ubuntu/repos/odoo/odoo/addons', '/home/ubuntu/.local/share/Odoo/addons/20.0', '/home/ubuntu/repos/odoo/addons'])
+2026-10-20 03:08:24,999 22602 INFO ? odoo: database: default@/var/run/postgresql:5433
+2026-10-20 03:08:25,279 22602 INFO ? odoo.service.server.ThreadedServer: Initiating shutdown
+2026-10-20 03:08:25,279 22602 INFO ? odoo.service.server.ThreadedServer: Hit CTRL-C again or send a second signal to force the shutdown.
+2026-10-20 03:08:25,294 22602 INFO odoo_w3b02_scn odoo.modules.loading: loading 1 modules...
+2026-10-20 03:08:25,297 22602 INFO odoo_w3b02_scn odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra)
+2026-10-20 03:08:25,310 22602 INFO odoo_w3b02_scn odoo.modules.loading: loading 70 modules...
+2026-10-20 03:08:25,413 22602 WARNING odoo_w3b02_scn odoo.addons.mail.controllers.attachment: markdown2 is not installed, markdown will not be rendered
+2026-10-20 03:08:25,618 22602 INFO odoo_w3b02_scn odoo.modules.loading: 70 modules loaded in 0.31s, 0 queries (+0 extra)
+2026-10-20 03:08:25,734 22602 INFO odoo_w3b02_scn odoo.modules.loading: Modules loaded.
+2026-10-20 03:08:25,767 22602 INFO odoo_w3b02_scn odoo.registry: Registry loaded in 0.482s
+2026-10-20 03:08:33,759 22602 INFO odoo_w3b02_scn odoo.models.unlink: User #1 deleted mail.message records with IDs: [1296]
+2026-10-20 03:08:35,326 22602 INFO odoo_w3b02_scn odoo.models.unlink: User #1 deleted mail.message records with IDs: [1297]
+2026-10-20 03:08:36,552 22602 INFO odoo_w3b02_scn odoo.models.unlink: User #1 deleted product.product records with IDs: [58]
+2026-10-20 03:08:37,785 22602 INFO odoo_w3b02_scn odoo.models.unlink: User #1 deleted product.supplierinfo records with IDs: [34]
+2026-10-20 03:08:38,272 22602 INFO odoo_w3b02_scn odoo.models.unlink: User #1 deleted product.template records with IDs: [41]
+2026-10-20 03:08:38,883 22602 INFO odoo_w3b02_scn odoo.models.unlink: User #1 deleted product.template records with IDs: [41]
 storage: mongodb
 PASS storage opt-in
 PASS shadow table is id only (no D6 reader)

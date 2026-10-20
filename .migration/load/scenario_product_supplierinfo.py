@@ -164,8 +164,8 @@ try:
         raise Rollback()
 except Rollback:
     pass
-except Exception as e:  # noqa: BLE001 - a storage-path miss is a shared finding, reported, not fixed here
-    print(f"SKIP cascade unlink: {type(e).__name__}: {e}")
+except Exception as e:  # noqa: BLE001 - a storage-path miss is a shared finding (reported, not fixed here) but still a failed check
+    check('cascade unlink block ran without error', False, f'{type(e).__name__}: {e}')
 env.invalidate_all()
 cr.rollback()
 if mongo:

@@ -1,17 +1,17 @@
-2026-10-20 02:27:40,753 10280 INFO ? odoo: Odoo version 20.0
-2026-10-20 02:27:40,753 10280 INFO ? odoo: addons paths: _NamespacePath(['/home/ubuntu/repos/odoo-base/odoo/addons', '/home/ubuntu/.local/share/Odoo/addons/20.0', '/home/ubuntu/repos/odoo-base/addons'])
-2026-10-20 02:27:40,753 10280 INFO ? odoo: database: default@/var/run/postgresql:5433
-2026-10-20 02:27:41,007 10280 INFO ? odoo.service.server.ThreadedServer: Initiating shutdown
-2026-10-20 02:27:41,007 10280 INFO ? odoo.service.server.ThreadedServer: Hit CTRL-C again or send a second signal to force the shutdown.
-2026-10-20 02:27:41,024 10280 INFO odoo_w3b02_base odoo.modules.loading: loading 1 modules...
-2026-10-20 02:27:41,027 10280 INFO odoo_w3b02_base odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra)
-2026-10-20 02:27:41,037 10280 INFO odoo_w3b02_base odoo.modules.loading: loading 70 modules...
-2026-10-20 02:27:41,129 10280 WARNING odoo_w3b02_base odoo.addons.mail.controllers.attachment: markdown2 is not installed, markdown will not be rendered
-2026-10-20 02:27:41,286 10280 INFO odoo_w3b02_base odoo.modules.loading: 70 modules loaded in 0.25s, 0 queries (+0 extra)
-2026-10-20 02:27:41,393 10280 INFO odoo_w3b02_base odoo.modules.loading: Modules loaded.
-2026-10-20 02:27:41,420 10280 INFO odoo_w3b02_base odoo.registry: Registry loaded in 0.408s
-2026-10-20 02:27:41,590 10280 INFO odoo_w3b02_base odoo.models.unlink: User #1 deleted mail.message records with IDs: [1294]
-2026-10-20 02:27:41,604 10280 INFO odoo_w3b02_base odoo.models.unlink: User #1 deleted product.template records with IDs: [39]
+2026-10-20 03:08:23,696 22596 INFO ? odoo: Odoo version 20.0
+2026-10-20 03:08:23,696 22596 INFO ? odoo: addons paths: _NamespacePath(['/home/ubuntu/repos/odoo-base/odoo/addons', '/home/ubuntu/.local/share/Odoo/addons/20.0', '/home/ubuntu/repos/odoo-base/addons'])
+2026-10-20 03:08:23,696 22596 INFO ? odoo: database: default@/var/run/postgresql:5433
+2026-10-20 03:08:23,965 22596 INFO ? odoo.service.server.ThreadedServer: Initiating shutdown
+2026-10-20 03:08:23,965 22596 INFO ? odoo.service.server.ThreadedServer: Hit CTRL-C again or send a second signal to force the shutdown.
+2026-10-20 03:08:23,979 22596 INFO odoo_w3b02_base odoo.modules.loading: loading 1 modules...
+2026-10-20 03:08:23,981 22596 INFO odoo_w3b02_base odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra)
+2026-10-20 03:08:23,992 22596 INFO odoo_w3b02_base odoo.modules.loading: loading 70 modules...
+2026-10-20 03:08:24,084 22596 WARNING odoo_w3b02_base odoo.addons.mail.controllers.attachment: markdown2 is not installed, markdown will not be rendered
+2026-10-20 03:08:24,246 22596 INFO odoo_w3b02_base odoo.modules.loading: 70 modules loaded in 0.25s, 0 queries (+0 extra)
+2026-10-20 03:08:24,351 22596 INFO odoo_w3b02_base odoo.modules.loading: Modules loaded.
+2026-10-20 03:08:24,378 22596 INFO odoo_w3b02_base odoo.registry: Registry loaded in 0.408s
+2026-10-20 03:08:24,551 22596 INFO odoo_w3b02_base odoo.models.unlink: User #1 deleted mail.message records with IDs: [1296]
+2026-10-20 03:08:24,565 22596 INFO odoo_w3b02_base odoo.models.unlink: User #1 deleted product.template records with IDs: [40]
 storage: postgresql
 PASS seller search (default order sequence, min_qty DESC, price, id) = PostgreSQL rows: 32 sellers
 RESULT sellers in default order: [18, 6, 13, 3, 4, 5, 11, 9, 20, 21, 19, 10, 8, 16, 17, 1, 2, 15, 7, 12, 14, 22, 27, 28, 23, 24, 25, 26, 32, 29, 30, 31]
