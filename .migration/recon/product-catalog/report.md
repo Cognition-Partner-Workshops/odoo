@@ -7,7 +7,7 @@
 - Tolerance version: `unt12-3` (sha256 `7b426db21459`)
 - Collections: `productAttributeValueProductTemplateAttributeLineRel`, `productCombo`, `productPricelist`, `productPricelistItem`, `productProduct`, `productSupplierinfo`, `productTemplate`, `productTemplateAttributeValue`
 - Seed: `0`
-- Generated: 2026-10-20T21:07:12.697663+00:00
+- Generated: 2026-10-20T22:05:15.343549+00:00
 - 126 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 38 string fields: min/max/distinct deferred to Tier 3
 

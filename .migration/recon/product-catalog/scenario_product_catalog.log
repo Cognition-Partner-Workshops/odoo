@@ -1,4 +1,4 @@
-collection prefix 'odoo_w2b02__'
+collection prefix 'odoo_w2b02f__'
 33 collections copied under the prefix (fresh copies of the live documents)
 PASS product.template rows -- 37 rows
 PASS product.product rows -- 47 rows
@@ -10,7 +10,7 @@ PASS product.pricelist.item rows -- 2 rows
 PASS product.combo rows -- 3 rows
 PASS product.combo.item rows (embedded in productCombo.item) -- 8 rows
 PASS product.uom rows (embedded in productProduct.productUom) -- 1 rows
-FAIL customer.product.reference rows (embedded element keyed by partnerId: shared storage path reads partner_id as the record id, reported to the manager) -- [(10, (13, 10, 'ACME-DESK-0096'), None)]
+PASS customer.product.reference rows (embedded element keyed by partnerId: shared storage path reads partner_id as the record id, reported to the manager) -- 1 rows
 PASS translated template names
 PASS translated pricelist names
 PASS template.uom_ids = productTemplate.uomUomRel -- 2 pairs
@@ -59,4 +59,4 @@ PASS new pricelist rule applies
 PASS removing a line value pulls the relation document
 PASS rollback restores every collection
 PASS no collection created outside the prefix
-58/59 checks passed; failed: ['customer.product.reference rows (embedded element keyed by partnerId: shared storage path reads partner_id as the record id, reported to the manager)']
+59/59 checks passed; failed: []

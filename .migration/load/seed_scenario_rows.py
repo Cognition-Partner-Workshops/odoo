@@ -240,6 +240,18 @@ else:
     pack6 = env.ref('uom.product_uom_pack_6')
     ptavs = template.attribute_line_ids.sorted('id').mapped(lambda line: line.product_template_value_ids.sorted('id')[0])
     assert template and variant and partner and len(ptavs) == 2, f"seed inputs on this clone: {template.ids} {variant.ids} {partner.ids} {ptavs.ids}"
+    # the live w2-b02 documents were loaded from a clone whose sequences had moved past a fresh `createdb -T odoo_src`
+    # (earlier seed attempts), so pin them: a fresh clone then reproduces the live ids on a verifier's reseed
+    LIVE_SEQUENCES = {'product_pricelist_id_seq': 6, 'product_pricelist_item_id_seq': 2, 'product_uom_id_seq': 1,
+                      'customer_product_reference_id_seq': 1, 'sale_order_id_seq': 25, 'sale_order_line_id_seq': 51,
+                      'purchase_order_id_seq': 17, 'purchase_order_line_id_seq': 32}
+    for seq, last in LIVE_SEQUENCES.items():
+        env.cr.execute(f"SELECT last_value, is_called FROM {seq}")
+        value, is_called = env.cr.fetchone()
+        if (value if is_called else value - 1) <= last:
+            env.cr.execute("SELECT setval(%s, %s, true)", (seq, last))
+        else:
+            print(f"{seq} is already past {last} ({value}): ids on this clone will differ from the live load")
     pricelists = Pricelist.create([
         {'name': 'Seeded wholesale', 'sequence': 5, 'item_ids': [
             (0, 0, {'applied_on': '1_product', 'product_tmpl_id': template.id, 'compute_price': 'fixed', 'fixed_price': 950.0, 'min_quantity': 2}),

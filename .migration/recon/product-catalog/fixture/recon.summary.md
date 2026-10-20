@@ -3,7 +3,7 @@
 - Mode: `fixture` (fixture data: NOT a merge verdict, run live once before merging)
 - Merge eligible: no (fixture/continuous evidence never merges)
 - Mapping `map-draft-2` / tolerances `unt12-3` / seed `0`
-- Generated: 2026-10-20T21:06:41.436766+00:00
+- Generated: 2026-10-20T22:04:44.511114+00:00
 
 | Tier | Checks | Result |
 |---|---|---|
