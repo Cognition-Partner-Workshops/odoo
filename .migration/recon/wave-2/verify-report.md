@@ -3,8 +3,10 @@ manifest_sha: 0b73271c13bf
 
 # Wave 2 independent verification: product-catalog (w2-b01)
 
-Verifier session that migrated none of the wave. Run branch `mongo-run/20261014` at `72fca61`
-(PR #34 storage-path fixes at `27d722f`, then PR #33 product catalog); plugin pinned `0d6bcfd`
+Verifier session that migrated none of the wave. Run branch `mongo-run/20261014` at `1c9565e`
+(PR #34 storage-path fixes at `27d722f`, PR #33 product catalog at `72fca61`, then PR #36 — the
+UNT11-43 fix for `_inherits`-delegated fields in SQL, after this verifier's first pass found them
+broken, see "D6 readers" below); plugin pinned `0d6bcfd`
 (`.migration/plugin_sha`, the harness checkout at the same commit); mapping `map-draft-5`
 (`e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a`); tolerances `v1` strict
 (`59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68`); canonicalization
@@ -16,8 +18,8 @@ variants, 8 categories, 30 uoms as committed); the verifier's own clone `odoo_w2
 relation tables, every `create_date`/`write_date` of the touched tables equal to `FIXED_INSTANT`
 (0 rows off). Target `odoo_migration` on the migration cluster, read only by the verifier (no
 reload, no writes to any unprefixed collection). Odoo tests ran in a separate database
-`odoo_w2v_test` with `mongodb_migration_db = odoo_verify_mig`, so every test collection was
-`odoo_w2v_test__*`.
+`odoo_w2v_test2` (first pass: `odoo_w2v_test`) with `mongodb_migration_db = odoo_verify_mig`, so every test collection was
+`odoo_w2v_test2__*`.
 
 ## Per-batch verdict
 
@@ -25,11 +27,10 @@ reload, no writes to any unprefixed collection). Odoo tests ran in a separate da
 |---|---|---|---|---|
 | w2-b01 | product-catalog | PASS | live from the freshly seeded clone `odoo_w2v_src`, `--collections` the six unit collections, `--ops .migration/recon/product-catalog/ops.json`: PASS, T1 61 / T2 51 / T3 348 / T4 7 checks, 0 warnings, merge_eligible | reproduces the committed `.migration/recon/product-catalog/result.json` check for check (61 / 51 / 348 / 7) |
 
-Wave verdict: **PASS** on the recon gate (the batch's PASS reproduces from an independent clone).
-Two storage-path findings past the gate (section "D6 readers" below: `-u product` fails on a database
-with `account` installed, and the three `_table_query` reports raise) need their own fix ticket; they
-are not data-parity defects and do not change the recon verdict. Circuit breaker: no batch failed;
-not tripped. `auto_merge` is false for this wave, so the manager grades and merges.
+Wave verdict: **PASS**. The first pass (run branch `72fca61`) found two storage-path defects past the
+gate (section "D6 readers" below: `-u product` failed on a database with `account` installed and the
+three `_table_query` reports raised); the user chose fix-then-close, UNT11-43 / PR #36 fixed them, and
+the D6 probe re-run at `1c9565e` is clean. Circuit breaker: no batch failed; not tripped. `auto_merge` is false for this wave, so the manager grades and merges.
 
 Which collections the live recon graded from the seeded clone rather than `odoo_src`: `productUom`
 (6 rows, 0 in `odoo_src`) and the four arrays `productTemplate.uomIds`/`productTagIds`,
@@ -92,7 +93,7 @@ their parity is against the seeded clone, which is what the recon reads too):
   `id` + the shadow columns (`product_product`: `product_tmpl_id, weight, volume, standard_price`;
   `product_template`: `uom_id, categ_id, is_storable` — `purchase_method` is absent because
   `purchase` is not installed there; `uom_uom`: `factor`), and `uom_uom.factor` equals the 30
-  `odoo_w2v_test__uomUom` documents; `product_*` shadow tables and documents are both empty after
+  `odoo_w2v_test2__uomUom` documents; `product_*` shadow tables and documents are both empty after
   the tests' rollbacks.
 - Source forward references that now resolve on the target: `product_template.uom_id` (3 distinct),
   `categ_id` (6), `product_template_attribute_line.attribute_id` (5), `product_uom.uom_id` (2),
@@ -100,41 +101,45 @@ their parity is against the seeded clone, which is what the recon reads too):
 - The unprefixed namespace holds exactly the thirteen wave 1 + wave 2 collections (plus
   `_connectivity_probe`); no shared collection between batches.
 
-## D6 readers on an opted-in clone (probe past the gate: two storage-path findings)
+## D6 readers on an opted-in clone (probe past the gate; two findings found at `72fca61`, fixed at `1c9565e`)
 
 Clone `odoo_w2v_views` of the seeded source (sale, purchase, stock, account installed, as in
-`odoo_src`), run with the run-branch code at `72fca61` and `mongodb_migration_db = odoo_verify_mig`,
-so every collection the storage path touched was `odoo_w2v_views__*` (pre-populated with a copy of
-the 13 unprefixed collections so the fail-closed guard is satisfied); the unprefixed collections kept
-their counts throughout (`d6-readers-counts.json`).
+`odoo_src`), run with the run-branch code and `mongodb_migration_db = odoo_verify_mig`, so every
+collection the storage path touched was `odoo_w2v_views__*` (pre-populated with a copy of the 13
+unprefixed collections so the fail-closed guard is satisfied); the unprefixed collections kept their
+counts throughout (`d6-readers-counts.json`). Pre-opt-in baseline from the `odoo-base` worktree
+(`03a3cb5`, PostgreSQL storage) on clone `odoo_w2v_base` of the same seeded source.
 
-1. **`-u uom,product` fails to load the registry** on that clone: `Module loading account failed:
-   file account/security/ir.access.csv could not be processed: Invalid domain [('company_id', 'in',
-   company_ids)]: product.product is stored in MongoDB: no SQL for field 'uom_id' (not in
-   _shadow_columns)` (`d6-update-traceback.log`). The update rolled back, so the shadow reduction
-   never happened on this clone.
-2. **The three `_table_query` reports the contract lists as D6 readers raise** the same
-   `NotImplementedError` from `Query.__getitem__` (`odoo/orm/query.py:431`, reached from
-   `Many2one.property_to_sql`, `odoo/orm/fields_relational.py:499`, from `sale_report.py:197`
-   `table.product_id.uom_id`): `sale.report`, `purchase.report`, `account.invoice.report`
-   `search_count([])` all fail. Reproduced on a second, plain clone `odoo_w2v_plain` with
-   `mongodb_migration_db = odoo_w2v_plain` (unprefixed reads, no update, no writes): `d6-readers.log`.
-   `purchase.bill.line.match` (27 rows), `stock.quant` (57), `stock.move` (137) and the ORM
-   `product.product` search reading `uom_id` through `_inherits` work.
+First pass, run branch `72fca61` (`d6-readers.log` tail, `d6-update-traceback-72fca61.log`):
+`-u uom,product` failed to load the registry (`account/security/ir.access.csv`: `Invalid domain
+[('company_id', 'in', company_ids)]: product.product is stored in MongoDB: no SQL for field 'uom_id'
+(not in _shadow_columns)`) and `sale.report`, `purchase.report`, `account.invoice.report` raised the
+same `NotImplementedError` from `Query.__getitem__`, also on a plain clone with no update and no
+writes. Cause: `uom_id` is an `_inherits`-delegated `product.template` field, checked against
+`product.product`'s own `_shadow_columns` before the join through the shadow `product_tmpl_id` to the
+shadow `product_template.uom_id`. Reported as two high findings; fixed by UNT11-43 (PR #36,
+`odoo/orm/query.py`: resolve `_inherits`-delegated fields through the parent shadow join).
 
-Reading: `uom_id` is a `product.template` field reached from `product.product` through `_inherits`;
-`product_template.uom_id` and `product_product.product_tmpl_id` are both shadow columns, so the SQL
-path could join through them, but `Query.__getitem__` checks the delegated field against
-`product.product`'s own `_shadow_columns` and raises before the `_inherits` join. The product + uom
-test database does not install sale/purchase/account, which is why the suites show 160/161. This is
-not a data-parity defect (the recon PASS stands), but the migrated build breaks three reports and
-`-u product` on any database that has `account` installed. The verifier fixes no code; this needs
-its own storage-path ticket, as UNT11-42 was.
+Re-run at `1c9565e` (`d6-readers.log`), all against the pre-opt-in baseline:
 
-3. The 3 PostgreSQL views `report_stock_quantity` (5263 rows), `stock_avco_report` (7) and
-   `vendor_delay_report` (10) exist and return rows on the clone, but because the update rolled back
-   they read the full PostgreSQL tables, not the shadow tables; not evidence that the views work on
-   the reduced tables. That probe stays open until finding 1 is fixed.
+| reader | pre-opt-in (`odoo_w2v_base`, PostgreSQL) | opted-in clone at `1c9565e` |
+|---|---|---|
+| `-u uom,product` | n/a | exit 0, 51.7 s, 0 ERROR lines (the `72fca61` registry failure is gone) |
+| `sale.report` | 51 | 51 |
+| `purchase.report` | 32 | 32 |
+| `account.invoice.report` | 62 | 62 |
+| `purchase.bill.line.match` | 27 | 27 |
+| view `report_stock_quantity` | 5268 | 5268 |
+| view `stock_avco_report` | 7 | 7 |
+| view `vendor_delay_report` | 10 | 10 |
+
+The opted-in clone really ran on the storage path: `registry.mongo_store` prefix `odoo_w2v_views__`,
+48 `productProduct` documents read from it, ORM `product.product` search resolving `uom_id` through
+`_inherits`, and after the update the moved `product_template` columns (`name`, `type`, `sale_ok`)
+have their NOT NULL dropped while the shadow column `uom_id` keeps it, so the three views were
+recreated by `stock` / `stock_account` / `purchase_stock` over the reduced tables. `report_stock_quantity`
+is date-projected (5263 rows on 2026-10-19, 5268 on 2026-10-20 on both sides). `stock.quant` (57)
+and `stock.move` (137) also read. Both findings closed; the views probe is closed.
 
 ## Wave 1 collections re-checked (`wave-1-recheck/`)
 
@@ -148,20 +153,25 @@ Same check counts as the wave 1 verifier's runs (`.migration/recon/wave-1/`).
 
 ## Odoo tests against the migrated build
 
-Build: run branch `72fca61`, `odoo-bin -d odoo_w2v_test --db_port=5433 -c <conf> --no-http
+Build: run branch `1c9565e`, `odoo-bin -d odoo_w2v_test2 --db_port=5433 -c <conf> --no-http
 -i product,uom --test-enable --test-tags /product,/uom --stop-after-init` with the conf holding
-`mongodb_migration_db = odoo_verify_mig`, so the fresh test database `odoo_w2v_test` is not the
-migration database and every in-scope model wrote `odoo_w2v_test__*` collections
-(`odoo_w2v_test__uomUom` 30, `odoo_w2v_test__productAttribute` 5, `odoo_w2v_test__productCategory`
+`mongodb_migration_db = odoo_verify_mig`, so the fresh test database `odoo_w2v_test2` is not the
+migration database and every in-scope model wrote `odoo_w2v_test2__*` collections
+(`odoo_w2v_test2__uomUom` 30, `odoo_w2v_test2__productAttribute` 5, `odoo_w2v_test2__productCategory`
 3, the ten others 0 after the tests' rollbacks; `odoo-tests.json`). The fourteen unprefixed
-collections have identical counts before and after the run (`unprefixed_unchanged: true`).
+collections have identical counts before and after the run (`unprefixed_unchanged: true`). In the
+test database the shadow tables are exactly `id` + the shadow columns (`product_product`:
+`product_tmpl_id, weight, volume, standard_price`; `product_template`: `uom_id, categ_id, is_storable`
+— `purchase_method` is absent because `purchase` is not installed there; `uom_uom`: `factor`), and
+`uom_uom.factor` equals the 30 `odoo_w2v_test2__uomUom` documents.
 
-Result: `1 failed, 0 error(s) of 161 tests when loading database 'odoo_w2v_test'`, exit code 1
+Result: `1 failed, 0 error(s) of 161 tests when loading database 'odoo_w2v_test2'`, exit code 1
 (`odoo-tests.log`). The one failure is `TestProductAttributeValueConfig.
-test_get_closest_possible_combinations`: `AssertionError: 0.709648609161377 not less than 0.5`, the
-Atlas round-trip timing test the manager accepted as known (d-w2-timing-test = accept-known;
-expected 160/161). No other test failed or errored (uom 13.7 s incl. 3.0 s test; product 49.8 s incl.
-36.2 s at-install test; the post-install run took the remaining 24 min against Atlas).
+test_get_closest_possible_combinations`: `AssertionError: 0.8114664554595947 not less than 0.5`, the Atlas round-trip timing
+test the manager accepted as known (d-w2-timing-test = accept-known; expected 160/161). No other test
+failed or errored (uom 15.64s incl. 3.50s test; product 52.82s incl. 37.29s at-install test;
+the whole run took 28 min against Atlas). The first pass at `72fca61` on `odoo_w2v_test` gave the same
+160/161 with the same single failure.
 
 ## Preflight
 
@@ -179,5 +189,5 @@ did not edit the worker's batch file; the manager's graded copy carries the PR U
 - `.migration/recon/wave-2/wave-1-recheck/uom/result.json`, `product-taxonomy/result.json`, `product-attributes/result.json`: wave 1 re-checks
 - `.migration/recon/wave-2/probes.json`: probes past the gate and cross-unit checks
 - `.migration/recon/wave-2/odoo-tests.json`, `odoo-tests.log`: test namespace, unchanged unprefixed counts, shadow parity, test result
-- `.migration/recon/wave-2/d6-readers.log`, `d6-update-traceback.log`, `d6-readers-counts.json`: D6 reader probe on the opted-in clone (two findings)
+- `.migration/recon/wave-2/d6-readers.log`, `d6-update-traceback-72fca61.log`, `d6-readers-counts.json`: D6 reader probe on the opted-in clone (two findings at `72fca61`, closed at `1c9565e`)
 - `.migration/recon/wave-2/verify-result.json`

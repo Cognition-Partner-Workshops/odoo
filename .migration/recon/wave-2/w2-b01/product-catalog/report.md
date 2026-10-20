@@ -7,7 +7,7 @@
 - Tolerance version: `v1` (sha256 `59f500708400`)
 - Collections: `productDocument`, `productProduct`, `productTemplate`, `productTemplateAttributeLine`, `productTemplateAttributeValue`, `productUom`
 - Seed: `0`
-- Generated: 2026-10-19T21:29:56.970555+00:00
+- Generated: 2026-10-20T00:32:53.172251+00:00
 - 94 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 33 string fields: min/max/distinct deferred to Tier 3
 

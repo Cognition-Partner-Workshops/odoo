@@ -1,5 +1,6 @@
 {
  "clone": "odoo_w2v_views",
+ "run_branch": "1c9565e",
  "unprefixed_before": {
   "_connectivity_probe": 0,
   "productAttribute": 14,

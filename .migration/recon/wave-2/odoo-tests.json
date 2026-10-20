@@ -1,5 +1,5 @@
 {
- "test_db": "odoo_w2v_test",
+ "test_db": "odoo_w2v_test2",
  "unprefixed_before": {
   "_connectivity_probe": 0,
   "productAttribute": 14,
@@ -34,22 +34,22 @@
  },
  "unprefixed_unchanged": true,
  "prefixed_test_collections": {
-  "odoo_w2v_test__productAttribute": 5,
-  "odoo_w2v_test__productAttributeValue": 0,
-  "odoo_w2v_test__productBaseUnit": 0,
-  "odoo_w2v_test__productCategory": 3,
-  "odoo_w2v_test__productDocument": 0,
-  "odoo_w2v_test__productProduct": 0,
-  "odoo_w2v_test__productTag": 0,
-  "odoo_w2v_test__productTemplate": 0,
-  "odoo_w2v_test__productTemplateAttributeLine": 0,
-  "odoo_w2v_test__productTemplateAttributeValue": 0,
-  "odoo_w2v_test__productUom": 0,
-  "odoo_w2v_test__uomUom": 30,
-  "odoo_w2v_test__updateProductAttributeValue": 0
+  "odoo_w2v_test2__productAttribute": 5,
+  "odoo_w2v_test2__productAttributeValue": 0,
+  "odoo_w2v_test2__productBaseUnit": 0,
+  "odoo_w2v_test2__productCategory": 3,
+  "odoo_w2v_test2__productDocument": 0,
+  "odoo_w2v_test2__productProduct": 0,
+  "odoo_w2v_test2__productTag": 0,
+  "odoo_w2v_test2__productTemplate": 0,
+  "odoo_w2v_test2__productTemplateAttributeLine": 0,
+  "odoo_w2v_test2__productTemplateAttributeValue": 0,
+  "odoo_w2v_test2__productUom": 0,
+  "odoo_w2v_test2__uomUom": 30,
+  "odoo_w2v_test2__updateProductAttributeValue": 0
  },
  "shadow_parity": {
-  "product_product -> odoo_w2v_test__productProduct": {
+  "product_product -> odoo_w2v_test2__productProduct": {
    "shadow_columns_present": [
     "id",
     "product_tmpl_id",
@@ -68,7 +68,7 @@
    "mismatches": [],
    "mismatch_count": 0
   },
-  "product_template -> odoo_w2v_test__productTemplate": {
+  "product_template -> odoo_w2v_test2__productTemplate": {
    "shadow_columns_present": [
     "id",
     "uom_id",
@@ -85,7 +85,7 @@
    "mismatches": [],
    "mismatch_count": 0
   },
-  "uom_uom -> odoo_w2v_test__uomUom": {
+  "uom_uom -> odoo_w2v_test2__uomUom": {
    "shadow_columns_present": [
     "id",
     "factor"
@@ -98,7 +98,7 @@
    "mismatches": [],
    "mismatch_count": 0
   },
-  "product_category -> odoo_w2v_test__productCategory": {
+  "product_category -> odoo_w2v_test2__productCategory": {
    "shadow_columns_present": [
     "id"
    ],

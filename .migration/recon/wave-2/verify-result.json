@@ -13,27 +13,21 @@
   "findings": [
     {
       "batch": "w2-b01",
-      "class": "storage-path defect past the gate",
-      "severity": "high",
-      "detail": "On a clone of the seeded source with sale/purchase/stock/account installed (as odoo_src), `-u uom,product` on run-branch tip 72fca61 fails to load the registry: `Module loading account failed: file account/security/ir.access.csv could not be processed: Invalid domain [('company_id', 'in', company_ids)]: product.product is stored in MongoDB: no SQL for field 'uom_id' (not in _shadow_columns)` (d6-update-traceback.log). Not a data-parity defect (recon PASS stands); needs its own storage-path ticket."
-    },
-    {
-      "batch": "w2-b01",
-      "class": "storage-path defect past the gate",
-      "severity": "high",
-      "detail": "The three `_table_query` reports the contract lists as D6 readers raise `NotImplementedError: product.product is stored in MongoDB: no SQL for field 'uom_id' (not in _shadow_columns)` from `Query.__getitem__` (odoo/orm/query.py:431 via Many2one.property_to_sql, fields_relational.py:499; sale_report.py:197 `table.product_id.uom_id`): sale.report, purchase.report, account.invoice.report `search_count([])` all fail, reproduced on a plain clone with no update and no writes (d6-readers.log). `uom_id` is an `_inherits`-delegated product.template field; both `product_product.product_tmpl_id` and `product_template.uom_id` are shadow columns, but the delegated field is checked against product.product's own `_shadow_columns` before the `_inherits` join. purchase.bill.line.match, stock.quant, stock.move and the ORM `_inherits` read work. The product + uom test database does not install sale/purchase/account, which is why the suites show 160/161."
-    },
-    {
-      "batch": "w2-b01",
-      "class": "probe left open",
+      "class": "storage-path defect past the gate (resolved)",
       "severity": "info",
-      "detail": "The 3 PostgreSQL views (report_stock_quantity 5263 rows, stock_avco_report 7, vendor_delay_report 10) exist and return rows on the clone, but the `-u uom,product` that would reduce product_product/product_template to shadow tables rolled back (finding above), so they were read from the full PostgreSQL tables; not evidence that the views work on the shadow tables. Open until the storage-path defect is fixed."
+      "detail": "First pass at run-branch 72fca61: on a clone of the seeded source with sale/purchase/stock/account installed, `-u uom,product` failed to load the registry (account/security/ir.access.csv: `product.product is stored in MongoDB: no SQL for field 'uom_id' (not in _shadow_columns)`) and sale.report / purchase.report / account.invoice.report raised the same NotImplementedError (`_inherits`-delegated uom_id checked against product.product's _shadow_columns before the parent shadow join). User chose fix-then-close; fixed by UNT11-43 (PR #36, odoo/orm/query.py). Re-run at 1c9565e: `-u uom,product` exit 0 with 0 errors; sale.report 51, purchase.report 32, account.invoice.report 62, purchase.bill.line.match 27 \u2014 equal to the pre-opt-in baseline (odoo-base 03a3cb5 on a clone of the same source). Evidence d6-readers.log, d6-update-traceback-72fca61.log, d6-readers-counts.json."
+    },
+    {
+      "batch": "w2-b01",
+      "class": "PG views probe (closed)",
+      "severity": "info",
+      "detail": "After the fixed `-u uom,product` reduced the tables on the opted-in clone (moved product_template columns nullable, shadow uom_id NOT NULL kept, store prefix odoo_w2v_views__), report_stock_quantity 5268 / stock_avco_report 7 / vendor_delay_report 10 rows, equal to the pre-opt-in baseline on the same day."
     },
     {
       "batch": "w2-b01",
       "class": "accepted known test failure",
       "severity": "info",
-      "detail": "product + uom suites on the fresh odoo_w2v_test database: 1 failed, 0 error(s) of 161 tests; the one failure is test_get_closest_possible_combinations (0.71 s, limit 0.5 s), the Atlas-latency timing test accepted by d-w2-timing-test = accept-known. The unprefixed collections kept their counts throughout."
+      "detail": "product + uom suites on the fresh odoo_w2v_test2 database at run-branch 1c9565e: 1 failed, 0 error(s) of 161 tests; the one failure is test_get_closest_possible_combinations (0.8114664554595947 not less than 0.5; limit 0.5 s), the Atlas-latency timing test accepted by d-w2-timing-test = accept-known. Same 160/161 on the first pass (odoo_w2v_test at 72fca61). The unprefixed collections kept their counts throughout."
     },
     {
       "batch": "w2-b01",
