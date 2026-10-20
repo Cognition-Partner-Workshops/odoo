@@ -1,0 +1,2289 @@
+{
+ "probes": [
+  {
+   "probe": "declared_collections_present",
+   "pass": true,
+   "evidence": [
+    "accountCashRounding",
+    "accountIncoterms",
+    "accountJournalGroup",
+    "accountLockException",
+    "accountPaymentTerm",
+    "accountReport",
+    "accountReportExpression",
+    "accountReportExternalValue"
+   ]
+  },
+  {
+   "probe": "other_collections_in_target_db",
+   "pass": true,
+   "evidence": "not in this batch: ['_connectivity_probe', 'accountAccount', 'accountAccountTag', 'accountFiscalPosition', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'productAttribute', 'productAttributeValueProductTemplateAttributeLineRel', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+  },
+  {
+   "probe": "accountPaymentTerm.row_count",
+   "pass": true,
+   "evidence": "source=11 target=11"
+  },
+  {
+   "probe": "accountPaymentTerm.not_empty",
+   "pass": true,
+   "evidence": "target=11"
+  },
+  {
+   "probe": "accountPaymentTerm.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "accountPaymentTerm.boundary_max_id",
+   "pass": true,
+   "evidence": "id=11 present=True"
+  },
+  {
+   "probe": "accountPaymentTerm.companyId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=11/11 target_missing_or_null=11/11"
+  },
+  {
+   "probe": "accountPaymentTerm.companyId.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.sequence.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountPaymentTerm.sequence.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.discountDays.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountPaymentTerm.discountDays.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountPaymentTerm.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountPaymentTerm.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.earlyPayDiscountComputation.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountPaymentTerm.earlyPayDiscountComputation.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountPaymentTerm.name.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.note.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountPaymentTerm.note.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.active.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountPaymentTerm.active.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.displayOnInvoice.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountPaymentTerm.displayOnInvoice.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.earlyDiscount.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=10/11 target_missing_or_null=10/11"
+  },
+  {
+   "probe": "accountPaymentTerm.earlyDiscount.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountPaymentTerm.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountPaymentTerm.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.discountPercentage.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountPaymentTerm.discountPercentage.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.index[('sequence', 1), ('_id', 1)]",
+   "pass": true,
+   "evidence": "matching=['sequence_1__id_1'] unique_required=False"
+  },
+  {
+   "probe": "accountPaymentTerm.index[('companyId', 1)]",
+   "pass": true,
+   "evidence": "matching=['companyId_1'] unique_required=False"
+  },
+  {
+   "probe": "accountPaymentTerm.line.array_length_vs_child_rows",
+   "pass": true,
+   "evidence": "child_rows=13 parents_with_children=11 max_len=2 mismatched_parents=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.line.no_empty_array_field",
+   "pass": true,
+   "evidence": "parents_with_empty_array=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.line.element_key_set",
+   "pass": true,
+   "evidence": "source_keys=13 target_keys=13 missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.line.nbDays.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/13 target_missing_or_null=0/13"
+  },
+  {
+   "probe": "accountPaymentTerm.line.nbDays.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.line.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/13 target_missing_or_null=0/13"
+  },
+  {
+   "probe": "accountPaymentTerm.line.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.line.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/13 target_missing_or_null=0/13"
+  },
+  {
+   "probe": "accountPaymentTerm.line.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.line.value.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/13 target_missing_or_null=0/13"
+  },
+  {
+   "probe": "accountPaymentTerm.line.value.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.line.delayType.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/13 target_missing_or_null=0/13"
+  },
+  {
+   "probe": "accountPaymentTerm.line.delayType.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.line.daysNextMonth.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/13 target_missing_or_null=0/13"
+  },
+  {
+   "probe": "accountPaymentTerm.line.daysNextMonth.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.line.valueAmount.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/13 target_missing_or_null=0/13"
+  },
+  {
+   "probe": "accountPaymentTerm.line.valueAmount.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.line.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/13 target_missing_or_null=0/13"
+  },
+  {
+   "probe": "accountPaymentTerm.line.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.line.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/13 target_missing_or_null=0/13"
+  },
+  {
+   "probe": "accountPaymentTerm.line.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.line.no_unmapped_element_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "declared_refs=[] wave1_siblings=['accountAccount', 'accountAccountTag', 'accountFiscalPosition', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'productAttribute', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+  },
+  {
+   "probe": "accountIncoterms.row_count",
+   "pass": true,
+   "evidence": "source=11 target=11"
+  },
+  {
+   "probe": "accountIncoterms.not_empty",
+   "pass": true,
+   "evidence": "target=11"
+  },
+  {
+   "probe": "accountIncoterms.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "accountIncoterms.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "accountIncoterms.boundary_max_id",
+   "pass": true,
+   "evidence": "id=11 present=True"
+  },
+  {
+   "probe": "accountIncoterms.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountIncoterms.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountIncoterms.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountIncoterms.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountIncoterms.code.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountIncoterms.code.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountIncoterms.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountIncoterms.name.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountIncoterms.active.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountIncoterms.active.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountIncoterms.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountIncoterms.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountIncoterms.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/11 target_missing_or_null=0/11"
+  },
+  {
+   "probe": "accountIncoterms.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountIncoterms.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "accountIncoterms.index[('code', 1)]",
+   "pass": true,
+   "evidence": "matching=['code_1'] unique_required=False"
+  },
+  {
+   "probe": "accountIncoterms.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "declared_refs=[] wave1_siblings=['accountAccount', 'accountAccountTag', 'accountFiscalPosition', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'productAttribute', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+  },
+  {
+   "probe": "accountCashRounding.row_count",
+   "pass": true,
+   "evidence": "source=2 target=2"
+  },
+  {
+   "probe": "accountCashRounding.not_empty",
+   "pass": true,
+   "evidence": "target=2"
+  },
+  {
+   "probe": "accountCashRounding.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "accountCashRounding.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "accountCashRounding.boundary_max_id",
+   "pass": true,
+   "evidence": "id=2 present=True"
+  },
+  {
+   "probe": "accountCashRounding.sequence.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountCashRounding.sequence.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountCashRounding.companyId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=2/2 target_missing_or_null=2/2"
+  },
+  {
+   "probe": "accountCashRounding.companyId.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountCashRounding.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountCashRounding.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountCashRounding.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountCashRounding.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountCashRounding.roundingMethod.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountCashRounding.roundingMethod.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountCashRounding.strategy.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountCashRounding.strategy.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountCashRounding.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountCashRounding.name.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountCashRounding.profitAccountId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=1/2 target_missing_or_null=1/2"
+  },
+  {
+   "probe": "accountCashRounding.profitAccountId.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountCashRounding.lossAccountId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=1/2 target_missing_or_null=1/2"
+  },
+  {
+   "probe": "accountCashRounding.lossAccountId.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountCashRounding.active.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountCashRounding.active.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountCashRounding.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountCashRounding.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountCashRounding.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountCashRounding.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountCashRounding.rounding.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountCashRounding.rounding.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountCashRounding.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "accountCashRounding.index[('sequence', 1), ('_id', 1)]",
+   "pass": true,
+   "evidence": "matching=['sequence_1__id_1'] unique_required=False"
+  },
+  {
+   "probe": "accountCashRounding.index[('companyId', 1)]",
+   "pass": true,
+   "evidence": "matching=['companyId_1'] unique_required=False"
+  },
+  {
+   "probe": "accountCashRounding.index[('accountPaymentMethodLineRel.accountPaymentMethodLineId', 1)]",
+   "pass": true,
+   "evidence": "matching=['accountPaymentMethodLineRel.accountPaymentMethodLineId_1'] unique_required=False"
+  },
+  {
+   "probe": "accountCashRounding.index[('resCurrencyRel.resCurrencyId', 1)]",
+   "pass": true,
+   "evidence": "matching=['resCurrencyRel.resCurrencyId_1'] unique_required=False"
+  },
+  {
+   "probe": "accountCashRounding.index[('resPartnerCategoryRel.resPartnerCategoryId', 1)]",
+   "pass": true,
+   "evidence": "matching=['resPartnerCategoryRel.resPartnerCategoryId_1'] unique_required=False"
+  },
+  {
+   "probe": "accountCashRounding.resCurrencyRel.array_length_vs_child_rows",
+   "pass": true,
+   "evidence": "child_rows=1 parents_with_children=1 max_len=1 mismatched_parents=[]"
+  },
+  {
+   "probe": "accountCashRounding.resCurrencyRel.no_empty_array_field",
+   "pass": true,
+   "evidence": "parents_with_empty_array=[]"
+  },
+  {
+   "probe": "accountCashRounding.resCurrencyRel.element_key_set",
+   "pass": true,
+   "evidence": "source_keys=1 target_keys=1 missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "accountCashRounding.resCurrencyRel.no_unmapped_element_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "accountCashRounding.resPartnerCategoryRel.array_length_vs_child_rows",
+   "pass": true,
+   "evidence": "child_rows=3 parents_with_children=2 max_len=2 mismatched_parents=[]"
+  },
+  {
+   "probe": "accountCashRounding.resPartnerCategoryRel.no_empty_array_field",
+   "pass": true,
+   "evidence": "parents_with_empty_array=[]"
+  },
+  {
+   "probe": "accountCashRounding.resPartnerCategoryRel.element_key_set",
+   "pass": true,
+   "evidence": "source_keys=3 target_keys=3 missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "accountCashRounding.resPartnerCategoryRel.no_unmapped_element_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "accountCashRounding.accountPaymentMethodLineRel.array_length_vs_child_rows",
+   "pass": true,
+   "evidence": "child_rows=3 parents_with_children=2 max_len=2 mismatched_parents=[]"
+  },
+  {
+   "probe": "accountCashRounding.accountPaymentMethodLineRel.no_empty_array_field",
+   "pass": true,
+   "evidence": "parents_with_empty_array=[]"
+  },
+  {
+   "probe": "accountCashRounding.accountPaymentMethodLineRel.element_key_set",
+   "pass": true,
+   "evidence": "source_keys=3 target_keys=3 missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "accountCashRounding.accountPaymentMethodLineRel.no_unmapped_element_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "accountCashRounding.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "declared_refs=[] wave1_siblings=['accountAccount', 'accountAccountTag', 'accountFiscalPosition', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'productAttribute', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+  },
+  {
+   "probe": "accountJournalGroup.row_count",
+   "pass": true,
+   "evidence": "source=2 target=2"
+  },
+  {
+   "probe": "accountJournalGroup.not_empty",
+   "pass": true,
+   "evidence": "target=2"
+  },
+  {
+   "probe": "accountJournalGroup.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "accountJournalGroup.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "accountJournalGroup.boundary_max_id",
+   "pass": true,
+   "evidence": "id=2 present=True"
+  },
+  {
+   "probe": "accountJournalGroup.sequence.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountJournalGroup.sequence.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountJournalGroup.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountJournalGroup.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountJournalGroup.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountJournalGroup.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountJournalGroup.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountJournalGroup.name.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountJournalGroup.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountJournalGroup.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountJournalGroup.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountJournalGroup.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountJournalGroup.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "accountJournalGroup.natural_key_unique[account_journal_group_uniq_name]",
+   "pass": true,
+   "evidence": "duplicates=[]"
+  },
+  {
+   "probe": "accountJournalGroup.index[('name', 1)]",
+   "pass": true,
+   "evidence": "matching=['name_1'] unique_required=True"
+  },
+  {
+   "probe": "accountJournalGroup.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "declared_refs=[] wave1_siblings=['accountAccount', 'accountAccountTag', 'accountFiscalPosition', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'productAttribute', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+  },
+  {
+   "probe": "accountLockException.row_count",
+   "pass": true,
+   "evidence": "source=1 target=1"
+  },
+  {
+   "probe": "accountLockException.not_empty",
+   "pass": true,
+   "evidence": "target=1"
+  },
+  {
+   "probe": "accountLockException.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "accountLockException.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "accountLockException.boundary_max_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "accountLockException.companyId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountLockException.companyId.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountLockException.userId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountLockException.userId.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountLockException.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountLockException.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountLockException.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountLockException.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountLockException.reason.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountLockException.reason.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountLockException.lockDateField.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountLockException.lockDateField.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountLockException.lockDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountLockException.lockDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountLockException.companyLockDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=1/1 target_missing_or_null=1/1"
+  },
+  {
+   "probe": "accountLockException.companyLockDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountLockException.active.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountLockException.active.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountLockException.endDatetime.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountLockException.endDatetime.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountLockException.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountLockException.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountLockException.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountLockException.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountLockException.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "accountLockException.index[('userId', 1), ('companyId', 1), ('lockDate', 1)]",
+   "pass": true,
+   "evidence": "matching=['userId_1_companyId_1_lockDate_1'] unique_required=False"
+  },
+  {
+   "probe": "accountLockException.index[('createUid', 1)]",
+   "pass": true,
+   "evidence": "matching=['createUid_1'] unique_required=False"
+  },
+  {
+   "probe": "accountLockException.index[('writeUid', 1)]",
+   "pass": true,
+   "evidence": "matching=['writeUid_1'] unique_required=False"
+  },
+  {
+   "probe": "accountLockException.index[('companyId', 1), ('userId', 1), ('endDatetime', 1)]",
+   "pass": true,
+   "evidence": "matching=['companyId_1_userId_1_endDatetime_1'] unique_required=False"
+  },
+  {
+   "probe": "accountLockException.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "declared_refs=[] wave1_siblings=['accountAccount', 'accountAccountTag', 'accountFiscalPosition', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'productAttribute', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+  },
+  {
+   "probe": "accountReport.row_count",
+   "pass": true,
+   "evidence": "source=5 target=5"
+  },
+  {
+   "probe": "accountReport.not_empty",
+   "pass": true,
+   "evidence": "target=5"
+  },
+  {
+   "probe": "accountReport.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "accountReport.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "accountReport.boundary_max_id",
+   "pass": true,
+   "evidence": "id=5 present=True"
+  },
+  {
+   "probe": "accountReport.sequence.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=5/5 target_missing_or_null=5/5"
+  },
+  {
+   "probe": "accountReport.sequence.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.rootReportId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=2/5 target_missing_or_null=2/5"
+  },
+  {
+   "probe": "accountReport.rootReportId.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.countryId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=4/5 target_missing_or_null=4/5"
+  },
+  {
+   "probe": "accountReport.countryId.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.loadMoreLimit.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.loadMoreLimit.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.groupby.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=5/5 target_missing_or_null=5/5"
+  },
+  {
+   "probe": "accountReport.groupby.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.userGroupby.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=5/5 target_missing_or_null=5/5"
+  },
+  {
+   "probe": "accountReport.userGroupby.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.chartTemplate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=5/5 target_missing_or_null=5/5"
+  },
+  {
+   "probe": "accountReport.chartTemplate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.availabilityCondition.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.availabilityCondition.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.integerRounding.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=5/5 target_missing_or_null=5/5"
+  },
+  {
+   "probe": "accountReport.integerRounding.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.defaultOpeningDateFilter.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.defaultOpeningDateFilter.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.currencyTranslation.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.currencyTranslation.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.filterMultiCompany.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.filterMultiCompany.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.filterHide0Lines.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.filterHide0Lines.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.filterHierarchy.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.filterHierarchy.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.filterAccountType.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.filterAccountType.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.name.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.activeSelection.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=5/5 target_missing_or_null=5/5"
+  },
+  {
+   "probe": "accountReport.activeSelection.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.activeFallback.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.activeFallback.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.useSections.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.useSections.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.onlyTaxExigible.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.onlyTaxExigible.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.searchBar.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=5/5 target_missing_or_null=5/5"
+  },
+  {
+   "probe": "accountReport.searchBar.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.allowForeignVat.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.allowForeignVat.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.useFiscalPeriods.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.useFiscalPeriods.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.enableSnapshots.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.enableSnapshots.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.filterDateRange.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.filterDateRange.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.filterShowDraft.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.filterShowDraft.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.filterUnreconciled.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.filterUnreconciled.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.filterUnfoldAll.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.filterUnfoldAll.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.filterPeriodComparison.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.filterPeriodComparison.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.filterGrowthComparison.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.filterGrowthComparison.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.filterLineComparison.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.filterLineComparison.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.filterJournals.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.filterJournals.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.filterPartner.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.filterPartner.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.filterAmlIrFilters.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.filterAmlIrFilters.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.filterBudgets.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.filterBudgets.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/5 target_missing_or_null=0/5"
+  },
+  {
+   "probe": "accountReport.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "accountReport.index[('line.code', 1)]",
+   "pass": true,
+   "evidence": "matching=['line.code_1'] unique_required=False"
+  },
+  {
+   "probe": "accountReport.index[('countryId', 1)]",
+   "pass": true,
+   "evidence": "matching=['countryId_1'] unique_required=False"
+  },
+  {
+   "probe": "accountReport.index[('rootReportId', 1)]",
+   "pass": true,
+   "evidence": "matching=['rootReportId_1'] unique_required=False"
+  },
+  {
+   "probe": "accountReport.index[('line.parentId', 1)]",
+   "pass": true,
+   "evidence": "matching=['line.parentId_1'] unique_required=False"
+  },
+  {
+   "probe": "accountReport.index[('sectionRel.subReportId', 1)]",
+   "pass": true,
+   "evidence": "matching=['sectionRel.subReportId_1'] unique_required=False"
+  },
+  {
+   "probe": "accountReport.column.array_length_vs_child_rows",
+   "pass": true,
+   "evidence": "child_rows=8 parents_with_children=4 max_len=2 mismatched_parents=[]"
+  },
+  {
+   "probe": "accountReport.column.no_empty_array_field",
+   "pass": true,
+   "evidence": "parents_with_empty_array=[]"
+  },
+  {
+   "probe": "accountReport.column.element_key_set",
+   "pass": true,
+   "evidence": "source_keys=8 target_keys=8 missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "accountReport.column.sequence.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=8/8 target_missing_or_null=8/8"
+  },
+  {
+   "probe": "accountReport.column.sequence.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.column.customAuditActionId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=8/8 target_missing_or_null=8/8"
+  },
+  {
+   "probe": "accountReport.column.customAuditActionId.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.column.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/8 target_missing_or_null=0/8"
+  },
+  {
+   "probe": "accountReport.column.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.column.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/8 target_missing_or_null=0/8"
+  },
+  {
+   "probe": "accountReport.column.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.column.expressionLabel.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/8 target_missing_or_null=0/8"
+  },
+  {
+   "probe": "accountReport.column.expressionLabel.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.column.figureType.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/8 target_missing_or_null=0/8"
+  },
+  {
+   "probe": "accountReport.column.figureType.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.column.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/8 target_missing_or_null=0/8"
+  },
+  {
+   "probe": "accountReport.column.name.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.column.sortable.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=8/8 target_missing_or_null=8/8"
+  },
+  {
+   "probe": "accountReport.column.sortable.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.column.blankIfZero.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=8/8 target_missing_or_null=8/8"
+  },
+  {
+   "probe": "accountReport.column.blankIfZero.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.column.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/8 target_missing_or_null=0/8"
+  },
+  {
+   "probe": "accountReport.column.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.column.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/8 target_missing_or_null=0/8"
+  },
+  {
+   "probe": "accountReport.column.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.column.no_unmapped_element_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "accountReport.line.array_length_vs_child_rows",
+   "pass": true,
+   "evidence": "child_rows=2 parents_with_children=1 max_len=2 mismatched_parents=[]"
+  },
+  {
+   "probe": "accountReport.line.no_empty_array_field",
+   "pass": true,
+   "evidence": "parents_with_empty_array=[]"
+  },
+  {
+   "probe": "accountReport.line.element_key_set",
+   "pass": true,
+   "evidence": "source_keys=2 target_keys=2 missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "accountReport.line.hierarchyLevel.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountReport.line.hierarchyLevel.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.parentId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=1/2 target_missing_or_null=1/2"
+  },
+  {
+   "probe": "accountReport.line.parentId.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.sequence.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountReport.line.sequence.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.actionId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=2/2 target_missing_or_null=2/2"
+  },
+  {
+   "probe": "accountReport.line.actionId.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountReport.line.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountReport.line.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.groupby.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=2/2 target_missing_or_null=2/2"
+  },
+  {
+   "probe": "accountReport.line.groupby.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.userGroupby.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=2/2 target_missing_or_null=2/2"
+  },
+  {
+   "probe": "accountReport.line.userGroupby.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.code.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountReport.line.code.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.foldability.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountReport.line.foldability.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.horizontalSplitSide.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=2/2 target_missing_or_null=2/2"
+  },
+  {
+   "probe": "accountReport.line.horizontalSplitSide.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountReport.line.name.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.printOnNewPage.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=2/2 target_missing_or_null=2/2"
+  },
+  {
+   "probe": "accountReport.line.printOnNewPage.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.hideIfZero.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=2/2 target_missing_or_null=2/2"
+  },
+  {
+   "probe": "accountReport.line.hideIfZero.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountReport.line.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "accountReport.line.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReport.line.no_unmapped_element_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "accountReport.sectionRel.array_length_vs_child_rows",
+   "pass": true,
+   "evidence": "child_rows=2 parents_with_children=1 max_len=2 mismatched_parents=[]"
+  },
+  {
+   "probe": "accountReport.sectionRel.no_empty_array_field",
+   "pass": true,
+   "evidence": "parents_with_empty_array=[]"
+  },
+  {
+   "probe": "accountReport.sectionRel.element_key_set",
+   "pass": true,
+   "evidence": "source_keys=2 target_keys=2 missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "accountReport.sectionRel.no_unmapped_element_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "accountReport.rootReportId->accountReport.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=1 unresolved=[] same_batch_target"
+  },
+  {
+   "probe": "accountReport.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "declared_refs=['accountReport'] wave1_siblings=['accountAccount', 'accountAccountTag', 'accountFiscalPosition', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'productAttribute', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+  },
+  {
+   "probe": "accountReportExpression.row_count",
+   "pass": true,
+   "evidence": "source=3 target=3"
+  },
+  {
+   "probe": "accountReportExpression.not_empty",
+   "pass": true,
+   "evidence": "target=3"
+  },
+  {
+   "probe": "accountReportExpression.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "accountReportExpression.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "accountReportExpression.boundary_max_id",
+   "pass": true,
+   "evidence": "id=3 present=True"
+  },
+  {
+   "probe": "accountReportExpression.reportLineId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "accountReportExpression.reportLineId.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExpression.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "accountReportExpression.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExpression.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "accountReportExpression.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExpression.label.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "accountReportExpression.label.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExpression.engine.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "accountReportExpression.engine.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExpression.dateScope.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "accountReportExpression.dateScope.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExpression.figureType.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=3/3 target_missing_or_null=3/3"
+  },
+  {
+   "probe": "accountReportExpression.figureType.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExpression.carryoverTarget.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=3/3 target_missing_or_null=3/3"
+  },
+  {
+   "probe": "accountReportExpression.carryoverTarget.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExpression.formula.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "accountReportExpression.formula.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExpression.subformula.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=2/3 target_missing_or_null=2/3"
+  },
+  {
+   "probe": "accountReportExpression.subformula.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExpression.greenOnPositive.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "accountReportExpression.greenOnPositive.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExpression.blankIfZero.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=3/3 target_missing_or_null=3/3"
+  },
+  {
+   "probe": "accountReportExpression.blankIfZero.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExpression.auditable.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "accountReportExpression.auditable.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExpression.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "accountReportExpression.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExpression.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "accountReportExpression.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExpression.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "accountReportExpression.natural_key_unique[account_report_expression_line_label_uniq]",
+   "pass": true,
+   "evidence": "duplicates=[]"
+  },
+  {
+   "probe": "accountReportExpression.index[('engine', 1), ('formula', 1), ('_id', 1)]",
+   "pass": true,
+   "evidence": "matching=['engine_1_formula_1__id_1'] unique_required=False"
+  },
+  {
+   "probe": "accountReportExpression.index[('label', 1)]",
+   "pass": true,
+   "evidence": "matching=['label_1'] unique_required=False"
+  },
+  {
+   "probe": "accountReportExpression.index[('reportLineId', 1), ('label', 1)]",
+   "pass": true,
+   "evidence": "matching=['reportLineId_1_label_1'] unique_required=True"
+  },
+  {
+   "probe": "accountReportExpression.reportLineId->accountReport.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=2 unresolved=[] same_batch_target"
+  },
+  {
+   "probe": "accountReportExpression.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "declared_refs=['accountReport'] wave1_siblings=['accountAccount', 'accountAccountTag', 'accountFiscalPosition', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'productAttribute', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+  },
+  {
+   "probe": "accountReportExternalValue.row_count",
+   "pass": true,
+   "evidence": "source=1 target=1"
+  },
+  {
+   "probe": "accountReportExternalValue.not_empty",
+   "pass": true,
+   "evidence": "target=1"
+  },
+  {
+   "probe": "accountReportExternalValue.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "accountReportExternalValue.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "accountReportExternalValue.boundary_max_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "accountReportExternalValue.targetReportExpressionId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountReportExternalValue.targetReportExpressionId.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExternalValue.companyId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountReportExternalValue.companyId.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExternalValue.carryoverOriginReportLineId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=1/1 target_missing_or_null=1/1"
+  },
+  {
+   "probe": "accountReportExternalValue.carryoverOriginReportLineId.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExternalValue.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountReportExternalValue.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExternalValue.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountReportExternalValue.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExternalValue.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountReportExternalValue.name.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExternalValue.textValue.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=1/1 target_missing_or_null=1/1"
+  },
+  {
+   "probe": "accountReportExternalValue.textValue.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExternalValue.carryoverOriginExpressionLabel.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=1/1 target_missing_or_null=1/1"
+  },
+  {
+   "probe": "accountReportExternalValue.carryoverOriginExpressionLabel.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExternalValue.date.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountReportExternalValue.date.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExternalValue.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountReportExternalValue.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExternalValue.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountReportExternalValue.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExternalValue.value.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/1 target_missing_or_null=0/1"
+  },
+  {
+   "probe": "accountReportExternalValue.value.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "accountReportExternalValue.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "accountReportExternalValue.index[('carryoverOriginReportLineId', 1)]",
+   "pass": true,
+   "evidence": "matching=['carryoverOriginReportLineId_1'] unique_required=False"
+  },
+  {
+   "probe": "accountReportExternalValue.index[('companyId', 1)]",
+   "pass": true,
+   "evidence": "matching=['companyId_1'] unique_required=False"
+  },
+  {
+   "probe": "accountReportExternalValue.index[('targetReportExpressionId', 1)]",
+   "pass": true,
+   "evidence": "matching=['targetReportExpressionId_1'] unique_required=False"
+  },
+  {
+   "probe": "accountReportExternalValue.carryoverOriginReportLineId->accountReport.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=0 unresolved=[] same_batch_target"
+  },
+  {
+   "probe": "accountReportExternalValue.targetReportExpressionId->accountReportExpression.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=1 unresolved=[] same_batch_target"
+  },
+  {
+   "probe": "accountReportExternalValue.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "declared_refs=['accountReport', 'accountReportExpression'] wave1_siblings=['accountAccount', 'accountAccountTag', 'accountFiscalPosition', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'productAttribute', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+  },
+  {
+   "probe": "accountPaymentTerm.companyId->res_company.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[] missing_in_source_table=[]"
+  },
+  {
+   "probe": "accountPaymentTerm.writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing_in_source_table=[]"
+  },
+  {
+   "probe": "accountIncoterms.writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing_in_source_table=[]"
+  },
+  {
+   "probe": "accountCashRounding.companyId->res_company.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[] missing_in_source_table=[]"
+  },
+  {
+   "probe": "accountCashRounding.writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing_in_source_table=[]"
+  },
+  {
+   "probe": "accountJournalGroup.writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing_in_source_table=[]"
+  },
+  {
+   "probe": "accountLockException.companyId->res_company.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing_in_source_table=[]"
+  },
+  {
+   "probe": "accountLockException.userId->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[2] missing_in_source_table=[]"
+  },
+  {
+   "probe": "accountReport.countryId->res_country.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[233] missing_in_source_table=[]"
+  },
+  {
+   "probe": "accountReport.writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing_in_source_table=[]"
+  },
+  {
+   "probe": "accountReportExpression.writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing_in_source_table=[]"
+  },
+  {
+   "probe": "accountReportExternalValue.companyId->res_company.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing_in_source_table=[]"
+  },
+  {
+   "probe": "accountCashRounding.resCurrencyRel.resCurrencyId->res_currency.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=1 missing=[]"
+  },
+  {
+   "probe": "accountCashRounding.resPartnerCategoryRel.resPartnerCategoryId->res_partner_category.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=3 missing=[]"
+  },
+  {
+   "probe": "accountCashRounding.accountPaymentMethodLineRel.accountPaymentMethodLineId->account_payment_method_line.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=3 missing=[]"
+  },
+  {
+   "probe": "accountReport.sectionRel.subReportId->accountReport.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[2, 3] unresolved=[]"
+  },
+  {
+   "probe": "accountReport.line.parentId.resolves_in_same_document",
+   "pass": true,
+   "evidence": "unresolved=[]"
+  },
+  {
+   "probe": "accountCashRounding.rounding.boundary_values",
+   "pass": true,
+   "evidence": "source=(0.05,1) target=(0.05,1)"
+  },
+  {
+   "probe": "accountPaymentTerm.discountPercentage.boundary_values",
+   "pass": true,
+   "evidence": "source=(2,2) target=(2,2)"
+  },
+  {
+   "probe": "accountPaymentTerm.sequence.boundary_values",
+   "pass": true,
+   "evidence": "source=(10,10) target=(10,10)"
+  },
+  {
+   "probe": "accountReportExternalValue.value.boundary_values",
+   "pass": true,
+   "evidence": "source=(123.45,123.45) target=(123.45,123.45)"
+  },
+  {
+   "probe": "accountReportExternalValue.date.boundary_values",
+   "pass": true,
+   "evidence": "source=(2026-01-01T00:00:00.000,2026-01-01T00:00:00.000) target=(2026-01-01T00:00:00.000,2026-01-01T00:00:00.000)"
+  },
+  {
+   "probe": "accountLockException.lockDate.boundary_values",
+   "pass": true,
+   "evidence": "source=(2026-01-31T00:00:00.000,2026-01-31T00:00:00.000) target=(2026-01-31T00:00:00.000,2026-01-31T00:00:00.000)"
+  },
+  {
+   "probe": "accountLockException.endDatetime.boundary_values",
+   "pass": true,
+   "evidence": "source=(2026-10-27T00:00:00.000,2026-10-27T00:00:00.000) target=(2026-10-27T00:00:00.000,2026-10-27T00:00:00.000)"
+  },
+  {
+   "probe": "accountReport.loadMoreLimit.boundary_values",
+   "pass": true,
+   "evidence": "source=(500,500) target=(500,500)"
+  },
+  {
+   "probe": "accountPaymentTerm.line.valueAmount.boundary_values",
+   "pass": true,
+   "evidence": "source=(30,100) target=(30,100)"
+  },
+  {
+   "probe": "tier4_replay.payment_terms_with_line_count",
+   "pass": true,
+   "evidence": "source_rows=11 target_rows=11 first_diff=None"
+  },
+  {
+   "probe": "tier4_replay.incoterm_codes",
+   "pass": true,
+   "evidence": "source_rows=11 target_rows=11 first_diff=None"
+  },
+  {
+   "probe": "tier4_replay.cash_roundings_with_relation_counts",
+   "pass": true,
+   "evidence": "source_rows=2 target_rows=2 first_diff=None"
+  },
+  {
+   "probe": "tier4_replay.reports_with_line_column_section_counts",
+   "pass": true,
+   "evidence": "source_rows=5 target_rows=5 first_diff=None"
+  },
+  {
+   "probe": "tier4_replay.report_expressions_by_line",
+   "pass": true,
+   "evidence": "source_rows=3 target_rows=3 first_diff=None"
+  }
+ ],
+ "findings": []
+}

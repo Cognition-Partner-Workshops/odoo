@@ -1,0 +1,10 @@
+{
+  "batch": "w1-b04",
+  "verified_head": "2f418c18d02c5c7e70d320d0b08fe600aebaa9c0",
+  "verdict": "PASS",
+  "recon_results": [
+    ".migration/recon/wave-1/w1-b04/result.json"
+  ],
+  "findings": [],
+  "report_path": "recon/verify-w1-b04:.migration/recon/wave-1/w1-b04/verify-report.md"
+}
