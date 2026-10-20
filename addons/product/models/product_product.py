@@ -20,6 +20,7 @@ class ProductProduct(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'default_code, name, id'
     _clear_cache_name = 'default'
+    _storage = 'mongodb'
     _clear_cache_on_fields = {
         'active',  # _get_first_possible_variant_id
         'product_template_attribute_value_ids',  # _get_variant_id_for_combination
@@ -1086,6 +1087,31 @@ class ProductProduct(models.Model):
                 product.display_name = get_display_name(name, product.default_code)
 
     @api.model
+    def _inline_sql(self, product_id, path):
+        """ SQL expression of ``path`` (a field of product.product, or a dotted path through its
+        many2ones) for the product whose id is the SQL column ``product_id``.
+
+        product_product and product_template live in MongoDB, so SQL reports cannot join them:
+        the values are read through the ORM and inlined as a CASE on the PostgreSQL foreign key
+        column, the device ``uom.uom._factor_sql`` uses for factors. Company-dependent fields
+        read in the current company.
+        """
+        model = self
+        for name in path.split('.'):
+            field = model._fields[name]
+            if field.relational:
+                model = self.env[field.comodel_name]
+        cast = {'many2one': 'integer', 'integer': 'integer', 'float': 'numeric', 'monetary': 'numeric'}.get(field.type, 'varchar')
+        whens = []
+        for product in self.sudo().with_context(active_test=False).search([]):
+            value = product.mapped(path)
+            value = value.id if isinstance(value, models.BaseModel) else value[0] if value else None
+            whens.append(SQL("WHEN %s THEN %s::" + cast, product.id, value or None))
+        if not whens:
+            return SQL("NULL::" + cast)
+        return SQL("(CASE %s %s END)", product_id, SQL(" ").join(whens))
+
+    @api.model
     def _search_display_name(self, operator, value):
         is_positive = operator not in Domain.NEGATIVE_OPERATORS
         template_domains = [[('name', operator, value)]]
@@ -1119,30 +1145,16 @@ class ProductProduct(models.Model):
 
         # Disable active_test to simplify subqueries
         self_no_active_test = self.with_context(active_test=False)
-        queries = [
-            self_no_active_test._search([
-                ('product_tmpl_id', 'in', self_no_active_test.env['product.template']._search(Domain.OR(template_domains)))
-            ]),
-            self_no_active_test._search(Domain.OR(product_domains)),
+        domains = [
+            Domain('product_tmpl_id', 'in', self_no_active_test.env['product.template']._search(Domain.OR(template_domains))),
+            Domain.OR(product_domains),
         ]
         if supplier_domain:
-            queries.append(
-                self_no_active_test._search([
-                    (
-                        'product_tmpl_id',
-                        'in',
-                        self_no_active_test.env['product.supplierinfo']._search(supplier_domain).subselect(SQL('product_tmpl_id')),
-                    )
-                ])
-            )
-        query = SQL(
-            """(%s)""",
-            SQL("UNION ALL").join(
-                [SQL("(%s)", query.select()) for query in queries]
-            )
-        )
+            # product.supplierinfo is stored in MongoDB: its query yields ids, not a column sub-select
+            sellers = self_no_active_test.env['product.supplierinfo'].search(supplier_domain)
+            domains.append(Domain('product_tmpl_id', 'in', sellers.product_tmpl_id.ids))
 
-        return [('id', 'in', query)]
+        return [('id', 'in', self_no_active_test._search(Domain.OR(domains)))]
 
     @api.model
     def name_search(self, name='', domain=None, operator='ilike', limit=100):

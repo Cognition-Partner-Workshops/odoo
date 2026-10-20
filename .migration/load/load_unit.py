@@ -67,7 +67,19 @@ def convert(fields, values, into):
     return into
 
 
+def relation_documents(cur, coll_spec):
+    """A relation table kept as its own collection, keyed by its natural (composite) key: one document per
+    pair, shaped as the storage path writes them (``{column1Target: id, column2Target: id}``, _id left to the
+    driver)."""
+    key = coll_spec['key']
+    if coll_spec['fields'] or coll_spec['embeds'] or len(key['source']) != 2 or len(key['target']) != 2:
+        raise SystemExit(f'{coll_spec["collection"]}: only two-column relation tables without fields or embeds are supported')
+    return [dict(zip(key['target'], map(int, row))) for row in select(cur, coll_spec['root_table'], key['source'], key['source'])]
+
+
 def documents(cur, coll_spec):
+    if isinstance(coll_spec['key']['target'], list):
+        return relation_documents(cur, coll_spec)
     if coll_spec['key']['source'] != ['id'] or coll_spec['key']['target'] != '_id':
         raise SystemExit(f'{coll_spec["collection"]}: only roots keyed by id -> _id are supported')
     fields = coll_spec['fields']
@@ -105,7 +117,7 @@ def validate(name, coll_spec, docs):
         for doc in docs:
             key = bson.encode({field: doc.get(field) for field, _ in key_spec})
             if key in seen:
-                raise SystemExit(f'{name}: duplicate value for unique index {key_spec} at _id={doc["_id"]}; nothing was changed')
+                raise SystemExit(f'{name}: duplicate value for unique index {key_spec} at {doc.get("_id", doc)}; nothing was changed')
             seen.add(key)
 
 

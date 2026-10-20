@@ -9,6 +9,7 @@ class ProductUom(models.Model):
     _name = 'product.uom'
     _description = 'Link between products and their UoMs'
     _rec_name = 'barcode'
+    _storage = 'mongodb'
 
     uom_id = fields.Many2one('uom.uom', 'Unit', required=True, index=True, ondelete='cascade')
     product_id = fields.Many2one('product.product', 'Product', required=True, index=True, ondelete='cascade')

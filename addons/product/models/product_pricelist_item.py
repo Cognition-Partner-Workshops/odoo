@@ -11,6 +11,7 @@ class ProductPricelistItem(models.Model):
     _description = "Pricelist Rule"
     _order = "applied_on, min_quantity desc, categ_id desc, id desc"
     _check_company_auto = True
+    _storage = 'mongodb'
 
     def _default_pricelist_id(self):
         return self.env['product.pricelist'].search([

@@ -13,6 +13,7 @@ class ProductPricelist(models.Model):
     _description = "Pricelist"
     _rec_names_search = ('name', 'currency_id')  # TODO check if should be removed
     _order = "sequence, id, name"
+    _storage = 'mongodb'
 
     def _default_currency_id(self):
         return self.env.company.currency_id.id

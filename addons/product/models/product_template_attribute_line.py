@@ -14,6 +14,7 @@ class ProductTemplateAttributeLine(models.Model):
     _rec_names_search = ('attribute_id', 'value_ids')
     _description = "Product Template Attribute Line"
     _order = 'sequence, attribute_id, id'
+    _storage = 'mongodb'
 
     active = fields.Boolean(default=True)
     product_tmpl_id = fields.Many2one(

@@ -220,3 +220,77 @@ for table, cols in (('product_tag', "name->>'en_US', sequence, color, visible_to
                     ('product_category_stock_picking_type_rel', 'stock_picking_type_id')):
     env.cr.execute(f"SELECT * FROM (SELECT {cols} FROM {table}) t ORDER BY 1")
     print(table, env.cr.fetchall())
+
+# --- w2-b02 (unit product-catalog): the two roots and seven junction/child arrays with 0 fixture rows (units.json recon_unverified) ---
+# productPricelist / productPricelistItem, productTemplate.uomUomRel, productProduct.{customerProductReference, uomUomRel,
+# productUom}, productTemplateAttributeValue.{purchaseOrderLineRel, saleOrderLineRel, templateAttributeValueStockMoveRel}.
+# Anchored on the fixture's 'Customizable Desk' (template 9: two attribute lines, five variants) and Acme Corporation.
+CATALOG_TEMPLATE_ID = 9
+CATALOG_PARTNER_ID = 10
+SEEDED_BARCODE = 'SEED-DOZEN-0096'
+
+Pricelist = env['product.pricelist']
+if Pricelist.search_count([]):
+    print(f"product.pricelist already seeded: {Pricelist.search_count([])} rows")
+else:
+    template = env['product.template'].browse(CATALOG_TEMPLATE_ID)
+    variant = template.product_variant_ids.sorted('id')[0]
+    partner = env['res.partner'].browse(CATALOG_PARTNER_ID)
+    dozen = env.ref('uom.product_uom_dozen')
+    pack6 = env.ref('uom.product_uom_pack_6')
+    ptavs = template.attribute_line_ids.sorted('id').mapped(lambda line: line.product_template_value_ids.sorted('id')[0])
+    assert template and variant and partner and len(ptavs) == 2, f"seed inputs on this clone: {template.ids} {variant.ids} {partner.ids} {ptavs.ids}"
+    pricelists = Pricelist.create([
+        {'name': 'Seeded wholesale', 'sequence': 5, 'item_ids': [
+            (0, 0, {'applied_on': '1_product', 'product_tmpl_id': template.id, 'compute_price': 'fixed', 'fixed_price': 950.0, 'min_quantity': 2}),
+            (0, 0, {'applied_on': '3_global', 'compute_price': 'discount', 'price_discount': 10.0}),
+        ]},
+        {'name': 'Seeded retail (inactive)', 'active': False},  # a root without an array
+    ])
+    template.write({'uom_ids': [(6, 0, (dozen | pack6).ids)]})
+    variant.write({'extra_uom_ids': [(6, 0, dozen.ids)]})
+    product_uom = env['product.uom'].create({'product_id': variant.id, 'uom_id': dozen.id, 'barcode': SEEDED_BARCODE})
+    reference = env['customer.product.reference'].create({
+        'product_id': variant.id, 'partner_id': partner.id, 'customer_product_reference': 'ACME-DESK-0096'})
+    sale = env['sale.order'].create({'partner_id': partner.id, 'order_line': [
+        (0, 0, {'product_id': variant.id, 'product_no_variant_attribute_value_ids': [(6, 0, ptavs[0].ids)]})]})
+    sale.order_line.write({'product_no_variant_attribute_value_ids': [(6, 0, ptavs[0].ids)]})
+    purchase = env['purchase.order'].create({'partner_id': partner.id, 'order_line': [
+        (0, 0, {'product_id': variant.id, 'product_no_variant_attribute_value_ids': [(6, 0, ptavs.ids)]})]})
+    warehouse = env.ref('stock.warehouse0')
+    move = env['stock.move'].create({
+        'product_id': variant.id, 'product_uom_qty': 1.0,
+        'location_id': warehouse.lot_stock_id.id, 'location_dest_id': env.ref('stock.stock_location_customers').id,
+        'never_product_template_attribute_value_ids': [(6, 0, ptavs[1].ids)]})
+    env.flush_all()
+    pin('product_pricelist', pricelists.ids)
+    pin('product_pricelist_item', pricelists.item_ids.ids)
+    pin('product_uom', product_uom.ids)
+    pin('customer_product_reference', reference.ids)
+    pin('product_template', template.ids)
+    pin('product_product', variant.ids)
+    print(f"product.pricelist seeded: ids {pricelists.ids}, items {pricelists.item_ids.ids}; template {template.id} uom_ids {(dozen | pack6).ids}; "
+          f"variant {variant.id} extra_uom_ids {dozen.ids}, product.uom {product_uom.id}, customer.product.reference {reference.id}; "
+          f"sale {sale.id} line {sale.order_line.ids} -> ptav {ptavs[0].id}; purchase {purchase.id} line {purchase.order_line.ids} -> ptavs {ptavs.ids}; "
+          f"stock.move {move.id} -> ptav {ptavs[1].id}")
+# every row of the unit's tables carries the fixture instant again: the shared sections above and the orders
+# created here bump write_date on templates/variants they touch, and recon grades those columns on a verifier's reseed
+for table in ('product_template', 'product_product', 'product_template_attribute_line', 'product_template_attribute_value',
+              'product_combo', 'product_combo_item', 'product_supplierinfo', 'product_pricelist', 'product_pricelist_item',
+              'product_uom', 'customer_product_reference'):
+    env.cr.execute(f"UPDATE {table} SET create_date = %s, write_date = %s WHERE create_date <> %s OR write_date <> %s",
+                   (FIXED_INSTANT, FIXED_INSTANT, FIXED_INSTANT, FIXED_INSTANT))
+    if env.cr.rowcount:
+        print(f"{table}: {env.cr.rowcount} rows re-pinned to {FIXED_INSTANT}")
+env.cr.commit()
+for table, cols in (('product_pricelist', "name->>'en_US', active"),
+                    ('product_pricelist_item', 'pricelist_id, applied_on, compute_price'),
+                    ('product_template_uom_uom_rel', 'product_template_id, uom_uom_id'),
+                    ('product_product_uom_uom_rel', 'product_product_id, uom_uom_id'),
+                    ('product_uom', 'product_id, uom_id, barcode'),
+                    ('customer_product_reference', 'product_id, partner_id, customer_product_reference'),
+                    ('product_template_attribute_value_sale_order_line_rel', 'product_template_attribute_value_id, sale_order_line_id'),
+                    ('product_template_attribute_value_purchase_order_line_rel', 'product_template_attribute_value_id, purchase_order_line_id'),
+                    ('template_attribute_value_stock_move_rel', 'template_attribute_value_id, move_id')):
+    env.cr.execute(f"SELECT * FROM (SELECT {cols} FROM {table}) t ORDER BY 1, 2")
+    print(table, env.cr.fetchall())

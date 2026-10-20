@@ -1,0 +1,62 @@
+collection prefix 'odoo_w2b02__'
+33 collections copied under the prefix (fresh copies of the live documents)
+PASS product.template rows -- 37 rows
+PASS product.product rows -- 47 rows
+PASS product.template.attribute.value rows -- 24 rows
+PASS product.template.attribute.line rows (embedded in productTemplate.attributeLine) -- 9 rows
+PASS product.supplierinfo rows -- 28 rows
+PASS product.pricelist rows -- 2 rows
+PASS product.pricelist.item rows -- 2 rows
+PASS product.combo rows -- 3 rows
+PASS product.combo.item rows (embedded in productCombo.item) -- 8 rows
+PASS product.uom rows (embedded in productProduct.productUom) -- 1 rows
+FAIL customer.product.reference rows (embedded element keyed by partnerId: shared storage path reads partner_id as the record id, reported to the manager) -- [(10, (13, 10, 'ACME-DESK-0096'), None)]
+PASS translated template names
+PASS translated pricelist names
+PASS template.uom_ids = productTemplate.uomUomRel -- 2 pairs
+PASS template.optional_product_ids = productTemplate.productOptionalRel -- 3 pairs
+PASS template.attribute_line_ids = productTemplate.attributeLine -- 9 pairs
+PASS line.value_ids = relation collection (served from MongoDB) -- 24 pairs
+PASS value.pav_attribute_line_ids = relation collection (other side, PostgreSQL model w1-b05) -- 24 pairs
+PASS relation table is served from MongoDB
+PASS variant.product_template_attribute_value_ids = productProduct.productVariantCombination -- 20 pairs
+PASS ptav.ptav_product_variant_ids (other side of the array) -- 20 pairs
+PASS variant.extra_uom_ids = productProduct.uomUomRel -- 1 pairs
+PASS variant.product_uom_ids = productProduct.productUom -- 1 pairs
+PASS ptav.excluded_value_ids = productTemplateAttributeValue.productTemplateAttributeExcludedValueIdsRel -- 1 pairs
+PASS sale.order.line.product_no_variant_attribute_value_ids (PostgreSQL side of productTemplateAttributeValue.saleOrderLineRel) -- 1 pairs
+PASS purchase.order.line.product_no_variant_attribute_value_ids (PostgreSQL side of purchaseOrderLineRel) -- 2 pairs
+PASS stock.move.never_product_template_attribute_value_ids (PostgreSQL side of templateAttributeValueStockMoveRel) -- 1 pairs
+PASS combo.combo_item_ids = productCombo.item -- 8 pairs
+PASS template.combo_ids = productCombo.productTemplateRel -- 3 pairs
+PASS pricelist.item_ids = productPricelistItem.pricelistId -- 2 pairs
+PASS template.seller_ids = productSupplierinfo.productTmplId -- 28 pairs
+PASS product.product name_search by default_code (rewritten _search_display_name) -- 6
+PASS product.product name_search by template name -- 15
+PASS product.product name_search with partner_id context (supplierinfo branch, ids instead of a sub-select) -- (17, False, False)
+PASS product.template name_search reaches variants by default_code (rewritten UNION)
+PASS product.template negative name_search
+PASS pricelist fixed rule at min_quantity -- 950.0
+PASS pricelist global discount below min_quantity
+PASS _select_seller picks the PostgreSQL-ordered vendor line -- (20, [(20,)])
+PASS variant count per template
+PASS order by sequence on pricelists
+PASS domain through many2one into a sibling MongoDB model
+PASS read_group on productSupplierinfo by partner
+PASS sale.report _read_group by product_id runs -- 51
+PASS purchase.report _read_group by product_id runs -- 32
+PASS account.invoice.report _read_group by product_id runs -- 61
+PASS report.stock.quantity reads (PostgreSQL view joining the legacy product columns: finding for the owner)
+PASS stock.avco.report reads (PostgreSQL view joining the legacy product columns: finding for the owner)
+PASS vendor.delay.report reads (PostgreSQL view joining the legacy product columns: finding for the owner)
+PASS template create writes the document
+PASS attribute line creates variants
+PASS line values land in the relation collection
+PASS template attribute values created
+PASS template write updates scalar and junction array
+PASS supplierinfo and pricelist item documents
+PASS new pricelist rule applies
+PASS removing a line value pulls the relation document
+PASS rollback restores every collection
+PASS no collection created outside the prefix
+58/59 checks passed; failed: ['customer.product.reference rows (embedded element keyed by partnerId: shared storage path reads partner_id as the record id, reported to the manager)']
