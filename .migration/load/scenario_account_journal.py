@@ -144,11 +144,22 @@ check('relation collection: tax pair inserted', rel.find_one({'accountReconcileM
 line.write({'tax_ids': [(3, tax.id)]})
 env.flush_all()
 check('relation collection: tax pair removed', rel.find_one({'accountReconcileModelLineId': line.id, 'accountTaxId': tax.id}) is None)
+analytic_account = env['account.analytic.account'].search([('company_id', 'in', (False, company.id))], limit=1)
 new_model = Model.create({'name': 'Scenario model', 'rule_type': model.rule_type, 'company_id': company.id,
                           'match_partner_ids': [(6, 0, env['res.partner'].search([('is_company', '=', True)], limit=1).ids)],
-                          'line_ids': [(0, 0, {'account_id': new_journal.default_account_id.id or env['account.account'].search([('company_ids', 'in', company.id)], limit=1).id, 'amount_type': 'percentage', 'amount_string': '100'})]})
+                          'line_ids': [(0, 0, {'account_id': new_journal.default_account_id.id or env['account.account'].search([('company_ids', 'in', company.id)], limit=1).id, 'amount_type': 'percentage', 'amount_string': '100',
+                                               'analytic_distribution': {str(analytic_account.id): 100} if analytic_account else False})]})
 doc = st.collection('accountReconcileModel').find_one({'_id': new_model.id})
 check('reconcile model create with partner relation and line', doc and len(doc['resPartnerRel']) == 1 and len(doc['line']) == 1 and doc['line'][0]['id'] == new_model.line_ids.id)
+if analytic_account:
+    # (set at create time: writing a Json field on a MongoDB-stored model fails in storage_mongodb.write_multi,
+    #  `unhashable type: 'dict'` -- shared storage-path gap reported on the ticket, not patched here)
+    Line = env['account.reconcile.model.line']
+    check('analytic_distribution search in / not in / ilike on a MongoDB-stored analytic.mixin',
+          Line.search([('analytic_distribution', 'in', [analytic_account.id])]).ids == new_model.line_ids.ids
+          and new_model.line_ids not in Line.search([('analytic_distribution', 'not in', [analytic_account.id])])
+          and line in Line.search([('analytic_distribution', 'not in', [analytic_account.id])])
+          and new_model.line_ids in Line.search([('analytic_distribution', 'ilike', analytic_account.name)]))
 new_model.unlink()
 new_journal.unlink()
 env.flush_all()

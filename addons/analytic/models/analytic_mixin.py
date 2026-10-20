@@ -109,6 +109,16 @@ class AnalyticMixin(models.AbstractModel):
 
         # keys can be comma-separated ids, we will split those into an array and then make an array comparison with the list of ids to check
         ids = [str(id_) for id_ in ids if id_]  # list of ids -> list of string
+        if self._storage == 'mongodb':
+            # the documents hold the distribution: the membership test runs on the read values
+            # (``not in`` keeps the records without a distribution, as the SQL form does)
+            wanted = set(ids)
+            matching = [
+                record.id
+                for record in self.sudo().with_context(active_test=False).search_fetch(Domain.TRUE, ['analytic_distribution'])
+                if any(wanted & set(key.split(',')) for key in (record.analytic_distribution or {}))
+            ]
+            return Domain('id', operator, matching)
         if operator == 'in':
             return Domain.custom(to_sql=lambda table: SQL(
                 "%s && %s",
