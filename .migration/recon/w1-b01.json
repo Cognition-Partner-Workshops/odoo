@@ -1,0 +1,16 @@
+{
+  "batch": "w1-b01",
+  "status": "PASS",
+  "recon_results": [".migration/recon/stock-reference/result.json"],
+  "fixture_results": [".migration/recon/stock-reference/fixture/result.json"],
+  "write_targets": ["odoo_unt12.stockStorageCategory", "odoo_unt12.stockScrapReasonTag", "odoo_unt12.returnReason"],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/56",
+  "branch": "devin/1792502915-w1-b01-stock-reference",
+  "failure_class": "",
+  "manifest_sha": "b965d1e5f34e",
+  "plugin_sha": "9a584b4cdb311ddd64fb07cbd1cf35fc9485062c",
+  "mapping_version": "map-draft-2",
+  "recon_tolerances_version": "unt12-3",
+  "tier_checks": {"live": [5, 15, 14, 3], "fixture": [3, 15, 14, 3]},
+  "one_line_summary": "stock-reference: live PASS, merge_eligible true, 0 warnings; fixture PASS; 30/30 ORM scenario checks on the storage path"
+}
