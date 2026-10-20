@@ -5,6 +5,7 @@ from odoo.tools import SQL, float_is_zero
 
 class StockAverageCostReport(models.AbstractModel):
     _auto = False
+    _uom_factor_view = True  # rebuilt by uom.uom._rebuild_factor_views()
     _name = 'stock.avco.report'
     _description = 'Stock AVCO Justifier'
     _order = 'date desc, id desc'

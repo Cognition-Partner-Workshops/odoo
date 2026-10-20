@@ -188,6 +188,15 @@ new_uom.write({'relative_factor': 8})
 env.flush_all()
 check('uom write: factor recomputed', new_uom.factor == 8 * unit.factor
       and st.collection('uomUom').find_one({'_id': new_uom.id})['factor'].to_decimal() == Decimal(8) * Decimal(str(unit.factor)))
+
+
+def view_factor_rows(view):
+    cr.execute("SELECT pg_get_viewdef(%s::regclass)", (view,))
+    return cr.fetchone()[0].replace(' ', '').replace('\n', '')
+
+
+check('factor views rebuilt on uom write', all(f'({new_uom.id},8.0)' in view_factor_rows(v)
+      for v in ('report_stock_quantity', 'vendor_delay_report', 'stock_avco_report')))
 try:
     with cr.savepoint():
         Uom.create({'name': 'Zero ratio', 'relative_uom_id': unit.id, 'relative_factor': 0})
@@ -233,6 +242,7 @@ check('package type unlink: document and shadow gone', st.collection('stockPacka
 new_uom.unlink()
 env.flush_all()
 check('uom unlink', st.collection('uomUom').find_one({'_id': new_uom.id}) is None)
+check('factor views rebuilt on uom unlink', f'({new_uom.id},' not in view_factor_rows('report_stock_quantity'))
 
 invoiced = rows("""SELECT pt.id FROM account_move_line l JOIN product_product pp ON l.product_id = pp.id
     JOIN product_template pt ON pp.product_tmpl_id = pt.id WHERE l.parent_state = 'posted' AND l.product_uom_id = pt.uom_id

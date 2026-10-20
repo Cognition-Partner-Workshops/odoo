@@ -8,6 +8,7 @@ class ReportStockQuantity(models.Model):
     _name = 'report.stock.quantity'
     _auto = False
     _description = 'Stock Quantity Report'
+    _uom_factor_view = True  # rebuilt by uom.uom._rebuild_factor_views()
 
     _depends = {
         'product.product': ['product_tmpl_id'],

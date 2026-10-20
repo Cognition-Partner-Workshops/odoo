@@ -75,9 +75,32 @@ class UomUom(models.Model):
     @api.model
     def _factor_values_sql(self) -> tools.SQL:
         """ ``(VALUES (id, factor), ...)`` of every unit, for FROM clauses of SQL views
-        built in ``init()``; such a view holds the factors as of its last (re)build. """
+        built in ``init()``. A model flagged ``_uom_factor_view = True`` is rebuilt by
+        :meth:`_rebuild_factor_views` whenever a factor can change. """
         rows = [tools.SQL("(%s, %s::numeric)", row['id'], row['factor']) for row in self._factor_rows()]
         return tools.SQL("(VALUES %s)", tools.SQL(", ").join(rows or [tools.SQL("(NULL::integer, NULL::numeric)")]))
+
+    def _rebuild_factor_views(self):
+        for name, cls in self.env.registry.items():
+            if getattr(cls, '_uom_factor_view', False):
+                self.env[name].init()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        uoms = super().create(vals_list)
+        uoms._rebuild_factor_views()
+        return uoms
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'relative_factor' in vals or 'relative_uom_id' in vals:
+            self._rebuild_factor_views()
+        return result
+
+    def unlink(self):
+        result = super().unlink()
+        self._rebuild_factor_views()
+        return result
 
     # === COMPUTE METHODS === #
 

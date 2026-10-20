@@ -32,5 +32,5 @@
       4
     ]
   },
-  "one_line_summary": "uom-packaging: live PASS, merge_eligible true, 0 warnings; fixture PASS; 43/43 ORM scenario checks on the storage path; purchase.report/vendor.delay.report/stock.avco.report (product-taxonomy rows) got the uom-factor substitution too"
+  "one_line_summary": "uom-packaging: live PASS, merge_eligible true, 0 warnings; fixture PASS; 45/45 ORM scenario checks on the storage path; purchase.report/vendor.delay.report/stock.avco.report (product-taxonomy rows) got the uom-factor substitution too"
 }

@@ -9,6 +9,7 @@ class VendorDelayReport(models.Model):
     _name = 'vendor.delay.report'
     _description = "Vendor Delay Report"
     _auto = False
+    _uom_factor_view = True  # rebuilt by uom.uom._rebuild_factor_views()
 
     partner_id = fields.Many2one('res.partner', 'Vendor', readonly=True)
     product_id = fields.Many2one('product.product', 'Product', readonly=True)
