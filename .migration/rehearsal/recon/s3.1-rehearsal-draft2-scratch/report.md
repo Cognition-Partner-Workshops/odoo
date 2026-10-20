@@ -3,11 +3,11 @@
 - **Verdict: FAIL** (values redacted)
 - Mode: `fixture` (fixture data: NOT a merge verdict, run live once before merging) | Target: `local` (local target: NOT a merge verdict)
 - Merge eligible: no (fixture/continuous evidence never merges)
-- Mapping version: `map-draft-2` (sha256 `0224f0ceaf0b`)
+- Mapping version: `map-draft-2` (sha256 `88650faf41b7`)
 - Tolerance version: `unt12-2` (sha256 `2bfd841d50ca`)
 - Collections: `accountAccount`, `accountAccountTag`, `accountBankStatement`, `accountBankStatementLine`, `accountCashRounding`, `accountFiscalPosition`, `accountFullReconcile`, `accountIncoterms`, `accountJournal`, `accountJournalGroup`, `accountLockException`, `accountMove`, `accountMoveLine`, `accountPayment`, `accountPaymentMethod`, `accountPaymentTerm`, `accountReconcileModel`, `accountReconcileModelLineAccountTaxRel`, `accountReport`, `accountReportExpression`, `accountReportExternalValue`, `accountTax`, `accountTaxGroup`, `accountTaxRepartitionLine`, `productAttribute`, `productAttributeValueProductTemplateAttributeLineRel`, `productBaseUnit`, `productCategory`, `productCombo`, `productDocument`, `productPricelist`, `productPricelistItem`, `productProduct`, `productRemoval`, `productSupplierinfo`, `productTag`, `productTemplate`, `productTemplateAttributeValue`, `productValue`, `purchaseOrder`, `purchaseOrderLine`, `returnReason`, `saleOrder`, `saleOrderLine`, `stockLocation`, `stockLot`, `stockMove`, `stockMoveLine`, `stockPackage`, `stockPackageHistory`, `stockPackageType`, `stockPicking`, `stockPickingBatch`, `stockPickingType`, `stockPutawayRule`, `stockQuant`, `stockReference`, `stockRoute`, `stockRule`, `stockScrapReasonTag`, `stockStorageCategory`, `stockStorageCategoryCapacity`, `stockWarehouse`, `stockWarehouseOrderpoint`, `uomUom`, `accountPartialReconcile`
 - Seed: `1`
-- Generated: 2026-10-20T04:14:21.961888+00:00
+- Generated: 2026-10-20T04:21:13.132056+00:00
 - 1212 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 310 string fields: min/max/distinct deferred to Tier 3
 

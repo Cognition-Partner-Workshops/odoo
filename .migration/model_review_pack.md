@@ -1,10 +1,10 @@
 # Schema sign-off pack — s3.1 (board UNT12, ticket UNT12-9)
 
-Plugin pinned at `9a584b4` (unpatched). Committed spec: `map-draft-1` (sha256 `f85e20f9a5932b72f5316d24e3dc7f197001b804b3c0dfe49a98a2ca6caa88c1`). Scratch answered spec: `map-draft-2` (sha256 `0224f0ceaf0b3378e8d7723a1c94f366ebbbf34de986304d3c5e5c06157840c9`, `.migration/rehearsal/mapping_spec.map-draft-2.scratch.json`, built by `.migration/rehearsal/scratch_draft2.sh`). Rendered review pages: `.migration/model_cards.md` (map-draft-1) and `.migration/rehearsal/model_cards.map-draft-2.scratch.md` (map-draft-2).
+Plugin pinned at `9a584b4` (unpatched). Committed spec: `map-draft-1` (sha256 `f85e20f9a5932b72f5316d24e3dc7f197001b804b3c0dfe49a98a2ca6caa88c1`). Scratch answered spec: `map-draft-2` (sha256 `88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc`, `.migration/rehearsal/mapping_spec.map-draft-2.scratch.json`, built by `.migration/rehearsal/scratch_draft2.sh`). Rendered review pages: `.migration/model_cards.md` (map-draft-1) and `.migration/rehearsal/model_cards.map-draft-2.scratch.md` (map-draft-2).
 
 ## 1. Where this stands (read first)
 
-- Every open item of `map-draft-1` has an answer: 11 answer lines in `.migration/answers.txt` plus 16 hand-written decisions in `.migration/design_decisions.json` (the answer lines compile to 182 decisions; the scratch spec records 198 decisions in all). Applied to a scratch copy they leave **0 `modeling.unresolved` and 0 collection/embed open questions**.
+- Every open item of `map-draft-1` has an answer: 11 answer lines in `.migration/answers.txt` plus 17 hand-written decisions in `.migration/design_decisions.json` (the answer lines compile to 182 decisions; the scratch spec records 199 decisions in all). Applied to a scratch copy they leave **0 `modeling.unresolved` and 0 collection/embed open questions**.
 - **The pinned plugin refuses to apply them to the committed spec** (exit 1): `model_patch.py` rejects any decision on `map-draft-1` with `dangling references after decisions` (299 referrer→target pairs, all pointing at collections of tables excluded by `--exclude-table`). Transcript: `.migration/rehearsal/patch_attempt.map-draft-1.txt`. Section 3 has the cause and the options; this is the gap the manager asked to report rather than patch.
 - `model_patch.py --check`: committed `map-draft-1` exits 1 (1460 `no rationale row`, 8 pending-decision lines, 0 other); scratch `map-draft-2` exits 1 with **exactly 1460 `no rationale row` lines and 0 other failures** — the 1460 FK edges into excluded tables are the only thing between the answered spec and exit 0 (section 2.3).
 - Local rehearsal (odoo_fixture → local mongo:7, `--target-class local`): 1709 documents in 66 collections; largest document 7585 bytes (0.0452% of 16 MB, `productAttribute`); longest array 46 elements (`accountFiscalPosition.accountTaxRel`). Recon fixture mode: map-draft-1 **FAIL**, scratch map-draft-2 **FAIL** (section 6: the failures are two float8 SUM rounding differences under zero tolerance, not row differences). A fixture PASS/FAIL proves the load path only, never parity.
@@ -37,7 +37,7 @@ Total: **580** (65 spec-wide `modeling.unresolved`, 515 collection and embed `op
 - `close transient_tables`: manager s3.1 note, recommended default — the 88 TransientModel wizard tables are scratch state the framework autovacuum deletes; none must survive cutover
 - `close extended_reference_candidate`: manager s3.1 note, recommended default — keep the reference, copy no fields: the ORM resolves these Many2one reads itself, and embed-level extended references are not supported by the patcher at plugin 9a584b4
 - `close source_index_not_exercised`: manager s3.1 note, recommended default — keep every unexercised source index as proposed, except on account_move where the 13 unexercised source indexes (12 index entries) are dropped by index decisions in design_decisions.json: the proposal's 67 indexes exceed MongoDB's 64-per-collection limit (the local rehearsal hit CannotCreateIndex); elsewhere no workload export was taken on odoo_src, so no drop has evidence and any drop is a later index decision
-- `close fanout_unmeasured`: manager s3.1 note, recommended default — these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's
+- `close fanout_unmeasured`: manager s3.1 note, recommended default — these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's
 - `close cascade_into_embed`: manager s3.1 note, recommended default — keep the embeds; Odoo deletes relation rows through the ORM (unlink of the other side), not through the database cascade, so on the MongoDB storage path the same ORM step pulls the element from every parent document; listed in the review pack as a storage-path responsibility
 - `close lob`: manager s3.1 note, recommended default — the 13 columns are TEXT/JSONB notes, descriptions and formulas (binaries live in the filestore, not in these tables); the measured maxima are in the data profile and the local rehearsal measures the largest document against 16 MB
 - `close single_valued_index_key`: manager s3.1 note, recommended default — odoo_src has one company and one currency, so these index keys show one value; the access-index plan stays as proposed because a wider domain on the real estate only improves selectivity
@@ -49,7 +49,8 @@ Total: **580** (65 spec-wide `modeling.unresolved`, 515 collection and embed `op
 - **note** — FK edges into excluded tables (1460 census relationships)
 - **note** — kpi_provider.get_kpi_summary runs without a registry (NOTES.md s2.3 row 23, blocked)
 - **note** — stock post_init_hook reads product_product.qty_available raw (NOTES.md s2.3 row 28, blocked)
-- **index** ×12 — remove the `accountMove` source-index entries no confirmed access pattern exercises (section 5.3).
+- **index** ×12 (drop) — remove the `accountMove` source-index entries no confirmed access pattern exercises (section 5.3).
+- **index** — add `accountPartialReconcile` [['debitMoveId', 1]]: AccountMoveLine._compute_amount_residual filters account_partial_reconcile by debit_move_id (hot); the restored collection keeps the proposer's creditMoveId+exchangeMoveId, companyId, exchangeMoveId and fullReconcileId indexes but none led by debit_move_id, so the debit-side lookup needs one (credit side is covered by the creditMoveId+exchangeMoveId prefix)
 
 Edges into excluded tables, what `--check` still lists after the answers:
 
@@ -1540,12 +1541,12 @@ Options for the manager: (a) pin a plugin SHA where the proposer skips reference
 
 ### 5.1 `account_partial_reconcile` keeps its own collection (manager note 2)
 
-The proposer embedded it under `account_move_line` through `debit_move_id` only. The confirmed hot reads `ap-26541a49e3` and `ap-d62ff6e982` (`AccountMove._get_all_reconciled_invoice_partials`) and `ap-8eda2da30f` (`AccountMoveLine._compute_amount_residual`) filter on both `debit_move_id` and `credit_move_id`; a partial has two parents. The `reference` decision restores `accountPartialReconcile` as a collection referenced from both sides (map-draft-2: 66 collections, 76 embeds; map-draft-1: 65 / 77).
+The proposer embedded it under `account_move_line` through `debit_move_id` only. The confirmed hot reads `ap-26541a49e3` and `ap-d62ff6e982` (`AccountMove._get_all_reconciled_invoice_partials`) and `ap-8eda2da30f` (`AccountMoveLine._compute_amount_residual`) filter on both `debit_move_id` and `credit_move_id`; a partial has two parents. The `reference` decision restores `accountPartialReconcile` as a collection referenced from both sides (map-draft-2: 66 collections, 76 embeds; map-draft-1: 65 / 77). Indexes on the restored collection: [['creditMoveId', 1], ['exchangeMoveId', 1]], [['companyId', 1]], [['exchangeMoveId', 1]], [['fullReconcileId', 1]], [['debitMoveId', 1]] (the `debitMoveId` one is an added index decision; `odoo_fixture` has 0 partial reconciles, so the fixture does not exercise these reads).
 
 ### 5.2 Blocked register items (NOTES.md §s2.3 rows 23 and 28; manager note 3)
 
 - **kpi_provider.get_kpi_summary runs without a registry (NOTES.md s2.3 row 23, blocked)** — Model-side answer: no spec change. The KPI query reads account_move.state, account_move.review_state, account_move.journal_id, account_move.statement_line_id, account_journal.type and account_bank_statement_line.is_reconciled; all six stay top-level fields of the accountMove, accountJournal and accountBankStatementLine collections (none is embedded), so the HTTP-layer endpoint can run the same filters as one aggregation on accountMove with $lookup on accountJournal and accountBankStatementLine, no registry needed. The information_schema probe that guards it becomes a check that the three collections exist. Until that rewrite ships, the endpoint returns [] (its own 'module not installed' path) once account_move leaves PostgreSQL; the PG id shadow cannot serve it because it has no state/journal columns. (evidence `addons/account/models/kpi_provider.py:31-71`)
-- **stock post_init_hook reads product_product.qty_available raw (NOTES.md s2.3 row 28, blocked)** — Model-side answer: no spec change. _create_inventory_adjustment reads the pre-stock stored JSONB column product_product.qty_available at `-i stock` time only. Keep product_product readable on the PostgreSQL side until stock is installed: in the wave plan product_product opts into MongoDB only after stock is installed on the target database (fresh installs: install stock before the product unit migrates), so the hook always finds the column in PostgreSQL. For databases where product_product is already Mongo-backed, the hook's query returns no rows against the id shadow (the shadow keeps id only) and the inventory adjustment is skipped, which is the hook's own behaviour on a database without stored quantities. The productProduct collection does not need a qty_available field: with stock installed the field is computed from stock_quant. (evidence `addons/stock/__init__.py:46-65`)
+- **stock post_init_hook reads product_product.qty_available raw (NOTES.md s2.3 row 28, blocked)** — Model-side answer: no spec change, an ordering rule for the plan. _create_inventory_adjustment reads the pre-stock stored JSONB column product_product.qty_available at `-i stock` time only. The rule: on every database that can install stock, stock is installed before product_product opts into MongoDB (fresh installs: `-i stock` before the product unit migrates; existing databases already have stock), so the hook always finds the column in PostgreSQL. This order must hold without exception: once product_product is Mongo-backed its PostgreSQL shadow keeps id only, the hook's SELECT fails with `column qty_available does not exist` (it does not return an empty result), and `-i stock` aborts. If the wave plan cannot guarantee the order, row 28 stays blocked and the storage-path wave owns a rewrite of the hook (detect a Mongo-backed product_product and skip or read the stored quantities from the product documents); that is ORM code and is not written here. The productProduct collection does not need a qty_available field: with stock installed the field is computed from stock_quant. (evidence `addons/stock/__init__.py:46-65`)
 
 No ORM code is written here; both are model-side answers for the plan.
 
@@ -1564,7 +1565,7 @@ Source `odoo_fixture` (odoo_fixture, built by `.migration/fixtures/build_fixture
 | largest document (bytes) | 7585 (productAttribute) | 7585 (productAttribute) |
 | largest document, % of 16 MB | 0.0452 | 0.0452 |
 | longest array | 46 (accountFiscalPosition.accountTaxRel) | 46 (accountFiscalPosition.accountTaxRel) |
-| indexes created / in spec | 631 / 635 (4 refused) | 622 / 622 (0 refused) |
+| indexes created / in spec | 631 / 635 (4 refused) | 623 / 623 (0 refused) |
 | recon verdict | FAIL | FAIL |
 
 Recon tiers (`.migration/rehearsal/recon/<unit>/result.json`, redacted values):
@@ -1580,7 +1581,7 @@ Recon tiers (`.migration/rehearsal/recon/<unit>/result.json`, redacted values):
 
 The Tier 2 findings are `SUM()` of float8 columns compared at `aggregate_rel_tol: 0`: PostgreSQL sums in row order and MongoDB `$sum` in document order, so the two doubles differ in the last place (seen with `--raw-values` in local scratch: -5081.860000000001 vs -5081.86 on `account_bank_statement_line.amount_residual`, 11979.099999999999 vs 11979.1 on `purchase_order_line.technical_price_unit`). Tier 3 keyed diffs pass on every row, so the values themselves match. Tolerances are not changed here; the manager decides whether float8 aggregates get a relative tolerance or a `decimal_round` rule.
 
-Environment note: the local container aborted once with a WiredTiger `Too many open files` panic while building the committed spec's ~630 indexes (container `nofile` limit, not a model property); it was restarted and both runs above completed on the restarted container.
+Environment note: the local container aborted once with a WiredTiger `Too many open files` panic while building the committed spec's ~630 indexes (the container's default `nofile` limit, not a model property); it was restarted with a compose override file raising `ulimits.nofile` to 65536 (the plugin's compose file is untouched) and the runs above completed on that container.
 
 Collections with 0 documents in odoo_fixture (17): `accountCashRounding`, `accountFullReconcile`, `accountJournalGroup`, `accountLockException`, `accountPayment`, `accountReconcileModelLineAccountTaxRel`, `accountReportExpression`, `accountReportExternalValue`, `productBaseUnit`, `productPricelist`, `productPricelistItem`, `productTag`, `stockPackageHistory`, `stockPutawayRule`, `stockScrapReasonTag`, `stockStorageCategoryCapacity`, `accountPartialReconcile`.
 
@@ -1653,7 +1654,7 @@ Per collection:
 | stockPutawayRule | 0 | 0 | 6/6 |  |
 | stockScrapReasonTag | 0 | 0 | 1/1 |  |
 | stockStorageCategoryCapacity | 0 | 0 | 3/3 |  |
-| accountPartialReconcile | 0 | 0 | 4/4 |  |
+| accountPartialReconcile | 0 | 0 | 5/5 |  |
 
 ## 7. Fan-out per embed (profile p50 / p99 / max on odoo_src; fixture max)
 

@@ -3,7 +3,7 @@
   "mode": "fixture",
   "target_class": "local",
   "mapping_version": "map-draft-2",
-  "mapping_sha256": "0224f0ceaf0b3378e8d7723a1c94f366ebbbf34de986304d3c5e5c06157840c9",
+  "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
   "tolerance_version": "unt12-2",
   "tolerance_sha256": "2bfd841d50ca4d44818b285c134b7f608270c1f1e731ed39cccff7d12badbcc1",
   "collections": [
@@ -77,7 +77,7 @@
   "seed": 1,
   "params": {},
   "snapshot": null,
-  "generated_at": "2026-10-20T04:14:21.961888+00:00",
+  "generated_at": "2026-10-20T04:21:13.132056+00:00",
   "redacted": true,
   "redaction_salted": false,
   "tiers": [

@@ -10,6 +10,21 @@
     }
   },
   {
+    "op": "index",
+    "collection": "accountPartialReconcile",
+    "keys": [
+      [
+        "debitMoveId",
+        1
+      ]
+    ],
+    "evidence": {
+      "kind": "access_pattern",
+      "ref": "ap-8eda2da30f",
+      "note": "AccountMoveLine._compute_amount_residual filters account_partial_reconcile by debit_move_id (hot); the restored collection keeps the proposer's creditMoveId+exchangeMoveId, companyId, exchangeMoveId and fullReconcileId indexes but none led by debit_move_id, so the debit-side lookup needs one (credit side is covered by the creditMoveId+exchangeMoveId prefix)"
+    }
+  },
+  {
     "op": "note",
     "subject": "FK edges into excluded tables (1460 census relationships)",
     "decision": "Tables in the shared_postgresql and orm_framework buckets (table_buckets.json, 379 excluded via --exclude-table) stay in PostgreSQL. Every FK column from a migrated collection into one of them (create_uid, write_uid, company_id, currency_id, partner_id, ...) remains a plain integer field holding the PostgreSQL id, resolved by the ORM across stores; edges between two excluded tables are not modeled. model_patch.py --check at 9a584b4 still reports these edges as 'no rationale row' because it consults modeling.excluded (the exclude decision) and not modeling.excluded_tables (the proposer's --exclude-table list): reported as a plugin gap on UNT12-9, not patched.",
@@ -30,7 +45,7 @@
   {
     "op": "note",
     "subject": "stock post_init_hook reads product_product.qty_available raw (NOTES.md s2.3 row 28, blocked)",
-    "decision": "Model-side answer: no spec change. _create_inventory_adjustment reads the pre-stock stored JSONB column product_product.qty_available at `-i stock` time only. Keep product_product readable on the PostgreSQL side until stock is installed: in the wave plan product_product opts into MongoDB only after stock is installed on the target database (fresh installs: install stock before the product unit migrates), so the hook always finds the column in PostgreSQL. For databases where product_product is already Mongo-backed, the hook's query returns no rows against the id shadow (the shadow keeps id only) and the inventory adjustment is skipped, which is the hook's own behaviour on a database without stored quantities. The productProduct collection does not need a qty_available field: with stock installed the field is computed from stock_quant.",
+    "decision": "Model-side answer: no spec change, an ordering rule for the plan. _create_inventory_adjustment reads the pre-stock stored JSONB column product_product.qty_available at `-i stock` time only. The rule: on every database that can install stock, stock is installed before product_product opts into MongoDB (fresh installs: `-i stock` before the product unit migrates; existing databases already have stock), so the hook always finds the column in PostgreSQL. This order must hold without exception: once product_product is Mongo-backed its PostgreSQL shadow keeps id only, the hook's SELECT fails with `column qty_available does not exist` (it does not return an empty result), and `-i stock` aborts. If the wave plan cannot guarantee the order, row 28 stays blocked and the storage-path wave owns a rewrite of the hook (detect a Mongo-backed product_product and skip or read the stored quantities from the product documents); that is ORM code and is not written here. The productProduct collection does not need a qty_available field: with stock installed the field is computed from stock_quant.",
     "evidence": {
       "file": "addons/stock/__init__.py:46-65",
       "note": "manager s3.1 note (3): keep product_product readable through the id shadow or the PG side; no ORM code"

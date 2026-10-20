@@ -587,8 +587,8 @@
               }
             ],
             "proposal": "account_account_tax_default_rel has no rows per account_account in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -1342,8 +1342,8 @@
               }
             ],
             "proposal": "account_account_tag_account_move_line_rel has no rows per account_account_tag in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -1367,8 +1367,8 @@
               }
             ],
             "proposal": "account_account_tag_account_tax_repartition_line_rel has no rows per account_account_tag in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -1392,8 +1392,8 @@
               }
             ],
             "proposal": "account_account_tag_product_template_rel has no rows per account_account_tag in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -3144,8 +3144,8 @@
               }
             ],
             "proposal": "account_cash_rounding_res_currency_rel has no rows per account_cash_rounding in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -3169,8 +3169,8 @@
               }
             ],
             "proposal": "account_cash_rounding_res_partner_category_rel has no rows per account_cash_rounding in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -3194,8 +3194,8 @@
               }
             ],
             "proposal": "account_cash_rounding_account_payment_method_line_rel has no rows per account_cash_rounding in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -3902,8 +3902,8 @@
               }
             ],
             "proposal": "account_fiscal_position_account has no rows per account_fiscal_position in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -3927,8 +3927,8 @@
               }
             ],
             "proposal": "account_fiscal_position_res_country_state_rel has no rows per account_fiscal_position in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -4908,8 +4908,8 @@
               }
             ],
             "proposal": "account_journal_account_reconcile_model_rel has no rows per account_journal in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -7517,8 +7517,8 @@
               }
             ],
             "proposal": "account_move__account_payment has no rows per account_move in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -7542,8 +7542,8 @@
               }
             ],
             "proposal": "account_move_purchase_order_rel has no rows per account_move in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -7567,8 +7567,8 @@
               }
             ],
             "proposal": "adjusting_entries__account_move has no rows per account_move in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -10658,8 +10658,8 @@
               }
             ],
             "proposal": "account_partial_reconcile has no rows per account_move_line in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -12359,8 +12359,8 @@
               }
             ],
             "proposal": "account_payment_account_bank_statement_line_rel has no rows per account_payment in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -14308,8 +14308,8 @@
               }
             ],
             "proposal": "account_reconcile_model_res_partner_rel has no rows per account_reconcile_model in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -15701,8 +15701,8 @@
               }
             ],
             "proposal": "account_report_line has no rows per account_report in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -15726,8 +15726,8 @@
               }
             ],
             "proposal": "account_report_section_rel has no rows per account_report in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           }
         ]
       },
@@ -17462,8 +17462,8 @@
               }
             ],
             "proposal": "account_tax_filiation_rel has no rows per account_tax in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -19462,8 +19462,8 @@
               }
             ],
             "proposal": "product_category_stock_picking_type_rel has no rows per product_category in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -22076,8 +22076,8 @@
               }
             ],
             "proposal": "customer_product_reference has no rows per product_product in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -22101,8 +22101,8 @@
               }
             ],
             "proposal": "product_product_uom_uom_rel has no rows per product_product in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -22126,8 +22126,8 @@
               }
             ],
             "proposal": "product_uom has no rows per product_product in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -23456,8 +23456,8 @@
               }
             ],
             "proposal": "product_tag_product_product_rel has no rows per product_tag in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -23481,8 +23481,8 @@
               }
             ],
             "proposal": "product_tag_product_template_rel has no rows per product_tag in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -24602,8 +24602,8 @@
               }
             ],
             "proposal": "product_template_uom_uom_rel has no rows per product_template in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -25760,8 +25760,8 @@
               }
             ],
             "proposal": "product_template_attribute_value_purchase_order_line_rel has no rows per product_template_attribute_value in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -25785,8 +25785,8 @@
               }
             ],
             "proposal": "product_template_attribute_value_sale_order_line_rel has no rows per product_template_attribute_value in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -25810,8 +25810,8 @@
               }
             ],
             "proposal": "template_attribute_value_stock_move_rel has no rows per product_template_attribute_value in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -28452,8 +28452,8 @@
               }
             ],
             "proposal": "purchase_order_line_accrual_move_rel has no rows per purchase_order_line in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -29959,8 +29959,8 @@
               }
             ],
             "proposal": "sale_order_transaction_rel has no rows per sale_order in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "lob",
@@ -31768,8 +31768,8 @@
               }
             ],
             "proposal": "product_attribute_custom_value has no rows per sale_order_line in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -31793,8 +31793,8 @@
               }
             ],
             "proposal": "sale_order_line_accrual_move_rel has no rows per sale_order_line in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -31818,8 +31818,8 @@
               }
             ],
             "proposal": "sale_order_line_invoice_rel has no rows per sale_order_line in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -31843,8 +31843,8 @@
               }
             ],
             "proposal": "sale_order_line_stock_route_rel has no rows per sale_order_line in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -32730,8 +32730,8 @@
               }
             ],
             "proposal": "stock_location_stock_picking_type_rel has no rows per stock_location in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -35025,8 +35025,8 @@
               }
             ],
             "proposal": "account_analytic_line_stock_move_rel has no rows per stock_move in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -35050,8 +35050,8 @@
               }
             ],
             "proposal": "stock_move_created_purchase_line_rel has no rows per stock_move in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -35075,8 +35075,8 @@
               }
             ],
             "proposal": "stock_move_move_rel has no rows per stock_move in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -35100,8 +35100,8 @@
               }
             ],
             "proposal": "stock_move_stock_scrap_reason_tag_rel has no rows per stock_move in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -36642,8 +36642,8 @@
               }
             ],
             "proposal": "stock_move_line_consume_rel has no rows per stock_move_line in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           }
         ]
       },
@@ -38526,8 +38526,8 @@
               }
             ],
             "proposal": "stock_package_history_stock_picking_rel has no rows per stock_package_history in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -39116,8 +39116,8 @@
               }
             ],
             "proposal": "stock_package_type_stock_putaway_rule_rel has no rows per stock_package_type in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -39141,8 +39141,8 @@
               }
             ],
             "proposal": "stock_package_type_stock_route_rel has no rows per stock_package_type in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -41392,8 +41392,8 @@
               }
             ],
             "proposal": "picking_type_favorite_user_rel has no rows per stock_picking_type in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           }
         ]
       },
@@ -44024,8 +44024,8 @@
               }
             ],
             "proposal": "stock_route_categ has no rows per stock_route in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -44049,8 +44049,8 @@
               }
             ],
             "proposal": "stock_route_move has no rows per stock_route in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "fanout_unmeasured",
@@ -44074,8 +44074,8 @@
               }
             ],
             "proposal": "stock_route_product has no rows per stock_route in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "cascade_into_embed",
@@ -46785,8 +46785,8 @@
               }
             ],
             "proposal": "stock_wh_resupply_table has no rows per stock_warehouse in the profiled source (child_rows=0); fan-out is unmeasured \u2014 profile a representative source or confirm a bound before embedding",
-            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
-            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's"
+            "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
+            "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's"
           },
           {
             "kind": "single_valued_index_key",
@@ -49195,6 +49195,21 @@
             {
               "kind": "decision",
               "ref": "access_pattern ap-26541a49e3: manager s3.1 note (2): the proposer embedded account_partial_reconcile under account_move_line through debit_move_id only, but the s2.2-confirmed hot reads ap-26541a49e3, ap-d62ff6e982 (AccountMove._get_all_reconciled_invoice_partials) and ap-8eda2da30f (AccountMoveLine._compute_amount_residual) filter on both debit_move_id and credit_move_id; a partial has two parents, so it keeps its own collection and account_move_line references it from both sides"
+            }
+          ]
+        },
+        {
+          "keys": [
+            [
+              "debitMoveId",
+              1
+            ]
+          ],
+          "origin": "decision",
+          "evidence": [
+            {
+              "kind": "decision",
+              "ref": "access_pattern ap-8eda2da30f: AccountMoveLine._compute_amount_residual filters account_partial_reconcile by debit_move_id (hot); the restored collection keeps the proposer's creditMoveId+exchangeMoveId, companyId, exchangeMoveId and fullReconcileId indexes but none led by debit_move_id, so the debit-side lookup needs one (credit side is covered by the creditMoveId+exchangeMoveId prefix)"
             }
           ]
         }
@@ -101983,6 +101998,23 @@
         "status": "PROPOSED"
       },
       {
+        "op": "index",
+        "collection": "accountPartialReconcile",
+        "keys": [
+          [
+            "debitMoveId",
+            1
+          ]
+        ],
+        "evidence": {
+          "kind": "access_pattern",
+          "ref": "ap-8eda2da30f",
+          "note": "AccountMoveLine._compute_amount_residual filters account_partial_reconcile by debit_move_id (hot); the restored collection keeps the proposer's creditMoveId+exchangeMoveId, companyId, exchangeMoveId and fullReconcileId indexes but none led by debit_move_id, so the debit-side lookup needs one (credit side is covered by the creditMoveId+exchangeMoveId prefix)"
+        },
+        "cited": "access_pattern ap-8eda2da30f: AccountMoveLine._compute_amount_residual filters account_partial_reconcile by debit_move_id (hot); the restored collection keeps the proposer's creditMoveId+exchangeMoveId, companyId, exchangeMoveId and fullReconcileId indexes but none led by debit_move_id, so the debit-side lookup needs one (credit side is covered by the creditMoveId+exchangeMoveId prefix)",
+        "status": "PROPOSED"
+      },
+      {
         "op": "note",
         "subject": "FK edges into excluded tables (1460 census relationships)",
         "decision": "Tables in the shared_postgresql and orm_framework buckets (table_buckets.json, 379 excluded via --exclude-table) stay in PostgreSQL. Every FK column from a migrated collection into one of them (create_uid, write_uid, company_id, currency_id, partner_id, ...) remains a plain integer field holding the PostgreSQL id, resolved by the ORM across stores; edges between two excluded tables are not modeled. model_patch.py --check at 9a584b4 still reports these edges as 'no rationale row' because it consults modeling.excluded (the exclude decision) and not modeling.excluded_tables (the proposer's --exclude-table list): reported as a plugin gap on UNT12-9, not patched.",
@@ -102007,7 +102039,7 @@
       {
         "op": "note",
         "subject": "stock post_init_hook reads product_product.qty_available raw (NOTES.md s2.3 row 28, blocked)",
-        "decision": "Model-side answer: no spec change. _create_inventory_adjustment reads the pre-stock stored JSONB column product_product.qty_available at `-i stock` time only. Keep product_product readable on the PostgreSQL side until stock is installed: in the wave plan product_product opts into MongoDB only after stock is installed on the target database (fresh installs: install stock before the product unit migrates), so the hook always finds the column in PostgreSQL. For databases where product_product is already Mongo-backed, the hook's query returns no rows against the id shadow (the shadow keeps id only) and the inventory adjustment is skipped, which is the hook's own behaviour on a database without stored quantities. The productProduct collection does not need a qty_available field: with stock installed the field is computed from stock_quant.",
+        "decision": "Model-side answer: no spec change, an ordering rule for the plan. _create_inventory_adjustment reads the pre-stock stored JSONB column product_product.qty_available at `-i stock` time only. The rule: on every database that can install stock, stock is installed before product_product opts into MongoDB (fresh installs: `-i stock` before the product unit migrates; existing databases already have stock), so the hook always finds the column in PostgreSQL. This order must hold without exception: once product_product is Mongo-backed its PostgreSQL shadow keeps id only, the hook's SELECT fails with `column qty_available does not exist` (it does not return an empty result), and `-i stock` aborts. If the wave plan cannot guarantee the order, row 28 stays blocked and the storage-path wave owns a rewrite of the hook (detect a Mongo-backed product_product and skip or read the stored quantities from the product documents); that is ORM code and is not written here. The productProduct collection does not need a qty_available field: with stock installed the field is computed from stock_quant.",
         "evidence": {
           "file": "addons/stock/__init__.py:46-65",
           "note": "manager s3.1 note (3): keep product_product readable through the id shadow or the PG side; no ORM code"
@@ -103743,14 +103775,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "accountAccount",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103758,14 +103790,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "accountAccountTag",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103773,14 +103805,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "accountCashRounding",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103788,14 +103820,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "accountFiscalPosition",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103803,14 +103835,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "accountJournal",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103818,14 +103850,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "accountMove",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103833,14 +103865,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "accountMoveLine",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103848,14 +103880,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "accountPayment",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103863,14 +103895,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "accountReconcileModel",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103878,14 +103910,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "accountReport",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103893,14 +103925,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "accountTax",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103908,14 +103940,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "productCategory",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103923,14 +103955,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "productProduct",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103938,14 +103970,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "productTag",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103953,14 +103985,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "productTemplate",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103968,14 +104000,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "productTemplateAttributeValue",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103983,14 +104015,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "purchaseOrderLine",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -103998,14 +104030,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "saleOrder",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -104013,14 +104045,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "saleOrderLine",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -104028,14 +104060,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "stockLocation",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -104043,14 +104075,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "stockMove",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -104058,14 +104090,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "stockMoveLine",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -104073,14 +104105,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "stockPackageHistory",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -104088,14 +104120,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "stockPackageType",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -104103,14 +104135,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "stockPickingType",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -104118,14 +104150,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "stockRoute",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {
@@ -104133,14 +104165,14 @@
         "match": {
           "kind": "fanout_unmeasured"
         },
-        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "resolution": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "evidence": {
           "source": "customer",
-          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+          "note": "manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
           "answers_line": 9
         },
         "collection": "stockWarehouse",
-        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; the fixture rehearsal exercises one synthetic outlier at 60 rows, and parity on the real estate is the recon harness's job, not this draft's",
+        "cited": "customer statement: manager s3.1 note, recommended default \u2014 these edges have 0 child rows in odoo_src (demo data), so the bound comes from the parent's UI-maintained relation list and policy max_embed_fanout=1000; these 49 edges also have 0 rows in odoo_fixture (the fixture's synthetic 60-line outlier is on product_supplierinfo, a referenced collection, not an embed; the longest embedded array in the rehearsal is 46), so the bound is confirmed by rule, not measured, and parity on the real estate is the recon harness's job, not this draft's",
         "status": "PROPOSED"
       },
       {

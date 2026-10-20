@@ -190,9 +190,12 @@ def main():
             continue
         subj = d.get("subject") or f"{d['op']} {d.get('child_table', '')} {d.get('from', '')}".strip()
         w(f"- **{d['op']}** — {subj}")
-    n_idx = sum(1 for d in hand if d["op"] == "index")
-    w(f"- **index** ×{n_idx} — remove the `accountMove` source-index entries no confirmed access pattern exercises "
+    n_idx = sum(1 for d in hand if d["op"] == "index" and d.get("drop"))
+    w(f"- **index** ×{n_idx} (drop) — remove the `accountMove` source-index entries no confirmed access pattern exercises "
       f"(section 5.3).")
+    for d in hand:
+        if d["op"] == "index" and not d.get("drop"):
+            w(f"- **index** — add `{d['collection']}` {d['keys']}: {d['evidence'].get('note')}")
     w("\nEdges into excluded tables, what `--check` still lists after the answers:\n")
     cat_rows = [(f"{c[0]} → {c[1]}", n) for c, n in sorted(cats.items(), key=lambda x: -x[1])]
     w(md_table(["edge (child side → parent side)", "edges"], cat_rows))
@@ -246,7 +249,9 @@ def main():
       "(`AccountMoveLine._compute_amount_residual`) filter on both `debit_move_id` and `credit_move_id`; a partial has "
       "two parents. The `reference` decision restores `accountPartialReconcile` as a collection referenced from both "
       f"sides ({spec2['version']}: {len(spec2['collections'])} collections, {sum(len(c['embeds']) for c in spec2['collections'])} embeds; "
-      f"{spec1['version']}: {len(spec1['collections'])} / {sum(len(c['embeds']) for c in spec1['collections'])}).\n")
+      f"{spec1['version']}: {len(spec1['collections'])} / {sum(len(c['embeds']) for c in spec1['collections'])}). Indexes on the restored "
+      f"collection: " + ", ".join(str(i["keys"]) for c in spec2["collections"] if c["collection"] == "accountPartialReconcile" for i in c["indexes"])
+      + " (the `debitMoveId` one is an added index decision; `odoo_fixture` has 0 partial reconciles, so the fixture does not exercise these reads).\n")
     w("### 5.2 Blocked register items (NOTES.md §s2.3 rows 23 and 28; manager note 3)\n")
     for d in hand:
         if d["op"] == "note" and ("kpi_provider" in d["subject"] or "post_init_hook" in d["subject"]):
@@ -293,8 +298,9 @@ def main():
       "match. Tolerances are not changed here; the manager decides whether float8 aggregates get a relative "
       "tolerance or a `decimal_round` rule.\n")
     w("Environment note: the local container aborted once with a WiredTiger `Too many open files` panic while "
-      "building the committed spec's ~630 indexes (container `nofile` limit, not a model property); it was restarted "
-      "and both runs above completed on the restarted container.\n")
+      "building the committed spec's ~630 indexes (the container's default `nofile` limit, not a model property); it was "
+      "restarted with a compose override file raising `ulimits.nofile` to 65536 (the plugin's compose file is untouched) "
+      "and the runs above completed on that container.\n")
     w(f"Collections with 0 documents in odoo_fixture ({len(empty2)}): " + ", ".join(f"`{c}`" for c in empty2) + ".\n")
     w("Per collection:\n")
     w(md_table(["collection", "documents", "max doc bytes", "indexes created/spec", "embeds (max array)"],

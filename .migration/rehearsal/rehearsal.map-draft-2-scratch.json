@@ -6,8 +6,8 @@
  "source_database": "odoo_fixture",
  "collections": 66,
  "documents": 1709,
- "indexes_in_spec": 622,
- "indexes_created": 622,
+ "indexes_in_spec": 623,
+ "indexes_created": 623,
  "indexes_failed": 0,
  "largest_document": {
   "collection": "productAttribute",
@@ -1537,8 +1537,8 @@
    "documents": 0,
    "max_doc_bytes": 0,
    "p50_doc_bytes": 0,
-   "indexes_in_spec": 4,
-   "indexes_created": 4,
+   "indexes_in_spec": 5,
+   "indexes_created": 5,
    "indexes_failed": [],
    "embeds": []
   }
