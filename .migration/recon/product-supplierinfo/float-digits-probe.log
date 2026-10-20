@@ -1,3 +1,4 @@
+# --- before UNT11-50 (PR #48) merged: run branch 3ec9474 ---
 # float_digits_bson_string probe (UNT11-50 owns the fix) - opted-in clone odoo_w3b02_scn, odoo-bin shell, savepoint rolled back
 # ORM create of a seller with price=2.0 min_qty=3.0 discount=4.5, then raw document types and ORM numeric domains
 # min_qty (digits='Product Unit') and discount (digits='Discount') land as strings; price (min_display_digits only) lands as Decimal128 per mapping spec
@@ -8,4 +9,14 @@ DOMAIN min_qty>=3 -> 1
 DOMAIN price=2 -> 1
 LOADED discount>0 -> 0 expected 3 seeded
 LOADED min_qty>=1 -> 0 of 32
+AFTER count 32
+
+# --- after rebase onto 3c87755 (PR #48 digits Floats as numbers): same probe, same clone odoo_w3b02_scn ---
+# all three fields land as Decimal128; ORM numeric domains against the 32 loaded rows now match the PostgreSQL oracle (discount > 0: 4, min_qty >= 1: 25 of 32); the 'expected 3 seeded' label below is the probe's original guess, the clone has 4 rows with discount > 0 (3 seeded + 1 pre-existing)
+DOC {'price': ('Decimal128', Decimal128('2.0')), 'minQty': ('Decimal128', Decimal128('3.00')), 'discount': ('Decimal128', Decimal128('4.50'))}
+DOMAIN discount>0 -> 1
+DOMAIN min_qty>=3 -> 1
+DOMAIN price=2 -> 1
+LOADED discount>0 -> 4 expected 3 seeded
+LOADED min_qty>=1 -> 25 of 32
 AFTER count 32

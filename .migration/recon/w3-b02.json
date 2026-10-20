@@ -1,6 +1,6 @@
 {
   "batch": "w3-b02",
-  "status": "FAIL",
+  "status": "PASS",
   "recon_results": [
     ".migration/recon/product-supplierinfo/result.json"
   ],
@@ -12,8 +12,8 @@
   ],
   "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/43",
   "branch": "devin/1792462599-w3-b02-supplierinfo",
-  "failure_class": "float_digits_bson_string",
+  "failure_class": "",
   "manifest_sha": "3548af4a78e1",
   "plugin_sha": "0d6bcfd528a4099449ad7f7d8c65eb620b017c79",
-  "one_line_summary": "product-supplierinfo -> odoo_migration.productSupplierinfo: live strict recon PASS (T1 7, T2 13, T3 32, T4 5 checks, merge_eligible) on the harness-loaded collection; scenario 24/24 vs baseline 17/17; product/uom 160/161 (accepted failure); FAIL on shared storage-path bug float_digits_bson_string (UNT11-50): ORM writes min_qty/discount (digits Floats) as BSON strings and ORM numeric domains on them match none of the loaded Decimal128 rows (.migration/recon/product-supplierinfo/float-digits-probe.log); full-estate -u probe not run (mongo_guard blocks the pre-copy), /purchase_stock:TestSupplier not run (stock post_init_hook raw SQL on Mongo-backed product_product). Rebase once UNT11-50 merges."
+  "one_line_summary": "product-supplierinfo -> odoo_migration.productSupplierinfo: rebased on run branch 3c87755 (PR #48 digits Floats, PR #51 stock hook); live strict recon PASS (T1 7, T2 13, T3 32, T4 5 checks, merge_eligible); float_digits_bson_string cleared: min_qty/discount now Decimal128 and ORM numeric domains match the PostgreSQL oracle on the 32 loaded rows (float-digits-probe.log); scenario 24/24 vs baseline 17/17, RESULT lines identical; product/uom 160/161 (accepted failure) from the pre-rebase run, post-rebase rerun and /purchase_stock:TestSupplier pending: a fresh install collides with this batch's stale odoo_w3b02_test__* collections and the mongo_guard hook (UNT11-52) refuses the drop of that namespace; full-estate -u probe held until UNT11-52 merges."
 }

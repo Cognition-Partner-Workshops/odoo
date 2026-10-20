@@ -7,7 +7,7 @@
 - Tolerance version: `v1` (sha256 `59f500708400`)
 - Collections: `productSupplierinfo`
 - Seed: `0`
-- Generated: 2026-10-20T02:28:51.439540+00:00
+- Generated: 2026-10-20T11:50:23.342600+00:00
 - 13 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 2 string fields: min/max/distinct deferred to Tier 3
 
