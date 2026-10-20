@@ -7,7 +7,7 @@
 - Tolerance version: `unt12-3` (sha256 `7b426db21459`)
 - Collections: `accountAccount`, `accountAccountTag`, `accountFiscalPosition`, `accountTax`, `accountTaxGroup`, `accountTaxRepartitionLine`
 - Seed: `0`
-- Generated: 2026-10-20T18:08:36.581800+00:00
+- Generated: 2026-10-20T18:29:38.011899+00:00
 - 90 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 31 string fields: min/max/distinct deferred to Tier 3
 
