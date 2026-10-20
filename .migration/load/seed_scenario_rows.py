@@ -27,7 +27,7 @@ def unseeded(section, found, expected):
     duplicate, a foreign row) is a clone edited after seeding -- sections commit together, so seeding
     cannot leave one half done -- which this script refuses to repair rather than trip a unique
     constraint or hide a missing scenario row."""
-    found, expected = sorted(map(str, found)), sorted(map(str, expected))
+    found, expected = sorted(found, key=repr), sorted(expected, key=repr)
     if found and found != expected:
         raise SystemExit(f'refusing: {section} holds {found}, not the scenario rows {expected}; '
                          'reseed from a fresh clone of odoo_src')
