@@ -441,8 +441,24 @@
  ],
  "company_dependent_search": {
   "1": {
-   "property_account_billed_not_received_active set": [],
-   "property_account_billed_not_received_active=True": [],
+   "property_account_billed_not_received_active set": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "property_account_billed_not_received_active=True": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
    "property_account_billed_not_received_id set": [
     1,
     2,
@@ -461,8 +477,24 @@
     6,
     7
    ],
-   "property_account_bills_to_receive_active set": [],
-   "property_account_bills_to_receive_active=True": [],
+   "property_account_bills_to_receive_active set": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "property_account_bills_to_receive_active=True": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
    "property_account_bills_to_receive_id set": [
     1,
     2,
@@ -517,8 +549,24 @@
     6,
     7
    ],
-   "property_account_invoiced_not_delivered_active set": [],
-   "property_account_invoiced_not_delivered_active=True": [],
+   "property_account_invoiced_not_delivered_active set": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "property_account_invoiced_not_delivered_active=True": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
    "property_account_invoiced_not_delivered_id set": [
     1,
     2,
@@ -537,8 +585,24 @@
     6,
     7
    ],
-   "property_account_invoices_to_issue_active set": [],
-   "property_account_invoices_to_issue_active=True": [],
+   "property_account_invoices_to_issue_active set": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "property_account_invoices_to_issue_active=True": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
    "property_account_invoices_to_issue_id set": [
     1,
     2,
@@ -613,8 +677,24 @@
     6,
     7
    ],
-   "property_stock_valuation_account_active set": [],
-   "property_stock_valuation_account_active=True": [],
+   "property_stock_valuation_account_active set": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "property_stock_valuation_account_active=True": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
    "property_stock_valuation_account_id set": [
     1,
     2,
@@ -825,8 +905,24 @@
     6,
     7
    ],
-   "property_stock_valuation_account_active set": [],
-   "property_stock_valuation_account_active=True": [],
+   "property_stock_valuation_account_active set": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "property_stock_valuation_account_active=True": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
    "property_stock_valuation_account_id set": [
     1,
     2,
@@ -1568,24 +1664,104 @@
  },
  "search_dotted_company_dependent": {
   "1": {
-   "property_account_billed_not_received_id": [],
-   "property_account_bills_to_receive_id": [],
-   "property_account_expense_categ_id": [],
-   "property_account_income_categ_id": [],
-   "property_account_invoiced_not_delivered_id": [],
-   "property_account_invoices_to_issue_id": [],
+   "property_account_billed_not_received_id": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "property_account_bills_to_receive_id": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "property_account_expense_categ_id": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "property_account_income_categ_id": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "property_account_invoiced_not_delivered_id": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "property_account_invoices_to_issue_id": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
    "property_price_difference_account_id": [],
-   "property_stock_valuation_account_id": []
+   "property_stock_valuation_account_id": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
   },
   "2": {
    "property_account_billed_not_received_id": [],
    "property_account_bills_to_receive_id": [],
-   "property_account_expense_categ_id": [],
-   "property_account_income_categ_id": [],
+   "property_account_expense_categ_id": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "property_account_income_categ_id": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
    "property_account_invoiced_not_delivered_id": [],
    "property_account_invoices_to_issue_id": [],
    "property_price_difference_account_id": [],
-   "property_stock_valuation_account_id": []
+   "property_stock_valuation_account_id": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
   },
   "3": {
    "property_account_billed_not_received_id": [],

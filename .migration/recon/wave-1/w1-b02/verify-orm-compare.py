@@ -1,6 +1,8 @@
 """snapshot <out>: hash every document of the five batch collections (read-only).
 compare <pg.json> <mongo.json> <snap_before> <snap_after> <result_out>: exact equality of the two ORM
-reads, the relations and company-dependent JSONB against raw PostgreSQL, and no target change."""
+reads, the relations and company-dependent JSONB against raw PostgreSQL, and no target change.
+unlink <pg.json> <mongo.json> <result_out>: adds `unlink_probes` (verify-orm-unlink-probe.py run on both
+storage paths, Mongo side on temporary `<db>__` collections only) to an existing result file."""
 import hashlib, json, os, sys, importlib
 import psycopg
 _pm = importlib.import_module('py' + 'mongo')
@@ -58,5 +60,25 @@ def compare(pg_path, mongo_path, before, after, out_path):
     print(f"# orm probes={len(probes)} passed={sum(p['pass'] for p in probes)} failed={len(findings)}", file=sys.stderr)
     for f in findings: print('# FINDING', f, file=sys.stderr)
 
+def unlink(pg_path, mongo_path, out_path):
+    pg, mg = json.load(open(pg_path)), json.load(open(mongo_path))
+    res = json.load(open(out_path))
+    probes, findings = [], []
+    def ok(name, passed, evidence):
+        probes.append({'probe': name, 'pass': bool(passed), 'evidence': evidence})
+        if not passed: findings.append(f'{name}: {evidence}')
+    ok('mongodb_side_writes_temporary_prefixed_collections_only', mg['storage']['mongodb'] and mg['storage']['prefix'].endswith('__')
+       and mg['storage']['database'] == 'odoo_unt12', mg['storage'])
+    ok('postgresql_side_has_no_storage_path', not pg['storage']['mongodb'], pg['storage'])
+    for k in sorted(set(pg) | set(mg)):
+        if k == 'storage': continue
+        same = pg.get(k) == mg.get(k)
+        ev = f'keys={len(pg[k]) if isinstance(pg.get(k), (dict, list)) else pg.get(k)}' if same else f'pg={json.dumps(pg.get(k), sort_keys=True, default=str)[:600]} mongo={json.dumps(mg.get(k), sort_keys=True, default=str)[:600]}'
+        ok(f'unlink_parity.{k}', same, ev)
+    res['unlink_probes'], res['unlink_findings'] = probes, findings
+    json.dump(res, open(out_path, 'w'), indent=1, default=str)
+    print(f"# unlink probes={len(probes)} passed={sum(p['pass'] for p in probes)} failed={len(findings)}", file=sys.stderr)
+    for f in findings: print('# FINDING', f[:300], file=sys.stderr)
+
 if __name__ == '__main__':
-    {'snapshot': snapshot, 'compare': compare}[sys.argv[1]](*sys.argv[2:])
+    {'snapshot': snapshot, 'compare': compare, 'unlink': unlink}[sys.argv[1]](*sys.argv[2:])

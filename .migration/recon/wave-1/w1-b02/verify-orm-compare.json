@@ -43,8 +43,8 @@
   },
   {
    "probe": "orm_equality.company_dependent_search",
-   "pass": false,
-   "evidence": "pg={\"1\": {\"property_account_billed_not_received_active set\": [1, 2, 3, 4, 5, 6, 7], \"property_account_billed_not_received_active=True\": [1, 2, 3, 4, 5, 6, 7], \"property_account_billed_not_received_id set\": [1, 2, 3, 4, 5, 6, 7], \"property_account_billed_not_received_id=10\": [1, 2, 3, 4, 5, 6, 7], \"property_account_bills_to_receive_active set\": [1, 2, 3, 4, 5, 6, 7], \"property_account_bills_to_receive mongo={\"1\": {\"property_account_billed_not_received_active set\": [], \"property_account_billed_not_received_active=True\": [], \"property_account_billed_not_received_id set\": [1, 2, 3, 4, 5, 6, 7], \"property_account_billed_not_received_id=10\": [1, 2, 3, 4, 5, 6, 7], \"property_account_bills_to_receive_active set\": [], \"property_account_bills_to_receive_active=True\": [], \"property_account_bills_to_receive_id "
+   "pass": true,
+   "evidence": "keys=3"
   },
   {
    "probe": "orm_equality.count:product.base.unit",
@@ -118,8 +118,8 @@
   },
   {
    "probe": "orm_equality.search_dotted_company_dependent",
-   "pass": false,
-   "evidence": "pg={\"1\": {\"property_account_billed_not_received_id\": [1, 2, 3, 4, 5, 6, 7], \"property_account_bills_to_receive_id\": [1, 2, 3, 4, 5, 6, 7], \"property_account_expense_categ_id\": [1, 2, 3, 4, 5, 6, 7], \"property_account_income_categ_id\": [1, 2, 3, 4, 5, 6, 7], \"property_account_invoiced_not_delivered_id\": [1, 2, 3, 4, 5, 6, 7], \"property_account_invoices_to_issue_id\": [1, 2, 3, 4, 5, 6, 7], \"property_pr mongo={\"1\": {\"property_account_billed_not_received_id\": [], \"property_account_bills_to_receive_id\": [], \"property_account_expense_categ_id\": [], \"property_account_income_categ_id\": [], \"property_account_invoiced_not_delivered_id\": [], \"property_account_invoices_to_issue_id\": [], \"property_price_difference_account_id\": [], \"property_stock_valuation_account_id\": []}, \"2\": {\"property_account_billed_not_rec"
+   "pass": true,
+   "evidence": "keys=3"
   },
   {
    "probe": "orm_equality.search_dotted_plain",
@@ -266,8 +266,156 @@
    }
   }
  ],
- "findings": [
-  "orm_equality.company_dependent_search: pg={\"1\": {\"property_account_billed_not_received_active set\": [1, 2, 3, 4, 5, 6, 7], \"property_account_billed_not_received_active=True\": [1, 2, 3, 4, 5, 6, 7], \"property_account_billed_not_received_id set\": [1, 2, 3, 4, 5, 6, 7], \"property_account_billed_not_received_id=10\": [1, 2, 3, 4, 5, 6, 7], \"property_account_bills_to_receive_active set\": [1, 2, 3, 4, 5, 6, 7], \"property_account_bills_to_receive mongo={\"1\": {\"property_account_billed_not_received_active set\": [], \"property_account_billed_not_received_active=True\": [], \"property_account_billed_not_received_id set\": [1, 2, 3, 4, 5, 6, 7], \"property_account_billed_not_received_id=10\": [1, 2, 3, 4, 5, 6, 7], \"property_account_bills_to_receive_active set\": [], \"property_account_bills_to_receive_active=True\": [], \"property_account_bills_to_receive_id ",
-  "orm_equality.search_dotted_company_dependent: pg={\"1\": {\"property_account_billed_not_received_id\": [1, 2, 3, 4, 5, 6, 7], \"property_account_bills_to_receive_id\": [1, 2, 3, 4, 5, 6, 7], \"property_account_expense_categ_id\": [1, 2, 3, 4, 5, 6, 7], \"property_account_income_categ_id\": [1, 2, 3, 4, 5, 6, 7], \"property_account_invoiced_not_delivered_id\": [1, 2, 3, 4, 5, 6, 7], \"property_account_invoices_to_issue_id\": [1, 2, 3, 4, 5, 6, 7], \"property_pr mongo={\"1\": {\"property_account_billed_not_received_id\": [], \"property_account_bills_to_receive_id\": [], \"property_account_expense_categ_id\": [], \"property_account_income_categ_id\": [], \"property_account_invoiced_not_delivered_id\": [], \"property_account_invoices_to_issue_id\": [], \"property_price_difference_account_id\": [], \"property_stock_valuation_account_id\": []}, \"2\": {\"property_account_billed_not_rec"
- ]
+ "findings": [],
+ "unlink_probes": [
+  {
+   "probe": "mongodb_side_writes_temporary_prefixed_collections_only",
+   "pass": true,
+   "evidence": {
+    "database": "odoo_unt12",
+    "mongodb": true,
+    "prefix": "odoo_v_w1b02ulmg__"
+   }
+  },
+  {
+   "probe": "postgresql_side_has_no_storage_path",
+   "pass": true,
+   "evidence": {
+    "database": null,
+    "mongodb": false,
+    "prefix": null
+   }
+  },
+  {
+   "probe": "unlink_parity.account",
+   "pass": true,
+   "evidence": "keys=2"
+  },
+  {
+   "probe": "unlink_parity.after.exists",
+   "pass": true,
+   "evidence": "keys=False"
+  },
+  {
+   "probe": "unlink_parity.after.search",
+   "pass": true,
+   "evidence": "keys=3"
+  },
+  {
+   "probe": "unlink_parity.after.search_null",
+   "pass": true,
+   "evidence": "keys=3"
+  },
+  {
+   "probe": "unlink_parity.before.raw",
+   "pass": true,
+   "evidence": "keys=7"
+  },
+  {
+   "probe": "unlink_parity.before.values",
+   "pass": true,
+   "evidence": "keys=3"
+  },
+  {
+   "probe": "unlink_parity.categories",
+   "pass": true,
+   "evidence": "keys=7"
+  },
+  {
+   "probe": "unlink_parity.companies",
+   "pass": true,
+   "evidence": "keys=3"
+  },
+  {
+   "probe": "unlink_parity.linked.raw",
+   "pass": true,
+   "evidence": "keys=7"
+  },
+  {
+   "probe": "unlink_parity.linked.search",
+   "pass": true,
+   "evidence": "keys=6"
+  },
+  {
+   "probe": "unlink_parity.linked.search_dotted",
+   "pass": true,
+   "evidence": "keys=6"
+  },
+  {
+   "probe": "unlink_parity.linked.values",
+   "pass": true,
+   "evidence": "keys=3"
+  },
+  {
+   "probe": "unlink_parity.ondelete",
+   "pass": true,
+   "evidence": "keys=8"
+  },
+  {
+   "probe": "unlink_parity.relinked.raw",
+   "pass": true,
+   "evidence": "keys=7"
+  },
+  {
+   "probe": "unlink_parity.unlink_default_fallback",
+   "pass": true,
+   "evidence": "keys=3"
+  },
+  {
+   "probe": "unlink_parity.unlink_default_fallback.raw",
+   "pass": true,
+   "evidence": "keys=7"
+  },
+  {
+   "probe": "unlink_parity.unlink_default_fallback.values",
+   "pass": true,
+   "evidence": "keys=3"
+  },
+  {
+   "probe": "unlink_parity.unlink_force_delete",
+   "pass": true,
+   "evidence": "keys=1"
+  },
+  {
+   "probe": "unlink_parity.unlink_force_delete.raw",
+   "pass": true,
+   "evidence": "keys=7"
+  },
+  {
+   "probe": "unlink_parity.unlink_force_delete.values",
+   "pass": true,
+   "evidence": "keys=3"
+  },
+  {
+   "probe": "unlink_parity.unlink_restrict",
+   "pass": true,
+   "evidence": "keys=3"
+  },
+  {
+   "probe": "unlink_parity.unlink_restrict.raw",
+   "pass": true,
+   "evidence": "keys=7"
+  },
+  {
+   "probe": "unlink_parity.unlink_restrict.values",
+   "pass": true,
+   "evidence": "keys=3"
+  },
+  {
+   "probe": "unlink_parity.unlink_unreferenced",
+   "pass": true,
+   "evidence": "keys=1"
+  },
+  {
+   "probe": "unlink_parity.unlink_unreferenced.raw",
+   "pass": true,
+   "evidence": "keys=7"
+  },
+  {
+   "probe": "unlink_parity.unlink_unreferenced.values",
+   "pass": true,
+   "evidence": "keys=3"
+  }
+ ],
+ "unlink_findings": []
 }
