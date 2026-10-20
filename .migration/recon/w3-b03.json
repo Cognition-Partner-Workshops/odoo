@@ -8,7 +8,7 @@
     "odoo_migration.productCombo",
     "odoo_migration.productComboItem"
   ],
-  "pr_url": "",
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/45",
   "branch": "devin/1792463356-w3-b03-product-combo",
   "failure_class": "",
   "manifest_sha": "3548af4a78e1",
