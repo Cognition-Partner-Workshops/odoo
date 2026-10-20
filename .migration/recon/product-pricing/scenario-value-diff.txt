@@ -1,0 +1,3 @@
+# diff of VALUE lines: scenario-base.log (PostgreSQL storage, odoo-base worktree) vs scenario-mongo.log (MongoDB storage, run branch rebased on 3c87755 incl. PR #48)
+# 34 VALUE lines each
+IDENTICAL

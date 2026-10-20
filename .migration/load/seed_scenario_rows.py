@@ -58,3 +58,56 @@ env.invalidate_all()
 env.cr.commit()
 print('scenario rows:', Tag.search_count([]), 'tags,', BaseUnit.search_count([]), 'base units,',
       ProductUom.search_count([]), 'product uoms')
+
+# --- product-pricing (wave 3, w3-b01): odoo_src holds one pricelist and one item, seeded the same
+# way on a clone (createdb -T odoo_src odoo_w3b01_src). Adds the second currency (base.EUR is
+# inactive in the source; a Many2one to it is valid), a country group (base.europe), a company
+# pricelist, an archived pricelist, a translated name, and one item per applied_on with the
+# markup / discount-with-rounding-and-margins (base=pricelist -> another pricelist) / plain discount
+# compute modes (Odoo 20 has discount, markup, fixed), a date window,
+# min_quantity > 0 and a uom_id. mail.thread rows are suppressed so only the unit's tables change.
+Pricelist = env['product.pricelist'].with_context(tracking_disable=True, mail_create_nolog=True)
+Item = env['product.pricelist.item']
+if Pricelist.with_context(active_test=False).search_count([]) == 1:
+    env['res.lang']._activate_lang('fr_FR')
+    base_pl = Pricelist.search([], order='id', limit=1)
+    furniture = env['product.category'].search([('name', '=', 'Furniture')], limit=1)
+    chair = env['product.template'].search([('categ_id', 'child_of', furniture.id)], order='id', limit=1)
+    europe = Pricelist.create({
+        'name': 'Europe Wholesale', 'sequence': 5, 'currency_id': env.ref('base.EUR').id,
+        'company_id': False,
+        'country_group_ids': [(6, 0, [env.ref('base.europe').id])],
+    })
+    europe.with_context(lang='fr_FR').name = 'Europe grossistes'
+    us_company = Pricelist.create({
+        'name': 'US Company Retail', 'sequence': 10,
+        'company_id': env['res.company'].search([('id', '!=', env.company.id)], order='id', limit=1).id,
+    })
+    Pricelist.create({'name': 'Legacy 2024', 'sequence': 20, 'active': False})
+    Item.create([
+        {'pricelist_id': europe.id, 'applied_on': '3_global', 'compute_price': 'markup',
+         'price_markup': 10.0},
+        {'pricelist_id': europe.id, 'applied_on': '2_product_category', 'categ_id': furniture.id,
+         'compute_price': 'discount', 'price_discount': 15.0},
+        {'pricelist_id': europe.id, 'applied_on': '1_product', 'product_tmpl_id': chair.id,
+         'compute_price': 'fixed', 'fixed_price': 99.9,
+         'date_start': '2026-01-01 00:00:00', 'date_end': '2026-12-31 23:59:59'},
+        {'pricelist_id': europe.id, 'applied_on': '0_product_variant',
+         'product_id': chair.product_variant_id.id, 'min_quantity': 5, 'uom_id': chair.uom_id.id,
+         'compute_price': 'fixed', 'fixed_price': 89.0},
+        {'pricelist_id': us_company.id, 'applied_on': '3_global', 'compute_price': 'markup',
+         'price_markup': 15.0},
+        # base=pricelist must not cross companies (_check_company_auto): the company-less Europe
+        # pricelist is the only valid base for a company pricelist's item.
+        {'pricelist_id': us_company.id, 'applied_on': '2_product_category', 'categ_id': furniture.id,
+         'min_quantity': 2, 'compute_price': 'discount', 'base': 'pricelist',
+         'base_pricelist_id': europe.id, 'price_discount': 5.0, 'price_surcharge': 1.5,
+         'price_round': 0.05, 'price_min_margin': 1.0, 'price_max_margin': 20.0},
+    ])
+env.flush_all()
+for table in ('product_pricelist', 'product_pricelist_item'):
+    env.cr.execute(f"UPDATE {table} SET create_date = %(t)s, write_date = %(t)s", {'t': FIXED_INSTANT})
+env.invalidate_all()
+env.cr.commit()
+print('scenario rows:', Pricelist.with_context(active_test=False).search_count([]), 'pricelists,',
+      Item.search_count([]), 'pricelist items')

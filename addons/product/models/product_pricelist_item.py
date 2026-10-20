@@ -10,6 +10,7 @@ class ProductPricelistItem(models.Model):
     _name = 'product.pricelist.item'
     _description = "Pricelist Rule"
     _order = "applied_on, min_quantity desc, categ_id desc, id desc"
+    _storage = 'mongodb'   # wave 3 w3-b01; no D6 SQL reader (contract §5): shadow table is id only
     _check_company_auto = True
 
     def _default_pricelist_id(self):

@@ -1,0 +1,20 @@
+{
+  "batch": "w3-b01",
+  "status": "PASS",
+  "recon_results": [
+    ".migration/recon/product-pricing/result.json"
+  ],
+  "fixture_results": [
+    ".migration/recon/product-pricing/fixture/result.json"
+  ],
+  "write_targets": [
+    "odoo_migration.productPricelist",
+    "odoo_migration.productPricelistItem"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/44",
+  "branch": "devin/1792462626-w3-b01-product-pricing",
+  "failure_class": "",
+  "manifest_sha": "3548af4a78e1",
+  "plugin_sha": "0d6bcfd528a4099449ad7f7d8c65eb620b017c79",
+  "one_line_summary": "product-pricing -> odoo_migration.productPricelist/productPricelistItem: live strict recon verdict PASS (T1 18 / T2 26 / T3 12 / T4 7 checks, mode=live, target_class=migration_cluster, merge_eligible=True) re-run from fresh seeded clone odoo_w3b01_src4 (build_source.sh marker 3 + seed_scenario_rows.py product-pricing section, timestamps pinned; two-clone dump identical proof from the first round); fixture PASS; Tier 4 application parity PASS after the shared digits-Float fix (PR #48) merged into the run branch (3c87755): ORM scenario scenario_product_pricing.py 27/27 on MongoDB with VALUE lines identical to the PostgreSQL baseline, product/uom tests 160/161 (the only failure is the accepted timing test; 2 HttpCase port collisions re-run clean), /sale:TestSalePrices 28/28; -u product,sale on a full-estate clone clean and the seven readers identical to the pre-opt-in baseline (first round); unprefixed odoo_migration collections unchanged. No plugin, tolerance, allowlist or shared storage-path changes in this PR"
+}
