@@ -1,16 +1,44 @@
 {
   "batch": "w1-b04",
   "status": "PASS",
-  "recon_results": [".migration/recon/account-settings/result.json"],
-  "fixture_results": [".migration/recon/account-settings/fixture/result.json"],
-  "write_targets": ["odoo_unt12.accountPaymentTerm", "odoo_unt12.accountIncoterms", "odoo_unt12.accountCashRounding", "odoo_unt12.accountJournalGroup", "odoo_unt12.accountLockException", "odoo_unt12.accountReport", "odoo_unt12.accountReportExpression", "odoo_unt12.accountReportExternalValue"],
+  "recon_results": [
+    ".migration/recon/account-settings/result.json"
+  ],
+  "fixture_results": [
+    ".migration/recon/account-settings/fixture/result.json"
+  ],
+  "write_targets": [
+    "odoo_unt12.accountPaymentTerm",
+    "odoo_unt12.accountIncoterms",
+    "odoo_unt12.accountCashRounding",
+    "odoo_unt12.accountJournalGroup",
+    "odoo_unt12.accountLockException",
+    "odoo_unt12.accountReport",
+    "odoo_unt12.accountReportExpression",
+    "odoo_unt12.accountReportExternalValue"
+  ],
   "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/60",
   "branch": "devin/1792505468-w1-b04-account-settings",
+  "head_sha": "15d2b7dd9934c1917e592f8b1f68eff2174db2b9",
+  "base_sha": "83cc4af173e",
   "failure_class": "",
   "manifest_sha": "b965d1e5f34e",
   "plugin_sha": "9a584b4cdb311ddd64fb07cbd1cf35fc9485062c",
   "mapping_version": "map-draft-2",
   "recon_tolerances_version": "unt12-3",
-  "tier_checks": {"live": [39, 49, 68, 5], "fixture": [15, 49, 68, 5]},
-  "one_line_summary": "account-settings: live PASS, merge_eligible true, 0 warnings; fixture PASS; 77/77 ORM scenario checks on the storage path; 2 storage-path gaps reported (compute_sql field in a domain, inverse side of an embedded relation table)"
+  "tier_checks": {
+    "live": [
+      39,
+      49,
+      68,
+      5
+    ],
+    "fixture": [
+      15,
+      49,
+      68,
+      5
+    ]
+  },
+  "one_line_summary": "account-settings: live PASS, merge_eligible true, 0 warnings; fixture PASS; 86/86 ORM scenario checks on the storage path (every relation equal to PostgreSQL from both sides); rebased on 83cc4af, CHECK mirror dropped, embedded-child unique mirrors kept (still needed)"
 }
