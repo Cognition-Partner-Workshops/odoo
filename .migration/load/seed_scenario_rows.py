@@ -91,6 +91,12 @@ if not CustomValue.search_count([]):
     ])
 Layout = env['product.label.layout']
 if not Layout.search_count([]):
+    # Transient rows can be vacuumed; a re-seed into an emptied clone would allocate new wizard ids and no
+    # longer match a load keyed on the first run's ids. Seed a fresh clone of odoo_src instead.
+    env.cr.execute("SELECT is_called FROM product_label_layout_id_seq")
+    if env.cr.fetchone()[0]:
+        raise SystemExit('refusing: product_label_layout is empty but its id sequence has advanced; '
+                         're-seed a fresh clone of odoo_src rather than this one')
     pack6 = env.ref('uom.product_uom_pack_6')
     products = env['product.product'].search([('barcode', '!=', False)], order='id', limit=3)
     pricelist = env['product.pricelist'].search([], order='id', limit=1)
