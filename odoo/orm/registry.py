@@ -839,6 +839,9 @@ class Registry(Mapping[str, type["BaseModel"]]):
 
             for model in models:
                 model._auto_init()
+                if model._storage == 'mongodb':
+                    # init() overrides run DDL on the model's table; an id shadow has no data columns
+                    continue
                 model.init()
 
             env['ir.model']._reflect_models(model_names)

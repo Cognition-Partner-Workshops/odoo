@@ -65,11 +65,18 @@ check("product.attribute.value field values (parent many2one from the array; NUL
 
 # 3. one2many / many2many from the arrays
 pg_values = dict(sql("SELECT attribute_id, array_agg(id ORDER BY sequence, id) FROM product_attribute_value GROUP BY 1"))
-check("one2many value_ids = value array", all(a.value_ids.ids == pg_values.get(a.id, []) for a in attrs))
+check("one2many value_ids = value array (exact, per attribute)", bool(pg_values) and all(a.value_ids.ids == pg_values.get(a.id, []) for a in attrs),
+      f"{sum(map(len, pg_values.values()))} values over {len(attrs)} attributes")
+check("many2one value.attribute_id = PG attribute_id (exact, other side)", bool(values) and sorted((v.attribute_id.id, v.id) for v in values)
+      == sorted((r[1], r[0]) for r in rows), len(values))
 pg_rel = dict(sql("SELECT product_attribute_id, array_agg(product_template_id ORDER BY product_template_id) FROM product_attribute_product_template_rel GROUP BY 1"))
-check("many2many product_tmpl_ids = productTemplateRel array", all(sorted(a.product_tmpl_ids.ids) == pg_rel.get(a.id, []) for a in attrs),
+check("many2many product_tmpl_ids = productTemplateRel array (exact, per attribute)", bool(pg_rel) and all(sorted(a.product_tmpl_ids.ids) == pg_rel.get(a.id, []) for a in attrs),
       {a.id: a.product_tmpl_ids.ids for a in attrs if a.product_tmpl_ids})
 Tmpl = env['product.template'].with_context(active_test=False)
+Line = env['product.template.attribute.line']
+pg_rel_pairs = sorted(sql("SELECT product_template_id, product_attribute_id FROM product_attribute_product_template_rel"))
+check("template.attribute_line_ids.attribute_id = PG rel pairs (exact, other side)", bool(pg_rel_pairs)
+      and sorted({(l.product_tmpl_id.id, l.attribute_id.id) for l in Line.search([])}) == pg_rel_pairs, len(pg_rel_pairs))
 n_tmpl = sql("SELECT count(DISTINCT product_template_id) FROM product_attribute_product_template_rel")[0][0]
 check("product.template domain on the junction array (PostgreSQL side of the relation)",
       Tmpl.search_count([('attribute_line_ids.attribute_id', 'in', attr_ids)]) == n_tmpl, n_tmpl)
@@ -87,12 +94,28 @@ check("boolean domain on the embedded model", Value.search_count([('is_custom', 
 first = attrs[0]
 check("domain on the embedded model by parent", Value.search([('attribute_id', '=', first.id)]).ids == pg_values.get(first.id, []))
 check("name_search", [r[0] for r in Attr.name_search(first.name)] == Attr.search([('name', 'ilike', first.name)]).ids)
-Line = env['product.template.attribute.line']
 n_lines = sql("SELECT count(*) FROM product_template_attribute_line l JOIN product_attribute a ON a.id = l.attribute_id WHERE a.create_variant = 'always'")[0][0]
 check("product.template.attribute.line (PostgreSQL) domain through many2one into MongoDB",
       Line.search_count([('attribute_id.create_variant', '=', 'always')]) == n_lines, n_lines)
-check("line.attribute_id / value_ids read through MongoDB", all(
-    l.attribute_id.name and set(l.value_ids.ids) <= set(pg_values.get(l.attribute_id.id, [])) for l in Line.search([])))
+pg_line_values = {}
+for line_id, value_id in sql("SELECT product_template_attribute_line_id, product_attribute_value_id "
+                             "FROM product_attribute_value_product_template_attribute_line_rel ORDER BY 1, 2"):
+    pg_line_values.setdefault(line_id, []).append(value_id)
+lines = Line.search([])
+n_pairs = sum(map(len, pg_line_values.values()))
+check("line.value_ids (relation table owned by w2-b02, served from PostgreSQL) = PG rel rows (exact, per line)",
+      n_pairs > 0 and all(l.attribute_id.name and sorted(l.value_ids.ids) == pg_line_values.get(l.id, []) for l in lines),
+      f"ORM {sum(len(l.value_ids) for l in lines)} vs PG {n_pairs} pairs over {len(lines)} lines")
+pg_value_lines = {}
+for line_id, value_id in sql("SELECT product_template_attribute_line_id, product_attribute_value_id "
+                             "FROM product_attribute_value_product_template_attribute_line_rel ORDER BY 2, 1"):
+    pg_value_lines.setdefault(value_id, []).append(line_id)
+check("value.pav_attribute_line_ids = PG rel rows (exact, other side, per value)",
+      n_pairs > 0 and all(sorted(v.pav_attribute_line_ids.ids) == pg_value_lines.get(v.id, []) for v in values), len(pg_value_lines))
+db = coll.database
+def rel_counts():
+    return {n: db[n].count_documents({}) for n in db.list_collection_names() if n.endswith('ProductTemplateAttributeLineRel')}
+rel_before = rel_counts()
 
 # 5. writes through the storage path, then rolled back
 new = Attr.create({'name': 'Scenario finish', 'create_variant': 'no_variant', 'sequence': 1,
@@ -122,15 +145,22 @@ env.flush_all()
 doc = coll.find_one({'_id': new.id})
 check("stored computed many2many pushes a junction element", [e.get('productTemplateId') for e in doc.get('productTemplateRel', [])] == [tmpl.id]
       and new.product_tmpl_ids == tmpl, doc.get('productTemplateRel'))
+line = tmpl.attribute_line_ids
+check("line.value_ids link lands in the PostgreSQL relation table, not in the w2-b02 collection",
+      sorted(line.value_ids.ids) == sorted(new.value_ids.ids) and all(v.pav_attribute_line_ids == line for v in new.value_ids)
+      and sql("SELECT count(*) FROM product_attribute_value_product_template_attribute_line_rel WHERE product_template_attribute_line_id = %s",
+              (line.id,))[0][0] == 2 and rel_counts() == rel_before, (rel_counts(), rel_before))
 tmpl.attribute_line_ids.unlink()
 env.flush_all()
 check("relation removal pulls the junction element", not coll.find_one({'_id': new.id}).get('productTemplateRel') and not new.product_tmpl_ids)
+check("line unlink leaves no new w2-b02 relation documents", rel_counts() == rel_before and not new.value_ids.pav_attribute_line_ids, rel_counts())
 try:
     with cr.savepoint():
         Attr.create({'name': 'Multi with variants', 'display_type': 'multi', 'create_variant': 'always'})
-    check("multi display_type with variants refused (CHECK mirrored by @api.constrains)", False)
+    check("multi display_type with variants refused (SQL CHECK enforced by the storage path, no mirror)", False)
 except Exception as exc:  # noqa: BLE001
-    check("multi display_type with variants refused (CHECK mirrored by @api.constrains)", type(exc).__name__ == 'ValidationError', type(exc).__name__)
+    check("multi display_type with variants refused (SQL CHECK enforced by the storage path, no mirror)",
+          type(exc).__name__ == 'CheckViolation' and 'check_multi_checkbox_no_variant' in str(exc), f"{type(exc).__name__}: {exc}"[:160])
 gloss.unlink()
 env.flush_all()
 check("unlink pulls the element + shadow row", [e['id'] for e in coll.find_one({'_id': new.id})['value']] == new.value_ids.ids
