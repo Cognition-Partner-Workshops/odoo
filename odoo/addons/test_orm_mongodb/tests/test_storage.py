@@ -295,6 +295,37 @@ class TestMongoStorage(TransactionCase):
         with self.assertRaises(NotImplementedError):
             self.Item._table_sql  # noqa: B018
 
+    def test_float_digits_stored_as_numbers(self):
+        # Float(digits) and Monetary pass their rounded value to the column as a
+        # float_repr() string: the document holds the double, like the numeric column
+        eur = self.env.ref('base.EUR')
+        d1, d2, d3 = items = self.Item.create([
+            {'name': 'D1', 'discount': 2, 'currency_id': eur.id, 'cost': 1.005},
+            {'name': 'D2', 'discount': 2.345, 'currency_id': eur.id, 'cost': 10},
+            {'name': 'D3', 'discount': 10, 'currency_id': eur.id, 'cost': 0},
+        ])
+        self.env.flush_all()
+        docs = {doc['_id']: doc for doc in self._docs(self.Item, {'_id': {'$in': items.ids}})}
+        self.assertEqual([docs[item.id]['discount'] for item in items], [2.0, 2.35, 10.0])
+        self.assertEqual([type(docs[item.id]['discount']) for item in items], [float, float, float])
+        self.assertEqual([docs[item.id]['cost'] for item in items], [1.01, 10.0, 0.0])
+        self.assertEqual([type(docs[item.id]['cost']) for item in items], [float, float, float])
+        self.assertEqual(self.Item.search([('discount', '<=', 2)]), d1)
+        self.assertEqual(self.Item.search([('discount', '>', 2)], order='id'), d2 | d3)
+        self.assertEqual(self.Item.search([('discount', '=', 2.345)]), d2)  # rounded like the column
+        self.assertEqual(self.Item.search([('discount', '=', 2.35)]), d2)
+        self.assertEqual(self.Item.search([('cost', '>=', 10)]), d2)
+        self.assertEqual(self.Item.search([('cost', '=', 1.01)]), d1)
+
+        d3.write({'discount': 3.14159, 'cost': 2.5})
+        self.env.flush_all()
+        doc = self._docs(self.Item, {'_id': d3.id})[0]
+        self.assertEqual((doc['discount'], doc['cost']), (3.14, 2.5))
+        self.assertEqual(self.Item.search([('discount', '=', 3.14)]), d3)
+        self.assertEqual(self.Item.search([('discount', '>', 3), ('cost', '<', 3)]), d3)
+        self.env.invalidate_all()
+        self.assertEqual((d3.discount, d3.cost), (3.14, 2.5))
+
     def test_read_group(self):
         cat_a, cat_b, _tag_x, _tag_y, items = self._make()
         groups = self.Item.with_context(active_test=False)._read_group(

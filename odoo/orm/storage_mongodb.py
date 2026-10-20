@@ -57,6 +57,23 @@ def to_bson(value):
     raise TypeError(f"Cannot store {value!r} in MongoDB")
 
 
+NUMERIC_COLUMN_TYPES = ('numeric', 'float8')
+
+
+def is_numeric_column_text(field, value) -> bool:
+    """``Float`` (with ``digits``) and ``Monetary`` pass their rounded value to
+    the column as a ``float_repr()`` string, which the numeric column casts.
+    """
+    return isinstance(value, str) and bool(field.column_type) and field.column_type[0] in NUMERIC_COLUMN_TYPES
+
+
+def column_to_bson(field, value):
+    """``to_bson`` plus the numeric column cast: BSON would otherwise store and
+    compare the ``float_repr()`` string as a string."""
+    value = to_bson(value)
+    return float(value) if is_numeric_column_text(field, value) else value
+
+
 class MongoUndoLog:
     """Undo entries of one PostgreSQL transaction, replayed on rollback."""
 
@@ -169,13 +186,17 @@ class MongoStore:
         return next((f['bson_type'] for f in spec['fields'] if f['source'] == fname), None) if spec else None
 
     def document_value(self, model: BaseModel, fname: str, value):
-        """``to_bson`` plus the mapping spec's numeric type: ``decimal`` fields store Decimal128."""
+        """``column_to_bson`` plus the mapping spec's numeric type: ``decimal`` fields store
+        Decimal128, with the scale of the column text (``'2.00'``) like the loaded rows."""
+        field = model._fields[fname]
         value = to_bson(value)
-        if isinstance(value, (int, float)) and not isinstance(value, bool) \
-                and self.spec_bson_type(model, fname) == 'decimal':
+        if self.spec_bson_type(model, fname) == 'decimal':
             from bson.decimal128 import Decimal128  # noqa: PLC0415
-            return Decimal128(str(value))
-        return value
+            if is_numeric_column_text(field, value):
+                return Decimal128(value)
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                return Decimal128(str(value))
+        return column_to_bson(field, value)
 
     @property
     def collection_prefix(self) -> str:
