@@ -247,7 +247,7 @@ class AccountAccount(models.Model):
     def _ids_by_type(self, account_types, active_only=False):
         ''' Ids of the accounts of ``account_types``, for raw SQL on PostgreSQL tables: the account
         columns live in MongoDB (``_storage``), so a join on account_account is replaced by this list. '''
-        return self.sudo().with_context(active_test=active_only).search([('account_type', 'in', tuple(account_types))], order='id').ids
+        return self.sudo().with_context(active_test=active_only).search([('account_type', 'in', tuple(account_types))]).ids
 
     @api.depends_context('company')
     @api.depends('code_store')
@@ -335,7 +335,7 @@ class AccountAccount(models.Model):
             return NotImplemented
         # placeholder_code is compute_sql; the account documents live in MongoDB, so the codes are
         # computed by the ORM and matched in Python (ILIKE: % and _ wildcards, case-insensitive)
-        accounts = self.env['account.account'].sudo().with_context(active_test=False).search([], order='id')
+        accounts = self.env['account.account'].sudo().with_context(active_test=False).search([])
         if operator == 'in':
             values = set(value)
             matches = accounts.filtered(lambda account: account.placeholder_code in values)
@@ -423,9 +423,7 @@ class AccountAccount(models.Model):
         if domain.is_false():
             return {}
 
-        # the default _order (code_path, compute_sql) cannot sort the MongoDB-stored account: order in Python
-        accounts = self.env['account.account'].search(domain, order='id').sorted(lambda account: (account.code_path or '', account.account_type, account.name_path or ''))
-        placeholder_codes = accounts[:limit].mapped('code') if limit else accounts.mapped('code')
+        placeholder_codes = self.env['account.account'].search(domain, limit=limit).mapped('code')
         return {
             (root := self.env['account.root']._from_account_code(code)).id: {'id': root.id, 'display_name': root.display_name}
             for code in placeholder_codes if code

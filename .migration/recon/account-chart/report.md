@@ -7,7 +7,7 @@
 - Tolerance version: `unt12-3` (sha256 `7b426db21459`)
 - Collections: `accountAccount`, `accountAccountTag`, `accountFiscalPosition`, `accountTax`, `accountTaxGroup`, `accountTaxRepartitionLine`
 - Seed: `0`
-- Generated: 2026-10-20T16:05:20.473527+00:00
+- Generated: 2026-10-20T17:42:23.875809+00:00
 - 90 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 31 string fields: min/max/distinct deferred to Tier 3
 
@@ -15,7 +15,7 @@
 |---|---|---|---|
 | 1 | counts_through_mapping | 62 | PASS |
 | 2 | per_field_aggregates | 52 | PASS |
-| 3 | keyed_diffs | 997 | PASS |
+| 3 | keyed_diffs | 981 | PASS |
 | 4 | app_level_parity | 6 | PASS |
 
 ## Tier 1 coverage
@@ -23,11 +23,11 @@
 {
   "source_counts": {
     "accountAccount": 184,
-    "accountAccountTag": 10,
+    "accountAccountTag": 8,
     "accountFiscalPosition": 4,
-    "accountTax": 58,
+    "accountTax": 57,
     "accountTaxGroup": 26,
-    "accountTaxRepartitionLine": 232
+    "accountTaxRepartitionLine": 228
   }
 }
 ```
@@ -442,15 +442,15 @@
   "embeds_graded": {
     "accountAccount.resCompanyRel": 184,
     "accountAccount.accountTag": 13,
-    "accountAccount.taxDefaultRel": 1,
-    "accountAccountTag.accountMoveLineRel": 1,
-    "accountAccountTag.accountTaxRepartitionLineRel": 1,
-    "accountAccountTag.productTemplateRel": 1,
-    "accountFiscalPosition.account": 1,
-    "accountFiscalPosition.resCountryStateRel": 2,
+    "accountAccount.taxDefaultRel": 0,
+    "accountAccountTag.accountMoveLineRel": 0,
+    "accountAccountTag.accountTaxRepartitionLineRel": 0,
+    "accountAccountTag.productTemplateRel": 0,
+    "accountFiscalPosition.account": 0,
+    "accountFiscalPosition.resCountryStateRel": 0,
     "accountFiscalPosition.accountTaxRel": 50,
     "accountTax.alternatives": 2,
-    "accountTax.filiationRel": 2,
+    "accountTax.filiationRel": 0,
     "accountTax.purchaseOrderLineRel": 31,
     "accountTax.saleOrderLineRel": 50,
     "accountTax.productSupplierTaxesRel": 72,
@@ -458,7 +458,7 @@
   },
   "accountAccountTag": {
     "mode": "full_diff",
-    "population": 10,
+    "population": 8,
     "duplicate_source_key_count": 0
   },
   "accountFiscalPosition": {
@@ -468,7 +468,7 @@
   },
   "accountTax": {
     "mode": "full_diff",
-    "population": 58,
+    "population": 57,
     "duplicate_source_key_count": 0
   },
   "accountTaxGroup": {
@@ -478,7 +478,7 @@
   },
   "accountTaxRepartitionLine": {
     "mode": "full_diff",
-    "population": 232,
+    "population": 228,
     "duplicate_source_key_count": 0
   }
 }

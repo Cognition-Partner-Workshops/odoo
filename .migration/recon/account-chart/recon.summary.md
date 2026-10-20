@@ -3,13 +3,13 @@
 - Mode: `live`
 - Merge eligible: yes (fixture/continuous evidence never merges)
 - Mapping `map-draft-2` / tolerances `unt12-3` / seed `0`
-- Generated: 2026-10-20T16:05:20.473527+00:00
+- Generated: 2026-10-20T17:42:23.875809+00:00
 
 | Tier | Checks | Result |
 |---|---|---|
 | 1 counts_through_mapping | 62 | PASS |
 | 2 per_field_aggregates | 52 | PASS |
-| 3 keyed_diffs | 997 | PASS |
+| 3 keyed_diffs | 981 | PASS |
 | 4 app_level_parity | 6 | PASS |
 
 Full evidence: result.json, report.md (linked from the PR, not pasted).
