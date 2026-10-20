@@ -7,7 +7,7 @@
 - Tolerance version: `v1` (sha256 `59f500708400`)
 - Collections: `productLabelLayout`, `productAttributeCustomValue`
 - Seed: `0`
-- Generated: 2026-10-20T02:24:27.413102+00:00
+- Generated: 2026-10-20T12:38:27.683432+00:00
 - 19 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 6 string fields: min/max/distinct deferred to Tier 3
 

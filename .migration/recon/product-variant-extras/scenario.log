@@ -1,5 +1,5 @@
-# Tier-4 ORM scenario .migration/load/scenario_variant_extras.py on the opted-in clone odoo_w3b04_views2 after -u product,sale,stock (prefixed namespace odoo_w3b04_views2__*, mongodb_migration_db elsewhere), run branch 8bc80473e66
-PASS scratch namespace is prefixed: odoo_w3b04_views2__
+# Tier-4 ORM scenario .migration/load/scenario_variant_extras.py on the opted-in clone odoo_w3b04_views after -u product,sale,stock (prefixed namespace odoo_w3b04_views__*, filled through the guarded direct route: pymongo copy of every unprefixed odoo_migration collection + indexes, run from inside the clone; mongodb_migration_db elsewhere), run branch f6df02bb13c rebased on 3c877556359 (PR #48 numeric BSON + PR #51 stock hooks)
+PASS scratch namespace is prefixed: odoo_w3b04_views__
 PASS scratch namespace holds a copy of the loaded collections: {'productAttributeCustomValue': 6, 'productLabelLayout': 5}
 PASS sol_custom_value_unique is a partial unique index on (customPTAV, saleOrderLineId): SON([('saleOrderLineId', SON([('$type', 'int')]))])
 PASS wizard multikey indexes on the four arrays
@@ -28,7 +28,8 @@ PASS duplicate (customPTAV, saleOrderLineId) raises: ValidationError
 PASS unlink removes the document
 PASS new wizard document carries productIds and stock moveIds: [{'stockMoveId': 1}, {'stockMoveId': 2}]
 PASS move_ids of the opted-in wizard are not materialised in PostgreSQL
-PASS age-based transient clean deletes the old wizard documents and keeps the fresh one: [15]
+NOTE _transient_max_hours=0 _transient_max_count=0 with transient_age_limit=1.0: _transient_vacuum() would skip the clean
+PASS age-based transient clean deletes the old wizard documents and keeps the fresh one: [6]
 PASS vacuum also removed the shadow rows
 PASS vacuum cleared the PostgreSQL relation rows of the deleted wizards
 PASS loaded collections unchanged: {'productAttributeCustomValue': 6, 'productLabelLayout': 5}
