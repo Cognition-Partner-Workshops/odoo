@@ -115,7 +115,14 @@ try:
         env.flush_all()
     check("unique natural key refused", False)
 except Exception as exc:  # noqa: BLE001
-    check("unique natural key refused", True, type(exc).__name__)
+    # a duplicate-key refusal (E11000) and nothing else counts; it surfaces as the driver's error, not a ValidationError
+    check("unique natural key refused", 'E11000' in str(exc) or 'duplicate key' in str(exc), type(exc).__name__)
+try:
+    with cr.savepoint():
+        Cat.create({'name': 'Negative', 'max_weight': -10})
+    check("negative max_weight refused (CHECK mirrored by _check_max_weight)", False)
+except Exception as exc:  # noqa: BLE001
+    check("negative max_weight refused (CHECK mirrored by _check_max_weight)", type(exc).__name__ == 'ValidationError', type(exc).__name__)
 new_tag = Tag.create({'name': 'Scenario tag 2'})
 new_tag.unlink()
 env.flush_all()
