@@ -21,24 +21,29 @@ every other seeded value is a literal. Prove it with two clones and a data-only 
 FIXED_INSTANT = '2026-10-14 00:00:00'   # UTC; keep equal to build_source.sh FIXED_INSTANT
 
 
-def unseeded(section, rows, expected):
-    """`rows` are the section's own scenario rows. None present: seed; all present: skip. Anything else
-    is a clone edited after seeding (sections commit together, so seeding cannot leave one half done),
-    which this script refuses to repair rather than trip a unique constraint halfway through."""
-    if len(rows) not in (0, expected):
-        raise SystemExit(f'refusing: {section} holds {len(rows)} of its {expected} scenario rows; '
+def unseeded(section, found, expected):
+    """`found` are the natural keys of the rows a section's lookup returned, `expected` the keys of the
+    rows it seeds. None found: seed; exactly the expected keys: skip. Anything else (a missing row, a
+    duplicate, a foreign row) is a clone edited after seeding -- sections commit together, so seeding
+    cannot leave one half done -- which this script refuses to repair rather than trip a unique
+    constraint or hide a missing scenario row."""
+    found, expected = sorted(map(str, found)), sorted(map(str, expected))
+    if found and found != expected:
+        raise SystemExit(f'refusing: {section} holds {found}, not the scenario rows {expected}; '
                          'reseed from a fresh clone of odoo_src')
-    return not rows
+    return not found
 
 Tag = env['product.tag']
-if unseeded('product_tag', Tag.with_context(lang='en_US').search([('name', 'in', ['Seasonal', 'Clearance', 'Staff pick'])]), 3):
+TAGS = ['Seasonal', 'Clearance', 'Staff pick']
+if unseeded('product_tag', Tag.with_context(lang='en_US').search([('name', 'in', TAGS)]).mapped('name'), TAGS):
     seasonal = Tag.create({'name': 'Seasonal', 'sequence': 1, 'color': '#FF7F0E', 'visible_to_customers': True})
     env['res.lang']._activate_lang('fr_FR')  # one translated value exercises the {lang: value} shape
     seasonal.with_context(lang='fr_FR').name = 'Saisonnier'
     Tag.create({'name': 'Clearance', 'sequence': 5, 'color': '#3C3C3C', 'visible_to_customers': False})
     Tag.create({'name': 'Staff pick', 'sequence': 10, 'color': '#2CA02C', 'visible_to_customers': True})
 BaseUnit = env['product.base.unit']
-if unseeded('product_base_unit', BaseUnit.with_context(lang='en_US').search([('name', 'in', ['per 100 g', 'per litre'])]), 2):
+BASE_UNITS = ['per 100 g', 'per litre']
+if unseeded('product_base_unit', BaseUnit.with_context(lang='en_US').search([('name', 'in', BASE_UNITS)]).mapped('name'), BASE_UNITS):
     BaseUnit.create([{'name': 'per 100 g'}, {'name': 'per litre'}])
 
 # --- product-catalog (wave 2, w2-b01): product_uom and the four empty relation tables, seeded the
@@ -48,10 +53,11 @@ if unseeded('product_base_unit', BaseUnit.with_context(lang='en_US').search([('n
 # (product_tag_ids). Packagings come from wave 1's uom.uom (Pack of 6 / Dozens, xml ids), tags
 # from the rows above; products are the three lowest-id active variants with a barcode.
 ProductUom = env['product.uom']
-if unseeded('product_uom', ProductUom.search([('barcode', '=like', 'SCN-%')]), 6):
+products = env['product.product'].search([('barcode', '!=', False)], order='id', limit=3)
+if unseeded('product_uom', ProductUom.search([('barcode', '=like', 'SCN-%')]).mapped('barcode'),
+            [f'SCN-{pack}-{product.id:06d}' for product in products for pack in ('PACK6', 'DOZEN')]):
     pack6, dozen = env.ref('uom.product_uom_pack_6'), env.ref('uom.product_uom_dozen')
     tags = env['product.tag'].search([], order='sequence, id')
-    products = env['product.product'].search([('barcode', '!=', False)], order='id', limit=3)
     for i, product in enumerate(products):
         ProductUom.create([
             {'product_id': product.id, 'uom_id': pack6.id, 'barcode': f'SCN-PACK6-{product.id:06d}'},
@@ -66,7 +72,7 @@ if unseeded('product_uom', ProductUom.search([('barcode', '=like', 'SCN-%')]), 6
 # are only observable on a seeded combo (createdb -T odoo_src odoo_w3b03_src). Products: the two
 # lowest-id active non-combo variants whose template carries taxes (the account D5 tax writer).
 Combo = env['product.combo']
-if unseeded('product_combo', Combo.with_context(lang='en_US').search([('name', '=', 'Chicago Desk Set')]), 1):
+if unseeded('product_combo', Combo.with_context(lang='en_US').search([('name', '=', 'Chicago Desk Set')]).mapped('name'), ['Chicago Desk Set']):
     env['res.lang']._activate_lang('fr_FR')
     taxed = env['product.product'].search([('type', '!=', 'combo'), ('taxes_id', '!=', False)], order='id', limit=2)
     combo = Combo.create({
@@ -89,20 +95,26 @@ if unseeded('product_combo', Combo.with_context(lang='en_US').search([('name', '
 CustomValue = env['product.attribute.custom.value']
 ptavs = env['product.template.attribute.value'].search(
     [('product_attribute_value_id.is_custom', '=', True)], order='id')
+lines = env['sale.order.line'].search([], order='id', limit=3)
+custom_vals = [
+    {'custom_product_template_attribute_value_id': ptavs[0].id, 'custom_value': 'Walnut legs, 72 cm'},
+    {'custom_product_template_attribute_value_id': ptavs[0].id, 'custom_value': 'Oak legs, 68 cm'},
+    {'custom_product_template_attribute_value_id': ptavs[1].id, 'custom_value': False},
+] + [
+    {'custom_product_template_attribute_value_id': ptavs[i % len(ptavs)].id,
+     'custom_value': f'Engraved for order line {line.id}', 'sale_order_line_id': line.id}
+    for i, line in enumerate(lines)
+]
 if unseeded('product_attribute_custom_value',
-            CustomValue.search([('custom_product_template_attribute_value_id', 'in', ptavs.ids)]), 6):
-    lines = env['sale.order.line'].search([], order='id', limit=3)
-    CustomValue.create([
-        {'custom_product_template_attribute_value_id': ptavs[0].id, 'custom_value': 'Walnut legs, 72 cm'},
-        {'custom_product_template_attribute_value_id': ptavs[0].id, 'custom_value': 'Oak legs, 68 cm'},
-        {'custom_product_template_attribute_value_id': ptavs[1].id, 'custom_value': False},
-    ] + [
-        {'custom_product_template_attribute_value_id': ptavs[i % len(ptavs)].id,
-         'custom_value': f'Engraved for order line {line.id}', 'sale_order_line_id': line.id}
-        for i, line in enumerate(lines)
-    ])
+            [(r.custom_product_template_attribute_value_id.id, r.custom_value, r.sale_order_line_id.id)
+             for r in CustomValue.search([('custom_product_template_attribute_value_id', 'in', ptavs.ids)])],
+            [(v['custom_product_template_attribute_value_id'], v['custom_value'], v.get('sale_order_line_id', False))
+             for v in custom_vals]):
+    CustomValue.create(custom_vals)
 Layout = env['product.label.layout']
-if unseeded('product_label_layout', Layout.search([('print_format', 'in', ['dymo', '2x7', '4x7', '4x12', 'zpl'])]), 5):
+# A transient table: odoo_src holds no wizard rows, so every row on a seeded clone must be one of the
+# five below (one per print_format); any other set is a foreign clone.
+if unseeded('product_label_layout', Layout.search([]).mapped('print_format'), ['dymo', '2x7', '4x7', '4x12', 'zpl']):
     # Transient rows can be vacuumed; a re-seed into an emptied clone would allocate new wizard ids and no
     # longer match a load keyed on the first run's ids. Seed a fresh clone of odoo_src instead.
     env.cr.execute("SELECT is_called FROM product_label_layout_id_seq")
@@ -142,8 +154,9 @@ if unseeded('product_label_layout', Layout.search([('print_format', 'in', ['dymo
 # min_quantity > 0 and a uom_id. mail.thread rows are suppressed so only the unit's tables change.
 Pricelist = env['product.pricelist'].with_context(tracking_disable=True, mail_create_nolog=True)
 Item = env['product.pricelist.item']
+PRICELISTS = ['Europe Wholesale', 'US Company Retail', 'Legacy 2024']
 if unseeded('product_pricelist', Pricelist.with_context(active_test=False, lang='en_US').search(
-        [('name', 'in', ['Europe Wholesale', 'US Company Retail', 'Legacy 2024'])]), 3):
+        [('name', 'in', PRICELISTS)]).mapped('name'), PRICELISTS):
     env['res.lang']._activate_lang('fr_FR')
     furniture = env['product.category'].search([('name', '=', 'Furniture')], limit=1)
     chair = env['product.template'].search([('categ_id', 'child_of', furniture.id)], order='id', limit=1)
