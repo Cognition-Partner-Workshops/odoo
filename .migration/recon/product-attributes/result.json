@@ -12,9 +12,9 @@
   "seed": 0,
   "params": {},
   "snapshot": null,
-  "generated_at": "2026-10-20T14:23:39.336457+00:00",
+  "generated_at": "2026-10-20T16:09:20.397691+00:00",
   "redacted": true,
-  "redaction_salted": false,
+  "redaction_salted": true,
   "tiers": [
     {
       "tier": 1,
