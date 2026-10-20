@@ -8,9 +8,14 @@
 # Rerunnable: an odoo_src that already carries ir_config_parameter
 # migration.fixture_source = MARKER_VERSION is kept and only the role, its privileges and
 # the counts are refreshed; anything else is dropped and rebuilt. A rebuild is
-# deterministic: the build-time create_date/write_date stamps are pinned to FIXED_INSTANT
-# and the only random column defaults among the demo rows (product attribute colours) are
-# replaced, in the same transaction that writes the marker.
+# deterministic (gate g-source-deterministic): Odoo installs under libfaketime with its clock
+# started at FIXED_INSTANT and PYTHONHASHSEED=0, so every date and every now()-derived
+# timestamp lands at FIXED_INSTANT plus a whole number of hours plus the install's run time
+# (about a minute). The post-install transaction then rounds those timestamps to the hour,
+# pins create_date/write_date and the PostgreSQL-side orm_signaling stamps to FIXED_INSTANT,
+# replaces the random defaults (colours, access tokens, channel uuids, database.uuid/secret)
+# with id-derived values, and writes the marker. A frozen clock is not an option: Odoo's
+# registry load spins forever when time stands still.
 #
 # The odoo_ro password is read from ODOO_PG_RO_DSN, the plugin's JSON PostgreSQL secret
 # ({"user","password","host","port","database"}); bind secret:personal:ODOO_PG_RO_DSN in a
@@ -22,9 +27,11 @@ DB=odoo_src
 ROLE=odoo_ro
 ADDONS=product,uom,sale,purchase,stock,account
 MARKER=migration.fixture_source
-MARKER_VERSION=1
+MARKER_VERSION=2
 SOURCE_COMMIT=63446015e3c154f552633f54951843dcbb51e9a9
 FIXED_INSTANT='2026-10-20 00:00:00'
+FAKETIME_LIB=/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1
+FRAMEWORK_TABLES='^(ir|res|mail|bus|web|base)_'
 export PGPORT=5433 PGHOST=/var/run/postgresql
 
 REPO_ROOT="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)"
@@ -46,7 +53,9 @@ if [ ! -e "$SRC_TREE/odoo-bin" ]; then
 fi
 [ "$(git -C "$SRC_TREE" rev-parse HEAD)" = "$SOURCE_COMMIT" ] || die "$SRC_TREE is not at $SOURCE_COMMIT"
 [ -z "$(git -C "$SRC_TREE" status --porcelain)" ] || die "$SRC_TREE has local changes"
-ODOO_BIN=("$PY" "$SRC_TREE/odoo-bin" --addons-path="$SRC_TREE/addons,$SRC_TREE/odoo/addons" -d "$DB" --db_port="$PGPORT" --log-level=warn)
+[ -e "$FAKETIME_LIB" ] || die "$FAKETIME_LIB is missing (apt install faketime)"
+ODOO_BIN=(env "FAKETIME=@$FIXED_INSTANT" "LD_PRELOAD=$FAKETIME_LIB" PYTHONHASHSEED=0
+          "$PY" "$SRC_TREE/odoo-bin" --addons-path="$SRC_TREE/addons,$SRC_TREE/odoo/addons" -d "$DB" --db_port="$PGPORT" --log-level=warn)
 
 current=
 if [ "$(sql -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname = '$DB'")" = 1 ] &&
@@ -60,27 +69,52 @@ else
   echo "build_source: building $DB from $SOURCE_COMMIT (-i $ADDONS --with-demo)"
   dropdb --if-exists "$DB"
   "${ODOO_BIN[@]}" -i "$ADDONS" --with-demo --stop-after-init
-  # One transaction: pin every build-time stamp, replace the randint colour defaults, write
-  # the marker. A database carrying the marker is therefore always a pinned one.
-  sql -1 -d "$DB" -v instant="$FIXED_INSTANT" -v marker="$MARKER" -v version="$MARKER_VERSION" <<'SQL'
+  # One transaction: pin every build-time stamp, round the now()-derived timestamps, replace
+  # the random defaults, write the marker. A database carrying the marker is therefore
+  # always a pinned one. Framework tables (ir_*, res_*, mail_*, bus_*, web_*, base_*) only
+  # get the create_date/write_date pin; their remaining runtime values are out of scope.
+  sql -1 -d "$DB" -v instant="$FIXED_INSTANT" -v marker="$MARKER" -v version="$MARKER_VERSION" -v framework="$FRAMEWORK_TABLES" <<'SQL'
 SET LOCAL fixture.instant = :'instant';
+SET LOCAL fixture.framework = :'framework';
 DO $$
-DECLARE t record;
+DECLARE t record; residual interval;
 BEGIN
   FOR t IN
-    SELECT c.table_name, c.column_name
+    SELECT c.table_name, c.column_name,
+           c.column_name IN ('create_date', 'write_date') OR c.table_name LIKE 'orm_signaling_%' AS pin
     FROM information_schema.columns c
     JOIN information_schema.tables s USING (table_schema, table_name)
-    WHERE c.table_schema = 'public' AND s.table_type = 'BASE TABLE'
-      AND c.column_name IN ('create_date', 'write_date') AND c.data_type LIKE 'timestamp%'
+    WHERE c.table_schema = 'public' AND s.table_type = 'BASE TABLE' AND c.data_type LIKE 'timestamp%'
+      AND (c.column_name IN ('create_date', 'write_date') OR c.table_name !~ current_setting('fixture.framework'))
   LOOP
-    EXECUTE format('UPDATE %I SET %I = %L WHERE %I IS NOT NULL',
-                   t.table_name, t.column_name, current_setting('fixture.instant'), t.column_name);
+    IF t.pin THEN
+      EXECUTE format('UPDATE %I SET %I = %L WHERE %I IS NOT NULL',
+                     t.table_name, t.column_name, current_setting('fixture.instant'), t.column_name);
+    ELSE
+      -- now()-derived values sit at a whole-hour offset from FIXED_INSTANT plus the install's
+      -- run time; anything further from the hour means the clock assumption broke.
+      EXECUTE format($q$SELECT coalesce(max(greatest(%1$I - date_trunc('hour', %1$I + interval '30 min'),
+                                                     date_trunc('hour', %1$I + interval '30 min') - %1$I)), '0')
+                     FROM %2$I$q$, t.column_name, t.table_name) INTO residual;
+      IF residual > interval '15 min' THEN
+        RAISE EXCEPTION '%.% is % off the hour; install clock drifted', t.table_name, t.column_name, residual;
+      END IF;
+      EXECUTE format($q$UPDATE %2$I SET %1$I = date_trunc('hour', %1$I + interval '30 min')
+                     WHERE %1$I IS NOT NULL AND %1$I <> date_trunc('hour', %1$I + interval '30 min')$q$,
+                     t.column_name, t.table_name);
+    END IF;
   END LOOP;
 END $$;
 UPDATE product_attribute_value SET color = (id - 1) % 11 + 1;
 UPDATE product_template_attribute_value v SET color = a.color
   FROM product_attribute_value a WHERE a.id = v.product_attribute_value_id;
+UPDATE crm_team SET color = (id - 1) % 11 + 1;
+UPDATE account_analytic_plan SET color = (id - 1) % 11 + 1;
+UPDATE sale_order SET access_token = md5('sale_order.access_token:' || id)::uuid::text WHERE access_token IS NOT NULL;
+UPDATE purchase_order SET access_token = md5('purchase_order.access_token:' || id)::uuid::text WHERE access_token IS NOT NULL;
+UPDATE discuss_channel SET uuid = left(md5('discuss_channel.uuid:' || id), 10);
+UPDATE ir_config_parameter SET value = md5('odoo_src ' || key)::uuid::text WHERE key IN ('database.uuid', 'database.secret');
+UPDATE ir_config_parameter SET value = :'instant' WHERE key = 'database.create_date';
 INSERT INTO ir_config_parameter (key, value, create_uid, create_date, write_uid, write_date)
 VALUES (:'marker', :'version', 1, :'instant', 1, :'instant');
 SQL
