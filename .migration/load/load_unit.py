@@ -49,7 +49,7 @@ def unit_collections(unit_id, target_db):
 def connect_source(secret_name):
     params = json.loads(os.environ[secret_name])
     conn = psycopg2.connect(dbname=params['database'], **{k: params[k] for k in ('user', 'password', 'host', 'port')})
-    conn.set_session(readonly=True, autocommit=True)
+    conn.set_session(readonly=True, isolation_level='REPEATABLE READ')  # one snapshot for roots and embeds
     return conn, params['database']
 
 
