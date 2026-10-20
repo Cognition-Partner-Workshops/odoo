@@ -32,5 +32,7 @@
       4
     ]
   },
-  "one_line_summary": "uom-packaging: live PASS, merge_eligible true, 0 warnings; fixture PASS; 54/54 ORM scenario checks on the storage path; GAP: product.template.uom_ids and product.product.extra_uom_ids (0 estate rows) are routed to the unloaded productTemplate/productProduct uomUomRel arrays and read back empty after an ORM link (UNT12-33); purchase.report/vendor.delay.report/stock.avco.report (product-taxonomy rows) got the uom-factor substitution too"
+  "one_line_summary": "uom-packaging: live PASS, merge_eligible true, 0 warnings; fixture PASS; 64/64 ORM scenario checks on mongo-run/unt12@83cc4af (CHECK mirrors dropped, barcode unique mirror kept: no unique index in the spec); uom_ids/extra_uom_ids stay on PostgreSQL and read equal after an ORM link",
+  "head_sha": "ccfd95f35b8854a87d4ae167c1a13739dbe73d4e",
+  "base": "mongo-run/unt12@83cc4af173e"
 }
