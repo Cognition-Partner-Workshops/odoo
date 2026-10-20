@@ -32,7 +32,7 @@
       4
     ]
   },
-  "one_line_summary": "uom-packaging: live PASS, merge_eligible true, 0 warnings; fixture PASS; 64/64 ORM scenario checks on mongo-run/unt12@79c5ab0 (CHECK mirrors dropped, barcode unique mirror kept: no unique index in the spec); uom_ids/extra_uom_ids stay on PostgreSQL and read equal after an ORM link",
-  "head_sha": "668422eecb475ed627bcc6babc5d4df8511baeb6",
+  "one_line_summary": "uom-packaging: live PASS, merge_eligible true, 0 warnings; fixture PASS; 64/64 ORM scenario checks on mongo-run/unt12@a25acb9 (unified loader #68) (CHECK mirrors dropped, barcode unique mirror kept: no unique index in the spec); uom_ids/extra_uom_ids stay on PostgreSQL and read equal after an ORM link",
+  "head_sha": "04dc5fef78b81b7b07140bdf88ba73d68acb79b7",
   "base": "mongo-run/unt12@83cc4af173e"
 }
