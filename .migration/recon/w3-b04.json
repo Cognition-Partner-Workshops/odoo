@@ -1,0 +1,20 @@
+{
+  "batch": "w3-b04",
+  "status": "PASS",
+  "recon_results": [
+    ".migration/recon/product-variant-extras/result.json"
+  ],
+  "fixture_results": [
+    ".migration/recon/product-variant-extras/fixture/result.json"
+  ],
+  "write_targets": [
+    "odoo_migration.productAttributeCustomValue",
+    "odoo_migration.productLabelLayout"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/47",
+  "branch": "devin/1792462617-w3-b04-variant-extras",
+  "failure_class": "",
+  "manifest_sha": "3548af4a78e1",
+  "plugin_sha": "0d6bcfd528a4099449ad7f7d8c65eb620b017c79",
+  "one_line_summary": "product-variant-extras -> odoo_migration.productAttributeCustomValue/productLabelLayout: live strict recon verdict PASS (T1 pass (10 checks), T2 pass (12 checks), T3 pass (28 checks), T4 pass (9 checks), mode=live, target_class=migration_cluster, merge_eligible=True, warnings=0), source = odoo_w3b04_src, a seeded clone of the deterministic odoo_src (build_source.sh marker 3 + seed_scenario_rows.py: 6 custom values incl. 3 on sale order lines and 3 parentless, 5 label-layout wizard rows with 6/3/2/6 relation rows, timestamps pinned to FIXED_INSTANT, two clones dump identical); fixture verdict UNVERIFIED on odoo_fixture (both tables empty there, expected: T1 6 / T2 12 / T3 0 / T4 9 checks pass); Tier 4 ops + ORM scenario (scenario_variant_extras.py, 34/34 checks on the opted-in clone after -u product,sale,stock in a prefixed namespace: reads, partial unique index, NULL semantics, four arrays incl. stock's moveIds, label reports and process(), transient vacuum); -u product,sale,stock at the rebased tip (3c87755 + this batch) and the seven readers unchanged vs the pre-opt-in baseline, the prefixed scratch namespace cleared and refilled through the guarded direct route (pymongo from inside the clone); fresh -i stock --test-tags /stock:TestReports 36/36 in a prefixed namespace (possible since PR #51); product/uom tests on a fresh prefixed database 160/161 (only test_get_closest_possible_combinations, the accepted 0.5 s Atlas-latency timing test, fails, as in wave 2); live recon re-run from a re-seeded clone on a second VM gives the identical result.json; the unprefixed odoo_migration collections other than the two targets were not written by this batch"
+}

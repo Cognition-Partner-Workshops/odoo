@@ -7,6 +7,7 @@ from odoo.tools import BinaryBytes, file_open
 
 class ProductLabelLayout(models.TransientModel):
     _name = 'product.label.layout'
+    _storage = 'mongodb'
     _description = 'Choose the sheet layout to print the labels'
 
     @api.model

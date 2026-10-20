@@ -68,14 +68,60 @@ if not Combo.search([('company_id', '!=', False)]):
         ],
     })
     combo.with_context(lang='fr_FR').name = 'Ensemble bureau Chicago'
+# --- product-variant-extras (wave 3, w3-b04): product_attribute_custom_value and the transient
+# product_label_layout with its four relation tables, all empty in odoo_src; seeded on a clone the
+# same way. Custom values hang off the two product_template_attribute_value rows whose attribute
+# value is already is_custom (no other source row is flipped): two parentless rows on the same
+# value exercise the NULL semantics of sale's unique(custom_ptav, sale_order_line_id), three rows
+# belong to sale order lines. Wizard rows cover every print_format, the three product arrays,
+# pricelist, packaging and stock's move_ids / move_quantity / print_packaging.
+CustomValue = env['product.attribute.custom.value']
+if not CustomValue.search_count([]):
+    ptavs = env['product.template.attribute.value'].search(
+        [('product_attribute_value_id.is_custom', '=', True)], order='id')
+    lines = env['sale.order.line'].search([], order='id', limit=3)
+    CustomValue.create([
+        {'custom_product_template_attribute_value_id': ptavs[0].id, 'custom_value': 'Walnut legs, 72 cm'},
+        {'custom_product_template_attribute_value_id': ptavs[0].id, 'custom_value': 'Oak legs, 68 cm'},
+        {'custom_product_template_attribute_value_id': ptavs[1].id, 'custom_value': False},
+    ] + [
+        {'custom_product_template_attribute_value_id': ptavs[i % len(ptavs)].id,
+         'custom_value': f'Engraved for order line {line.id}', 'sale_order_line_id': line.id}
+        for i, line in enumerate(lines)
+    ])
+Layout = env['product.label.layout']
+if not Layout.search_count([]):
+    # Transient rows can be vacuumed; a re-seed into an emptied clone would allocate new wizard ids and no
+    # longer match a load keyed on the first run's ids. Seed a fresh clone of odoo_src instead.
+    env.cr.execute("SELECT is_called FROM product_label_layout_id_seq")
+    if env.cr.fetchone()[0]:
+        raise SystemExit('refusing: product_label_layout is empty but its id sequence has advanced; '
+                         're-seed a fresh clone of odoo_src rather than this one')
+    pack6 = env.ref('uom.product_uom_pack_6')
+    products = env['product.product'].search([('barcode', '!=', False)], order='id', limit=3)
+    pricelist = env['product.pricelist'].search([], order='id', limit=1)
+    moves = env['stock.move'].search([('state', '=', 'done')], order='id', limit=4)
+    Layout.create([
+        {'print_format': 'dymo', 'product_ids': [(6, 0, products.ids)], 'custom_quantity': 2,
+         'pricelist_id': pricelist.id},
+        {'print_format': '2x7', 'product_tmpl_ids': [(6, 0, products.product_tmpl_id.ids)],
+         'with_price': False, 'extra_html': '<p>Fragile</p>'},
+        {'print_format': '4x7', 'product_ids': [(6, 0, products[:1].ids)], 'packaging_id': pack6.id,
+         'product_uom_ids': [(6, 0, ProductUom.search([('product_id', '=', products[0].id)], order='id').ids)]},
+        {'print_format': '4x12', 'barcode_format': 'qr', 'move_ids': [(6, 0, moves.ids)],
+         'move_quantity': 'move', 'print_packaging': True},
+        {'print_format': 'zpl', 'zpl_template': 'jewelry', 'product_ids': [(6, 0, products[1:].ids)],
+         'move_ids': [(6, 0, moves[:2].ids)], 'move_quantity': 'custom', 'custom_quantity': 3},
+    ])
 env.flush_all()   # the pending translation write would re-stamp write_date after the pin
 for table in ('product_tag', 'product_base_unit', 'product_uom', 'product_product', 'product_template',
-              'product_combo', 'product_combo_item'):
+              'product_combo', 'product_combo_item', 'product_attribute_custom_value', 'product_label_layout'):
     env.cr.execute(f"UPDATE {table} SET create_date = %(t)s, write_date = %(t)s", {'t': FIXED_INSTANT})
 env.invalidate_all()
 env.cr.commit()
 print('scenario rows:', Tag.search_count([]), 'tags,', BaseUnit.search_count([]), 'base units,',
-      ProductUom.search_count([]), 'product uoms,', Combo.search_count([]), 'combos')
+      ProductUom.search_count([]), 'product uoms,', Combo.search_count([]), 'combos,',
+      CustomValue.search_count([]), 'custom values,', Layout.search_count([]), 'label layouts')
 
 # --- product-pricing (wave 3, w3-b01): odoo_src holds one pricelist and one item, seeded the same
 # way on a clone (createdb -T odoo_src odoo_w3b01_src). Adds the second currency (base.EUR is
