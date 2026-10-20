@@ -1,0 +1,56 @@
+[
+  {
+    "name": "sellers_per_template",
+    "collection": "productSupplierinfo",
+    "source_sql": "SELECT product_tmpl_id AS \"productTmplId\", COUNT(*) AS n FROM product_supplierinfo GROUP BY product_tmpl_id ORDER BY product_tmpl_id",
+    "target_pipeline": [
+      {"$group": {"_id": "$productTmplId", "n": {"$sum": 1}}},
+      {"$project": {"_id": 0, "productTmplId": "$_id", "n": 1}},
+      {"$sort": {"productTmplId": 1}}
+    ],
+    "rules": []
+  },
+  {
+    "name": "sellers_per_vendor_currency",
+    "collection": "productSupplierinfo",
+    "source_sql": "SELECT partner_id AS \"partnerId\", currency_id AS \"currencyId\", COUNT(*) AS n FROM product_supplierinfo GROUP BY partner_id, currency_id ORDER BY partner_id, currency_id",
+    "target_pipeline": [
+      {"$group": {"_id": {"partnerId": "$partnerId", "currencyId": "$currencyId"}, "n": {"$sum": 1}}},
+      {"$project": {"_id": 0, "partnerId": "$_id.partnerId", "currencyId": "$_id.currencyId", "n": 1}},
+      {"$sort": {"partnerId": 1, "currencyId": 1}}
+    ],
+    "rules": []
+  },
+  {
+    "name": "search_product_by_vendor_code",
+    "collection": "productSupplierinfo",
+    "source_sql": "SELECT id AS \"_id\", partner_id AS \"partnerId\", product_tmpl_id AS \"productTmplId\", product_id AS \"productId\", product_code AS \"productCode\", product_name AS \"productName\" FROM product_supplierinfo WHERE product_code IS NOT NULL OR product_name IS NOT NULL ORDER BY id",
+    "target_pipeline": [
+      {"$match": {"$or": [{"productCode": {"$exists": true}}, {"productName": {"$exists": true}}]}},
+      {"$project": {"_id": 1, "partnerId": 1, "productTmplId": 1, "productId": {"$ifNull": ["$productId", null]}, "productCode": {"$ifNull": ["$productCode", null]}, "productName": {"$ifNull": ["$productName", null]}}},
+      {"$sort": {"_id": 1}}
+    ],
+    "rules": []
+  },
+  {
+    "name": "select_seller_order",
+    "collection": "productSupplierinfo",
+    "source_sql": "SELECT id AS \"_id\", product_tmpl_id AS \"productTmplId\", partner_id AS \"partnerId\" FROM product_supplierinfo ORDER BY sequence, min_qty DESC, price, id",
+    "target_pipeline": [
+      {"$sort": {"sequence": 1, "minQty": -1, "price": 1, "_id": 1}},
+      {"$project": {"_id": 1, "productTmplId": 1, "partnerId": 1}}
+    ],
+    "rules": []
+  },
+  {
+    "name": "windowed_discounted_variant_sellers",
+    "collection": "productSupplierinfo",
+    "source_sql": "SELECT id AS \"_id\", product_id AS \"productId\", partner_id AS \"partnerId\" FROM product_supplierinfo WHERE date_start IS NOT NULL AND date_end IS NOT NULL AND discount > 0 AND product_id IS NOT NULL ORDER BY id",
+    "target_pipeline": [
+      {"$match": {"dateStart": {"$exists": true}, "dateEnd": {"$exists": true}, "discount": {"$gt": 0}, "productId": {"$exists": true}}},
+      {"$project": {"_id": 1, "productId": 1, "partnerId": 1}},
+      {"$sort": {"_id": 1}}
+    ],
+    "rules": []
+  }
+]

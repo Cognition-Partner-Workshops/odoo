@@ -1,0 +1,48 @@
+2026-10-20 03:08:23,696 22596 INFO ? odoo: Odoo version 20.0
+2026-10-20 03:08:23,696 22596 INFO ? odoo: addons paths: _NamespacePath(['/home/ubuntu/repos/odoo-base/odoo/addons', '/home/ubuntu/.local/share/Odoo/addons/20.0', '/home/ubuntu/repos/odoo-base/addons'])
+2026-10-20 03:08:23,696 22596 INFO ? odoo: database: default@/var/run/postgresql:5433
+2026-10-20 03:08:23,965 22596 INFO ? odoo.service.server.ThreadedServer: Initiating shutdown
+2026-10-20 03:08:23,965 22596 INFO ? odoo.service.server.ThreadedServer: Hit CTRL-C again or send a second signal to force the shutdown.
+2026-10-20 03:08:23,979 22596 INFO odoo_w3b02_base odoo.modules.loading: loading 1 modules...
+2026-10-20 03:08:23,981 22596 INFO odoo_w3b02_base odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra)
+2026-10-20 03:08:23,992 22596 INFO odoo_w3b02_base odoo.modules.loading: loading 70 modules...
+2026-10-20 03:08:24,084 22596 WARNING odoo_w3b02_base odoo.addons.mail.controllers.attachment: markdown2 is not installed, markdown will not be rendered
+2026-10-20 03:08:24,246 22596 INFO odoo_w3b02_base odoo.modules.loading: 70 modules loaded in 0.25s, 0 queries (+0 extra)
+2026-10-20 03:08:24,351 22596 INFO odoo_w3b02_base odoo.modules.loading: Modules loaded.
+2026-10-20 03:08:24,378 22596 INFO odoo_w3b02_base odoo.registry: Registry loaded in 0.408s
+2026-10-20 03:08:24,551 22596 INFO odoo_w3b02_base odoo.models.unlink: User #1 deleted mail.message records with IDs: [1296]
+2026-10-20 03:08:24,565 22596 INFO odoo_w3b02_base odoo.models.unlink: User #1 deleted product.template records with IDs: [40]
+storage: postgresql
+PASS seller search (default order sequence, min_qty DESC, price, id) = PostgreSQL rows: 32 sellers
+RESULT sellers in default order: [18, 6, 13, 3, 4, 5, 11, 9, 20, 21, 19, 10, 8, 16, 17, 1, 2, 15, 7, 12, 14, 22, 27, 28, 23, 24, 25, 26, 32, 29, 30, 31]
+PASS seeded sellers present (variant-level, windowed, discounted, EUR): [29, 30, 31, 32]
+PASS _rec_name = partner_id through res_partner (PostgreSQL, two-step): Wood Corner (5.0 Units - 12.50 €)
+PASS supplierinfo name_search through the vendor name: orm-pg [] pg-orm []
+PASS _search_display_name vendor branch by product_code (partner_id in context): [6]
+RESULT display_name ilike product_code with partner_id: [6]
+PASS _search_display_name vendor branch by product_name: [6]
+RESULT display_name ilike product_name with partner_id: [6]
+PASS name_search vendor fallback (product_tmpl_id.seller_ids any) by product_code: [6]
+RESULT name_search product_code with partner_id: [6]
+PASS no partner_id in context: display_name search does not match the vendor code
+PASS no partner_id in context: name_search does not match the vendor code
+PASS other vendor in context: the code is not found
+RESULT display_name not ilike product_code with partner_id (seller_ids any): [5, 6, 20, 21, 23, 24, 25, 27, 29, 30, 31, 34, 37, 38, 39, 49]
+RESULT display_name not ilike product_code without partner_id: [1, 2, 3, 4, 5, 6, 7, 8, 13, 14, 15, 16, 18, 19, 20, 21, 23, 24, 25, 27, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56]
+RESULT _select_seller(qty=1.0, date=2026-06-01, variant=6, vendor=True): [('currency_id', 1), ('delay', 5), ('discount', 0.0), ('min_qty', 1.0), ('partner_id', 9), ('price', 35.0), ('price_discounted', 35.0), ('supplierinfo', 20), ('uom_id', 1)]
+RESULT _select_seller(qty=25.0, date=2026-06-01, variant=6, vendor=True): [('currency_id', 126), ('delay', 1), ('discount', 5.0), ('min_qty', 20.0), ('partner_id', 9), ('price', 11.0), ('price_discounted', 10.45), ('supplierinfo', 32), ('uom_id', 1)]
+RESULT _select_seller(qty=25.0, date=2027-06-01, variant=6, vendor=True): [('currency_id', 126), ('delay', 1), ('discount', 5.0), ('min_qty', 20.0), ('partner_id', 9), ('price', 11.0), ('price_discounted', 10.45), ('supplierinfo', 32), ('uom_id', 1)]
+RESULT _select_seller(qty=25.0, date=False, variant=6, vendor=True): [('currency_id', 126), ('delay', 1), ('discount', 5.0), ('min_qty', 20.0), ('partner_id', 9), ('price', 11.0), ('price_discounted', 10.45), ('supplierinfo', 32), ('uom_id', 1)]
+RESULT _select_seller(qty=1.0, date=2026-06-01, variant=6, vendor=False): [('currency_id', 1), ('delay', 5), ('discount', 0.0), ('min_qty', 1.0), ('partner_id', 9), ('price', 35.0), ('price_discounted', 35.0), ('supplierinfo', 20), ('uom_id', 1)]
+RESULT _select_seller(qty=25.0, date=2026-06-01, variant=6, vendor=True): [('currency_id', 126), ('delay', 1), ('discount', 5.0), ('min_qty', 20.0), ('partner_id', 9), ('price', 11.0), ('price_discounted', 10.45), ('supplierinfo', 32), ('uom_id', 1)]
+RESULT _prepare_sellers(variant): [20, 17, 28, 32, 29]
+RESULT _prepare_sellers(other variant): [20, 17, 28, 32, 29]
+PASS template.seller_ids (One2many into this collection) = PostgreSQL
+PASS record rule 'product supplierinfo company rule' (company_id parent_of, PostgreSQL comodel)
+PASS D5 writer: partner currency change updates every seller currency (ORM): 14
+PASS D5 writer: partner column written
+PASS D5 writer rollback: partner currency restored
+PASS D5 writer rollback: seller currencies restored (ORM)
+PASS template unlink cascades to its sellers (ORM)
+
+17/17 checks passed

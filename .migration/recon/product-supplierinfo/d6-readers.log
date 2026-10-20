@@ -1,0 +1,50 @@
+# pre-opt-in baseline: odoo-base worktree 03a3cb5 (PostgreSQL storage), clone odoo_w3b02_estate_base of the seeded source odoo_w3b02_src
+REPORT sale.report OK rows 51
+REPORT purchase.report OK rows 32
+REPORT account.invoice.report OK rows 62
+REPORT purchase.bill.line.match OK rows 27
+VIEW report_stock_quantity rows 5263
+VIEW stock_avco_report rows 7
+VIEW vendor_delay_report rows 10
+
+# same-day baseline rerun (2026-10-20): odoo_src rebuilt by build_source.sh, clone odoo_w3b02_src reseeded (seed_scenario_rows.py, 32 supplierinfo rows pinned), odoo-base worktree 03a3cb5 on clone odoo_w3b02_estate_base
+REPORT sale.report OK rows 51
+REPORT purchase.report OK rows 32
+REPORT account.invoice.report OK rows 62
+REPORT purchase.bill.line.match OK rows 27
+VIEW report_stock_quantity rows 5263
+VIEW stock_avco_report rows 7
+VIEW vendor_delay_report rows 10
+
+# opted-in clone odoo_w3b02_estate (prefixed namespace odoo_w3b02_estate__*, 21 unprefixed odoo_migration collections pre-copied through the guard from inside the clone), run-branch tip 3c87755 + this batch at 57d1b58: -u product,purchase,purchase_stock exit 0, 50 s, 0 ERROR/Traceback lines in the update log; readers:
+REPORT sale.report OK rows 51
+REPORT purchase.report OK rows 32
+REPORT account.invoice.report OK rows 62
+REPORT purchase.bill.line.match OK rows 27
+VIEW report_stock_quantity rows 5263
+VIEW stock_avco_report rows 7
+VIEW vendor_delay_report rows 10
+# all seven counts equal the baseline
+
+# unprefixed odoo_migration collections (21), estimated_document_count snapshot before any run of this session (12:34 UTC, before the pre-copy) and again after the estate probe and the test suites (13:3x UTC): identical (353 documents in total; productSupplierinfo 32); the pre-copy only reads them
+COUNT _connectivity_probe before 0 after 0
+COUNT productAttribute before 14 after 14
+COUNT productAttributeCustomValue before 6 after 6
+COUNT productAttributeValue before 101 after 101
+COUNT productBaseUnit before 2 after 2
+COUNT productCategory before 8 after 8
+COUNT productCombo before 4 after 4
+COUNT productComboItem before 10 after 10
+COUNT productDocument before 2 after 2
+COUNT productLabelLayout before 5 after 5
+COUNT productPricelist before 4 after 4
+COUNT productPricelistItem before 7 after 7
+COUNT productProduct before 48 after 48
+COUNT productSupplierinfo before 32 after 32
+COUNT productTag before 3 after 3
+COUNT productTemplate before 38 after 38
+COUNT productTemplateAttributeLine before 9 after 9
+COUNT productTemplateAttributeValue before 24 after 24
+COUNT productUom before 6 after 6
+COUNT uomUom before 30 after 30
+COUNT updateProductAttributeValue before 0 after 0

@@ -1,0 +1,69 @@
+{
+ "database": "odoo_w3b02_test",
+ "namespace": "odoo_w3b02_test__* in odoo_migration (conf mongodb_migration_db=odoo_w3b02_mig)",
+ "command": "odoo-bin -d odoo_w3b02_test -c <conf> --no-http -i product,uom --test-enable --test-tags /product,/uom --stop-after-init",
+ "result": "1 failed, 0 error(s) of 161 tests",
+ "failed_tests": [
+  "TestProductAttributeValueConfig.test_get_closest_possible_combinations"
+ ],
+ "expected_failures": [
+  "TestProductAttributeValueConfig.test_get_closest_possible_combinations"
+ ],
+ "TestSeller_ran": true,
+ "unprefixed_before": {
+  "_connectivity_probe": 0,
+  "productAttribute": 14,
+  "productAttributeCustomValue": 6,
+  "productAttributeValue": 101,
+  "productBaseUnit": 2,
+  "productCategory": 8,
+  "productCombo": 4,
+  "productComboItem": 10,
+  "productDocument": 2,
+  "productLabelLayout": 5,
+  "productPricelist": 4,
+  "productPricelistItem": 7,
+  "productProduct": 48,
+  "productSupplierinfo": 32,
+  "productTag": 3,
+  "productTemplate": 38,
+  "productTemplateAttributeLine": 9,
+  "productTemplateAttributeValue": 24,
+  "productUom": 6,
+  "uomUom": 30,
+  "updateProductAttributeValue": 0
+ },
+ "unprefixed_after": {
+  "_connectivity_probe": 0,
+  "productAttribute": 14,
+  "productAttributeCustomValue": 6,
+  "productAttributeValue": 101,
+  "productBaseUnit": 2,
+  "productCategory": 8,
+  "productCombo": 4,
+  "productComboItem": 10,
+  "productDocument": 2,
+  "productLabelLayout": 5,
+  "productPricelist": 4,
+  "productPricelistItem": 7,
+  "productProduct": 48,
+  "productSupplierinfo": 32,
+  "productTag": 3,
+  "productTemplate": 38,
+  "productTemplateAttributeLine": 9,
+  "productTemplateAttributeValue": 24,
+  "productUom": 6,
+  "uomUom": 30,
+  "updateProductAttributeValue": 0
+ },
+ "unprefixed_unchanged": true,
+ "focused_tags_run": {
+  "command": "-i purchase_stock --test-enable --test-tags /product:TestSeller,/purchase_stock:TestSupplier on fresh odoo_w3b02_test2 (odoo_w3b02_test2__* namespace)",
+  "result": "0 failed, 0 error(s) of 10 tests (3 TestSupplier + 7 TestSeller), install OK with the run-branch stock hook fix (PR #51); see odoo-tests-focused.log"
+ },
+ "run": "post-rebase rerun on run-branch tip 3c87755 + batch head 57d1b58, after dropping the stale odoo_w3b02_test__*/_test2__* namespaces through the merged mongo_guard (plugin PR #111); fresh PG16 database, one odoo-bin process at a time",
+ "full_estate_probe": {
+  "command": "-u product,purchase,purchase_stock on clone odoo_w3b02_estate of the reseeded odoo_w3b02_src (odoo_w3b02_estate__* namespace pre-copied from the 21 unprefixed collections), then the seven readers; baseline rerun same day on odoo-base 03a3cb5",
+  "result": "update exit 0, 0 ERROR/Traceback lines; all seven reader counts equal the baseline (51/32/62/27/5263/7/10); see d6-readers.log"
+ }
+}

@@ -145,6 +145,37 @@ if unseeded('product_label_layout', Layout.search([]).mapped('print_format'), ['
 # former `search_count([]) == 1` guard false and skipped the whole section. Each section also looks
 # up what it needs itself, so sections can be reordered or run alone; one pin and commit at the end.
 
+# --- product-supplierinfo (wave 3, w3-b02): odoo_src's 28 sellers are all template-level with
+# product_id, product_code and discount NULL, so the vendor-code search (_search_display_name and
+# name_search with partner_id in the context), the variant-level seller, the date window, the
+# discount and a non-company currency are never exercised by the source. Seeded the same way on a
+# clone of odoo_src (createdb -T odoo_src odoo_w3b02_src, run from ../odoo-base): three variant-level
+# sellers (one per barcoded product above, two source vendors, EUR, a 2026 window) and one
+# template-level seller at the first vendor without a window; min_qty/price/sequence make
+# _select_seller's choice depend on quantity and date. base.EUR stays inactive (a Many2one to an
+# inactive currency is valid): activating it makes res.company._activate_or_create_pricelists add a
+# Default pricelist per company, which the pricing section below must not see.
+Seller = env['product.supplierinfo']
+eur = env.ref('base.EUR')
+seller_vendors = Seller.search([], order='id').partner_id.sorted('id')[:2]
+seller_variants = env['product.product'].search([('barcode', '!=', False)], order='id', limit=3)
+SELLER_CODES = [f'SCN-VC-{v.id:06d}' for v in seller_variants] + ['SCN-VC-TMPL']
+if unseeded('product_supplierinfo', Seller.search([('product_code', '=like', 'SCN-VC-%')]).mapped('product_code'),
+            SELLER_CODES):
+    for i, variant in enumerate(seller_variants):
+        Seller.create({
+            'partner_id': seller_vendors[i % 2].id, 'product_tmpl_id': variant.product_tmpl_id.id,
+            'product_id': variant.id, 'product_name': f'Scenario vendor product {i + 1}',
+            'product_code': SELLER_CODES[i], 'sequence': 100 + i, 'min_qty': 5.0 * (i + 1),
+            'price': 12.5 * (i + 1), 'discount': 10.0 * (i + 1), 'delay': 3 + i, 'currency_id': eur.id,
+            'date_start': '2026-01-01', 'date_end': '2026-12-31',
+        })
+    Seller.create({
+        'partner_id': seller_vendors[0].id, 'product_tmpl_id': seller_variants[0].product_tmpl_id.id,
+        'product_name': 'Scenario vendor product 1 (any variant)', 'product_code': 'SCN-VC-TMPL',
+        'sequence': 90, 'min_qty': 20.0, 'price': 11.0, 'discount': 5.0, 'currency_id': eur.id,
+    })
+
 # --- product-pricing (wave 3, w3-b01): odoo_src holds one pricelist and one item, seeded the same
 # way on a clone (createdb -T odoo_src odoo_w3b01_src). Adds the second currency (base.EUR is
 # inactive in the source; a Many2one to it is valid), a country group (base.europe), a company
@@ -194,7 +225,7 @@ if unseeded('product_pricelist', Pricelist.with_context(active_test=False, lang=
 env.flush_all()   # the pending translation writes would re-stamp write_date after the pin
 for table in ('product_tag', 'product_base_unit', 'product_uom', 'product_product', 'product_template',
               'product_combo', 'product_combo_item', 'product_attribute_custom_value', 'product_label_layout',
-              'product_pricelist', 'product_pricelist_item'):
+              'product_pricelist', 'product_pricelist_item', 'product_supplierinfo'):
     env.cr.execute(f"UPDATE {table} SET create_date = %(t)s, write_date = %(t)s", {'t': FIXED_INSTANT})
 env.invalidate_all()
 env.cr.commit()
@@ -202,4 +233,4 @@ print('scenario rows:', Tag.search_count([]), 'tags,', BaseUnit.search_count([])
       ProductUom.search_count([]), 'product uoms,', Combo.search_count([]), 'combos,',
       CustomValue.search_count([]), 'custom values,', Layout.search_count([]), 'label layouts,',
       Pricelist.with_context(active_test=False).search_count([]), 'pricelists,',
-      Item.search_count([]), 'pricelist items')
+      Item.search_count([]), 'pricelist items,', Seller.search_count([]), 'sellers')
