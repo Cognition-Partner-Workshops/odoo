@@ -45,14 +45,17 @@ def gap(name, detail=''):
     print(f"GAP  {name}{' -- ' + str(detail) if detail else ''}")
 
 
-def snapshot():
-    return {m: hashlib.sha256(dumps(list(st.model_collection(env[m]).find().sort('_id', 1)), sort_keys=True).encode()).hexdigest()
-            for m in ROOTS}
-
-
 def sql(query, params=()):
     cr.execute(query, params)
     return cr.fetchall()
+
+
+def snapshot():
+    """Documents of the root collections, plus the PostgreSQL id shadows of every model (row count, max id)."""
+    docs = {m: hashlib.sha256(dumps(list(st.model_collection(env[m]).find().sort('_id', 1)), sort_keys=True).encode()).hexdigest()
+            for m in ROOTS}
+    shadows = {m: sql(f"SELECT count(*), coalesce(max(id), 0) FROM {env[m]._table}")[0] for m in MODELS}
+    return docs, shadows
 
 
 def refused(name, action, expect):
@@ -235,6 +238,6 @@ check("unlink removes the document, its lines and the shadow rows", st.model_col
       and sql("SELECT count(*) FROM account_payment_term_line WHERE id IN %s", (tuple(line_ids),))[0][0] == 0)
 cr.rollback()
 after = snapshot()
-check("rollback leaves the loaded collections byte-identical", before == after, after)
+check("rollback leaves the loaded collections byte-identical and the PostgreSQL shadows unchanged", before == after, after)
 print(f"{sum(checks)}/{len(checks)} checks passed")
 assert all(checks)
