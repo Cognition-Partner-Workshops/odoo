@@ -1212,6 +1212,9 @@ def _check_element_keys(model: BaseModel, spec: CollectionSpec, coll, by_parent:
     moved or re-keyed), checked against each other and the parent's others. """
     if isinstance(spec.key_target, str) or not by_parent:
         return
+    # serialize writers of the same parents on their shadow rows, like the constraint's index would
+    model.env.cr.execute(SQL("SELECT id FROM %s WHERE id IN %s FOR NO KEY UPDATE",
+                             SQL.identifier(spec.parent_table), tuple(by_parent)))
     paths = list(spec.key_target)
 
     def violation(key: tuple) -> typing.NoReturn:
