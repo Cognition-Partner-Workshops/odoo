@@ -1,0 +1,74 @@
+2026-10-20 02:29:21,316 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module base loaded in 3.85s, 8642 queries (+8642 other)
+2026-10-20 02:29:21,717 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module base_report_wkhtmltox loaded in 0.03s, 44 queries (+44 other)
+2026-10-20 02:29:21,727 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module rpc loaded in 0.01s, 12 queries (+12 other)
+2026-10-20 02:29:33,653 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module uom loaded in 11.93s, 477 queries (+477 other)
+2026-10-20 02:29:34,399 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module web loaded in 0.75s, 1394 queries (+1394 other)
+2026-10-20 02:29:34,451 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module api_doc loaded in 0.05s, 88 queries (+88 other)
+2026-10-20 02:29:34,584 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module auth_totp loaded in 0.13s, 208 queries (+208 other)
+2026-10-20 02:29:34,688 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module base_address_extended loaded in 0.10s, 204 queries (+204 other)
+2026-10-20 02:29:35,156 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module base_import loaded in 0.47s, 1138 queries (+1138 other)
+2026-10-20 02:29:35,247 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module base_import_module loaded in 0.09s, 172 queries (+172 other)
+2026-10-20 02:29:35,324 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module base_setup loaded in 0.08s, 154 queries (+154 other)
+2026-10-20 02:29:35,396 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module bus loaded in 0.07s, 128 queries (+128 other)
+2026-10-20 02:29:35,470 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module http_routing loaded in 0.07s, 141 queries (+141 other)
+2026-10-20 02:29:35,491 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module mysubscription loaded in 0.02s, 36 queries (+36 other)
+2026-10-20 02:29:35,666 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module onboarding loaded in 0.18s, 255 queries (+255 other)
+2026-10-20 02:29:35,909 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module resource loaded in 0.24s, 472 queries (+472 other)
+2026-10-20 02:29:36,102 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module utm loaded in 0.19s, 433 queries (+433 other)
+2026-10-20 02:29:36,201 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module web_tour loaded in 0.10s, 206 queries (+206 other)
+2026-10-20 02:29:36,339 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module auth_passkey loaded in 0.14s, 214 queries (+214 other)
+2026-10-20 02:29:36,898 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module html_editor loaded in 0.56s, 1370 queries (+1370 other)
+2026-10-20 02:29:37,027 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module iap loaded in 0.13s, 238 queries (+238 other)
+2026-10-20 02:29:39,697 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module mail loaded in 2.67s, 5742 queries (+5743 other)
+2026-10-20 02:29:39,778 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module web_unsplash loaded in 0.08s, 116 queries (+116 other)
+2026-10-20 02:29:40,124 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module analytic loaded in 0.35s, 562 queries (+562 other)
+2026-10-20 02:29:40,317 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module auth_signup loaded in 0.19s, 266 queries (+266 other)
+2026-10-20 02:29:40,453 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module auth_totp_mail loaded in 0.14s, 199 queries (+199 other)
+2026-10-20 02:29:40,558 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module base_install_request loaded in 0.11s, 187 queries (+187 other)
+2026-10-20 02:29:40,653 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module google_gmail loaded in 0.09s, 150 queries (+150 other)
+2026-10-20 02:29:40,708 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module iap_mail loaded in 0.05s, 77 queries (+77 other)
+2026-10-20 02:29:40,801 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module mail_bot loaded in 0.09s, 128 queries (+128 other)
+2026-10-20 02:29:40,889 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module microsoft_outlook loaded in 0.09s, 153 queries (+153 other)
+2026-10-20 02:29:41,696 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module phone_validation loaded in 0.81s, 2214 queries (+2214 other)
+2026-10-20 02:29:41,876 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module privacy_lookup loaded in 0.18s, 316 queries (+316 other)
+2026-10-20 02:29:59,367 9914 INFO odoo_w3b03_sale odoo.addons.product.tests.test_product_combo: Starting TestProductCombo.test_base_price_multiple_currencies ...
+2026-10-20 02:30:03,505 9914 INFO odoo_w3b03_sale odoo.addons.product.tests.test_product_combo: Starting TestProductCombo.test_combo_item_count ...
+2026-10-20 02:30:04,874 9914 INFO odoo_w3b03_sale odoo.addons.product.tests.test_product_combo: Starting TestProductCombo.test_currency_with_company_set ...
+2026-10-20 02:30:06,217 9914 INFO odoo_w3b03_sale odoo.addons.product.tests.test_product_combo: Starting TestProductCombo.test_currency_without_company_set ...
+2026-10-20 02:30:06,939 9914 INFO odoo_w3b03_sale odoo.addons.product.tests.test_product_combo: Starting TestProductCombo.test_duplicate_combo_items_raises ...
+2026-10-20 02:30:07,468 9914 INFO odoo_w3b03_sale odoo.addons.product.tests.test_product_combo: Starting TestProductCombo.test_empty_combo_items_raises ...
+2026-10-20 02:30:07,629 9914 INFO odoo_w3b03_sale odoo.addons.product.tests.test_product_combo: Starting TestProductCombo.test_multi_company_consistency ...
+2026-10-20 02:30:12,096 9914 INFO odoo_w3b03_sale odoo.addons.product.tests.test_product_combo: Starting TestProductCombo.test_nested_combos_raises ...
+2026-10-20 02:30:14,614 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module product loaded in 32.74s (incl. 16.43s test), 1597 queries (+1345 test, +1597 other)
+2026-10-20 02:30:14,647 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module resource_mail loaded in 0.03s, 34 queries (+34 other)
+2026-10-20 02:30:14,919 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module sales_team loaded in 0.27s, 464 queries (+464 other)
+2026-10-20 02:30:15,038 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module partner_autocomplete loaded in 0.12s, 173 queries (+173 other)
+2026-10-20 02:30:15,944 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module portal loaded in 0.91s, 730 queries (+730 other)
+2026-10-20 02:30:16,882 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module sms loaded in 0.94s, 883 queries (+883 other)
+2026-10-20 02:30:16,912 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module auth_passkey_portal loaded in 0.03s, 24 queries (+24 other)
+2026-10-20 02:30:16,989 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module auth_totp_portal loaded in 0.08s, 106 queries (+106 other)
+2026-10-20 02:30:17,209 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module digest loaded in 0.22s, 397 queries (+397 other)
+2026-10-20 02:30:17,882 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module payment loaded in 0.67s, 1008 queries (+1008 other)
+2026-10-20 02:30:17,929 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module portal_discuss loaded in 0.05s, 84 queries (+84 other)
+2026-10-20 02:30:17,977 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module spreadsheet loaded in 0.05s, 80 queries (+80 other)
+2026-10-20 02:30:22,532 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module account loaded in 4.55s, 6102 queries (+6102 other)
+2026-10-20 02:30:22,804 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module spreadsheet_dashboard loaded in 0.27s, 477 queries (+477 other)
+2026-10-20 02:30:28,061 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module account_edi_ubl_cii loaded in 5.26s, 595 queries (+595 other)
+2026-10-20 02:30:28,396 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module account_payment loaded in 0.33s, 551 queries (+551 other)
+2026-10-20 02:30:28,447 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module account_qr_code_sepa loaded in 0.05s, 55 queries (+55 other)
+2026-10-20 02:30:28,524 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module spreadsheet_account loaded in 0.08s, 71 queries (+71 other)
+2026-10-20 02:30:30,589 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module sale loaded in 2.06s, 2418 queries (+2418 other)
+2026-10-20 02:30:30,635 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module spreadsheet_dashboard_account loaded in 0.05s, 34 queries (+34 other)
+2026-10-20 02:30:30,900 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module sale_edi_ubl loaded in 0.26s, 191 queries (+191 other)
+2026-10-20 02:30:30,956 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module sale_sms loaded in 0.06s, 67 queries (+67 other)
+2026-10-20 02:30:31,009 9914 INFO odoo_w3b03_sale odoo.modules.loading: Module spreadsheet_dashboard_sale loaded in 0.05s, 39 queries (+39 other)
+2026-10-20 02:30:48,630 9914 INFO odoo_w3b03_sale odoo.addons.sale.tests.test_sale_combo_configurator: Starting TestSaleComboConfigurator.test_sale_combo_configurator ...
+2026-10-20 02:30:48,632 9914 INFO odoo_w3b03_sale odoo.addons.sale.tests.test_sale_combo_configurator: Starting TestSaleComboConfigurator.test_sale_combo_configurator_preconfigure_unconfigurable_ptals ...
+2026-10-20 02:30:48,633 9914 INFO odoo_w3b03_sale odoo.addons.sale.tests.test_sale_combo_configurator: Starting TestSaleComboConfigurator.test_sale_combo_configurator_preselect_single_unconfigurable_items ...
+2026-10-20 02:30:48,634 9914 INFO odoo_w3b03_sale odoo.addons.sale.tests.test_sale_combo_configurator: Starting TestSaleComboConfigurator.test_sale_combo_configurator_with_optional_products ...
+2026-10-20 02:30:51,194 9914 INFO odoo_w3b03_sale odoo.addons.sale.tests.test_sale_combo_multicurrency: Starting TestSaleComboMultiCurrency.test_combo_item_extra_price_currency_conversion ...
+2026-10-20 02:30:54,746 9914 INFO odoo_w3b03_sale odoo.addons.sale.tests.test_sale_combo_multicurrency: Starting TestSaleComboMultiCurrency.test_combo_item_extra_price_same_currency ...
+2026-10-20 02:31:01,604 9914 INFO odoo_w3b03_sale odoo.addons.sale.tests.test_sale_order_onchange_combo: Starting TestSaleOrderComboLinkedLines.test_combo_items_deleted_when_line_no_longer_combo ...
+2026-10-20 02:31:05,398 9914 INFO odoo_w3b03_sale odoo.addons.sale.tests.test_sale_order_onchange_combo: Starting TestSaleOrderComboLinkedLines.test_get_linked_lines_via_linked_line_id ...
+2026-10-20 02:31:06,888 9914 INFO odoo_w3b03_sale odoo.addons.sale.tests.test_sale_order_onchange_combo: Starting TestSaleOrderComboLinkedLines.test_get_linked_lines_via_linked_virtual_id ...
+2026-10-20 02:31:11,356 9914 INFO odoo_w3b03_sale odoo.tests.result: 0 failed, 0 error(s) of 17 tests when loading database 'odoo_w3b03_sale'

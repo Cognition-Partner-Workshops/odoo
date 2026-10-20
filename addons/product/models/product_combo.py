@@ -9,6 +9,7 @@ class ProductCombo(models.Model):
     _name = 'product.combo'
     _description = "Product Combo"
     _order = 'sequence, id'
+    _storage = 'mongodb'
 
     name = fields.Char(string="Name", required=True, translate=True)
     sequence = fields.Integer(default=10, copy=False)
@@ -19,7 +20,8 @@ class ProductCombo(models.Model):
         copy=True,
     )
     combo_item_count = fields.Integer(string="Product Count", compute='_compute_combo_item_count')
-    currency_id = fields.Many2one(comodel_name='res.currency', compute='_compute_currency_id', compute_sql='_compute_sql_currency_id', compute_sudo=True)
+    currency_id = fields.Many2one(comodel_name='res.currency', compute='_compute_currency_id', compute_sql='_compute_sql_currency_id',
+        search='_search_currency_id', compute_sudo=True)
     base_price = fields.Float(
         string="Combo Price",
         help="The minimum price among the products in this combo. This value will be used to"
@@ -53,6 +55,14 @@ class ProductCombo(models.Model):
     def _compute_sql_currency_id(self, table):
         main_company = self.env['res.company']._get_main_company()
         return SQL("COALESCE(%s, %s)", table.company_id.currency_id, main_company.currency_id.id)
+
+    def _search_currency_id(self, operator, value):
+        if self._storage != 'mongodb':
+            return NotImplemented  # PostgreSQL: the compute_sql expression
+        # MongoDB has no compute_sql; COALESCE(company.currency_id, main_company.currency_id)
+        # becomes a company_id condition, as product.template does.
+        return self.env['product.template']._currency_search_domain(
+            operator, value, self.env['res.company']._get_main_company())
 
     @api.depends('combo_item_ids')
     def _compute_base_price(self):

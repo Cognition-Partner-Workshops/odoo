@@ -1,0 +1,106 @@
+{
+  "unit": "product-combo",
+  "mode": "fixture",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+  "tolerance_version": "v1",
+  "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68",
+  "collections": [
+    "productCombo",
+    "productComboItem"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-20T02:20:23.281082+00:00",
+  "redacted": true,
+  "redaction_salted": false,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {
+        "source_counts": {
+          "productCombo": 3,
+          "productComboItem": 8
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 11,
+      "stats": {
+        "deferred_to_tier3": [
+          "productCombo.sequence",
+          "productCombo.companyId",
+          "productCombo.createUid",
+          "productCombo.writeUid",
+          "productCombo.name",
+          "productCombo.createDate",
+          "productCombo.writeDate",
+          "productComboItem.companyId",
+          "productComboItem.createUid",
+          "productComboItem.writeUid",
+          "productComboItem.extraPrice",
+          "productComboItem.createDate",
+          "productComboItem.writeDate"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "productCombo.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "productCombo.name",
+            "key": "productCombo"
+          }
+        ],
+        "fields_fully_deferred": 4
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 11,
+      "stats": {
+        "productCombo": {
+          "mode": "full_diff",
+          "population": 3,
+          "duplicate_source_key_count": 0
+        },
+        "productComboItem": {
+          "mode": "full_diff",
+          "population": 8,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 3,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": false,
+  "error": null
+}

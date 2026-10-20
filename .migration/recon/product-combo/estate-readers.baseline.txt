@@ -1,0 +1,7 @@
+READER sale.report 51
+READER purchase.report 32
+READER account.invoice.report 62
+READER purchase.bill.line.match 27
+READER report.stock.quantity 5263
+READER stock.avco.report 7
+READER vendor.delay.report 10
