@@ -473,6 +473,10 @@ def load_modules(
     registry.loaded = True
     registry._setup_models__(cr)
 
+    # id shadow tables of MongoDB-stored models take ORM writes from here on
+    # (migration end-scripts, _register_hook) without a module update
+    storage_mongodb.relax_registry_shadow_tables(registry, cr)
+
     # check that all installed modules have been loaded by the registry
     Module = env['ir.module.module']
     modules = Module.search_fetch(Module._get_modules_to_load_domain(), ['name'], order='name')
@@ -589,10 +593,7 @@ def load_modules(
         model._register_hook()
     env.flush_all()
 
-    # STEP 10: id shadow tables of MongoDB-stored models take writes as loaded
-    storage_mongodb.relax_registry_shadow_tables(registry, cr)
-
-    # STEP 11: check that we can trust nullable columns
+    # STEP 10: check that we can trust nullable columns
     registry.check_null_constraints(cr)
 
 
