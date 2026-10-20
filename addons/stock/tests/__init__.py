@@ -2,6 +2,7 @@ from . import test_auto_waving
 from . import test_batch_picking
 from . import test_generate_serial_numbers
 from . import test_immediate
+from . import test_init_hooks
 from . import test_inventory
 from . import test_move
 from . import test_move2
