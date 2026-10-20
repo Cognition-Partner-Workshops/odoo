@@ -38,8 +38,8 @@
   },
   "storage_path_findings": [],
   "one_line_summary": "account-chart: live PASS on 79c5ab0 (source odoo_src), merge_eligible true, 0 warnings; fixture PASS; ORM scenario 79/79, no storage-path gap left",
-  "head_sha": "726300b143bdba24fbaeb1ac4d57f4920e5fb235",
-  "base": "mongo-run/unt12@79c5ab03773",
+  "head_sha": "bb2f8956fc0b6d4989cf4f3df2389870650d5093",
+  "base": "mongo-run/unt12@a25acb9ede8",
   "scenario": {
     "path": ".migration/load/scenario_account_chart.py",
     "passed": 79,
