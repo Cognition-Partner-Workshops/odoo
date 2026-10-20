@@ -16,6 +16,7 @@ _logger = logging.getLogger(__name__)
 
 class AccountJournalGroup(models.Model):
     _name = 'account.journal.group'
+    _storage = 'mongodb'
     _description = "Account Journal Group"
 
     name = fields.Char("Ledger group", required=True, translate=True)

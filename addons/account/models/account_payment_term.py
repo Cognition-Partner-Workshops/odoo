@@ -8,6 +8,7 @@ from dateutil.relativedelta import relativedelta
 
 class AccountPaymentTerm(models.Model):
     _name = 'account.payment.term'
+    _storage = 'mongodb'
     _description = "Payment Terms"
     _order = "sequence, id"
     _check_company_domain = models.check_company_domain_parent_of
@@ -273,6 +274,7 @@ class AccountPaymentTerm(models.Model):
 
 class AccountPaymentTermLine(models.Model):
     _name = 'account.payment.term.line'
+    _storage = 'mongodb'
     _description = "Payment Terms Line"
     _order = "id"
 

@@ -13,6 +13,7 @@ class AccountCashRounding(models.Model):
     see https://en.wikipedia.org/wiki/Cash_rounding for more details.
     """
     _name = 'account.cash.rounding'
+    _storage = 'mongodb'
     _description = 'Account Cash Rounding'
     _order = 'sequence, id'
     _check_company_auto = True
