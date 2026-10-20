@@ -1,0 +1,15 @@
+# Recon summary: `product-taxonomy` - **PASS**
+
+- Mode: `fixture` (fixture data: NOT a merge verdict, run live once before merging)
+- Merge eligible: no (fixture/continuous evidence never merges)
+- Mapping `map-draft-2` / tolerances `unt12-3` / seed `0`
+- Generated: 2026-10-20T14:24:14.216067+00:00
+
+| Tier | Checks | Result |
+|---|---|---|
+| 1 counts_through_mapping | 8 | PASS |
+| 2 per_field_aggregates | 22 | PASS |
+| 3 keyed_diffs | 27 | PASS |
+| 4 app_level_parity | 7 | PASS |
+
+Full evidence: result.json, report.md (linked from the PR, not pasted).

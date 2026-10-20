@@ -1,5 +1,5 @@
-"""Seed the scenario rows of batches w1-b01 (unit stock-reference), w1-b04 (unit account-settings) and
-w1-b06 (unit account-chart) on the worker's own PostgreSQL clone.
+"""Seed the scenario rows of batches w1-b01 (unit stock-reference), w1-b02 (unit product-taxonomy),
+w1-b04 (unit account-settings) and w1-b06 (unit account-chart) on the worker's own PostgreSQL clone.
 
 Run it through the pre-opt-in source tree (the SOURCE_COMMIT worktree build_source.sh keeps at
 ../odoo-unt12-src), so every write lands on PostgreSQL and the clone stays a plain source:
@@ -17,6 +17,11 @@ Run it through the pre-opt-in source tree (the SOURCE_COMMIT worktree build_sour
    account_report_section_rel have 0 fixture rows: seeds two roundings, two ledger groups, one lock
    exception, one sectioned report and two lines with three expressions and one external value on
    report 1, all pinned to FIXED_INSTANT.
+4. w1-b02: product_tag and product_base_unit have 0 fixture rows, and so do the three junction tables
+   (product_tag_product_template_rel, product_tag_product_product_rel,
+   product_category_stock_picking_type_rel): seeds three tags linked to the two lowest-id templates /
+   three lowest-id variants, two base units, and two picking types with wave categories, pinned to
+   FIXED_INSTANT.
 Idempotent: an already seeded clone only gets the cron step again.
 """
 FIXED_INSTANT = '2026-10-20 00:00:00'
@@ -158,3 +163,60 @@ for table in ('account_account_tax_default_rel', 'account_tax_filiation_rel', 'a
               'account_fiscal_position_account', 'account_fiscal_position_res_country_state_rel'):
     env.cr.execute(f"SELECT count(*) FROM {table}")
     print(table, env.cr.fetchone()[0])
+
+# --- w1-b02 (unit product-taxonomy): the two roots and three junction arrays with 0 fixture rows (units.json recon_unverified) ---
+PRODUCT_TAGS = [
+    {'name': 'Fragile', 'sequence': 10, 'color': 1, 'visible_to_customers': True},
+    {'name': 'Seasonal', 'sequence': 20, 'color': 4, 'visible_to_customers': False},
+    {'name': 'Clearance', 'sequence': 5},  # default color, default visibility
+]
+BASE_UNITS = [{'name': 'Litre'}, {'name': 'Kilogram'}]
+WAVE_CATEGORIES = {1: [1, 4], 3: [5]}  # picking type id -> product category ids (fixture ids)
+
+
+def pin(table, ids):
+    env.cr.execute(f"UPDATE {table} SET create_date = %s, write_date = %s WHERE id IN %s",
+                   (FIXED_INSTANT, FIXED_INSTANT, tuple(ids)))
+
+
+ProductTag = env['product.tag']
+if ProductTag.search_count([]):
+    print(f"product.tag already seeded: {ProductTag.search_count([])} rows")
+else:
+    templates = env['product.template'].search([], order='id', limit=2)
+    variants = env['product.product'].search([], order='id', limit=3)
+    links = [
+        {'product_template_ids': [(6, 0, templates.ids)], 'product_product_ids': [(6, 0, variants.ids)]},
+        {'product_template_ids': [(6, 0, templates[:1].ids)]},
+        {},  # no links: a tag without arrays
+    ]
+    product_tags = ProductTag.create([dict(tag, **link) for tag, link in zip(PRODUCT_TAGS, links)])
+    product_tags.flush_recordset()
+    pin('product_tag', product_tags.ids)
+    print(f"product.tag seeded: ids {product_tags.ids}, templates {templates.ids}, variants {variants.ids}")
+
+BaseUnit = env['product.base.unit']
+if BaseUnit.search_count([]):
+    print(f"product.base.unit already seeded: {BaseUnit.search_count([])} rows")
+else:
+    units = BaseUnit.create(BASE_UNITS)
+    units.flush_recordset()
+    pin('product_base_unit', units.ids)
+    print(f"product.base.unit seeded: ids {units.ids}")
+
+env.cr.execute("SELECT count(*) FROM product_category_stock_picking_type_rel")
+if env.cr.fetchone()[0]:
+    print("stock.picking.type.wave_category_ids already seeded")
+else:
+    for picking_type_id, categ_ids in WAVE_CATEGORIES.items():
+        env['stock.picking.type'].browse(picking_type_id).write({'wave_category_ids': [(6, 0, categ_ids)]})
+    env.flush_all()
+    print(f"stock.picking.type.wave_category_ids seeded: {WAVE_CATEGORIES}")
+env.cr.commit()
+for table, cols in (('product_tag', "name->>'en_US', sequence, color, visible_to_customers"),
+                    ('product_base_unit', "name->>'en_US'"),
+                    ('product_tag_product_template_rel', 'product_template_id'),
+                    ('product_tag_product_product_rel', 'product_product_id'),
+                    ('product_category_stock_picking_type_rel', 'stock_picking_type_id')):
+    env.cr.execute(f"SELECT * FROM (SELECT {cols} FROM {table}) t ORDER BY 1")
+    print(table, env.cr.fetchall())

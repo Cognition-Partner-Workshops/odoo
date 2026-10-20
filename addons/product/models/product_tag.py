@@ -6,6 +6,7 @@ from odoo.fields import Domain
 
 class ProductTag(models.Model):
     _name = 'product.tag'
+    _storage = 'mongodb'
     _description = 'Product Tag'
     _order = 'sequence, id'
 

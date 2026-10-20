@@ -1,0 +1,41 @@
+{
+  "batch": "w1-b02",
+  "status": "PASS",
+  "recon_results": [
+    ".migration/recon/product-taxonomy/result.json"
+  ],
+  "fixture_results": [
+    ".migration/recon/product-taxonomy/fixture/result.json"
+  ],
+  "write_targets": [
+    "odoo_unt12.productCategory",
+    "odoo_unt12.productRemoval",
+    "odoo_unt12.productTag",
+    "odoo_unt12.productDocument",
+    "odoo_unt12.productBaseUnit"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/61",
+  "branch": "devin/1792505455-w1-b02-product-taxonomy",
+  "failure_class": "",
+  "manifest_sha": "b965d1e5f34e",
+  "plugin_sha": "9a584b4cdb311ddd64fb07cbd1cf35fc9485062c",
+  "mapping_version": "map-draft-2",
+  "recon_tolerances_version": "unt12-3",
+  "tier_checks": {
+    "live": [
+      18,
+      22,
+      27,
+      7
+    ],
+    "fixture": [
+      8,
+      22,
+      27,
+      7
+    ]
+  },
+  "one_line_summary": "product-taxonomy on mongo-run/unt12 a25acb9 (PR #68 shared loader/seed): live PASS, merge_eligible true, 0 warnings; fixture PASS; 70/70 ORM scenario checks incl. company-dependent writes and get_property_definition; rollback leaves an emptied junction array on first run after a fresh load (reported, not patched)",
+  "base_commit": "a25acb9ede8",
+  "evidence_commit": "acc537aff39"
+}

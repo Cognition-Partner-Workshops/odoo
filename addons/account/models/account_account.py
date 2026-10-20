@@ -1318,6 +1318,23 @@ class AccountAccount(models.Model):
         new_account_id_by_company_id_json = json.dumps(new_account_id_by_company_id)
         (self | new_accounts).invalidate_recordset()
 
+        def _update_mongodb_references(model, fname, old_value, new_value, extra_domain=(), company_dependent=False):
+            """ The ORM equivalent of the UPDATE statements below for a model stored in MongoDB
+                (``_storage = 'mongodb'``): its PostgreSQL shadow table has no data column to
+                update. One search + write per company getting a new account; a company-dependent
+                field is matched as the company sees it (an explicit value or the fallback).
+            """
+            Model = self.env[model].sudo().with_context(active_test=False)
+            for company_id, new_account_id in new_account_id_by_company_id.items():
+                if company_dependent:
+                    records = Model.with_company(int(company_id))
+                    domain = [(fname, '=', old_value), *extra_domain]
+                else:
+                    records = Model
+                    company_field = 'id' if model == 'res.company' else 'company_id'
+                    domain = [(fname, '=', old_value), (company_field, '=', int(company_id)), *extra_domain]
+                records.search(domain).write({fname: new_value(new_account_id)})
+
         # 3.1: Update fields on other models that reference account.account
         many2x_fields = self.env['ir.model.fields'].search([
             ('ttype', 'in', ('many2one', 'many2many')),
@@ -1330,6 +1347,13 @@ class AccountAccount(models.Model):
             if not self.env[model]._auto:
                 continue
             if not (query_company_id := _get_query_company_id(model)):
+                continue
+            if self.env[model]._storage == 'mongodb':
+                if field_to_update.ttype == 'many2one':
+                    _update_mongodb_references(model, field_to_update.name, self.id, lambda new_id: new_id)
+                else:
+                    _update_mongodb_references(model, field_to_update.name, self.id,
+                                               lambda new_id: [Command.unlink(self.id), Command.link(new_id)])
                 continue
             if field_to_update.ttype == 'many2one':
                 table = self.env[model]._table
@@ -1360,6 +1384,9 @@ class AccountAccount(models.Model):
                 company_ids_to_update=tuple(new_account_id_by_company_id),
             ))
         for field in self.env.registry.many2one_company_dependents[self._name]:
+            if self.env[field.model_name]._storage == 'mongodb':
+                _update_mongodb_references(field.model_name, field.name, self.id, lambda new_id: new_id, company_dependent=True)
+                continue
             self.env.cr.execute(SQL(
                 """
                 UPDATE %(table)s
@@ -1389,6 +1416,10 @@ class AccountAccount(models.Model):
                 continue
             if not (query_company_id := _get_query_company_id(model)):
                 continue
+            if self.env[model]._storage == 'mongodb':
+                _update_mongodb_references(model, field_to_update.name, f'account.account,{self.id}',
+                                           lambda new_id: f'account.account,{new_id}')
+                continue
             self.env.cr.execute(SQL(
                 """
                  UPDATE %(table)s
@@ -1417,6 +1448,10 @@ class AccountAccount(models.Model):
             if not self.env[model]._auto or not self.env[model]._fields[model_field].store:
                 continue
             if not (query_company_id := _get_query_company_id(model)):
+                continue
+            if self.env[model]._storage == 'mongodb':
+                _update_mongodb_references(model, field_to_update.name, self.id, lambda new_id: new_id,
+                                           extra_domain=[(model_field, '=', 'account.account')])
                 continue
             self.env.cr.execute(SQL(
                 """
