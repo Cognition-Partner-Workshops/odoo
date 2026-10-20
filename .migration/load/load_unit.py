@@ -9,7 +9,9 @@ The unit's collections come from .migration/units.json and must all be write tar
 in --target-db; rows, field targets and indexes come from .migration/mapping_spec.json; values go
 through the ORM's own ``odoo.orm.storage_mongodb.to_bson`` so a loaded document is what
 ``_storage = 'mongodb'`` would have written (NULL columns are omitted: ``null_missing_equiv``).
-Flat root collections only (this unit embeds nothing). Every run empties the collection first;
+Root collections keyed by id -> _id, plus junction arrays embedded in them (a many2many relation
+table stored as an array of ``{<targetKey>: <other id>}`` elements on the owning document, as the
+storage path writes it; a parent with no rows has no array). Every run empties the collection first;
 a non-empty collection needs --replace: once the model is opted in the collection is the
 system of record and a reload discards every edit made through the ORM. Secrets are read by name
 from the environment (the PostgreSQL one is the plugin's JSON shape) and never printed.
@@ -40,8 +42,9 @@ def unit_collections(unit_id, target_db):
     outside = [c for c in unit['collections'] if f'{target_db}.{c}' not in unit['write_targets']]
     if outside:
         raise SystemExit(f'{outside} are not write targets of {unit_id} in {target_db}: plan gap, halt')
-    if unit['embedded_tables']:
-        raise SystemExit(f'{unit_id} embeds {unit["embedded_tables"]}: this loader handles flat roots only')
+    unsupported = [e for e in unit['embedded_tables'] if e['shape'] != 'junction']
+    if unsupported:
+        raise SystemExit(f'{unit_id} embeds {unsupported}: this loader handles flat roots and junction arrays only')
     return unit['collections']
 
 
@@ -52,21 +55,49 @@ def connect_source(secret_name):
     return conn, params['database']
 
 
+def select(cur, table, columns, order):
+    cur.execute(f'SELECT {", ".join(chr(34) + c + chr(34) for c in columns)} FROM "{table}" ORDER BY {order}')
+    return cur.fetchall()
+
+
 def documents(cur, coll_spec):
-    if coll_spec['embeds'] or coll_spec['key']['source'] != ['id'] or coll_spec['key']['target'] != '_id':
-        raise SystemExit(f'{coll_spec["collection"]}: only flat roots keyed by id -> _id are supported')
+    if coll_spec['key']['source'] != ['id'] or coll_spec['key']['target'] != '_id':
+        raise SystemExit(f'{coll_spec["collection"]}: only roots keyed by id -> _id are supported')
     fields = coll_spec['fields']
-    columns = ['id'] + [f['source'] for f in fields]
-    cur.execute(f'SELECT {", ".join(chr(34) + c + chr(34) for c in columns)} FROM "{coll_spec["root_table"]}" ORDER BY id')
     docs = []
-    for row in cur.fetchall():
+    for row in select(cur, coll_spec['root_table'], ['id'] + [f['source'] for f in fields], 'id'):
         doc = {'_id': int(row[0])}
         for field, value in zip(fields, row[1:]):
             value = to_bson(value, field['bson_type'])
             if value is not None:
                 doc[field['target']] = value
         docs.append(doc)
+    by_id = {doc['_id']: doc for doc in docs}
+    for embed in coll_spec['embeds']:
+        for parent_id, elements in junction_elements(cur, coll_spec['collection'], embed).items():
+            if parent_id not in by_id:
+                raise SystemExit(f'{embed["child_table"]}: row for missing {coll_spec["root_table"]}.id={parent_id}; nothing was changed')
+            by_id[parent_id][embed['array_path']] = elements
     return docs
+
+
+def junction_elements(cur, name, embed):
+    """Elements of one junction array by parent id: the relation table's rows, the other side's
+    column(s) under the embed key target(s), in (parent, key) order."""
+    if embed['shape'] != 'array' or embed['fields'] or len(embed['parent_key']) != 1:
+        raise SystemExit(f'{name}.{embed["array_path"]}: only junction arrays (one parent column, no fields) are supported')
+    key_sources = embed['key']['source']
+    key_targets = embed['key']['target'] if isinstance(embed['key']['target'], list) else [embed['key']['target']]
+    if len(key_sources) != len(key_targets):
+        raise SystemExit(f'{name}.{embed["array_path"]}: key source {key_sources} and target {key_targets} differ in length')
+    bson_types = {f['source']: f['bson_type'] for f in embed['child_fields']}
+    columns = embed['parent_key'] + key_sources
+    by_parent = {}
+    for row in select(cur, embed['child_table'], columns, ', '.join(chr(34) + c + chr(34) for c in columns)):
+        element = {target: to_bson(value, bson_types.get(source, 'int'))
+                   for source, target, value in zip(key_sources, key_targets, row[1:])}
+        by_parent.setdefault(int(row[0]), []).append(element)
+    return by_parent
 
 
 def validate(name, coll_spec, docs):
@@ -157,8 +188,10 @@ def load(unit_id, source_secret, target_secret, target_db, replace):
         for name in names:
             touched.append(name)
             write_collection(db[name], loads[name], index_specs(spec[name]))
+            arrays = ', '.join(f'{e["array_path"]}: {sum(len(d.get(e["array_path"], ())) for d in loads[name])} elements'
+                               for e in spec[name]['embeds'])
             print(f'{spec[name]["root_table"]} ({source_db}) -> {target_db}.{name}: {len(loads[name])} documents, '
-                  f'{len(db[name].index_information())} indexes')
+                  f'{len(db[name].index_information())} indexes' + (f' ({arrays})' if arrays else ''))
     except Exception as exc:
         problems = {name: restore_collection(db[name], *originals[name]) for name in touched}
         restored = [name for name in touched if not problems[name]]

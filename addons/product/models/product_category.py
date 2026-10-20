@@ -7,6 +7,7 @@ from odoo.fields import Domain
 
 class ProductCategory(models.Model):
     _name = 'product.category'
+    _storage = 'mongodb'
     _inherit = ['mail.thread']
     _description = "Product Category"
     _parent_name = "parent_id"

@@ -3,6 +3,7 @@ from odoo import fields, models
 
 class ProductBaseUnit(models.Model):
     _name = 'product.base.unit'
+    _storage = 'mongodb'
     _description = "Unit of Measure for price per unit on products."
     _order = 'name'
 
