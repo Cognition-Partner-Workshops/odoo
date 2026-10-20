@@ -135,12 +135,12 @@ class AccountInvoiceReport(models.Model):
                 END AS price_margin
                 """,
                 table.move_type,
-                table.move_type, table.balance, quantity, product._inline_sql(table.product_id, 'standard_price'),
-                table.balance, quantity, product._inline_sql(table.product_id, 'standard_price'),
+                table.move_type, table.balance, quantity, product._inline_sql(table.product_id, 'standard_price', table.company_id),
+                table.balance, quantity, product._inline_sql(table.product_id, 'standard_price', table.company_id),
             ),
             SQL(
                 "-%s * %s * COALESCE(%s, 0.0) AS inventory_value",
-                quantity, in_out_sign, product._inline_sql(table.product_id, 'standard_price'),
+                quantity, in_out_sign, product._inline_sql(table.product_id, 'standard_price', table.company_id),
             ),
         ]
 

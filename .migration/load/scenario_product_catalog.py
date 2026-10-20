@@ -29,8 +29,7 @@ by_table = {Model._table: Model for Model in env.registry.models.values() if not
 served = {spec.collection for table, spec in st.spec.by_table.items()
           if (table in by_table and by_table[table]._storage == 'mongodb') or (table not in by_table and st.relation_served(spec))}
 for name in sorted(served):
-    if st.db[name].estimated_document_count():
-        st.db[name].aggregate([{'$match': {}}, {'$out': st.prefix + name}])
+    st.db[name].aggregate([{'$match': {}}, {'$out': st.prefix + name}])  # $out replaces the copy, empty or not
 print(f"{len(served)} collections copied under the prefix (fresh copies of the live documents)")
 
 Template = env['product.template'].with_context(active_test=False)
@@ -248,3 +247,5 @@ check('no collection created outside the prefix', set(st.db.list_collection_name
 cr.rollback()
 failed = [n for n, ok in results if not ok]
 print(f"\n{len(results) - len(failed)}/{len(results)} checks passed; failed: {failed}")
+if failed:
+    raise SystemExit(1)

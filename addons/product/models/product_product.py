@@ -1087,14 +1087,15 @@ class ProductProduct(models.Model):
                 product.display_name = get_display_name(name, product.default_code)
 
     @api.model
-    def _inline_sql(self, product_id, path):
+    def _inline_sql(self, product_id, path, company_id=None):
         """ SQL expression of ``path`` (a field of product.product, or a dotted path through its
         many2ones) for the product whose id is the SQL column ``product_id``.
 
         product_product and product_template live in MongoDB, so SQL reports cannot join them:
         the values are read through the ORM and inlined as a CASE on the PostgreSQL foreign key
-        column, the device ``uom.uom._factor_sql`` uses for factors. Company-dependent fields
-        read in the current company.
+        column, the device ``uom.uom._factor_sql`` uses for factors. A company-dependent field
+        is read per company and keyed by the SQL column ``company_id`` too; without that column
+        it reads in the current company.
         """
         model = self
         for name in path.split('.'):
@@ -1102,14 +1103,24 @@ class ProductProduct(models.Model):
             if field.relational:
                 model = self.env[field.comodel_name]
         cast = {'many2one': 'integer', 'integer': 'integer', 'float': 'numeric', 'monetary': 'numeric'}.get(field.type, 'varchar')
-        whens = []
-        for product in self.sudo().with_context(active_test=False).search([]):
-            value = product.mapped(path)
-            value = value.id if isinstance(value, models.BaseModel) else value[0] if value else None
-            whens.append(SQL("WHEN %s THEN %s::" + cast, product.id, value or None))
+        products = self.sudo().with_context(active_test=False).search([])
+        companies = self.env['res.company'].sudo().search([]) if company_id is not None and field.company_dependent else None
+
+        def arms(records, condition):
+            for product in records:
+                value = product.mapped(path)
+                value = value.id if isinstance(value, models.BaseModel) else value[0] if value else None
+                yield SQL("WHEN %s THEN %s::" + cast, condition(product), value or None)
+
+        if companies is None:
+            whens = list(arms(products, lambda product: SQL("%s = %s", product_id, product.id)))
+        else:
+            whens = [when for company in companies for when in arms(
+                products.with_company(company),
+                lambda product, company=company: SQL("%s = %s AND %s = %s", product_id, product.id, company_id, company.id))]
         if not whens:
             return SQL("NULL::" + cast)
-        return SQL("(CASE %s %s END)", product_id, SQL(" ").join(whens))
+        return SQL("(CASE %s END)", SQL(" ").join(whens))
 
     @api.model
     def _search_display_name(self, operator, value):
