@@ -233,6 +233,10 @@ try:
     env.flush_all()
     pdoc = st.model_collection(position).find_one({'_id': position.id})
     check("child unlink + m2m unlink + write update the document", not pdoc.get('account') and not pdoc.get('accountTaxRel') and pdoc['sequence'] == 42, pdoc)
+    new_tax.unlink()
+    env.flush_all()
+    check("unlink removes document + shadow row", st.model_collection(Tax).find_one({'_id': new_tax.id}) is None
+          and sql("SELECT count(*) FROM account_tax WHERE id = %s", (new_tax.id,))[0][0] == 0)
     try:
         with cr.savepoint():
             Tag.create({'name': 'Scenario tag w1-b06', 'applicability': 'taxes', 'country_id': env.company.country_id.id})
@@ -240,10 +244,12 @@ try:
         check("account.account.tag unique(name, applicability, country_id) refused", False, 'duplicate accepted')
     except Exception as exc:  # noqa: BLE001
         check("account.account.tag unique(name, applicability, country_id) refused", 'E11000' in str(exc) or 'duplicate key' in str(exc) or 'already exists' in str(exc), type(exc).__name__)
-    new_tax.unlink()
+    tax2 = Tax.create({'name': 'Scenario tax 2 w1-b06', 'amount': 1.0, 'type_tax_use': 'sale', 'company_id': env.company.id})
     env.flush_all()
-    check("unlink removes document + shadow row", st.model_collection(Tax).find_one({'_id': new_tax.id}) is None
-          and sql("SELECT count(*) FROM account_tax WHERE id = %s", (new_tax.id,))[0][0] == 0)
+    tax2.unlink()
+    env.flush_all()
+    check("unlink of a record created before a rolled-back savepoint", st.model_collection(Tax).find_one({'_id': tax2.id}) is None
+          and sql("SELECT count(*) FROM account_tax WHERE id = %s", (tax2.id,))[0][0] == 0)
 except Exception as exc:  # noqa: BLE001
     import traceback
     frames = [(f.filename.rsplit('/', 1)[-1], f.lineno, f.name) for f in traceback.extract_tb(exc.__traceback__)[-5:]]
