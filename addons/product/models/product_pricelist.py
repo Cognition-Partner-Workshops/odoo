@@ -13,6 +13,7 @@ class ProductPricelist(models.Model):
     _description = "Pricelist"
     _rec_names_search = ('name', 'currency_id')  # TODO check if should be removed
     _order = "sequence, id, name"
+    _storage = 'mongodb'   # wave 3 w3-b01; no D6 SQL reader (contract §5): shadow table is id only
 
     def _default_currency_id(self):
         return self.env.company.currency_id.id

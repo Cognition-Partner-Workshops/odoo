@@ -1,0 +1,264 @@
+[
+  {
+    "name": "items_per_pricelist",
+    "collection": "productPricelistItem",
+    "source_sql": "SELECT pricelist_id AS \"pricelistId\", COUNT(*) AS n FROM product_pricelist_item GROUP BY pricelist_id ORDER BY pricelist_id",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": "$pricelistId",
+          "n": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "pricelistId": "$_id",
+          "n": 1
+        }
+      },
+      {
+        "$sort": {
+          "pricelistId": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "items_by_compute_mode",
+    "collection": "productPricelistItem",
+    "source_sql": "SELECT compute_price AS \"computePrice\", base, COUNT(*) AS n FROM product_pricelist_item GROUP BY compute_price, base ORDER BY compute_price, base",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": {
+            "computePrice": "$computePrice",
+            "base": "$base"
+          },
+          "n": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "computePrice": "$_id.computePrice",
+          "base": "$_id.base",
+          "n": 1
+        }
+      },
+      {
+        "$sort": {
+          "computePrice": 1,
+          "base": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "item_rule_order",
+    "collection": "productPricelistItem",
+    "source_sql": "SELECT id AS \"_id\", pricelist_id AS \"pricelistId\", applied_on AS \"appliedOn\", min_quantity AS \"minQuantity\", categ_id AS \"categId\", product_tmpl_id AS \"productTmplId\", product_id AS \"productId\" FROM product_pricelist_item ORDER BY applied_on, min_quantity DESC, id DESC",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 1,
+          "pricelistId": 1,
+          "appliedOn": 1,
+          "minQuantity": 1,
+          "categId": {
+            "$ifNull": [
+              "$categId",
+              null
+            ]
+          },
+          "productTmplId": {
+            "$ifNull": [
+              "$productTmplId",
+              null
+            ]
+          },
+          "productId": {
+            "$ifNull": [
+              "$productId",
+              null
+            ]
+          }
+        }
+      },
+      {
+        "$sort": {
+          "appliedOn": 1,
+          "minQuantity": -1,
+          "_id": -1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "dated_items",
+    "collection": "productPricelistItem",
+    "source_sql": "SELECT id AS \"_id\", date_start AS \"dateStart\", date_end AS \"dateEnd\", uom_id AS \"uomId\" FROM product_pricelist_item WHERE date_start IS NOT NULL OR date_end IS NOT NULL OR uom_id IS NOT NULL ORDER BY id",
+    "target_pipeline": [
+      {
+        "$match": {
+          "$or": [
+            {
+              "dateStart": {
+                "$exists": true
+              }
+            },
+            {
+              "dateEnd": {
+                "$exists": true
+              }
+            },
+            {
+              "uomId": {
+                "$exists": true
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$project": {
+          "_id": 1,
+          "dateStart": {
+            "$ifNull": [
+              "$dateStart",
+              null
+            ]
+          },
+          "dateEnd": {
+            "$ifNull": [
+              "$dateEnd",
+              null
+            ]
+          },
+          "uomId": {
+            "$ifNull": [
+              "$uomId",
+              null
+            ]
+          }
+        }
+      },
+      {
+        "$sort": {
+          "_id": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "base_pricelist_chain",
+    "collection": "productPricelistItem",
+    "source_sql": "SELECT i.id AS \"_id\", i.pricelist_id AS \"pricelistId\", i.base_pricelist_id AS \"basePricelistId\", p.currency_id AS \"baseCurrencyId\", i.price_discount AS \"priceDiscount\", i.price_round AS \"priceRound\" FROM product_pricelist_item i JOIN product_pricelist p ON p.id = i.base_pricelist_id ORDER BY i.id",
+    "target_pipeline": [
+      {
+        "$match": {
+          "basePricelistId": {
+            "$exists": true
+          }
+        }
+      },
+      {
+        "$lookup": {
+          "from": "productPricelist",
+          "localField": "basePricelistId",
+          "foreignField": "_id",
+          "as": "base"
+        }
+      },
+      {
+        "$project": {
+          "_id": 1,
+          "pricelistId": 1,
+          "basePricelistId": 1,
+          "baseCurrencyId": {
+            "$arrayElemAt": [
+              "$base.currencyId",
+              0
+            ]
+          },
+          "priceDiscount": 1,
+          "priceRound": 1
+        }
+      },
+      {
+        "$sort": {
+          "_id": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "pricelist_order_and_scope",
+    "collection": "productPricelist",
+    "source_sql": "SELECT id AS \"_id\", sequence, name->>'en_US' AS name, currency_id AS \"currencyId\", company_id AS \"companyId\", active FROM product_pricelist ORDER BY sequence, id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 1,
+          "sequence": 1,
+          "name": "$name.en_US",
+          "currencyId": 1,
+          "companyId": {
+            "$ifNull": [
+              "$companyId",
+              null
+            ]
+          },
+          "active": 1
+        }
+      },
+      {
+        "$sort": {
+          "sequence": 1,
+          "_id": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "pricelist_country_groups",
+    "collection": "productPricelist",
+    "source_sql": "SELECT pricelist_id AS \"_id\", COUNT(*) AS n, MIN(res_country_group_id) AS \"firstGroupId\" FROM res_country_group_pricelist_rel GROUP BY pricelist_id ORDER BY pricelist_id",
+    "target_pipeline": [
+      {
+        "$match": {
+          "resCountryGroupPricelistRel.0": {
+            "$exists": true
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 1,
+          "n": {
+            "$size": "$resCountryGroupPricelistRel"
+          },
+          "firstGroupId": {
+            "$min": "$resCountryGroupPricelistRel.resCountryGroupId"
+          }
+        }
+      },
+      {
+        "$sort": {
+          "_id": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]

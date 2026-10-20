@@ -1,0 +1,152 @@
+{
+  "unit": "product-pricing",
+  "mode": "fixture",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+  "tolerance_version": "v1",
+  "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68",
+  "collections": [
+    "productPricelist",
+    "productPricelistItem"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-20T02:24:19.221805+00:00",
+  "redacted": true,
+  "redaction_salted": false,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 3,
+      "stats": {
+        "source_counts": {
+          "productPricelist": 1,
+          "productPricelistItem": 1
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 26,
+      "stats": {
+        "deferred_to_tier3": [
+          "productPricelist.sequence",
+          "productPricelist.companyId",
+          "productPricelist.createUid",
+          "productPricelist.writeUid",
+          "productPricelist.name",
+          "productPricelist.active",
+          "productPricelist.createDate",
+          "productPricelist.writeDate",
+          "productPricelistItem.pricelistId",
+          "productPricelistItem.companyId",
+          "productPricelistItem.currencyId",
+          "productPricelistItem.categId",
+          "productPricelistItem.productTmplId",
+          "productPricelistItem.productId",
+          "productPricelistItem.uomId",
+          "productPricelistItem.basePricelistId",
+          "productPricelistItem.createUid",
+          "productPricelistItem.writeUid",
+          "productPricelistItem.appliedOn",
+          "productPricelistItem.base",
+          "productPricelistItem.computePrice",
+          "productPricelistItem.minQuantity",
+          "productPricelistItem.fixedPrice",
+          "productPricelistItem.priceDiscount",
+          "productPricelistItem.priceRound",
+          "productPricelistItem.priceSurcharge",
+          "productPricelistItem.priceMinMargin",
+          "productPricelistItem.priceMaxMargin",
+          "productPricelistItem.dateStart",
+          "productPricelistItem.dateEnd",
+          "productPricelistItem.createDate",
+          "productPricelistItem.writeDate"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "productPricelist.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productPricelistItem.appliedOn",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productPricelistItem.base",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productPricelistItem.computePrice",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "productPricelist.name",
+            "key": "productPricelist"
+          }
+        ],
+        "fields_fully_deferred": 7
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {
+        "productPricelist": {
+          "mode": "full_diff",
+          "population": 1,
+          "duplicate_source_key_count": 0
+        },
+        "embeds_graded": {
+          "productPricelist.resCountryGroupPricelistRel": 0
+        },
+        "productPricelistItem": {
+          "mode": "full_diff",
+          "population": 1,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 7,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": false,
+  "error": null
+}
