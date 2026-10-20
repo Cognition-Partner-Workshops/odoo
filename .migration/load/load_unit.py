@@ -112,6 +112,24 @@ def write_collection(coll, docs, indexes):
         coll.create_index(keys, **options)
 
 
+def restore_collection(coll, docs, indexes):
+    """Documents back first, then every index; returns what failed, by stage."""
+    failed = {}
+    try:
+        coll.drop()
+        if docs:
+            coll.insert_many(docs, ordered=True)
+    except Exception as exc:  # noqa: BLE001
+        failed['documents'] = repr(exc)
+        return failed
+    for keys, options in indexes:
+        try:
+            coll.create_index(keys, **options)
+        except Exception as exc:  # noqa: BLE001
+            failed.setdefault('indexes', []).append(f'{options.get("name")}: {exc!r}')
+    return failed
+
+
 def load(unit_id, source_secret, target_secret, target_db, replace):
     if target_db not in json.load(ALLOWED.open())['databases']:
         raise SystemExit(f'{target_db} is not in {ALLOWED.relative_to(ROOT)}')
@@ -141,17 +159,20 @@ def load(unit_id, source_secret, target_secret, target_db, replace):
             write_collection(db[name], loads[name], index_specs(spec[name]))
             print(f'{spec[name]["root_table"]} ({source_db}) -> {target_db}.{name}: {len(loads[name])} documents, '
                   f'{len(db[name].index_information())} indexes')
-    except Exception:
-        # documents go back first; an index that cannot be rebuilt is reported, the documents stay
-        for name in touched:
-            docs, indexes = originals[name]
-            try:
-                write_collection(db[name], docs, indexes)
-            except Exception as restore_exc:  # noqa: BLE001
-                print(f'restore of {target_db}.{name}: documents restored, index rebuild failed: {restore_exc}', file=sys.stderr)
-        print(f'reload failed: {touched} restored to their pre-run documents and indexes', file=sys.stderr)
+    except Exception as exc:
+        problems = {name: restore_collection(db[name], *originals[name]) for name in touched}
+        restored = [name for name in touched if not problems[name]]
+        lost = {name: f['documents'] for name, f in problems.items() if 'documents' in f}
+        unindexed = {name: f['indexes'] for name, f in problems.items() if 'indexes' in f}
+        report = f'reload failed: {exc!r}; restored to pre-run state: {restored}'
+        if lost:
+            report += f'; DOCUMENTS NOT RESTORED (collection may be empty or partial): {lost}'
+        if unindexed:
+            report += f'; documents restored but indexes not rebuilt: {unindexed}'
+        print(report, file=sys.stderr)
+        if lost or unindexed:
+            raise SystemExit(report) from exc
         raise
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
