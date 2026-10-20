@@ -1,0 +1,191 @@
+{
+ "taken_at": "2026-10-20T22:55:53.660471+00:00",
+ "db": "odoo_unt12",
+ "collections": {
+  "stockStorageCategory": {
+   "count": 6,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "stockScrapReasonTag": {
+   "count": 3,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "returnReason": {
+   "count": 5,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "productCategory": {
+   "count": 7,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "productRemoval": {
+   "count": 4,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "productTag": {
+   "count": 3,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "productDocument": {
+   "count": 2,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "productBaseUnit": {
+   "count": 2,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "uomUom": {
+   "count": 30,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "stockPackageType": {
+   "count": 3,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountPaymentTerm": {
+   "count": 11,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountIncoterms": {
+   "count": 11,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountCashRounding": {
+   "count": 2,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountJournalGroup": {
+   "count": 2,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountLockException": {
+   "count": 1,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountReport": {
+   "count": 5,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountReportExpression": {
+   "count": 3,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountReportExternalValue": {
+   "count": 1,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "productAttribute": {
+   "count": 14,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountAccount": {
+   "count": 184,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountAccountTag": {
+   "count": 10,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountTax": {
+   "count": 58,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountTaxGroup": {
+   "count": 26,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountTaxRepartitionLine": {
+   "count": 232,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountFiscalPosition": {
+   "count": 4,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountJournal": {
+   "count": 14,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountPaymentMethod": {
+   "count": 2,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountReconcileModel": {
+   "count": 8,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "accountReconcileModelLineAccountTaxRel": {
+   "count": 1,
+   "max_writeDate": null,
+   "max_createDate": null
+  },
+  "productTemplate": {
+   "count": 37,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "productProduct": {
+   "count": 47,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "productTemplateAttributeValue": {
+   "count": 24,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "productAttributeValueProductTemplateAttributeLineRel": {
+   "count": 24,
+   "max_writeDate": null,
+   "max_createDate": null
+  },
+  "productCombo": {
+   "count": 3,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "productSupplierinfo": {
+   "count": 28,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "productPricelist": {
+   "count": 2,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  },
+  "productPricelistItem": {
+   "count": 2,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "max_createDate": "2026-10-20T00:00:00"
+  }
+ }
+}

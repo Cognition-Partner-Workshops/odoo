@@ -1,0 +1,2333 @@
+# Recon report: unit `wave-2-close-rerun-1`
+
+- **Verdict: PASS** (values redacted)
+- Mode: `live`
+- Merge eligible: yes (fixture/continuous evidence never merges)
+- Mapping version: `map-draft-2` (sha256 `88650faf41b7`)
+- Tolerance version: `unt12-3` (sha256 `7b426db21459`)
+- Collections: `accountAccount`, `accountAccountTag`, `accountCashRounding`, `accountFiscalPosition`, `accountIncoterms`, `accountJournal`, `accountJournalGroup`, `accountLockException`, `accountPaymentMethod`, `accountPaymentTerm`, `accountReconcileModel`, `accountReconcileModelLineAccountTaxRel`, `accountReport`, `accountReportExpression`, `accountReportExternalValue`, `accountTax`, `accountTaxGroup`, `accountTaxRepartitionLine`, `productAttribute`, `productAttributeValueProductTemplateAttributeLineRel`, `productBaseUnit`, `productCategory`, `productCombo`, `productDocument`, `productPricelist`, `productPricelistItem`, `productProduct`, `productRemoval`, `productSupplierinfo`, `productTag`, `productTemplate`, `productTemplateAttributeValue`, `returnReason`, `stockPackageType`, `stockScrapReasonTag`, `stockStorageCategory`, `uomUom`
+- Seed: `0`
+- Generated: 2026-10-20T22:58:06.665968+00:00
+- 489 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
+- 159 string fields: min/max/distinct deferred to Tier 3
+
+| Tier | Name | Checks | Result |
+|---|---|---|---|
+| 1 | counts_through_mapping | 260 | PASS |
+| 2 | per_field_aggregates | 280 | PASS |
+| 3 | keyed_diffs | 1530 | PASS |
+| 4 | app_level_parity | 41 | PASS |
+
+## Tier 1 coverage
+```json
+{
+  "source_counts": {
+    "accountAccount": 184,
+    "accountAccountTag": 10,
+    "accountCashRounding": 2,
+    "accountFiscalPosition": 4,
+    "accountIncoterms": 11,
+    "accountJournal": 14,
+    "accountJournalGroup": 2,
+    "accountLockException": 1,
+    "accountPaymentMethod": 2,
+    "accountPaymentTerm": 11,
+    "accountReconcileModel": 8,
+    "accountReconcileModelLineAccountTaxRel": 1,
+    "accountReport": 5,
+    "accountReportExpression": 3,
+    "accountReportExternalValue": 1,
+    "accountTax": 58,
+    "accountTaxGroup": 26,
+    "accountTaxRepartitionLine": 232,
+    "productAttribute": 14,
+    "productAttributeValueProductTemplateAttributeLineRel": 24,
+    "productBaseUnit": 2,
+    "productCategory": 7,
+    "productCombo": 3,
+    "productDocument": 2,
+    "productPricelist": 2,
+    "productPricelistItem": 2,
+    "productProduct": 47,
+    "productRemoval": 4,
+    "productSupplierinfo": 28,
+    "productTag": 3,
+    "productTemplate": 37,
+    "productTemplateAttributeValue": 24,
+    "returnReason": 5,
+    "stockPackageType": 3,
+    "stockScrapReasonTag": 3,
+    "stockStorageCategory": 6,
+    "uomUom": 30
+  }
+}
+```
+
+## Tier 2 coverage
+```json
+{
+  "deferred_to_tier3": [
+    "accountAccount.currencyId",
+    "accountAccount.parentId",
+    "accountAccount.accountStockVariationId",
+    "accountAccount.accountStockExpenseId",
+    "accountAccount.createUid",
+    "accountAccount.writeUid",
+    "accountAccount.accountType",
+    "accountAccount.parentPath",
+    "accountAccount.name",
+    "accountAccount.description",
+    "accountAccount.codeStore",
+    "accountAccount.note",
+    "accountAccount.active",
+    "accountAccount.reconcile",
+    "accountAccount.nonTrade",
+    "accountAccount.createDate",
+    "accountAccount.writeDate",
+    "accountAccountTag.color",
+    "accountAccountTag.countryId",
+    "accountAccountTag.createUid",
+    "accountAccountTag.writeUid",
+    "accountAccountTag.applicability",
+    "accountAccountTag.name",
+    "accountAccountTag.active",
+    "accountAccountTag.createDate",
+    "accountAccountTag.writeDate",
+    "accountCashRounding.companyId",
+    "accountCashRounding.createUid",
+    "accountCashRounding.writeUid",
+    "accountCashRounding.roundingMethod",
+    "accountCashRounding.strategy",
+    "accountCashRounding.name",
+    "accountCashRounding.profitAccountId",
+    "accountCashRounding.lossAccountId",
+    "accountCashRounding.active",
+    "accountCashRounding.createDate",
+    "accountCashRounding.writeDate",
+    "accountFiscalPosition.sequence",
+    "accountFiscalPosition.countryId",
+    "accountFiscalPosition.countryGroupId",
+    "accountFiscalPosition.createUid",
+    "accountFiscalPosition.writeUid",
+    "accountFiscalPosition.zipFrom",
+    "accountFiscalPosition.zipTo",
+    "accountFiscalPosition.foreignVat",
+    "accountFiscalPosition.name",
+    "accountFiscalPosition.note",
+    "accountFiscalPosition.active",
+    "accountFiscalPosition.autoApply",
+    "accountFiscalPosition.vatRequired",
+    "accountFiscalPosition.isDomestic",
+    "accountFiscalPosition.createDate",
+    "accountFiscalPosition.writeDate",
+    "accountIncoterms.createUid",
+    "accountIncoterms.writeUid",
+    "accountIncoterms.code",
+    "accountIncoterms.name",
+    "accountIncoterms.active",
+    "accountIncoterms.createDate",
+    "accountIncoterms.writeDate",
+    "accountJournal.aliasId",
+    "accountJournal.defaultAccountId",
+    "accountJournal.suspenseAccountId",
+    "accountJournal.nonDeductibleAccountId",
+    "accountJournal.sequence",
+    "accountJournal.currencyId",
+    "accountJournal.invoiceTemplatePdfReportId",
+    "accountJournal.profitAccountId",
+    "accountJournal.lossAccountId",
+    "accountJournal.bankAccountId",
+    "accountJournal.journalGroupId",
+    "accountJournal.createUid",
+    "accountJournal.writeUid",
+    "accountJournal.color",
+    "accountJournal.accessToken",
+    "accountJournal.code",
+    "accountJournal.type",
+    "accountJournal.invoiceReferenceType",
+    "accountJournal.invoiceReferenceModel",
+    "accountJournal.bankStatementsSource",
+    "accountJournal.incomingEinvoiceNotificationEmail",
+    "accountJournal.name",
+    "accountJournal.sequenceOverrideRegex",
+    "accountJournal.active",
+    "accountJournal.isSelfBilling",
+    "accountJournal.restrictModeHashTable",
+    "accountJournal.refundSequence",
+    "accountJournal.paymentSequence",
+    "accountJournal.showOnDashboard",
+    "accountJournal.disableDashboardGraph",
+    "accountJournal.createDate",
+    "accountJournal.writeDate",
+    "accountJournalGroup.sequence",
+    "accountJournalGroup.createUid",
+    "accountJournalGroup.writeUid",
+    "accountJournalGroup.name",
+    "accountJournalGroup.createDate",
+    "accountJournalGroup.writeDate",
+    "accountLockException.userId",
+    "accountLockException.createUid",
+    "accountLockException.writeUid",
+    "accountLockException.reason",
+    "accountLockException.lockDateField",
+    "accountLockException.lockDate",
+    "accountLockException.companyLockDate",
+    "accountLockException.active",
+    "accountLockException.endDatetime",
+    "accountLockException.createDate",
+    "accountLockException.writeDate",
+    "accountPaymentMethod.createUid",
+    "accountPaymentMethod.writeUid",
+    "accountPaymentMethod.code",
+    "accountPaymentMethod.paymentType",
+    "accountPaymentMethod.name",
+    "accountPaymentMethod.createDate",
+    "accountPaymentMethod.writeDate",
+    "accountPaymentTerm.companyId",
+    "accountPaymentTerm.discountDays",
+    "accountPaymentTerm.createUid",
+    "accountPaymentTerm.writeUid",
+    "accountPaymentTerm.earlyPayDiscountComputation",
+    "accountPaymentTerm.name",
+    "accountPaymentTerm.note",
+    "accountPaymentTerm.active",
+    "accountPaymentTerm.displayOnInvoice",
+    "accountPaymentTerm.earlyDiscount",
+    "accountPaymentTerm.createDate",
+    "accountPaymentTerm.writeDate",
+    "accountPaymentTerm.discountPercentage",
+    "accountReconcileModel.nextActivityTypeId",
+    "accountReconcileModel.mappedPartnerId",
+    "accountReconcileModel.createUid",
+    "accountReconcileModel.writeUid",
+    "accountReconcileModel.trigger",
+    "accountReconcileModel.matchAmount",
+    "accountReconcileModel.matchLabel",
+    "accountReconcileModel.matchLabelParam",
+    "accountReconcileModel.paymentToleranceType",
+    "accountReconcileModel.matchingOrder",
+    "accountReconcileModel.ruleType",
+    "accountReconcileModel.name",
+    "accountReconcileModel.active",
+    "accountReconcileModel.canBeProposed",
+    "accountReconcileModel.createDate",
+    "accountReconcileModel.writeDate",
+    "accountReconcileModel.matchAmountMin",
+    "accountReconcileModel.matchAmountMax",
+    "accountReport.sequence",
+    "accountReport.rootReportId",
+    "accountReport.countryId",
+    "accountReport.loadMoreLimit",
+    "accountReport.createUid",
+    "accountReport.writeUid",
+    "accountReport.groupby",
+    "accountReport.userGroupby",
+    "accountReport.chartTemplate",
+    "accountReport.availabilityCondition",
+    "accountReport.integerRounding",
+    "accountReport.defaultOpeningDateFilter",
+    "accountReport.currencyTranslation",
+    "accountReport.filterMultiCompany",
+    "accountReport.filterHide0Lines",
+    "accountReport.filterHierarchy",
+    "accountReport.filterAccountType",
+    "accountReport.name",
+    "accountReport.activeSelection",
+    "accountReport.activeFallback",
+    "accountReport.useSections",
+    "accountReport.onlyTaxExigible",
+    "accountReport.searchBar",
+    "accountReport.allowForeignVat",
+    "accountReport.useFiscalPeriods",
+    "accountReport.enableSnapshots",
+    "accountReport.filterDateRange",
+    "accountReport.filterShowDraft",
+    "accountReport.filterUnreconciled",
+    "accountReport.filterUnfoldAll",
+    "accountReport.filterPeriodComparison",
+    "accountReport.filterGrowthComparison",
+    "accountReport.filterLineComparison",
+    "accountReport.filterJournals",
+    "accountReport.filterPartner",
+    "accountReport.filterAmlIrFilters",
+    "accountReport.filterBudgets",
+    "accountReport.createDate",
+    "accountReport.writeDate",
+    "accountReportExpression.createUid",
+    "accountReportExpression.writeUid",
+    "accountReportExpression.label",
+    "accountReportExpression.engine",
+    "accountReportExpression.dateScope",
+    "accountReportExpression.figureType",
+    "accountReportExpression.carryoverTarget",
+    "accountReportExpression.formula",
+    "accountReportExpression.subformula",
+    "accountReportExpression.greenOnPositive",
+    "accountReportExpression.blankIfZero",
+    "accountReportExpression.auditable",
+    "accountReportExpression.createDate",
+    "accountReportExpression.writeDate",
+    "accountReportExternalValue.carryoverOriginReportLineId",
+    "accountReportExternalValue.createUid",
+    "accountReportExternalValue.writeUid",
+    "accountReportExternalValue.name",
+    "accountReportExternalValue.textValue",
+    "accountReportExternalValue.carryoverOriginExpressionLabel",
+    "accountReportExternalValue.date",
+    "accountReportExternalValue.createDate",
+    "accountReportExternalValue.writeDate",
+    "accountReportExternalValue.value",
+    "accountTax.cashBasisTransitionAccountId",
+    "accountTax.createUid",
+    "accountTax.writeUid",
+    "accountTax.typeTaxUse",
+    "accountTax.taxScope",
+    "accountTax.amountType",
+    "accountTax.priceIncludeOverride",
+    "accountTax.taxExigibility",
+    "accountTax.name",
+    "accountTax.description",
+    "accountTax.invoiceLabel",
+    "accountTax.invoiceLegalNotes",
+    "accountTax.isDomestic",
+    "accountTax.active",
+    "accountTax.includeBaseAmount",
+    "accountTax.isBaseAffected",
+    "accountTax.analytic",
+    "accountTax.createDate",
+    "accountTax.writeDate",
+    "accountTax.ublCiiTaxCategoryCode",
+    "accountTax.ublCiiTaxExemptionReason",
+    "accountTax.ublCiiTaxExemptionReasonCode",
+    "accountTax.l10nUsStateId",
+    "accountTax.l10nUsCountyId",
+    "accountTax.l10nUsCityId",
+    "accountTax.l10nUsExemptParentTaxId",
+    "accountTax.l10nUsNontaxableParentTaxId",
+    "accountTax.l10nUsJurisdictionType",
+    "accountTaxGroup.sequence",
+    "accountTaxGroup.countryId",
+    "accountTaxGroup.createUid",
+    "accountTaxGroup.writeUid",
+    "accountTaxGroup.posReceiptLabel",
+    "accountTaxGroup.name",
+    "accountTaxGroup.precedingSubtotal",
+    "accountTaxGroup.createDate",
+    "accountTaxGroup.writeDate",
+    "accountTaxRepartitionLine.accountId",
+    "accountTaxRepartitionLine.taxId",
+    "accountTaxRepartitionLine.companyId",
+    "accountTaxRepartitionLine.sequence",
+    "accountTaxRepartitionLine.createUid",
+    "accountTaxRepartitionLine.writeUid",
+    "accountTaxRepartitionLine.repartitionType",
+    "accountTaxRepartitionLine.documentType",
+    "accountTaxRepartitionLine.useInTaxClosing",
+    "accountTaxRepartitionLine.createDate",
+    "accountTaxRepartitionLine.writeDate",
+    "productAttribute.sequence",
+    "productAttribute.createUid",
+    "productAttribute.writeUid",
+    "productAttribute.createVariant",
+    "productAttribute.displayType",
+    "productAttribute.name",
+    "productAttribute.active",
+    "productAttribute.createDate",
+    "productAttribute.writeDate",
+    "productBaseUnit.createUid",
+    "productBaseUnit.writeUid",
+    "productBaseUnit.name",
+    "productBaseUnit.createDate",
+    "productBaseUnit.writeDate",
+    "productCategory.parentId",
+    "productCategory.companyId",
+    "productCategory.createUid",
+    "productCategory.writeUid",
+    "productCategory.parentPath",
+    "productCategory.name",
+    "productCategory.productPropertiesDefinition",
+    "productCategory.createDate",
+    "productCategory.writeDate",
+    "productCategory.propertyAccountIncomeCategId",
+    "productCategory.propertyAccountExpenseCategId",
+    "productCategory.propertyValuation",
+    "productCategory.propertyStockValuationAccountId",
+    "productCategory.propertyStockJournal",
+    "productCategory.propertyCostMethod",
+    "productCategory.propertyPriceDifferenceAccountId",
+    "productCategory.removalStrategyId",
+    "productCategory.packagingReserveMethod",
+    "productCategory.propertyAccountBillsToReceiveId",
+    "productCategory.propertyAccountBilledNotReceivedId",
+    "productCategory.propertyAccountInvoicesToIssueId",
+    "productCategory.propertyAccountInvoicedNotDeliveredId",
+    "productCombo.sequence",
+    "productCombo.companyId",
+    "productCombo.createUid",
+    "productCombo.writeUid",
+    "productCombo.name",
+    "productCombo.createDate",
+    "productCombo.writeDate",
+    "productDocument.sequence",
+    "productDocument.createUid",
+    "productDocument.writeUid",
+    "productDocument.active",
+    "productDocument.createDate",
+    "productDocument.writeDate",
+    "productDocument.attachedOnSale",
+    "productPricelist.sequence",
+    "productPricelist.companyId",
+    "productPricelist.createUid",
+    "productPricelist.writeUid",
+    "productPricelist.name",
+    "productPricelist.active",
+    "productPricelist.createDate",
+    "productPricelist.writeDate",
+    "productPricelistItem.pricelistId",
+    "productPricelistItem.companyId",
+    "productPricelistItem.currencyId",
+    "productPricelistItem.categId",
+    "productPricelistItem.productTmplId",
+    "productPricelistItem.productId",
+    "productPricelistItem.uomId",
+    "productPricelistItem.basePricelistId",
+    "productPricelistItem.createUid",
+    "productPricelistItem.writeUid",
+    "productPricelistItem.appliedOn",
+    "productPricelistItem.base",
+    "productPricelistItem.computePrice",
+    "productPricelistItem.minQuantity",
+    "productPricelistItem.fixedPrice",
+    "productPricelistItem.priceDiscount",
+    "productPricelistItem.priceRound",
+    "productPricelistItem.priceSurcharge",
+    "productPricelistItem.priceMinMargin",
+    "productPricelistItem.priceMaxMargin",
+    "productPricelistItem.dateStart",
+    "productPricelistItem.dateEnd",
+    "productPricelistItem.createDate",
+    "productPricelistItem.writeDate",
+    "productProduct.baseUnitId",
+    "productProduct.createUid",
+    "productProduct.writeUid",
+    "productProduct.defaultCode",
+    "productProduct.barcode",
+    "productProduct.combinationIndices",
+    "productProduct.standardPrice",
+    "productProduct.qtyAvailable",
+    "productProduct.lstPrice",
+    "productProduct.volume",
+    "productProduct.weight",
+    "productProduct.active",
+    "productProduct.canImageVariant1024BeZoomed",
+    "productProduct.isFavorite",
+    "productProduct.writeDate",
+    "productProduct.createDate",
+    "productProduct.lotPropertiesDefinition",
+    "productRemoval.createUid",
+    "productRemoval.writeUid",
+    "productRemoval.name",
+    "productRemoval.method",
+    "productRemoval.createDate",
+    "productRemoval.writeDate",
+    "productSupplierinfo.sequence",
+    "productSupplierinfo.companyId",
+    "productSupplierinfo.productId",
+    "productSupplierinfo.createUid",
+    "productSupplierinfo.writeUid",
+    "productSupplierinfo.productName",
+    "productSupplierinfo.productCode",
+    "productSupplierinfo.dateStart",
+    "productSupplierinfo.dateEnd",
+    "productSupplierinfo.price",
+    "productSupplierinfo.discount",
+    "productSupplierinfo.createDate",
+    "productSupplierinfo.writeDate",
+    "productTag.sequence",
+    "productTag.createUid",
+    "productTag.writeUid",
+    "productTag.color",
+    "productTag.name",
+    "productTag.visibleToCustomers",
+    "productTag.createDate",
+    "productTag.writeDate",
+    "productTemplate.sequence",
+    "productTemplate.categId",
+    "productTemplate.companyId",
+    "productTemplate.color",
+    "productTemplate.baseUnitId",
+    "productTemplate.createUid",
+    "productTemplate.writeUid",
+    "productTemplate.type",
+    "productTemplate.serviceTracking",
+    "productTemplate.barcode",
+    "productTemplate.defaultCode",
+    "productTemplate.name",
+    "productTemplate.description",
+    "productTemplate.descriptionPurchase",
+    "productTemplate.descriptionSale",
+    "productTemplate.productProperties",
+    "productTemplate.listPrice",
+    "productTemplate.volume",
+    "productTemplate.weight",
+    "productTemplate.isStorable",
+    "productTemplate.saleOk",
+    "productTemplate.purchaseOk",
+    "productTemplate.active",
+    "productTemplate.canImage1024BeZoomed",
+    "productTemplate.hasConfigurableAttributes",
+    "productTemplate.isFavorite",
+    "productTemplate.createDate",
+    "productTemplate.writeDate",
+    "productTemplate.propertyAccountIncomeId",
+    "productTemplate.propertyAccountExpenseId",
+    "productTemplate.lotSequenceId",
+    "productTemplate.tracking",
+    "productTemplate.responsibleId",
+    "productTemplate.propertyStockProduction",
+    "productTemplate.propertyStockInventory",
+    "productTemplate.descriptionPicking",
+    "productTemplate.descriptionPickingout",
+    "productTemplate.descriptionPickingin",
+    "productTemplate.purchaseMethod",
+    "productTemplate.purchaseLineWarnMsg",
+    "productTemplate.lotValuated",
+    "productTemplate.serviceType",
+    "productTemplate.reinvoicePolicy",
+    "productTemplate.invoicePolicy",
+    "productTemplate.saleDelay",
+    "productTemplate.saleLineWarnMsg",
+    "productTemplateAttributeValue.sequence",
+    "productTemplateAttributeValue.productTmplId",
+    "productTemplateAttributeValue.attributeId",
+    "productTemplateAttributeValue.color",
+    "productTemplateAttributeValue.createUid",
+    "productTemplateAttributeValue.writeUid",
+    "productTemplateAttributeValue.priceExtra",
+    "productTemplateAttributeValue.ptavActive",
+    "productTemplateAttributeValue.showPriceExtra",
+    "productTemplateAttributeValue.createDate",
+    "productTemplateAttributeValue.writeDate",
+    "returnReason.sequence",
+    "returnReason.createUid",
+    "returnReason.writeUid",
+    "returnReason.name",
+    "returnReason.createDate",
+    "returnReason.writeDate",
+    "stockPackageType.sequence",
+    "stockPackageType.sequenceId",
+    "stockPackageType.companyId",
+    "stockPackageType.createUid",
+    "stockPackageType.writeUid",
+    "stockPackageType.name",
+    "stockPackageType.barcode",
+    "stockPackageType.packageUse",
+    "stockPackageType.createDate",
+    "stockPackageType.writeDate",
+    "stockPackageType.height",
+    "stockPackageType.width",
+    "stockPackageType.packagingLength",
+    "stockPackageType.baseWeight",
+    "stockPackageType.maxWeight",
+    "stockScrapReasonTag.sequence",
+    "stockScrapReasonTag.color",
+    "stockScrapReasonTag.createUid",
+    "stockScrapReasonTag.writeUid",
+    "stockScrapReasonTag.name",
+    "stockScrapReasonTag.createDate",
+    "stockScrapReasonTag.writeDate",
+    "stockStorageCategory.companyId",
+    "stockStorageCategory.createUid",
+    "stockStorageCategory.writeUid",
+    "stockStorageCategory.name",
+    "stockStorageCategory.allowNewProduct",
+    "stockStorageCategory.maxWeight",
+    "stockStorageCategory.createDate",
+    "stockStorageCategory.writeDate",
+    "uomUom.sequence",
+    "uomUom.relativeUomId",
+    "uomUom.createUid",
+    "uomUom.writeUid",
+    "uomUom.parentPath",
+    "uomUom.name",
+    "uomUom.factor",
+    "uomUom.active",
+    "uomUom.createDate",
+    "uomUom.writeDate",
+    "uomUom.packageTypeId",
+    "uomUom.uneceCode"
+  ],
+  "string_aggregates_deferred_to_tier3": [
+    {
+      "field": "accountAccount.accountType",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountAccount.parentPath",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountAccount.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountAccount.description",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountAccount.codeStore",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountAccount.note",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountAccountTag.applicability",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountAccountTag.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountCashRounding.roundingMethod",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountCashRounding.strategy",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountCashRounding.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountCashRounding.profitAccountId",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountCashRounding.lossAccountId",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountFiscalPosition.zipFrom",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountFiscalPosition.zipTo",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountFiscalPosition.foreignVat",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountFiscalPosition.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountFiscalPosition.note",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountIncoterms.code",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountIncoterms.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountJournal.accessToken",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountJournal.code",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountJournal.type",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountJournal.invoiceReferenceType",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountJournal.invoiceReferenceModel",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountJournal.bankStatementsSource",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountJournal.incomingEinvoiceNotificationEmail",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountJournal.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountJournal.sequenceOverrideRegex",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountJournalGroup.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountLockException.reason",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountLockException.lockDateField",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountPaymentMethod.code",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountPaymentMethod.paymentType",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountPaymentMethod.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountPaymentTerm.earlyPayDiscountComputation",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountPaymentTerm.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountPaymentTerm.note",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReconcileModel.trigger",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReconcileModel.matchAmount",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReconcileModel.matchLabel",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReconcileModel.matchLabelParam",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReconcileModel.paymentToleranceType",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReconcileModel.matchingOrder",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReconcileModel.ruleType",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReconcileModel.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReport.groupby",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReport.userGroupby",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReport.chartTemplate",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReport.availabilityCondition",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReport.integerRounding",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReport.defaultOpeningDateFilter",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReport.currencyTranslation",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReport.filterMultiCompany",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReport.filterHide0Lines",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReport.filterHierarchy",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReport.filterAccountType",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReport.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReport.activeSelection",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReportExpression.label",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReportExpression.engine",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReportExpression.dateScope",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReportExpression.figureType",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReportExpression.carryoverTarget",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReportExpression.formula",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReportExpression.subformula",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReportExternalValue.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReportExternalValue.textValue",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountReportExternalValue.carryoverOriginExpressionLabel",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTax.typeTaxUse",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTax.taxScope",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTax.amountType",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTax.priceIncludeOverride",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTax.taxExigibility",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTax.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTax.description",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTax.invoiceLabel",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTax.invoiceLegalNotes",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTax.ublCiiTaxCategoryCode",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTax.ublCiiTaxExemptionReason",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTax.ublCiiTaxExemptionReasonCode",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTax.l10nUsJurisdictionType",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTaxGroup.posReceiptLabel",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTaxGroup.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTaxGroup.precedingSubtotal",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTaxRepartitionLine.repartitionType",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "accountTaxRepartitionLine.documentType",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productAttribute.createVariant",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productAttribute.displayType",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productAttribute.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productBaseUnit.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCategory.parentPath",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCategory.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCategory.productPropertiesDefinition",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCategory.propertyAccountIncomeCategId",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCategory.propertyAccountExpenseCategId",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCategory.propertyValuation",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCategory.propertyStockValuationAccountId",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCategory.propertyStockJournal",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCategory.propertyCostMethod",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCategory.propertyPriceDifferenceAccountId",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCategory.packagingReserveMethod",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCategory.propertyAccountBillsToReceiveId",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCategory.propertyAccountBilledNotReceivedId",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCategory.propertyAccountInvoicesToIssueId",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCategory.propertyAccountInvoicedNotDeliveredId",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productCombo.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productDocument.attachedOnSale",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productPricelist.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productPricelistItem.appliedOn",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productPricelistItem.base",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productPricelistItem.computePrice",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productProduct.defaultCode",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productProduct.barcode",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productProduct.combinationIndices",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productProduct.standardPrice",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productProduct.qtyAvailable",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productProduct.lotPropertiesDefinition",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productRemoval.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productRemoval.method",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productSupplierinfo.productName",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productSupplierinfo.productCode",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTag.color",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTag.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.type",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.serviceTracking",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.barcode",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.defaultCode",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.description",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.descriptionPurchase",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.descriptionSale",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.productProperties",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.propertyAccountIncomeId",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.propertyAccountExpenseId",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.tracking",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.responsibleId",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.propertyStockProduction",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.propertyStockInventory",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.descriptionPicking",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.descriptionPickingout",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.descriptionPickingin",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.purchaseMethod",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.purchaseLineWarnMsg",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.serviceType",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.reinvoicePolicy",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.invoicePolicy",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.saleDelay",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "productTemplate.saleLineWarnMsg",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "returnReason.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "stockPackageType.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "stockPackageType.barcode",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "stockPackageType.packageUse",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "stockScrapReasonTag.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "stockStorageCategory.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "stockStorageCategory.allowNewProduct",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "uomUom.parentPath",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "uomUom.name",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    },
+    {
+      "field": "uomUom.uneceCode",
+      "stats": [
+        "min",
+        "max",
+        "distinct_count"
+      ]
+    }
+  ],
+  "document_aggregates_deferred_to_tier3": [
+    {
+      "field": "accountAccount.name",
+      "key": "accountAccount"
+    },
+    {
+      "field": "accountAccount.description",
+      "key": "accountAccount"
+    },
+    {
+      "field": "accountAccount.codeStore",
+      "key": "accountAccount"
+    },
+    {
+      "field": "accountAccountTag.name",
+      "key": "accountAccountTag"
+    },
+    {
+      "field": "accountCashRounding.name",
+      "key": "accountCashRounding"
+    },
+    {
+      "field": "accountCashRounding.profitAccountId",
+      "key": "accountCashRounding"
+    },
+    {
+      "field": "accountCashRounding.lossAccountId",
+      "key": "accountCashRounding"
+    },
+    {
+      "field": "accountFiscalPosition.name",
+      "key": "accountFiscalPosition"
+    },
+    {
+      "field": "accountFiscalPosition.note",
+      "key": "accountFiscalPosition"
+    },
+    {
+      "field": "accountIncoterms.name",
+      "key": "accountIncoterms"
+    },
+    {
+      "field": "accountJournal.name",
+      "key": "accountJournal"
+    },
+    {
+      "field": "accountJournalGroup.name",
+      "key": "accountJournalGroup"
+    },
+    {
+      "field": "accountPaymentMethod.name",
+      "key": "accountPaymentMethod"
+    },
+    {
+      "field": "accountPaymentTerm.name",
+      "key": "accountPaymentTerm"
+    },
+    {
+      "field": "accountPaymentTerm.note",
+      "key": "accountPaymentTerm"
+    },
+    {
+      "field": "accountReconcileModel.name",
+      "key": "accountReconcileModel"
+    },
+    {
+      "field": "accountReport.name",
+      "key": "accountReport"
+    },
+    {
+      "field": "accountReport.activeSelection",
+      "key": "accountReport"
+    },
+    {
+      "field": "accountTax.name",
+      "key": "accountTax"
+    },
+    {
+      "field": "accountTax.description",
+      "key": "accountTax"
+    },
+    {
+      "field": "accountTax.invoiceLabel",
+      "key": "accountTax"
+    },
+    {
+      "field": "accountTax.invoiceLegalNotes",
+      "key": "accountTax"
+    },
+    {
+      "field": "accountTaxGroup.name",
+      "key": "accountTaxGroup"
+    },
+    {
+      "field": "accountTaxGroup.precedingSubtotal",
+      "key": "accountTaxGroup"
+    },
+    {
+      "field": "productAttribute.name",
+      "key": "productAttribute"
+    },
+    {
+      "field": "productBaseUnit.name",
+      "key": "productBaseUnit"
+    },
+    {
+      "field": "productCategory.name",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.productPropertiesDefinition",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyAccountIncomeCategId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyAccountExpenseCategId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyValuation",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyStockValuationAccountId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyStockJournal",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyCostMethod",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyPriceDifferenceAccountId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyAccountBillsToReceiveId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyAccountBilledNotReceivedId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyAccountInvoicesToIssueId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCategory.propertyAccountInvoicedNotDeliveredId",
+      "key": "productCategory"
+    },
+    {
+      "field": "productCombo.name",
+      "key": "productCombo"
+    },
+    {
+      "field": "productPricelist.name",
+      "key": "productPricelist"
+    },
+    {
+      "field": "productProduct.standardPrice",
+      "key": "productProduct"
+    },
+    {
+      "field": "productProduct.qtyAvailable",
+      "key": "productProduct"
+    },
+    {
+      "field": "productProduct.lotPropertiesDefinition",
+      "key": "productProduct"
+    },
+    {
+      "field": "productRemoval.name",
+      "key": "productRemoval"
+    },
+    {
+      "field": "productRemoval.method",
+      "key": "productRemoval"
+    },
+    {
+      "field": "productTag.name",
+      "key": "productTag"
+    },
+    {
+      "field": "productTemplate.name",
+      "key": "productTemplate"
+    },
+    {
+      "field": "productTemplate.description",
+      "key": "productTemplate"
+    },
+    {
+      "field": "productTemplate.descriptionPurchase",
+      "key": "productTemplate"
+    },
+    {
+      "field": "productTemplate.descriptionSale",
+      "key": "productTemplate"
+    },
+    {
+      "field": "productTemplate.productProperties",
+      "key": "productTemplate"
+    },
+    {
+      "field": "productTemplate.propertyAccountIncomeId",
+      "key": "productTemplate"
+    },
+    {
+      "field": "productTemplate.propertyAccountExpenseId",
+      "key": "productTemplate"
+    },
+    {
+      "field": "productTemplate.responsibleId",
+      "key": "productTemplate"
+    },
+    {
+      "field": "productTemplate.propertyStockProduction",
+      "key": "productTemplate"
+    },
+    {
+      "field": "productTemplate.propertyStockInventory",
+      "key": "productTemplate"
+    },
+    {
+      "field": "productTemplate.descriptionPicking",
+      "key": "productTemplate"
+    },
+    {
+      "field": "productTemplate.descriptionPickingout",
+      "key": "productTemplate"
+    },
+    {
+      "field": "productTemplate.descriptionPickingin",
+      "key": "productTemplate"
+    },
+    {
+      "field": "productTemplate.saleDelay",
+      "key": "productTemplate"
+    },
+    {
+      "field": "returnReason.name",
+      "key": "returnReason"
+    },
+    {
+      "field": "stockScrapReasonTag.name",
+      "key": "stockScrapReasonTag"
+    },
+    {
+      "field": "uomUom.name",
+      "key": "uomUom"
+    }
+  ],
+  "fields_fully_deferred": 243
+}
+```
+
+## Tier 3 coverage
+```json
+{
+  "accountAccount": {
+    "mode": "full_diff",
+    "population": 184,
+    "duplicate_source_key_count": 0
+  },
+  "embeds_graded": {
+    "accountAccount.resCompanyRel": 184,
+    "accountAccount.accountTag": 13,
+    "accountAccount.taxDefaultRel": 1,
+    "accountAccountTag.accountMoveLineRel": 1,
+    "accountAccountTag.accountTaxRepartitionLineRel": 1,
+    "accountAccountTag.productTemplateRel": 1,
+    "accountCashRounding.resCurrencyRel": 1,
+    "accountCashRounding.resPartnerCategoryRel": 3,
+    "accountCashRounding.accountPaymentMethodLineRel": 3,
+    "accountFiscalPosition.account": 1,
+    "accountFiscalPosition.resCountryStateRel": 2,
+    "accountFiscalPosition.accountTaxRel": 50,
+    "accountJournal.accountReconcileModelRel": 1,
+    "accountPaymentMethod.line": 4,
+    "accountPaymentTerm.line": 13,
+    "accountReconcileModel.resPartnerRel": 1,
+    "accountReconcileModel.line": 10,
+    "accountReport.column": 8,
+    "accountReport.line": 2,
+    "accountReport.sectionRel": 2,
+    "accountTax.alternatives": 2,
+    "accountTax.filiationRel": 2,
+    "accountTax.purchaseOrderLineRel": 32,
+    "accountTax.saleOrderLineRel": 51,
+    "accountTax.productSupplierTaxesRel": 72,
+    "accountTax.productTaxesRel": 72,
+    "productAttribute.productTemplateRel": 9,
+    "productAttribute.value": 101,
+    "productCategory.stockPickingTypeRel": 3,
+    "productCombo.item": 8,
+    "productCombo.productTemplateRel": 3,
+    "productProduct.customerProductReference": 1,
+    "productProduct.uomUomRel": 1,
+    "productProduct.productUom": 1,
+    "productProduct.productVariantCombination": 20,
+    "productTag.productProductRel": 3,
+    "productTag.productTemplateRel": 3,
+    "productTemplate.productOptionalRel": 3,
+    "productTemplate.attributeLine": 9,
+    "productTemplate.uomUomRel": 2,
+    "productTemplateAttributeValue.productTemplateAttributeExcludedValueIdsRel": 1,
+    "productTemplateAttributeValue.purchaseOrderLineRel": 2,
+    "productTemplateAttributeValue.saleOrderLineRel": 1,
+    "productTemplateAttributeValue.templateAttributeValueStockMoveRel": 1,
+    "stockPackageType.stockPutawayRuleRel": 2,
+    "stockPackageType.stockRouteRel": 2
+  },
+  "accountAccountTag": {
+    "mode": "full_diff",
+    "population": 10,
+    "duplicate_source_key_count": 0
+  },
+  "accountCashRounding": {
+    "mode": "full_diff",
+    "population": 2,
+    "duplicate_source_key_count": 0
+  },
+  "accountFiscalPosition": {
+    "mode": "full_diff",
+    "population": 4,
+    "duplicate_source_key_count": 0
+  },
+  "accountIncoterms": {
+    "mode": "full_diff",
+    "population": 11,
+    "duplicate_source_key_count": 0
+  },
+  "accountJournal": {
+    "mode": "full_diff",
+    "population": 14,
+    "duplicate_source_key_count": 0
+  },
+  "accountJournalGroup": {
+    "mode": "full_diff",
+    "population": 2,
+    "duplicate_source_key_count": 0
+  },
+  "accountLockException": {
+    "mode": "full_diff",
+    "population": 1,
+    "duplicate_source_key_count": 0
+  },
+  "accountPaymentMethod": {
+    "mode": "full_diff",
+    "population": 2,
+    "duplicate_source_key_count": 0
+  },
+  "accountPaymentTerm": {
+    "mode": "full_diff",
+    "population": 11,
+    "duplicate_source_key_count": 0
+  },
+  "accountReconcileModel": {
+    "mode": "full_diff",
+    "population": 8,
+    "duplicate_source_key_count": 0
+  },
+  "accountReconcileModelLineAccountTaxRel": {
+    "mode": "full_diff",
+    "population": 1,
+    "duplicate_source_key_count": 0
+  },
+  "accountReport": {
+    "mode": "full_diff",
+    "population": 5,
+    "duplicate_source_key_count": 0
+  },
+  "accountReportExpression": {
+    "mode": "full_diff",
+    "population": 3,
+    "duplicate_source_key_count": 0
+  },
+  "accountReportExternalValue": {
+    "mode": "full_diff",
+    "population": 1,
+    "duplicate_source_key_count": 0
+  },
+  "accountTax": {
+    "mode": "full_diff",
+    "population": 58,
+    "duplicate_source_key_count": 0
+  },
+  "accountTaxGroup": {
+    "mode": "full_diff",
+    "population": 26,
+    "duplicate_source_key_count": 0
+  },
+  "accountTaxRepartitionLine": {
+    "mode": "full_diff",
+    "population": 232,
+    "duplicate_source_key_count": 0
+  },
+  "productAttribute": {
+    "mode": "full_diff",
+    "population": 14,
+    "duplicate_source_key_count": 0
+  },
+  "productAttributeValueProductTemplateAttributeLineRel": {
+    "mode": "full_diff",
+    "population": 24,
+    "duplicate_source_key_count": 0
+  },
+  "productBaseUnit": {
+    "mode": "full_diff",
+    "population": 2,
+    "duplicate_source_key_count": 0
+  },
+  "productCategory": {
+    "mode": "full_diff",
+    "population": 7,
+    "duplicate_source_key_count": 0
+  },
+  "productCombo": {
+    "mode": "full_diff",
+    "population": 3,
+    "duplicate_source_key_count": 0
+  },
+  "productDocument": {
+    "mode": "full_diff",
+    "population": 2,
+    "duplicate_source_key_count": 0
+  },
+  "productPricelist": {
+    "mode": "full_diff",
+    "population": 2,
+    "duplicate_source_key_count": 0
+  },
+  "productPricelistItem": {
+    "mode": "full_diff",
+    "population": 2,
+    "duplicate_source_key_count": 0
+  },
+  "productProduct": {
+    "mode": "full_diff",
+    "population": 47,
+    "duplicate_source_key_count": 0
+  },
+  "productRemoval": {
+    "mode": "full_diff",
+    "population": 4,
+    "duplicate_source_key_count": 0
+  },
+  "productSupplierinfo": {
+    "mode": "full_diff",
+    "population": 28,
+    "duplicate_source_key_count": 0
+  },
+  "productTag": {
+    "mode": "full_diff",
+    "population": 3,
+    "duplicate_source_key_count": 0
+  },
+  "productTemplate": {
+    "mode": "full_diff",
+    "population": 37,
+    "duplicate_source_key_count": 0
+  },
+  "productTemplateAttributeValue": {
+    "mode": "full_diff",
+    "population": 24,
+    "duplicate_source_key_count": 0
+  },
+  "returnReason": {
+    "mode": "full_diff",
+    "population": 5,
+    "duplicate_source_key_count": 0
+  },
+  "stockPackageType": {
+    "mode": "full_diff",
+    "population": 3,
+    "duplicate_source_key_count": 0
+  },
+  "stockScrapReasonTag": {
+    "mode": "full_diff",
+    "population": 3,
+    "duplicate_source_key_count": 0
+  },
+  "stockStorageCategory": {
+    "mode": "full_diff",
+    "population": 6,
+    "duplicate_source_key_count": 0
+  },
+  "uomUom": {
+    "mode": "full_diff",
+    "population": 30,
+    "duplicate_source_key_count": 0
+  }
+}
+```
