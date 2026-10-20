@@ -5,7 +5,10 @@
    "pass": true,
    "evidence": [
     "_connectivity_probe",
+    "accountAccount",
+    "accountAccountTag",
     "accountCashRounding",
+    "accountFiscalPosition",
     "accountIncoterms",
     "accountJournalGroup",
     "accountLockException",
@@ -13,6 +16,9 @@
     "accountReport",
     "accountReportExpression",
     "accountReportExternalValue",
+    "accountTax",
+    "accountTaxGroup",
+    "accountTaxRepartitionLine",
     "productAttribute",
     "productAttributeValueProductTemplateAttributeLineRel",
     "productBaseUnit",
@@ -30,7 +36,7 @@
   {
    "probe": "other_collections_in_target_db",
    "pass": true,
-   "evidence": "not in this batch: ['_connectivity_probe', 'accountCashRounding', 'accountIncoterms', 'accountJournalGroup', 'accountLockException', 'accountPaymentTerm', 'accountReport', 'accountReportExpression', 'accountReportExternalValue', 'productAttribute', 'productAttributeValueProductTemplateAttributeLineRel', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+   "evidence": "not in this batch: ['_connectivity_probe', 'accountAccount', 'accountAccountTag', 'accountCashRounding', 'accountFiscalPosition', 'accountIncoterms', 'accountJournalGroup', 'accountLockException', 'accountPaymentTerm', 'accountReport', 'accountReportExpression', 'accountReportExternalValue', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'productAttribute', 'productAttributeValueProductTemplateAttributeLineRel', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
   },
   {
    "probe": "productCategory.row_count",
@@ -855,7 +861,7 @@
   {
    "probe": "productCategory.name.translation_keys",
    "pass": true,
-   "evidence": "source={1: ['en_US'], 2: ['en_US'], 3: ['en_US'], 4: ['en_US'], 5: ['en_US'], 6: ['en_US'], 7: ['en_US']} target={6: ['en_US'], 7: ['en_US'], 2: ['en_US'], 5: ['en_US'], 3: ['en_US'], 1: ['en_US'], 4: ['en_US']}"
+   "evidence": "source={1: ['en_US'], 2: ['en_US'], 3: ['en_US'], 4: ['en_US'], 5: ['en_US'], 6: ['en_US'], 7: ['en_US']} target={1: ['en_US'], 2: ['en_US'], 6: ['en_US'], 7: ['en_US'], 5: ['en_US'], 4: ['en_US'], 3: ['en_US']}"
   },
   {
    "probe": "productRemoval.name.translation_keys",

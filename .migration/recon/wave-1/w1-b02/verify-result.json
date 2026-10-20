@@ -5,10 +5,12 @@
     ".migration/recon/wave-1/w1-b02/result.json"
   ],
   "findings": [
-    "PR #61 and .migration/recon/w1-b02.json say 62/62 ORM scenario checks and one storage-path gap (company-dependent writes) while scenario_product_taxonomy.py holds 53 static check() sites; self-reported, not gate evidence, and not re-run here because the scenario writes a scratch namespace into odoo_unt12, which this verify was told not to do.",
-    "Both the worker's run and this re-run are redacted with unsalted hashes because no RECON_REDACT_SALT secret exists (harness stderr warning; result.json warnings stay empty, so the verdict is unaffected).",
-    "odoo_unt12 also holds `_connectivity_probe` and 15 collections from other wave-1 batches, including `productAttributeValueProductTemplateAttributeLineRel` (a junction table stored as its own collection); none are this batch's, all left untouched for the manager.",
-    "Plugin gap, unpatched: the installed mongo-recon-harness skill text names a `--source-concurrency` flag that the pinned CLI at 9a584b4cdb311ddd64fb07cbd1cf35fc9485062c rejects; the flag was omitted and recon_tolerances.json's source_concurrency key was accepted as-is."
+    "Storage-path gap on the run branch (PR #63 code, not this batch's data): on the Mongo path, product.category searches through a related field over a company-dependent many2one return [] where PostgreSQL returns all 7 — [('property_account_income_categ_id.active','=',True)] for all 8 property_*_id -> account.account fields in every company, hence the property_account_*_active / property_stock_valuation_account_active domains too; direct company-dependent searches and dotted paths over plain many2ones are correct (verify-orm-compare.json: orm_equality.company_dependent_search, orm_equality.search_dotted_company_dependent). Outside the recon gate; the manager grades whether it holds PR #61.",
+    "Verified head 2fc8dc3e280f6476c79ca3782feb0e2369fd785b (based on mongo-run/unt12 83cc4af); mapping and tolerance bytes unchanged by the rebase and equal to the ticket pins; recon PASS 18/22/27/7, 194/194 gate probes, 43/45 read-only ORM probes with exact equality vs PG for company-dependent fields per company and tag<->template, tag<->variant, picking-type<->category from both sides; target sha256 snapshot identical before/after (nothing changed in odoo_unt12).",
+    "PR #61 self-reports 62/62 ORM scenario checks; the scenario was not run here since it creates a scratch namespace inside odoo_unt12; the read-only ORM probes cover the manager-requested reads instead.",
+    "Both runs are redacted with unsalted hashes since no RECON_REDACT_SALT secret exists; result.json warnings stay empty, verdict unaffected.",
+    "Plugin gap, unpatched: the installed mongo-recon-harness skill text names a --source-concurrency flag the pinned CLI at 9a584b4cdb311ddd64fb07cbd1cf35fc9485062c rejects; flag omitted, recon_tolerances.json source_concurrency key accepted as-is.",
+    "Environment: requirements.txt line 36 at the head pins the Mongo driver 4.19.0 but the pre-built odoo venv lacked it; pip-installed in the verifier venv only."
   ],
   "report_path": "recon/verify-w1-b02:.migration/recon/wave-1/w1-b02/verify-report.md"
 }
