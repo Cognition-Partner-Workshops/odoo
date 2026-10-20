@@ -1,6 +1,6 @@
 from odoo import api, fields, models, tools
 from odoo.fields import Domain
-from odoo.tools import float_is_zero
+from odoo.tools import SQL, float_is_zero
 
 
 class StockAverageCostReport(models.AbstractModel):
@@ -36,7 +36,7 @@ class StockAverageCostReport(models.AbstractModel):
 
     def init(self):
         tools.drop_view_if_exists(self.env.cr, 'stock_avco_report')
-        query = """
+        query = SQL("""
 CREATE OR REPLACE VIEW stock_avco_report AS (
 SELECT
     sm.id AS id,
@@ -58,9 +58,9 @@ LEFT JOIN
 LEFT JOIN
     product_template pt ON pp.product_tmpl_id = pt.id
 LEFT JOIN
-    uom_uom um ON um.id = sm.uom_id
+    %(uom_factors)s um(id, factor) ON um.id = sm.uom_id
 LEFT JOIN
-    uom_uom up ON up.id = pt.uom_id
+    %(uom_factors)s up(id, factor) ON up.id = pt.uom_id
 WHERE
     sm.state = 'done'
     AND (sm.is_in = TRUE OR sm.is_out = TRUE)
@@ -81,7 +81,7 @@ FROM
 WHERE
     pv.move_id IS NULL
 );
-"""
+""", uom_factors=self.env['uom.uom']._factor_values_sql())  # uom_uom is stored in MongoDB: factors as of this (re)build
         self.env.cr.execute(query)
 
     @api.model

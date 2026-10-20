@@ -1,0 +1,103 @@
+[
+ {
+  "name": "uom_choices",
+  "collection": "uomUom",
+  "source_sql": "SELECT id, name->>'en_US' AS name, relative_uom_id, active, unece_code FROM uom_uom",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "relative_uom_id": {
+      "$ifNull": [
+       "$relativeUomId",
+       null
+      ]
+     },
+     "active": 1,
+     "unece_code": {
+      "$ifNull": [
+       "$uneceCode",
+       null
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "package_type_catalog",
+  "collection": "stockPackageType",
+  "source_sql": "SELECT id, name, barcode, package_use, max_weight, company_id FROM stock_package_type",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": 1,
+     "barcode": {
+      "$ifNull": [
+       "$barcode",
+       null
+      ]
+     },
+     "package_use": "$packageUse",
+     "max_weight": "$maxWeight",
+     "company_id": {
+      "$ifNull": [
+       "$companyId",
+       null
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "package_type_routes",
+  "collection": "stockPackageType",
+  "source_sql": "SELECT stock_package_type_id AS id, count(*) AS routes FROM stock_package_type_stock_route_rel GROUP BY stock_package_type_id",
+  "target_pipeline": [
+   {
+    "$match": {
+     "stockRouteRel.0": {
+      "$exists": true
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "routes": {
+      "$size": "$stockRouteRel"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "package_type_putaway_rules",
+  "collection": "stockPackageType",
+  "source_sql": "SELECT stock_package_type_id AS id, count(*) AS rules FROM stock_package_type_stock_putaway_rule_rel GROUP BY stock_package_type_id",
+  "target_pipeline": [
+   {
+    "$match": {
+     "stockPutawayRuleRel.0": {
+      "$exists": true
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "rules": {
+      "$size": "$stockPutawayRuleRel"
+     }
+    }
+   }
+  ]
+ }
+]

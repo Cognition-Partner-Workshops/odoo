@@ -134,7 +134,8 @@ class SaleReport(models.Model):
         return [SQL("%s AS %s", select_dict.get(fname, SQL("NULL")), SQL.identifier(fname)) for fname, field in self._fields.items() if field.store]
 
     def _select_dict(self, table: TableSQL):
-        uom_ratio = SQL("(COALESCE(%s, 1) / NULLIF(COALESCE(%s, 1), 0.0))", table.product_uom_id.factor, table.product_id.uom_id.factor)
+        uom = self.env['uom.uom']  # stored in MongoDB: its factor is inlined, not joined
+        uom_ratio = SQL("(COALESCE(%s, 1) / NULLIF(COALESCE(%s, 1), 0.0))", uom._factor_sql(table.product_uom_id), uom._factor_sql(table.product_id.uom_id))
         order_rate = self._case_value_or_one(table.order_id.currency_rate)
         rate = SQL("%s / %s", table.consolidation_rate, order_rate)
         return {

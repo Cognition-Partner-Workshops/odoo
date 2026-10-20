@@ -92,7 +92,8 @@ class AccountInvoiceReport(models.Model):
 
     def _select_list(self, table: TableSQL):
         in_out_sign = SQL("CASE WHEN %s IN ('in_invoice','out_refund','in_receipt') THEN -1 ELSE 1 END", table.move_id.move_type)
-        uom_ratio = SQL("(COALESCE(%s, 1) / NULLIF(COALESCE(%s, 1), 0.0))", table.product_uom_id.factor, table.product_id.uom_id.factor)
+        uom = self.env['uom.uom']  # stored in MongoDB: its factor is inlined, not joined
+        uom_ratio = SQL("(COALESCE(%s, 1) / NULLIF(COALESCE(%s, 1), 0.0))", uom._factor_sql(table.product_uom_id), uom._factor_sql(table.product_id.uom_id))
         quantity = SQL("%s * %s", table.quantity, uom_ratio)
         table_with_company = table._with_model(table._model.with_context(sql_company_id=table.company_id))
         return [

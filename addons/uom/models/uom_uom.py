@@ -6,7 +6,7 @@ from datetime import timedelta
 from typing import TYPE_CHECKING, Literal
 
 from odoo import _, api, fields, models, tools
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_round
 
 if TYPE_CHECKING:
@@ -20,6 +20,7 @@ class UomUom(models.Model):
     _parent_name = 'relative_uom_id'
     _parent_store = True
     _order = 'sequence, relative_uom_id, id'
+    _storage = 'mongodb'
 
     def _unprotected_uom_xml_ids(self):
         """ Return a list of UoM XML IDs that are not protected by default.
@@ -46,6 +47,37 @@ class UomUom(models.Model):
         'CHECK (relative_factor!=0)',
         'The conversion ratio for a unit of measure cannot be 0!',
     )
+
+    @api.constrains('relative_factor')
+    def _check_relative_factor_not_zero(self):
+        # mirrors _factor_gt_zero: the SQL CHECK only guards the PostgreSQL id shadow of this model
+        for uom in self:
+            if not uom.relative_factor:
+                raise ValidationError(_("The conversion ratio for a unit of measure cannot be 0!"))
+
+    @api.model
+    def _factor_rows(self):
+        return self.sudo().with_context(active_test=False).search_read([], ['factor'], order='id')
+
+    @api.model
+    def _factor_sql(self, uom_id: tools.SQL) -> tools.SQL:
+        """ SQL expression of the absolute factor of the unit whose id is ``uom_id``.
+
+        uom_uom lives in MongoDB, so SQL reports cannot join it: the factors are
+        read through the ORM and inlined, keyed by the PostgreSQL foreign key column.
+        """
+        rows = self._factor_rows()
+        if not rows:
+            return tools.SQL("NULL::numeric")
+        return tools.SQL("(CASE %s %s END)", uom_id, tools.SQL(" ").join(
+            tools.SQL("WHEN %s THEN %s::numeric", row['id'], row['factor']) for row in rows))
+
+    @api.model
+    def _factor_values_sql(self) -> tools.SQL:
+        """ ``(VALUES (id, factor), ...)`` of every unit, for FROM clauses of SQL views
+        built in ``init()``; such a view holds the factors as of its last (re)build. """
+        rows = [tools.SQL("(%s, %s::numeric)", row['id'], row['factor']) for row in self._factor_rows()]
+        return tools.SQL("(VALUES %s)", tools.SQL(", ").join(rows or [tools.SQL("(NULL::integer, NULL::numeric)")]))
 
     # === COMPUTE METHODS === #
 

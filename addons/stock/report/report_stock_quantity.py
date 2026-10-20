@@ -70,8 +70,8 @@ WITH
         END
         LEFT JOIN product_product pp on pp.id=m.product_id
         LEFT JOIN product_template pt on pt.id=pp.product_tmpl_id
-        LEFT JOIN uom_uom uom_move ON uom_move.id = m.uom_id
-        LEFT JOIN uom_uom uom_product ON uom_product.id = pt.uom_id
+        LEFT JOIN %(uom_factors)s uom_move(id, factor) ON uom_move.id = m.uom_id
+        LEFT JOIN %(uom_factors)s uom_product(id, factor) ON uom_product.id = pt.uom_id
         WHERE pt.is_storable = true AND
             source.w_id IS DISTINCT FROM dest.w_id AND
             (m.product_qty != 0 OR m.quantity != 0) AND
@@ -190,5 +190,7 @@ FROM (SELECT
         m.product_qty != 0 OR (m.state = 'done' AND m.quantity != 0)) AS forecast_qty
 GROUP BY product_id, product_tmpl_id, state, date, company_id, warehouse_id
 );
-""", product_qty_col=self._get_product_qty_col(), report_period=report_period)
+""", product_qty_col=self._get_product_qty_col(), report_period=report_period,
+           # uom_uom is stored in MongoDB: the view inlines the factors as of this (re)build
+           uom_factors=self.env['uom.uom']._factor_values_sql())
         self.env.cr.execute(query)

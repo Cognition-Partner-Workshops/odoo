@@ -58,7 +58,8 @@ class PurchaseReport(models.Model):
         return query.subselect(*self._select_list(query.table))
 
     def _select_list(self, table: TableSQL):
-        uom_ratio = SQL("(COALESCE(%s, 1) / NULLIF(COALESCE(%s, 1), 0.0))", table.uom_id.factor, table.product_id.uom_id.factor)
+        uom = self.env['uom.uom']  # stored in MongoDB: its factor is inlined, not joined
+        uom_ratio = SQL("(COALESCE(%s, 1) / NULLIF(COALESCE(%s, 1), 0.0))", uom._factor_sql(table.uom_id), uom._factor_sql(table.product_id.uom_id))
         return [
             SQL("%s AS order_id", table.order_id.id),
             SQL("MIN(%s) AS id", table.id),
@@ -111,8 +112,8 @@ class PurchaseReport(models.Model):
             table.order_id.partner_id.id,
             table.product_id.id,
             table.product_id.product_tmpl_id.id,
-            table.product_id.product_tmpl_id.uom_id.id,
-            table.uom_id.id,
+            table.product_id.product_tmpl_id.uom_id,
+            table.uom_id,
         ]
 
     def _read_group_select(self, table, aggregate_spec: str) -> SQL:

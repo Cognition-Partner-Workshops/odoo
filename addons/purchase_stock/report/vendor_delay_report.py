@@ -20,7 +20,7 @@ class VendorDelayReport(models.Model):
 
     def init(self):
         tools.drop_view_if_exists(self.env.cr, 'vendor_delay_report')
-        self.env.cr.execute("""
+        self.env.cr.execute(SQL("""
 CREATE OR replace VIEW vendor_delay_report AS(
 SELECT pol.id                   AS id,
        Min(m.date)              AS date,
@@ -48,14 +48,14 @@ FROM   stock_move m
          ON p.id = m.product_id
        JOIN product_template pt
          ON pt.id = p.product_tmpl_id
-       JOIN uom_uom pt_uom
+       JOIN %(uom_factors)s pt_uom(id, factor)
          ON pt_uom.id = pt.uom_id
        LEFT JOIN stock_move_line ml
          ON ml.move_id = m.id
-       LEFT JOIN uom_uom ml_uom
+       LEFT JOIN %(uom_factors)s ml_uom(id, factor)
          ON ml_uom.id = ml.uom_id
 GROUP  BY pol.id
-)""")
+)""", uom_factors=self.env['uom.uom']._factor_values_sql()))  # uom_uom is stored in MongoDB: factors as of this (re)build
 
     def _read_group_select(self, table, aggregate_spec):
         if aggregate_spec == 'on_time_rate:sum':
