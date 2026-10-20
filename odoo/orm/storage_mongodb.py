@@ -1633,7 +1633,8 @@ def on_delete_company_dependent(model: BaseModel, field: Field, ids: list[int]) 
                 by_company[int(company_id)].append(doc['_id'])
     for company_id, holder_ids in by_company.items():
         records = holder.browse(holder_ids)
-        records._write_multi([{field.name: {str(company_id): None}}] * len(holder_ids))     # merged into the object
+        # the storage-level update (merged into the object, journaled): like the SQL UPDATE it leaves write_uid/write_date alone
+        write_multi(records, [{field.name: {str(company_id): None}}] * len(holder_ids))
         records.invalidate_recordset([field.name])
 
 
