@@ -91,6 +91,10 @@ with cr.savepoint(flush=False):
           doc and doc['name'] == {'en_US': 'Scenario Combo'} and doc['companyId'] == seeded.company_id.id
           and len(item_docs) == 2 and all(d['companyId'] == seeded.company_id.id for d in item_docs), doc and doc.get('sequence'))
     check('combo_item_count on the new combo', new.combo_item_count == 2)
+    priced = [d for d in item_docs if d['productId'] == products[0].id][0]
+    check('digits Float extra_price written as a BSON number and matched by a numeric domain (not float_digits_bson_string)',
+          type(priced['extraPrice']).__name__ == 'Decimal128' and new.combo_item_ids.filtered(lambda i: i.extra_price > 0)
+          == Item.search([('combo_id', '=', new.id), ('extra_price', '>', 1)]), repr(priced['extraPrice']))
     new.write({'sequence': 5})
     env.flush_all()
     check('combo write: document updated and default order re-sorts', col['product.combo'].find_one({'_id': new.id})['sequence'] == 5

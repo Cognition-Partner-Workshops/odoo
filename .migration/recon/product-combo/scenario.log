@@ -18,6 +18,7 @@ PASS _search_currency_id follows the company currency (EUR -> seeded combo only)
 PASS currency_id compute follows the company currency
 PASS combo create: document + 2 item documents with the stored related companyId: 30
 PASS combo_item_count on the new combo
+PASS digits Float extra_price written as a BSON number and matched by a numeric domain (not float_digits_bson_string): Decimal128('1.25')
 PASS combo write: document updated and default order re-sorts
 PASS _check_combo_item_ids_no_duplicates raises: ValidationError
 PASS check_company on items (_check_company_id / check_company=True) raises: UserError
@@ -26,4 +27,4 @@ PASS account D5 writer leaves the combo documents untouched
 PASS unlink combo cascades to its items (ondelete=cascade through the storage path)
 PASS loaded collections unchanged after rollback: {'product.combo': 4, 'product.combo.item': 10}
 
-27/27 checks passed
+28/28 checks passed
