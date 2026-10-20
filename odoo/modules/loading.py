@@ -18,6 +18,7 @@ import odoo.tools.sql
 from odoo import api, tools
 from odoo.tools import OrderedSet
 from odoo.tools.convert import convert_file, IdRef, ConvertMode as LoadMode
+from odoo.orm import storage_mongodb
 
 from . import db as modules_db
 from .migration import MigrationManager
@@ -471,6 +472,10 @@ def load_modules(
 
     registry.loaded = True
     registry._setup_models__(cr)
+
+    # id shadow tables of MongoDB-stored models take ORM writes from here on
+    # (migration end-scripts, _register_hook) without a module update
+    storage_mongodb.relax_registry_shadow_tables(registry, cr)
 
     # check that all installed modules have been loaded by the registry
     Module = env['ir.module.module']

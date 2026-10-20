@@ -2425,6 +2425,8 @@ class BaseModel(metaclass=MetaModel):
 
         target_model = self.env[self._fields[field.definition_record].comodel_name]
         field_definition = target_model._fields[field.definition_record_field]
+        if target_model._storage == 'mongodb':
+            return storage_mongodb.property_definition(target_model, field_definition, property_name)
         result = self.env.execute_query_dict(SQL(
             """ SELECT definition
                   FROM %(table)s, jsonb_array_elements(%(field)s) definition
