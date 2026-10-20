@@ -1,0 +1,2123 @@
+{
+ "account": {
+  "company_ids": [
+   1
+  ],
+  "id": 185
+ },
+ "after.exists": false,
+ "after.search": {
+  "1:property_account_billed_not_received_id": [],
+  "2:property_account_billed_not_received_id": [],
+  "3:property_account_billed_not_received_id": []
+ },
+ "after.search_null": {
+  "1:property_account_billed_not_received_id": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6
+  ],
+  "2:property_account_billed_not_received_id": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7
+  ],
+  "3:property_account_billed_not_received_id": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7
+  ]
+ },
+ "before.raw": {
+  "1": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "2": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "3": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "4": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "5": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "6": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "7": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  }
+ },
+ "before.values": {
+  "1": {
+   "1": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "2": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "3": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "4": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "5": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "6": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "7": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   }
+  },
+  "2": {
+   "1": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "2": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "3": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "4": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "5": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "6": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "7": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   }
+  },
+  "3": {
+   "1": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "2": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "3": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "4": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "5": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "6": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "7": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   }
+  }
+ },
+ "categories": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7
+ ],
+ "companies": [
+  1,
+  2,
+  3
+ ],
+ "linked.raw": {
+  "1": {
+   "property_account_billed_not_received_id": {
+    "1": 185,
+    "2": null,
+    "3": null
+   },
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "2": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "3": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "4": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "5": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "6": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "7": {
+   "property_account_billed_not_received_id": {
+    "1": 10,
+    "2": null,
+    "3": 185
+   },
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": {
+    "1": 185,
+    "2": 63,
+    "3": null
+   }
+  }
+ },
+ "linked.search": {
+  "1:property_account_billed_not_received_id": [
+   1
+  ],
+  "1:property_stock_valuation_account_id": [
+   7
+  ],
+  "2:property_account_billed_not_received_id": [],
+  "2:property_stock_valuation_account_id": [],
+  "3:property_account_billed_not_received_id": [
+   7
+  ],
+  "3:property_stock_valuation_account_id": []
+ },
+ "linked.search_dotted": {
+  "1:property_account_billed_not_received_id": [
+   1
+  ],
+  "1:property_stock_valuation_account_id": [
+   7
+  ],
+  "2:property_account_billed_not_received_id": [],
+  "2:property_stock_valuation_account_id": [],
+  "3:property_account_billed_not_received_id": [],
+  "3:property_stock_valuation_account_id": []
+ },
+ "linked.values": {
+  "1": {
+   "1": {
+    "property_account_billed_not_received_id": 185,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "2": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "3": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "4": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "5": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "6": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "7": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 185
+   }
+  },
+  "2": {
+   "1": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "2": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "3": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "4": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "5": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "6": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "7": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   }
+  },
+  "3": {
+   "1": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "2": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "3": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "4": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "5": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "6": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "7": {
+    "property_account_billed_not_received_id": 185,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   }
+  }
+ },
+ "ondelete": {
+  "property_account_billed_not_received_id": "restrict",
+  "property_account_bills_to_receive_id": "restrict",
+  "property_account_expense_categ_id": "restrict",
+  "property_account_income_categ_id": "restrict",
+  "property_account_invoiced_not_delivered_id": "restrict",
+  "property_account_invoices_to_issue_id": "restrict",
+  "property_price_difference_account_id": "restrict",
+  "property_stock_valuation_account_id": "restrict"
+ },
+ "relinked.raw": {
+  "1": {
+   "property_account_billed_not_received_id": {
+    "1": 185,
+    "2": null,
+    "3": null
+   },
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "2": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "3": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "4": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "5": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "6": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "7": {
+   "property_account_billed_not_received_id": {
+    "1": 10,
+    "2": null,
+    "3": 185
+   },
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": {
+    "1": null,
+    "2": 63,
+    "3": null
+   }
+  }
+ },
+ "storage": {
+  "database": "odoo_unt12",
+  "mongodb": true,
+  "prefix": "odoo_v_w1b02ulmg__"
+ },
+ "unlink_default_fallback": {
+  "msg": "Unable to delete account.account(185,) because it is used as the default value of product.category.property_account_billed_not_received_id",
+  "ok": false,
+  "type": "UserError"
+ },
+ "unlink_default_fallback.raw": {
+  "1": {
+   "property_account_billed_not_received_id": {
+    "1": null,
+    "2": null,
+    "3": null
+   },
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "2": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "3": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "4": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "5": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "6": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "7": {
+   "property_account_billed_not_received_id": {
+    "1": 10,
+    "2": null,
+    "3": null
+   },
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": {
+    "1": null,
+    "2": 63,
+    "3": null
+   }
+  }
+ },
+ "unlink_default_fallback.values": {
+  "1": {
+   "1": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "2": {
+    "property_account_billed_not_received_id": 185,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "3": {
+    "property_account_billed_not_received_id": 185,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "4": {
+    "property_account_billed_not_received_id": 185,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "5": {
+    "property_account_billed_not_received_id": 185,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "6": {
+    "property_account_billed_not_received_id": 185,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "7": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": false
+   }
+  },
+  "2": {
+   "1": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "2": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "3": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "4": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "5": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "6": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "7": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   }
+  },
+  "3": {
+   "1": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "2": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "3": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "4": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "5": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "6": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "7": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   }
+  }
+ },
+ "unlink_force_delete": {
+  "ok": true
+ },
+ "unlink_force_delete.raw": {
+  "1": {
+   "property_account_billed_not_received_id": {
+    "1": null,
+    "2": null,
+    "3": null
+   },
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "2": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "3": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "4": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "5": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "6": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "7": {
+   "property_account_billed_not_received_id": {
+    "1": 10,
+    "2": null,
+    "3": null
+   },
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": {
+    "1": null,
+    "2": 63,
+    "3": null
+   }
+  }
+ },
+ "unlink_force_delete.values": {
+  "1": {
+   "1": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "2": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "3": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "4": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "5": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "6": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "7": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": false
+   }
+  },
+  "2": {
+   "1": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "2": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "3": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "4": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "5": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "6": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "7": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   }
+  },
+  "3": {
+   "1": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "2": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "3": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "4": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "5": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "6": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "7": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   }
+  }
+ },
+ "unlink_restrict": {
+  "msg": "You cannot delete account.account(185,), as it is used by product.category(7,)",
+  "ok": false,
+  "type": "UserError"
+ },
+ "unlink_restrict.raw": {
+  "1": {
+   "property_account_billed_not_received_id": {
+    "1": 185,
+    "2": null,
+    "3": null
+   },
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "2": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "3": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "4": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "5": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "6": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "7": {
+   "property_account_billed_not_received_id": {
+    "1": 10,
+    "2": null,
+    "3": 185
+   },
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": {
+    "1": 185,
+    "2": 63,
+    "3": null
+   }
+  }
+ },
+ "unlink_restrict.values": {
+  "1": {
+   "1": {
+    "property_account_billed_not_received_id": 185,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "2": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "3": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "4": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "5": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "6": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "7": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 185
+   }
+  },
+  "2": {
+   "1": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "2": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "3": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "4": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "5": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "6": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "7": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   }
+  },
+  "3": {
+   "1": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "2": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "3": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "4": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "5": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "6": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "7": {
+    "property_account_billed_not_received_id": 185,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   }
+  }
+ },
+ "unlink_unreferenced": {
+  "ok": true
+ },
+ "unlink_unreferenced.raw": {
+  "1": {
+   "property_account_billed_not_received_id": {
+    "1": null,
+    "2": null,
+    "3": null
+   },
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "2": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "3": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "4": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "5": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "6": {
+   "property_account_billed_not_received_id": null,
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": null
+  },
+  "7": {
+   "property_account_billed_not_received_id": {
+    "1": 10,
+    "2": null,
+    "3": null
+   },
+   "property_account_bills_to_receive_id": null,
+   "property_account_expense_categ_id": null,
+   "property_account_income_categ_id": null,
+   "property_account_invoiced_not_delivered_id": null,
+   "property_account_invoices_to_issue_id": null,
+   "property_price_difference_account_id": null,
+   "property_stock_valuation_account_id": {
+    "1": null,
+    "2": 63,
+    "3": null
+   }
+  }
+ },
+ "unlink_unreferenced.values": {
+  "1": {
+   "1": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "2": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "3": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "4": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "5": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "6": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": 2
+   },
+   "7": {
+    "property_account_billed_not_received_id": 10,
+    "property_account_bills_to_receive_id": 15,
+    "property_account_expense_categ_id": 31,
+    "property_account_income_categ_id": 25,
+    "property_account_invoiced_not_delivered_id": 16,
+    "property_account_invoices_to_issue_id": 6,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 7,
+    "property_stock_valuation_account_id": false
+   }
+  },
+  "2": {
+   "1": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "2": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "3": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "4": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "5": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "6": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   },
+   "7": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": 113,
+    "property_account_income_categ_id": 108,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": 14,
+    "property_stock_valuation_account_id": 63
+   }
+  },
+  "3": {
+   "1": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "2": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "3": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "4": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "5": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "6": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   },
+   "7": {
+    "property_account_billed_not_received_id": false,
+    "property_account_bills_to_receive_id": false,
+    "property_account_expense_categ_id": false,
+    "property_account_income_categ_id": false,
+    "property_account_invoiced_not_delivered_id": false,
+    "property_account_invoices_to_issue_id": false,
+    "property_price_difference_account_id": false,
+    "property_stock_journal": false,
+    "property_stock_valuation_account_id": false
+   }
+  }
+ }
+}
