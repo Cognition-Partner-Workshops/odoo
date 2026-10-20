@@ -333,13 +333,16 @@ class AccountAccount(models.Model):
     def _search_placeholder_code(self, operator, value):
         if operator not in ('=ilike', 'in'):
             return NotImplemented
-        query = Query(self)
-        placeholder_code_sql = self.env['account.account']._field_to_sql('account_account', 'placeholder_code', query)
+        # placeholder_code is compute_sql; the account documents live in MongoDB, so the codes are
+        # computed by the ORM and matched in Python (ILIKE: % and _ wildcards, case-insensitive)
+        accounts = self.env['account.account'].sudo().with_context(active_test=False).search([])
         if operator == 'in':
-            query.add_where(SQL("%s IN %s", placeholder_code_sql, tuple(value)))
+            values = set(value)
+            matches = accounts.filtered(lambda account: account.placeholder_code in values)
         else:
-            query.add_where(SQL("%s ILIKE %s", placeholder_code_sql, value))
-        return [('id', 'in', query)]
+            pattern = re.compile(''.join('.*' if c == '%' else '.' if c == '_' else re.escape(c) for c in value), re.IGNORECASE | re.DOTALL)
+            matches = accounts.filtered(lambda account: account.placeholder_code and pattern.fullmatch(account.placeholder_code))
+        return [('id', 'in', matches.ids)]
 
     @api.depends('parent_path')
     def _compute_parent_ids(self):
@@ -427,8 +430,9 @@ class AccountAccount(models.Model):
         }
 
     def _compute_used(self):
-        domain = Domain('id', 'in', self.ids) & Domain('used', '=', True)
-        used_ids = set(self.sudo().with_context(active_test=False)._search(domain))
+        # the SQL of _compute_sql_used cannot run against the MongoDB-stored account: ask the move lines
+        used_ids = {account.id for [account] in self.env['account.move.line'].sudo().with_context(active_test=False)._read_group(
+            [('account_id', 'in', self.ids)], ['account_id'])}
         for record in self:
             record.used = record.id in used_ids
 
