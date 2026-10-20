@@ -88,18 +88,18 @@ check("product.document values incl. _inherits ir.attachment (PostgreSQL)", all(
 rel = sql("SELECT product_tag_id, product_template_id FROM product_tag_product_template_rel ORDER BY 1, 2")
 check("product.tag.product_template_ids (array on the tag document)",
       sorted((t.id, tmpl.id) for t in tags for tmpl in t.product_template_ids) == rel, rel)
-check("product.template.product_tag_ids (PostgreSQL side of the array)",
-      sorted((tag.id, tmpl.id) for tmpl in env['product.template'].browse(sorted({r[1] for r in rel})) for tag in tmpl.product_tag_ids) == rel)
+check("product.template.product_tag_ids (PostgreSQL side of the array, every template)",
+      sorted((tag.id, tmpl.id) for tmpl in env['product.template'].with_context(active_test=False).search([]) for tag in tmpl.product_tag_ids) == rel)
 found = sorted(env['product.template'].search([('product_tag_ids', 'in', tags[0].ids)]).ids)
 check("product.template domain on tags into MongoDB", found == sorted(r[1] for r in rel if r[0] == tags[0].id), found)
 rel = sql("SELECT product_tag_id, product_product_id FROM product_tag_product_product_rel ORDER BY 1, 2")
 check("product.tag.product_product_ids", sorted((t.id, p.id) for t in tags for p in t.product_product_ids) == rel, rel)
-check("product.product.additional_product_tag_ids", sorted(
-    (tag.id, p.id) for p in env['product.product'].browse(sorted({r[1] for r in rel})) for tag in p.additional_product_tag_ids) == rel)
+check("product.product.additional_product_tag_ids (every variant)", sorted(
+    (tag.id, p.id) for p in env['product.product'].with_context(active_test=False).search([]) for tag in p.additional_product_tag_ids) == rel)
 rel = sql("SELECT product_category_id, stock_picking_type_id FROM product_category_stock_picking_type_rel ORDER BY 1, 2")
 PickingType = env['stock.picking.type']
-check("stock.picking.type.wave_category_ids (PostgreSQL owner, array on the category document)", sorted(
-    (c.id, pt.id) for pt in PickingType.browse(sorted({r[1] for r in rel})) for c in pt.wave_category_ids) == rel, rel)
+check("stock.picking.type.wave_category_ids (PostgreSQL owner, array on the category document, every picking type)", sorted(
+    (c.id, pt.id) for pt in PickingType.with_context(active_test=False).search([]) for c in pt.wave_category_ids) == rel, rel)
 check("stock.picking.type domain on wave categories", PickingType.search([('wave_category_ids', 'in', [4])]).ids == [1])
 
 # 4. domains, hierarchy, read_group, name search
@@ -251,6 +251,6 @@ check("company-dependent account field searched as the company on MongoDB catego
 
 cr.rollback()
 after = snapshot()
-check("rollback leaves the loaded collections byte-identical", before == after, after)
+check("rollback leaves the loaded collections byte-identical", before == after, {m: (before[m][:12], after[m][:12]) for m in after if before[m] != after[m]})
 print(f"{sum(checks)}/{len(checks)} checks passed")
 assert all(checks)
