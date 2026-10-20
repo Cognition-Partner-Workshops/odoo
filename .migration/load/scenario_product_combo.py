@@ -8,7 +8,11 @@ every write is rolled back so the loaded documents are left unchanged::
 
     odoo-bin shell -d <scratch db> --db_port=5433 --no-http -c <conf> < .migration/load/scenario_product_combo.py
 
-where ``<conf>`` sets ``mongodb_migration_db = <scratch db>``.
+where ``<conf>`` sets ``mongodb_migration_db = <scratch db>``: the scratch clone reads the shared migrated
+collections, so every write (including the account D5 tax writer, whose MongoDB side is the catalog document's
+``taxesId`` - wave 2's ``productTemplate``, outside this batch's write targets) is asserted after ``flush`` inside a
+savepoint and rolled back. The contract §6 post-COMMIT assertion of that writer belongs to a prefixed estate clone
+(estate-probe.md recipe) or the product-catalog unit; it is not reachable from a clone that names the shared collections.
 """
 from odoo.exceptions import UserError, ValidationError
 
