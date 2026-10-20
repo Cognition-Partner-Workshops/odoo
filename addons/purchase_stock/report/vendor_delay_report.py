@@ -10,6 +10,7 @@ class VendorDelayReport(models.Model):
     _description = "Vendor Delay Report"
     _auto = False
     _uom_factor_view = True  # rebuilt by uom.uom._rebuild_factor_views()
+    _product_values_view = True  # rebuilt by product.product._rebuild_product_views()
 
     partner_id = fields.Many2one('res.partner', 'Vendor', readonly=True)
     product_id = fields.Many2one('product.product', 'Product', readonly=True)
@@ -45,10 +46,8 @@ SELECT pol.id                   AS id,
 FROM   stock_move m
        JOIN purchase_order_line pol
          ON pol.id = m.purchase_line_id
-       JOIN product_product p
-         ON p.id = m.product_id
-       JOIN product_template pt
-         ON pt.id = p.product_tmpl_id
+       JOIN %(products)s pt(id, product_tmpl_id, categ_id, uom_id, is_storable)
+         ON pt.id = m.product_id
        JOIN %(uom_factors)s pt_uom(id, factor)
          ON pt_uom.id = pt.uom_id
        LEFT JOIN stock_move_line ml
@@ -56,7 +55,8 @@ FROM   stock_move m
        LEFT JOIN %(uom_factors)s ml_uom(id, factor)
          ON ml_uom.id = ml.uom_id
 GROUP  BY pol.id
-)""", uom_factors=self.env['uom.uom']._factor_values_sql()))  # uom_uom is stored in MongoDB: factors as of this (re)build
+)""", uom_factors=self.env['uom.uom']._factor_values_sql(),  # uom_uom is stored in MongoDB: factors as of this (re)build
+     products=self.env['product.product']._values_sql()))  # product tables too: columns as of this (re)build
 
     def _read_group_select(self, table, aggregate_spec):
         if aggregate_spec == 'on_time_rate:sum':

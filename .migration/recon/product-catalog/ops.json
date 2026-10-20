@@ -1,0 +1,193 @@
+[
+ {
+  "name": "template_catalog",
+  "collection": "productTemplate",
+  "source_sql": "SELECT id, name->>'en_US' AS name, list_price, categ_id, uom_id, type, sale_ok, purchase_ok, active FROM product_template",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "list_price": "$listPrice",
+     "categ_id": "$categId",
+     "uom_id": "$uomId",
+     "type": 1,
+     "sale_ok": "$saleOk",
+     "purchase_ok": "$purchaseOk",
+     "active": 1
+    }
+   }
+  ]
+ },
+ {
+  "name": "variants_by_template",
+  "collection": "productProduct",
+  "source_sql": "SELECT product_tmpl_id, id, default_code, barcode, combination_indices, active FROM product_product",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "product_tmpl_id": "$productTmplId",
+     "id": "$_id",
+     "default_code": {
+      "$ifNull": [
+       "$defaultCode",
+       null
+      ]
+     },
+     "barcode": {
+      "$ifNull": [
+       "$barcode",
+       null
+      ]
+     },
+     "combination_indices": {
+      "$ifNull": [
+       "$combinationIndices",
+       null
+      ]
+     },
+     "active": 1
+    }
+   }
+  ]
+ },
+ {
+  "name": "template_attribute_values",
+  "collection": "productTemplateAttributeValue",
+  "source_sql": "SELECT product_tmpl_id, attribute_line_id, id, product_attribute_value_id, price_extra, ptav_active FROM product_template_attribute_value",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "product_tmpl_id": "$productTmplId",
+     "attribute_line_id": "$attributeLineId",
+     "id": "$_id",
+     "product_attribute_value_id": "$productAttributeValueId",
+     "price_extra": "$priceExtra",
+     "ptav_active": "$ptavActive"
+    }
+   }
+  ]
+ },
+ {
+  "name": "attribute_line_value_pairs",
+  "collection": "productAttributeValueProductTemplateAttributeLineRel",
+  "source_sql": "SELECT product_attribute_value_id, product_template_attribute_line_id FROM product_attribute_value_product_template_attribute_line_rel",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "product_attribute_value_id": "$productAttributeValueId",
+     "product_template_attribute_line_id": "$productTemplateAttributeLineId"
+    }
+   }
+  ]
+ },
+ {
+  "name": "vendor_lines_by_template",
+  "collection": "productSupplierinfo",
+  "source_sql": "SELECT product_tmpl_id, id, partner_id, product_id, sequence, min_qty, price, delay FROM product_supplierinfo",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "product_tmpl_id": {
+      "$ifNull": [
+       "$productTmplId",
+       null
+      ]
+     },
+     "id": "$_id",
+     "partner_id": "$partnerId",
+     "product_id": {
+      "$ifNull": [
+       "$productId",
+       null
+      ]
+     },
+     "sequence": 1,
+     "min_qty": "$minQty",
+     "price": 1,
+     "delay": 1
+    }
+   }
+  ]
+ },
+ {
+  "name": "pricelist_rules",
+  "collection": "productPricelistItem",
+  "source_sql": "SELECT pricelist_id, id, applied_on, compute_price, product_tmpl_id, min_quantity, fixed_price, price_discount FROM product_pricelist_item",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "pricelist_id": "$pricelistId",
+     "id": "$_id",
+     "applied_on": "$appliedOn",
+     "compute_price": "$computePrice",
+     "product_tmpl_id": {
+      "$ifNull": [
+       "$productTmplId",
+       null
+      ]
+     },
+     "min_quantity": "$minQuantity",
+     "fixed_price": {
+      "$ifNull": [
+       "$fixedPrice",
+       null
+      ]
+     },
+     "price_discount": {
+      "$ifNull": [
+       "$priceDiscount",
+       null
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "combo_items",
+  "collection": "productCombo",
+  "source_sql": "SELECT c.id, c.name->>'en_US' AS name, c.sequence, count(i.id) AS items FROM product_combo c LEFT JOIN product_combo_item i ON i.combo_id = c.id GROUP BY c.id, c.name, c.sequence",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "sequence": 1,
+     "items": {
+      "$size": {
+       "$ifNull": [
+        "$item",
+        []
+       ]
+      }
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "pricelist_list",
+  "collection": "productPricelist",
+  "source_sql": "SELECT id, name->>'en_US' AS name, sequence, active, currency_id FROM product_pricelist",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": "$name.en_US",
+     "sequence": 1,
+     "active": 1,
+     "currency_id": "$currencyId"
+    }
+   }
+  ]
+ }
+]

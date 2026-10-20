@@ -24,6 +24,7 @@ class ProductTemplate(models.Model):
     _order = "is_favorite desc, name"
     _check_company_auto = True
     _check_company_domain = models.check_company_domain_parent_of
+    _storage = 'mongodb'
 
     @api.model
     def default_get(self, fields):
@@ -856,6 +857,14 @@ class ProductTemplate(models.Model):
                 product_template.combo_ids = False
         if 'barcode' in vals or 'company_id' in vals:
             self._check_barcode_uniqueness()
+        if any(f in vals for f in ('categ_id', 'uom_id', 'is_storable', 'type')):
+            self.env['product.product']._rebuild_product_views()
+        return res
+
+    def unlink(self):
+        res = super().unlink()
+        # cascaded variants go through the storage layer, not product.product.unlink()
+        self.env['product.product']._rebuild_product_views()
         return res
 
     def action_archive(self):
@@ -966,12 +975,8 @@ class ProductTemplate(models.Model):
             if operator in Domain.NEGATIVE_OPERATORS:
                 domain = Domain.AND([domain, [('product_variant_ids', operator, value)]])
             else:
-                query = SQL(
-                    """((%s) UNION ALL (%s))""",
-                    self._search(domain).select(),
-                    self._search([("product_variant_ids", operator, value)]).select(),
-                )
-                domain = [('id', 'in', query)]
+                # product.template is stored in MongoDB: no SQL UNION of the two searches
+                domain = [('id', 'in', self._search(Domain.OR([domain, [("product_variant_ids", operator, value)]])))]
         return domain
 
     @api.model

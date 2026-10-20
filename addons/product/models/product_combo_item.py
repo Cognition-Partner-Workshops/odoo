@@ -8,6 +8,7 @@ class ProductComboItem(models.Model):
     _name = 'product.combo.item'
     _description = "Product Combo Item"
     _check_company_auto = True
+    _storage = 'mongodb'
 
     company_id = fields.Many2one(related='combo_id.company_id', precompute=True, store=True)
     combo_id = fields.Many2one(comodel_name='product.combo', ondelete='cascade', required=True, index=True)

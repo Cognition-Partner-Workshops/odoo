@@ -9,6 +9,7 @@ class ProductCombo(models.Model):
     _name = 'product.combo'
     _description = "Product Combo"
     _order = 'sequence, id'
+    _storage = 'mongodb'
 
     name = fields.Char(string="Name", required=True, translate=True)
     sequence = fields.Integer(default=10, copy=False)

@@ -59,7 +59,8 @@ class PurchaseReport(models.Model):
 
     def _select_list(self, table: TableSQL):
         uom = self.env['uom.uom']  # stored in MongoDB: its factor is inlined, not joined
-        uom_ratio = SQL("(COALESCE(%s, 1) / NULLIF(COALESCE(%s, 1), 0.0))", uom._factor_sql(table.uom_id), uom._factor_sql(table.product_id.uom_id))
+        product = self.env['product.product']  # stored in MongoDB too: its fields are inlined the same way
+        uom_ratio = SQL("(COALESCE(%s, 1) / NULLIF(COALESCE(%s, 1), 0.0))", uom._factor_sql(table.uom_id), uom._factor_sql(product._inline_sql(table.product_id, 'uom_id')))
         return [
             SQL("%s AS order_id", table.order_id.id),
             SQL("MIN(%s) AS id", table.id),
@@ -71,11 +72,11 @@ class PurchaseReport(models.Model):
             table.order_id.user_id,
             table.order_id.company_id,
             table.order_id.fiscal_position_id,
-            SQL("%s AS product_id", table.product_id.id),
-            table.product_id.product_tmpl_id,
-            SQL("%s AS category_id", table.product_id.product_tmpl_id.categ_id),
+            SQL("%s AS product_id", table.product_id),
+            SQL("%s AS product_tmpl_id", product._inline_sql(table.product_id, 'product_tmpl_id')),
+            SQL("%s AS category_id", product._inline_sql(table.product_id, 'categ_id')),
             table.order_id.company_id.currency_id,
-            table.product_id.product_tmpl_id.uom_id,
+            SQL("%s AS uom_id", product._inline_sql(table.product_id, 'uom_id')),
             SQL("EXTRACT(epoch FROM AGE(%s, %s))/(24*60*60)::decimal(16,2) AS delay", table.order_id.date_approve, table.order_id.date_order),
             SQL("EXTRACT(epoch FROM AGE(%s, %s))/(24*60*60)::decimal(16,2) AS delay_pass", table.date_planned, table.order_id.date_order),
             SQL("COUNT(*) AS nbr_lines"),
@@ -86,8 +87,8 @@ class PurchaseReport(models.Model):
             ),
             table.order_id.partner_id.country_id,
             table.order_id.partner_id.commercial_partner_id,
-            SQL("SUM(%s * %s * %s) AS weight", table.product_id.weight, table.product_qty, uom_ratio),
-            SQL("SUM(%s * %s * %s) AS volume", table.product_id.volume, table.product_qty, uom_ratio),
+            SQL("SUM(%s * %s * %s) AS weight", product._inline_sql(table.product_id, 'weight'), table.product_qty, uom_ratio),
+            SQL("SUM(%s * %s * %s) AS volume", product._inline_sql(table.product_id, 'volume'), table.product_qty, uom_ratio),
             SQL("SUM(%s / COALESCE(%s, 1.0))::decimal(16,2) * %s as untaxed_total", table.price_subtotal, table.order_id.currency_rate, table.consolidation_rate),
             SQL("SUM(%s * %s) AS qty_ordered", table.product_qty, uom_ratio),
             SQL("SUM(%s * %s) AS qty_received", table.qty_received, uom_ratio),
@@ -97,22 +98,23 @@ class PurchaseReport(models.Model):
                     THEN SUM(%s * %s) - SUM(%s * %s)
                     ELSE SUM(%s * %s) - SUM(%s * %s)
                    END AS qty_to_be_billed""",
-                table.product_id.product_tmpl_id.purchase_method,
+                product._inline_sql(table.product_id, 'product_tmpl_id.purchase_method'),
                 table.product_qty, uom_ratio, table.qty_invoiced, uom_ratio,
                 table.qty_received, uom_ratio, table.qty_invoiced, uom_ratio,
             ),
         ]
 
     def _groupby_list(self, table: TableSQL):
+        product = self.env['product.product']
         return [
             table.price_unit,
             table.date_planned,
             table.order_id.id,
             table.order_id.company_id.id,
             table.order_id.partner_id.id,
-            table.product_id.id,
-            table.product_id.product_tmpl_id.id,
-            table.product_id.product_tmpl_id.uom_id,
+            table.product_id,
+            product._inline_sql(table.product_id, 'product_tmpl_id'),
+            product._inline_sql(table.product_id, 'uom_id'),
             table.uom_id,
         ]
 

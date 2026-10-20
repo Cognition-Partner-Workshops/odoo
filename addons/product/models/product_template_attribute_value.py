@@ -15,6 +15,7 @@ class ProductTemplateAttributeValue(models.Model):
     _name = 'product.template.attribute.value'
     _description = "Product Template Attribute Value"
     _order = 'sequence, attribute_line_id, product_attribute_value_id, id'
+    _storage = 'mongodb'
 
     def _get_default_color(self):
         return randint(1, 11)

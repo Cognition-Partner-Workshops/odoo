@@ -93,9 +93,9 @@ class AccountInvoiceReport(models.Model):
     def _select_list(self, table: TableSQL):
         in_out_sign = SQL("CASE WHEN %s IN ('in_invoice','out_refund','in_receipt') THEN -1 ELSE 1 END", table.move_id.move_type)
         uom = self.env['uom.uom']  # stored in MongoDB: its factor is inlined, not joined
-        uom_ratio = SQL("(COALESCE(%s, 1) / NULLIF(COALESCE(%s, 1), 0.0))", uom._factor_sql(table.product_uom_id), uom._factor_sql(table.product_id.uom_id))
+        product = self.env['product.product']  # stored in MongoDB too: its fields are inlined the same way
+        uom_ratio = SQL("(COALESCE(%s, 1) / NULLIF(COALESCE(%s, 1), 0.0))", uom._factor_sql(table.product_uom_id), uom._factor_sql(product._inline_sql(table.product_id, 'uom_id')))
         quantity = SQL("%s * %s", table.quantity, uom_ratio)
-        table_with_company = table._with_model(table._model.with_context(sql_company_id=table.company_id))
         return [
             table.id,
             table.move_id,
@@ -115,8 +115,8 @@ class AccountInvoiceReport(models.Model):
             table.move_id.invoice_date,
             table.move_id.invoice_date_due,
             table.partner_id.country_id,
-            SQL("%s AS product_uom_id", table.product_id.uom_id),
-            SQL("%s AS product_categ_id", table.product_id.categ_id),
+            SQL("%s AS product_uom_id", product._inline_sql(table.product_id, 'uom_id')),
+            SQL("%s AS product_categ_id", product._inline_sql(table.product_id, 'categ_id')),
             SQL("%s * %s AS quantity", quantity, in_out_sign),
             SQL("%s * %s AS price_subtotal_currency", table.price_subtotal, in_out_sign),
             SQL("-%s AS price_subtotal", table.balance),
@@ -135,12 +135,12 @@ class AccountInvoiceReport(models.Model):
                 END AS price_margin
                 """,
                 table.move_type,
-                table.move_type, table.balance, quantity, table_with_company.product_id.standard_price,
-                table.balance, quantity, table_with_company.product_id.standard_price,
+                table.move_type, table.balance, quantity, product._inline_sql(table.product_id, 'standard_price', table.company_id),
+                table.balance, quantity, product._inline_sql(table.product_id, 'standard_price', table.company_id),
             ),
             SQL(
                 "-%s * %s * COALESCE(%s, 0.0) AS inventory_value",
-                quantity, in_out_sign, table_with_company.product_id.standard_price,
+                quantity, in_out_sign, product._inline_sql(table.product_id, 'standard_price', table.company_id),
             ),
         ]
 

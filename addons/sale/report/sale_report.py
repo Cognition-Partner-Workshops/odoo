@@ -135,7 +135,8 @@ class SaleReport(models.Model):
 
     def _select_dict(self, table: TableSQL):
         uom = self.env['uom.uom']  # stored in MongoDB: its factor is inlined, not joined
-        uom_ratio = SQL("(COALESCE(%s, 1) / NULLIF(COALESCE(%s, 1), 0.0))", uom._factor_sql(table.product_uom_id), uom._factor_sql(table.product_id.uom_id))
+        product = self.env['product.product']  # stored in MongoDB too: its fields are inlined the same way
+        uom_ratio = SQL("(COALESCE(%s, 1) / NULLIF(COALESCE(%s, 1), 0.0))", uom._factor_sql(table.product_uom_id), uom._factor_sql(product._inline_sql(table.product_id, 'uom_id')))
         order_rate = self._case_value_or_one(table.order_id.currency_rate)
         rate = SQL("%s / %s", table.consolidation_rate, order_rate)
         return {
@@ -143,7 +144,7 @@ class SaleReport(models.Model):
             'product_id': table.product_id,
             'line_name': table.name,
             'line_invoice_status': SQL("%s", table.invoice_status),
-            'product_uom_id': SQL("CASE WHEN %s IS NULL THEN %s ELSE %s END", table.product_id, table.product_id.uom_id, table.product_uom_id),
+            'product_uom_id': SQL("CASE WHEN %s IS NULL THEN %s ELSE %s END", table.product_id, product._inline_sql(table.product_id, 'uom_id'), table.product_uom_id),
             'product_uom_qty': SQL("CASE WHEN %s IS NOT TRUE THEN SUM(%s * %s) ELSE 0 END", table.is_downpayment, table.product_uom_qty, uom_ratio),
             'qty_delivered': SQL("CASE WHEN %s IS NOT TRUE THEN SUM(%s * %s) ELSE 0 END", table.is_downpayment, table.qty_delivered, uom_ratio),
             'qty_to_deliver': SQL("CASE WHEN %s IS NOT TRUE THEN SUM((%s - %s) * %s) ELSE 0 END", table.is_downpayment, table.product_uom_qty, table.qty_delivered, uom_ratio),
@@ -167,17 +168,17 @@ class SaleReport(models.Model):
             'medium_id': table.order_id.medium_id,
             'source_id': table.order_id.source_id,
             'utm_reference': table.order_id.utm_reference,
-            'categ_id': table.product_id.categ_id,
+            'categ_id': product._inline_sql(table.product_id, 'categ_id'),
             'pricelist_id': table.order_id.pricelist_id,
             'team_id': table.order_id.team_id,
-            'product_tmpl_id': table.product_id.product_tmpl_id,
+            'product_tmpl_id': product._inline_sql(table.product_id, 'product_tmpl_id'),
             'commercial_partner_id': table.order_id.partner_id.commercial_partner_id,
             'country_id': table.order_id.partner_id.country_id,
             'industry_id': table.order_id.partner_id.industry_id,
             'state_id': table.order_id.partner_id.state_id,
             'partner_zip': SQL("%s", table.order_id.partner_id.zip),
-            'weight': SQL("SUM(%s * %s * %s)", table.product_id.weight, table.product_uom_qty, uom_ratio),
-            'volume': SQL("SUM(%s * %s * %s)", table.product_id.volume, table.product_uom_qty, uom_ratio),
+            'weight': SQL("SUM(%s * %s * %s)", product._inline_sql(table.product_id, 'weight'), table.product_uom_qty, uom_ratio),
+            'volume': SQL("SUM(%s * %s * %s)", product._inline_sql(table.product_id, 'volume'), table.product_uom_qty, uom_ratio),
             'discount': table.discount,
             'discount_amount': SQL("SUM(%s * %s * %s * %s)", table.price_unit, table.product_uom_qty, table.discount, rate),
             'currency_id': SQL("%s", self.env.company.currency_id.id),
@@ -185,6 +186,7 @@ class SaleReport(models.Model):
         }
 
     def _groupby_list(self, table: TableSQL):
+        product = self.env['product.product']
         groupby_list = [
             table.product_id,
             table.price_unit,
@@ -195,9 +197,8 @@ class SaleReport(models.Model):
             table.discount,
             table.order_id,
             table.order_id.id,
-            table.product_id.uom_id,
-            table.product_id.product_tmpl_id,
-            table.product_id.product_tmpl_id.id,
+            product._inline_sql(table.product_id, 'uom_id'),
+            product._inline_sql(table.product_id, 'product_tmpl_id'),
             table.order_id.partner_id.id,
         ]
         if table.consolidation_rate != SQL('1'):
