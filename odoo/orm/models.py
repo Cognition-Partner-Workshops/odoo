@@ -3772,6 +3772,9 @@ class BaseModel(metaclass=MetaModel):
             # on delete set null/restrict for jsonb company dependent many2one
             for field in many2one_fields:
                 model = self.env[field.model_name]
+                if model._storage == 'mongodb':
+                    storage_mongodb.on_delete_company_dependent(model, field, list(sub_ids))
+                    continue
                 if field.ondelete == 'restrict' and not self.env.context.get('force_delete'):
                     if res := self.env.execute_query(SQL(
                         """

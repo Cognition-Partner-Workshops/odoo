@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Spec-driven initial load of one unit's root collections from PostgreSQL into the migration target.
+"""Spec-driven initial load of one unit's collections from PostgreSQL into the migration target.
 
     /home/ubuntu/.venvs/odoo/bin/python .migration/load/load_unit.py --unit stock-reference \\
         --source-dsn-secret ODOO_SCENARIO_DSN [--target-uri-secret MONGODB_ATLAS_URI] \\
@@ -9,10 +9,10 @@ The unit's collections come from .migration/units.json and must all be write tar
 in --target-db; rows, field targets and indexes come from .migration/mapping_spec.json; values go
 through the ORM's own ``odoo.orm.storage_mongodb.to_bson`` so a loaded document is what
 ``_storage = 'mongodb'`` would have written (NULL columns are omitted: ``null_missing_equiv``).
-Roots are keyed id -> _id; a spec embed (``shape: array`` under a parent keyed by id) becomes one
-array per document, its child rows shaped as the ORM's create() pushes them: ``{key target, field
-targets...}``, junction tables key-only, and a parent without children carries no array at all.
-Every run empties the collection first;
+Roots are keyed id -> _id; each spec ``embeds[]`` entry (One2many children keyed by ``id``, Many2many
+relation tables keyed by the other side's id) becomes one array per parent document, its elements
+shaped as ``storage_mongodb.create`` pushes them (the child fields in mapping order, NULLs omitted,
+in child key order); a parent without children carries no array. Every run empties the collection first;
 a non-empty collection needs --replace: once the model is opted in the collection is the
 system of record and a reload discards every edit made through the ORM. Secrets are read by name
 from the environment (the PostgreSQL one is the plugin's JSON shape) and never printed.
@@ -54,7 +54,8 @@ def connect_source(secret_name):
 
 
 def select(cur, table, columns, order):
-    cur.execute(f'SELECT {", ".join(chr(34) + c + chr(34) for c in columns)} FROM "{table}" ORDER BY {order}')
+    cur.execute(f'SELECT {", ".join(chr(34) + c + chr(34) for c in columns)} FROM "{table}" '
+                f'ORDER BY {", ".join(chr(34) + c + chr(34) for c in order)}')
     return cur.fetchall()
 
 
@@ -71,29 +72,26 @@ def documents(cur, coll_spec):
         raise SystemExit(f'{coll_spec["collection"]}: only roots keyed by id -> _id are supported')
     fields = coll_spec['fields']
     docs = {int(row[0]): convert(fields, row[1:], {'_id': int(row[0])})
-            for row in select(cur, coll_spec['root_table'], ['id'] + [f['source'] for f in fields], 'id')}
+            for row in select(cur, coll_spec['root_table'], ['id'] + [f['source'] for f in fields], ['id'])}
     for embed in coll_spec['embeds']:
         embed_elements(cur, coll_spec['collection'], embed, docs)
     return list(docs.values())
 
 
 def embed_elements(cur, name, embed, docs):
-    """Append each child row to its parent's array, as ``{key target: key, field targets...}``."""
+    """Append each child row to its parent's array, in (parent, child key) order."""
     path = f'{name}.{embed["array_path"]}'
-    key = embed['key']
-    if (embed.get('shape', 'array') != 'array' or embed.get('parent_ref') != ['id'] or len(embed['parent_key']) != 1
-            or len(key['source']) != 1 or not isinstance(key['target'], str) or embed.get('overflow')):
-        raise SystemExit(f'{path}: only arrays keyed by one column under a parent keyed by id are supported')
-    parent, key_column = embed['parent_key'][0], key['source'][0]
-    key_type = next((f['bson_type'] for f in embed.get('child_fields', []) if f['source'] == key_column), 'int')
-    fields = [f for f in embed.get('fields', []) if f['source'] != key_column]
-    columns = [parent, key_column] + [f['source'] for f in fields]
-    for row in select(cur, embed['child_table'], columns, f'"{parent}", "{key_column}"'):
-        doc = docs.get(row[0])
+    fields = embed['child_fields']
+    if (embed['shape'] != 'array' or embed.get('parent_ref') != ['id'] or len(embed['parent_key']) != 1
+            or embed.get('overflow') or any(k not in [f['source'] for f in fields] for k in embed['key']['source'])):
+        raise SystemExit(f'{path}: only arrays keyed by child columns under a parent keyed by id are supported')
+    parent = embed['parent_key'][0]
+    order = [parent] + [c for c in embed['child_key'] if c != parent]
+    for row in select(cur, embed['child_table'], [parent] + [f['source'] for f in fields], order):
+        doc = docs.get(int(row[0]))
         if doc is None:
             raise SystemExit(f'{path}: {embed["child_table"]}.{parent}={row[0]!r} has no parent document; nothing was changed')
-        element = convert(fields, row[2:], {key['target']: to_bson(row[1], key_type)})
-        doc.setdefault(embed['array_path'], []).append(element)
+        doc.setdefault(embed['array_path'], []).append(convert(fields, row[1:], {}))
 
 
 def validate(name, coll_spec, docs):
@@ -188,7 +186,7 @@ def load(unit_id, source_secret, target_secret, target_db, replace):
         for name in names:
             touched.append(name)
             write_collection(db[name], loads[name], index_specs(spec[name]))
-            elements = ', '.join(f'{sum(len(d.get(e["array_path"], [])) for d in loads[name])} {e["array_path"]}'
+            elements = ', '.join(f'{sum(len(d.get(e["array_path"], ())) for d in loads[name])} {e["array_path"]}'
                                  for e in spec[name]['embeds'])
             print(f'{spec[name]["root_table"]} ({source_db}) -> {target_db}.{name}: {len(loads[name])} documents'
                   f'{" (" + elements + " elements)" if elements else ""}, {len(db[name].index_information())} indexes')

@@ -3,6 +3,7 @@ import datetime
 
 import psycopg2
 
+from odoo.exceptions import UserError
 from odoo.orm.storage_mongodb import _check_constraints, relax_registry_shadow_tables
 from odoo.tests import TransactionCase, tagged
 from odoo.tools import mute_logger, sql
@@ -428,6 +429,202 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual(Book.search([], order='pages asc, id')[-1], book)
         self.assertEqual(Book.search([], order='pages desc, id')[0], book)
         self.assertEqual(Book.search([], order='pages asc nulls first, id')[0], book)
+
+    def test_order_by_compute_sql_field(self):
+        # account.account's default _order names code_path (compute_sql, no document path): the field is
+        # computed in Python over the filtered records; ties fall through to the next term, NULLs place
+        # like PostgreSQL's (last on ASC, first on DESC)
+        Book = self.env['test.mongo.book']
+        self.assertEqual((self.book_a1.shelf, self.book_a2.shelf, self.book_b1.shelf), ('2024', '2024', False))
+        self.assertEqual(Book.search([], order='shelf, name'), self.book_a2 + self.book_a1 + self.book_b1)
+        self.assertEqual(Book.search([], order='shelf desc, name desc'), self.book_b1 + self.book_a1 + self.book_a2)
+        self.assertEqual(Book.search([], order='shelf asc nulls first, name'), self.book_b1 + self.book_a2 + self.book_a1)
+        self.assertEqual(Book.search([('pages', '>', 60)], order='shelf desc, name'), self.book_b1 + self.book_a1)
+        self.assertEqual(Book.search([], order='shelf, name', limit=1, offset=1), self.book_a1)
+        # a computed Float with digits orders numerically (its column format is a string: '10.00' < '2.50')
+        self.assertEqual((self.book_a1.half_price, self.book_a2.half_price, self.book_b1.half_price), (5.25, 10.0, 2.5))
+        self.assertEqual(Book.search([], order='half_price, id'), self.book_b1 + self.book_a1 + self.book_a2)
+        self.assertEqual(Book.search([], order='half_price desc, id'), self.book_a2 + self.book_a1 + self.book_b1)
+        self.book_b1.published = '2023-01-01 00:00:00'
+        self.book_b1.flush_recordset()
+        self.assertEqual(Book.search([], order='shelf, name'), self.book_b1 + self.book_a2 + self.book_a1)
+        # an empty value is not NULL (compute and compute_sql agree): '' sorts before every year, the NULLs stay apart
+        late = Book.create({'name': 'Zed', 'author_id': self.author_b.id})
+        self.book_b1.write({'published': False, 'archived': True})
+        self.env.flush_all()
+        self.assertEqual((self.book_b1.shelf, late.shelf), ('', False))
+        all_books = Book.with_context(active_test=False)
+        self.assertEqual(all_books.search([], order='shelf, name'), self.book_b1 + self.book_a2 + self.book_a1 + late)
+        self.assertEqual(all_books.search([], order='shelf desc, name'), late + self.book_a2 + self.book_a1 + self.book_b1)
+        self.book_b1.write({'published': '2023-01-01 00:00:00', 'archived': False})
+        late.unlink()
+        self.env.flush_all()
+        # the generic list view: search([]) with the model's default _order
+        self.patch(type(Book), '_order', 'shelf desc, name, id')
+        self.assertEqual(Book.search([]), self.book_a2 + self.book_a1 + self.book_b1)
+        self.assertEqual(Book.search([('author_id', '=', self.author_a.id)]), self.book_a2 + self.book_a1)
+
+    def test_postgresql_domain_through_many2many_with_comodel_domain(self):
+        # product.template.taxes_id carries domain=[('type_tax_use', '=', 'sale')]: ('taxes_id', 'in', ids) on the
+        # PostgreSQL model becomes 'any!' over the comodel's ids as a MongoQuery, and the field's domain
+        # has to join its filter instead of being added as SQL
+        Review = self.env['test.mongo.review']
+        review = Review.create({'name': 'dom', 'book_ids': [(6, 0, (self.book_a1 + self.book_a2).ids)],
+                                'author_ids': [(6, 0, (self.author_a + self.author_b).ids)]})
+        other = Review.create({'name': 'none'})
+        self.env.flush_all()
+        self.assertEqual(review.cheap_book_ids, self.book_a1)                       # 10.5 < 15, Apple is 20
+        # PostgreSQL relation table
+        self.assertEqual(Review.search([('cheap_book_ids', 'in', self.book_a1.ids)]), review)
+        self.assertFalse(Review.search([('cheap_book_ids', 'in', self.book_a2.ids)]))
+        self.assertEqual(Review.search([('cheap_book_ids', 'in', (self.book_a1 + self.book_a2).ids)]), review)
+        self.assertEqual(Review.search([('cheap_book_ids', 'not in', self.book_a2.ids)]), review + other)
+        self.assertEqual(Review.search([('cheap_book_ids', 'not in', self.book_a1.ids)]), other)
+        self.assertEqual(Review.search([('cheap_book_ids', 'any', [('name', '=', 'Zebra')])]), review)
+        self.assertFalse(Review.search([('cheap_book_ids', 'any', [('name', '=', 'Apple')])]))
+        # relation embedded in the comodel's documents (product_taxes_rel in accountTax)
+        self.assertEqual(review.rated_author_ids, self.author_a)                   # 4.5 > 4, Ben is 3.0
+        self.assertEqual(Review.search([('rated_author_ids', 'in', self.author_a.ids)]), review)
+        self.assertFalse(Review.search([('rated_author_ids', 'in', self.author_b.ids)]))
+        self.assertEqual(Review.search([('rated_author_ids', 'not in', self.author_b.ids)]), review + other)
+        self.assertEqual(Review.search([('rated_author_ids', 'in', [False])]), other)
+
+    def test_dotted_search_over_company_dependent_many2one(self):
+        # product.category property_account_*_id.active: a document holds the company's value or nothing, and
+        # nothing means the ir.default fallback (COALESCE(col->>company, fallback) in SQL). Every search is
+        # compared with the same search on the PostgreSQL twin field, in two companies.
+        Author, Review = self.env['test.mongo.author'], self.env['test.mongo.review']
+        company_a, company_b = self.env.company, self.env['res.company'].create({'name': 'B'})
+        eur, usd = self.env.ref('base.EUR'), self.env.ref('base.USD')
+        authors = self.author_a + self.author_b + Author.create({'name': 'Cid'})
+        reviews = Review.create([{'name': 'ra'}, {'name': 'rb'}, {'name': 'rc'}])
+        for model in (Author, Review):
+            self.env['ir.default'].set(model._name, 'property_currency_id', eur.id, company_id=company_a.id)
+        for recs in (authors, reviews):
+            recs[0].with_company(company_a).property_currency_id = usd      # explicit (USD) in A, no value and no fallback in B
+            recs[1].with_company(company_b).property_currency_id = eur    # fallback (EUR) in A, explicit (EUR) in B
+        self.env.flush_all()
+        doc = self.doc(authors[0])
+        self.assertEqual(doc['propertyCurrencyId'], {str(company_a.id): usd.id})
+        self.assertNotIn('propertyCurrencyId', self.doc(authors[2]))
+        domains = [
+            [('property_currency_id.name', '=', 'EUR')], [('property_currency_id.name', '=', 'USD')],
+            [('property_currency_id.active', '=', True)], [('property_currency_id', '=', False)],
+            [('property_currency_id', '!=', False)], [('property_currency_id.name', '!=', 'EUR')],
+            [('property_currency_id', 'not any', [('name', '=', 'EUR')])], [('property_currency_id', 'in', [eur.id])],
+            [('property_currency_id', 'in', [eur.id, False])], [('property_currency_id.name', 'ilike', 'us')],
+        ]
+        def positions(recs, domain, company):
+            found = recs.with_company(company).search([('id', 'in', recs.ids), *domain])
+            return sorted(recs.ids.index(id_) for id_ in found.ids)
+        for company in (company_a, company_b):
+            for domain in domains:
+                with self.subTest(company=company.name, domain=domain):
+                    self.assertEqual(positions(authors, domain, company), positions(reviews, domain, company))
+        self.assertEqual(positions(authors, domains[0], company_a), [1, 2])     # fallback: EUR for rb, rc
+        self.assertEqual(positions(authors, domains[0], company_b), [1])        # no fallback in B
+        self.assertEqual(positions(authors, domains[3], company_b), [0, 2])
+
+    def test_unlink_through_company_dependent_many2one(self):
+        # BaseModel.unlink cleans the jsonb values of the company-dependent many2ones targeting the deleted
+        # records with SQL on the holder's table: a MongoDB-stored holder (product.category property_account_*_id
+        # -> account.account) has an id-only shadow table, so the storage path does it on the documents
+        Review = self.env['test.mongo.review']
+        company_a, company_b = self.env.company, self.env['res.company'].create({'name': 'B'})
+        gone = self.env['res.currency'].create({'name': 'GON', 'symbol': 'G'})
+        kept = self.env.ref('base.USD')
+        review = Review.create({'name': 'r'})
+        for record in (self.author_a, review):      # MongoDB holder and its PostgreSQL twin
+            record.with_company(company_a).property_currency_id = gone
+            record.with_company(company_b).property_currency_id = kept
+        self.author_b.with_company(company_b).property_currency_id = gone
+        self.env.flush_all()
+        self.assertEqual(self.doc(self.author_a)['propertyCurrencyId'], {str(company_a.id): gone.id, str(company_b.id): kept.id})
+        # an ir.default fallback protects the record on both stores
+        self.env['ir.default'].set('test.mongo.author', 'property_currency_id', gone.id, company_id=company_b.id)
+        with self.assertRaisesRegex(UserError, 'default value'):
+            gone.unlink()
+        self.env['ir.default'].discard_records(gone)
+        # set null: the company values pointing at the deleted record become null, the others stay
+        gone.unlink()
+        for record in (self.author_a, review):
+            self.assertFalse(record.with_company(company_a).property_currency_id)
+            self.assertEqual(record.with_company(company_b).property_currency_id, kept)
+        self.assertFalse(self.author_b.with_company(company_b).property_currency_id)
+        self.assertEqual(self.doc(self.author_a)['propertyCurrencyId'], {str(company_a.id): None, str(company_b.id): kept.id})
+        self.assertEqual(self.doc(self.author_b)['propertyCurrencyId'], {str(company_b.id): None})
+        # restrict: blocked like the SQL probe, in any company
+        country = self.env['res.country'].create({'name': 'Nowhere', 'code': 'NW'})
+        self.author_a.with_company(company_b).property_country_id = country
+        self.env.flush_all()
+        with self.assertRaisesRegex(UserError, 'You cannot delete'):
+            country.unlink()
+        self.assertEqual(self.author_a.with_company(company_b).property_country_id, country)
+
+    def test_company_dependent_write_keeps_fallbacks_out(self):
+        # the UPDATE of a company-dependent column keeps a company's value only where it differs from its
+        # ir.default fallback (the cache holds the fallback of every company read): the document must hold the
+        # same map as the PostgreSQL jsonb, or a later fallback change / unlink leaves stale values behind
+        Review = self.env['test.mongo.review']
+        company_a = self.env.company
+        company_b, company_c = (self.env['res.company'].create({'name': name}) for name in ('B', 'C'))
+        companies = company_a + company_b + company_c
+        eur = self.env.ref('base.EUR')
+        gon = self.env['res.currency'].create({'name': 'GON', 'symbol': 'G'})
+        review = Review.create({'name': 'r'})
+        author = self.author_a
+        for model in ('test.mongo.author', 'test.mongo.review'):
+            self.env['ir.default'].set(model, 'property_currency_id', eur.id, company_id=company_a.id)
+
+        def stored():
+            self.env.flush_all()
+            self.env.cr.execute("SELECT property_currency_id FROM test_mongo_review WHERE id = %s", [review.id])
+            return self.doc(author).get('propertyCurrencyId'), self.env.cr.fetchone()[0]
+
+        def compare(label):
+            for company in companies:
+                with self.subTest(label=label, company=company.name):
+                    a, r = author.with_company(company), review.with_company(company)
+                    self.assertEqual(a.property_currency_id, r.property_currency_id)
+                    for value in (False, eur.id, gon.id):
+                        self.assertEqual(bool(a.search([('property_currency_id', '=', value), ('id', '=', author.id)])),
+                                         bool(r.search([('property_currency_id', '=', value), ('id', '=', review.id)])))
+
+        # read every company (the cache now holds the fallbacks), then write one company's value
+        for record in (author, review):
+            for company in companies:
+                record.with_company(company).property_currency_id
+            record.with_company(company_c).property_currency_id = gon
+        mongo, postgresql = stored()
+        self.assertEqual(mongo, {str(company_c.id): gon.id})
+        self.assertEqual(postgresql, {str(company_c.id): gon.id})
+        compare('written in C')
+        # writing the fallback itself stores nothing; writing False where the fallback is set stores null
+        for record in (author, review):
+            record.with_company(company_a).property_currency_id = eur
+            record.with_company(company_b).property_currency_id = False
+        mongo, postgresql = stored()
+        self.assertEqual(mongo, postgresql)
+        self.assertEqual(mongo, {str(company_c.id): gon.id})
+        for record in (author, review):
+            record.with_company(company_a).property_currency_id = False
+        mongo, postgresql = stored()
+        self.assertEqual(mongo, postgresql)
+        self.assertEqual(mongo, {str(company_a.id): None, str(company_c.id): gon.id})
+        compare('A cleared')
+        # a later fallback change is followed where no value is stored
+        for model in ('test.mongo.author', 'test.mongo.review'):
+            self.env['ir.default'].set(model, 'property_currency_id', gon.id, company_id=company_b.id)
+        self.env.invalidate_all()
+        self.assertEqual(author.with_company(company_b).property_currency_id, gon)
+        compare('fallback changed')
+        # the unlink nulls the stored value, the fallback is discarded with the record
+        self.env['ir.default'].discard_records(gon)
+        gon.unlink()
+        mongo, postgresql = stored()
+        self.assertEqual(mongo, postgresql)
+        self.assertEqual(mongo, {str(company_a.id): None, str(company_c.id): None})
+        compare('after unlink')
 
     def test_shadow_table_relaxed_at_load(self):
         # a model opted in on an existing database keeps its NOT NULL data columns until the shadow is adapted
