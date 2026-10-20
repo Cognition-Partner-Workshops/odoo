@@ -1,0 +1,64 @@
+{
+ "database": "odoo_w3b02_test",
+ "namespace": "odoo_w3b02_test__* in odoo_migration (conf mongodb_migration_db=odoo_w3b02_mig)",
+ "command": "odoo-bin -d odoo_w3b02_test -c <conf> --no-http -i product,uom --test-enable --test-tags /product,/uom --stop-after-init",
+ "result": "1 failed, 0 error(s) of 161 tests",
+ "failed_tests": [
+  "TestProductAttributeValueConfig.test_get_closest_possible_combinations"
+ ],
+ "expected_failures": [
+  "TestProductAttributeValueConfig.test_get_closest_possible_combinations"
+ ],
+ "TestSeller_ran": true,
+ "unprefixed_before": {
+  "_connectivity_probe": 0,
+  "productAttribute": 14,
+  "productAttributeCustomValue": 6,
+  "productAttributeValue": 101,
+  "productBaseUnit": 2,
+  "productCategory": 8,
+  "productCombo": 4,
+  "productComboItem": 10,
+  "productDocument": 2,
+  "productLabelLayout": 5,
+  "productPricelist": 4,
+  "productPricelistItem": 7,
+  "productProduct": 48,
+  "productSupplierinfo": 32,
+  "productTag": 3,
+  "productTemplate": 38,
+  "productTemplateAttributeLine": 9,
+  "productTemplateAttributeValue": 24,
+  "productUom": 6,
+  "uomUom": 30,
+  "updateProductAttributeValue": 0
+ },
+ "unprefixed_after": {
+  "_connectivity_probe": 0,
+  "productAttribute": 14,
+  "productAttributeCustomValue": 6,
+  "productAttributeValue": 101,
+  "productBaseUnit": 2,
+  "productCategory": 8,
+  "productCombo": 4,
+  "productComboItem": 10,
+  "productDocument": 2,
+  "productLabelLayout": 5,
+  "productPricelist": 4,
+  "productPricelistItem": 7,
+  "productProduct": 48,
+  "productSupplierinfo": 32,
+  "productTag": 3,
+  "productTemplate": 38,
+  "productTemplateAttributeLine": 9,
+  "productTemplateAttributeValue": 24,
+  "productUom": 6,
+  "uomUom": 30,
+  "updateProductAttributeValue": 0
+ },
+ "unprefixed_unchanged": true,
+ "focused_tags_run": {
+  "command": "-i purchase_stock --test-enable --test-tags /product:TestSeller,/purchase_stock:TestSupplier on odoo_w3b02_test2",
+  "result": "NOT RUN: install fails in addons/stock/__init__.py:46 post_init_hook raw SQL on product_product (shared storage path, wave-2 model); see odoo-tests-focused.log"
+ }
+}

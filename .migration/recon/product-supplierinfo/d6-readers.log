@@ -1,0 +1,8 @@
+# pre-opt-in baseline: odoo-base worktree 03a3cb5 (PostgreSQL storage), clone odoo_w3b02_estate_base of the seeded source odoo_w3b02_src
+REPORT sale.report OK rows 51
+REPORT purchase.report OK rows 32
+REPORT account.invoice.report OK rows 62
+REPORT purchase.bill.line.match OK rows 27
+VIEW report_stock_quantity rows 5263
+VIEW stock_avco_report rows 7
+VIEW vendor_delay_report rows 10

@@ -1,0 +1,13 @@
+# fresh -i purchase_stock --test-enable --test-tags /product:TestSeller,/purchase_stock:TestSupplier on odoo_w3b02_test2 (<db>__ namespace, conf mongodb_migration_db=odoo_w3b02_mig), run-branch tip + this batch: install dies in stock's post_init_hook (shared storage path on the wave-2 product_product shadow table; not fixed in this batch). Excerpt:
+2026-10-20 02:35:23,329 12620 ERROR odoo_w3b02_test2 odoo.sql_db: bad query: b'SELECT id, qty_available FROM product_product WHERE qty_available IS NOT NULL;'
+ERROR: column "qty_available" does not exist
+LINE 1: SELECT id, qty_available FROM product_product WHERE qty_avai...
+                   ^
+
+2026-10-20 02:35:23,404 12620 WARNING odoo_w3b02_test2 odoo.modules.loading: Transient module states were reset
+2026-10-20 02:35:23,405 12620 ERROR odoo_w3b02_test2 odoo.registry: Failed to load registry
+2026-10-20 02:35:23,405 12620 CRITICAL odoo_w3b02_test2 odoo.service.server: Failed to initialize database `odoo_w3b02_test2`.
+Traceback (most recent call last):
+  File "addons/stock/__init__.py", line 25, in post_init_hook
+  File "addons/stock/__init__.py", line 46, in _create_inventory_adjustment
+tests exit 255

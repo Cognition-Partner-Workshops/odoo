@@ -1128,16 +1128,15 @@ class ProductProduct(models.Model):
         self_no_active_test = self.with_context(active_test=False)
         if self._storage == 'mongodb':
             # contract §5 R (two-step): no UNION ALL on a MongoDB model; each branch is a domain
-            # on this store, the product.supplierinfo branch (PostgreSQL) is materialized to
-            # template ids first
+            # on this store, the product.supplierinfo branch is materialized to template ids
+            # first through the ORM, whatever store product.supplierinfo lives in
             domains = [
                 [('product_tmpl_id', 'any', Domain.OR(template_domains))],
                 Domain.OR(product_domains),
             ]
             if supplier_domain:
-                supplierinfo = self_no_active_test.env['product.supplierinfo']._search(supplier_domain)
-                tmpl_ids = [row[0] for row in self.env.execute_query(supplierinfo.select(SQL('product_tmpl_id')))]
-                domains.append([('product_tmpl_id', 'in', tmpl_ids)])
+                sellers = self_no_active_test.env['product.supplierinfo'].search_fetch(supplier_domain, ['product_tmpl_id'])
+                domains.append([('product_tmpl_id', 'in', sellers.product_tmpl_id.ids)])
             return Domain.OR(domains)
         queries = [
             self_no_active_test._search([

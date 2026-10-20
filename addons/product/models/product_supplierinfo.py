@@ -10,6 +10,7 @@ class ProductSupplierinfo(models.Model):
     _description = "Supplier Pricelist"
     _order = 'sequence, min_qty DESC, price, id'
     _rec_name = 'partner_id'
+    _storage = 'mongodb'
 
     partner_id = fields.Many2one(
         'res.partner', 'Vendor',
