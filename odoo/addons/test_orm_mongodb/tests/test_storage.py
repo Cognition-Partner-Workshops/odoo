@@ -440,6 +440,10 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual(Book.search([], order='shelf asc nulls first, name'), self.book_b1 + self.book_a2 + self.book_a1)
         self.assertEqual(Book.search([('pages', '>', 60)], order='shelf desc, name'), self.book_b1 + self.book_a1)
         self.assertEqual(Book.search([], order='shelf, name', limit=1, offset=1), self.book_a1)
+        # a computed Float with digits orders numerically (its column format is a string: '10.00' < '2.50')
+        self.assertEqual((self.book_a1.half_price, self.book_a2.half_price, self.book_b1.half_price), (5.25, 10.0, 2.5))
+        self.assertEqual(Book.search([], order='half_price, id'), self.book_b1 + self.book_a1 + self.book_a2)
+        self.assertEqual(Book.search([], order='half_price desc, id'), self.book_a2 + self.book_a1 + self.book_b1)
         self.book_b1.published = '2023-01-01 00:00:00'
         self.book_b1.flush_recordset()
         self.assertEqual(Book.search([], order='shelf, name'), self.book_b1 + self.book_a2 + self.book_a1)
@@ -479,24 +483,24 @@ class TestMongoStorage(TransactionCase):
         # compared with the same search on the PostgreSQL twin field, in two companies.
         Author, Review = self.env['test.mongo.author'], self.env['test.mongo.review']
         company_a, company_b = self.env.company, self.env['res.company'].create({'name': 'B'})
-        alice, bob = self.partner_a, self.partner_b
+        eur, usd = self.env.ref('base.EUR'), self.env.ref('base.USD')
         authors = self.author_a + self.author_b + Author.create({'name': 'Cid'})
         reviews = Review.create([{'name': 'ra'}, {'name': 'rb'}, {'name': 'rc'}])
         for model in (Author, Review):
-            self.env['ir.default'].set(model._name, 'property_partner_id', alice.id, company_id=company_a.id)
+            self.env['ir.default'].set(model._name, 'property_currency_id', eur.id, company_id=company_a.id)
         for recs in (authors, reviews):
-            recs[0].with_company(company_a).property_partner_id = bob      # explicit in A, fallback-less in B
-            recs[1].with_company(company_b).property_partner_id = alice    # fallback (Alice) in A, explicit in B
+            recs[0].with_company(company_a).property_currency_id = usd      # explicit (USD) in A, no value and no fallback in B
+            recs[1].with_company(company_b).property_currency_id = eur    # fallback (EUR) in A, explicit (EUR) in B
         self.env.flush_all()
         doc = self.doc(authors[0])
-        self.assertEqual(doc['propertyPartnerId'], {str(company_a.id): bob.id})
-        self.assertNotIn('propertyPartnerId', self.doc(authors[2]))
+        self.assertEqual(doc['propertyCurrencyId'], {str(company_a.id): usd.id})
+        self.assertNotIn('propertyCurrencyId', self.doc(authors[2]))
         domains = [
-            [('property_partner_id.name', '=', 'Alice')], [('property_partner_id.name', '=', 'Bob')],
-            [('property_partner_id.active', '=', True)], [('property_partner_id', '=', False)],
-            [('property_partner_id', '!=', False)], [('property_partner_id.name', '!=', 'Alice')],
-            [('property_partner_id', 'not any', [('name', '=', 'Alice')])], [('property_partner_id', 'in', [alice.id])],
-            [('property_partner_id', 'in', [alice.id, False])], [('property_partner_id.name', 'ilike', 'b')],
+            [('property_currency_id.name', '=', 'EUR')], [('property_currency_id.name', '=', 'USD')],
+            [('property_currency_id.active', '=', True)], [('property_currency_id', '=', False)],
+            [('property_currency_id', '!=', False)], [('property_currency_id.name', '!=', 'EUR')],
+            [('property_currency_id', 'not any', [('name', '=', 'EUR')])], [('property_currency_id', 'in', [eur.id])],
+            [('property_currency_id', 'in', [eur.id, False])], [('property_currency_id.name', 'ilike', 'us')],
         ]
         def positions(recs, domain, company):
             found = recs.with_company(company).search([('id', 'in', recs.ids), *domain])
@@ -505,7 +509,7 @@ class TestMongoStorage(TransactionCase):
             for domain in domains:
                 with self.subTest(company=company.name, domain=domain):
                     self.assertEqual(positions(authors, domain, company), positions(reviews, domain, company))
-        self.assertEqual(positions(authors, domains[0], company_a), [1, 2])     # fallback: Alice for rb, rc
+        self.assertEqual(positions(authors, domains[0], company_a), [1, 2])     # fallback: EUR for rb, rc
         self.assertEqual(positions(authors, domains[0], company_b), [1])        # no fallback in B
         self.assertEqual(positions(authors, domains[3], company_b), [0, 2])
 

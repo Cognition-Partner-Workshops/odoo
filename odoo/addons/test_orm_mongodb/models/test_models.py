@@ -54,7 +54,7 @@ class TestMongoAuthor(models.Model):
         [('name', 'name', 'string'), ('rating', 'rating', 'decimal'), ('score', 'score', 'double'),
          ('partner_id', 'partnerId', 'int'), ('birthday', 'birthday', 'date'), ('title', 'title', 'object'),
          ('state', 'state', 'string'), ('parent_id', 'parentId', 'int'), ('parent_path', 'parentPath', 'string'),
-         ('property_note', 'propertyNote', 'object'), ('property_partner_id', 'propertyPartnerId', 'object'),
+         ('property_note', 'propertyNote', 'object'), ('property_currency_id', 'propertyCurrencyId', 'object'),
          ('book_properties_definition', 'bookPropertiesDefinition', 'object')],
         embeds=[_embed('tagRel', 'test_mongo_author_tag_rel', 'author_id', 'tag_id', 'tagId'),
                 _embed('coauthorRel', 'test_mongo_coauthor_rel', 'author_id', 'coauthor_id', 'coauthorId'),
@@ -79,7 +79,7 @@ class TestMongoAuthor(models.Model):
     tag_ids = fields.Many2many('test.mongo.tag', 'test_mongo_author_tag_rel', 'author_id', 'tag_id')
     property_note = fields.Char(company_dependent=True)
     # company-dependent many2one (product.category property_account_*_id), searched through dotted paths
-    property_partner_id = fields.Many2one('res.partner', company_dependent=True)
+    property_currency_id = fields.Many2one('res.currency', company_dependent=True)
     book_properties_definition = fields.PropertiesDefinition()
     # a self-referential relation table embedded on the owning side's documents, read from both sides
     coauthor_ids = fields.Many2many('test.mongo.author', 'test_mongo_coauthor_rel', 'author_id', 'coauthor_id')
@@ -154,6 +154,16 @@ class TestMongoBook(models.Model):
     def _compute_sql_shelf(self, table):
         return SQL("EXTRACT(YEAR FROM %s)::text", table.published)
 
+    half_price = fields.Float(digits=(16, 2), compute='_compute_half_price', compute_sql='_compute_sql_half_price', compute_sudo=True)
+
+    @api.depends('price')
+    def _compute_half_price(self):
+        for book in self:
+            book.half_price = book.price / 2
+
+    def _compute_sql_half_price(self, table):
+        return SQL("%s / 2", table.price)
+
 
 class TestMongoChapter(models.Model):
     _name = 'test.mongo.chapter'
@@ -217,8 +227,8 @@ class TestMongoReview(models.Model):
     name = fields.Char()
     book_id = fields.Many2one('test.mongo.book', ondelete='cascade')
     author_id = fields.Many2one('test.mongo.author', ondelete='restrict')
-    # the PostgreSQL twin of test.mongo.author.property_partner_id, for exact-equality checks of searches
-    property_partner_id = fields.Many2one('res.partner', company_dependent=True)
+    # the PostgreSQL twin of test.mongo.author.property_currency_id, for exact-equality checks of searches
+    property_currency_id = fields.Many2one('res.currency', company_dependent=True)
     tag_ids = fields.Many2many('test.mongo.tag', 'test_mongo_review_tag_rel', 'review_id', 'tag_id')
     partner_ids = fields.Many2many('res.partner', 'test_mongo_review_partner_rel', 'review_id', 'partner_id')
     book_ids = fields.Many2many('test.mongo.book', 'test_mongo_review_book_rel', 'review_id', 'book_id')

@@ -902,9 +902,16 @@ class FilterCompiler:
             else:
                 raise TypeError(f"'any' on {field} accepts a Domain or Query, got {value!r}")
             path = self.path(field)
-            if field.company_dependent:
-                path = f'{path}.{model.env.company.id}'
-            return {path: {'$in': ids}} if positive else {path: {'$nin': ids}}
+            if not field.company_dependent:
+                return {path: {'$in': ids}} if positive else {path: {'$nin': ids}}
+            # the company's value, or the ir.default fallback where the document holds none
+            # (COALESCE(col->>company, fallback) in SQL): the fallback decides the documents without a value
+            path = f'{path}.{model.env.company.id}'
+            match = {path: {'$in': ids}} if positive else {path: {'$nin': ids}}
+            fallback = field.get_company_dependent_fallback(model)
+            if (fallback.id in ids) == positive:
+                return {'$or': [match, {path: {'$exists': False}}]}
+            return {'$and': [match, {path: {'$exists': True}}]}
 
         assert field.type in ('one2many', 'many2many'), f"Unexpected relational field {field}"
         comodel = comodel.with_context(**field.context)
@@ -991,11 +998,18 @@ def computed_rank_expr(model: BaseModel, field: Field, filter: dict) -> dict:
     if field.compute_sudo:
         records = records.sudo()
     records = records.browse(doc['_id'] for doc in MongoQuery(model, filter).run({'_id': 1}))
+    if field.relational and field.type != 'many2one':
+        raise NotImplementedError(f"Ordering by compute_sql field {field} is not supported on MongoDB-stored model {model._name}")
     values = {}
     for record in records:
-        value = field.convert_to_column(field.convert_to_write(record[field.name], record), record)
-        if value is not None:
-            values[record.id] = value
+        value = record[field.name]
+        if field.convert_to_column(field.convert_to_write(value, record), record) is None:
+            continue    # NULL
+        if field.type == 'many2one':
+            value = value.id
+        elif field.type not in ('integer', 'float', 'monetary', 'boolean', 'date', 'datetime'):
+            value = str(value)      # the column text (Float with digits converts to a string: keep the number)
+        values[record.id] = value
     rank = {value: index for index, value in enumerate(sorted(set(values.values())))}
     ids = list(values)
     return {'$let': {'vars': {'i': {'$indexOfArray': [ids, '$_id']}},
