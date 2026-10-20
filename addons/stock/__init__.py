@@ -42,11 +42,48 @@ def _assign_default_mail_template_picking_id(env):
         })
 
 
-def _create_inventory_adjustment(env):
+def _read_stored_qty_available(env):
+    """ Stored ``qty_available`` of product.product (the column stock turns into a
+        computed field), as ``{product_id: {company_id: quantity}}``, read from the
+        model's storage: its collection when the model is on MongoDB, else its table.
+    """
+    Product = env['product.product']
+    if Product._storage == 'mongodb':
+        store = env.registry.mongo_store
+        path = store.field_path(Product, 'qty_available')
+        return {doc['_id']: doc[path] for doc in store.find(Product, {path: {'$ne': None}}, {path: 1})}
     env.cr.execute("""SELECT id, qty_available FROM product_product WHERE qty_available IS NOT NULL;""")
-    products = env.cr.fetchall()
+    return dict(env.cr.fetchall())
+
+
+def _write_stored_qty_available(env, qty_available_by_product):
+    """ Inverse of ``_read_stored_qty_available``: write the stored ``qty_available``
+        of the given products into the model's storage. """
+    Product = env['product.product']
+    if Product._storage == 'mongodb':
+        store = env.registry.mongo_store
+        path = store.field_path(Product, 'qty_available')
+        store.bulk_update(Product, [
+            (product_id, {'$set': {path: quantity_per_company}})
+            for product_id, quantity_per_company in qty_available_by_product.items()
+        ])
+        return
+    query = """
+        UPDATE product_product AS p
+        SET qty_available = v.qty::jsonb
+        FROM (VALUES %s) AS v(id, qty)
+        WHERE p.id = v.id
+    """
+    values = [
+        (product_id, json.dumps(quantity_per_company))
+        for product_id, quantity_per_company in qty_available_by_product.items()
+    ]
+    env.cr.execute_values(query, values)
+
+
+def _create_inventory_adjustment(env):
     qty_available_by_company = defaultdict(lambda: defaultdict(float))
-    for product_id, qty_available in products:
+    for product_id, qty_available in _read_stored_qty_available(env).items():
         for company_id, quantity in qty_available.items():
             qty_available_by_company[int(company_id)][product_id] = quantity
 
@@ -78,15 +115,4 @@ def _save_current_inventory(env):
         for product in env['product.product'].with_company(company).sudo().search([to_adjust]):
             if product.qty_available:
                 qty_available_by_product[product.id][str(company.id)] = product.qty_available
-
-    query = """
-        UPDATE product_product AS p
-        SET qty_available = v.qty::jsonb
-        FROM (VALUES %s) AS v(id, qty)
-        WHERE p.id = v.id
-    """
-    values = [
-        (product_id, json.dumps(quantity_per_company))
-        for product_id, quantity_per_company in qty_available_by_product.items()
-    ]
-    env.cr.execute_values(query, values)
+    _write_stored_qty_available(env, qty_available_by_product)
