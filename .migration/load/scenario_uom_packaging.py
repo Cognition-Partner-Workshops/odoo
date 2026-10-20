@@ -1,7 +1,9 @@
 """ORM scenario for batch w1-b03 (unit uom-packaging) on the MongoDB storage path.
 
-Run on the run branch against the worker's seeded clone, whose documents are the loaded ones
-(conf key mongodb_migration_db = <clone> keeps the collections unprefixed):
+Run on the run branch against the worker's seeded clone, whose documents are the loaded ones: either
+unprefixed (conf key mongodb_migration_db = <clone>) or, to keep every ORM write off the live collections,
+on a prefixed clone (mongodb_migration_db != <clone>: the storage path reads ``<clone>__<collection>``,
+so copy the loaded collections of every opted-in model under that prefix first):
 
     /home/ubuntu/.venvs/odoo/bin/python odoo-bin shell -c <conf> -d <clone> --no-http \\
         < .migration/load/scenario_uom_packaging.py
@@ -25,7 +27,8 @@ from odoo.tools import SQL
 
 cr = env.cr
 st = env.registry.mongo_store
-assert st.prefix == '', f"collections are prefixed {st.prefix!r}: set mongodb_migration_db to this database"
+print(f"collection prefix {st.prefix!r}")
+assert st.collection('uomUom').estimated_document_count(), f"{st.prefix}uomUom is empty: load or copy the collections first"
 Uom = env['uom.uom'].with_context(active_test=False)
 PackageType = env['stock.package.type']
 PutawayRule = env['stock.putaway.rule']
@@ -69,6 +72,68 @@ def same_groups(a, b):
 
 before = {name: collection_hash(name) for name in COLLECTIONS}
 collections_before = set(st.db.list_collection_names())
+
+# --- stock.avco.report / vendor.delay.report: ORM rows equal the legacy PostgreSQL views ------------
+# Both batches opted in: uom.uom (this PR, factors inlined) and product.category (PR #61, cost-method
+# filter moved into _search). Expected = the pre-opt-in view SQL run on the clone's legacy columns.
+
+
+def same_rows(name, actual, expected):
+    actual, expected = sorted(actual, key=lambda r: r[0]), sorted(expected, key=lambda r: r[0])
+    check(name, expected and same_groups(actual, expected),
+          f'{len(expected)} rows' if same_groups(actual, expected) else (len(actual), len(expected), actual[:1], expected[:1]))
+
+
+def m2o(v):
+    return v[0] if v else None
+
+
+legacy_avco = rows("""
+SELECT sm.id, sm.product_id, sm.date::date, picking.user_id, sm.company_id, sm.reference,
+       CASE WHEN sm.is_in THEN sm.value ELSE -sm.value END,
+       CASE WHEN sm.is_in THEN sm.quantity * (um.factor / up.factor) ELSE -sm.quantity * (um.factor / up.factor) END,
+       'stock.move', 'Operation'
+FROM stock_move sm
+LEFT JOIN stock_picking picking ON sm.picking_id = picking.id
+LEFT JOIN product_product pp ON sm.product_id = pp.id
+LEFT JOIN product_template pt ON pp.product_tmpl_id = pt.id
+LEFT JOIN product_category pc ON pt.categ_id = pc.id
+LEFT JOIN ir_default cost_method_default ON cost_method_default.company_id = sm.company_id
+     AND cost_method_default.field_id = (SELECT id FROM ir_model_fields WHERE name = 'property_cost_method' AND model = 'product.category')
+LEFT JOIN uom_uom um ON um.id = sm.uom_id
+LEFT JOIN uom_uom up ON up.id = pt.uom_id
+WHERE sm.state = 'done' AND (sm.is_in = TRUE OR sm.is_out = TRUE)
+  AND COALESCE(pc.property_cost_method ->> sm.company_id::text, cost_method_default.json_value::jsonb #>> '{}') IN ('fifo', 'average')
+UNION ALL
+SELECT -pv.id, pv.product_id, pv.date::date, pv.user_id, pv.company_id, 'Adjustment', pv.value, 0, 'product.value', pv.description
+FROM product_value pv WHERE pv.move_id IS NULL""")
+orm_avco = [(r['id'], m2o(r['product_id']), r['date'].date() if hasattr(r['date'], 'date') else r['date'], m2o(r['user_id']), m2o(r['company_id']), r['reference'],
+             r['value'], r['quantity'], r['res_model_name'], r['description'])
+            for r in env['stock.avco.report'].sudo().search_read(
+                [], ['product_id', 'date', 'user_id', 'company_id', 'reference', 'value', 'quantity', 'res_model_name', 'description'])]
+same_rows('stock.avco.report rows equal the legacy view (cost-method filter from MongoDB product.category)',
+          orm_avco, [tuple(num(v) for v in r) for r in legacy_avco])
+legacy_vendor = rows("""
+SELECT pol.id, Min(m.date), pol.product_id, Min(pc.id), pol.partner_id, pol.product_uom_qty,
+       Sum(CASE WHEN (m.state = 'done' and pol.date_promised::date >= m.date::date) THEN ((ml.quantity * ml_uom.factor) / pt_uom.factor) ELSE 0 END),
+       CASE WHEN pol.product_uom_qty != 0 THEN
+            Sum(CASE WHEN (m.state = 'done' and pol.date_promised::date >= m.date::date) THEN ((ml.quantity * ml_uom.factor) / pt_uom.factor) ELSE 0 END) / pol.product_uom_qty * 100
+       ELSE 100 END
+FROM stock_move m
+JOIN purchase_order_line pol ON pol.id = m.purchase_line_id
+JOIN product_product p ON p.id = m.product_id
+JOIN product_template pt ON pt.id = p.product_tmpl_id
+JOIN uom_uom pt_uom ON pt_uom.id = pt.uom_id
+LEFT JOIN product_category pc ON pc.id = pt.categ_id
+LEFT JOIN stock_move_line ml ON ml.move_id = m.id
+LEFT JOIN uom_uom ml_uom ON ml_uom.id = ml.uom_id
+GROUP BY pol.id""")
+orm_vendor = [(r['id'], r['date'], m2o(r['product_id']), m2o(r['category_id']), m2o(r['partner_id']),
+               r['qty_total'], r['qty_on_time'], r['on_time_rate'])
+              for r in env['vendor.delay.report'].sudo().search_read(
+                  [], ['date', 'product_id', 'category_id', 'partner_id', 'qty_total', 'qty_on_time', 'on_time_rate'])]
+same_rows('vendor.delay.report rows equal the legacy view (category from MongoDB product.category)',
+          orm_vendor, [tuple(num(v) for v in r) for r in legacy_vendor])
 
 # --- uom.uom reads -------------------------------------------------------------------------------
 pg_uoms = {r[0]: r for r in rows("""
