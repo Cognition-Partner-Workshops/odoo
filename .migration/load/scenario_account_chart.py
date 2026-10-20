@@ -245,8 +245,10 @@ try:
     check("unlink removes document + shadow row", st.model_collection(Tax).find_one({'_id': new_tax.id}) is None
           and sql("SELECT count(*) FROM account_tax WHERE id = %s", (new_tax.id,))[0][0] == 0)
 except Exception as exc:  # noqa: BLE001
-    unsupported.append(f"writes: {type(exc).__name__}: {exc}")
-    check("writes section ran to the end", False, repr(exc)[:300])
+    import traceback
+    frames = [(f.filename.rsplit('/', 1)[-1], f.lineno, f.name) for f in traceback.extract_tb(exc.__traceback__)[-5:]]
+    unsupported.append(f"writes: {type(exc).__name__}: {exc} at {frames}")
+    check("writes section ran to the end", False, f"{repr(exc)[:200]} at {frames}")
 cr.rollback()
 after = snapshot()
 check("rollback leaves the loaded collections byte-identical", before == after, [m for m in MODELS if before[m] != after[m]])

@@ -344,6 +344,16 @@ class AccountFiscalPositionAccount(models.Model):
         'An account fiscal position could be defined only one time on same accounts.',
     )
 
+    @api.constrains('position_id', 'account_src_id', 'account_dest_id')
+    def _check_account_src_dest_uniq(self):
+        # mirrors _account_src_dest_uniq: SQL unique constraints are not enforced for MongoDB-stored models
+        for mapping in self:
+            if self.sudo().search_count([
+                ('id', '!=', mapping.id), ('position_id', '=', mapping.position_id.id),
+                ('account_src_id', '=', mapping.account_src_id.id), ('account_dest_id', '=', mapping.account_dest_id.id),
+            ], limit=1):
+                raise ValidationError(self.env._('An account fiscal position could be defined only one time on same accounts.'))
+
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'

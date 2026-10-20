@@ -1,7 +1,7 @@
 from odoo import api, fields, models, _
 from odoo.fields import Domain
 from odoo.tools import SQL
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class AccountAccountTag(models.Model):
@@ -24,6 +24,16 @@ class AccountAccountTag(models.Model):
         'unique(name, applicability, country_id)',
         'A tag with the same name and applicability already exists in this country.',
     )
+
+    @api.constrains('name', 'applicability', 'country_id')
+    def _check_name_uniq(self):
+        # mirrors _name_uniq: SQL unique constraints are not enforced for MongoDB-stored models
+        for tag in self:
+            if self.sudo().with_context(active_test=False).search_count([
+                ('id', '!=', tag.id), ('name', '=', tag.name), ('applicability', '=', tag.applicability),
+                ('country_id', '=', tag.country_id.id),
+            ], limit=1):
+                raise ValidationError(self.env._('A tag with the same name and applicability already exists in this country.'))
 
     @api.depends('applicability', 'country_id')
     @api.depends_context('company')
