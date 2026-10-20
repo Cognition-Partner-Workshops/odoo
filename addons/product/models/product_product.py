@@ -1104,7 +1104,7 @@ class ProductProduct(models.Model):
                 model = self.env[field.comodel_name]
         cast = {'many2one': 'integer', 'integer': 'integer', 'float': 'numeric', 'monetary': 'numeric'}.get(field.type, 'varchar')
         products = self.sudo().with_context(active_test=False).search([])
-        companies = self.env['res.company'].sudo().search([]) if company_id is not None and field.company_dependent else None
+        companies = self.env['res.company'].sudo().with_context(active_test=False).search([]) if company_id is not None and field.company_dependent else None
 
         def arms(records, condition):
             for product in records:
