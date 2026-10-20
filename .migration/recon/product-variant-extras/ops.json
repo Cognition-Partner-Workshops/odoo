@@ -1,0 +1,300 @@
+[
+ {
+  "name": "custom_values_per_attribute_value",
+  "collection": "productAttributeCustomValue",
+  "source_sql": "SELECT custom_product_template_attribute_value_id AS \"customProductTemplateAttributeValueId\", COUNT(*) AS n FROM product_attribute_custom_value GROUP BY custom_product_template_attribute_value_id ORDER BY custom_product_template_attribute_value_id",
+  "target_pipeline": [
+   {
+    "$group": {
+     "_id": "$customProductTemplateAttributeValueId",
+     "n": {
+      "$sum": 1
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "customProductTemplateAttributeValueId": "$_id",
+     "n": 1
+    }
+   },
+   {
+    "$sort": {
+     "customProductTemplateAttributeValueId": 1
+    }
+   }
+  ],
+  "rules": []
+ },
+ {
+  "name": "parentless_custom_values",
+  "collection": "productAttributeCustomValue",
+  "source_sql": "SELECT id AS \"_id\", custom_product_template_attribute_value_id AS \"customProductTemplateAttributeValueId\", custom_value AS \"customValue\" FROM product_attribute_custom_value WHERE sale_order_line_id IS NULL ORDER BY id",
+  "target_pipeline": [
+   {
+    "$match": {
+     "saleOrderLineId": {
+      "$exists": false
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 1,
+     "customProductTemplateAttributeValueId": 1,
+     "customValue": {
+      "$ifNull": [
+       "$customValue",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "_id": 1
+    }
+   }
+  ],
+  "rules": []
+ },
+ {
+  "name": "custom_values_by_sale_order_line",
+  "collection": "productAttributeCustomValue",
+  "source_sql": "SELECT sale_order_line_id AS \"saleOrderLineId\", id AS \"_id\", custom_value AS \"customValue\" FROM product_attribute_custom_value WHERE sale_order_line_id IS NOT NULL ORDER BY sale_order_line_id, id",
+  "target_pipeline": [
+   {
+    "$match": {
+     "saleOrderLineId": {
+      "$exists": true
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 1,
+     "saleOrderLineId": 1,
+     "customValue": {
+      "$ifNull": [
+       "$customValue",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "saleOrderLineId": 1,
+     "_id": 1
+    }
+   }
+  ],
+  "rules": []
+ },
+ {
+  "name": "layouts_per_print_format",
+  "collection": "productLabelLayout",
+  "source_sql": "SELECT print_format AS \"printFormat\", COUNT(*) AS n FROM product_label_layout GROUP BY print_format ORDER BY print_format",
+  "target_pipeline": [
+   {
+    "$group": {
+     "_id": "$printFormat",
+     "n": {
+      "$sum": 1
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "printFormat": "$_id",
+     "n": 1
+    }
+   },
+   {
+    "$sort": {
+     "printFormat": 1
+    }
+   }
+  ],
+  "rules": []
+ },
+ {
+  "name": "layout_header_read",
+  "collection": "productLabelLayout",
+  "source_sql": "SELECT id AS \"_id\", print_format AS \"printFormat\", custom_quantity AS \"customQuantity\", with_price AS \"withPrice\", move_quantity AS \"moveQuantity\", print_packaging AS \"printPackaging\", pricelist_id AS \"pricelistId\", packaging_id AS \"packagingId\" FROM product_label_layout ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 1,
+     "printFormat": 1,
+     "customQuantity": 1,
+     "withPrice": {
+      "$ifNull": [
+       "$withPrice",
+       null
+      ]
+     },
+     "moveQuantity": 1,
+     "printPackaging": {
+      "$ifNull": [
+       "$printPackaging",
+       null
+      ]
+     },
+     "pricelistId": {
+      "$ifNull": [
+       "$pricelistId",
+       null
+      ]
+     },
+     "packagingId": {
+      "$ifNull": [
+       "$packagingId",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "_id": 1
+    }
+   }
+  ],
+  "rules": []
+ },
+ {
+  "name": "product_ids_embed_size",
+  "collection": "productLabelLayout",
+  "source_sql": "SELECT product_label_layout_id AS \"_id\", COUNT(*) AS n FROM product_label_layout_product_product_rel GROUP BY product_label_layout_id ORDER BY product_label_layout_id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 1,
+     "n": {
+      "$size": {
+       "$ifNull": [
+        "$productIds",
+        []
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$match": {
+     "n": {
+      "$gt": 0
+     }
+    }
+   },
+   {
+    "$sort": {
+     "_id": 1
+    }
+   }
+  ],
+  "rules": []
+ },
+ {
+  "name": "product_tmpl_ids_embed_size",
+  "collection": "productLabelLayout",
+  "source_sql": "SELECT product_label_layout_id AS \"_id\", COUNT(*) AS n FROM product_label_layout_product_template_rel GROUP BY product_label_layout_id ORDER BY product_label_layout_id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 1,
+     "n": {
+      "$size": {
+       "$ifNull": [
+        "$productTmplIds",
+        []
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$match": {
+     "n": {
+      "$gt": 0
+     }
+    }
+   },
+   {
+    "$sort": {
+     "_id": 1
+    }
+   }
+  ],
+  "rules": []
+ },
+ {
+  "name": "product_uom_ids_embed_size",
+  "collection": "productLabelLayout",
+  "source_sql": "SELECT product_label_layout_id AS \"_id\", COUNT(*) AS n FROM product_label_layout_product_uom_rel GROUP BY product_label_layout_id ORDER BY product_label_layout_id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 1,
+     "n": {
+      "$size": {
+       "$ifNull": [
+        "$productUomIds",
+        []
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$match": {
+     "n": {
+      "$gt": 0
+     }
+    }
+   },
+   {
+    "$sort": {
+     "_id": 1
+    }
+   }
+  ],
+  "rules": []
+ },
+ {
+  "name": "move_ids_embed_size",
+  "collection": "productLabelLayout",
+  "source_sql": "SELECT product_label_layout_id AS \"_id\", COUNT(*) AS n FROM product_label_layout_stock_move_rel GROUP BY product_label_layout_id ORDER BY product_label_layout_id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 1,
+     "n": {
+      "$size": {
+       "$ifNull": [
+        "$moveIds",
+        []
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$match": {
+     "n": {
+      "$gt": 0
+     }
+    }
+   },
+   {
+    "$sort": {
+     "_id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]

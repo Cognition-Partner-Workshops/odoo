@@ -1,0 +1,62 @@
+# pre-opt-in baseline: odoo-base worktree 03a3cb561ac, PostgreSQL storage, clone odoo_w3b04_base of the seeded source
+REPORT sale.report OK rows 51
+REPORT purchase.report OK rows 32
+REPORT account.invoice.report OK rows 62
+REPORT purchase.bill.line.match OK rows 27
+REPORT stock.quant OK rows 57
+REPORT stock.move OK rows 137
+VIEW report_stock_quantity rows 5263
+VIEW stock_avco_report rows 7
+VIEW vendor_delay_report rows 10
+ORM product.attribute.custom.value 6 rows; names ['Legs: Custom: Walnut legs, 72 cm', 'Legs: Custom: Oak legs, 68 cm', 'Customization: Custom: ', 'Legs: Custom: Engraved for order line 1', 'Customization: Custom: Engraved for order line 2', 'Legs: Custom: Engraved for order line 3']
+ORM product.attribute.custom.value by sale order line [(1, 4), (2, 5), (3, 6)]
+ORM sale.order.line custom values {1: [4], 2: [5], 3: [6]}
+ORM product.label.layout 5 rows; [(1, 'dymo', 3, 0, 0, 0), (2, '2x7', 0, 3, 0, 0), (3, '4x7', 1, 0, 2, 0), (4, '4x12', 0, 0, 0, 4), (5, 'zpl', 2, 0, 0, 2)]
+LABEL REPORT 1 dymo ERROR RenderPMError cannot import desired renderPM backend rlPyCairo
+Seek advice at the users list see
+https://pairlist2.pair.net/mailman/listinfo/reportlab-users
+LABEL REPORT 2 2x7 ERROR RenderPMError cannot import desired renderPM backend rlPyCairo
+Seek advice at the users list see
+https://pairlist2.pair.net/mailman/listinfo/reportlab-users
+LABEL REPORT 3 4x7 ERROR RenderPMError cannot import desired renderPM backend rlPyCairo
+Seek advice at the users list see
+https://pairlist2.pair.net/mailman/listinfo/reportlab-users
+LABEL REPORT 4 4x12 ERROR KeyError 'quantity_by_product'
+LABEL REPORT 5 zpl ERROR KeyError 'quantity_by_product'
+STORAGE postgresql postgresql db odoo_w3b04_base
+
+# opted-in clone odoo_w3b04_views (prefixed namespace odoo_w3b04_views__*), after -u product,sale,stock at 3ec94740b71
+REPORT sale.report OK rows 51
+REPORT purchase.report OK rows 32
+REPORT account.invoice.report OK rows 62
+REPORT purchase.bill.line.match OK rows 27
+REPORT stock.quant OK rows 57
+REPORT stock.move OK rows 137
+VIEW report_stock_quantity rows 5263
+VIEW stock_avco_report rows 7
+VIEW vendor_delay_report rows 10
+ORM product.attribute.custom.value 6 rows; names ['Legs: Custom: Walnut legs, 72 cm', 'Legs: Custom: Oak legs, 68 cm', 'Customization: Custom: ', 'Legs: Custom: Engraved for order line 1', 'Customization: Custom: Engraved for order line 2', 'Legs: Custom: Engraved for order line 3']
+ORM product.attribute.custom.value by sale order line [(1, 4), (2, 5), (3, 6)]
+ORM sale.order.line custom values {1: [4], 2: [5], 3: [6]}
+ORM product.label.layout 5 rows; [(1, 'dymo', 3, 0, 0, 0), (2, '2x7', 0, 3, 0, 0), (3, '4x7', 1, 0, 2, 0), (4, '4x12', 0, 0, 0, 4), (5, 'zpl', 2, 0, 0, 2)]
+LABEL REPORT 1 dymo product.action_report_product_label_dymo labels 3 report True
+LABEL REPORT 2 2x7 product.action_report_product_label_pdf labels 3 report True
+LABEL REPORT 3 4x7 product.action_report_product_label_pdf labels 2 report True
+LABEL REPORT 4 4x12 product.action_report_product_label_pdf labels 4 report True
+LABEL REPORT 5 zpl product.report_product_template_label_zpl labels 2 report True
+STORAGE mongodb mongodb db odoo_w3b04_views
+
+# -u product,sale,stock --test-enable --test-tags /stock:TestReports on odoo_w3b04_views: exit 1, 3 tracebacks (all three are the TestReports failures below)
+2026-10-20 02:34:40,044 11781 ERROR odoo_w3b04_views odoo.addons.stock.tests.test_report: FAIL: TestReports.test_report_quantity_1
+2026-10-20 02:34:40,436 11781 ERROR odoo_w3b04_views odoo.addons.stock.tests.test_report: FAIL: TestReports.test_report_quantity_2
+2026-10-20 02:34:40,829 11781 ERROR odoo_w3b04_views odoo.addons.stock.tests.test_report: FAIL: TestReports.test_report_quantity_3
+2026-10-20 02:35:34,896 11781 INFO odoo_w3b04_views odoo.tests.stats: stock: 38 tests 139.97s 12876 queries
+2026-10-20 02:35:34,896 11781 ERROR odoo_w3b04_views odoo.tests.result: 3 failed, 0 error(s) of 36 tests when loading database 'odoo_w3b04_views'
+# same --test-tags /stock:TestReports on the pre-opt-in baseline clone odoo_w3b04_base (odoo-base 03a3cb5, PostgreSQL storage): identical three failures (can't write on readonly field 'is_storable' in the form test), i.e. pre-existing, not a storage-path regression
+2026-10-20 02:36:40,011 13057 ERROR odoo_w3b04_base odoo.addons.stock.tests.test_report: FAIL: TestReports.test_report_quantity_1
+2026-10-20 02:36:40,082 13057 ERROR odoo_w3b04_base odoo.addons.stock.tests.test_report: FAIL: TestReports.test_report_quantity_2
+2026-10-20 02:36:40,146 13057 ERROR odoo_w3b04_base odoo.addons.stock.tests.test_report: FAIL: TestReports.test_report_quantity_3
+2026-10-20 02:36:47,168 13057 ERROR odoo_w3b04_base odoo.tests.result: 3 failed, 0 error(s) of 36 tests when loading database 'odoo_w3b04_base'
+# fresh -i stock on the run branch (odoo_w3b04_stock) fails before any test: stock's install hook raw SQL reads product_product.qty_available, a column the wave 2 opt-in removed (shared storage-path finding, reported, not fixed here)
+2026-10-20 02:25:55,668 9001 ERROR odoo_w3b04_stock odoo.sql_db: bad query: b'SELECT id, qty_available FROM product_product WHERE qty_available IS NOT NULL;'
+ERROR: column "qty_available" does not exist

@@ -1,0 +1,66 @@
+{
+ "note": "unprefixed odoo_migration collections before the first load and after the live recon; the two unit collections are the only ones this batch wrote, the other differences are sibling wave-3 batches loading concurrently into their own targets",
+ "before": {
+  "_connectivity_probe": 0,
+  "productAttribute": 14,
+  "productAttributeValue": 101,
+  "productBaseUnit": 2,
+  "productCategory": 8,
+  "productCombo": 4,
+  "productComboItem": 10,
+  "productDocument": 2,
+  "productProduct": 48,
+  "productTag": 3,
+  "productTemplate": 38,
+  "productTemplateAttributeLine": 9,
+  "productTemplateAttributeValue": 24,
+  "productUom": 6,
+  "uomUom": 30,
+  "updateProductAttributeValue": 0
+ },
+ "after": {
+  "_connectivity_probe": 0,
+  "productAttribute": 14,
+  "productAttributeCustomValue": 6,
+  "productAttributeValue": 101,
+  "productBaseUnit": 2,
+  "productCategory": 8,
+  "productCombo": 4,
+  "productComboItem": 10,
+  "productDocument": 2,
+  "productLabelLayout": 5,
+  "productPricelist": 4,
+  "productPricelistItem": 7,
+  "productProduct": 48,
+  "productSupplierinfo": 32,
+  "productTag": 3,
+  "productTemplate": 38,
+  "productTemplateAttributeLine": 9,
+  "productTemplateAttributeValue": 24,
+  "productUom": 6,
+  "uomUom": 30,
+  "updateProductAttributeValue": 0
+ },
+ "changed": {
+  "productAttributeCustomValue": [
+   null,
+   6
+  ],
+  "productLabelLayout": [
+   null,
+   5
+  ],
+  "productPricelist": [
+   null,
+   4
+  ],
+  "productPricelistItem": [
+   null,
+   7
+  ],
+  "productSupplierinfo": [
+   null,
+   32
+  ]
+ }
+}

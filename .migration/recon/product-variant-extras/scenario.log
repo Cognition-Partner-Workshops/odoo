@@ -1,0 +1,37 @@
+# Tier-4 ORM scenario .migration/load/scenario_variant_extras.py on the opted-in clone odoo_w3b04_views2 after -u product,sale,stock (prefixed namespace odoo_w3b04_views2__*, mongodb_migration_db elsewhere), run branch 3ec94740b71
+PASS scratch namespace is prefixed: odoo_w3b04_views2__
+PASS scratch namespace holds a copy of the loaded collections: {'productAttributeCustomValue': 6, 'productLabelLayout': 5}
+PASS sol_custom_value_unique is a partial unique index on (customPTAV, saleOrderLineId): SON([('saleOrderLineId', SON([('$type', 'int')]))])
+PASS wizard multikey indexes on the four arrays
+PASS custom value search = PostgreSQL rows: 6 rows
+PASS custom value default _order (ptav, id)
+PASS _compute_name prefixes the attribute value display name
+PASS search sale_order_line_id = False (NULL semantics): [1, 2, 3]
+PASS _read_group by sale_order_line_id
+PASS sale.order.line.product_custom_attribute_value_ids one2many reads the document: [4]
+PASS label layout search = PostgreSQL rows: 5 wizard rows
+PASS product_ids array = product_label_layout_product_product_rel: {1: [6, 34, 49], 3: [6], 5: [34, 49]}
+PASS product_tmpl_ids array = product_label_layout_product_template_rel: {2: [6, 20, 31]}
+PASS product_uom_ids array = product_label_layout_product_uom_rel: {3: [1, 2]}
+PASS move_ids array = product_label_layout_stock_move_rel: {4: [1, 2, 3, 4], 5: [1, 2]}
+PASS search by product in the productIds array
+PASS search by stock move in the moveIds array (stock extension field)
+PASS label report dymo: _prepare_report_data: product.action_report_product_label_dymo, 3 labels
+PASS label report 2x7: _prepare_report_data: product.action_report_product_label_pdf, 3 labels
+PASS label report 4x7: _prepare_report_data: product.action_report_product_label_pdf, 2 labels
+PASS label report 4x12: _prepare_report_data: product.action_report_product_label_pdf, 4 labels
+PASS label report zpl: _prepare_report_data: product.report_product_template_label_zpl, 2 labels
+PASS process() returns the report action: product.report_product_label_dymo
+PASS third parentless value on the same attribute value is allowed (NULL != NULL)
+PASS write updates the document
+PASS duplicate (customPTAV, saleOrderLineId) raises: ValidationError
+PASS unlink removes the document
+PASS new wizard document carries productIds and stock moveIds: [{'stockMoveId': 1}, {'stockMoveId': 2}]
+PASS move_ids of the opted-in wizard are not materialised in PostgreSQL
+PASS age-based transient clean deletes the old wizard documents and keeps the fresh one: [14]
+PASS vacuum also removed the shadow rows
+PASS vacuum cleared the PostgreSQL relation rows of the deleted wizards
+PASS loaded collections unchanged: {'productAttributeCustomValue': 6, 'productLabelLayout': 5}
+PASS scratch unit collections dropped
+34/34 checks passed
+exit 0

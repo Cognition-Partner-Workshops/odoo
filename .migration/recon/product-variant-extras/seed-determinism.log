@@ -1,0 +1,22 @@
+# seed_scenario_rows.py on two independent clones of odoo_src (odoo-base worktree 03a3cb5), then pg_dump --data-only of the seeded tables
+scenario rows: 3 tags, 2 base units, 6 product uoms, 6 custom values, 5 label layouts
+scenario rows: 3 tags, 2 base units, 6 product uoms, 6 custom values, 5 label layouts
+5c5
+< \restrict jsrDnaws9FYewxnbhSB8DsWn28mKcqqc5Z6Xf9pDjQaXgGHXhKFKtWTZehT5wHa
+---
+> \restrict NxIvZS484CfR0zmaIni6nHVVP20JRdgCH7m1wXgvOtZ0oO8DXjAeWB9rgPr4CyV
+171c171
+< \unrestrict jsrDnaws9FYewxnbhSB8DsWn28mKcqqc5Z6Xf9pDjQaXgGHXhKFKtWTZehT5wHa
+---
+> \unrestrict NxIvZS484CfR0zmaIni6nHVVP20JRdgCH7m1wXgvOtZ0oO8DXjAeWB9rgPr4CyV
+
+# diff of the two dumps (only pg_dump's per-run \restrict token differs):
+5c5
+< \restrict jsrDnaws9FYewxnbhSB8DsWn28mKcqqc5Z6Xf9pDjQaXgGHXhKFKtWTZehT5wHa
+---
+> \restrict NxIvZS484CfR0zmaIni6nHVVP20JRdgCH7m1wXgvOtZ0oO8DXjAeWB9rgPr4CyV
+171c171
+< \unrestrict jsrDnaws9FYewxnbhSB8DsWn28mKcqqc5Z6Xf9pDjQaXgGHXhKFKtWTZehT5wHa
+---
+> \unrestrict NxIvZS484CfR0zmaIni6nHVVP20JRdgCH7m1wXgvOtZ0oO8DXjAeWB9rgPr4CyV
+# rows in dump1: 39
