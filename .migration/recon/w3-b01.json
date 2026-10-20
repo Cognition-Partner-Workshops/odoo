@@ -1,0 +1,20 @@
+{
+  "batch": "w3-b01",
+  "status": "FAIL",
+  "recon_results": [
+    ".migration/recon/product-pricing/result.json"
+  ],
+  "fixture_results": [
+    ".migration/recon/product-pricing/fixture/result.json"
+  ],
+  "write_targets": [
+    "odoo_migration.productPricelist",
+    "odoo_migration.productPricelistItem"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/44",
+  "branch": "devin/1792462626-w3-b01-product-pricing",
+  "failure_class": "float_digits_bson_string",
+  "manifest_sha": "3548af4a78e1",
+  "plugin_sha": "0d6bcfd528a4099449ad7f7d8c65eb620b017c79",
+  "one_line_summary": "product-pricing -> odoo_migration.productPricelist/productPricelistItem: live strict recon verdict PASS (T1 18 / T2 26 / T3 12 / T4 7 checks, mode=live, target_class=migration_cluster, merge_eligible=True) from seeded clone odoo_w3b01_src (build_source.sh marker 3 + seed_scenario_rows.py product-pricing section, timestamps pinned, two clones dump identical); fixture PASS; but Tier 4 application parity FAILS on one shared storage-path bug outside this unit: Float fields with digits (min_quantity, price_discount, price_markup, ...) reach to_bson() as float_repr strings from Field.convert_to_column(), so ORM-created documents store '3.00' strings and domains compare '$lte': '2.00' against Decimal128 - ORM scenario scenario_product_pricing.py 25/27 on MongoDB vs 22/22 PostgreSQL baseline, product/uom tests 1 failed (accepted timing test) + 7 errors of 161 all in the pricelist tests, /sale:TestSalePrices 27/28 same root cause; -u product,sale on a full-estate clone clean and the seven readers identical to the pre-opt-in baseline; unprefixed odoo_migration collections unchanged. Not mergeable until the shared fix lands (report only, per batch rules)"
+}
