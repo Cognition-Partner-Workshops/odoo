@@ -23,6 +23,7 @@ TYPE_TAX_USE = [
 class AccountTaxGroup(models.Model):
     _name = 'account.tax.group'
     _description = 'Tax Group'
+    _storage = 'mongodb'
     _order = 'sequence asc, id'
     _check_company_auto = True
     _check_company_domain = models.check_company_domain_parent_of
@@ -55,6 +56,7 @@ class AccountTax(models.Model):
     _name = 'account.tax'
     _inherit = ['mail.thread']
     _description = 'Tax'
+    _storage = 'mongodb'
     _order = 'sequence,id'
     _check_company_auto = True
     _rec_names_search = ('name', 'description', 'invoice_label')
@@ -5186,6 +5188,7 @@ class AccountTax(models.Model):
 class AccountTaxRepartitionLine(models.Model):
     _name = 'account.tax.repartition.line'
     _description = "Tax Repartition Line"
+    _storage = 'mongodb'
     _order = 'document_type, repartition_type, sequence, id'
     _check_company_auto = True
     _check_company_domain = models.check_company_domain_parent_of

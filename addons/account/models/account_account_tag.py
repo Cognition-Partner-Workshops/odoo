@@ -7,6 +7,7 @@ from odoo.exceptions import UserError
 class AccountAccountTag(models.Model):
     _name = 'account.account.tag'
     _description = 'Account Tag'
+    _storage = 'mongodb'
 
     name = fields.Char('Tag Name', required=True, translate=True)
     applicability = fields.Selection([('accounts', 'Accounts'), ('taxes', 'Taxes'), ('products', 'Products')], required=True, default='accounts')

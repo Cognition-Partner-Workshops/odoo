@@ -1,0 +1,38 @@
+[
+  {
+    "name": "account_types_and_tags",
+    "collection": "accountAccount",
+    "source_sql": "SELECT a.id, a.account_type, a.reconcile, a.active, a.parent_path, count(t.account_account_tag_id) AS tag_count FROM account_account a LEFT JOIN account_account_account_tag t ON t.account_account_id = a.id GROUP BY a.id",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "account_type": "$accountType", "reconcile": 1, "active": 1, "parent_path": "$parentPath", "tag_count": {"$size": {"$ifNull": ["$accountTag", []]}}}}]
+  },
+  {
+    "name": "account_tags",
+    "collection": "accountAccountTag",
+    "source_sql": "SELECT g.id, g.name->>'en_US' AS name, g.applicability, g.active, count(r.account_tax_repartition_line_id) AS repartition_count FROM account_account_tag g LEFT JOIN account_account_tag_account_tax_repartition_line_rel r ON r.account_account_tag_id = g.id GROUP BY g.id",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "name": "$name.en_US", "applicability": 1, "active": 1, "repartition_count": {"$size": {"$ifNull": ["$accountTaxRepartitionLineRel", []]}}}}]
+  },
+  {
+    "name": "taxes_by_use",
+    "collection": "accountTax",
+    "source_sql": "SELECT t.id, t.name->>'en_US' AS name, t.type_tax_use, t.amount_type, t.amount, t.sequence, t.company_id, t.tax_group_id, count(c.parent_tax) AS child_count FROM account_tax t LEFT JOIN account_tax_filiation_rel c ON c.parent_tax = t.id GROUP BY t.id",
+    "target_pipeline": [{"$lookup": {"from": "accountTax", "localField": "_id", "foreignField": "filiationRel.parentTax", "as": "children"}}, {"$project": {"_id": 0, "id": "$_id", "name": "$name.en_US", "type_tax_use": "$typeTaxUse", "amount_type": "$amountType", "amount": 1, "sequence": 1, "company_id": "$companyId", "tax_group_id": "$taxGroupId", "child_count": {"$size": "$children"}}}]
+  },
+  {
+    "name": "tax_groups",
+    "collection": "accountTaxGroup",
+    "source_sql": "SELECT id, name->>'en_US' AS name, sequence, company_id FROM account_tax_group",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "name": "$name.en_US", "sequence": 1, "company_id": "$companyId"}}]
+  },
+  {
+    "name": "repartition_lines",
+    "collection": "accountTaxRepartitionLine",
+    "source_sql": "SELECT id, tax_id, account_id, document_type, repartition_type, factor_percent, sequence FROM account_tax_repartition_line",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "tax_id": "$taxId", "account_id": {"$ifNull": ["$accountId", null]}, "document_type": "$documentType", "repartition_type": "$repartitionType", "factor_percent": "$factorPercent", "sequence": 1}}]
+  },
+  {
+    "name": "fiscal_positions_with_mappings",
+    "collection": "accountFiscalPosition",
+    "source_sql": "SELECT p.id, p.name->>'en_US' AS name, p.sequence, p.company_id, p.auto_apply, (SELECT count(*) FROM account_fiscal_position_account_tax_rel r WHERE r.account_fiscal_position_id = p.id) AS tax_count, (SELECT count(*) FROM account_fiscal_position_account m WHERE m.position_id = p.id) AS account_count FROM account_fiscal_position p",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "name": "$name.en_US", "sequence": {"$ifNull": ["$sequence", null]}, "company_id": "$companyId", "auto_apply": "$autoApply", "tax_count": {"$size": {"$ifNull": ["$accountTaxRel", []]}}, "account_count": {"$size": {"$ifNull": ["$account", []]}}}}]
+  }
+]

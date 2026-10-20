@@ -775,14 +775,14 @@ class AccountPayment(models.Model):
                 OR
                 part.credit_move_id = counterpart_line.id
             JOIN account_move invoice ON invoice.id = counterpart_line.move_id
-            JOIN account_account account ON account.id = line.account_id
-            WHERE account.account_type IN ('asset_receivable', 'liability_payable')
+            WHERE line.account_id = ANY(%(account_ids)s)
                 AND payment.id IN %(payment_ids)s
                 AND line.id != counterpart_line.id
                 AND invoice.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')
             GROUP BY payment.id, invoice.move_type
         ''', {
-            'payment_ids': tuple(stored_payments.ids)
+            'payment_ids': tuple(stored_payments.ids),
+            'account_ids': self.env['account.account']._ids_by_type(('asset_receivable', 'liability_payable')),
         })
         query_res = self.env.cr.dictfetchall()
 
@@ -808,7 +808,6 @@ class AccountPayment(models.Model):
             FROM account_payment payment
             JOIN account_move move ON move.id = payment.move_id
             JOIN account_move_line line ON line.move_id = move.id
-            JOIN account_account account ON account.id = line.account_id
             JOIN account_partial_reconcile part ON
                 part.debit_move_id = line.id
                 OR
@@ -817,7 +816,7 @@ class AccountPayment(models.Model):
                 part.debit_move_id = counterpart_line.id
                 OR
                 part.credit_move_id = counterpart_line.id
-            WHERE account.id = payment.outstanding_account_id
+            WHERE line.account_id = payment.outstanding_account_id
                 AND payment.id IN %(payment_ids)s
                 AND line.id != counterpart_line.id
                 AND counterpart_line.statement_line_id IS NOT NULL
