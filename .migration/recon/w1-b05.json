@@ -12,6 +12,8 @@
   ],
   "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/59",
   "branch": "devin/1792505471-w1-b05-product-attributes",
+  "head_sha": "bf029d87648",
+  "base_sha": "83cc4af173e",
   "failure_class": "",
   "manifest_sha": "b965d1e5f34e",
   "plugin_sha": "9a584b4cdb311ddd64fb07cbd1cf35fc9485062c",
@@ -31,5 +33,5 @@
       3
     ]
   },
-  "one_line_summary": "product-attributes: live PASS, merge_eligible true, 0 warnings; fixture PASS; 29/29 ORM scenario checks on the storage path (root + value/productTemplateRel arrays)"
+  "one_line_summary": "product-attributes on mongo-run/unt12 83cc4af: live PASS, merge_eligible true, 0 warnings (salted redaction); fixture PASS; 34/34 ORM scenario checks (exact two-sided relation parity incl. line.value_ids = 24 PG rel rows, link/unlink leaves the w2-b02 rel collection untouched, SQL CHECK enforced without a mirror)"
 }
