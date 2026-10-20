@@ -82,6 +82,6 @@ for k,v in out['refs'].items(): print('REF', k, 'present', v['docs_with_field'],
 for k,v in out['decimals'].items(): print('DEC', k, v)
 print('BAD_DATES', bad_dates)
 print('PROBLEMS', len(problems), problems)
-sys.exit(1 if problems else 0)
 print('LABEL shapes', out['field_shapes']['productLabelLayout'])
 print('TMPL comboIds shapes', out['field_shapes']['productTemplate'].get('comboIds'))
+sys.exit(1 if problems else 0)

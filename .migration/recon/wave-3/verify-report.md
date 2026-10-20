@@ -15,9 +15,13 @@ strict (`59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68`); can
 `odoo_w3v_src` (`createdb -T odoo_src`) seeded with the merged `.migration/load/seed_scenario_rows.py` through
 the `odoo-base` shell: `3 tags, 2 base units, 6 product uoms, 4 combos, 6 custom values, 5 label layouts,
 4 pricelists, 7 pricelist items, 32 sellers` (the expected 4 / 7 / 32). Target `odoo_migration` on the migration
-cluster was only read (no reload, no write to any unprefixed collection): a count + sha256 digest of all 21
-unprefixed collections (353 documents) was taken before the first scratch write and again after the last
-(`estate/unprefixed-digest.before.json`, `estate/unprefixed-digest.after.json`, identical). Scratch namespaces
+cluster was only read (no reload, no write to any unprefixed collection). Evidence: every tool that touched it is
+read-only by construction (recon `--mode live` reads, `probes.py` and `digest_unprefixed.py` only `find`/`count`),
+every Odoo process ran with conf `mongodb_migration_db = odoo_verify_mig` on a `odoo_w3v_*` database so the ORM
+could only write `odoo_w3v_*__*` collections (the 60 scratch collections that appeared, and nothing else), and
+`mongo_guard` fronted every command. As corroboration, not proof (a write later reverted would not show), a count +
+sha256 digest of all 21 unprefixed collections (353 documents) was taken before the first scratch write and again
+after the last (`estate/unprefixed-digest.before.json`, `estate/unprefixed-digest.after.json`, identical). Scratch namespaces
 `odoo_w3v_estate__*`, `odoo_w3v_fresh__*`, `odoo_w3v_test__*` (conf `mongodb_migration_db = odoo_verify_mig`,
 so no scratch database is the migration database) were dropped at the end, as were the PostgreSQL clones.
 
@@ -78,7 +82,7 @@ reference, non-Decimal128 decimal, non-datetime date) and exits 1 when that list
 | `productAttributeCustomValue.customProductTemplateAttributeValueId` 6 | 6 | `productTemplateAttributeValue` (wave 2) |
 | `productLabelLayout.productIds[].productProductId` (3 docs) | 6 | `productProduct` (wave 2) |
 | `productLabelLayout.productTmplIds[].productTemplateId` (1 doc) | 3 | `productTemplate` (wave 2) |
-| `productLabelLayout.productUomIds[].productUomId` (2 docs) | 2 | `productUom` (wave 2) |
+| `productLabelLayout.productUomIds[].productUomId` (1 doc, 2 values) | 2 | `productUom` (wave 2) |
 | `productTemplate.comboIds[].productComboId` (1 doc) | 3 | `productCombo` (wave 2 -> wave 3) |
 
 `productLabelLayout.moveIds[].stockMoveId` (6 values, 2 docs) and `packagingId` (1) point at tables that are not
@@ -89,7 +93,9 @@ opted in (`stock_move`, `product_packaging`) and are only shape-checked (int, no
 Pre-opt-in baseline: `odoo_w3v_base` = `createdb -T odoo_w3v_src` read through the `odoo-base` shell
 (PostgreSQL storage, `estate/estate-readers.baseline.txt`). Migrated side: `odoo_w3v_estate` =
 `createdb -T odoo_w3v_src` (sale, purchase, stock, account installed), the 21 unprefixed collections pre-copied
-into `odoo_w3v_estate__*` (`estate/precopy.py`, counts equal on both sides, `estate/estate-precopy.log`), then
+into `odoo_w3v_estate__*` (`estate/precopy.py`: documents only, no indexes or collection options, so this probe
+exercises ORM read/write behaviour, not index-dependent plans; indexes are checked on the real collections in
+`probes.json`; counts equal on both sides, `estate/estate-precopy.log`), then
 `odoo-bin -d odoo_w3v_estate -c <conf> --no-http -u product,uom,sale,purchase,stock --stop-after-init` at
 `1c12182`: exit 0 in ~1 min, 0 ERROR / 0 Traceback lines (`estate/estate-update.log`); afterwards every opted-in
 model's ORM count equals its document count (`estate/estate-readers.mongo.txt`, e.g. product.combo 4 / 4,
