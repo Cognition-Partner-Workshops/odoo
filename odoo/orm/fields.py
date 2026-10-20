@@ -1555,7 +1555,7 @@ class Field[T]:
         ``(field_expr, operator, value)`` on ``model`` (stored in MongoDB).
         Mirrors :meth:`condition_to_sql`, including the null semantics.
         """
-        from .storage_mongodb import to_bson  # noqa: PLC0415
+        from .storage_mongodb import column_to_bson  # noqa: PLC0415
         store = model.pool.mongo_store
         fname, property_name = parse_field_expr(field_expr)
         path = store.field_path(model, fname)
@@ -1570,7 +1570,7 @@ class Field[T]:
             path = f"{path}.{model.env.company.id}"
 
         def _value(v):
-            return to_bson(self.convert_to_column(v, model, validate=False))
+            return column_to_bson(self, self.convert_to_column(v, model, validate=False))
 
         if operator in ('in', 'not in'):
             assert isinstance(value, COLLECTION_TYPES), \
