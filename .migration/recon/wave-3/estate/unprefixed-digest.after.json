@@ -1,0 +1,86 @@
+{
+ "_connectivity_probe": {
+  "count": 0,
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ },
+ "productAttribute": {
+  "count": 14,
+  "sha256": "d230a417aa708fa8c64217992c0f787fa7b02bba5350ca6ecdb83f9152c98e89"
+ },
+ "productAttributeCustomValue": {
+  "count": 6,
+  "sha256": "57c073ad55c1878999187221177b42808ea80fcd313cab2e83d321f712a6c348"
+ },
+ "productAttributeValue": {
+  "count": 101,
+  "sha256": "44c97c55c6d956b0104f3267b41c2895a39ac8dc6b54cea017506cbb7d4a1e49"
+ },
+ "productBaseUnit": {
+  "count": 2,
+  "sha256": "4c41392252e402f499d0f893a1658ffdf84e45251ab0819a74dd2cb984078a3f"
+ },
+ "productCategory": {
+  "count": 8,
+  "sha256": "49f03c075d0118bc6a708d0cd9346f8b7b2ce4eed179499ff65a7eea205a5f11"
+ },
+ "productCombo": {
+  "count": 4,
+  "sha256": "547a9d1db373805c810f09b620b41e98aa4e549526ec19b6a23622f5a8a2a6e5"
+ },
+ "productComboItem": {
+  "count": 10,
+  "sha256": "52fe6eed6c965c388b2609658ccd677e19c46c193f975fae6174396a2345659a"
+ },
+ "productDocument": {
+  "count": 2,
+  "sha256": "b5c9260e7e20770353a053e4809228587564f31e4e1f70b134b18707478f6d92"
+ },
+ "productLabelLayout": {
+  "count": 5,
+  "sha256": "4a596a00e46926aa5e243a174db71192a5ea27db607b897a4b4c04bd87c14fdb"
+ },
+ "productPricelist": {
+  "count": 4,
+  "sha256": "e2120d707d139f279421113b7d62e1a61b80542623ee643a42269f496aea7336"
+ },
+ "productPricelistItem": {
+  "count": 7,
+  "sha256": "7e20dd842343bf5bd0e5b3fe49c269ba7ad1a938cc2100657f970b644df78596"
+ },
+ "productProduct": {
+  "count": 48,
+  "sha256": "3a80ce34cd6d51a172cee9b52186766a20d17655c05c13a2d420a5b591fdd690"
+ },
+ "productSupplierinfo": {
+  "count": 32,
+  "sha256": "e7c747d8c11b3538f9b865654281c632b227e9c1816de7a7ad728d0a99b854a8"
+ },
+ "productTag": {
+  "count": 3,
+  "sha256": "5101eb7ace05d571795568b028a1a559fd99570fe4487f862f1b059edaa20064"
+ },
+ "productTemplate": {
+  "count": 38,
+  "sha256": "e95dcdf9ca35da2fada9a550acab4c78be626d0276d58cdb425e44539c2c513d"
+ },
+ "productTemplateAttributeLine": {
+  "count": 9,
+  "sha256": "face0237e3e9332da1711c9467b9752055b69586be5e011e2dc34c3565124da7"
+ },
+ "productTemplateAttributeValue": {
+  "count": 24,
+  "sha256": "c7ca29f6b43860c26545366f0bfbb0a02852d9c630703d76c505936caec3f52a"
+ },
+ "productUom": {
+  "count": 6,
+  "sha256": "d36bfc6719b11599a99369bd46486753115f0cf65982ae8edf55cc82366b3a90"
+ },
+ "uomUom": {
+  "count": 30,
+  "sha256": "51210b18c83f5c18f6964f03b4d9dc99597a66973598dcff709d0d73ca783975"
+ },
+ "updateProductAttributeValue": {
+  "count": 0,
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ }
+}

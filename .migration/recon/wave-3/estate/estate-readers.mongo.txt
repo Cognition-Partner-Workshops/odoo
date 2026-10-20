@@ -1,0 +1,17 @@
+READER sale.report 51
+READER purchase.report 32
+READER account.invoice.report 62
+READER purchase.bill.line.match 27
+READER report.stock.quantity 5263
+READER stock.avco.report 7
+READER vendor.delay.report 10
+STORE prefix 'odoo_w3v_estate__'
+COUNT product.combo orm 4 docs 4
+SHADOW product_combo ['id', 'sequence', 'company_id', 'create_uid', 'write_uid', 'name', 'create_date', 'write_date']
+COUNT product.combo.item orm 10 docs 10
+SHADOW product_combo_item ['id', 'company_id', 'combo_id', 'product_id', 'create_uid', 'write_uid', 'extra_price', 'create_date', 'write_date']
+COUNT product.template orm 38 docs 38
+SHADOW product_template ['id', 'sequence', 'categ_id', 'uom_id', 'company_id', 'color', 'base_unit_id', 'create_uid', 'write_uid', 'type', 'service_tracking', 'barcode', 'default_code', 'name', 'description', 'description_purchase', 'description_sale', 'product_properties', 'list_price', 'volume', 'weight', 'base_unit_count', 'is_storable', 'sale_ok', 'purchase_ok', 'active', 'can_image_1024_be_zoomed', 'has_configurable_attributes', 'is_favorite', 'create_date', 'write_date', 'property_account_income_id', 'property_account_expense_id', 'lot_sequence_id', 'tracking', 'responsible_id', 'property_stock_production', 'property_stock_inventory', 'description_picking', 'description_pickingout', 'description_pickingin', 'purchase_method', 'purchase_line_warn_msg', 'lot_valuated', 'service_type', 'reinvoice_policy', 'invoice_policy', 'sale_delay', 'sale_line_warn_msg']
+COUNT product.product orm 48 docs 48
+SHADOW product_product ['id', 'product_tmpl_id', 'base_unit_id', 'create_uid', 'write_uid', 'default_code', 'barcode', 'combination_indices', 'standard_price', 'qty_available', 'lst_price', 'volume', 'weight', 'base_unit_count', 'active', 'can_image_variant_1024_be_zoomed', 'is_favorite', 'write_date', 'create_date', 'lot_properties_definition']
+COMBOS [(1, 'Desk Accessories Combo', None, 'USD', 3, 1.98), (2, 'Desks Combo', None, 'USD', 2, 147.0), (3, 'Chairs Combo', None, 'USD', 3, 33.0), (4, 'Chicago Desk Set', 3, 'USD', 2, 14.0)]

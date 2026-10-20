@@ -1,0 +1,2 @@
+WARNING: RECON_REDACT_SALT is not set; --mode live output is redacted with unsalted hashes, so low-entropy values (flags, codes) can be enumerated offline. Set the engagement-wide salt before sharing artifacts.
+recon PASS: unit=product-catalog mode=live target_class=migration_cluster mapping=map-draft-5 tolerances=v1 merge_eligible=True -> .migration/recon/wave-3/wave-2-recheck/product-catalog/result.json
