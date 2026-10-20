@@ -1,0 +1,9 @@
+{
+ "batch": "w2-b01",
+ "verdict": "PASS",
+ "recon_results": [
+  ".migration/recon/wave-2/w2-b01/account-journal/result.json"
+ ],
+ "findings": [],
+ "report_path": "recon/verify-w2-b01:.migration/recon/wave-2/w2-b01/verify-report.md"
+}
