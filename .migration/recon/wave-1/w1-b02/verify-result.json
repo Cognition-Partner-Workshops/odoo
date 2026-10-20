@@ -1,18 +1,16 @@
 {
- "batch": "w1-b02",
- "verdict": "PASS",
- "recon_results": [
-  ".migration/recon/wave-1/w1-b02/result.json"
- ],
- "findings": [
-  "Closed by PR #66 (45/45 read-only ORM probes in re-runs 3 and 4 on PR #61 head 2fc8dc3e280f6476c79ca3782feb0e2369fd785b merged locally onto 375581b and then 59975936d46a979da3267ba59745c8cf262a2ae5; no rebase, nothing pushed): the re-run 2 gap where dotted search through a company-dependent many2one returned [] on the Mongo path.",
-  "Closed by PR #67 (28/28 unlink-parity probes at 2fc8dc3+5997593; 18/28 at 2fc8dc3+375581b): the re-run 3 gap where a company-dependent write on the Mongo path stored the other companies' ir.default fallbacks as values ({\"1\": 10, \"2\": null, \"3\": 185} vs JSONB {\"3\": 185}). Unlinking an account.account referenced through product.category company-dependent properties (restrict UserError, ir.default protection, set-null, unreferenced) behaves exactly like PostgreSQL; run on throwaway PG clones with temporary odoo_v_w1b02ulmg__* collections only, all dropped; batch collections sha256-identical before/after.",
-  "Verifier bookkeeping: commit 44fea3c (re-run 3) carried only the unlink-probe files, its report/result/compare edits were lost to a branch checkout before committing; this commit supersedes it (verify-report.md finding 3).",
-  "Verified head 2fc8dc3e280f6476c79ca3782feb0e2369fd785b (based on mongo-run/unt12 83cc4af); mapping and tolerance bytes unchanged by the rebase and equal to the ticket pins; recon PASS 18/22/27/7, 194/194 gate probes, 43/45 read-only ORM probes with exact equality vs PG for company-dependent fields per company and tag<->template, tag<->variant, picking-type<->category from both sides; target sha256 snapshot identical before/after (nothing changed in odoo_unt12).",
-  "PR #61 self-reports 62/62 ORM scenario checks; the scenario was not run here since it creates a scratch namespace inside odoo_unt12; the read-only ORM probes cover the manager-requested reads instead.",
-  "Both runs are redacted with unsalted hashes since no RECON_REDACT_SALT secret exists; result.json warnings stay empty, verdict unaffected.",
-  "Plugin gap, unpatched: the installed mongo-recon-harness skill text names a --source-concurrency flag the pinned CLI at 9a584b4cdb311ddd64fb07cbd1cf35fc9485062c rejects; flag omitted, recon_tolerances.json source_concurrency key accepted as-is.",
-  "Environment: requirements.txt line 36 at the head pins the Mongo driver 4.19.0 but the pre-built odoo venv lacked it; pip-installed in the verifier venv only."
- ],
- "report_path": "recon/verify-w1-b02:.migration/recon/wave-1/w1-b02/verify-report.md"
+  "batch": "w1-b02",
+  "verdict": "PASS",
+  "verified_head": "30117cc5b355d65e9793aca1054b88e3554dfbc4",
+  "verified_base": "a25acb9ede8",
+  "recon_results": [".migration/recon/wave-1/w1-b02/result.json"],
+  "findings": [
+    "Verified PR #61 head 30117cc5b355d65e9793aca1054b88e3554dfbc4 (based on mongo-run/unt12 a25acb9ede8, PR #68) with everything repeated from scratch: fresh clone odoo_v_w1b02r5c of odoo_src reseeded through the pre-opt-in tree with the head's seed_scenario_rows.py, live recon scoped with --collections against mapping sha256 88650faf... and tolerances sha256 7b426db2... (equal to the ticket pins) at plugin 9a584b4 unpatched: PASS 18/22/27/7, warnings empty; 194/194 beyond-gate probes; 45/45 read-only ORM probes and 28/28 unlink-parity probes with exact equality vs PostgreSQL on the head itself (no local merge); sha256 snapshot of the five batch collections identical before/after; temporary odoo_v_w1b02r5culmg__* collections dropped, none left; no -u/-i on any database, no clone named like mongodb_migration_db's live value.",
+    "Environment, not plugin: the saved ODOO_PG_RO_DSN secret is now a postgresql:// URL while build_source.sh and the pinned harness (parse_postgresql_secret) require the JSON form {user,password,host,port,database}; the first pipeline attempt failed on both until the URL was converted to JSON in-session (never printed). It was JSON at re-run 4, so it was re-saved since; restore the JSON form or worker/verifier scripts keep failing.",
+    "The worker's .migration/recon/w1-b02.json at this head self-reports 70/70 ORM scenario checks (evidence acc537aff39); not re-run here since the scenario writes a scratch namespace inside odoo_unt12; the read-only ORM and unlink probes cover the manager-requested behaviour instead.",
+    "odoo_unt12 held other sessions' temporary prefixed collections during this run (six odoo_v_w1b06__* then odoo_v_w1b03__stockPackageType / odoo_v_w1b03__uomUom, none at the end); not this verifier's, left untouched.",
+    "Both runs are redacted with unsalted hashes since no RECON_REDACT_SALT secret exists; result.json warnings stay empty, verdict unaffected.",
+    "Plugin gap, unpatched (carried): the installed mongo-recon-harness skill text names a --source-concurrency flag the pinned CLI at 9a584b4cdb311ddd64fb07cbd1cf35fc9485062c rejects; flag omitted, recon_tolerances.json source_concurrency key accepted as-is."
+  ],
+  "report_path": "recon/verify-w1-b02:.migration/recon/wave-1/w1-b02/verify-report.md"
 }

@@ -861,27 +861,27 @@
   {
    "probe": "productCategory.name.translation_keys",
    "pass": true,
-   "evidence": "source={1: ['en_US'], 2: ['en_US'], 3: ['en_US'], 4: ['en_US'], 5: ['en_US'], 6: ['en_US'], 7: ['en_US']} target={1: ['en_US'], 2: ['en_US'], 6: ['en_US'], 7: ['en_US'], 5: ['en_US'], 4: ['en_US'], 3: ['en_US']}"
+   "evidence": "source={1: ['en_US'], 2: ['en_US'], 3: ['en_US'], 4: ['en_US'], 5: ['en_US'], 6: ['en_US'], 7: ['en_US']} target={6: ['en_US'], 1: ['en_US'], 3: ['en_US'], 7: ['en_US'], 4: ['en_US'], 2: ['en_US'], 5: ['en_US']}"
   },
   {
    "probe": "productRemoval.name.translation_keys",
    "pass": true,
-   "evidence": "source={1: ['en_US'], 2: ['en_US'], 3: ['en_US'], 4: ['en_US']} target={1: ['en_US'], 4: ['en_US'], 2: ['en_US'], 3: ['en_US']}"
+   "evidence": "source={1: ['en_US'], 2: ['en_US'], 3: ['en_US'], 4: ['en_US']} target={1: ['en_US'], 2: ['en_US'], 4: ['en_US'], 3: ['en_US']}"
   },
   {
    "probe": "productRemoval.method.translation_keys",
    "pass": true,
-   "evidence": "source={1: ['en_US'], 2: ['en_US'], 3: ['en_US'], 4: ['en_US']} target={1: ['en_US'], 4: ['en_US'], 2: ['en_US'], 3: ['en_US']}"
+   "evidence": "source={1: ['en_US'], 2: ['en_US'], 3: ['en_US'], 4: ['en_US']} target={3: ['en_US'], 2: ['en_US'], 4: ['en_US'], 1: ['en_US']}"
   },
   {
    "probe": "productTag.name.translation_keys",
    "pass": true,
-   "evidence": "source={1: ['en_US'], 2: ['en_US'], 3: ['en_US']} target={2: ['en_US'], 3: ['en_US'], 1: ['en_US']}"
+   "evidence": "source={1: ['en_US'], 2: ['en_US'], 3: ['en_US']} target={3: ['en_US'], 1: ['en_US'], 2: ['en_US']}"
   },
   {
    "probe": "productBaseUnit.name.translation_keys",
    "pass": true,
-   "evidence": "source={1: ['en_US'], 2: ['en_US']} target={1: ['en_US'], 2: ['en_US']}"
+   "evidence": "source={1: ['en_US'], 2: ['en_US']} target={2: ['en_US'], 1: ['en_US']}"
   },
   {
    "probe": "productCategory.parent_path_consistent_with_parentId",
