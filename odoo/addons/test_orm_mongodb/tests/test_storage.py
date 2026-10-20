@@ -3,8 +3,9 @@ import datetime
 
 import psycopg2
 
+from odoo.orm.storage_mongodb import _check_constraints
 from odoo.tests import TransactionCase, tagged
-from odoo.tools import mute_logger
+from odoo.tools import mute_logger, sql
 
 
 @tagged('post_install', '-at_install', 'mongodb')
@@ -38,7 +39,8 @@ class TestMongoStorage(TransactionCase):
         # the test transaction rolled back, the journal undid the documents; remove the test collections
         for model in ('test.mongo.tag', 'test.mongo.author', 'test.mongo.book', 'test.mongo.variant'):
             cls.store.db.drop_collection(cls.store.model_collection(cls.env[model]).name)
-        cls.store.db.drop_collection(cls.store.collection('testMongoBookTagRel').name)
+        for collection in ('testMongoBookTagRel', 'testMongoReviewPartnerRel'):
+            cls.store.db.drop_collection(cls.store.collection(collection).name)
 
     def doc(self, record):
         return self.store.model_collection(record).find_one({'_id': record.id})
@@ -305,6 +307,74 @@ class TestMongoStorage(TransactionCase):
         self.partner_a.unlink()
         self.assertFalse(self.author_b.partner_id)
         self.assertIsNone(self.doc(self.author_b)['partnerId'])
+
+    def test_init_skipped(self):
+        # test.mongo.tag.init() indexes a column the id shadow does not have: Registry.init_models()
+        # must not run init() for a MongoDB-stored model (the install would have failed)
+        cr = self.env.cr
+        self.assertFalse(sql.index_exists(cr, 'test_mongo_tag_name_index'))
+        self.assertEqual(sql.table_columns(cr, 'test_mongo_tag').keys(), {'id'})
+
+    def test_check_constraint(self):
+        Book = self.env['test.mongo.book']
+        # the constraint is not on the shadow; the storage path enforces it like PostgreSQL would
+        self.assertIsNone(sql.constraint_definition(self.env.cr, 'test_mongo_book', 'test_mongo_book_check_pages'))
+        with self.assertRaises(psycopg2.errors.CheckViolation) as cm, mute_logger('odoo.sql_db'):
+            with self.env.cr.savepoint():
+                Book.create([{'name': 'Ok', 'author_id': self.author_a.id, 'pages': 1},
+                             {'name': 'Neg', 'author_id': self.author_a.id, 'pages': -1}])
+        self.assertEqual(cm.exception.diag.constraint_name, 'test_mongo_book_check_pages')
+        self.assertEqual(Book._sql_error_to_message(cm.exception), 'Pages must be positive.')
+        self.assertFalse(Book.search([('name', 'in', ('Ok', 'Neg'))]))
+        self.assertEqual(self.store.model_collection(Book).count_documents({'name': {'$in': ['Ok', 'Neg']}}), 0)
+        with self.assertRaises(psycopg2.errors.CheckViolation) as cm, mute_logger('odoo.sql_db'):
+            with self.env.cr.savepoint():
+                self.book_a1.write({'pages': -5})
+                self.env.flush_all()
+        self.assertEqual(cm.exception.diag.constraint_name, 'test_mongo_book_check_pages')
+        self.env.invalidate_all()
+        self.assertEqual(self.book_a1.pages, 100)
+        self.book_a1.write({'pages': 7})
+        self.env.flush_all()
+        self.assertEqual(self.doc(self.book_a1)['pages'], 7)
+        # a quoted literal is not a column (and a check with no column evaluates)
+        self.assertEqual([cols for cons, _, cols in _check_constraints(Book) if cons.name == 'check_const'], [[]])
+        # the check sees the value as stored: a partial translation keeps en_US
+        self.author_a.with_context(lang='fr_FR').write({'title': 'Docteur'})
+        self.env.flush_all()
+        self.assertEqual(self.doc(self.author_a)['title'], {'en_US': 'Doctor', 'fr_FR': 'Docteur'})
+
+    def test_duplicate_unique_key(self):
+        Tag = self.env['test.mongo.tag']
+        coll = self.store.model_collection(Tag)
+        with self.assertRaises(psycopg2.errors.UniqueViolation) as cm, mute_logger('odoo.sql_db'):
+            with self.env.cr.savepoint():
+                Tag.create([{'name': 'z'}, {'name': 'x'}])
+        # the spec index maps back to the model's UNIQUE constraint, so its message is used
+        self.assertEqual(cm.exception.diag.constraint_name, 'test_mongo_tag_name_uniq')
+        self.assertEqual(cm.exception.diag.table_name, 'test_mongo_tag')
+        self.assertEqual(cm.exception.diag.message_detail, "Key (name)=(x) already exists.")
+        self.assertEqual(Tag._sql_error_to_message(cm.exception), 'Tag names must be unique.')
+        # the rows inserted before the duplicate are gone, like the whole INSERT on PostgreSQL
+        self.assertEqual(coll.count_documents({'name': 'z'}), 0)
+        self.assertEqual(Tag.search_count([]), 2)
+        with self.assertRaises(psycopg2.errors.UniqueViolation), mute_logger('odoo.sql_db'):
+            with self.env.cr.savepoint():
+                self.tag_y.write({'name': 'x'})
+                self.env.flush_all()
+        self.assertEqual(self.doc(self.tag_y)['name'], 'y')
+
+    def test_unopted_relation_stays_in_postgresql(self):
+        # test_mongo_review_partner_rel is spec-mapped to a collection, but neither model is opted in
+        cr = self.env.cr
+        self.assertTrue(sql.table_exists(cr, 'test_mongo_review_partner_rel'))
+        review = self.env['test.mongo.review'].create({'name': 'r', 'partner_ids': [(6, 0, self.partner_a.ids)]})
+        self.env.flush_all()
+        cr.execute("SELECT partner_id FROM test_mongo_review_partner_rel WHERE review_id = %s", [review.id])
+        self.assertEqual([r[0] for r in cr.fetchall()], self.partner_a.ids)
+        self.assertEqual(review.partner_ids, self.partner_a)
+        self.assertEqual(self.env['test.mongo.review'].search([('partner_ids', 'in', self.partner_a.ids)]), review)
+        self.assertNotIn(self.store.collection('testMongoReviewPartnerRel').name, self.store.db.list_collection_names())
 
     def test_rollback_journal(self):
         Author = self.env['test.mongo.author']
