@@ -1,0 +1,8 @@
+{
+  "batch": "w1-b06",
+  "verdict": "PASS",
+  "pr_head": "def85b9f061e27296ba65c1216e2ad2514d052dc",
+  "recon_results": [".migration/recon/wave-1/w1-b06/result.json"],
+  "findings": [],
+  "report_path": "recon/verify-w1-b06:.migration/recon/wave-1/w1-b06/verify-report.md"
+}
