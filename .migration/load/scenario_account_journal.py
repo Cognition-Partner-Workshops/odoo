@@ -99,11 +99,28 @@ check('has_entries / has_posted_entries vs account_move (row 12)',
 check('entries_count vs account_move', all(j.entries_count == entries.get(j.id, 0) for j in all_journals if j.company_id in env.companies))
 bank = all_journals.filtered(lambda j: j.type in ('bank', 'cash', 'credit'))
 running = bank._get_journal_dashboard_bank_running_balance()
-check('bank running balance per bank journal (row 12)', set(running) == set(bank.ids) and all(isinstance(v[1], float) for v in running.values()))
+def pg_running_balance(journal):
+    last = rows("""SELECT id, first_line_index, COALESCE(balance_end_real, 0) FROM account_bank_statement
+                   WHERE journal_id = %s AND company_id = ANY(%s) AND first_line_index IS NOT NULL ORDER BY date DESC, id DESC LIMIT 1""",
+                (journal.id, env.companies.ids))
+    statement_id, first_index, balance = last[0] if last else (None, '', 0.0)
+    unlinked = rows("""SELECT COALESCE(SUM(stl.amount), 0.0), COUNT(*) FROM account_bank_statement_line stl JOIN account_move move ON move.id = stl.move_id
+                      WHERE stl.statement_id IS NULL AND move.state != 'cancel' AND stl.journal_id = %s AND stl.company_id = ANY(%s)
+                        AND stl.internal_index >= %s""", (journal.id, env.companies.ids, first_index or ''))[0]
+    return bool(statement_id or unlinked[1]), float(balance) + float(unlinked[0])
+check('bank running balance per bank journal (row 12)', set(running) == set(bank.ids)
+      and all(running[j.id] == pg_running_balance(j) for j in bank), {j.id: running[j.id] for j in bank})
 last = dict(rows("SELECT DISTINCT ON (journal_id) journal_id, id FROM account_bank_statement WHERE first_line_index IS NOT NULL ORDER BY journal_id, first_line_index DESC"))
 check('last_statement_id vs account_bank_statement (row 12)', all((j.last_statement_id.id or None) == last.get(j.id) for j in bank))
 direct = bank._get_direct_bank_payments()
-check('direct bank payments keyed by journal (row 12)', set(direct) == set(bank.ids))
+pg_direct = {j.id: rows("""SELECT COUNT(*), COALESCE(SUM(CASE WHEN payment.payment_type = 'outbound' THEN -payment.amount ELSE payment.amount END), 0)
+                           FROM account_payment payment JOIN account_move move ON move.origin_payment_id = payment.id
+                          WHERE payment.is_matched IS TRUE AND move.state = 'posted' AND payment.journal_id = %s
+                            AND payment.company_id = ANY(%s) AND payment.outstanding_account_id = %s""",
+                      (j.id, env.companies.ids, j.default_account_id.id or None))[0] for j in bank}
+check('direct bank payments per journal vs account_payment (row 12)', set(direct) == set(bank.ids)
+      and all(direct[j.id][0] == pg_direct[j.id][0] and abs(direct[j.id][1] - float(pg_direct[j.id][1])) < 1e-6 for j in bank),
+      {j.id: (direct[j.id][0], pg_direct[j.id][0]) for j in bank})
 check('activity data per journal (row 12)', all(json.loads(j.json_activity_data)['activities'] is not None for j in all_journals))
 info = all_journals._get_journals_payment_method_information()
 check('payment method information (row 11)', set(info) == {'pay_methods', 'manage_providers', 'method_information_mapping', 'providers_per_code'}
