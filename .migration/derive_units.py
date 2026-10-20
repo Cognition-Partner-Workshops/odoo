@@ -694,6 +694,10 @@ def scenarios(u, tests):
         elif r["register"].startswith("s2.3 §1 "):
             out.append({"kind": "cron", "register": r["register"], "job": r["where"], "owner": r["owner"],
                         "check": "re-run the cron body after this unit's tables move"})
+        elif r["disposition"] == "B":
+            out.append({"kind": "blocked_decision_check", "register": r["register"], "where": r["where"], "owner": r["owner"],
+                        "check": "B needs a manager decision, not necessarily a rewrite: after this unit's tables move, "
+                                 "verify whatever was decided (rewrite, drop, or kept PostgreSQL columns) still holds"})
         else:
             out.append({"kind": "raw_sql_recheck", "register": r["register"], "where": r["where"], "owner": r["owner"],
                         "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"})

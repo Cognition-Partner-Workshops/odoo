@@ -36562,11 +36562,11 @@
      "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
     },
     {
-     "kind": "raw_sql_recheck",
+     "kind": "blocked_decision_check",
      "register": "s2.3 §3a row 23",
      "where": "`get_kpi_summary` (addons/account/models/kpi_provider.py:39, :49)",
      "owner": "account-journal",
-     "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+     "check": "B needs a manager decision, not necessarily a rewrite: after this unit's tables move, verify whatever was decided (rewrite, drop, or kept PostgreSQL columns) still holds"
     },
     {
      "kind": "raw_sql_recheck",
