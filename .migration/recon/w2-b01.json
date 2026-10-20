@@ -1,0 +1,40 @@
+{
+  "batch": "w2-b01",
+  "status": "PASS",
+  "recon_results": [
+    ".migration/recon/account-journal/result.json"
+  ],
+  "fixture_results": [
+    ".migration/recon/account-journal/fixture/result.json"
+  ],
+  "write_targets": [
+    "odoo_unt12.accountJournal",
+    "odoo_unt12.accountPaymentMethod",
+    "odoo_unt12.accountReconcileModel",
+    "odoo_unt12.accountReconcileModelLineAccountTaxRel"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/69",
+  "branch": "devin/1792527678-w2-b01-account-journal",
+  "failure_class": "",
+  "manifest_sha": "ae71ec6a28e6",
+  "plugin_sha": "9a584b4cdb311ddd64fb07cbd1cf35fc9485062c",
+  "mapping_version": "map-draft-2",
+  "recon_tolerances_version": "unt12-3",
+  "tier_checks": {
+    "live": [
+      36,
+      38,
+      41,
+      5
+    ],
+    "fixture": [
+      8,
+      38,
+      41,
+      5
+    ]
+  },
+  "one_line_summary": "account-journal: live PASS, merge_eligible true, 0 warnings (tiers 36/38/41/5); fixture PASS; 30/30 ORM scenario checks on a prefixed clone of mongo-run/unt12@7fee6d9d335; 5 models opted in; dashboard, bank-statement validity and payment-method-information SQL read journals through the ORM (unnest of ORM ids/pairs); shared loader gains composite-key relation collections (accountReconcileModelLineAccountTaxRel); kpi_provider.get_kpi_summary stays BLOCKED for the manager (s2.3 \u00a73a row 23)",
+  "head_sha": "3b5a7b463aca96c72e5ab7fd1944a4f6924f4ee0",
+  "base": "mongo-run/unt12@7fee6d9d335"
+}
