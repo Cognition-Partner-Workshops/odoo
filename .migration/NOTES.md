@@ -76,6 +76,14 @@ report source tables would turn these 8 rows into S.
 Two APIs bypass `BaseModel`: the cursor (`cr.execute`, `cr.execute_values`, §3a) and `env.execute_query` /
 `env.execute_query_dict` (§3b). Framework code they reach with dynamic table names is in §3c.
 
+Coverage: the same 15 modules were also searched for the other ways SQL can reach the cursor — `cr.copy_expert` /
+`cr.copy_from` / `cr.mogrify` (0 uses), `cr.fetch*` / `dictfetch*` (every use sits in a method already counted), and the
+`odoo.tools.sql` helpers (`drop_view_if_exists` only in the 3 view `init()`s of §2, `index_exists` only in §3a row 1;
+`create_index`, `create_column`, `table_exists`, `column_exists` unused; `SQL` objects only feed the two APIs above).
+ORM-level DDL (`models.Index`, `models.UniqueIndex`, `models.Constraint`, field `index=`) goes through `_auto_init` and
+is the storage path's job, not a register item. Anything reached from framework code with a table name computed at run
+time is found by following callers (§3c), not by scanning, so §3c is complete only for the callers in §3a/§3b.
+
 #### 3a. `cr.execute` / `cr.execute_values`
 
 Scanned every `.py` outside `tests/` in the 15 scope + bridge modules for `cr.execute(` / `cr.execute_values(`
@@ -184,7 +192,7 @@ would otherwise be invisible):
 
 | caller | framework code | statements | in-scope tables | disp. |
 |---|---|---|---|---|
-| account.merge.wizard `_action_merge` (§3a row 16) | `base.partner.merge.automatic.wizard._update_foreign_keys_generic` (odoo/addons/base/wizard/base_partner_merge.py:119) and `_update_reference_fields_generic` (:198) | UPDATE / DELETE on every table with a foreign key, reference or many2one_reference to account.account, table names from `ir_model_fields` / `information_schema` at run time | account_move_line, account_journal, account_payment_method_line, account_tax_repartition_line, product_category, … plus PostgreSQL-resident res_company | R for Mongo-backed targets, S for PostgreSQL-resident ones; same split as §3a row 15 |
+| account.merge.wizard `_action_merge` (§3a row 16) | `base.partner.merge.automatic.wizard._update_foreign_keys_generic` (odoo/addons/base/wizard/base_partner_merge.py:119) and `_update_reference_fields_generic` (:198) | **discovery**: `_get_fk_on` (:80–:101) lists the referencing columns from `pg_constraint`, `_update_reference_fields_generic` from `ir_model_fields`; then UPDATE / DELETE on each discovered table | account_move_line, account_journal, account_payment_method_line, account_tax_repartition_line, product_category, … plus PostgreSQL-resident res_company | R, and the discovery step is part of the rewrite: a Mongo-backed table has no `account_id` column or FK on PostgreSQL, so `pg_constraint` no longer lists it and the merge would silently leave its documents pointing at the deleted account. The account merge unit must enumerate Mongo-backed references from ORM field metadata (`ir_model_fields` where relation = 'account.account', same source `_action_unmerge` already uses) and update them before the source accounts are removed. PostgreSQL-resident targets keep the `pg_constraint` path (S) |
 | module load of account.reconcile.model.line, account.move.line, sale.order.line, purchase.order.line | `analytic.mixin.init` (addons/analytic/models/analytic_mixin.py:33) | `CREATE INDEX IF NOT EXISTS ... USING gin(... analytic_distribution ...)` guarded only by `table_exists` | account_reconcile_model_line, account_move_line, sale_order_line, purchase_order_line | R — an id-only shadow passes `table_exists` but has no `analytic_distribution`, so the load fails; wave 0 skips the DDL for Mongo-backed inheritors (same rule as §3a row 1) |
 
 Out-of-scope installed modules (the other 55 of the 70) were scanned the same way for raw SQL or `_table_sql` naming an
