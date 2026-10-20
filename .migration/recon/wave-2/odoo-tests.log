@@ -1,0 +1,13 @@
+2026-10-20 00:32:08,373 28256 INFO odoo_w2v_test2 odoo.tests.common: Importing test framework
+2026-10-20 00:32:28,839 28256 INFO odoo_w2v_test2 odoo.modules.loading: Module uom loaded in 15.64s (incl. 3.50s test), 478 queries (+111 test, +478 other)
+2026-10-20 00:33:28,829 28256 INFO odoo_w2v_test2 odoo.modules.loading: Module product loaded in 52.82s (incl. 37.29s test), 1642 queries (+2785 test, +1642 other)
+2026-10-20 00:33:30,172 28256 INFO odoo_w2v_test2 odoo.modules.loading: Modules loaded.
+2026-10-20 00:33:30,275 28256 INFO odoo_w2v_test2 odoo.modules.loading: Modules loaded.
+2026-10-20 00:39:58,457 28256 ERROR odoo_w2v_test2 odoo.addons.product.tests.test_product_attribute_value_config: FAIL: TestProductAttributeValueConfig.test_get_closest_possible_combinations
+AssertionError: 0.8114664554595947 not less than 0.5
+2026-10-20 01:00:17,269 28256 INFO odoo_w2v_test2 odoo.tests.suite: Auto retry disabled for test_unit_desktop (odoo.addons.web.tests.test_js.WebSuite.test_unit_desktop)
+2026-10-20 01:00:17,365 28256 INFO odoo_w2v_test2 odoo.tests.suite: Auto retry disabled for test_unit_mobile (odoo.addons.web.tests.test_js.MobileWebSuite.test_unit_mobile)
+2026-10-20 01:00:17,372 28256 INFO odoo_w2v_test2 odoo.tests.stats: product: 201 tests 1632.72s 44706 queries
+2026-10-20 01:00:17,372 28256 INFO odoo_w2v_test2 odoo.tests.stats: uom: 6 tests 3.50s 111 queries
+2026-10-20 01:00:17,372 28256 INFO odoo_w2v_test2 odoo.tests.stats: web: 6 tests 0.10s 14 queries
+2026-10-20 01:00:17,372 28256 ERROR odoo_w2v_test2 odoo.tests.result: 1 failed, 0 error(s) of 161 tests when loading database 'odoo_w2v_test2'

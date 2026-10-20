@@ -1,0 +1,23 @@
+2026-10-19 22:09:32,198 15912 CRITICAL odoo_w2v_views odoo.service.server: Failed to initialize database `odoo_w2v_views`.
+Traceback (most recent call last):
+  File "/home/ubuntu/repos/odoo/odoo/service/server.py", line 1522, in preload_registries
+    registry = Registry.new(dbname, update_module=update_module, install_modules=config['init'], upgrade_modules=config['update'], reinit_modules=config['reinit'])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/odoo/tools/func.py", line 67, in locked
+    return func(inst, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/odoo/orm/registry.py", line 230, in new
+    contextvars.Context().run(
+  File "/home/ubuntu/repos/odoo/odoo/modules/loading.py", line 449, in load_modules
+    load_module_graph(
+  File "/home/ubuntu/repos/odoo/odoo/modules/loading.py", line 218, in load_module_graph
+    load_data(env, idref, mode, kind='data', package=package)
+  File "/home/ubuntu/repos/odoo/odoo/modules/loading.py", line 56, in load_data
+    convert_file(env, package.name, filename, idref, mode, noupdate=kind == 'demo')
+  File "/home/ubuntu/repos/odoo/odoo/tools/convert.py", line 714, in convert_file
+    convert_csv_import(env, module, pathname, fp.read(), idref, mode, noupdate)
+  File "/home/ubuntu/repos/odoo/odoo/tools/convert.py", line 775, in convert_csv_import
+    raise Exception(env._(
+Exception: Module loading account failed: file account/security/ir.access.csv could not be processed:
+Invalid domain [('company_id', 'in', company_ids)]: product.product is stored in MongoDB: no SQL for field 'uom_id' (not in _shadow_columns)
+Invalid domain [('company_id', 'in', company_ids)]: product.product is stored in MongoDB: no SQL for field 'uom_id' (not in _shadow_columns)

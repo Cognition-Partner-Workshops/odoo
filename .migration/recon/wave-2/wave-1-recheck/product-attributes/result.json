@@ -1,0 +1,174 @@
+{
+  "unit": "product-attributes",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "e329b5aec09f4594d2ae8a297ff346e71f0cfe1a82043373c1d995bcdc0b160a",
+  "tolerance_version": "v1",
+  "tolerance_sha256": "59f500708400dbd7ffb23dfbd9264b962cf6307e9a48ec678157cd2dbcdb4b68",
+  "collections": [
+    "productAttribute",
+    "productAttributeValue",
+    "updateProductAttributeValue"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-19T21:32:05.822944+00:00",
+  "redacted": true,
+  "redaction_salted": false,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 8,
+      "stats": {
+        "source_counts": {
+          "productAttribute": 14,
+          "productAttributeValue": 101,
+          "updateProductAttributeValue": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 16,
+      "stats": {
+        "deferred_to_tier3": [
+          "productAttribute.sequence",
+          "productAttribute.createUid",
+          "productAttribute.writeUid",
+          "productAttribute.createVariant",
+          "productAttribute.displayType",
+          "productAttribute.name",
+          "productAttribute.active",
+          "productAttribute.createDate",
+          "productAttribute.writeDate",
+          "productAttributeValue.sequence",
+          "productAttributeValue.color",
+          "productAttributeValue.createUid",
+          "productAttributeValue.writeUid",
+          "productAttributeValue.htmlColor",
+          "productAttributeValue.name",
+          "productAttributeValue.isCustom",
+          "productAttributeValue.active",
+          "productAttributeValue.createDate",
+          "productAttributeValue.writeDate",
+          "productAttributeValue.defaultExtraPrice",
+          "updateProductAttributeValue.createUid",
+          "updateProductAttributeValue.writeUid",
+          "updateProductAttributeValue.mode",
+          "updateProductAttributeValue.createDate",
+          "updateProductAttributeValue.writeDate"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "productAttribute.createVariant",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productAttribute.displayType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productAttribute.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productAttributeValue.htmlColor",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productAttributeValue.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "updateProductAttributeValue.mode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "productAttribute.name",
+            "key": "productAttribute"
+          },
+          {
+            "field": "productAttributeValue.name",
+            "key": "productAttributeValue"
+          }
+        ],
+        "fields_fully_deferred": 11
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 124,
+      "stats": {
+        "productAttribute": {
+          "mode": "full_diff",
+          "population": 14,
+          "duplicate_source_key_count": 0
+        },
+        "embeds_graded": {
+          "productAttribute.productTmplIds": 9
+        },
+        "productAttributeValue": {
+          "mode": "full_diff",
+          "population": 101,
+          "duplicate_source_key_count": 0
+        },
+        "updateProductAttributeValue": {
+          "mode": "full_diff",
+          "population": 0,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [
+    "UNVERIFIED collection updateProductAttributeValue: 0 source rows, key/shape/field rules unexercised"
+  ],
+  "verdict": "PASS",
+  "merge_eligible": false,
+  "error": null
+}

@@ -1,0 +1,46 @@
+{
+  "run_id": "UNT11-41",
+  "manifest_sha": "0b73271c13bf",
+  "wave_verdict": "PASS",
+  "unit_verdicts": {
+    "w2-b01": "PASS"
+  },
+  "recon_results": {
+    "w2-b01": [
+      ".migration/recon/wave-2/w2-b01/product-catalog/result.json"
+    ]
+  },
+  "findings": [
+    {
+      "batch": "w2-b01",
+      "class": "storage-path defect past the gate (resolved)",
+      "severity": "info",
+      "detail": "First pass at run-branch 72fca61: on a clone of the seeded source with sale/purchase/stock/account installed, `-u uom,product` failed to load the registry (account/security/ir.access.csv: `product.product is stored in MongoDB: no SQL for field 'uom_id' (not in _shadow_columns)`) and sale.report / purchase.report / account.invoice.report raised the same NotImplementedError (`_inherits`-delegated uom_id checked against product.product's _shadow_columns before the parent shadow join). User chose fix-then-close; fixed by UNT11-43 (PR #36, odoo/orm/query.py). Re-run at 1c9565e: `-u uom,product` exit 0 with 0 errors; sale.report 51, purchase.report 32, account.invoice.report 62, purchase.bill.line.match 27 \u2014 equal to the pre-opt-in baseline (odoo-base 03a3cb5 on a clone of the same source). Evidence d6-readers.log, d6-update-traceback-72fca61.log, d6-readers-counts.json."
+    },
+    {
+      "batch": "w2-b01",
+      "class": "PG views probe (closed)",
+      "severity": "info",
+      "detail": "After the fixed `-u uom,product` reduced the tables on the opted-in clone (moved product_template columns nullable, shadow uom_id NOT NULL kept, store prefix odoo_w2v_views__), report_stock_quantity 5268 / stock_avco_report 7 / vendor_delay_report 10 rows, equal to the pre-opt-in baseline on the same day."
+    },
+    {
+      "batch": "w2-b01",
+      "class": "accepted known test failure",
+      "severity": "info",
+      "detail": "product + uom suites on the fresh odoo_w2v_test2 database at run-branch 1c9565e: 1 failed, 0 error(s) of 161 tests; the one failure is test_get_closest_possible_combinations (0.8114664554595947 not less than 0.5; limit 0.5 s), the Atlas-latency timing test accepted by d-w2-timing-test = accept-known. Same 160/161 on the first pass (odoo_w2v_test at 72fca61). The unprefixed collections kept their counts throughout."
+    },
+    {
+      "batch": "w2-b01",
+      "class": "wave 1 re-check",
+      "severity": "info",
+      "detail": "The seven wave 1 collections still reconcile: uom PASS (T1 3 / T2 8 / T3 30), product-taxonomy PASS from the verifier's seeded clone (T1 10 / T2 13 / T3 13 / T4 4), product-attributes PASS (T1 8 / T2 16 / T3 124 / T4 2) with the accepted warning `UNVERIFIED collection updateProductAttributeValue: 0 source rows` (merge_eligible=false on that run for that reason only; the committed wave 1 results carry the same warning)."
+    },
+    {
+      "batch": "w2-b01",
+      "class": "preflight grading note",
+      "severity": "info",
+      "detail": "The committed batch result `.migration/recon/w2-b01.json` has `pr_url: \"\"`, so `preflight.py --grade` on it verbatim downgrades the batch to FAIL/missing_pr and then rejects this verifier result (`unexpected verdicts for w2-b01`). Graded with the batch's PR URL filled in (https://github.com/Cognition-Partner-Workshops/odoo/pull/33, a scratch copy outside the repo), `--grade ... --verify verify-result.json --run-id UNT11-41` exits 0: batch PASS, merge_eligible, `verify_problems: []`, `wave 2 OK: 1 batches, manifest_sha 0b73271c13bf`. The verifier did not edit the worker's batch file."
+    }
+  ],
+  "report_path": "recon/wave-2:.migration/recon/wave-2/verify-report.md"
+}

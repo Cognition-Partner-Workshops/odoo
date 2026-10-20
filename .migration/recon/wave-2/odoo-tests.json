@@ -1,0 +1,109 @@
+{
+ "test_db": "odoo_w2v_test2",
+ "unprefixed_before": {
+  "_connectivity_probe": 0,
+  "productAttribute": 14,
+  "productAttributeValue": 101,
+  "productBaseUnit": 2,
+  "productCategory": 8,
+  "productDocument": 2,
+  "productProduct": 48,
+  "productTag": 3,
+  "productTemplate": 38,
+  "productTemplateAttributeLine": 9,
+  "productTemplateAttributeValue": 24,
+  "productUom": 6,
+  "uomUom": 30,
+  "updateProductAttributeValue": 0
+ },
+ "unprefixed_after": {
+  "_connectivity_probe": 0,
+  "productAttribute": 14,
+  "productAttributeValue": 101,
+  "productBaseUnit": 2,
+  "productCategory": 8,
+  "productDocument": 2,
+  "productProduct": 48,
+  "productTag": 3,
+  "productTemplate": 38,
+  "productTemplateAttributeLine": 9,
+  "productTemplateAttributeValue": 24,
+  "productUom": 6,
+  "uomUom": 30,
+  "updateProductAttributeValue": 0
+ },
+ "unprefixed_unchanged": true,
+ "prefixed_test_collections": {
+  "odoo_w2v_test2__productAttribute": 5,
+  "odoo_w2v_test2__productAttributeValue": 0,
+  "odoo_w2v_test2__productBaseUnit": 0,
+  "odoo_w2v_test2__productCategory": 3,
+  "odoo_w2v_test2__productDocument": 0,
+  "odoo_w2v_test2__productProduct": 0,
+  "odoo_w2v_test2__productTag": 0,
+  "odoo_w2v_test2__productTemplate": 0,
+  "odoo_w2v_test2__productTemplateAttributeLine": 0,
+  "odoo_w2v_test2__productTemplateAttributeValue": 0,
+  "odoo_w2v_test2__productUom": 0,
+  "odoo_w2v_test2__uomUom": 30,
+  "odoo_w2v_test2__updateProductAttributeValue": 0
+ },
+ "shadow_parity": {
+  "product_product -> odoo_w2v_test2__productProduct": {
+   "shadow_columns_present": [
+    "id",
+    "product_tmpl_id",
+    "weight",
+    "volume",
+    "standard_price"
+   ],
+   "compared": [
+    "productTmplId",
+    "weight",
+    "volume",
+    "standardPrice"
+   ],
+   "shadow_rows": 0,
+   "documents": 0,
+   "mismatches": [],
+   "mismatch_count": 0
+  },
+  "product_template -> odoo_w2v_test2__productTemplate": {
+   "shadow_columns_present": [
+    "id",
+    "uom_id",
+    "categ_id",
+    "is_storable"
+   ],
+   "compared": [
+    "uomId",
+    "categId",
+    "isStorable"
+   ],
+   "shadow_rows": 0,
+   "documents": 0,
+   "mismatches": [],
+   "mismatch_count": 0
+  },
+  "uom_uom -> odoo_w2v_test2__uomUom": {
+   "shadow_columns_present": [
+    "id",
+    "factor"
+   ],
+   "compared": [
+    "factor"
+   ],
+   "shadow_rows": 30,
+   "documents": 30,
+   "mismatches": [],
+   "mismatch_count": 0
+  },
+  "product_category -> odoo_w2v_test2__productCategory": {
+   "shadow_columns_present": [
+    "id"
+   ],
+   "compared": [],
+   "note": "shadow column not installed in this database"
+  }
+ }
+}
