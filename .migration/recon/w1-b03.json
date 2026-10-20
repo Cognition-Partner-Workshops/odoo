@@ -1,0 +1,36 @@
+{
+  "batch": "w1-b03",
+  "status": "PASS",
+  "recon_results": [
+    ".migration/recon/uom-packaging/result.json"
+  ],
+  "fixture_results": [
+    ".migration/recon/uom-packaging/fixture/result.json"
+  ],
+  "write_targets": [
+    "odoo_unt12.uomUom",
+    "odoo_unt12.stockPackageType"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/62",
+  "branch": "devin/1792505452-w1-b03-uom-packaging",
+  "failure_class": "",
+  "manifest_sha": "b965d1e5f34e",
+  "plugin_sha": "9a584b4cdb311ddd64fb07cbd1cf35fc9485062c",
+  "mapping_version": "map-draft-2",
+  "recon_tolerances_version": "unt12-3",
+  "tier_checks": {
+    "live": [
+      11,
+      20,
+      37,
+      4
+    ],
+    "fixture": [
+      4,
+      20,
+      37,
+      4
+    ]
+  },
+  "one_line_summary": "uom-packaging: live PASS, merge_eligible true, 0 warnings; fixture PASS; 43/43 ORM scenario checks on the storage path; purchase.report/vendor.delay.report/stock.avco.report (product-taxonomy rows) got the uom-factor substitution too"
+}
