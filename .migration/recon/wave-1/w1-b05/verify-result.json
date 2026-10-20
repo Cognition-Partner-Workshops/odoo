@@ -1,0 +1,15 @@
+{
+ "batch": "w1-b05",
+ "verdict": "PASS",
+ "recon_results": [
+  ".migration/recon/wave-1/w1-b05/result.json"
+ ],
+ "findings": [
+  "Storage-path gap (UNT12-33, not patched): my fresh `createdb -T odoo_src` clone still carries PostgreSQL NOT NULL on product_attribute(create_variant, display_type, name) and product_attribute_value(attribute_id, name), so the first ORM create would hit the NotNullViolation the worker reported; this verify ran no ORM create, `-u product` or `--replace` reload, so the gap was reachable but not exercised here.",
+  "PR #59 is cut from acab458 and adds an `@api.constrains` mirror (`_check_multi_checkbox_no_variant_documents`) of the model's SQL CHECK; the run branch has since merged PR #58, which enforces CHECK constraints on the storage path (f73b4c71ec0), so the mirror is redundant after rebase. `git merge-tree` shows no conflicts; a manager call, not a verdict changer.",
+  "Both the worker's run and this re-run are redacted with unsalted hashes because no RECON_REDACT_SALT secret exists (harness stderr warning; result.json warnings stay empty, so the verdict is unaffected).",
+  "Plugin gap, unpatched: the installed mongo-recon-harness skill text (plugin 0.7.0) names a `--source-concurrency` flag that the pinned CLI at 9a584b4cdb311ddd64fb07cbd1cf35fc9485062c rejects; the flag was omitted.",
+  "No scenario rows exist for this unit: `.migration/load/seed_scenario_rows.py` seeds only the w1-b01 stock scenario, and `scenario_product_attributes.py` writes through the ORM, so it was not replayed under the write-nothing rule; the 14/101/9 fixture rows were verified instead."
+ ],
+ "report_path": "recon/verify-w1-b05:.migration/recon/wave-1/w1-b05/verify-report.md"
+}

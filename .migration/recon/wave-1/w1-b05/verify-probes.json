@@ -1,0 +1,427 @@
+{
+ "probes": [
+  {
+   "probe": "declared_collection_present",
+   "pass": true,
+   "evidence": [
+    "_connectivity_probe",
+    "accountCashRounding",
+    "accountIncoterms",
+    "accountJournalGroup",
+    "accountLockException",
+    "accountPaymentTerm",
+    "accountReport",
+    "accountReportExpression",
+    "accountReportExternalValue",
+    "productAttribute",
+    "productAttributeValueProductTemplateAttributeLineRel",
+    "productBaseUnit",
+    "productCategory",
+    "productDocument",
+    "productRemoval",
+    "productTag",
+    "returnReason",
+    "stockPackageType",
+    "stockScrapReasonTag",
+    "stockStorageCategory",
+    "uomUom"
+   ]
+  },
+  {
+   "probe": "other_collections_in_target_db",
+   "pass": true,
+   "evidence": "not in this batch: ['_connectivity_probe', 'accountCashRounding', 'accountIncoterms', 'accountJournalGroup', 'accountLockException', 'accountPaymentTerm', 'accountReport', 'accountReportExpression', 'accountReportExternalValue', 'productAttributeValueProductTemplateAttributeLineRel', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+  },
+  {
+   "probe": "row_count",
+   "pass": true,
+   "evidence": "source=14 target=14"
+  },
+  {
+   "probe": "not_empty",
+   "pass": true,
+   "evidence": "target=14"
+  },
+  {
+   "probe": "key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "boundary_max_id",
+   "pass": true,
+   "evidence": "id=14 present=True"
+  },
+  {
+   "probe": "sequence.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/14 target_missing_or_null=0/14"
+  },
+  {
+   "probe": "sequence.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/14 target_missing_or_null=0/14"
+  },
+  {
+   "probe": "createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/14 target_missing_or_null=0/14"
+  },
+  {
+   "probe": "writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "createVariant.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/14 target_missing_or_null=0/14"
+  },
+  {
+   "probe": "createVariant.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "displayType.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/14 target_missing_or_null=0/14"
+  },
+  {
+   "probe": "displayType.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/14 target_missing_or_null=0/14"
+  },
+  {
+   "probe": "name.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "active.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/14 target_missing_or_null=0/14"
+  },
+  {
+   "probe": "active.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/14 target_missing_or_null=0/14"
+  },
+  {
+   "probe": "createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/14 target_missing_or_null=0/14"
+  },
+  {
+   "probe": "writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "no_unmapped_root_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "productTemplateRel.array_length_vs_child_rows",
+   "pass": true,
+   "evidence": "parents_with_children=5 child_rows=9 mismatching_parents=[]"
+  },
+  {
+   "probe": "productTemplateRel.childless_parents_have_no_array",
+   "pass": true,
+   "evidence": "childless=[4, 2, 5, 8, 7, 6, 13, 1, 14] with_key=[]"
+  },
+  {
+   "probe": "productTemplateRel.length_distribution",
+   "pass": true,
+   "evidence": "array_lengths=[0, 1, 2] source_fanout_max=2"
+  },
+  {
+   "probe": "productTemplateRel.element_key_set",
+   "pass": true,
+   "evidence": "missing=[] extra=[] dup_elements=0"
+  },
+  {
+   "probe": "productTemplateRel.no_unmapped_element_fields",
+   "pass": true,
+   "evidence": "extra=[] observed_keys=['productTemplateId']"
+  },
+  {
+   "probe": "productTemplateRel.child_reference_not_wave1_sibling[productTemplate]",
+   "pass": true,
+   "evidence": "to=productTemplate wave1_siblings=['accountAccount', 'accountAccountTag', 'accountCashRounding', 'accountFiscalPosition', 'accountIncoterms', 'accountJournalGroup', 'accountLockException', 'accountPaymentTerm', 'accountReport', 'accountReportExpression', 'accountReportExternalValue', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+  },
+  {
+   "probe": "value.array_length_vs_child_rows",
+   "pass": true,
+   "evidence": "parents_with_children=11 child_rows=101 mismatching_parents=[]"
+  },
+  {
+   "probe": "value.childless_parents_have_no_array",
+   "pass": true,
+   "evidence": "childless=[4, 5, 14] with_key=[]"
+  },
+  {
+   "probe": "value.length_distribution",
+   "pass": true,
+   "evidence": "array_lengths=[0, 1, 3, 4, 5, 6, 9, 20, 40] source_fanout_max=40"
+  },
+  {
+   "probe": "value.element_key_set",
+   "pass": true,
+   "evidence": "missing=[] extra=[] dup_elements=0"
+  },
+  {
+   "probe": "value.no_unmapped_element_fields",
+   "pass": true,
+   "evidence": "extra=[] observed_keys=['active', 'color', 'createDate', 'createUid', 'defaultExtraPrice', 'htmlColor', 'id', 'isCustom', 'name', 'sequence', 'writeDate', 'writeUid']"
+  },
+  {
+   "probe": "value.sequence.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=62/101 target_missing_or_null=62/101"
+  },
+  {
+   "probe": "value.sequence.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "value.color.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/101 target_missing_or_null=0/101"
+  },
+  {
+   "probe": "value.color.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "value.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/101 target_missing_or_null=0/101"
+  },
+  {
+   "probe": "value.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "value.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/101 target_missing_or_null=0/101"
+  },
+  {
+   "probe": "value.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "value.htmlColor.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=81/101 target_missing_or_null=81/101"
+  },
+  {
+   "probe": "value.htmlColor.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "value.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/101 target_missing_or_null=0/101"
+  },
+  {
+   "probe": "value.name.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "value.isCustom.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=98/101 target_missing_or_null=98/101"
+  },
+  {
+   "probe": "value.isCustom.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "value.active.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/101 target_missing_or_null=0/101"
+  },
+  {
+   "probe": "value.active.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "value.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/101 target_missing_or_null=0/101"
+  },
+  {
+   "probe": "value.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "value.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/101 target_missing_or_null=0/101"
+  },
+  {
+   "probe": "value.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "value.defaultExtraPrice.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=86/101 target_missing_or_null=86/101"
+  },
+  {
+   "probe": "value.defaultExtraPrice.value_equality",
+   "pass": true,
+   "evidence": "differing_keys=[]"
+  },
+  {
+   "probe": "value.id_unique_across_collection",
+   "pass": true,
+   "evidence": "elements=101 distinct=101"
+  },
+  {
+   "probe": "product_attribute.sequence.boundary_values",
+   "pass": true,
+   "evidence": "source=(10,120) target=(10,120)"
+  },
+  {
+   "probe": "product_attribute_value.sequence.boundary_values",
+   "pass": true,
+   "evidence": "source=(0,20) target=(0,20)"
+  },
+  {
+   "probe": "product_attribute_value.default_extra_price.boundary_values",
+   "pass": true,
+   "evidence": "source=(2.0,300.0) target=(2.0,300.0)"
+  },
+  {
+   "probe": "product_attribute_value.color.boundary_values",
+   "pass": true,
+   "evidence": "source=(1,11) target=(1,11)"
+  },
+  {
+   "probe": "natural_keys_declared_none",
+   "pass": true,
+   "evidence": "natural_keys=[]"
+  },
+  {
+   "probe": "index[('value.sequence', 1), ('value.id', 1)]",
+   "pass": true,
+   "evidence": "matching=['value.sequence_1_value.id_1'] unique_required=False all=['_id_', 'productTemplateRel.productTemplateId_1', 'sequence_1', 'value.sequence_1_value.id_1']"
+  },
+  {
+   "probe": "index[('sequence', 1)]",
+   "pass": true,
+   "evidence": "matching=['sequence_1'] unique_required=False all=['_id_', 'productTemplateRel.productTemplateId_1', 'sequence_1', 'value.sequence_1_value.id_1']"
+  },
+  {
+   "probe": "index[('productTemplateRel.productTemplateId', 1)]",
+   "pass": true,
+   "evidence": "matching=['productTemplateRel.productTemplateId_1'] unique_required=False all=['_id_', 'productTemplateRel.productTemplateId_1', 'sequence_1', 'value.sequence_1_value.id_1']"
+  },
+  {
+   "probe": "productTemplateRel.productTemplateId->product_template.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=7 distinct, missing_in_source_table=[]"
+  },
+  {
+   "probe": "createUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=1 distinct, missing_in_source_table=[]"
+  },
+  {
+   "probe": "writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=1 distinct, missing_in_source_table=[]"
+  },
+  {
+   "probe": "value.createUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=1 distinct, missing_in_source_table=[]"
+  },
+  {
+   "probe": "value.writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=1 distinct, missing_in_source_table=[]"
+  },
+  {
+   "probe": "no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "references=[] wave1_siblings=['accountAccount', 'accountAccountTag', 'accountCashRounding', 'accountFiscalPosition', 'accountIncoterms', 'accountJournalGroup', 'accountLockException', 'accountPaymentTerm', 'accountReport', 'accountReportExpression', 'accountReportExternalValue', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+  },
+  {
+   "probe": "product_template_not_a_wave1_target",
+   "pass": true,
+   "evidence": "wave1_targets=['accountAccount', 'accountAccountTag', 'accountCashRounding', 'accountFiscalPosition', 'accountIncoterms', 'accountJournalGroup', 'accountLockException', 'accountPaymentTerm', 'accountReport', 'accountReportExpression', 'accountReportExternalValue', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'productAttribute', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+  },
+  {
+   "probe": "tier4_replay.attribute_list",
+   "pass": true,
+   "evidence": "source_rows=14 target_rows=14 first_diff=None"
+  },
+  {
+   "probe": "tier4_replay.attribute_values_by_attribute",
+   "pass": true,
+   "evidence": "source_rows=101 target_rows=101 first_diff=None"
+  },
+  {
+   "probe": "tier4_replay.attribute_template_pairs",
+   "pass": true,
+   "evidence": "source_rows=9 target_rows=9 first_diff=None"
+  },
+  {
+   "probe": "product_attribute.fresh_clone_not_null_columns",
+   "pass": true,
+   "evidence": "not_null_columns=['create_variant', 'display_type', 'name'] (gap reachable on first ORM create; not exercised by this read-only verify)"
+  },
+  {
+   "probe": "product_attribute_value.fresh_clone_not_null_columns",
+   "pass": true,
+   "evidence": "not_null_columns=['attribute_id', 'name'] (gap reachable on first ORM create; not exercised by this read-only verify)"
+  }
+ ],
+ "findings": []
+}
