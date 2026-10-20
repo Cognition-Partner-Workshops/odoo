@@ -27,9 +27,11 @@ class AccountAccountTag(models.Model):
 
     @api.constrains('name', 'applicability', 'country_id')
     def _check_name_uniq(self):
-        # mirrors _name_uniq: SQL unique constraints are not enforced for MongoDB-stored models
-        for tag in self:
-            if self.sudo().with_context(active_test=False).search_count([
+        # mirrors _name_uniq (SQL unique constraints are not enforced for MongoDB-stored models): a NULL
+        # country never collides, as in PostgreSQL; names are compared in en_US, the stored source value
+        Tag = self.sudo().with_context(active_test=False, lang='en_US')
+        for tag in Tag.filtered('country_id'):
+            if Tag.search_count([
                 ('id', '!=', tag.id), ('name', '=', tag.name), ('applicability', '=', tag.applicability),
                 ('country_id', '=', tag.country_id.id),
             ], limit=1):
