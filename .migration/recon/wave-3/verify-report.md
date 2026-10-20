@@ -145,7 +145,7 @@ Same check counts as the wave-2 verifier's runs (`.migration/recon/wave-2/`).
 .migration/recon/w3-b04.json` (plugin `0d6bcfd`): exit 0, every batch `status PASS`, `merge_eligible true`,
 `undeclared_write_targets []`, `wave 3 OK: 4 batches, manifest_sha 3548af4a78e1` (all four committed batch
 results carry their `pr_url`, so no scratch copy was needed). `--verify .migration/recon/wave-3/verify-result.json
---run-id UNT11-49`: __PREFLIGHT_VERIFY__
+--run-id UNT11-49`: run after this branch (`recon/wave-3`) was pushed, exit 0, `verify_problems: []`, `wave 3 OK: 4 batches, manifest_sha 3548af4a78e1`.
 
 ## Findings
 
