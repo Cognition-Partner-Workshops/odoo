@@ -34,7 +34,7 @@ die() { echo "build_source: $*" >&2; exit 1; }
 sql() { psql -X -q -v ON_ERROR_STOP=1 "$@"; }
 
 [ -n "${ODOO_PG_RO_DSN:-}" ] || die "ODOO_PG_RO_DSN is not set"
-RO_PASSWORD="$("$PY" -c 'import json, sys; print(json.loads(sys.argv[1])["password"])' "$ODOO_PG_RO_DSN")"
+RO_PASSWORD="$("$PY" -c 'import json, os; print(json.loads(os.environ["ODOO_PG_RO_DSN"])["password"])')"
 [ -n "$RO_PASSWORD" ] || die "ODOO_PG_RO_DSN carries no password"
 
 sudo -n pg_ctlcluster 16 main status >/dev/null 2>&1 || sudo -n pg_ctlcluster 16 main start
@@ -49,7 +49,8 @@ fi
 ODOO_BIN=("$PY" "$SRC_TREE/odoo-bin" --addons-path="$SRC_TREE/addons,$SRC_TREE/odoo/addons" -d "$DB" --db_port="$PGPORT" --log-level=warn)
 
 current=
-if [ "$(sql -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname = '$DB'")" = 1 ]; then
+if [ "$(sql -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname = '$DB'")" = 1 ] &&
+   [ "$(sql -d "$DB" -tAc "SELECT to_regclass('public.ir_config_parameter') IS NOT NULL")" = t ]; then
   current="$(sql -d "$DB" -tAc "SELECT value FROM ir_config_parameter WHERE key = '$MARKER'")"
 fi
 
@@ -87,7 +88,8 @@ fi
 
 # The role refresh runs on every invocation, so a rotated password or a lost privilege
 # heals on rerun. Nothing is written to the data after this point.
-sql -d "$DB" -v role="$ROLE" -v pw="$RO_PASSWORD" <<'SQL'
+RO_PASSWORD="$RO_PASSWORD" sql -d "$DB" -v role="$ROLE" <<'SQL'
+\getenv pw RO_PASSWORD
 SELECT format('CREATE ROLE %I LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION PASSWORD %L', :'role', :'pw')
 WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'role') \gexec
 SELECT format('ALTER ROLE %I LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION PASSWORD %L', :'role', :'pw') \gexec
