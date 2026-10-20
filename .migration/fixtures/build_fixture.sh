@@ -11,17 +11,20 @@ SRC=odoo_src
 DB=odoo_fixture
 FILESTORE=/home/ubuntu/.local/share/Odoo/filestore
 OUTLIER_CHILDREN=60
+RO_ROLE=odoo_ro
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
+MANIFEST="$ROOT/.migration/fixtures/odoo_fixture.json"
 
 export PGPORT=5433
 
 [ -d "$FILESTORE/$SRC" ] || { echo "build_fixture: missing filestore $FILESTORE/$SRC" >&2; exit 1; }
 
+rm -f "$MANIFEST" "$MANIFEST.tmp"
 dropdb --if-exists "$DB"
 createdb -T "$SRC" "$DB"
 rm -rf "$FILESTORE/$DB"
 cp -a "$FILESTORE/$SRC" "$FILESTORE/$DB"
 
 ROOT="$ROOT" FIXTURE_DB="$DB" SOURCE_DB="$SRC" OUTLIER_CHILDREN="$OUTLIER_CHILDREN" \
-  MANIFEST="$ROOT/.migration/fixtures/odoo_fixture.json" \
+  RO_ROLE="$RO_ROLE" MANIFEST="$MANIFEST" \
   "$PY" "$ROOT/.migration/fixtures/build_fixture.py"

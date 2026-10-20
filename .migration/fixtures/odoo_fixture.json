@@ -2,14 +2,17 @@
  "source": "odoo_src (migration.fixture_source=3, profile census_sha256=f34de2c831f935b87f82eca66bfcf5090dff76511aa5b94ffa285eff010fe101)",
  "method": "synthetic",
  "masked_columns": [],
- "produced_at": "2026-10-20T03:32:49+00:00",
+ "produced_at": "2026-10-20T03:40:01+00:00",
  "produced_by": ".migration/fixtures/build_fixture.sh",
  "database": "odoo_fixture",
  "filestore": "~/.local/share/Odoo/filestore/odoo_fixture",
  "synthetic_outlier": {
   "relationship": "fanout:product_supplierinfo->product_template(product_tmpl_id)",
   "product_template_id": 38,
+  "product_product_id": 56,
+  "stock_quants_copied_from_sibling": 4,
   "children": 60,
+  "uom_id": "round-robin over uom_uom",
   "product_code_prefix": "FIXTURE-OUTLIER-"
  },
  "row_counts": {
@@ -119,7 +122,7 @@
   "product_optional_rel": 3,
   "product_pricelist": 0,
   "product_pricelist_item": 0,
-  "product_product": 47,
+  "product_product": 48,
   "product_product_uom_uom_rel": 0,
   "product_removal": 4,
   "product_replenish": 0,
@@ -203,7 +206,7 @@
   "stock_picking_type_label_layout": 0,
   "stock_put_in_pack": 0,
   "stock_putaway_rule": 0,
-  "stock_quant": 55,
+  "stock_quant": 59,
   "stock_quant_relocate": 0,
   "stock_quant_stock_quant_relocate_rel": 0,
   "stock_quant_stock_request_count_rel": 0,
@@ -2714,9 +2717,9 @@
     "max": 28
    },
    "fixture": {
-    "p50": 0,
-    "p99": 88,
-    "max": 88
+    "p50": 2,
+    "p99": 30,
+    "max": 30
    }
   },
   {
@@ -5130,8 +5133,8 @@
    },
    "fixture": {
     "p50": 0,
-    "p99": 24,
-    "max": 24
+    "p99": 25,
+    "max": 25
    }
   },
   {

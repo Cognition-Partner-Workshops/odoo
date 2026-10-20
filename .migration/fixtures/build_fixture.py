@@ -6,7 +6,9 @@ extra rows do not pull any other fan-out's percentiles below the profile),
 counts every in-scope table, recomputes every in-scope fan-out with the pinned
 profile's query shape and nearest-rank percentiles, fails if the fixture is below
 the profile on p50/p99/max, lists fan-outs skipped for an empty parent table and
-writes the manifest accepted by preflight.py::validate_fixture_manifest.
+writes the manifest accepted by preflight.py::validate_fixture_manifest. Database
+ACLs are not part of a template copy, so the source's PUBLIC revoke and odoo_ro
+CONNECT grant are re-applied here.
 Connects with libpq defaults (PGPORT from the caller); never opens the source.
 """
 import json
@@ -20,6 +22,8 @@ import psycopg2
 root = os.environ["ROOT"]
 fixtureDb, sourceDb = os.environ["FIXTURE_DB"], os.environ["SOURCE_DB"]
 outlierChildren = int(os.environ["OUTLIER_CHILDREN"])
+readOnlyRole = os.environ["RO_ROLE"]
+manifestPath = os.environ["MANIFEST"]
 outlierRel = "fanout:product_supplierinfo->product_template(product_tmpl_id)"
 PCTS = ("p50", "p99", "max")
 
@@ -76,21 +80,41 @@ if not row:
     sys.exit(f"build_fixture: {fixtureDb} carries no migration.fixture_source marker")
 sourceMarker = row[0]
 
-# synthetic outlier: copy the template with the most vendor pricelist lines, then
-# clone one of its lines OUTLIER_CHILDREN times under the new template
+cur.execute(f"REVOKE ALL ON DATABASE {q(fixtureDb)} FROM PUBLIC")
+cur.execute(f"GRANT CONNECT ON DATABASE {q(fixtureDb)} TO {q(readOnlyRole)}")
+
+# synthetic outlier: copy the template with the most vendor pricelist lines (with
+# one variant, as the ORM would create, stocked like the sibling variant it is
+# copied from so the stock_quant fan-out keeps its median), then clone one of its lines
+# OUTLIER_CHILDREN times under the new template. uom_id is spread round-robin
+# over uom_uom so the vendor lines do not become a second outlier on uom fan-outs.
 cur.execute("SELECT product_tmpl_id, MIN(id) FROM product_supplierinfo GROUP BY 1 ORDER BY COUNT(*) DESC, 1 LIMIT 1")
 baseTmpl, baseLine = cur.fetchone()
+cur.execute("SELECT MIN(id) FROM product_product WHERE product_tmpl_id=%s", (baseTmpl,))
+baseVariant = cur.fetchone()[0]
+cur.execute("SELECT id FROM uom_uom ORDER BY id")
+uomIds = [u for (u,) in cur.fetchall()]
 cols = ", ".join(map(q, columns("product_template", {"id", "name", "default_code"})))
 cur.execute(f"INSERT INTO product_template (name, {cols}) "
             f"SELECT %s::jsonb, {cols} FROM product_template WHERE id=%s RETURNING id",
             (json.dumps({"en_US": f"Fixture outlier template ({outlierChildren} vendor lines)"}), baseTmpl))
 outlierTmpl = cur.fetchone()[0]
+cols = ", ".join(map(q, columns("product_product",
+                                {"id", "product_tmpl_id", "default_code", "barcode", "combination_indices"})))
+cur.execute(f"INSERT INTO product_product (product_tmpl_id, default_code, {cols}) "
+            f"SELECT %s, 'FIXTURE-OUTLIER', {cols} FROM product_product WHERE id=%s RETURNING id",
+            (outlierTmpl, baseVariant))
+outlierVariant = cur.fetchone()[0]
+cols = ", ".join(map(q, columns("stock_quant", {"id", "product_id"})))
+cur.execute(f"INSERT INTO stock_quant (product_id, {cols}) SELECT %s, {cols} FROM stock_quant WHERE product_id=%s",
+            (outlierVariant, baseVariant))
+quants = cur.rowcount
 cols = ", ".join(map(q, columns("product_supplierinfo",
-                                {"id", "product_tmpl_id", "product_id", "product_code", "sequence"})))
+                                {"id", "product_tmpl_id", "product_id", "product_code", "sequence", "uom_id"})))
 for i in range(1, outlierChildren + 1):
-    cur.execute(f"INSERT INTO product_supplierinfo (product_tmpl_id, product_id, product_code, sequence, {cols}) "
-                f"SELECT %s, NULL, %s, %s, {cols} FROM product_supplierinfo WHERE id=%s",
-                (outlierTmpl, f"FIXTURE-OUTLIER-{i:02d}", i, baseLine))
+    cur.execute(f"INSERT INTO product_supplierinfo (product_tmpl_id, product_id, product_code, sequence, uom_id, {cols}) "
+                f"SELECT %s, NULL, %s, %s, %s, {cols} FROM product_supplierinfo WHERE id=%s",
+                (outlierTmpl, f"FIXTURE-OUTLIER-{i:02d}", i, uomIds[(i - 1) % len(uomIds)], baseLine))
 cur.execute("INSERT INTO ir_config_parameter (key, value) VALUES ('migration.fixture', %s)",
             (f"{sourceDb}:migration.fixture_source={sourceMarker}",))
 
@@ -138,7 +162,6 @@ if failures:
     for f in failures:
         print("  " + f, file=sys.stderr)
     sys.exit(1)
-conn.commit()
 
 manifest = {
     "source": f"{sourceDb} (migration.fixture_source={sourceMarker}, "
@@ -152,7 +175,10 @@ manifest = {
     "synthetic_outlier": {
         "relationship": outlierRel,
         "product_template_id": outlierTmpl,
+        "product_product_id": outlierVariant,
+        "stock_quants_copied_from_sibling": quants,
         "children": outlierChildren,
+        "uom_id": "round-robin over uom_uom",
         "product_code_prefix": "FIXTURE-OUTLIER-",
     },
     "row_counts": rowCounts,
@@ -165,9 +191,13 @@ manifest = {
     "fanouts": compared,
     "fanouts_skipped": skipped,
 }
-with open(os.environ["MANIFEST"], "w") as fh:
+# serialise before committing, publish after: a failed write never leaves a
+# rebuilt database next to a stale manifest (the wrapper removed the old one)
+with open(manifestPath + ".tmp", "w") as fh:
     json.dump(manifest, fh, indent=1)
     fh.write("\n")
-print(f"build_fixture: {fixtureDb} outlier product_template id={outlierTmpl} supplierinfo_lines={outlierChildren}; "
+conn.commit()
+os.replace(manifestPath + ".tmp", manifestPath)
+print(f"build_fixture: {fixtureDb} outlier product_template id={outlierTmpl} variant id={outlierVariant} supplierinfo_lines={outlierChildren}; "
       f"fan-outs compared={len(compared)} skipped_empty_parent={len(skipped)}; "
       f"tables={len(rowCounts)} rows={sum(rowCounts.values())}")
