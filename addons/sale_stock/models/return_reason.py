@@ -7,6 +7,7 @@ class ReturnReason(models.Model):
     _name = "return.reason"
     _description = "Return Reason"
     _order = "sequence"
+    _storage = 'mongodb'
 
     name = fields.Char(string="Reason", required=True, translate=True)
     sequence = fields.Integer(default=10)

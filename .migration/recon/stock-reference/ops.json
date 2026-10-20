@@ -1,0 +1,20 @@
+[
+  {
+    "name": "return_reason_choices",
+    "collection": "returnReason",
+    "source_sql": "SELECT id, sequence, name->>'en_US' AS name FROM return_reason",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "sequence": 1, "name": "$name.en_US"}}]
+  },
+  {
+    "name": "storage_category_rules",
+    "collection": "stockStorageCategory",
+    "source_sql": "SELECT id, name, allow_new_product, max_weight, company_id FROM stock_storage_category",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "name": 1, "allow_new_product": "$allowNewProduct", "max_weight": "$maxWeight", "company_id": {"$ifNull": ["$companyId", null]}}}]
+  },
+  {
+    "name": "scrap_reason_tags",
+    "collection": "stockScrapReasonTag",
+    "source_sql": "SELECT id, name->>'en_US' AS name, sequence, color FROM stock_scrap_reason_tag",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "name": "$name.en_US", "sequence": 1, "color": 1}}]
+  }
+]
