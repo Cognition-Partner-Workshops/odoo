@@ -160,6 +160,13 @@ for tbl_ in (TBL, 'product_attribute_value'):
     nn = [r[0] for r in q("SELECT column_name FROM information_schema.columns WHERE table_name = %s AND is_nullable = 'NO' AND column_name <> 'id' ORDER BY 1", tbl_)]
     ok(f'{tbl_}.fresh_clone_not_null_columns', True, f'not_null_columns={nn} (gap reachable on first ORM create; not exercised by this read-only verify)')
 
+
+# the many2many relation the spec leaves in PostgreSQL must have no documents on the target
+REL = 'productAttributeValueProductTemplateAttributeLineRel'
+rel_n = db[REL].count_documents({}) if REL in present else 0
+ok(f'{REL}.zero_documents', rel_n == 0, f'documents={rel_n} collection_present={REL in present}')
+ok('row_count_equals_source', src_n == coll.count_documents({}), f'source={src_n} target_count_documents={coll.count_documents({})}')
+
 print(json.dumps({'probes': probes, 'findings': findings}, indent=1, default=str))
 print(f"# probes={len(probes)} passed={sum(p['pass'] for p in probes)} failed={len(findings)}", file=sys.stderr)
 for f in findings: print('# FINDING', f, file=sys.stderr)

@@ -5,7 +5,10 @@
    "pass": true,
    "evidence": [
     "_connectivity_probe",
+    "accountAccount",
+    "accountAccountTag",
     "accountCashRounding",
+    "accountFiscalPosition",
     "accountIncoterms",
     "accountJournalGroup",
     "accountLockException",
@@ -13,6 +16,9 @@
     "accountReport",
     "accountReportExpression",
     "accountReportExternalValue",
+    "accountTax",
+    "accountTaxGroup",
+    "accountTaxRepartitionLine",
     "productAttribute",
     "productAttributeValueProductTemplateAttributeLineRel",
     "productBaseUnit",
@@ -30,7 +36,7 @@
   {
    "probe": "other_collections_in_target_db",
    "pass": true,
-   "evidence": "not in this batch: ['_connectivity_probe', 'accountCashRounding', 'accountIncoterms', 'accountJournalGroup', 'accountLockException', 'accountPaymentTerm', 'accountReport', 'accountReportExpression', 'accountReportExternalValue', 'productAttributeValueProductTemplateAttributeLineRel', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+   "evidence": "not in this batch: ['_connectivity_probe', 'accountAccount', 'accountAccountTag', 'accountCashRounding', 'accountFiscalPosition', 'accountIncoterms', 'accountJournalGroup', 'accountLockException', 'accountPaymentTerm', 'accountReport', 'accountReportExpression', 'accountReportExternalValue', 'accountTax', 'accountTaxGroup', 'accountTaxRepartitionLine', 'productAttributeValueProductTemplateAttributeLineRel', 'productBaseUnit', 'productCategory', 'productDocument', 'productRemoval', 'productTag', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
   },
   {
    "probe": "row_count",
@@ -160,7 +166,7 @@
   {
    "probe": "productTemplateRel.childless_parents_have_no_array",
    "pass": true,
-   "evidence": "childless=[4, 2, 5, 8, 7, 6, 13, 1, 14] with_key=[]"
+   "evidence": "childless=[14, 6, 1, 5, 13, 4, 2, 7, 8] with_key=[]"
   },
   {
    "probe": "productTemplateRel.length_distribution",
@@ -190,7 +196,7 @@
   {
    "probe": "value.childless_parents_have_no_array",
    "pass": true,
-   "evidence": "childless=[4, 5, 14] with_key=[]"
+   "evidence": "childless=[14, 5, 4] with_key=[]"
   },
   {
    "probe": "value.length_distribution",
@@ -421,6 +427,16 @@
    "probe": "product_attribute_value.fresh_clone_not_null_columns",
    "pass": true,
    "evidence": "not_null_columns=['attribute_id', 'name'] (gap reachable on first ORM create; not exercised by this read-only verify)"
+  },
+  {
+   "probe": "productAttributeValueProductTemplateAttributeLineRel.zero_documents",
+   "pass": true,
+   "evidence": "documents=0 collection_present=True"
+  },
+  {
+   "probe": "row_count_equals_source",
+   "pass": true,
+   "evidence": "source=14 target_count_documents=14"
   }
  ],
  "findings": []

@@ -1,0 +1,75 @@
+{
+    "probes": [
+        {
+            "probe": "storage_path_active",
+            "pass": true,
+            "evidence": "product.attribute=mongodb product.attribute.value=mongodb product.template.attribute.line=postgresql"
+        },
+        {
+            "probe": "product.attribute.count",
+            "pass": true,
+            "evidence": "pg=14 orm_search_count=14 documents=14"
+        },
+        {
+            "probe": "product.attribute.ids",
+            "pass": true,
+            "evidence": "search([]) ids vs ORDER BY sequence, id"
+        },
+        {
+            "probe": "product.attribute.value.count",
+            "pass": true,
+            "evidence": "pg=101 orm=101"
+        },
+        {
+            "probe": "product.template.attribute.line.value_ids",
+            "pass": true,
+            "evidence": "lines=9 rel_rows=24 orm_pairs=24 mismatching_lines=[]"
+        },
+        {
+            "probe": "product.template.attribute.line.value_ids.expected_shape",
+            "pass": true,
+            "evidence": "rel_rows=24 lines_with_values=9 (manager expects 24 across 9)"
+        },
+        {
+            "probe": "product.attribute.value.pav_attribute_line_ids",
+            "pass": true,
+            "evidence": "values=101 orm_pairs=24 mismatching_values=[]"
+        },
+        {
+            "probe": "rel_pairs_symmetric",
+            "pass": true,
+            "evidence": "pairs=24"
+        },
+        {
+            "probe": "product.attribute.value.attribute_id",
+            "pass": true,
+            "evidence": "values=101"
+        },
+        {
+            "probe": "product.attribute.value_ids",
+            "pass": true,
+            "evidence": "attributes=14"
+        },
+        {
+            "probe": "product.attribute.product_tmpl_ids",
+            "pass": true,
+            "evidence": "pairs=9"
+        },
+        {
+            "probe": "product.attribute.scalars",
+            "pass": true,
+            "evidence": "differing=[]"
+        },
+        {
+            "probe": "product.attribute.value.scalars",
+            "pass": true,
+            "evidence": "differing=[]"
+        },
+        {
+            "probe": "relation_collection_zero_documents",
+            "pass": true,
+            "evidence": "documents=0"
+        }
+    ],
+    "findings": []
+}
