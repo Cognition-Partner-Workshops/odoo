@@ -35,6 +35,6 @@
     ]
   },
   "one_line_summary": "account-journal: live PASS, merge_eligible true, 0 warnings (tiers 36/38/41/5); fixture PASS; 31/31 ORM scenario checks on a prefixed clone of mongo-run/unt12@7fee6d9d335; 5 models opted in; dashboard, bank-statement validity and payment-method-information SQL read journals through the ORM (unnest of ORM ids/pairs); shared loader gains composite-key relation collections (accountReconcileModelLineAccountTaxRel); analytic_distribution search rewritten for MongoDB-stored analytic.mixin models; storage gap reported (Json field write fails in storage_mongodb.write_multi); kpi_provider.get_kpi_summary stays BLOCKED for the manager (s2.3 \u00a73a row 23)",
-  "head_sha": "aa9726626fbea519cffce1f29d8678a0eb80fdf0",
+  "head_sha": "7896d8ac3c82a6746e1d41ced63fbfd677406bbb",
   "base": "mongo-run/unt12@7fee6d9d335"
 }
