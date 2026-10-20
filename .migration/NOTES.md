@@ -290,21 +290,21 @@ and the two cited lifecycle exceptions below.
 
 Coverage: 223 = 66 roots + 76 embedded + 81 transient (s3.1 answers.txt `close transient_tables`: scratch state, stays on PostgreSQL).
 
-| unit | depth | batch | collections | embedded tables | fixture rows | depends_on | forward refs to | register rows (R/S/B/orm) | 0-row collections |
-|---|---|---|---|---|---|---|---|---|---|
-| uom-packaging | 0 | w1-b02 | 2 | 2 | 32 | — | stock-config | 0/0/0/0 | — |
-| stock-reference | 0 | w1-b02 | 3 | 0 | 11 | — | — | 0/0/0/0 | stockScrapReasonTag |
-| product-taxonomy | 0 | w1-b02 | 5 | 3 | 13 | — | product-catalog, stock-config | 0/0/0/0 | productTag, productBaseUnit |
-| product-attributes | 0 | w1-b03 | 1 | 2 | 124 | — | product-catalog | 0/0/0/0 | — |
-| account-settings | 0 | w1-b01 | 8 | 7 | 47 | — | account-journal | 1/0/0/0 | accountCashRounding, accountJournalGroup, accountLockException, accountReportExpression, accountReportExternalValue |
-| account-chart | 0 | w1-b04 | 6 | 15 | 981 | — | account-ledger, product-catalog, purchase, sale | 7/1/1/1 | — |
-| account-journal | 1 | w2-b01 | 4 | 4 | 38 | account-chart, account-settings | — | 2/0/0/0 | accountReconcileModelLineAccountTaxRel |
-| product-catalog | 1 | w2-b02 | 8 | 13 | 269 | product-attributes, product-taxonomy, uom-packaging | purchase, sale, stock-ops | 0/0/2/0 | productPricelist, productPricelistItem |
-| stock-config | 2 | w3-b01 | 8 | 7 | 75 | account-chart, product-catalog, product-taxonomy, stock-reference, uom-packaging | stock-ops | 0/0/0/1 | stockPutawayRule, stockStorageCategoryCapacity |
-| sale | 3 | w4-b01 | 2 | 6 | 82 | account-chart, account-journal, account-settings, product-catalog, stock-config, uom-packaging | account-ledger | 5/0/0/4 | — |
-| purchase | 4 | w5-b01 | 2 | 2 | 52 | account-chart, account-settings, product-catalog, sale, stock-config, uom-packaging | account-ledger, stock-ops | 6/0/0/4 | — |
-| stock-ops | 5 | w6-b01 | 10 | 9 | 485 | product-catalog, purchase, sale, stock-config, stock-reference, uom-packaging | account-ledger | 6/0/2/3 | stockPackageHistory |
-| account-ledger | 6 | w7-b01 | 7 | 6 | 307 | account-chart, account-journal, account-settings, product-catalog, purchase, stock-ops, uom-packaging | — | 47/1/1/5 | accountPartialReconcile, accountFullReconcile, accountPayment |
+| unit | depth | batch | collections | embedded tables | fixture rows | depends_on | forward refs to | register rows owned (R/S/B/orm) | rows also touching it | 0-row collections |
+|---|---|---|---|---|---|---|---|---|---|---|
+| uom-packaging | 0 | w1-b03 | 2 | 2 | 32 | — | stock-config | 3/0/0/0 | 4 | — |
+| stock-reference | 0 | w1-b01 | 3 | 0 | 11 | — | — | 0/0/0/0 | 0 | stockScrapReasonTag |
+| product-taxonomy | 0 | w1-b02 | 5 | 3 | 13 | — | product-catalog, stock-config | 3/0/0/0 | 2 | productTag, productBaseUnit |
+| product-attributes | 0 | w1-b05 | 1 | 2 | 124 | — | product-catalog | 0/0/0/0 | 0 | — |
+| account-settings | 0 | w1-b04 | 8 | 7 | 47 | — | account-journal | 2/0/0/0 | 2 | accountCashRounding, accountJournalGroup, accountLockException, accountReportExpression, accountReportExternalValue |
+| account-chart | 0 | w1-b06 | 6 | 15 | 981 | — | account-ledger, product-catalog, purchase, sale | 18/1/1/1 | 0 | — |
+| account-journal | 1 | w2-b01 | 4 | 4 | 38 | account-chart, account-settings | — | 5/0/1/0 | 3 | accountReconcileModelLineAccountTaxRel |
+| product-catalog | 1 | w2-b02 | 8 | 13 | 269 | product-attributes, product-taxonomy, uom-packaging | purchase, sale, stock-ops | 0/0/2/1 | 7 | productPricelist, productPricelistItem |
+| stock-config | 2 | w3-b01 | 8 | 7 | 75 | account-chart, product-catalog, product-taxonomy, stock-reference, uom-packaging | stock-ops | 1/0/0/2 | 1 | stockPutawayRule, stockStorageCategoryCapacity |
+| sale | 3 | w4-b01 | 2 | 6 | 82 | account-chart, account-journal, account-settings, product-catalog, stock-config, uom-packaging | account-ledger | 2/0/0/4 | 4 | — |
+| purchase | 4 | w5-b01 | 2 | 2 | 52 | account-chart, account-settings, product-catalog, sale, stock-config, uom-packaging | account-ledger, stock-ops | 5/0/0/4 | 5 | — |
+| stock-ops | 5 | w6-b01 | 10 | 9 | 485 | product-catalog, purchase, sale, stock-config, stock-reference, uom-packaging | account-ledger | 4/0/2/2 | 4 | stockPackageHistory |
+| account-ledger | 6 | w7-b01 | 7 | 6 | 307 | account-chart, account-journal, account-settings, product-catalog, purchase, stock-ops, uom-packaging | — | 31/1/0/4 | 22 | accountPartialReconcile, accountFullReconcile, accountPayment |
 
 Dependencies and depth. `depends_on` is every other unit reached by a `decision.references` row or an embed
 `child_references` row whose unit sits at a lower depth; the columns are listed per unit in `depends_on_edges`. Depth is
@@ -351,12 +351,12 @@ writes the array):
 
 21 forward junction arrays
 
-Waves are the depths (wave = depth + 1), one unit per batch except the depth-0 reference units with no register row and
-under 100 fixture rows, which share `w1-b02`; batches are listed smallest first and the first is the wave's canary:
+Waves are the depths (wave = depth + 1), one unit per batch, 13 batches; batches are listed smallest first and the
+first is the wave's canary. The manager may merge the small depth-0 batches at preflight (1–5 units per batch):
 
 | wave | depth | batches (smallest first) |
 |---|---|---|
-| 1 | 0 | `w1-b01` account-settings (47 rows); `w1-b02` stock-reference, product-taxonomy, uom-packaging (56 rows); `w1-b03` product-attributes (124 rows); `w1-b04` account-chart (981 rows) |
+| 1 | 0 | `w1-b01` stock-reference (11 rows); `w1-b02` product-taxonomy (13 rows); `w1-b03` uom-packaging (32 rows); `w1-b04` account-settings (47 rows); `w1-b05` product-attributes (124 rows); `w1-b06` account-chart (981 rows) |
 | 2 | 1 | `w2-b01` account-journal (38 rows); `w2-b02` product-catalog (269 rows) |
 | 3 | 2 | `w3-b01` stock-config (75 rows) |
 | 4 | 3 | `w4-b01` sale (82 rows) |
@@ -364,9 +364,19 @@ under 100 fixture rows, which share `w1-b02`; batches are listed smallest first 
 | 6 | 5 | `w6-b01` stock-ops (485 rows) |
 | 7 | 6 | `w7-b01` account-ledger (307 rows) |
 
+Register placement. A raw-SQL statement, report or view breaks the moment the *first* table it reads loses its
+PostgreSQL columns, so every §1–§3 row is owned by the lowest-depth (earliest-wave) unit among all the migrated tables
+it names, and every other unit it names is listed in `also_touches`; those units carry the row again under
+`register_rows_touching_later` (owner named) so their batch re-checks the rewrite when their own tables move. This
+supersedes the §6 sentence that attaches the 5 `_table_sql` reports and 3 views to their driving table's unit: `sale.report`
+joins `uom_uom`, so it is rewritten (two-store: MongoDB for the migrated tables, PostgreSQL for the rest) in the uom batch
+of wave 1 and re-checked by product-catalog (wave 2) and sale (wave 4); the dashboard row 12 goes to account-journal
+(wave 2) and is re-checked by account-ledger (wave 7); `purchase.bill.union` reads `account_move` and `purchase_order`, so it goes to purchase (wave 5)
+and is re-checked by account-ledger. Hooks (§4) go to the unit owning
+the module's main model.
+
 Register fidelity: every §1–§5 row is copied into `units.json` with its disposition letter unchanged (`raw_sql`, `crons`,
-`reports_and_views`, `hooks` per unit; §5 and the five S rows that name no migrated table under `estate`) and assigned to
-the unit owning the first in-scope table the row names (hooks: the unit owning the module's main model). The generator
+`reports_and_views`, `hooks` per unit; §5 and the five S rows that name no migrated table under `estate`). The generator
 re-counts §3a (32 rows / 58 sites, R 24 S 4 B 4) and §3b (42 / 45, R 40 S 2) against the totals lines above and refuses on
 any difference. Two register quirks are read as written: §3b row 27 puts verb and table in one cell, and §5 row 3
 ("handled by the model") carries no letter (`disposition: model`).

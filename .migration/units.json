@@ -34,8 +34,8 @@
   "depends_on = every other unit reached by a decision.references row or an embed child_references row whose target unit sits at a lower depth; depends_on_edges lists the columns.",
   "Depth is the longest hard-dependency path. Hard edges are decision.references columns and the FK columns of 1:N embedded child rows (child_key id). Junction-array child_references (two-column key, one field) are not hard: the element holds only the referenced row's integer id, which is the same value on PostgreSQL (id shadow, s2.3 disposition S) and on MongoDB (_id), so the array loads and the ORM resolves it before or after the referenced collection migrates; NOTES.md s3.3 lists, from ir_model_fields in odoo_src, which model's Many2many field writes each forward junction. The two plain FK columns in forward_exceptions are cited to the code that creates the target row after the owning row.",
   "forward_refs = references to units at the same or a later depth; they resolve through the id shadow (s2.3 disposition S) until that unit migrates. No two units of the same depth reference each other (checked), so no batch references a sibling batch's collection.",
-  "Waves are the depths (wave = depth + 1). One unit per batch, except that depth-0 reference units with no register row and fewer than 100 fixture rows share one batch. Batches within a wave are listed smallest fixture_rows first, the first being the wave's canary. Shared and reference collections (uom, product category, package types, chart of accounts, ...) sit at depth 0 and 1, waves 1 and 2.",
-  "Raw-SQL, cron, view and hook rows are copied from the s2.3 register with their disposition letter unchanged and assigned to the unit owning the first in-scope table the row names (hooks: the unit owning the module's main model); rows naming no migrated table are listed under estate.register_rows_without_unit.",
+  "Waves are the depths (wave = depth + 1), one unit per batch. Batches within a wave are listed smallest fixture_rows first, the first being the wave's canary; the manager may merge small depth-0 batches at preflight (1-5 units per batch). Shared and reference collections (uom, product category, package types, chart of accounts, ...) sit at depth 0 and 1, waves 1 and 2.",
+  "Raw-SQL, cron, view and hook rows are copied from the s2.3 register with their disposition letter unchanged. A row is owned by the lowest-depth (earliest-wave) unit among every migrated table it names, because the statement breaks as soon as the first of those tables loses its PostgreSQL columns; the other units it names are listed in also_touches and carry the row under register_rows_touching_later, so their batch re-checks the rewrite when their own tables move. Hooks go to the unit owning the module's main model; rows naming no migrated table are listed under estate.register_rows_without_unit.",
   "fixture_rows come from the committed fixture manifest (odoo_fixture = odoo_src clone + one outlier); a unit whose collection has 0 fixture rows is flagged recon_unverified and needs a seed scenario before its recon can grade PASS.",
   "Scenarios are the Odoo test files whose env[...] references land mostly on the unit's tables (run with --test-tags on the module), the register's report/view read_group checks, the cron bodies, and a seed for every 0-row collection."
  ],
@@ -323,29 +323,176 @@
      "stockPackageType.stockRouteRel.stock_route_id → stockRoute (junction)"
     ]
    },
-   "raw_sql": [],
+   "raw_sql": [
+    {
+     "register": "s2.3 §3a row 19",
+     "disposition": "R",
+     "disposition_text": "R — cross-collection; two-step (ids from one store, filter in the other)",
+     "where": "product.template `_check_uom_not_in_invoice` (addons/account/models/product.py:246)",
+     "what": "SELECT: account_move_line ⋈ product_product ⋈ product_template ⋈ uom_uom — `@api.constrains('uom_id')` (cold)",
+     "migrated_tables": [
+      "account_move_line",
+      "product_product",
+      "product_template",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "product-catalog",
+      "account-ledger"
+     ]
+    }
+   ],
    "crons": [],
-   "reports_and_views": [],
+   "reports_and_views": [
+    {
+     "register": "s2.3 §2 row sale.report (addons/sale/report/sale_report.py:11)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "sale.report (addons/sale/report/sale_report.py:11)",
+     "what": "sale_order_line, sale_order, product_product, product_template, uom_uom (+ res_partner, res_currency rate on PostgreSQL)",
+     "migrated_tables": [
+      "sale_order_line",
+      "sale_order",
+      "product_product",
+      "product_template",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "product-catalog",
+      "sale"
+     ]
+    },
+    {
+     "register": "s2.3 §2 row report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "what": "stock_move, stock_quant, stock_location, stock_warehouse, product_product, product_template, uom_uom",
+     "migrated_tables": [
+      "stock_move",
+      "stock_quant",
+      "stock_location",
+      "stock_warehouse",
+      "product_product",
+      "product_template",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "product-catalog",
+      "stock-config",
+      "stock-ops"
+     ]
+    }
+   ],
    "hooks": [],
    "blocked": [],
+   "register_rows_touching_later": [
+    {
+     "register": "s2.3 §2 row purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "what": "purchase_order_line, purchase_order, product_product, product_template, uom_uom, product_category",
+     "migrated_tables": [
+      "purchase_order_line",
+      "purchase_order",
+      "product_product",
+      "product_template",
+      "uom_uom",
+      "product_category"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "purchase"
+     ],
+     "owner": "product-taxonomy"
+    },
+    {
+     "register": "s2.3 §2 row account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "what": "account_move_line, account_move, product_product, product_template, uom_uom, account_account",
+     "migrated_tables": [
+      "account_move_line",
+      "account_move",
+      "product_product",
+      "product_template",
+      "uom_uom",
+      "account_account"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §2 row stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "what": "stock_move, stock_picking, product_value, product_product, product_template, product_category, uom_uom (+ ir_default, ir_model_fields)",
+     "migrated_tables": [
+      "stock_move",
+      "stock_picking",
+      "product_value",
+      "product_product",
+      "product_template",
+      "product_category",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "stock-ops"
+     ],
+     "owner": "product-taxonomy"
+    },
+    {
+     "register": "s2.3 §2 row vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "what": "purchase_order_line, stock_move, stock_move_line, product_product, product_template, product_category, uom_uom",
+     "migrated_tables": [
+      "purchase_order_line",
+      "stock_move",
+      "stock_move_line",
+      "product_product",
+      "product_template",
+      "product_category",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "purchase",
+      "stock-ops"
+     ],
+     "owner": "product-taxonomy"
+    }
+   ],
    "models": {
     "stock.package.type": {
      "table": "stock_package_type",
      "defined_in": [
-      "addons/stock/models/stock_package_type.py:8"
+      "addons/stock/models/stock_package_type.py:7"
      ],
      "extended_in": []
     },
     "uom.uom": {
      "table": "uom_uom",
      "defined_in": [
-      "addons/uom/models/uom_uom.py:18"
+      "addons/uom/models/uom_uom.py:17"
      ],
      "extended_in": [
-      "addons/product/models/uom_uom.py:9",
-      "addons/stock/models/product.py:1344",
-      "addons/account/models/uom_uom.py:36",
-      "addons/account_edi_ubl_cii/models/uom_uom.py:5"
+      "addons/product/models/uom_uom.py:8",
+      "addons/stock/models/product.py:1343",
+      "addons/account/models/uom_uom.py:35",
+      "addons/account_edi_ubl_cii/models/uom_uom.py:4"
      ]
     }
    },
@@ -686,9 +833,21 @@
      "file": "addons/uom/tests/test_uom.py",
      "module_tag": "/uom",
      "model_refs": 1
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row sale.report (addons/sale/report/sale_report.py:11)",
+     "model": "sale.report (addons/sale/report/sale_report.py:11)",
+     "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "model": "report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
     }
    ],
-   "batch": "w1-b02"
+   "batch": "w1-b03"
   },
   {
    "id": "stock-reference",
@@ -735,25 +894,26 @@
    "reports_and_views": [],
    "hooks": [],
    "blocked": [],
+   "register_rows_touching_later": [],
    "models": {
     "return.reason": {
      "table": "return_reason",
      "defined_in": [
-      "addons/sale_stock/models/return_reason.py:7"
+      "addons/sale_stock/models/return_reason.py:6"
      ],
      "extended_in": []
     },
     "stock.scrap.reason.tag": {
      "table": "stock_scrap_reason_tag",
      "defined_in": [
-      "addons/stock/models/stock_scrap_reason_tag.py:5"
+      "addons/stock/models/stock_scrap_reason_tag.py:4"
      ],
      "extended_in": []
     },
     "stock.storage.category": {
      "table": "stock_storage_category",
      "defined_in": [
-      "addons/stock/models/stock_storage_category.py:8"
+      "addons/stock/models/stock_storage_category.py:7"
      ],
      "extended_in": []
     }
@@ -879,7 +1039,7 @@
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
     }
    ],
-   "batch": "w1-b02"
+   "batch": "w1-b01"
   },
   {
    "id": "product-taxonomy",
@@ -969,50 +1129,156 @@
    },
    "raw_sql": [],
    "crons": [],
-   "reports_and_views": [],
+   "reports_and_views": [
+    {
+     "register": "s2.3 §2 row purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "what": "purchase_order_line, purchase_order, product_product, product_template, uom_uom, product_category",
+     "migrated_tables": [
+      "purchase_order_line",
+      "purchase_order",
+      "product_product",
+      "product_template",
+      "uom_uom",
+      "product_category"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "purchase"
+     ]
+    },
+    {
+     "register": "s2.3 §2 row stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "what": "stock_move, stock_picking, product_value, product_product, product_template, product_category, uom_uom (+ ir_default, ir_model_fields)",
+     "migrated_tables": [
+      "stock_move",
+      "stock_picking",
+      "product_value",
+      "product_product",
+      "product_template",
+      "product_category",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "stock-ops"
+     ]
+    },
+    {
+     "register": "s2.3 §2 row vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "what": "purchase_order_line, stock_move, stock_move_line, product_product, product_template, product_category, uom_uom",
+     "migrated_tables": [
+      "purchase_order_line",
+      "stock_move",
+      "stock_move_line",
+      "product_product",
+      "product_template",
+      "product_category",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "purchase",
+      "stock-ops"
+     ]
+    }
+   ],
    "hooks": [],
    "blocked": [],
+   "register_rows_touching_later": [
+    {
+     "register": "s2.3 §3a row 15",
+     "disposition": "R",
+     "disposition_text": "R — Mongo-backed targets and the account row itself; PostgreSQL-resident targets keep their statement",
+     "where": "account.account `_action_unmerge` (account_account.py:1341, 1362, 1391, 1420, 1441, 1472)",
+     "what": "UPDATE: dynamic (:1341–:1420): every table holding a many2one / many2many / reference / many2one_reference to account.account, in-scope (account_move_line, account_journal, account_payment_method_line, product_category, …) and PostgreSQL-resident (res_company); then account_account's own company-dependent JSON columns (:1441, :1472) — unmerge action (cold)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_journal",
+      "account_payment_method_line",
+      "product_category",
+      "account_account"
+     ],
+     "also_touches": [
+      "product-taxonomy",
+      "account-journal",
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §3c row 1",
+     "disposition": "R",
+     "disposition_text": "R, and the discovery step is part of the rewrite: a Mongo-backed table has no `account_id` column or FK on PostgreSQL, so `pg_constraint` no longer lists it and the merge would silently leave its documents pointing at the deleted account. The account merge unit must enumerate Mongo-backed references from ORM field metadata (`ir_model_fields` where relation = 'account.account', same source `_action_unmerge` already uses) and update them before the source accounts are removed. PostgreSQL-resident targets keep the `pg_constraint` path (S)",
+     "where": "account.merge.wizard `_action_merge` (§3a row 16) → `base.partner.merge.automatic.wizard._update_foreign_keys_generic` (odoo/addons/base/wizard/base_partner_merge.py:119) and `_update_reference_fields_generic` (:198)",
+     "what": "account_move_line, account_journal, account_payment_method_line, account_tax_repartition_line, product_category, … plus PostgreSQL-resident res_company",
+     "migrated_tables": [
+      "account_move_line",
+      "account_journal",
+      "account_payment_method_line",
+      "account_tax_repartition_line",
+      "product_category"
+     ],
+     "also_touches": [
+      "product-taxonomy",
+      "account-journal",
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    }
+   ],
    "models": {
     "product.base.unit": {
      "table": "product_base_unit",
      "defined_in": [
-      "addons/product/models/product_base_unit.py:5"
+      "addons/product/models/product_base_unit.py:4"
      ],
      "extended_in": []
     },
     "product.category": {
      "table": "product_category",
      "defined_in": [
-      "addons/product/models/product_category.py:9"
+      "addons/product/models/product_category.py:8"
      ],
      "extended_in": [
-      "addons/sale/models/product_category.py:7",
-      "addons/purchase/models/product_category.py:7",
-      "addons/stock/models/product.py:1280",
-      "addons/account/models/product.py:14",
-      "addons/stock_account/models/product.py:751"
+      "addons/sale/models/product_category.py:6",
+      "addons/purchase/models/product_category.py:6",
+      "addons/stock/models/product.py:1279",
+      "addons/account/models/product.py:13",
+      "addons/stock_account/models/product.py:750"
      ]
     },
     "product.document": {
      "table": "product_document",
      "defined_in": [
-      "addons/product/models/product_document.py:9"
+      "addons/product/models/product_document.py:8"
      ],
      "extended_in": [
-      "addons/sale/models/product_document.py:7"
+      "addons/sale/models/product_document.py:6"
      ]
     },
     "product.removal": {
      "table": "product_removal",
      "defined_in": [
-      "addons/stock/models/product_strategy.py:9"
+      "addons/stock/models/product_strategy.py:8"
      ],
      "extended_in": []
     },
     "product.tag": {
      "table": "product_tag",
      "defined_in": [
-      "addons/product/models/product_tag.py:8"
+      "addons/product/models/product_tag.py:7"
      ],
      "extended_in": []
     }
@@ -1377,6 +1643,24 @@
      "model_refs": 2
     },
     {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "model": "purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "model": "stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "model": "vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
+    },
+    {
      "kind": "seed",
      "collection": "productTag",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
@@ -1443,18 +1727,19 @@
    "reports_and_views": [],
    "hooks": [],
    "blocked": [],
+   "register_rows_touching_later": [],
    "models": {
     "product.attribute.value": {
      "table": "product_attribute_value",
      "defined_in": [
-      "addons/product/models/product_attribute_value.py:12"
+      "addons/product/models/product_attribute_value.py:9"
      ],
      "extended_in": []
     },
     "product.attribute": {
      "table": "product_attribute",
      "defined_in": [
-      "addons/product/models/product_attribute.py:8"
+      "addons/product/models/product_attribute.py:7"
      ],
      "extended_in": []
     }
@@ -1677,7 +1962,7 @@
      "model_refs": 1
     }
    ],
-   "batch": "w1-b03"
+   "batch": "w1-b05"
   },
   {
    "id": "account-settings",
@@ -1815,88 +2100,142 @@
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move `get_cash_roundings` (account_move.py:8345)",
-     "what": "SELECT: account_cash_rounding — invoice form (warm)"
+     "what": "SELECT: account_cash_rounding — invoice form (warm)",
+     "migrated_tables": [
+      "account_cash_rounding"
+     ]
+    },
+    {
+     "register": "s2.3 §3b row 32",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "res.currency.rate.consolidation.mixin `_compute_consolidation_rate` (addons/account/models/res_currency_rate_consolidation_mixin.py:33)",
+     "what": "SELECT: inheritors' tables: sale_order_line, purchase_order_line, account_move_line, account_report_external_value — every read in multi-currency companies (warm)",
+     "migrated_tables": [
+      "sale_order_line",
+      "purchase_order_line",
+      "account_move_line",
+      "account_report_external_value"
+     ],
+     "also_touches": [
+      "sale",
+      "purchase",
+      "account-ledger"
+     ]
     }
    ],
    "crons": [],
    "reports_and_views": [],
    "hooks": [],
    "blocked": [],
+   "register_rows_touching_later": [
+    {
+     "register": "s2.3 §3a row 17",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.account.tag `_translate_tax_tags` (addons/account/models/account_account_tag.py:125)",
+     "what": "UPDATE: account_account_tag, account_report_line, account_report — chart template load / language install (cold)",
+     "migrated_tables": [
+      "account_account_tag",
+      "account_report_line",
+      "account_report"
+     ],
+     "also_touches": [
+      "account-settings"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §3b row 22",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.account.tag `_compute_report_expression_id` (addons/account/models/account_account_tag.py:43)",
+     "what": "SELECT: account_account_tag (+ account_report_expression) — tag read (cold)",
+     "migrated_tables": [
+      "account_account_tag",
+      "account_report_expression"
+     ],
+     "also_touches": [
+      "account-settings"
+     ],
+     "owner": "account-chart"
+    }
+   ],
    "models": {
     "account.payment.term.line": {
      "table": "account_payment_term_line",
      "defined_in": [
-      "addons/account/models/account_payment_term.py:275"
+      "addons/account/models/account_payment_term.py:274"
      ],
      "extended_in": []
     },
     "account.report.column": {
      "table": "account_report_column",
      "defined_in": [
-      "addons/account/models/account_report.py:1040"
+      "addons/account/models/account_report.py:1039"
      ],
      "extended_in": []
     },
     "account.report.line": {
      "table": "account_report_line",
      "defined_in": [
-      "addons/account/models/account_report.py:406"
+      "addons/account/models/account_report.py:405"
      ],
      "extended_in": []
     },
     "account.cash.rounding": {
      "table": "account_cash_rounding",
      "defined_in": [
-      "addons/account/models/account_cash_rounding.py:15"
+      "addons/account/models/account_cash_rounding.py:8"
      ],
      "extended_in": []
     },
     "account.incoterms": {
      "table": "account_incoterms",
      "defined_in": [
-      "addons/account/models/account_incoterms.py:8"
+      "addons/account/models/account_incoterms.py:7"
      ],
      "extended_in": []
     },
     "account.journal.group": {
      "table": "account_journal_group",
      "defined_in": [
-      "addons/account/models/account_journal.py:18"
+      "addons/account/models/account_journal.py:17"
      ],
      "extended_in": []
     },
     "account.lock_exception": {
      "table": "account_lock_exception",
      "defined_in": [
-      "addons/account/models/account_lock_exception.py:12"
+      "addons/account/models/account_lock_exception.py:11"
      ],
      "extended_in": []
     },
     "account.payment.term": {
      "table": "account_payment_term",
      "defined_in": [
-      "addons/account/models/account_payment_term.py:10"
+      "addons/account/models/account_payment_term.py:9"
      ],
      "extended_in": []
     },
     "account.report": {
      "table": "account_report",
      "defined_in": [
-      "addons/account/models/account_report.py:47"
+      "addons/account/models/account_report.py:46"
      ],
      "extended_in": []
     },
     "account.report.expression": {
      "table": "account_report_expression",
      "defined_in": [
-      "addons/account/models/account_report.py:665"
+      "addons/account/models/account_report.py:664"
      ],
      "extended_in": []
     },
     "account.report.external.value": {
      "table": "account_report_external_value",
      "defined_in": [
-      "addons/account/models/account_report.py:1060"
+      "addons/account/models/account_report.py:1059"
      ],
      "extended_in": []
     }
@@ -2789,7 +3128,7 @@
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
     }
    ],
-   "batch": "w1-b01"
+   "batch": "w1-b04"
   },
   {
    "id": "account-chart",
@@ -2986,71 +3325,297 @@
    },
    "raw_sql": [
     {
+     "register": "s2.3 §3a row 5",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.move.line `_compute_account_id` (addons/account/models/account_move_line.py:729)",
+     "what": "SELECT: account_move_line, account_account, account_account_res_company_rel — line default (warm)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_account",
+      "account_account_res_company_rel"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
+    },
+    {
+     "register": "s2.3 §3a row 8",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.payment `_compute_stat_buttons_from_reconciliation` (addons/account/models/account_payment.py:761)",
+     "what": "SELECT: account_payment, account_move, account_move_line, account_partial_reconcile, account_account — payment form (warm)",
+     "migrated_tables": [
+      "account_payment",
+      "account_move",
+      "account_move_line",
+      "account_partial_reconcile",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
+    },
+    {
      "register": "s2.3 §3a row 13",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.account `_check_journal_consistency`, `_check_account_type_sales_purchase_journal`, `_check_account_is_bank_journal_bank_account` (addons/account/models/account_account.py:191, :275, :301)",
-     "what": "SELECT: account_account, account_journal, account_payment_method_line — `@api.constrains` on account edits (cold)"
+     "what": "SELECT: account_account, account_journal, account_payment_method_line — `@api.constrains` on account edits (cold)",
+     "migrated_tables": [
+      "account_account",
+      "account_journal",
+      "account_payment_method_line"
+     ],
+     "also_touches": [
+      "account-journal"
+     ]
+    },
+    {
+     "register": "s2.3 §3a row 15",
+     "disposition": "R",
+     "disposition_text": "R — Mongo-backed targets and the account row itself; PostgreSQL-resident targets keep their statement",
+     "where": "account.account `_action_unmerge` (account_account.py:1341, 1362, 1391, 1420, 1441, 1472)",
+     "what": "UPDATE: dynamic (:1341–:1420): every table holding a many2one / many2many / reference / many2one_reference to account.account, in-scope (account_move_line, account_journal, account_payment_method_line, product_category, …) and PostgreSQL-resident (res_company); then account_account's own company-dependent JSON columns (:1441, :1472) — unmerge action (cold)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_journal",
+      "account_payment_method_line",
+      "product_category",
+      "account_account"
+     ],
+     "also_touches": [
+      "product-taxonomy",
+      "account-journal",
+      "account-ledger"
+     ]
     },
     {
      "register": "s2.3 §3a row 15b",
      "disposition": "S",
      "disposition_text": "S",
      "where": "account.account `_action_unmerge` (account_account.py:1490)",
-     "what": "UPDATE: ir_model_data (xmlids of account_account ids) — unmerge action (cold)"
+     "what": "UPDATE: ir_model_data (xmlids of account_account ids) — unmerge action (cold)",
+     "migrated_tables": [
+      "account_account"
+     ]
     },
     {
      "register": "s2.3 §3a row 16",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.merge.wizard `_action_merge` (addons/account/wizard/account_merge_wizard.py:185, :197, :209)",
-     "what": "UPDATE / DELETE: account_account (`name`, `code_store`, row delete) — merge wizard (cold)"
+     "what": "UPDATE / DELETE: account_account (`name`, `code_store`, row delete) — merge wizard (cold)",
+     "migrated_tables": [
+      "account_account"
+     ]
     },
     {
      "register": "s2.3 §3a row 17",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.account.tag `_translate_tax_tags` (addons/account/models/account_account_tag.py:125)",
-     "what": "UPDATE: account_account_tag, account_report_line, account_report — chart template load / language install (cold)"
+     "what": "UPDATE: account_account_tag, account_report_line, account_report — chart template load / language install (cold)",
+     "migrated_tables": [
+      "account_account_tag",
+      "account_report_line",
+      "account_report"
+     ],
+     "also_touches": [
+      "account-settings"
+     ]
     },
     {
      "register": "s2.3 §3a row 25",
      "disposition": "B",
      "disposition_text": "B — not reached; flagged for any future upgrade path",
      "where": "`migrate` (addons/account/migrations/1.5/pre-migrate.py:2)",
-     "what": "UPDATE: account_account — module upgrade from account < 1.5 only; never reached in this run (fresh install at 20.0)"
+     "what": "UPDATE: account_account — module upgrade from account < 1.5 only; never reached in this run (fresh install at 20.0)",
+     "migrated_tables": [
+      "account_account"
+     ]
+    },
+    {
+     "register": "s2.3 §3b row 4",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.move `_compute_payment_state` (account_move.py:1314)",
+     "what": "SELECT: account_move_line, account_partial_reconcile, account_payment, account_move, account_account — every invoice write (hot)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_partial_reconcile",
+      "account_payment",
+      "account_move",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
+    },
+    {
+     "register": "s2.3 §3b row 5",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.move `_compute_reconciled_payment_ids` (account_move.py:2508)",
+     "what": "SELECT: account_move_line, account_partial_reconcile, account_payment, account_move, account_account — reconciliation (hot)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_partial_reconcile",
+      "account_payment",
+      "account_move",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
     },
     {
      "register": "s2.3 §3b row 15",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move.line `_search_account_id` (addons/account/models/account_move_line.py:820)",
-     "what": "SELECT: account_account (Query / SQL operand) — search on `account_id` (warm)"
+     "what": "SELECT: account_account (Query / SQL operand) — search on `account_id` (warm)",
+     "migrated_tables": [
+      "account_account"
+     ]
+    },
+    {
+     "register": "s2.3 §3b row 19",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.move.line `_search_panel_domain_image` (account_move_line.py:2458)",
+     "what": "SELECT: account_move_line, account_account — search panel (warm)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
     },
     {
      "register": "s2.3 §3b row 20",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.account `_search_panel_domain_image` (addons/account/models/account_account.py:486)",
-     "what": "SELECT: account_account — search panel (warm)"
+     "what": "SELECT: account_account — search panel (warm)",
+     "migrated_tables": [
+      "account_account"
+     ]
     },
     {
      "register": "s2.3 §3b row 22",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.account.tag `_compute_report_expression_id` (addons/account/models/account_account_tag.py:43)",
-     "what": "SELECT: account_account_tag (+ account_report_expression) — tag read (cold)"
+     "what": "SELECT: account_account_tag (+ account_report_expression) — tag read (cold)",
+     "migrated_tables": [
+      "account_account_tag",
+      "account_report_expression"
+     ],
+     "also_touches": [
+      "account-settings"
+     ]
+    },
+    {
+     "register": "s2.3 §3b row 25",
+     "disposition": "R",
+     "disposition_text": "R (with §3a row 8)",
+     "where": "account.payment `_compute_stat_buttons_from_reconciliation` (addons/account/models/account_payment.py:804)",
+     "what": "SELECT: account_payment, account_move, account_move_line, account_partial_reconcile, account_account — payment form (warm)",
+     "migrated_tables": [
+      "account_payment",
+      "account_move",
+      "account_move_line",
+      "account_partial_reconcile",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
+    },
+    {
+     "register": "s2.3 §3b row 28",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "res.partner `_credit_debit_get` (addons/account/models/partner.py:419)",
+     "what": "SELECT: account_move_line, account_account — partner form / credit limit (warm)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
+    },
+    {
+     "register": "s2.3 §3b row 29",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "res.partner `_asset_difference_search` (partner.py:449)",
+     "what": "SELECT: account_move_line, account_move, account_account — partner search (cold)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_move",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
     },
     {
      "register": "s2.3 §3b row 34",
      "disposition": "R",
      "disposition_text": "R (with §3a row 16)",
      "where": "account.merge.wizard `_action_merge` (addons/account/wizard/account_merge_wizard.py:144, :170)",
-     "what": "SELECT: account_account (`code_store`, `name`) — merge wizard (cold)"
+     "what": "SELECT: account_account (`code_store`, `name`) — merge wizard (cold)",
+     "migrated_tables": [
+      "account_account"
+     ]
+    },
+    {
+     "register": "s2.3 §3c row 1",
+     "disposition": "R",
+     "disposition_text": "R, and the discovery step is part of the rewrite: a Mongo-backed table has no `account_id` column or FK on PostgreSQL, so `pg_constraint` no longer lists it and the merge would silently leave its documents pointing at the deleted account. The account merge unit must enumerate Mongo-backed references from ORM field metadata (`ir_model_fields` where relation = 'account.account', same source `_action_unmerge` already uses) and update them before the source accounts are removed. PostgreSQL-resident targets keep the `pg_constraint` path (S)",
+     "where": "account.merge.wizard `_action_merge` (§3a row 16) → `base.partner.merge.automatic.wizard._update_foreign_keys_generic` (odoo/addons/base/wizard/base_partner_merge.py:119) and `_update_reference_fields_generic` (:198)",
+     "what": "account_move_line, account_journal, account_payment_method_line, account_tax_repartition_line, product_category, … plus PostgreSQL-resident res_company",
+     "migrated_tables": [
+      "account_move_line",
+      "account_journal",
+      "account_payment_method_line",
+      "account_tax_repartition_line",
+      "product_category"
+     ],
+     "also_touches": [
+      "product-taxonomy",
+      "account-journal",
+      "account-ledger"
+     ]
     }
    ],
    "crons": [],
-   "reports_and_views": [],
+   "reports_and_views": [
+    {
+     "register": "s2.3 §2 row account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "what": "account_move_line, account_move, product_product, product_template, uom_uom, account_account",
+     "migrated_tables": [
+      "account_move_line",
+      "account_move",
+      "product_product",
+      "product_template",
+      "uom_uom",
+      "account_account"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "account-ledger"
+     ]
+    }
+   ],
    "hooks": [
     {
      "register": "s2.3 §4 row account post_init",
@@ -3063,56 +3628,57 @@
    "blocked": [
     "s2.3 §3a row 25"
    ],
+   "register_rows_touching_later": [],
    "models": {
     "account.fiscal.position.account": {
      "table": "account_fiscal_position_account",
      "defined_in": [
-      "addons/account/models/partner.py:324"
+      "addons/account/models/partner.py:323"
      ],
      "extended_in": []
     },
     "account.account": {
      "table": "account_account",
      "defined_in": [
-      "addons/account/models/account_account.py:26"
+      "addons/account/models/account_account.py:25"
      ],
      "extended_in": []
     },
     "account.account.tag": {
      "table": "account_account_tag",
      "defined_in": [
-      "addons/account/models/account_account_tag.py:8"
+      "addons/account/models/account_account_tag.py:7"
      ],
      "extended_in": []
     },
     "account.fiscal.position": {
      "table": "account_fiscal_position",
      "defined_in": [
-      "addons/account/models/partner.py:34"
+      "addons/account/models/partner.py:33"
      ],
      "extended_in": []
     },
     "account.tax": {
      "table": "account_tax",
      "defined_in": [
-      "addons/account/models/account_tax.py:55"
+      "addons/account/models/account_tax.py:54"
      ],
      "extended_in": [
-      "addons/purchase/models/account_tax.py:5",
-      "addons/account_edi_ubl_cii/models/account_tax.py:5"
+      "addons/purchase/models/account_tax.py:4",
+      "addons/account_edi_ubl_cii/models/account_tax.py:4"
      ]
     },
     "account.tax.group": {
      "table": "account_tax_group",
      "defined_in": [
-      "addons/account/models/account_tax.py:24"
+      "addons/account/models/account_tax.py:23"
      ],
      "extended_in": []
     },
     "account.tax.repartition.line": {
      "table": "account_tax_repartition_line",
      "defined_in": [
-      "addons/account/models/account_tax.py:5187"
+      "addons/account/models/account_tax.py:5186"
      ],
      "extended_in": []
     }
@@ -6086,9 +6652,15 @@
      "file": "addons/purchase_stock/tests/test_account.py",
      "module_tag": "/purchase_stock",
      "model_refs": 5
+    },
+    {
+     "kind": "report_read_group",
+     "register": "s2.3 §2 row account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "model": "account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
     }
    ],
-   "batch": "w1-b04"
+   "batch": "w1-b06"
   },
   {
    "id": "account-journal",
@@ -6188,59 +6760,195 @@
    "forward_refs": {},
    "raw_sql": [
     {
+     "register": "s2.3 §3a row 10",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.bank.statement `_get_invalid_statement_ids` (addons/account/models/account_bank_statement.py:331)",
+     "what": "SELECT: account_bank_statement, account_journal — statement validation (warm)",
+     "migrated_tables": [
+      "account_bank_statement",
+      "account_journal"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
+    },
+    {
      "register": "s2.3 §3a row 11",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.journal `_get_journals_payment_method_information` (addons/account/models/account_journal.py:364)",
-     "what": "SELECT: account_journal, account_payment_method, account_payment_method_line — journal form (cold)"
+     "what": "SELECT: account_journal, account_payment_method, account_payment_method_line — journal form (cold)",
+     "migrated_tables": [
+      "account_journal",
+      "account_payment_method",
+      "account_payment_method_line"
+     ]
+    },
+    {
+     "register": "s2.3 §3a row 12",
+     "disposition": "R",
+     "disposition_text": "R — aggregation pipelines per KPI",
+     "where": "account.journal dashboard, 12 methods (addons/account/models/account_journal_dashboard.py:47, 148, 329, 364, 421, 477, 524, 646, 765, 781, 784, 1005, 1048, 1076): `_compute_last_bank_statement`, `_get_sale_purchase_kpi_amounts`, `_get_json_activity_data`, `_query_has_sequence_holes`, `_compute_has_entries`, `_get_bank_cash_graph_data`, `_get_sale_purchase_graph_data`, `_fill_bank_cash_dashboard_data`, `_fill_sale_purchase_dashboard_data`, `_get_journal_dashboard_bank_running_balance`, `_get_direct_bank_payments`, `_get_journal_dashboard_outstanding_payments`",
+     "what": "SELECT: account_move, account_journal, account_bank_statement, account_bank_statement_line, account_payment (+ mail_activity) — every accounting dashboard render (warm)",
+     "migrated_tables": [
+      "account_move",
+      "account_journal",
+      "account_bank_statement",
+      "account_bank_statement_line",
+      "account_payment"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
+    },
+    {
+     "register": "s2.3 §3a row 23",
+     "disposition": "B",
+     "disposition_text": "B — no ORM to route through; drop the KPI, serve it from a direct MongoDB read in the HTTP layer, or keep account_move/account_journal columns on a wide shadow: manager decision",
+     "where": "`get_kpi_summary` (addons/account/models/kpi_provider.py:39, :49)",
+     "what": "SELECT: account_move, account_journal, account_bank_statement_line (+ ir_model_fields, res_users, res_partner) — KPI summary endpoint; runs **without a registry** (multi-database server)",
+     "migrated_tables": [
+      "account_move",
+      "account_journal",
+      "account_bank_statement_line"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
+    },
+    {
+     "register": "s2.3 §3b row 24",
+     "disposition": "R",
+     "disposition_text": "R (with §3a row 12)",
+     "where": "account.journal `_fill_sale_purchase_dashboard_data` (account_journal_dashboard.py:757)",
+     "what": "SELECT: account_move, account_journal — dashboard (warm)",
+     "migrated_tables": [
+      "account_move",
+      "account_journal"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
     },
     {
      "register": "s2.3 §3c row 2",
      "disposition": "R",
      "disposition_text": "R — an id-only shadow passes `table_exists` but has no `analytic_distribution`, so the load fails; wave 0 skips the DDL for Mongo-backed inheritors (same rule as §3a row 1)",
      "where": "module load of account.reconcile.model.line, account.move.line, sale.order.line, purchase.order.line → `analytic.mixin.init` (addons/analytic/models/analytic_mixin.py:33)",
-     "what": "account_reconcile_model_line, account_move_line, sale_order_line, purchase_order_line"
+     "what": "account_reconcile_model_line, account_move_line, sale_order_line, purchase_order_line",
+     "migrated_tables": [
+      "account_reconcile_model_line",
+      "account_move_line",
+      "sale_order_line",
+      "purchase_order_line"
+     ],
+     "also_touches": [
+      "sale",
+      "purchase",
+      "account-ledger"
+     ]
     }
    ],
    "crons": [],
    "reports_and_views": [],
    "hooks": [],
-   "blocked": [],
+   "blocked": [
+    "s2.3 §3a row 23"
+   ],
+   "register_rows_touching_later": [
+    {
+     "register": "s2.3 §3a row 13",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.account `_check_journal_consistency`, `_check_account_type_sales_purchase_journal`, `_check_account_is_bank_journal_bank_account` (addons/account/models/account_account.py:191, :275, :301)",
+     "what": "SELECT: account_account, account_journal, account_payment_method_line — `@api.constrains` on account edits (cold)",
+     "migrated_tables": [
+      "account_account",
+      "account_journal",
+      "account_payment_method_line"
+     ],
+     "also_touches": [
+      "account-journal"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §3a row 15",
+     "disposition": "R",
+     "disposition_text": "R — Mongo-backed targets and the account row itself; PostgreSQL-resident targets keep their statement",
+     "where": "account.account `_action_unmerge` (account_account.py:1341, 1362, 1391, 1420, 1441, 1472)",
+     "what": "UPDATE: dynamic (:1341–:1420): every table holding a many2one / many2many / reference / many2one_reference to account.account, in-scope (account_move_line, account_journal, account_payment_method_line, product_category, …) and PostgreSQL-resident (res_company); then account_account's own company-dependent JSON columns (:1441, :1472) — unmerge action (cold)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_journal",
+      "account_payment_method_line",
+      "product_category",
+      "account_account"
+     ],
+     "also_touches": [
+      "product-taxonomy",
+      "account-journal",
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §3c row 1",
+     "disposition": "R",
+     "disposition_text": "R, and the discovery step is part of the rewrite: a Mongo-backed table has no `account_id` column or FK on PostgreSQL, so `pg_constraint` no longer lists it and the merge would silently leave its documents pointing at the deleted account. The account merge unit must enumerate Mongo-backed references from ORM field metadata (`ir_model_fields` where relation = 'account.account', same source `_action_unmerge` already uses) and update them before the source accounts are removed. PostgreSQL-resident targets keep the `pg_constraint` path (S)",
+     "where": "account.merge.wizard `_action_merge` (§3a row 16) → `base.partner.merge.automatic.wizard._update_foreign_keys_generic` (odoo/addons/base/wizard/base_partner_merge.py:119) and `_update_reference_fields_generic` (:198)",
+     "what": "account_move_line, account_journal, account_payment_method_line, account_tax_repartition_line, product_category, … plus PostgreSQL-resident res_company",
+     "migrated_tables": [
+      "account_move_line",
+      "account_journal",
+      "account_payment_method_line",
+      "account_tax_repartition_line",
+      "product_category"
+     ],
+     "also_touches": [
+      "product-taxonomy",
+      "account-journal",
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    }
+   ],
    "models": {
     "account.payment.method.line": {
      "table": "account_payment_method_line",
      "defined_in": [
-      "addons/account/models/account_payment_method.py:96"
+      "addons/account/models/account_payment_method.py:95"
      ],
      "extended_in": []
     },
     "account.reconcile.model.line": {
      "table": "account_reconcile_model_line",
      "defined_in": [
-      "addons/account/models/account_reconcile_model.py:8"
+      "addons/account/models/account_reconcile_model.py:7"
      ],
      "extended_in": []
     },
     "account.journal": {
      "table": "account_journal",
      "defined_in": [
-      "addons/account/models/account_journal.py:38"
+      "addons/account/models/account_journal.py:37"
      ],
      "extended_in": [
-      "addons/account/models/account_journal_dashboard.py:24"
+      "addons/account/models/account_journal_dashboard.py:23"
      ]
     },
     "account.payment.method": {
      "table": "account_payment_method",
      "defined_in": [
-      "addons/account/models/account_payment_method.py:8"
+      "addons/account/models/account_payment_method.py:7"
      ],
      "extended_in": []
     },
     "account.reconcile.model": {
      "table": "account_reconcile_model",
      "defined_in": [
-      "addons/account/models/account_reconcile_model.py:94"
+      "addons/account/models/account_reconcile_model.py:93"
      ],
      "extended_in": []
     }
@@ -8022,120 +8730,290 @@
      "disposition": "B",
      "disposition_text": "B — install-time raw read of a non-id column; a Mongo-backed product_product cannot serve it (observed in an earlier run on this repo: a fresh `-i stock` dies here on a shadow table). Options: rewrite to `search_read` of the pre-stock field, or always install stock before product opts in: manager decision",
      "where": "stock `_create_inventory_adjustment` (addons/stock/__init__.py:46, `post_init_hook`)",
-     "what": "SELECT: product_product.qty_available (the pre-stock stored JSON column) — `-i stock` on a database that already has products"
+     "what": "SELECT: product_product.qty_available (the pre-stock stored JSON column) — `-i stock` on a database that already has products",
+     "migrated_tables": [
+      "product_product"
+     ]
     },
     {
      "register": "s2.3 §3a row 29",
      "disposition": "B",
      "disposition_text": "B — not reached unless stock is uninstalled; same column as row 28",
      "where": "stock `_save_current_inventory` (addons/stock/__init__.py:92, `uninstall_hook`)",
-     "what": "UPDATE (execute_values): product_product.qty_available — uninstall of stock only"
+     "what": "UPDATE (execute_values): product_product.qty_available — uninstall of stock only",
+     "migrated_tables": [
+      "product_product"
+     ]
     }
    ],
-   "crons": [],
+   "crons": [
+    {
+     "register": "s2.3 §1 row 21",
+     "disposition": "orm",
+     "disposition_text": "orm",
+     "where": "res.company `_cron_post_stock_valuation` (addons/account/models/company.py:1454)",
+     "what": "`action_close_stock_valuation` writes account_move / account_move_line, reads product_product and stock valuation",
+     "migrated_tables": [
+      "account_move",
+      "account_move_line",
+      "product_product"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
+    }
+   ],
    "reports_and_views": [],
    "hooks": [],
    "blocked": [
     "s2.3 §3a row 28",
     "s2.3 §3a row 29"
    ],
+   "register_rows_touching_later": [
+    {
+     "register": "s2.3 §2 row sale.report (addons/sale/report/sale_report.py:11)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "sale.report (addons/sale/report/sale_report.py:11)",
+     "what": "sale_order_line, sale_order, product_product, product_template, uom_uom (+ res_partner, res_currency rate on PostgreSQL)",
+     "migrated_tables": [
+      "sale_order_line",
+      "sale_order",
+      "product_product",
+      "product_template",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "product-catalog",
+      "sale"
+     ],
+     "owner": "uom-packaging"
+    },
+    {
+     "register": "s2.3 §2 row purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "what": "purchase_order_line, purchase_order, product_product, product_template, uom_uom, product_category",
+     "migrated_tables": [
+      "purchase_order_line",
+      "purchase_order",
+      "product_product",
+      "product_template",
+      "uom_uom",
+      "product_category"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "purchase"
+     ],
+     "owner": "product-taxonomy"
+    },
+    {
+     "register": "s2.3 §2 row account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "what": "account_move_line, account_move, product_product, product_template, uom_uom, account_account",
+     "migrated_tables": [
+      "account_move_line",
+      "account_move",
+      "product_product",
+      "product_template",
+      "uom_uom",
+      "account_account"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §2 row report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "what": "stock_move, stock_quant, stock_location, stock_warehouse, product_product, product_template, uom_uom",
+     "migrated_tables": [
+      "stock_move",
+      "stock_quant",
+      "stock_location",
+      "stock_warehouse",
+      "product_product",
+      "product_template",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "product-catalog",
+      "stock-config",
+      "stock-ops"
+     ],
+     "owner": "uom-packaging"
+    },
+    {
+     "register": "s2.3 §2 row stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "what": "stock_move, stock_picking, product_value, product_product, product_template, product_category, uom_uom (+ ir_default, ir_model_fields)",
+     "migrated_tables": [
+      "stock_move",
+      "stock_picking",
+      "product_value",
+      "product_product",
+      "product_template",
+      "product_category",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "stock-ops"
+     ],
+     "owner": "product-taxonomy"
+    },
+    {
+     "register": "s2.3 §2 row vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "what": "purchase_order_line, stock_move, stock_move_line, product_product, product_template, product_category, uom_uom",
+     "migrated_tables": [
+      "purchase_order_line",
+      "stock_move",
+      "stock_move_line",
+      "product_product",
+      "product_template",
+      "product_category",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "purchase",
+      "stock-ops"
+     ],
+     "owner": "product-taxonomy"
+    },
+    {
+     "register": "s2.3 §3a row 19",
+     "disposition": "R",
+     "disposition_text": "R — cross-collection; two-step (ids from one store, filter in the other)",
+     "where": "product.template `_check_uom_not_in_invoice` (addons/account/models/product.py:246)",
+     "what": "SELECT: account_move_line ⋈ product_product ⋈ product_template ⋈ uom_uom — `@api.constrains('uom_id')` (cold)",
+     "migrated_tables": [
+      "account_move_line",
+      "product_product",
+      "product_template",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "product-catalog",
+      "account-ledger"
+     ],
+     "owner": "uom-packaging"
+    }
+   ],
    "models": {
     "product.combo.item": {
      "table": "product_combo_item",
      "defined_in": [
-      "addons/product/models/product_combo_item.py:8"
+      "addons/product/models/product_combo_item.py:7"
      ],
      "extended_in": []
     },
     "customer.product.reference": {
      "table": "customer_product_reference",
      "defined_in": [
-      "addons/sale_edi_ubl/models/customer_product_reference.py:7"
+      "addons/sale_edi_ubl/models/customer_product_reference.py:6"
      ],
      "extended_in": []
     },
     "product.uom": {
      "table": "product_uom",
      "defined_in": [
-      "addons/product/models/product_uom.py:9"
+      "addons/product/models/product_uom.py:8"
      ],
      "extended_in": []
     },
     "product.template.attribute.line": {
      "table": "product_template_attribute_line",
      "defined_in": [
-      "addons/product/models/product_template_attribute_line.py:11"
+      "addons/product/models/product_template_attribute_line.py:8"
      ],
      "extended_in": []
     },
     "product.combo": {
      "table": "product_combo",
      "defined_in": [
-      "addons/product/models/product_combo.py:9"
+      "addons/product/models/product_combo.py:8"
      ],
      "extended_in": []
     },
     "product.pricelist": {
      "table": "product_pricelist",
      "defined_in": [
-      "addons/product/models/product_pricelist.py:11"
+      "addons/product/models/product_pricelist.py:10"
      ],
      "extended_in": []
     },
     "product.pricelist.item": {
      "table": "product_pricelist_item",
      "defined_in": [
-      "addons/product/models/product_pricelist_item.py:10"
+      "addons/product/models/product_pricelist_item.py:9"
      ],
      "extended_in": [
-      "addons/sale/models/product_pricelist_item.py:5"
+      "addons/sale/models/product_pricelist_item.py:4"
      ]
     },
     "product.product": {
      "table": "product_product",
      "defined_in": [
-      "addons/product/models/product_product.py:16"
+      "addons/product/models/product_product.py:15"
      ],
      "extended_in": [
-      "addons/sale/models/product_product.py:11",
-      "addons/purchase/models/product.py:74",
-      "addons/stock/models/product.py:46",
-      "addons/account/models/product.py:336",
-      "addons/purchase_stock/models/product.py:35",
-      "addons/sale_edi_ubl/models/product_product.py:10",
-      "addons/stock_account/models/product.py:84"
+      "addons/sale/models/product_product.py:10",
+      "addons/purchase/models/product.py:73",
+      "addons/stock/models/product.py:45",
+      "addons/account/models/product.py:335",
+      "addons/purchase_stock/models/product.py:34",
+      "addons/sale_edi_ubl/models/product_product.py:9",
+      "addons/stock_account/models/product.py:83"
      ]
     },
     "product.supplierinfo": {
      "table": "product_supplierinfo",
      "defined_in": [
-      "addons/product/models/product_supplierinfo.py:9"
+      "addons/product/models/product_supplierinfo.py:8"
      ],
      "extended_in": [
-      "addons/purchase/models/product.py:277",
-      "addons/purchase_stock/models/product.py:257"
+      "addons/purchase/models/product.py:276",
+      "addons/purchase_stock/models/product.py:256"
      ]
     },
     "product.template": {
      "table": "product_template",
      "defined_in": [
-      "addons/product/models/product_template.py:20"
+      "addons/product/models/product_template.py:19"
      ],
      "extended_in": [
-      "addons/sale/models/product_template.py:12",
-      "addons/purchase/models/product.py:11",
-      "addons/stock/models/product.py:817",
-      "addons/account/models/product.py:77",
-      "addons/purchase_stock/models/product.py:14",
-      "addons/sale_purchase/models/product_template.py:9",
-      "addons/sale_stock/models/product_template.py:8",
-      "addons/stock_account/models/product.py:19"
+      "addons/sale/models/product_template.py:11",
+      "addons/purchase/models/product.py:10",
+      "addons/stock/models/product.py:816",
+      "addons/account/models/product.py:76",
+      "addons/purchase_stock/models/product.py:13",
+      "addons/sale_purchase/models/product_template.py:8",
+      "addons/sale_stock/models/product_template.py:7",
+      "addons/stock_account/models/product.py:18"
      ]
     },
     "product.template.attribute.value": {
      "table": "product_template_attribute_value",
      "defined_in": [
-      "addons/product/models/product_template_attribute_value.py:14"
+      "addons/product/models/product_template_attribute_value.py:11"
      ],
      "extended_in": []
     }
@@ -12128,6 +13006,11 @@
      "model_refs": 2
     },
     {
+     "kind": "cron",
+     "register": "s2.3 §1 row 21",
+     "job": "res.company `_cron_post_stock_valuation` (addons/account/models/company.py:1454)"
+    },
+    {
      "kind": "seed",
      "collection": "productPricelist",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
@@ -12299,89 +13182,149 @@
      "stockRoute.move.move_id → stockMove (junction)"
     ]
    },
-   "raw_sql": [],
+   "raw_sql": [
+    {
+     "register": "s2.3 §3a row 31",
+     "disposition": "R",
+     "disposition_text": "R — ORM write in the init; on the fresh-install verification path",
+     "where": "sale.order `_init_column_warehouse_id` (addons/sale_stock/models/sale_order.py:67)",
+     "what": "UPDATE: sale_order.warehouse_id FROM stock_warehouse — column init when sale_stock installs over existing sale orders (fresh `-i` path)",
+     "migrated_tables": [
+      "sale_order",
+      "stock_warehouse"
+     ],
+     "also_touches": [
+      "sale"
+     ]
+    }
+   ],
    "crons": [
+    {
+     "register": "s2.3 §1 row 22",
+     "disposition": "orm",
+     "disposition_text": "orm (+R through rows 26–27)",
+     "where": "stock.rule `run_scheduler` (addons/stock/models/stock_rule.py:722)",
+     "what": "writes stock_move, stock_picking, purchase_order (buy rule), stock_warehouse_orderpoint; `stock_rule.py:710` calls `stock.quant._quant_tasks()` → `_merge_quants` / `_unlink_zero_quants` (raw SQL, §3a rows 26–27)",
+     "migrated_tables": [
+      "stock_move",
+      "stock_picking",
+      "purchase_order",
+      "stock_warehouse_orderpoint",
+      "stock_rule"
+     ],
+     "also_touches": [
+      "purchase",
+      "stock-ops"
+     ]
+    },
     {
      "register": "s2.3 §1 row 1",
      "disposition": "orm",
      "disposition_text": "orm",
      "where": "ir.autovacuum `_run_vacuum_cleaner` → every `@api.autovacuum`; the only in-scope one is `stock.warehouse.orderpoint._unlink_processed_orderpoints` (addons/stock/models/stock_orderpoint.py:695)",
-     "what": "unlinks stock_warehouse_orderpoint rows"
+     "what": "unlinks stock_warehouse_orderpoint rows",
+     "migrated_tables": [
+      "stock_warehouse_orderpoint"
+     ]
     }
    ],
    "reports_and_views": [],
    "hooks": [],
    "blocked": [],
+   "register_rows_touching_later": [
+    {
+     "register": "s2.3 §2 row report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "what": "stock_move, stock_quant, stock_location, stock_warehouse, product_product, product_template, uom_uom",
+     "migrated_tables": [
+      "stock_move",
+      "stock_quant",
+      "stock_location",
+      "stock_warehouse",
+      "product_product",
+      "product_template",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "product-catalog",
+      "stock-config",
+      "stock-ops"
+     ],
+     "owner": "uom-packaging"
+    }
+   ],
    "models": {
     "stock.location": {
      "table": "stock_location",
      "defined_in": [
-      "addons/stock/models/stock_location.py:14"
+      "addons/stock/models/stock_location.py:13"
      ],
      "extended_in": [
-      "addons/stock_account/models/stock_location.py:9"
+      "addons/stock_account/models/stock_location.py:8"
      ]
     },
     "stock.picking.type": {
      "table": "stock_picking_type",
      "defined_in": [
-      "addons/stock/models/stock_picking_type.py:46"
+      "addons/stock/models/stock_picking_type.py:45"
      ],
      "extended_in": [
-      "addons/stock_account/models/stock_picking_type.py:7"
+      "addons/stock_account/models/stock_picking_type.py:6"
      ]
     },
     "stock.putaway.rule": {
      "table": "stock_putaway_rule",
      "defined_in": [
-      "addons/stock/models/product_strategy.py:17"
+      "addons/stock/models/product_strategy.py:16"
      ],
      "extended_in": []
     },
     "stock.route": {
      "table": "stock_route",
      "defined_in": [
-      "addons/stock/models/stock_location.py:514"
+      "addons/stock/models/stock_location.py:513"
      ],
      "extended_in": [
-      "addons/purchase_stock/models/stock_rule.py:414",
-      "addons/sale_stock/models/stock.py:11"
+      "addons/purchase_stock/models/stock_rule.py:413",
+      "addons/sale_stock/models/stock.py:10"
      ]
     },
     "stock.rule": {
      "table": "stock_rule",
      "defined_in": [
-      "addons/stock/models/stock_rule.py:44"
+      "addons/stock/models/stock_rule.py:42"
      ],
      "extended_in": [
-      "addons/purchase_stock/models/stock_rule.py:16",
-      "addons/sale_purchase_stock/models/stock_rule.py:7",
-      "addons/sale_stock/models/stock.py:250"
+      "addons/purchase_stock/models/stock_rule.py:15",
+      "addons/sale_purchase_stock/models/stock_rule.py:6",
+      "addons/sale_stock/models/stock.py:249"
      ]
     },
     "stock.storage.category.capacity": {
      "table": "stock_storage_category_capacity",
      "defined_in": [
-      "addons/stock/models/stock_storage_category.py:45"
+      "addons/stock/models/stock_storage_category.py:44"
      ],
      "extended_in": []
     },
     "stock.warehouse": {
      "table": "stock_warehouse",
      "defined_in": [
-      "addons/stock/models/stock_warehouse.py:24"
+      "addons/stock/models/stock_warehouse.py:23"
      ],
      "extended_in": [
-      "addons/purchase_stock/models/stock.py:75"
+      "addons/purchase_stock/models/stock.py:74"
      ]
     },
     "stock.warehouse.orderpoint": {
      "table": "stock_warehouse_orderpoint",
      "defined_in": [
-      "addons/stock/models/stock_orderpoint.py:24"
+      "addons/stock/models/stock_orderpoint.py:22"
      ],
      "extended_in": [
-      "addons/purchase_stock/models/stock.py:156"
+      "addons/purchase_stock/models/stock.py:155"
      ]
     }
    },
@@ -16592,6 +17535,11 @@
     },
     {
      "kind": "cron",
+     "register": "s2.3 §1 row 22",
+     "job": "stock.rule `run_scheduler` (addons/stock/models/stock_rule.py:722)"
+    },
+    {
+     "kind": "cron",
      "register": "s2.3 §1 row 1",
      "job": "ir.autovacuum `_run_vacuum_cleaner` → every `@api.autovacuum`; the only in-scope one is `stock.warehouse.orderpoint._unlink_processed_orderpoints` (addons/stock/models/stock_orderpoint.py:695)"
     },
@@ -16741,28 +17689,27 @@
      "disposition": "R",
      "disposition_text": "R",
      "where": "sale.order `_search_invoice_ids` (addons/sale/models/sale_order.py:836)",
-     "what": "SELECT: sale_order_line_invoice_rel, sale_order_line, sale_order, account_move_line, account_move — search on `invoice_ids` (warm)"
-    },
-    {
-     "register": "s2.3 §3a row 31",
-     "disposition": "R",
-     "disposition_text": "R — ORM write in the init; on the fresh-install verification path",
-     "where": "sale.order `_init_column_warehouse_id` (addons/sale_stock/models/sale_order.py:67)",
-     "what": "UPDATE: sale_order.warehouse_id FROM stock_warehouse — column init when sale_stock installs over existing sale orders (fresh `-i` path)"
-    },
-    {
-     "register": "s2.3 §3b row 32",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "res.currency.rate.consolidation.mixin `_compute_consolidation_rate` (addons/account/models/res_currency_rate_consolidation_mixin.py:33)",
-     "what": "SELECT: inheritors' tables: sale_order_line, purchase_order_line, account_move_line, account_report_external_value — every read in multi-currency companies (warm)"
+     "what": "SELECT: sale_order_line_invoice_rel, sale_order_line, sale_order, account_move_line, account_move — search on `invoice_ids` (warm)",
+     "migrated_tables": [
+      "sale_order_line_invoice_rel",
+      "sale_order_line",
+      "sale_order",
+      "account_move_line",
+      "account_move"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
     },
     {
      "register": "s2.3 §3b row 39",
      "disposition": "R",
      "disposition_text": "R",
      "where": "sale.order `_fetch_duplicate_orders` (addons/sale/models/sale_order.py:1060)",
-     "what": "SELECT: sale_order — SO form (warm)"
+     "what": "SELECT: sale_order — SO form (warm)",
+     "migrated_tables": [
+      "sale_order"
+     ]
     }
    ],
    "crons": [
@@ -16771,18 +17718,13 @@
      "disposition": "orm",
      "disposition_text": "orm",
      "where": "sale.order `_cron_send_pending_emails` (addons/sale/models/sale_order.py:1741)",
-     "what": "reads/writes sale_order (`pending_email_template_id`)"
+     "what": "reads/writes sale_order (`pending_email_template_id`)",
+     "migrated_tables": [
+      "sale_order"
+     ]
     }
    ],
-   "reports_and_views": [
-    {
-     "register": "s2.3 §2 row sale.report (addons/sale/report/sale_report.py:11)",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "sale.report (addons/sale/report/sale_report.py:11)",
-     "what": "sale_order_line, sale_order, product_product, product_template, uom_uom (+ res_partner, res_currency rate on PostgreSQL)"
-    }
-   ],
+   "reports_and_views": [],
    "hooks": [
     {
      "register": "s2.3 §4 row sale post_init",
@@ -16807,37 +17749,111 @@
     }
    ],
    "blocked": [],
+   "register_rows_touching_later": [
+    {
+     "register": "s2.3 §2 row sale.report (addons/sale/report/sale_report.py:11)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "sale.report (addons/sale/report/sale_report.py:11)",
+     "what": "sale_order_line, sale_order, product_product, product_template, uom_uom (+ res_partner, res_currency rate on PostgreSQL)",
+     "migrated_tables": [
+      "sale_order_line",
+      "sale_order",
+      "product_product",
+      "product_template",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "product-catalog",
+      "sale"
+     ],
+     "owner": "uom-packaging"
+    },
+    {
+     "register": "s2.3 §3a row 31",
+     "disposition": "R",
+     "disposition_text": "R — ORM write in the init; on the fresh-install verification path",
+     "where": "sale.order `_init_column_warehouse_id` (addons/sale_stock/models/sale_order.py:67)",
+     "what": "UPDATE: sale_order.warehouse_id FROM stock_warehouse — column init when sale_stock installs over existing sale orders (fresh `-i` path)",
+     "migrated_tables": [
+      "sale_order",
+      "stock_warehouse"
+     ],
+     "also_touches": [
+      "sale"
+     ],
+     "owner": "stock-config"
+    },
+    {
+     "register": "s2.3 §3b row 32",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "res.currency.rate.consolidation.mixin `_compute_consolidation_rate` (addons/account/models/res_currency_rate_consolidation_mixin.py:33)",
+     "what": "SELECT: inheritors' tables: sale_order_line, purchase_order_line, account_move_line, account_report_external_value — every read in multi-currency companies (warm)",
+     "migrated_tables": [
+      "sale_order_line",
+      "purchase_order_line",
+      "account_move_line",
+      "account_report_external_value"
+     ],
+     "also_touches": [
+      "sale",
+      "purchase",
+      "account-ledger"
+     ],
+     "owner": "account-settings"
+    },
+    {
+     "register": "s2.3 §3c row 2",
+     "disposition": "R",
+     "disposition_text": "R — an id-only shadow passes `table_exists` but has no `analytic_distribution`, so the load fails; wave 0 skips the DDL for Mongo-backed inheritors (same rule as §3a row 1)",
+     "where": "module load of account.reconcile.model.line, account.move.line, sale.order.line, purchase.order.line → `analytic.mixin.init` (addons/analytic/models/analytic_mixin.py:33)",
+     "what": "account_reconcile_model_line, account_move_line, sale_order_line, purchase_order_line",
+     "migrated_tables": [
+      "account_reconcile_model_line",
+      "account_move_line",
+      "sale_order_line",
+      "purchase_order_line"
+     ],
+     "also_touches": [
+      "sale",
+      "purchase",
+      "account-ledger"
+     ],
+     "owner": "account-journal"
+    }
+   ],
    "models": {
     "product.attribute.custom.value": {
      "table": "product_attribute_custom_value",
      "defined_in": [
-      "addons/product/models/product_attribute_custom_value.py:7"
+      "addons/product/models/product_attribute_custom_value.py:6"
      ],
      "extended_in": [
-      "addons/sale/models/product_product.py:171"
+      "addons/sale/models/product_product.py:170"
      ]
     },
     "sale.order": {
      "table": "sale_order",
      "defined_in": [
-      "addons/sale/models/sale_order.py:35"
+      "addons/sale/models/sale_order.py:34"
      ],
      "extended_in": [
-      "addons/sale_edi_ubl/models/sale_order.py:7",
-      "addons/sale_purchase/models/sale_order.py:8",
-      "addons/sale_purchase_stock/models/sale_order.py:8",
-      "addons/sale_stock/models/sale_order.py:17"
+      "addons/sale_edi_ubl/models/sale_order.py:6",
+      "addons/sale_purchase/models/sale_order.py:7",
+      "addons/sale_purchase_stock/models/sale_order.py:7",
+      "addons/sale_stock/models/sale_order.py:16"
      ]
     },
     "sale.order.line": {
      "table": "sale_order_line",
      "defined_in": [
-      "addons/sale/models/sale_order_line.py:13"
+      "addons/sale/models/sale_order_line.py:12"
      ],
      "extended_in": [
-      "addons/sale_edi_ubl/models/sale_order_line.py:7",
-      "addons/sale_purchase/models/sale_order_line.py:13",
-      "addons/sale_stock/models/sale_order_line.py:13"
+      "addons/sale_edi_ubl/models/sale_order_line.py:6",
+      "addons/sale_purchase/models/sale_order_line.py:12",
+      "addons/sale_stock/models/sale_order_line.py:12"
      ]
     }
    },
@@ -18711,12 +19727,6 @@
      "model_refs": 6
     },
     {
-     "kind": "report_read_group",
-     "register": "s2.3 §2 row sale.report (addons/sale/report/sale_report.py:11)",
-     "model": "sale.report (addons/sale/report/sale_report.py:11)",
-     "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
-    },
-    {
      "kind": "cron",
      "register": "s2.3 §1 row 25",
      "job": "sale.order `_cron_send_pending_emails` (addons/sale/models/sale_order.py:1741)"
@@ -18818,21 +19828,30 @@
      "disposition": "R",
      "disposition_text": "R — trivial ORM `write`; not reached in this run",
      "where": "purchase.order.line `_ondelete_stock_moves` (addons/purchase_stock/models/purchase_order_line.py:24)",
-     "what": "UPDATE: purchase_order_line (`qty_received_manual`, `qty_received_method`) — selection `ondelete`, uninstall of purchase_stock only"
+     "what": "UPDATE: purchase_order_line (`qty_received_manual`, `qty_received_method`) — selection `ondelete`, uninstall of purchase_stock only",
+     "migrated_tables": [
+      "purchase_order_line"
+     ]
     },
     {
      "register": "s2.3 §3b row 37",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move (purchase) `_compute_display_auto_complete` (addons/purchase/models/account_invoice.py:159)",
-     "what": "SELECT: purchase_order (+ res_partner) — vendor bill form (warm)"
+     "what": "SELECT: purchase_order (+ res_partner) — vendor bill form (warm)",
+     "migrated_tables": [
+      "purchase_order"
+     ]
     },
     {
      "register": "s2.3 §3b row 38",
      "disposition": "R",
      "disposition_text": "R",
      "where": "purchase.order `_fetch_duplicate_orders` (addons/purchase/models/purchase_order.py:401)",
-     "what": "SELECT: purchase_order — PO form (warm)"
+     "what": "SELECT: purchase_order — PO form (warm)",
+     "migrated_tables": [
+      "purchase_order"
+     ]
     }
    ],
    "crons": [
@@ -18841,30 +19860,42 @@
      "disposition": "orm",
      "disposition_text": "orm",
      "where": "purchase.order `_send_reminder_mail` (addons/purchase/models/purchase_order.py:1122)",
-     "what": "reads purchase_order; writes mail_message (PostgreSQL)"
+     "what": "reads purchase_order; writes mail_message (PostgreSQL)",
+     "migrated_tables": [
+      "purchase_order"
+     ]
     }
    ],
    "reports_and_views": [
     {
-     "register": "s2.3 §2 row purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "register": "s2.3 §2 row purchase.bill.union (addons/purchase/report/purchase_bill.py:7)",
      "disposition": "R",
      "disposition_text": "R",
-     "where": "purchase.report (addons/purchase/report/purchase_report.py:12)",
-     "what": "purchase_order_line, purchase_order, product_product, product_template, uom_uom, product_category"
+     "where": "purchase.bill.union (addons/purchase/report/purchase_bill.py:7)",
+     "what": "account_move, purchase_order",
+     "migrated_tables": [
+      "account_move",
+      "purchase_order"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
     },
     {
      "register": "s2.3 §2 row purchase.bill.line.match (addons/purchase/models/purchase_bill_line_match.py:9)",
      "disposition": "R",
      "disposition_text": "R",
      "where": "purchase.bill.line.match (addons/purchase/models/purchase_bill_line_match.py:9)",
-     "what": "purchase_order_line, purchase_order, account_move_line, account_move"
-    },
-    {
-     "register": "s2.3 §2 row vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
-     "what": "purchase_order_line, stock_move, stock_move_line, product_product, product_template, product_category, uom_uom"
+     "what": "purchase_order_line, purchase_order, account_move_line, account_move",
+     "migrated_tables": [
+      "purchase_order_line",
+      "purchase_order",
+      "account_move_line",
+      "account_move"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ]
     }
    ],
    "hooks": [
@@ -18891,28 +19922,131 @@
     }
    ],
    "blocked": [],
+   "register_rows_touching_later": [
+    {
+     "register": "s2.3 §1 row 22",
+     "disposition": "orm",
+     "disposition_text": "orm (+R through rows 26–27)",
+     "where": "stock.rule `run_scheduler` (addons/stock/models/stock_rule.py:722)",
+     "what": "writes stock_move, stock_picking, purchase_order (buy rule), stock_warehouse_orderpoint; `stock_rule.py:710` calls `stock.quant._quant_tasks()` → `_merge_quants` / `_unlink_zero_quants` (raw SQL, §3a rows 26–27)",
+     "migrated_tables": [
+      "stock_move",
+      "stock_picking",
+      "purchase_order",
+      "stock_warehouse_orderpoint",
+      "stock_rule"
+     ],
+     "also_touches": [
+      "purchase",
+      "stock-ops"
+     ],
+     "owner": "stock-config"
+    },
+    {
+     "register": "s2.3 §2 row purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "what": "purchase_order_line, purchase_order, product_product, product_template, uom_uom, product_category",
+     "migrated_tables": [
+      "purchase_order_line",
+      "purchase_order",
+      "product_product",
+      "product_template",
+      "uom_uom",
+      "product_category"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "purchase"
+     ],
+     "owner": "product-taxonomy"
+    },
+    {
+     "register": "s2.3 §2 row vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "what": "purchase_order_line, stock_move, stock_move_line, product_product, product_template, product_category, uom_uom",
+     "migrated_tables": [
+      "purchase_order_line",
+      "stock_move",
+      "stock_move_line",
+      "product_product",
+      "product_template",
+      "product_category",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "purchase",
+      "stock-ops"
+     ],
+     "owner": "product-taxonomy"
+    },
+    {
+     "register": "s2.3 §3b row 32",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "res.currency.rate.consolidation.mixin `_compute_consolidation_rate` (addons/account/models/res_currency_rate_consolidation_mixin.py:33)",
+     "what": "SELECT: inheritors' tables: sale_order_line, purchase_order_line, account_move_line, account_report_external_value — every read in multi-currency companies (warm)",
+     "migrated_tables": [
+      "sale_order_line",
+      "purchase_order_line",
+      "account_move_line",
+      "account_report_external_value"
+     ],
+     "also_touches": [
+      "sale",
+      "purchase",
+      "account-ledger"
+     ],
+     "owner": "account-settings"
+    },
+    {
+     "register": "s2.3 §3c row 2",
+     "disposition": "R",
+     "disposition_text": "R — an id-only shadow passes `table_exists` but has no `analytic_distribution`, so the load fails; wave 0 skips the DDL for Mongo-backed inheritors (same rule as §3a row 1)",
+     "where": "module load of account.reconcile.model.line, account.move.line, sale.order.line, purchase.order.line → `analytic.mixin.init` (addons/analytic/models/analytic_mixin.py:33)",
+     "what": "account_reconcile_model_line, account_move_line, sale_order_line, purchase_order_line",
+     "migrated_tables": [
+      "account_reconcile_model_line",
+      "account_move_line",
+      "sale_order_line",
+      "purchase_order_line"
+     ],
+     "also_touches": [
+      "sale",
+      "purchase",
+      "account-ledger"
+     ],
+     "owner": "account-journal"
+    }
+   ],
    "models": {
     "purchase.order": {
      "table": "purchase_order",
      "defined_in": [
-      "addons/purchase/models/purchase_order.py:22"
+      "addons/purchase/models/purchase_order.py:21"
      ],
      "extended_in": [
-      "addons/purchase_edi_ubl_bis3/models/purchase_order.py:5",
-      "addons/purchase_stock/models/purchase_order.py:14",
-      "addons/sale_purchase/models/purchase_order.py:8",
-      "addons/sale_purchase_stock/models/purchase_order.py:8"
+      "addons/purchase_edi_ubl_bis3/models/purchase_order.py:4",
+      "addons/purchase_stock/models/purchase_order.py:13",
+      "addons/sale_purchase/models/purchase_order.py:7",
+      "addons/sale_purchase_stock/models/purchase_order.py:7"
      ]
     },
     "purchase.order.line": {
      "table": "purchase_order_line",
      "defined_in": [
-      "addons/purchase/models/purchase_order_line.py:14"
+      "addons/purchase/models/purchase_order_line.py:13"
      ],
      "extended_in": [
-      "addons/purchase_stock/models/purchase_order_line.py:13",
-      "addons/sale_purchase/models/purchase_order.py:90",
-      "addons/sale_purchase_stock/models/purchase_order.py:19"
+      "addons/purchase_stock/models/purchase_order_line.py:12",
+      "addons/sale_purchase/models/purchase_order.py:89",
+      "addons/sale_purchase_stock/models/purchase_order.py:18"
      ]
     }
    },
@@ -20476,20 +21610,14 @@
     },
     {
      "kind": "report_read_group",
-     "register": "s2.3 §2 row purchase.report (addons/purchase/report/purchase_report.py:12)",
-     "model": "purchase.report (addons/purchase/report/purchase_report.py:12)",
+     "register": "s2.3 §2 row purchase.bill.union (addons/purchase/report/purchase_bill.py:7)",
+     "model": "purchase.bill.union (addons/purchase/report/purchase_bill.py:7)",
      "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
     },
     {
      "kind": "report_read_group",
      "register": "s2.3 §2 row purchase.bill.line.match (addons/purchase/models/purchase_bill_line_match.py:9)",
      "model": "purchase.bill.line.match (addons/purchase/models/purchase_bill_line_match.py:9)",
-     "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
-    },
-    {
-     "kind": "report_read_group",
-     "register": "s2.3 §2 row vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
-     "model": "vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
      "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
     },
     {
@@ -20714,55 +21842,44 @@
      "disposition": "R",
      "disposition_text": "R",
      "where": "stock.quant `_merge_quants` (addons/stock/models/stock_quant.py:1251)",
-     "what": "UPDATE + DELETE (one CTE): stock_quant (merge duplicates per product/location/lot/package/owner) — `_quant_tasks` after every move done / picking validation and from the scheduler cron (hot)"
+     "what": "UPDATE + DELETE (one CTE): stock_quant (merge duplicates per product/location/lot/package/owner) — `_quant_tasks` after every move done / picking validation and from the scheduler cron (hot)",
+     "migrated_tables": [
+      "stock_quant"
+     ]
     },
     {
      "register": "s2.3 §3a row 27",
      "disposition": "R",
      "disposition_text": "R",
      "where": "stock.quant `_unlink_zero_quants` (stock_quant.py:1169)",
-     "what": "SELECT: stock_quant ids → ORM `unlink` — `_quant_tasks`, `stock_move.py:2396` (hot)"
+     "what": "SELECT: stock_quant ids → ORM `unlink` — `_quant_tasks`, `stock_move.py:2396` (hot)",
+     "migrated_tables": [
+      "stock_quant"
+     ]
     },
     {
      "register": "s2.3 §3b row 41",
      "disposition": "R",
      "disposition_text": "R",
      "where": "stock.quant `_run_least_packages_removal_strategy_astar` (addons/stock/models/stock_quant.py:669)",
-     "what": "SELECT: stock_quant grouped by package — reservation with least-packages strategy (warm)"
+     "what": "SELECT: stock_quant grouped by package — reservation with least-packages strategy (warm)",
+     "migrated_tables": [
+      "stock_quant"
+     ]
     },
     {
      "register": "s2.3 §3b row 42",
      "disposition": "R",
      "disposition_text": "R",
      "where": "product.product `_get_last_product_value` (addons/stock_account/models/product.py:307)",
-     "what": "SELECT: product_value (`DISTINCT ON product_id`) — valuation reads (warm)"
+     "what": "SELECT: product_value (`DISTINCT ON product_id`) — valuation reads (warm)",
+     "migrated_tables": [
+      "product_value"
+     ]
     }
    ],
-   "crons": [
-    {
-     "register": "s2.3 §1 row 22",
-     "disposition": "orm",
-     "disposition_text": "orm (+R through rows 26–27)",
-     "where": "stock.rule `run_scheduler` (addons/stock/models/stock_rule.py:722)",
-     "what": "writes stock_move, stock_picking, purchase_order (buy rule), stock_warehouse_orderpoint; `stock_rule.py:710` calls `stock.quant._quant_tasks()` → `_merge_quants` / `_unlink_zero_quants` (raw SQL, §3a rows 26–27)"
-    }
-   ],
-   "reports_and_views": [
-    {
-     "register": "s2.3 §2 row report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
-     "what": "stock_move, stock_quant, stock_location, stock_warehouse, product_product, product_template, uom_uom"
-    },
-    {
-     "register": "s2.3 §2 row stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
-     "what": "stock_move, stock_picking, product_value, product_product, product_template, product_category, uom_uom (+ ir_default, ir_model_fields)"
-    }
-   ],
+   "crons": [],
+   "reports_and_views": [],
    "hooks": [
     {
      "register": "s2.3 §4 row stock pre_init",
@@ -20797,96 +21914,184 @@
     "s2.3 §4 row stock post_init",
     "s2.3 §4 row stock uninstall"
    ],
+   "register_rows_touching_later": [
+    {
+     "register": "s2.3 §1 row 22",
+     "disposition": "orm",
+     "disposition_text": "orm (+R through rows 26–27)",
+     "where": "stock.rule `run_scheduler` (addons/stock/models/stock_rule.py:722)",
+     "what": "writes stock_move, stock_picking, purchase_order (buy rule), stock_warehouse_orderpoint; `stock_rule.py:710` calls `stock.quant._quant_tasks()` → `_merge_quants` / `_unlink_zero_quants` (raw SQL, §3a rows 26–27)",
+     "migrated_tables": [
+      "stock_move",
+      "stock_picking",
+      "purchase_order",
+      "stock_warehouse_orderpoint",
+      "stock_rule"
+     ],
+     "also_touches": [
+      "purchase",
+      "stock-ops"
+     ],
+     "owner": "stock-config"
+    },
+    {
+     "register": "s2.3 §2 row report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
+     "what": "stock_move, stock_quant, stock_location, stock_warehouse, product_product, product_template, uom_uom",
+     "migrated_tables": [
+      "stock_move",
+      "stock_quant",
+      "stock_location",
+      "stock_warehouse",
+      "product_product",
+      "product_template",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "product-catalog",
+      "stock-config",
+      "stock-ops"
+     ],
+     "owner": "uom-packaging"
+    },
+    {
+     "register": "s2.3 §2 row stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
+     "what": "stock_move, stock_picking, product_value, product_product, product_template, product_category, uom_uom (+ ir_default, ir_model_fields)",
+     "migrated_tables": [
+      "stock_move",
+      "stock_picking",
+      "product_value",
+      "product_product",
+      "product_template",
+      "product_category",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "stock-ops"
+     ],
+     "owner": "product-taxonomy"
+    },
+    {
+     "register": "s2.3 §2 row vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
+     "what": "purchase_order_line, stock_move, stock_move_line, product_product, product_template, product_category, uom_uom",
+     "migrated_tables": [
+      "purchase_order_line",
+      "stock_move",
+      "stock_move_line",
+      "product_product",
+      "product_template",
+      "product_category",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "purchase",
+      "stock-ops"
+     ],
+     "owner": "product-taxonomy"
+    }
+   ],
    "models": {
     "product.value": {
      "table": "product_value",
      "defined_in": [
-      "addons/stock_account/models/product_value.py:14"
+      "addons/stock_account/models/product_value.py:4"
      ],
      "extended_in": []
     },
     "stock.lot": {
      "table": "stock_lot",
      "defined_in": [
-      "addons/stock/models/stock_lot.py:25"
+      "addons/stock/models/stock_lot.py:24"
      ],
      "extended_in": [
-      "addons/purchase_stock/models/stock.py:365",
-      "addons/sale_stock/models/stock.py:413",
-      "addons/stock_account/models/stock_lot.py:7"
+      "addons/purchase_stock/models/stock.py:364",
+      "addons/sale_stock/models/stock.py:412",
+      "addons/stock_account/models/stock_lot.py:6"
      ]
     },
     "stock.move": {
      "table": "stock_move",
      "defined_in": [
-      "addons/stock/models/stock_move.py:18"
+      "addons/stock/models/stock_move.py:17"
      ],
      "extended_in": [
-      "addons/purchase_stock/models/stock_move.py:11",
-      "addons/sale_purchase_stock/models/stock_move.py:7",
-      "addons/sale_stock/models/stock.py:16",
-      "addons/stock_account/models/stock_move.py:20"
+      "addons/purchase_stock/models/stock_move.py:10",
+      "addons/sale_purchase_stock/models/stock_move.py:6",
+      "addons/sale_stock/models/stock.py:15",
+      "addons/stock_account/models/stock_move.py:19"
      ]
     },
     "stock.move.line": {
      "table": "stock_move_line",
      "defined_in": [
-      "addons/stock/models/stock_move_line.py:16"
+      "addons/stock/models/stock_move_line.py:15"
      ],
      "extended_in": [
-      "addons/sale_stock/models/stock.py:243",
-      "addons/stock_account/models/stock_move_line.py:5"
+      "addons/sale_stock/models/stock.py:242",
+      "addons/stock_account/models/stock_move_line.py:4"
      ]
     },
     "stock.package": {
      "table": "stock_package",
      "defined_in": [
-      "addons/stock/models/stock_package.py:18"
+      "addons/stock/models/stock_package.py:16"
      ],
      "extended_in": []
     },
     "stock.package.history": {
      "table": "stock_package_history",
      "defined_in": [
-      "addons/stock/models/stock_package_history.py:7"
+      "addons/stock/models/stock_package_history.py:6"
      ],
      "extended_in": []
     },
     "stock.picking": {
      "table": "stock_picking",
      "defined_in": [
-      "addons/stock/models/stock_picking.py:19"
+      "addons/stock/models/stock_picking.py:18"
      ],
      "extended_in": [
-      "addons/purchase_stock/models/stock.py:11",
-      "addons/sale_stock/models/stock.py:259",
-      "addons/stock_account/models/stock_picking.py:9"
+      "addons/purchase_stock/models/stock.py:10",
+      "addons/sale_stock/models/stock.py:258",
+      "addons/stock_account/models/stock_picking.py:8"
      ]
     },
     "stock.picking.batch": {
      "table": "stock_picking_batch",
      "defined_in": [
-      "addons/stock/models/stock_picking_batch.py:13"
+      "addons/stock/models/stock_picking_batch.py:12"
      ],
      "extended_in": []
     },
     "stock.quant": {
      "table": "stock_quant",
      "defined_in": [
-      "addons/stock/models/stock_quant.py:21"
+      "addons/stock/models/stock_quant.py:20"
      ],
      "extended_in": [
-      "addons/stock_account/models/stock_quant.py:8"
+      "addons/stock_account/models/stock_quant.py:7"
      ]
     },
     "stock.reference": {
      "table": "stock_reference",
      "defined_in": [
-      "addons/stock/models/stock_reference.py:5"
+      "addons/stock/models/stock_reference.py:4"
      ],
      "extended_in": [
-      "addons/purchase_stock/models/stock_reference.py:5",
-      "addons/sale_stock/models/stock_reference.py:5"
+      "addons/purchase_stock/models/stock_reference.py:4",
+      "addons/sale_stock/models/stock_reference.py:4"
      ]
     }
    },
@@ -27771,23 +28976,6 @@
      "model_refs": 81
     },
     {
-     "kind": "report_read_group",
-     "register": "s2.3 §2 row report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
-     "model": "report.stock.quantity (addons/stock/report/report_stock_quantity.py:7)",
-     "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
-    },
-    {
-     "kind": "report_read_group",
-     "register": "s2.3 §2 row stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
-     "model": "stock.avco.report (addons/stock_account/report/stock_avco_audit_report.py:5)",
-     "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
-    },
-    {
-     "kind": "cron",
-     "register": "s2.3 §1 row 22",
-     "job": "stock.rule `run_scheduler` (addons/stock/models/stock_rule.py:722)"
-    },
-    {
      "kind": "seed",
      "collection": "stockPackageHistory",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
@@ -27961,322 +29149,319 @@
      "disposition": "R",
      "disposition_text": "R — skip the DDL for a Mongo-backed model and create the equivalent compound index",
      "where": "sequence.mixin `init` (addons/account/models/sequence_mixin.py:56)",
-     "what": "CREATE INDEX: account_move (`_sequence_index` = journal_id, sequence_prefix, sequence_number) — module load"
+     "what": "CREATE INDEX: account_move (`_sequence_index` = journal_id, sequence_prefix, sequence_number) — module load",
+     "migrated_tables": [
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §3a row 2",
      "disposition": "R",
      "disposition_text": "R — numbering must get its uniqueness from a unique index on the collection and the same retry loop",
      "where": "sequence.mixin `_locked_increment` (sequence_mixin.py:415)",
-     "what": "UPDATE: account_move.`name` by id; retries on `UniqueViolation` from `account_move._unique_name` (account_move.py:825) — every `_post` (hot)"
+     "what": "UPDATE: account_move.`name` by id; retries on `UniqueViolation` from `account_move._unique_name` (account_move.py:825) — every `_post` (hot)",
+     "migrated_tables": [
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §3a row 3",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.full.reconcile `create` (addons/account/models/account_full_reconcile.py:30, :39)",
-     "what": "UPDATE (execute_values): account_move_line.full_reconcile_id, account_partial_reconcile.full_reconcile_id — every full reconciliation (hot)"
+     "what": "UPDATE (execute_values): account_move_line.full_reconcile_id, account_partial_reconcile.full_reconcile_id — every full reconciliation (hot)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_partial_reconcile"
+     ]
     },
     {
      "register": "s2.3 §3a row 4",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.partial.reconcile `_update_matching_number` (addons/account/models/account_partial_reconcile.py:226)",
-     "what": "UPDATE (execute_values): account_move_line.matching_number — every reconciliation (hot)"
-    },
-    {
-     "register": "s2.3 §3a row 5",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "account.move.line `_compute_account_id` (addons/account/models/account_move_line.py:729)",
-     "what": "SELECT: account_move_line, account_account, account_account_res_company_rel — line default (warm)"
+     "what": "UPDATE (execute_values): account_move_line.matching_number — every reconciliation (hot)",
+     "migrated_tables": [
+      "account_move_line"
+     ]
     },
     {
      "register": "s2.3 §3a row 6",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move.line `_compute_amount_residual` (account_move_line.py:1176)",
-     "what": "SELECT: account_partial_reconcile (+ res_currency) — every line write (hot)"
+     "what": "SELECT: account_partial_reconcile (+ res_currency) — every line write (hot)",
+     "migrated_tables": [
+      "account_partial_reconcile"
+     ]
     },
     {
      "register": "s2.3 §3a row 7",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move `_compute_abnormal_warnings` (addons/account/models/account_move.py:2388)",
-     "what": "SELECT: account_move aggregates per partner — invoice form (warm)"
-    },
-    {
-     "register": "s2.3 §3a row 8",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "account.payment `_compute_stat_buttons_from_reconciliation` (addons/account/models/account_payment.py:761)",
-     "what": "SELECT: account_payment, account_move, account_move_line, account_partial_reconcile, account_account — payment form (warm)"
+     "what": "SELECT: account_move aggregates per partner — invoice form (warm)",
+     "migrated_tables": [
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §3a row 9",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.bank.statement.line `_compute_running_balance` (addons/account/models/account_bank_statement_line.py:201, :223)",
-     "what": "SELECT (window): account_bank_statement_line, account_bank_statement, account_move — statement line read (warm)"
-    },
-    {
-     "register": "s2.3 §3a row 10",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "account.bank.statement `_get_invalid_statement_ids` (addons/account/models/account_bank_statement.py:331)",
-     "what": "SELECT: account_bank_statement, account_journal — statement validation (warm)"
-    },
-    {
-     "register": "s2.3 §3a row 12",
-     "disposition": "R",
-     "disposition_text": "R — aggregation pipelines per KPI",
-     "where": "account.journal dashboard, 12 methods (addons/account/models/account_journal_dashboard.py:47, 148, 329, 364, 421, 477, 524, 646, 765, 781, 784, 1005, 1048, 1076): `_compute_last_bank_statement`, `_get_sale_purchase_kpi_amounts`, `_get_json_activity_data`, `_query_has_sequence_holes`, `_compute_has_entries`, `_get_bank_cash_graph_data`, `_get_sale_purchase_graph_data`, `_fill_bank_cash_dashboard_data`, `_fill_sale_purchase_dashboard_data`, `_get_journal_dashboard_bank_running_balance`, `_get_direct_bank_payments`, `_get_journal_dashboard_outstanding_payments`",
-     "what": "SELECT: account_move, account_journal, account_bank_statement, account_bank_statement_line, account_payment (+ mail_activity) — every accounting dashboard render (warm)"
+     "what": "SELECT (window): account_bank_statement_line, account_bank_statement, account_move — statement line read (warm)",
+     "migrated_tables": [
+      "account_bank_statement_line",
+      "account_bank_statement",
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §3a row 14",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.account `_compute_opening_debit_credit` (account_account.py:623)",
-     "what": "SELECT: account_move_line — account form (cold)"
-    },
-    {
-     "register": "s2.3 §3a row 15",
-     "disposition": "R",
-     "disposition_text": "R — Mongo-backed targets and the account row itself; PostgreSQL-resident targets keep their statement",
-     "where": "account.account `_action_unmerge` (account_account.py:1341, 1362, 1391, 1420, 1441, 1472)",
-     "what": "UPDATE: dynamic (:1341–:1420): every table holding a many2one / many2many / reference / many2one_reference to account.account, in-scope (account_move_line, account_journal, account_payment_method_line, product_category, …) and PostgreSQL-resident (res_company); then account_account's own company-dependent JSON columns (:1441, :1472) — unmerge action (cold)"
+     "what": "SELECT: account_move_line — account form (cold)",
+     "migrated_tables": [
+      "account_move_line"
+     ]
     },
     {
      "register": "s2.3 §3a row 18",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.reconcile.model `action_reconcile_stat` (addons/account/models/account_reconcile_model.py:219)",
-     "what": "SELECT: account_move_line — stat button (cold)"
-    },
-    {
-     "register": "s2.3 §3a row 19",
-     "disposition": "R",
-     "disposition_text": "R — cross-collection; two-step (ids from one store, filter in the other)",
-     "where": "product.template `_check_uom_not_in_invoice` (addons/account/models/product.py:246)",
-     "what": "SELECT: account_move_line ⋈ product_product ⋈ product_template ⋈ uom_uom — `@api.constrains('uom_id')` (cold)"
-    },
-    {
-     "register": "s2.3 §3a row 23",
-     "disposition": "B",
-     "disposition_text": "B — no ORM to route through; drop the KPI, serve it from a direct MongoDB read in the HTTP layer, or keep account_move/account_journal columns on a wide shadow: manager decision",
-     "where": "`get_kpi_summary` (addons/account/models/kpi_provider.py:39, :49)",
-     "what": "SELECT: account_move, account_journal, account_bank_statement_line (+ ir_model_fields, res_users, res_partner) — KPI summary endpoint; runs **without a registry** (multi-database server)"
+     "what": "SELECT: account_move_line — stat button (cold)",
+     "migrated_tables": [
+      "account_move_line"
+     ]
     },
     {
      "register": "s2.3 §3b row 1",
      "disposition": "R",
      "disposition_text": "R (with §3a row 1)",
      "where": "sequence.mixin `init` (addons/account/models/sequence_mixin.py:66)",
-     "what": "SELECT (index_exists probe before the CREATE INDEX of §3a row 1): account_move — module load"
+     "what": "SELECT (index_exists probe before the CREATE INDEX of §3a row 1): account_move — module load",
+     "migrated_tables": [
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §3b row 2",
      "disposition": "R",
      "disposition_text": "R",
      "where": "sequence.mixin `_get_last_sequence` (sequence_mixin.py:311)",
-     "what": "SELECT: account_move (`sequence_prefix`, `sequence_number`, `name`, ordered, limit 1) — every `_post` (hot)"
+     "what": "SELECT: account_move (`sequence_prefix`, `sequence_number`, `name`, ordered, limit 1) — every `_post` (hot)",
+     "migrated_tables": [
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §3b row 3",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move `_update_sequence_made_gap` (addons/account/models/account_move.py:6457)",
-     "what": "SELECT / UPDATE: account_move (`sequence_number`, `made_sequence_gap`) — post / draft reset (warm)"
-    },
-    {
-     "register": "s2.3 §3b row 4",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "account.move `_compute_payment_state` (account_move.py:1314)",
-     "what": "SELECT: account_move_line, account_partial_reconcile, account_payment, account_move, account_account — every invoice write (hot)"
-    },
-    {
-     "register": "s2.3 §3b row 5",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "account.move `_compute_reconciled_payment_ids` (account_move.py:2508)",
-     "what": "SELECT: account_move_line, account_partial_reconcile, account_payment, account_move, account_account — reconciliation (hot)"
+     "what": "SELECT / UPDATE: account_move (`sequence_number`, `made_sequence_gap`) — post / draft reset (warm)",
+     "migrated_tables": [
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §3b row 6",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move `_get_unbalanced_moves` (account_move.py:2954)",
-     "what": "SELECT: account_move_line, account_move (debit/credit/balance sums) — every entry create / write (hot)"
+     "what": "SELECT: account_move_line, account_move (debit/credit/balance sums) — every entry create / write (hot)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §3b row 7",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move `_fetch_duplicate_reference` (account_move.py:2218)",
-     "what": "SELECT: account_move — invoice form (warm)"
+     "what": "SELECT: account_move — invoice form (warm)",
+     "migrated_tables": [
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §3b row 8",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move `_get_frequent_account_and_taxes` (account_move.py:4548)",
-     "what": "SELECT: account_move_line, account_move_line_account_tax_rel — invoice line default (warm)"
+     "what": "SELECT: account_move_line, account_move_line_account_tax_rel — invoice line default (warm)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_move_line_account_tax_rel"
+     ]
     },
     {
      "register": "s2.3 §3b row 9",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move `_copy_recurring_entries` (account_move.py:4947)",
-     "what": "SELECT: account_move — recurring post (warm)"
+     "what": "SELECT: account_move — recurring post (warm)",
+     "migrated_tables": [
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §3b row 10",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move `_get_all_reconciled_invoice_partials` (account_move.py:5720)",
-     "what": "SELECT: account_move_line, account_partial_reconcile — invoice payment widget (warm)"
+     "what": "SELECT: account_move_line, account_partial_reconcile — invoice payment widget (warm)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_partial_reconcile"
+     ]
     },
     {
      "register": "s2.3 §3b row 11",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move `_unlink_next_draft_auto_post_moves` (account_move.py:7022)",
-     "what": "SELECT: account_move — recurring unlink (cold)"
+     "what": "SELECT: account_move — recurring unlink (cold)",
+     "migrated_tables": [
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §3b row 12",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move `_check_draftable` (account_move.py:7053)",
-     "what": "SELECT: account_partial_reconcile — reset to draft (warm)"
+     "what": "SELECT: account_partial_reconcile — reset to draft (warm)",
+     "migrated_tables": [
+      "account_partial_reconcile"
+     ]
     },
     {
      "register": "s2.3 §3b row 13",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move `_first_date` (account_move.py:7843)",
-     "what": "SELECT: account_move — tooling (cold)"
+     "what": "SELECT: account_move — tooling (cold)",
+     "migrated_tables": [
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §3b row 16",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move.line `_compute_consolidation_rate` (account_move_line.py:958)",
-     "what": "SELECT: account_move_line (rate columns) — multi-currency companies, every read (warm)"
+     "what": "SELECT: account_move_line (rate columns) — multi-currency companies, every read (warm)",
+     "migrated_tables": [
+      "account_move_line"
+     ]
     },
     {
      "register": "s2.3 §3b row 17",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move.line `_compute_residual_at_date` (account_move_line.py:1148)",
-     "what": "SELECT: account_move_line, account_partial_reconcile — aged reports (warm)"
+     "what": "SELECT: account_move_line, account_partial_reconcile — aged reports (warm)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_partial_reconcile"
+     ]
     },
     {
      "register": "s2.3 §3b row 18",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.move.line `_inverse_analytic_distribution` (account_move_line.py:1802)",
-     "what": "SELECT: account_move_line — analytic write (warm)"
-    },
-    {
-     "register": "s2.3 §3b row 19",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "account.move.line `_search_panel_domain_image` (account_move_line.py:2458)",
-     "what": "SELECT: account_move_line, account_account — search panel (warm)"
+     "what": "SELECT: account_move_line — analytic write (warm)",
+     "migrated_tables": [
+      "account_move_line"
+     ]
     },
     {
      "register": "s2.3 §3b row 21",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.account `_get_most_frequent_accounts_for_partner` (account_account.py:800)",
-     "what": "SELECT: account_move_line grouped by account — invoice line default (warm)"
+     "what": "SELECT: account_move_line grouped by account — invoice line default (warm)",
+     "migrated_tables": [
+      "account_move_line"
+     ]
     },
     {
      "register": "s2.3 §3b row 23",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.journal `_get_cashflow_kpi_amount` (addons/account/models/account_journal_dashboard.py:177)",
-     "what": "SELECT: account_move_line, account_bank_statement_line — dashboard (warm)"
-    },
-    {
-     "register": "s2.3 §3b row 24",
-     "disposition": "R",
-     "disposition_text": "R (with §3a row 12)",
-     "where": "account.journal `_fill_sale_purchase_dashboard_data` (account_journal_dashboard.py:757)",
-     "what": "SELECT: account_move, account_journal — dashboard (warm)"
-    },
-    {
-     "register": "s2.3 §3b row 25",
-     "disposition": "R",
-     "disposition_text": "R (with §3a row 8)",
-     "where": "account.payment `_compute_stat_buttons_from_reconciliation` (addons/account/models/account_payment.py:804)",
-     "what": "SELECT: account_payment, account_move, account_move_line, account_partial_reconcile, account_account — payment form (warm)"
+     "what": "SELECT: account_move_line, account_bank_statement_line — dashboard (warm)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_bank_statement_line"
+     ]
     },
     {
      "register": "s2.3 §3b row 26",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.payment `_fetch_duplicate_reference` (account_payment.py:922)",
-     "what": "SELECT: account_payment — payment form (warm)"
+     "what": "SELECT: account_payment — payment form (warm)",
+     "migrated_tables": [
+      "account_payment"
+     ]
     },
     {
      "register": "s2.3 §3b row 27",
      "disposition": "R",
      "disposition_text": "R — server-side cursor over a Mongo-backed table has no equivalent; batch by `_id` ranges",
      "where": "res.company `_check_hash_integrity` (addons/account/models/company.py:1175, :1176, :1207)",
-     "what": "DECLARE CURSOR / FETCH over account_move: DECLARE CURSOR / FETCH over account_move — inalterability check (cold)"
-    },
-    {
-     "register": "s2.3 §3b row 28",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "res.partner `_credit_debit_get` (addons/account/models/partner.py:419)",
-     "what": "SELECT: account_move_line, account_account — partner form / credit limit (warm)"
-    },
-    {
-     "register": "s2.3 §3b row 29",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "res.partner `_asset_difference_search` (partner.py:449)",
-     "what": "SELECT: account_move_line, account_move, account_account — partner search (cold)"
+     "what": "DECLARE CURSOR / FETCH over account_move: DECLARE CURSOR / FETCH over account_move — inalterability check (cold)",
+     "migrated_tables": [
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §3b row 30",
      "disposition": "R",
      "disposition_text": "R",
      "where": "res.partner `_invoice_total` (partner.py:479)",
-     "what": "SELECT: account_move (+ res_currency_rate) — partner form (warm)"
+     "what": "SELECT: account_move (+ res_currency_rate) — partner form (warm)",
+     "migrated_tables": [
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §3b row 35",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.merge.wizard.line `_compute_account_has_hashed_entries` (account_merge_wizard.py:268)",
-     "what": "SELECT: account_move_line — merge wizard (cold)"
+     "what": "SELECT: account_move_line — merge wizard (cold)",
+     "migrated_tables": [
+      "account_move_line"
+     ]
     },
     {
      "register": "s2.3 §3b row 36",
      "disposition": "R",
      "disposition_text": "R",
      "where": "account.secure.entries.wizard `_compute_max_hash_date` (addons/account/wizard/account_secure_entries_wizard.py:76)",
-     "what": "SELECT: account_move — secure entries wizard (cold)"
+     "what": "SELECT: account_move — secure entries wizard (cold)",
+     "migrated_tables": [
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §3b row 40",
      "disposition": "R",
      "disposition_text": "R",
      "where": "utm.campaign `_compute_sale_invoiced_amount` (addons/sale/models/utm_campaign.py:55)",
-     "what": "SELECT: account_move_line, account_move (+ res_currency_rate) — campaign form (cold)"
-    },
-    {
-     "register": "s2.3 §3c row 1",
-     "disposition": "R",
-     "disposition_text": "R, and the discovery step is part of the rewrite: a Mongo-backed table has no `account_id` column or FK on PostgreSQL, so `pg_constraint` no longer lists it and the merge would silently leave its documents pointing at the deleted account. The account merge unit must enumerate Mongo-backed references from ORM field metadata (`ir_model_fields` where relation = 'account.account', same source `_action_unmerge` already uses) and update them before the source accounts are removed. PostgreSQL-resident targets keep the `pg_constraint` path (S)",
-     "where": "account.merge.wizard `_action_merge` (§3a row 16) → `base.partner.merge.automatic.wizard._update_foreign_keys_generic` (odoo/addons/base/wizard/base_partner_merge.py:119) and `_update_reference_fields_generic` (:198)",
-     "what": "account_move_line, account_journal, account_payment_method_line, account_tax_repartition_line, product_category, … plus PostgreSQL-resident res_company"
+     "what": "SELECT: account_move_line, account_move (+ res_currency_rate) — campaign form (cold)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_move"
+     ]
     }
    ],
    "crons": [
@@ -28285,53 +29470,44 @@
      "disposition": "orm",
      "disposition_text": "orm (+R through row 2)",
      "where": "account.move `_autopost_draft_entries` (addons/account/models/account_move.py:7181)",
-     "what": "writes account_move, account_move_line via `_post()`; `_post` calls `sequence.mixin._locked_increment` (raw SQL, §3a row 2)"
+     "what": "writes account_move, account_move_line via `_post()`; `_post` calls `sequence.mixin._locked_increment` (raw SQL, §3a row 2)",
+     "migrated_tables": [
+      "account_move",
+      "account_move_line"
+     ]
     },
     {
      "register": "s2.3 §1 row 20",
      "disposition": "orm",
      "disposition_text": "orm (+S through row 21)",
      "where": "account.move `_cron_account_move_send` (account_move.py:7217)",
-     "what": "reads account_move, writes `is_move_sent`; `account.move.send._send_mail` (raw SQL on ir_attachment, §3a row 21)"
-    },
-    {
-     "register": "s2.3 §1 row 21",
-     "disposition": "orm",
-     "disposition_text": "orm",
-     "where": "res.company `_cron_post_stock_valuation` (addons/account/models/company.py:1454)",
-     "what": "`action_close_stock_valuation` writes account_move / account_move_line, reads product_product and stock valuation"
+     "what": "reads account_move, writes `is_move_sent`; `account.move.send._send_mail` (raw SQL on ir_attachment, §3a row 21)",
+     "migrated_tables": [
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §1 row 24",
      "disposition": "orm",
      "disposition_text": "orm",
      "where": "payment.transaction `_cron_send_invoice` (addons/sale/models/payment_transaction.py:186)",
-     "what": "reads account_move (`is_move_sent`, `state`), sends invoices"
+     "what": "reads account_move (`is_move_sent`, `state`), sends invoices",
+     "migrated_tables": [
+      "account_move"
+     ]
     },
     {
      "register": "s2.3 §1 row 16",
      "disposition": "orm",
      "disposition_text": "orm",
      "where": "digest.digest `_cron_send_digest_email` → `_compute_kpi_account_total_revenue_value` (addons/account/models/digest.py:13)",
-     "what": "`_read_group` on account_move_line (balance by company)"
+     "what": "`_read_group` on account_move_line (balance by company)",
+     "migrated_tables": [
+      "account_move_line"
+     ]
     }
    ],
-   "reports_and_views": [
-    {
-     "register": "s2.3 §2 row account.invoice.report (addons/account/report/account_invoice_report.py:8)",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "account.invoice.report (addons/account/report/account_invoice_report.py:8)",
-     "what": "account_move_line, account_move, product_product, product_template, uom_uom, account_account"
-    },
-    {
-     "register": "s2.3 §2 row purchase.bill.union (addons/purchase/report/purchase_bill.py:7)",
-     "disposition": "R",
-     "disposition_text": "R",
-     "where": "purchase.bill.union (addons/purchase/report/purchase_bill.py:7)",
-     "what": "account_move, purchase_order"
-    }
-   ],
+   "reports_and_views": [],
    "hooks": [
     {
      "register": "s2.3 §4 row account_edi_ubl_cii uninstall",
@@ -28341,72 +29517,453 @@
      "what": "`res.partner._clear_removed_edi_formats` → §3a row 24"
     }
    ],
-   "blocked": [
-    "s2.3 §3a row 23"
+   "blocked": [],
+   "register_rows_touching_later": [
+    {
+     "register": "s2.3 §1 row 21",
+     "disposition": "orm",
+     "disposition_text": "orm",
+     "where": "res.company `_cron_post_stock_valuation` (addons/account/models/company.py:1454)",
+     "what": "`action_close_stock_valuation` writes account_move / account_move_line, reads product_product and stock valuation",
+     "migrated_tables": [
+      "account_move",
+      "account_move_line",
+      "product_product"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "product-catalog"
+    },
+    {
+     "register": "s2.3 §2 row account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.invoice.report (addons/account/report/account_invoice_report.py:8)",
+     "what": "account_move_line, account_move, product_product, product_template, uom_uom, account_account",
+     "migrated_tables": [
+      "account_move_line",
+      "account_move",
+      "product_product",
+      "product_template",
+      "uom_uom",
+      "account_account"
+     ],
+     "also_touches": [
+      "uom-packaging",
+      "product-catalog",
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §2 row purchase.bill.union (addons/purchase/report/purchase_bill.py:7)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "purchase.bill.union (addons/purchase/report/purchase_bill.py:7)",
+     "what": "account_move, purchase_order",
+     "migrated_tables": [
+      "account_move",
+      "purchase_order"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "purchase"
+    },
+    {
+     "register": "s2.3 §2 row purchase.bill.line.match (addons/purchase/models/purchase_bill_line_match.py:9)",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "purchase.bill.line.match (addons/purchase/models/purchase_bill_line_match.py:9)",
+     "what": "purchase_order_line, purchase_order, account_move_line, account_move",
+     "migrated_tables": [
+      "purchase_order_line",
+      "purchase_order",
+      "account_move_line",
+      "account_move"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "purchase"
+    },
+    {
+     "register": "s2.3 §3a row 5",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.move.line `_compute_account_id` (addons/account/models/account_move_line.py:729)",
+     "what": "SELECT: account_move_line, account_account, account_account_res_company_rel — line default (warm)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_account",
+      "account_account_res_company_rel"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §3a row 8",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.payment `_compute_stat_buttons_from_reconciliation` (addons/account/models/account_payment.py:761)",
+     "what": "SELECT: account_payment, account_move, account_move_line, account_partial_reconcile, account_account — payment form (warm)",
+     "migrated_tables": [
+      "account_payment",
+      "account_move",
+      "account_move_line",
+      "account_partial_reconcile",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §3a row 10",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.bank.statement `_get_invalid_statement_ids` (addons/account/models/account_bank_statement.py:331)",
+     "what": "SELECT: account_bank_statement, account_journal — statement validation (warm)",
+     "migrated_tables": [
+      "account_bank_statement",
+      "account_journal"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "account-journal"
+    },
+    {
+     "register": "s2.3 §3a row 12",
+     "disposition": "R",
+     "disposition_text": "R — aggregation pipelines per KPI",
+     "where": "account.journal dashboard, 12 methods (addons/account/models/account_journal_dashboard.py:47, 148, 329, 364, 421, 477, 524, 646, 765, 781, 784, 1005, 1048, 1076): `_compute_last_bank_statement`, `_get_sale_purchase_kpi_amounts`, `_get_json_activity_data`, `_query_has_sequence_holes`, `_compute_has_entries`, `_get_bank_cash_graph_data`, `_get_sale_purchase_graph_data`, `_fill_bank_cash_dashboard_data`, `_fill_sale_purchase_dashboard_data`, `_get_journal_dashboard_bank_running_balance`, `_get_direct_bank_payments`, `_get_journal_dashboard_outstanding_payments`",
+     "what": "SELECT: account_move, account_journal, account_bank_statement, account_bank_statement_line, account_payment (+ mail_activity) — every accounting dashboard render (warm)",
+     "migrated_tables": [
+      "account_move",
+      "account_journal",
+      "account_bank_statement",
+      "account_bank_statement_line",
+      "account_payment"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "account-journal"
+    },
+    {
+     "register": "s2.3 §3a row 15",
+     "disposition": "R",
+     "disposition_text": "R — Mongo-backed targets and the account row itself; PostgreSQL-resident targets keep their statement",
+     "where": "account.account `_action_unmerge` (account_account.py:1341, 1362, 1391, 1420, 1441, 1472)",
+     "what": "UPDATE: dynamic (:1341–:1420): every table holding a many2one / many2many / reference / many2one_reference to account.account, in-scope (account_move_line, account_journal, account_payment_method_line, product_category, …) and PostgreSQL-resident (res_company); then account_account's own company-dependent JSON columns (:1441, :1472) — unmerge action (cold)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_journal",
+      "account_payment_method_line",
+      "product_category",
+      "account_account"
+     ],
+     "also_touches": [
+      "product-taxonomy",
+      "account-journal",
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §3a row 19",
+     "disposition": "R",
+     "disposition_text": "R — cross-collection; two-step (ids from one store, filter in the other)",
+     "where": "product.template `_check_uom_not_in_invoice` (addons/account/models/product.py:246)",
+     "what": "SELECT: account_move_line ⋈ product_product ⋈ product_template ⋈ uom_uom — `@api.constrains('uom_id')` (cold)",
+     "migrated_tables": [
+      "account_move_line",
+      "product_product",
+      "product_template",
+      "uom_uom"
+     ],
+     "also_touches": [
+      "product-catalog",
+      "account-ledger"
+     ],
+     "owner": "uom-packaging"
+    },
+    {
+     "register": "s2.3 §3a row 20",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "sale.order `_search_invoice_ids` (addons/sale/models/sale_order.py:836)",
+     "what": "SELECT: sale_order_line_invoice_rel, sale_order_line, sale_order, account_move_line, account_move — search on `invoice_ids` (warm)",
+     "migrated_tables": [
+      "sale_order_line_invoice_rel",
+      "sale_order_line",
+      "sale_order",
+      "account_move_line",
+      "account_move"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "sale"
+    },
+    {
+     "register": "s2.3 §3a row 23",
+     "disposition": "B",
+     "disposition_text": "B — no ORM to route through; drop the KPI, serve it from a direct MongoDB read in the HTTP layer, or keep account_move/account_journal columns on a wide shadow: manager decision",
+     "where": "`get_kpi_summary` (addons/account/models/kpi_provider.py:39, :49)",
+     "what": "SELECT: account_move, account_journal, account_bank_statement_line (+ ir_model_fields, res_users, res_partner) — KPI summary endpoint; runs **without a registry** (multi-database server)",
+     "migrated_tables": [
+      "account_move",
+      "account_journal",
+      "account_bank_statement_line"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "account-journal"
+    },
+    {
+     "register": "s2.3 §3b row 4",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.move `_compute_payment_state` (account_move.py:1314)",
+     "what": "SELECT: account_move_line, account_partial_reconcile, account_payment, account_move, account_account — every invoice write (hot)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_partial_reconcile",
+      "account_payment",
+      "account_move",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §3b row 5",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.move `_compute_reconciled_payment_ids` (account_move.py:2508)",
+     "what": "SELECT: account_move_line, account_partial_reconcile, account_payment, account_move, account_account — reconciliation (hot)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_partial_reconcile",
+      "account_payment",
+      "account_move",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §3b row 19",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "account.move.line `_search_panel_domain_image` (account_move_line.py:2458)",
+     "what": "SELECT: account_move_line, account_account — search panel (warm)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §3b row 24",
+     "disposition": "R",
+     "disposition_text": "R (with §3a row 12)",
+     "where": "account.journal `_fill_sale_purchase_dashboard_data` (account_journal_dashboard.py:757)",
+     "what": "SELECT: account_move, account_journal — dashboard (warm)",
+     "migrated_tables": [
+      "account_move",
+      "account_journal"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "account-journal"
+    },
+    {
+     "register": "s2.3 §3b row 25",
+     "disposition": "R",
+     "disposition_text": "R (with §3a row 8)",
+     "where": "account.payment `_compute_stat_buttons_from_reconciliation` (addons/account/models/account_payment.py:804)",
+     "what": "SELECT: account_payment, account_move, account_move_line, account_partial_reconcile, account_account — payment form (warm)",
+     "migrated_tables": [
+      "account_payment",
+      "account_move",
+      "account_move_line",
+      "account_partial_reconcile",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §3b row 28",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "res.partner `_credit_debit_get` (addons/account/models/partner.py:419)",
+     "what": "SELECT: account_move_line, account_account — partner form / credit limit (warm)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §3b row 29",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "res.partner `_asset_difference_search` (partner.py:449)",
+     "what": "SELECT: account_move_line, account_move, account_account — partner search (cold)",
+     "migrated_tables": [
+      "account_move_line",
+      "account_move",
+      "account_account"
+     ],
+     "also_touches": [
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §3b row 32",
+     "disposition": "R",
+     "disposition_text": "R",
+     "where": "res.currency.rate.consolidation.mixin `_compute_consolidation_rate` (addons/account/models/res_currency_rate_consolidation_mixin.py:33)",
+     "what": "SELECT: inheritors' tables: sale_order_line, purchase_order_line, account_move_line, account_report_external_value — every read in multi-currency companies (warm)",
+     "migrated_tables": [
+      "sale_order_line",
+      "purchase_order_line",
+      "account_move_line",
+      "account_report_external_value"
+     ],
+     "also_touches": [
+      "sale",
+      "purchase",
+      "account-ledger"
+     ],
+     "owner": "account-settings"
+    },
+    {
+     "register": "s2.3 §3c row 1",
+     "disposition": "R",
+     "disposition_text": "R, and the discovery step is part of the rewrite: a Mongo-backed table has no `account_id` column or FK on PostgreSQL, so `pg_constraint` no longer lists it and the merge would silently leave its documents pointing at the deleted account. The account merge unit must enumerate Mongo-backed references from ORM field metadata (`ir_model_fields` where relation = 'account.account', same source `_action_unmerge` already uses) and update them before the source accounts are removed. PostgreSQL-resident targets keep the `pg_constraint` path (S)",
+     "where": "account.merge.wizard `_action_merge` (§3a row 16) → `base.partner.merge.automatic.wizard._update_foreign_keys_generic` (odoo/addons/base/wizard/base_partner_merge.py:119) and `_update_reference_fields_generic` (:198)",
+     "what": "account_move_line, account_journal, account_payment_method_line, account_tax_repartition_line, product_category, … plus PostgreSQL-resident res_company",
+     "migrated_tables": [
+      "account_move_line",
+      "account_journal",
+      "account_payment_method_line",
+      "account_tax_repartition_line",
+      "product_category"
+     ],
+     "also_touches": [
+      "product-taxonomy",
+      "account-journal",
+      "account-ledger"
+     ],
+     "owner": "account-chart"
+    },
+    {
+     "register": "s2.3 §3c row 2",
+     "disposition": "R",
+     "disposition_text": "R — an id-only shadow passes `table_exists` but has no `analytic_distribution`, so the load fails; wave 0 skips the DDL for Mongo-backed inheritors (same rule as §3a row 1)",
+     "where": "module load of account.reconcile.model.line, account.move.line, sale.order.line, purchase.order.line → `analytic.mixin.init` (addons/analytic/models/analytic_mixin.py:33)",
+     "what": "account_reconcile_model_line, account_move_line, sale_order_line, purchase_order_line",
+     "migrated_tables": [
+      "account_reconcile_model_line",
+      "account_move_line",
+      "sale_order_line",
+      "purchase_order_line"
+     ],
+     "also_touches": [
+      "sale",
+      "purchase",
+      "account-ledger"
+     ],
+     "owner": "account-journal"
+    }
    ],
    "models": {
     "account.bank.statement": {
      "table": "account_bank_statement",
      "defined_in": [
-      "addons/account/models/account_bank_statement.py:11"
+      "addons/account/models/account_bank_statement.py:10"
      ],
      "extended_in": []
     },
     "account.bank.statement.line": {
      "table": "account_bank_statement_line",
      "defined_in": [
-      "addons/account/models/account_bank_statement_line.py:11"
+      "addons/account/models/account_bank_statement_line.py:10"
      ],
      "extended_in": []
     },
     "account.full.reconcile": {
      "table": "account_full_reconcile",
      "defined_in": [
-      "addons/account/models/account_full_reconcile.py:8"
+      "addons/account/models/account_full_reconcile.py:7"
      ],
      "extended_in": []
     },
     "account.move": {
      "table": "account_move",
      "defined_in": [
-      "addons/sale/models/account_move.py:8",
-      "addons/account/models/account_move.py:82"
+      "addons/account/models/account_move.py:81"
      ],
      "extended_in": [
-      "addons/purchase/models/account_invoice.py:18",
-      "addons/account/models/account_bank_statement_line.py:875",
-      "addons/account/models/account_payment.py:1328",
-      "addons/account_edi_ubl_cii/models/account_move.py:14",
-      "addons/purchase_edi_ubl_bis3/models/account_move.py:6",
-      "addons/sale_stock/models/account_move.py:10",
-      "addons/stock_account/models/account_move.py:5"
+      "addons/sale/models/account_move.py:7",
+      "addons/purchase/models/account_invoice.py:17",
+      "addons/account/models/account_bank_statement_line.py:874",
+      "addons/account/models/account_payment.py:1327",
+      "addons/account_edi_ubl_cii/models/account_move.py:13",
+      "addons/purchase_edi_ubl_bis3/models/account_move.py:5",
+      "addons/sale_stock/models/account_move.py:9",
+      "addons/stock_account/models/account_move.py:4"
      ]
     },
     "account.move.line": {
      "table": "account_move_line",
      "defined_in": [
-      "addons/account/models/account_move_line.py:24"
+      "addons/account/models/account_move_line.py:23"
      ],
      "extended_in": [
-      "addons/sale/models/account_move_line.py:9",
-      "addons/purchase/models/account_invoice.py:659",
-      "addons/account/models/account_move_line_tax_details.py:8",
-      "addons/purchase_stock/models/account_move_line.py:8",
-      "addons/sale_stock/models/account_move.py:122",
-      "addons/stock_account/models/account_move_line.py:5"
+      "addons/sale/models/account_move_line.py:8",
+      "addons/purchase/models/account_invoice.py:657",
+      "addons/account/models/account_move_line_tax_details.py:7",
+      "addons/purchase_stock/models/account_move_line.py:7",
+      "addons/sale_stock/models/account_move.py:121",
+      "addons/stock_account/models/account_move_line.py:4"
      ]
     },
     "account.payment": {
      "table": "account_payment",
      "defined_in": [
-      "addons/account/models/account_payment.py:8"
+      "addons/account/models/account_payment.py:7"
      ],
      "extended_in": []
     },
     "account.partial.reconcile": {
      "table": "account_partial_reconcile",
      "defined_in": [
-      "addons/account/models/account_partial_reconcile.py:13"
+      "addons/account/models/account_partial_reconcile.py:12"
      ],
      "extended_in": []
     }
@@ -34376,18 +35933,6 @@
      "model_refs": 5
     },
     {
-     "kind": "report_read_group",
-     "register": "s2.3 §2 row account.invoice.report (addons/account/report/account_invoice_report.py:8)",
-     "model": "account.invoice.report (addons/account/report/account_invoice_report.py:8)",
-     "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
-    },
-    {
-     "kind": "report_read_group",
-     "register": "s2.3 §2 row purchase.bill.union (addons/purchase/report/purchase_bill.py:7)",
-     "model": "purchase.bill.union (addons/purchase/report/purchase_bill.py:7)",
-     "check": "read_group / search_read of the report equals the PostgreSQL result on the fixture"
-    },
-    {
      "kind": "cron",
      "register": "s2.3 §1 row 19",
      "job": "account.move `_autopost_draft_entries` (addons/account/models/account_move.py:7181)"
@@ -34396,11 +35941,6 @@
      "kind": "cron",
      "register": "s2.3 §1 row 20",
      "job": "account.move `_cron_account_move_send` (account_move.py:7217)"
-    },
-    {
-     "kind": "cron",
-     "register": "s2.3 §1 row 21",
-     "job": "res.company `_cron_post_stock_valuation` (addons/account/models/company.py:1454)"
     },
     {
      "kind": "cron",
@@ -34439,6 +35979,58 @@
     {
      "id": "w1-b01",
      "units": [
+      "stock-reference"
+     ],
+     "write_targets": [
+      "odoo_unt12.stockStorageCategory",
+      "odoo_unt12.stockScrapReasonTag",
+      "odoo_unt12.returnReason"
+     ],
+     "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+     "recon_tolerances_version": "unt12-3",
+     "mapping_version": "map-draft-2",
+     "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
+     "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
+     "fixture_rows": 11
+    },
+    {
+     "id": "w1-b02",
+     "units": [
+      "product-taxonomy"
+     ],
+     "write_targets": [
+      "odoo_unt12.productCategory",
+      "odoo_unt12.productRemoval",
+      "odoo_unt12.productTag",
+      "odoo_unt12.productDocument",
+      "odoo_unt12.productBaseUnit"
+     ],
+     "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+     "recon_tolerances_version": "unt12-3",
+     "mapping_version": "map-draft-2",
+     "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
+     "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
+     "fixture_rows": 13
+    },
+    {
+     "id": "w1-b03",
+     "units": [
+      "uom-packaging"
+     ],
+     "write_targets": [
+      "odoo_unt12.uomUom",
+      "odoo_unt12.stockPackageType"
+     ],
+     "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+     "recon_tolerances_version": "unt12-3",
+     "mapping_version": "map-draft-2",
+     "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
+     "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
+     "fixture_rows": 32
+    },
+    {
+     "id": "w1-b04",
+     "units": [
       "account-settings"
      ],
      "write_targets": [
@@ -34459,33 +36051,7 @@
      "fixture_rows": 47
     },
     {
-     "id": "w1-b02",
-     "units": [
-      "stock-reference",
-      "product-taxonomy",
-      "uom-packaging"
-     ],
-     "write_targets": [
-      "odoo_unt12.stockStorageCategory",
-      "odoo_unt12.stockScrapReasonTag",
-      "odoo_unt12.returnReason",
-      "odoo_unt12.productCategory",
-      "odoo_unt12.productRemoval",
-      "odoo_unt12.productTag",
-      "odoo_unt12.productDocument",
-      "odoo_unt12.productBaseUnit",
-      "odoo_unt12.uomUom",
-      "odoo_unt12.stockPackageType"
-     ],
-     "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
-     "recon_tolerances_version": "unt12-3",
-     "mapping_version": "map-draft-2",
-     "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
-     "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
-     "fixture_rows": 56
-    },
-    {
-     "id": "w1-b03",
+     "id": "w1-b05",
      "units": [
       "product-attributes"
      ],
@@ -34500,7 +36066,7 @@
      "fixture_rows": 124
     },
     {
-     "id": "w1-b04",
+     "id": "w1-b06",
      "units": [
       "account-chart"
      ],

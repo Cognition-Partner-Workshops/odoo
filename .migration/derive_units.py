@@ -295,21 +295,39 @@ def table_resolver(colls, unit_of):
             if w in known:
                 return known[w], w
         return None, None
+
+    def resolve_all(text: str):
+        """Every migrated table the text names, in order of first mention, with its unit."""
+        seen, out = set(), []
+        for w in word.findall(text):
+            if w in known and w not in seen:
+                seen.add(w)
+                out.append((w, known[w]))
+        return out
+    resolve.all = resolve_all
     return resolve, known
 
 
-def assign_register(rows, resolve):
+def assign_register(rows, resolve, depth):
+    """A row's rewrite must exist by the first wave in which any table it reads is Mongo-backed:
+    the owner is the lowest-depth unit among every migrated table the row names; every other
+    unit named is listed so its batch re-checks the rewrite when its own tables move."""
     table_cell = {"1": "in-scope tables reached", "2": "source tables", "3a": "in-scope tables",
                   "3b": "in-scope tables", "3c": "in-scope tables"}
     for r in rows:
         sec = r["section"]
         if sec in table_cell:
-            unit, table = resolve(r["cells"][table_cell[sec]])
-            r["unit"], r["resolved_table"] = unit, table
+            named = resolve.all(r["cells"][table_cell[sec]])
+            r["tables"] = [t for t, _ in named]
+            units = sorted({u for _, u in named}, key=lambda u: (depth[u], u))
+            r["unit"] = units[0] if units else None
+            r["also_touches"] = units[1:]
         elif sec == "4":
             r["unit"] = HOOK_MODULE_UNIT.get(r["cells"]["module"])
+            r["tables"], r["also_touches"] = [], []
         else:
             r["unit"] = None
+            r["tables"], r["also_touches"] = [], []
     return rows
 
 
@@ -330,17 +348,31 @@ def register_entry(r):
         where, what = f"{c['module']} {c['hook']}", c["body"]
     else:
         where, what = c["kind"], c["count in `odoo_src`"]
-    return {"register": f"s2.3 §{sec} row {r['row']}", "disposition": r["disposition"],
-            "disposition_text": r["disp_text"], "where": where, "what": what}
+    out = {"register": f"s2.3 §{sec} row {r['row']}", "disposition": r["disposition"],
+           "disposition_text": r["disp_text"], "where": where, "what": what}
+    if r.get("tables"):
+        out["migrated_tables"] = r["tables"]
+    if r.get("also_touches"):
+        out["also_touches"] = r["also_touches"]
+    return out
 
 
 # ----------------------------------------------------------------------------- code: models, routines, tests
 
-MODEL_RE = re.compile(r"^\s+_(name|inherit|table) = ['\"]([a-z._]+)['\"]", re.M)
+def _str_list(node):
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return [node.value]
+    if isinstance(node, (ast.List, ast.Tuple)):
+        return [e.value for e in node.elts if isinstance(e, ast.Constant) and isinstance(e.value, str)]
+    return []
 
 
 def scan_models():
-    """model -> {table, files: [{file, line, kind}]} over the 15 scope + bridge modules."""
+    """model -> {table, files: [{file, line, kind}]} over the 15 scope + bridge modules.
+
+    One Odoo class is read as a whole: `_name` alone, or `_name` with an `_inherit` that does not
+    name the same model, defines the model (kind `name`); `_inherit` naming the `_name` model, or
+    `_inherit` alone (string or list), extends every model it lists (kind `inherit`)."""
     found = collections.defaultdict(lambda: {"files": []})
     for mod in MODULES:
         for sub in ("models", "report", "wizard"):
@@ -348,17 +380,24 @@ def scan_models():
             if not d.is_dir():
                 continue
             for py in sorted(d.rglob("*.py")):
-                text = py.read_text(errors="replace")
-                current = None
-                for m in MODEL_RE.finditer(text):
-                    kind, value = m.group(1), m.group(2)
-                    line = text.count("\n", 0, m.start()) + 1
-                    if kind == "table":
-                        if current:
-                            found[current]["table"] = value
+                tree = ast.parse(py.read_text(errors="replace"))
+                for cls in [n for n in ast.walk(tree) if isinstance(n, ast.ClassDef)]:
+                    attrs = {}
+                    for st in cls.body:
+                        if isinstance(st, ast.Assign) and len(st.targets) == 1 and isinstance(st.targets[0], ast.Name):
+                            if st.targets[0].id in ("_name", "_inherit", "_table"):
+                                attrs[st.targets[0].id] = st.value
+                    name = _str_list(attrs["_name"])[:1] if "_name" in attrs else []
+                    inherit = _str_list(attrs["_inherit"]) if "_inherit" in attrs else []
+                    table = _str_list(attrs["_table"])[:1] if "_table" in attrs else []
+                    rel = str(py.relative_to(ROOT))
+                    if name and name[0] not in inherit:
+                        found[name[0]]["files"].append({"file": rel, "line": cls.lineno, "kind": "name"})
+                        if table:
+                            found[name[0]]["table"] = table[0]
                         continue
-                    current = value
-                    found[value]["files"].append({"file": str(py.relative_to(ROOT)), "line": line, "kind": kind})
+                    for model in inherit:
+                        found[model]["files"].append({"file": rel, "line": cls.lineno, "kind": "inherit"})
     for model, info in found.items():
         info.setdefault("table", model.replace(".", "_"))
     return found
@@ -452,20 +491,11 @@ def build_waves(units, depth, spec, tol, contracts):
     waves = []
     for d in sorted(by_depth):
         wave = d + 1
-        # one unit per batch, except that reference units (depth 0, no register row, under
-        # SMALL_UNIT_ROWS fixture rows) share one batch
-        batches, small = [], []
+        # one unit per batch, smallest first (the manager may merge small depth-0 batches at preflight)
+        batches = []
         for u in sorted(by_depth[d], key=lambda u: (sum(u["fixture_rows"].values()), u["id"])):
-            rows = sum(u["fixture_rows"].values())
-            if d == 0 and rows < SMALL_UNIT_ROWS and not (u["raw_sql"] or u["crons"] or u["reports_and_views"] or u["hooks"]):
-                small.append(u)
-            else:
-                batches.append({"units": [u["id"]], "write_targets": list(u["write_targets"]), "fixture_rows": rows})
-        if small:
-            batches.insert(0, {"units": [u["id"] for u in small],
-                               "write_targets": [t for u in small for t in u["write_targets"]],
-                               "fixture_rows": sum(sum(u["fixture_rows"].values()) for u in small)})
-        batches.sort(key=lambda b: b["fixture_rows"])
+            batches.append({"units": [u["id"]], "write_targets": list(u["write_targets"]),
+                            "fixture_rows": sum(u["fixture_rows"].values())})
         for i, b in enumerate(batches, 1):
             b["id"] = f"w{wave}-b{i:02d}"
             b.update({"fixture_manifest": FIXTURE_MANIFEST, "recon_tolerances_version": tol["version"],
@@ -486,7 +516,6 @@ def build_waves(units, depth, spec, tol, contracts):
 # ----------------------------------------------------------------------------- main
 
 TARGET_DB = None
-SMALL_UNIT_ROWS = 100
 FIXTURE_MANIFEST = ".migration/fixtures/odoo_fixture.json"
 
 
@@ -534,7 +563,7 @@ def main(argv=None) -> int:
     if same:
         raise SystemExit(f"references between units of the same depth (sibling batches): {same}")
 
-    rows = assign_register(parse_register(notes), resolve)
+    rows = assign_register(parse_register(notes), resolve, depth)
     totals = register_totals(rows)
     expect = {"3a": {"rows": 32, "sites": 58, "R": 24, "S": 4, "B": 4},
               "3b": {"rows": 42, "sites": 45, "R": 40, "S": 2, "B": 0}}
@@ -546,6 +575,9 @@ def main(argv=None) -> int:
         u["reports_and_views"] = [register_entry(r) for r in rows if r["unit"] == u["id"] and r["section"] == "2"]
         u["hooks"] = [register_entry(r) for r in rows if r["unit"] == u["id"] and r["section"] == "4"]
         u["blocked"] = [x["register"] for x in u["raw_sql"] + u["hooks"] if x["disposition"] == "B"]
+        u["register_rows_touching_later"] = [
+            {**register_entry(r), "owner": r["unit"]} for r in rows
+            if u["id"] in r.get("also_touches", []) and r["section"] in ("1", "2", "3a", "3b", "3c")]
 
     models = scan_models()
     for uid, ms in unit_models(units, known_unit, models).items():
@@ -589,8 +621,8 @@ def main(argv=None) -> int:
             "depends_on = every other unit reached by a decision.references row or an embed child_references row whose target unit sits at a lower depth; depends_on_edges lists the columns.",
             "Depth is the longest hard-dependency path. Hard edges are decision.references columns and the FK columns of 1:N embedded child rows (child_key id). Junction-array child_references (two-column key, one field) are not hard: the element holds only the referenced row's integer id, which is the same value on PostgreSQL (id shadow, s2.3 disposition S) and on MongoDB (_id), so the array loads and the ORM resolves it before or after the referenced collection migrates; NOTES.md s3.3 lists, from ir_model_fields in odoo_src, which model's Many2many field writes each forward junction. The two plain FK columns in forward_exceptions are cited to the code that creates the target row after the owning row.",
             "forward_refs = references to units at the same or a later depth; they resolve through the id shadow (s2.3 disposition S) until that unit migrates. No two units of the same depth reference each other (checked), so no batch references a sibling batch's collection.",
-            "Waves are the depths (wave = depth + 1). One unit per batch, except that depth-0 reference units with no register row and fewer than 100 fixture rows share one batch. Batches within a wave are listed smallest fixture_rows first, the first being the wave's canary. Shared and reference collections (uom, product category, package types, chart of accounts, ...) sit at depth 0 and 1, waves 1 and 2.",
-            "Raw-SQL, cron, view and hook rows are copied from the s2.3 register with their disposition letter unchanged and assigned to the unit owning the first in-scope table the row names (hooks: the unit owning the module's main model); rows naming no migrated table are listed under estate.register_rows_without_unit.",
+            "Waves are the depths (wave = depth + 1), one unit per batch. Batches within a wave are listed smallest fixture_rows first, the first being the wave's canary; the manager may merge small depth-0 batches at preflight (1-5 units per batch). Shared and reference collections (uom, product category, package types, chart of accounts, ...) sit at depth 0 and 1, waves 1 and 2.",
+            "Raw-SQL, cron, view and hook rows are copied from the s2.3 register with their disposition letter unchanged. A row is owned by the lowest-depth (earliest-wave) unit among every migrated table it names, because the statement breaks as soon as the first of those tables loses its PostgreSQL columns; the other units it names are listed in also_touches and carry the row under register_rows_touching_later, so their batch re-checks the rewrite when their own tables move. Hooks go to the unit owning the module's main model; rows naming no migrated table are listed under estate.register_rows_without_unit.",
             "fixture_rows come from the committed fixture manifest (odoo_fixture = odoo_src clone + one outlier); a unit whose collection has 0 fixture rows is flagged recon_unverified and needs a seed scenario before its recon can grade PASS.",
             "Scenarios are the Odoo test files whose env[...] references land mostly on the unit's tables (run with --test-tags on the module), the register's report/view read_group checks, the cron bodies, and a seed for every 0-row collection.",
         ],
