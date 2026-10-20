@@ -18,6 +18,8 @@ from decimal import Decimal
 
 from bson.json_util import dumps
 
+import psycopg2
+
 from odoo.exceptions import ValidationError
 from odoo.tools import SQL
 
@@ -138,59 +140,73 @@ check('uom.package_type_id cross reference', Uom.search([('package_type_id', '!=
       == [r[0] for r in rows("SELECT package_type_id FROM uom_uom WHERE package_type_id IS NOT NULL ORDER BY sequence, id")])
 
 # --- every stored many2many / one2many touching the opted-in models: exact equality vs PostgreSQL --
-# A relation whose table the spec embeds in a later wave's collection is routed there by the storage path
-# as soon as one side is opted in, and reads back empty until that collection is loaded (UNT12-33):
-# such relations are listed as GAP, never passed.
-gaps = []
+# Exact equality, never a subset and never an empty expected set: relations the estate leaves empty get one
+# pair linked through the ORM first (rolled back below), and every relation is read from both sides.
 
 
 def check_relation(name, orm_pairs, expected_pairs):
     orm_pairs, expected_pairs = sorted(orm_pairs), sorted(expected_pairs)
-    if orm_pairs == expected_pairs:
-        check(name, True, f'{len(expected_pairs)} pairs')
-    elif not orm_pairs and expected_pairs:
-        gaps.append(name)
-        print(f"GAP  {name} -- reads empty, expected {len(expected_pairs)} pairs")
-    else:
-        check(name, False, (orm_pairs[:3], expected_pairs[:3]))
+    check(name, expected_pairs and orm_pairs == expected_pairs,
+          f'{len(expected_pairs)} pairs' if orm_pairs == expected_pairs else (orm_pairs[:3], expected_pairs[:3]))
 
 
 Template = env['product.template'].with_context(active_test=False)
 Product = env['product.product'].with_context(active_test=False)
+seed_template = Template.search([('uom_id', '=', unit.id)], order='id', limit=1)
+seed_product = seed_template.product_variant_ids[:1]
+packaging = env['product.uom'].create({'product_id': seed_product.id, 'uom_id': dozen.id, 'barcode': 'PKG-SCN'})
+dozen.write({'package_type_id': tote.id})
+capacity = env['stock.storage.category.capacity'].create({
+    'storage_category_id': env['stock.storage.category'].create({'name': 'Scenario category'}).id,
+    'package_type_id': tote.id, 'quantity': 4})
+env.flush_all()
+env.invalidate_all()
 check_relation('uom.related_uom_ids', [(u.id, c.id) for u in Uom.search([]) for c in u.related_uom_ids],
+               rows("SELECT relative_uom_id, id FROM uom_uom WHERE relative_uom_id IS NOT NULL"))
+check_relation('uom.related_uom_ids from the child side', [(u.relative_uom_id.id, u.id) for u in Uom.search([('relative_uom_id', '!=', False)])],
                rows("SELECT relative_uom_id, id FROM uom_uom WHERE relative_uom_id IS NOT NULL"))
 check_relation('uom.product_uom_ids', [(u.id, p.id) for u in Uom.search([]) for p in u.product_uom_ids],
                rows("SELECT uom_id, id FROM product_uom"))
+check_relation('product.uom.uom_id (PostgreSQL side)', [(p.uom_id.id, p.id) for p in env['product.uom'].search([('uom_id', 'in', dozen.ids)])],
+               rows("SELECT uom_id, id FROM product_uom WHERE uom_id = %s", (dozen.id,)))
+# package_type_id is a MongoDB-stored column of uom.uom: the documents, not the stale legacy column, are the reference
+doc_package_types = [(d['_id'], d['packageTypeId']) for d in st.collection('uomUom').find({'packageTypeId': {'$exists': True}})]
+check_relation('uom.package_type_id -> stock.package.type (cross-store many2one)',
+               [(u.id, u.package_type_id.id) for u in Uom.search([('package_type_id', '!=', False)])], doc_package_types)
+check_relation('stock.package.type search on uom.package_type_id', [(u.id, tote.id) for u in Uom.search([('package_type_id', '=', tote.id)])],
+               [(u, t) for u, t in doc_package_types if t == tote.id])
 check_relation('uom.route_ids (related through package_type_id)', [(u.id, r.id) for u in Uom.search([]) for r in u.route_ids],
-               rows("SELECT u.id, rel.stock_route_id FROM uom_uom u "
-                    "JOIN stock_package_type_stock_route_rel rel ON rel.stock_package_type_id = u.package_type_id"))
-check_relation('product.template.uom_ids', [(t.id, u.id) for t in Template.search([]) for u in t.uom_ids],
-               rows("SELECT product_template_id, uom_uom_id FROM product_template_uom_uom_rel"))
-check_relation('product.product.extra_uom_ids', [(p.id, u.id) for p in Product.search([]) for u in p.extra_uom_ids],
-               rows("SELECT product_product_id, uom_uom_id FROM product_product_uom_uom_rel"))
+               [(u, route) for u, t in doc_package_types for pt, route in pg_routes if pt == t])
 check_relation('stock.package.type.storage_category_capacity_ids',
                [(t.id, c.id) for t in PackageType.search([]) for c in t.storage_category_capacity_ids],
                rows("SELECT package_type_id, id FROM stock_storage_category_capacity WHERE package_type_id IS NOT NULL"))
+check_relation('stock.storage.category.capacity.package_type_id (PostgreSQL side)',
+               [(c.package_type_id.id, c.id) for c in env['stock.storage.category.capacity'].search([('package_type_id', 'in', tote.ids)])],
+               rows("SELECT package_type_id, id FROM stock_storage_category_capacity WHERE package_type_id = %s", (tote.id,)))
+check_relation('stock.route.package_type_ids side (search through the array)',
+               [(r.id, t.id) for r in env['stock.route'].browse(sorted({b for _, b in pg_routes})) for t in PackageType.search([('route_ids', 'in', r.ids)])],
+               [(b, a) for a, b in pg_routes])
 check_relation('stock.package.type.route_ids', [(t.id, r.id) for t in PackageType.search([]) for r in t.route_ids], pg_routes)
 check_relation('stock.putaway.rule.package_type_ids', [(r.id, t.id) for r in PutawayRule.search([]) for t in r.package_type_ids],
                [(b, a) for a, b in pg_rules])
-# the product-side relation tables are empty in the estate: link one pair through the ORM (rolled back below)
-# and read it back from both sides, so a relation routed to an unloaded collection shows up as a GAP
-probe_template = Template.search([('uom_id', '=', unit.id)], order='id', limit=1)
+# product.template.uom_ids / product.product.extra_uom_ids: their relation tables are embedded by the spec in
+# later-wave collections, so they must stay on PostgreSQL until product-catalog loads (PR #63)
+probe_template, probe_product = seed_template, seed_product
 probe_template.write({'uom_ids': [(4, dozen.id)]})
-probe_product = probe_template.product_variant_ids[:1]
 probe_product.write({'extra_uom_ids': [(4, dozen.id)]})
 env.flush_all()
 env.invalidate_all()
-check_relation('product.template.uom_ids after an ORM link', [(probe_template.id, u.id) for u in probe_template.uom_ids],
-               [(probe_template.id, dozen.id)])
+check_relation('product.template.uom_ids after an ORM link', [(t.id, u.id) for t in Template.search([]) for u in t.uom_ids],
+               rows("SELECT product_template_id, uom_uom_id FROM product_template_uom_uom_rel"))
 check_relation('product.template search on uom_ids', [(t.id, dozen.id) for t in Template.search([('uom_ids', 'in', dozen.ids)])],
-               [(probe_template.id, dozen.id)])
-check_relation('product.product.extra_uom_ids after an ORM link', [(probe_product.id, u.id) for u in probe_product.extra_uom_ids],
-               [(probe_product.id, dozen.id)])
-print(f"relation tables on PostgreSQL after the links: product_template_uom_uom_rel="
-      f"{rows('SELECT count(*) FROM product_template_uom_uom_rel')[0][0]}, product_product_uom_uom_rel="
-      f"{rows('SELECT count(*) FROM product_product_uom_uom_rel')[0][0]}")
+               rows("SELECT product_template_id, uom_uom_id FROM product_template_uom_uom_rel WHERE uom_uom_id = %s", (dozen.id,)))
+check_relation('product.product.extra_uom_ids after an ORM link', [(p.id, u.id) for p in Product.search([]) for u in p.extra_uom_ids],
+               rows("SELECT product_product_id, uom_uom_id FROM product_product_uom_uom_rel"))
+check_relation('product.product search on extra_uom_ids', [(p.id, dozen.id) for p in Product.search([('extra_uom_ids', 'in', dozen.ids)])],
+               rows("SELECT product_product_id, uom_uom_id FROM product_product_uom_uom_rel WHERE uom_uom_id = %s", (dozen.id,)))
+check('uom_ids / extra_uom_ids links stayed on PostgreSQL',
+      rows("SELECT count(*) FROM product_template_uom_uom_rel")[0][0] == 1 == rows("SELECT count(*) FROM product_product_uom_uom_rel")[0][0]
+      and not st.collection('productTemplate').find_one({'_id': probe_template.id}))
 
 # --- rewritten SQL reports: factors from MongoDB vs the legacy column (A/B) ----------------------
 UomClass = env.registry['uom.uom']
@@ -256,15 +272,15 @@ check('factor views rebuilt on uom write', all(f'({new_uom.id},8.0)' in view_fac
 try:
     with cr.savepoint():
         Uom.create({'name': 'Zero ratio', 'relative_uom_id': unit.id, 'relative_factor': 0})
-    check('uom relative_factor = 0 refused', False)
-except ValidationError as exc:
-    check('uom relative_factor = 0 refused', 'cannot be 0' in str(exc))
+    check('uom relative_factor = 0 refused by the SQL CHECK', False)
+except psycopg2.IntegrityError as exc:
+    check('uom relative_factor = 0 refused by the SQL CHECK', exc.pgcode == '23514', f'{type(exc).__name__}: {exc.pgerror.strip().splitlines()[0]}')
 try:
     with cr.savepoint():
         PackageType.create({'name': 'Negative', 'height': -1})
-    check('package type negative height refused', False)
-except ValidationError as exc:
-    check('package type negative height refused', 'Height must be positive' in str(exc))
+    check('package type negative height refused by the SQL CHECK', False)
+except psycopg2.IntegrityError as exc:
+    check('package type negative height refused by the SQL CHECK', exc.pgcode == '23514', f'{type(exc).__name__}: {exc.pgerror.strip().splitlines()[0]}')
 try:
     with cr.savepoint():
         PackageType.create({'name': 'Duplicate barcode', 'barcode': 'PAL'})
@@ -273,6 +289,12 @@ except ValidationError as exc:
     check('duplicate barcode refused', True, f'ValidationError: {exc}')
 except Exception as exc:  # noqa: BLE001 -- storage-path gap: the unique index refuses it as a raw driver error
     check('duplicate barcode refused', True, f'raw {type(exc).__name__} (storage-path gap, reported on the ticket)')
+# the storage path raises unique_violation only from a unique MongoDB index, and the spec defines none on barcode
+# (before the mirror existed, the first scenario run accepted the duplicate), so the mirror stays
+barcode_unique_indexes = [info for info in st.collection('stockPackageType').index_information().values()
+                          if info.get('unique') and dict(info['key']).get('barcode')]
+check('barcode mirror still needed: no unique index on barcode', not barcode_unique_indexes,
+      sorted(st.collection('stockPackageType').index_information()))
 new_type = PackageType.create({'name': 'Scenario crate', 'barcode': 'CRATE-SCN', 'route_ids': [(6, 0, tote.route_ids[:1].ids)]})
 env.flush_all()
 doc = st.collection('stockPackageType').find_one({'_id': new_type.id})
@@ -328,5 +350,5 @@ check('indexes as in the mapping spec', sorted(st.collection('uomUom').index_inf
 check('no collection created outside the unit', set(st.db.list_collection_names()) == collections_before,
       sorted(set(st.db.list_collection_names()) - collections_before))
 passed = sum(ok for _, ok in results)
-print(f"scenario uom-packaging: {passed}/{len(results)} checks passed; relations reading empty (GAP): {gaps or 'none'}")
+print(f"scenario uom-packaging: {passed}/{len(results)} checks passed")
 assert passed == len(results), [name for name, ok in results if not ok]

@@ -7,7 +7,7 @@
 - Tolerance version: `unt12-3` (sha256 `7b426db21459`)
 - Collections: `stockPackageType`, `uomUom`
 - Seed: `0`
-- Generated: 2026-10-20T14:35:09.834820+00:00
+- Generated: 2026-10-20T16:08:10.315454+00:00
 - 27 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 6 string fields: min/max/distinct deferred to Tier 3
 

@@ -63,23 +63,10 @@ class StockPackageType(models.Model):
 
     @api.constrains('barcode')
     def _check_barcode_unique(self):
-        # mirrors _barcode_uniq: the SQL unique constraint only guards the PostgreSQL id shadow of this model
+        # mirrors _barcode_uniq: the spec has no unique index on barcode, so the storage path cannot refuse a duplicate
         for package_type in self.filtered('barcode'):
             if self.search_count([('barcode', '=', package_type.barcode), ('id', '!=', package_type.id)], limit=1):
                 raise ValidationError(_("A barcode can only be assigned to one package type!"))
-
-    @api.constrains('height', 'width', 'packaging_length', 'max_weight')
-    def _check_dimensions_positive(self):
-        # mirrors the CHECK constraints above: they only guard the PostgreSQL id shadow of this model
-        for package_type in self:
-            if package_type.height < 0:
-                raise ValidationError(_("Height must be positive"))
-            if package_type.width < 0:
-                raise ValidationError(_("Width must be positive"))
-            if package_type.packaging_length < 0:
-                raise ValidationError(_("Length must be positive"))
-            if package_type.max_weight < 0:
-                raise ValidationError(_("Max Weight must be positive"))
 
     @api.depends('name', 'packaging_length', 'width', 'height')
     @api.depends_context('formatted_display_name')

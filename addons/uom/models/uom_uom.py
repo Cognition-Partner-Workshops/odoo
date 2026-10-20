@@ -6,7 +6,7 @@ from datetime import timedelta
 from typing import TYPE_CHECKING, Literal
 
 from odoo import _, api, fields, models, tools
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError
 from odoo.tools import float_round
 
 if TYPE_CHECKING:
@@ -47,13 +47,6 @@ class UomUom(models.Model):
         'CHECK (relative_factor!=0)',
         'The conversion ratio for a unit of measure cannot be 0!',
     )
-
-    @api.constrains('relative_factor')
-    def _check_relative_factor_not_zero(self):
-        # mirrors _factor_gt_zero: the SQL CHECK only guards the PostgreSQL id shadow of this model
-        for uom in self:
-            if not uom.relative_factor:
-                raise ValidationError(_("The conversion ratio for a unit of measure cannot be 0!"))
 
     @api.model
     def _factor_rows(self):
