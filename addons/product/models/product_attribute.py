@@ -1,7 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class ProductAttribute(models.Model):
@@ -10,11 +10,18 @@ class ProductAttribute(models.Model):
     # if you change this _order, keep it in sync with the method
     # `_sort_key_attribute_value` in `product.template`
     _order = 'sequence, id'
+    _storage = 'mongodb'
 
     _check_multi_checkbox_no_variant = models.Constraint(
         "CHECK(display_type != 'multi' OR create_variant = 'no_variant')",
         'Multi-checkbox display type is not compatible with the creation of variants',
     )
+
+    @api.constrains('display_type', 'create_variant')
+    def _check_multi_checkbox_no_variant_documents(self):
+        # the SQL CHECK above guards the PostgreSQL shadow only; documents need the same rule
+        if any(a.display_type == 'multi' and a.create_variant != 'no_variant' for a in self):
+            raise ValidationError(self.env._("Multi-checkbox display type is not compatible with the creation of variants"))
 
     name = fields.Char(string="Attribute", required=True, translate=True)
     active = fields.Boolean(

@@ -12,6 +12,7 @@ class ProductAttributeValue(models.Model):
     _name = 'product.attribute.value'
     _order = 'attribute_id, sequence, id'
     _description = "Attribute Value"
+    _storage = 'mongodb'
 
     def _get_default_color(self):
         return randint(1, 11)
