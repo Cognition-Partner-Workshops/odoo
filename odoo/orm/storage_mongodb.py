@@ -374,7 +374,7 @@ class MongoStore:
 
     # -- journaled primitives ---------------------------------------------------
 
-    def insert_docs(self, cr, coll, docs: list[dict], table: str = '') -> None:
+    def insert_docs(self, cr, coll, docs: list[dict], model: BaseModel | None = None) -> None:
         if not docs:
             return
         try:
@@ -382,7 +382,7 @@ class MongoStore:
         except BulkWriteError as exc:
             if inserted := [doc['_id'] for doc in docs[:exc.details.get('nInserted', 0)]]:
                 coll.delete_many({'_id': {'$in': inserted}})
-            _raise_bulk_error(cr, coll, exc, table)
+            _raise_bulk_error(cr, coll, exc, model)
         ids = [doc['_id'] for doc in docs]
         self.journal(cr).record(lambda: coll.delete_many({'_id': {'$in': ids}}))
 
@@ -395,7 +395,7 @@ class MongoStore:
             self.journal(cr).record(lambda: coll.insert_many(old))
         return old
 
-    def update_docs(self, cr, coll, updates: dict[int, dict[str, object]], table: str = '') -> None:
+    def update_docs(self, cr, coll, updates: dict[int, dict[str, object]], model: BaseModel | None = None) -> None:
         """ ``$set`` per-document values (``{_id: {path: value}}``); the touched
         top-level paths are snapshotted for undo. """
         if not updates:
@@ -418,7 +418,7 @@ class MongoStore:
             coll.bulk_write([UpdateOne({'_id': id_}, {'$set': values}) for id_, values in updates.items()], ordered=False)
         except BulkWriteError as exc:
             undo()
-            _raise_bulk_error(cr, coll, exc, table)
+            _raise_bulk_error(cr, coll, exc, model)
         self.journal(cr).record(undo)
 
     # -- embedded elements ----------------------------------------------------------
@@ -1051,22 +1051,51 @@ def _foreign_key_violation(model: BaseModel, message: str) -> typing.NoReturn:
     _pg_error(model.env.cr, 'foreign_key_violation', message, TABLE=model._table)
 
 
-def _raise_bulk_error(cr, coll, exc: BulkWriteError, table: str) -> typing.NoReturn:
+def _raise_bulk_error(cr, coll, exc: BulkWriteError, model: BaseModel | str | None) -> typing.NoReturn:
     """ A duplicate key in a bulk write becomes the unique_violation PostgreSQL
-    raises; anything else is re-raised as is. """
+    raises (``model``: the model written, or the name of the relation table);
+    anything else is re-raised as is. """
     error = (exc.details.get('writeErrors') or [{}])[0]
     if error.get('code') != 11000:
         raise exc
     match = re.search(r'index: (\S+)', error.get('errmsg', ''))
     index = match.group(1) if match else coll.name
     key = error.get('keyValue') or {}
+    if isinstance(model, str) or model is None:
+        table = model or coll.name
+    else:
+        table = model._table
+        index = _unique_constraint_name(model, index, key)
     _pg_error(cr, 'unique_violation', f'duplicate key value violates unique constraint "{index}"',
-              TABLE=table or coll.name, CONSTRAINT=index,
+              TABLE=table, CONSTRAINT=index,
               DETAIL=f"Key ({', '.join(key)})=({', '.join(str(v) for v in key.values())}) already exists.")
 
 
 _CHECK_RE = re.compile(r'^\s*CHECK\s*(\(.*\))\s*$', re.IGNORECASE | re.DOTALL)
 _IDENT_RE = re.compile(r'[A-Za-z_][A-Za-z0-9_]*')
+_LITERAL_RE = re.compile(r"'(?:[^']|'')*'")
+
+
+def _columns_in(model: BaseModel, definition: str) -> set[str]:
+    """ The columns of ``model`` a table object definition refers to. """
+    return {
+        name for name in _IDENT_RE.findall(_LITERAL_RE.sub("''", definition))
+        if name in model._fields and model._fields[name].column_type
+    }
+
+
+def _unique_constraint_name(model: BaseModel, index: str, key: dict) -> str:
+    """ The model's UNIQUE constraint/index on the columns of a duplicate key,
+    so that ``_sql_error_to_message()`` finds its message, else the MongoDB
+    index name. """
+    spec = store(model).storage(model)
+    sources = {target: column for column, (target, _) in spec.fields.items()}
+    columns = {sources.get(target, target) for target in key}
+    for cons in model._table_objects.values():
+        definition = cons.get_definition(model.env.registry)
+        if definition.upper().startswith('UNIQUE') and _columns_in(model, definition) == columns:
+            return cons.full_name(model)
+    return index
 
 
 def _check_constraints(model: BaseModel) -> list[tuple[TableObject, str, list[str]]]:
@@ -1075,11 +1104,7 @@ def _check_constraints(model: BaseModel) -> list[tuple[TableObject, str, list[st
     for cons in model._table_objects.values():
         if match := _CHECK_RE.match(cons.get_definition(model.env.registry)):
             expr = match.group(1)
-            columns = sorted({
-                name for name in _IDENT_RE.findall(expr)
-                if name in model._fields and model._fields[name].column_type
-            })
-            result.append((cons, expr, columns))
+            result.append((cons, expr, sorted(_columns_in(model, expr))))
     return result
 
 
@@ -1119,8 +1144,8 @@ def _enforce_checks(model: BaseModel, rows: dict[int, dict[str, object]], fnames
     )
     for cons, expr, _ in checks:
         cr.execute(SQL(
-            "SELECT t.__id FROM (VALUES %s) AS t(__id, %s) WHERE NOT %s LIMIT 1",
-            values, SQL(", ").join(SQL.identifier(col) for col in columns), SQL(expr),
+            "SELECT t.__id FROM (VALUES %s) AS t(%s) WHERE NOT %s LIMIT 1",
+            values, SQL(", ").join([SQL("__id"), *(SQL.identifier(col) for col in columns)]), SQL(expr),
         ))
         if cr.rowcount:
             name = cons.full_name(model)
@@ -1146,7 +1171,7 @@ def create(model: BaseModel, data_list: list[dict]) -> tuple[list[int], OrderedS
     for id_, data in zip(ids, data_list):
         stored = data['stored']
         doc = {}
-        row = rows[id_] = {}
+        row = rows[id_] = {'id': id_}
         for fname, value in stored.items():
             field = model._fields[fname]
             if field.column_type:
@@ -1180,7 +1205,7 @@ def create(model: BaseModel, data_list: list[dict]) -> tuple[list[int], OrderedS
     else:
         for id_, doc in zip(ids, docs):
             doc['_id'] = id_
-        st.insert_docs(cr, coll, docs, model._table)
+        st.insert_docs(cr, coll, docs, model)
     return ids, other_fields
 
 
@@ -1219,19 +1244,22 @@ def write_multi(model: BaseModel, vals_list: list[dict]) -> None:
         else:
             old_json = {doc['_id']: doc for doc in coll.find({'_id': {'$in': ids}}, projection)}
     required = {f.name for f in _required_column_fields(model)}
-    _enforce_checks(model, {id_: dict(vals) for id_, vals in zip(ids, vals_list)}, {f for vals in vals_list for f in vals})
 
     updates: dict[int, dict[str, object]] = {}
+    rows: dict[int, dict[str, object]] = {}     # column values as stored, for the CHECK constraints
     moves: dict[int, int] = {}      # embedded records whose parent changes
     for id_, vals in zip(ids, vals_list):
         values = {}
+        row = rows[id_] = {}
         for fname, value in vals.items():
             field = model._fields[fname]
             assert field.store and field.column_type
             path = spec.target(fname)
             if field in json_fields:
                 value = _merge_json(field, old_json.get(id_, {}).get(path), value)
+                row[fname] = PsycopgJson(value) if value is not None else None
             else:
+                row[fname] = value
                 value = to_bson(value, spec.bson_type(fname, field))
             if value is None and fname in required:
                 _not_null_violation(model, fname)
@@ -1241,9 +1269,10 @@ def write_multi(model: BaseModel, vals_list: list[dict]) -> None:
             values[path] = value
         if values:
             updates[id_] = values
+    _enforce_checks(model, rows, {f for vals in vals_list for f in vals})
 
     if not spec.embedded:
-        st.update_docs(cr, coll, updates, model._table)
+        st.update_docs(cr, coll, updates, model)
         return
     if moves:
         if missing := set(moves.values()) - {d['_id'] for d in coll.find({'_id': {'$in': list(moves.values())}}, {'_id': 1})}:

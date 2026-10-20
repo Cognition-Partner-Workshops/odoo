@@ -3,6 +3,7 @@ import datetime
 
 import psycopg2
 
+from odoo.orm.storage_mongodb import _check_constraints
 from odoo.tests import TransactionCase, tagged
 from odoo.tools import mute_logger, sql
 
@@ -336,6 +337,12 @@ class TestMongoStorage(TransactionCase):
         self.book_a1.write({'pages': 7})
         self.env.flush_all()
         self.assertEqual(self.doc(self.book_a1)['pages'], 7)
+        # a quoted literal is not a column (and a check with no column evaluates)
+        self.assertEqual([cols for cons, _, cols in _check_constraints(Book) if cons.name == 'check_const'], [[]])
+        # the check sees the value as stored: a partial translation keeps en_US
+        self.author_a.with_context(lang='fr_FR').write({'title': 'Docteur'})
+        self.env.flush_all()
+        self.assertEqual(self.doc(self.author_a)['title'], {'en_US': 'Doctor', 'fr_FR': 'Docteur'})
 
     def test_duplicate_unique_key(self):
         Tag = self.env['test.mongo.tag']
@@ -343,10 +350,11 @@ class TestMongoStorage(TransactionCase):
         with self.assertRaises(psycopg2.errors.UniqueViolation) as cm, mute_logger('odoo.sql_db'):
             with self.env.cr.savepoint():
                 Tag.create([{'name': 'z'}, {'name': 'x'}])
-        self.assertEqual(cm.exception.diag.constraint_name, 'name_1')
+        # the spec index maps back to the model's UNIQUE constraint, so its message is used
+        self.assertEqual(cm.exception.diag.constraint_name, 'test_mongo_tag_name_uniq')
         self.assertEqual(cm.exception.diag.table_name, 'test_mongo_tag')
         self.assertEqual(cm.exception.diag.message_detail, "Key (name)=(x) already exists.")
-        self.assertIn('name_1', Tag._sql_error_to_message(cm.exception))
+        self.assertEqual(Tag._sql_error_to_message(cm.exception), 'Tag names must be unique.')
         # the rows inserted before the duplicate are gone, like the whole INSERT on PostgreSQL
         self.assertEqual(coll.count_documents({'name': 'z'}), 0)
         self.assertEqual(Tag.search_count([]), 2)

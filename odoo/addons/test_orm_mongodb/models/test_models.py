@@ -34,6 +34,7 @@ class TestMongoTag(models.Model):
                           indexes=[{'keys': [['name', 1]], 'unique': True}])
 
     name = fields.Char(required=True)
+    _name_uniq = models.Constraint('UNIQUE (name)', 'Tag names must be unique.')
     author_ids = fields.Many2many('test.mongo.author', 'test_mongo_author_tag_rel', 'tag_id', 'author_id')
 
     def init(self):
@@ -58,6 +59,8 @@ class TestMongoAuthor(models.Model):
 
     name = fields.Char(required=True)
     title = fields.Char(translate=True)
+    # evaluated on the translations as stored, not on a partial update
+    _check_title = models.Constraint("CHECK (title IS NULL OR title ? 'en_US')", 'A title needs an English value.')
     rating = fields.Float(digits=(16, 2))
     score = fields.Float()
     active = fields.Boolean(default=True)
@@ -100,6 +103,8 @@ class TestMongoBook(models.Model):
     price = fields.Float(digits=(16, 2))
     pages = fields.Integer()
     _check_pages = models.Constraint('CHECK (pages >= 0)', 'Pages must be positive.')
+    # no column, and a literal spelling a column name
+    _check_const = models.Constraint("CHECK ('pages' <> '')", 'Always true.')
     published = fields.Datetime()
     chapter_ids = fields.One2many('test.mongo.chapter', 'book_id')
     tag_ids = fields.Many2many('test.mongo.tag', 'test_mongo_book_tag_rel', 'book_id', 'tag_id')
