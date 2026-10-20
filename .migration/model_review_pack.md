@@ -1,6 +1,6 @@
 # Schema sign-off pack — s3.1 (board UNT12, ticket UNT12-9)
 
-Plugin pinned at `9a584b4` (unpatched). Committed spec: **`map-draft-2`** (mapping_sha256 `88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc`), rebuilt from the `map-draft-1` proposal (proposal on origin/mongo-run/unt12) by `.migration/rehearsal/scratch_draft2.sh` (plan decision `d-plugin-gap = accept-scratch-draft2`). Review page: `.migration/model_cards.md`. Tolerances `unt12-3` (sha256 `7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea`, `aggregate_rel_tol` 1e-12; plan decision `d-float-aggregates = rel-tol-float8`).
+Plugin pinned at `9a584b4` (unpatched). Committed spec: **`map-draft-2`** (mapping_sha256 `88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc`), rebuilt from the `map-draft-1` proposal (proposal on 0d99622a7e9c7d38dff33429c91a058aeb13c223) by `.migration/rehearsal/scratch_draft2.sh` (plan decision `d-plugin-gap = accept-scratch-draft2`). Review page: `.migration/model_cards.md`. Tolerances `unt12-3` (sha256 `7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea`, `aggregate_rel_tol` 1e-12; plan decision `d-float-aggregates = rel-tol-float8`).
 
 ## 1. Where this stands (read first)
 

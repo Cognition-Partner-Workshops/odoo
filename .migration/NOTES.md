@@ -265,7 +265,7 @@ Commands (read-only; secret bound by name in one-shot execs): the PostgreSQL cli
 - Plan decision `d-plugin-gap = accept-scratch-draft2`: `.migration/mapping_spec.json` (map-draft-2, mapping_sha256
   `88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc`) is the proposal with those 299 dangling reference rows
   filtered out of a copy, then patched by the pinned, unpatched `model_patch.py`. `.migration/rehearsal/scratch_draft2.sh` is
-  the reproducible recipe (input: map-draft-1 from `origin/mongo-run/unt12`; it prints the rebuilt sha256 next to the committed
+  the reproducible recipe (input: map-draft-1 at run-branch commit `0d99622`; it prints the rebuilt sha256 next to the committed
   one). The filtered rows pointed only at excluded tables, which stay in PostgreSQL; their FK columns remain integer id fields on
   the documents. Gate `g-model-evidence` is read as: `--check` leaves only the 1460 excluded-table lines and 0 open items
   (`.migration/rehearsal/check.map-draft-2.txt`).

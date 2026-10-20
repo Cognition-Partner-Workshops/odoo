@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # s3.1 reproducible recipe (UNT12-9, plan decision d-plugin-gap = accept-scratch-draft2):
 # rebuilds map-draft-2 from the map-draft-1 proposal with the pinned, unpatched plugin.
-# Input is map-draft-1 as committed on the run branch (BASE_REF, default origin/mongo-run/unt12),
+# Input is map-draft-1 as committed on the run branch (BASE_REF, default the run-branch commit 0d99622 the proposal was reviewed at),
 # never the working copy. Steps: 1) copy it and filter out the 299 `references[].to` rows that
 # name collections of --exclude-table tables (the plugin gap at 9a584b4: model_proposal.py emits
 # them and model_patch.py refuses every decision while they exist; see NOTES.md s3.1),
@@ -13,7 +13,7 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 PLUGIN=${PLUGIN:-/home/ubuntu/plugin-9a584b4}
 PY=${PY:-/home/ubuntu/.venvs/recon/bin/python}
 SCRATCH=${SCRATCH:-/home/ubuntu/scratch}
-BASE_REF=${BASE_REF:-origin/mongo-run/unt12}
+BASE_REF=${BASE_REF:-0d99622a7e9c7d38dff33429c91a058aeb13c223}
 M="$PLUGIN/skills/schema-modeling"
 OUT="$SCRATCH"
 mkdir -p "$SCRATCH"

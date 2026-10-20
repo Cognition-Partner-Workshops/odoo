@@ -99,8 +99,8 @@ def md_table(headers, rows):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", default=str(MIG / "model_review_pack.md"))
-    ap.add_argument("--base-ref", default="origin/mongo-run/unt12",
-                    help="ref holding the map-draft-1 proposal the questions were asked on")
+    ap.add_argument("--base-ref", default="0d99622a7e9c7d38dff33429c91a058aeb13c223",
+                    help="commit holding the map-draft-1 proposal the questions were asked on (pinned, not a branch)")
     a = ap.parse_args()
 
     import subprocess
