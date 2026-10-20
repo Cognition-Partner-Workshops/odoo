@@ -8,8 +8,8 @@ Run on the run branch against the worker's seeded clone, whose documents are the
 
 Reads are compared with the clone's PostgreSQL rows (the clone still carries the legacy columns);
 every write happens in one transaction that is rolled back at the end, and the documents are
-hashed before and after to show the journal left the loaded collections untouched. A GAP line is
-a storage-path gap reported on the ticket (not patched here); it is not counted as a check.
+hashed before and after to show the journal left the loaded collections untouched. Every relation
+(one2many, many2many, embedded array, both sides) is compared for exact equality with the PostgreSQL rows.
 """
 import hashlib
 
@@ -37,12 +37,9 @@ checks = []
 
 
 def check(name, ok, detail=''):
+    ok = bool(ok)
     checks.append(ok)
     print(f"{'PASS' if ok else 'FAIL'} {name}{' -- ' + str(detail) if detail else ''}")
-
-
-def gap(name, detail=''):
-    print(f"GAP  {name}{' -- ' + str(detail) if detail else ''}")
 
 
 def sql(query, params=()):
@@ -79,8 +76,9 @@ for model, order in MODELS.items():
     check(f"{model} exists()", M.browse(pg_ids).exists().ids == pg_ids and not M.browse(max(pg_ids) + 1000).exists())
 Term, Line = env['account.payment.term'], env['account.payment.term.line']
 check("active_test on a stored boolean", Term.search_count([]) == sql("SELECT count(*) FROM account_payment_term WHERE active")[0][0])
-gap("account.report.search([]) with active_test (compute_sql field 'active' in a domain)",
-    f"{env['account.report'].search([]).ids} vs {env['account.report'].with_context(active_test=False).search([]).ids}")
+pg_active = [r[0] for r in sql("SELECT id FROM account_report WHERE COALESCE((active_selection->>%s) = 'True', active_fallback) ORDER BY sequence, id", (str(env.company.id),))]
+check("account.report.search([]) under active_test equals the PostgreSQL rows (compute_sql 'active')",
+      env['account.report'].search([]).ids == pg_active and env['account.report'].search_count([]) == len(pg_active) and pg_active, pg_active)
 
 # 2. field values against PostgreSQL rows
 rows = sql("SELECT id, name->>'en_US', sequence, company_id, COALESCE(early_discount, false), discount_percentage FROM account_payment_term ORDER BY id")
@@ -93,9 +91,9 @@ lines = Line.browse([r[0] for r in rows])
 check("account.payment.term.line (embedded) field values", all(
     (l.payment_id.id, l.value, l.value_amount, l.nb_days, l.delay_type) == (r[1], r[2], float(r[3] or 0), r[4], r[5])
     for l, r in zip(lines, rows)), [(l.payment_id.id, l.value_amount) for l in lines][:3])
-check("one2many line_ids from the parent document", all(
+check("one2many line_ids from the parent document == PostgreSQL rows, both sides", all(
     t.line_ids.ids == [r[0] for r in sql("SELECT id FROM account_payment_term_line WHERE payment_id = %s ORDER BY id", (t.id,))]
-    for t in terms))
+    for t in terms) and [(l.id, l.payment_id.id) for l in lines] == sql("SELECT id, payment_id FROM account_payment_term_line ORDER BY id") and lines)
 rows = sql("SELECT id, name->>'en_US', rounding, strategy, rounding_method FROM account_cash_rounding ORDER BY id")
 roundings = env['account.cash.rounding'].browse([r[0] for r in rows])
 check("account.cash.rounding field values", all(
@@ -121,12 +119,32 @@ check("account.report.external.value field values", all(
     (x.name, x.value, x.date, x.target_report_expression_id.id) == (r[1], float(r[2]), r[3], r[4]) for x, r in zip(externals, rows)))
 Report = env['account.report'].with_context(active_test=False)
 report1 = Report.browse(1)
-check("account.report embedded lines and columns", report1.line_ids.mapped('code') == ['W1B04_SALES', 'W1B04_ADJ']
-      and report1.column_ids.mapped('expression_label') == [r[0] for r in sql("SELECT expression_label FROM account_report_column WHERE report_id = 1 ORDER BY sequence, id")]
-      and report1.line_ids[1].parent_id == report1.line_ids[0] and report1.line_ids[0].children_ids == report1.line_ids[1]
-      and report1.line_ids[0].expression_ids.mapped('label') == ['balance', 'adjustment'])
-check("report sections (embedded relation table, owning side)", Report.browse(5).section_report_ids.ids == [2, 3])
-gap("inverse side of the embedded relation table (section_main_report_ids)", Report.browse(2).section_main_report_ids.ids)
+reports = Report.search([])
+ReportLine, Column = env['account.report.line'], env['account.report.column']
+check("account.report line_ids / column_ids == PostgreSQL rows, both sides", all(
+    r.line_ids.ids == [x[0] for x in sql("SELECT id FROM account_report_line WHERE report_id = %s ORDER BY sequence, id", (r.id,))]
+    and r.column_ids.ids == [x[0] for x in sql("SELECT id FROM account_report_column WHERE report_id = %s ORDER BY sequence, id", (r.id,))]
+    for r in reports)
+    and [(l.id, l.report_id.id) for l in ReportLine.search([], order='id')] == sql("SELECT id, report_id FROM account_report_line ORDER BY id")
+    and [(c.id, c.report_id.id) for c in Column.search([], order='id')] == sql("SELECT id, report_id FROM account_report_column ORDER BY id")
+    and report1.line_ids.mapped('code') == ['W1B04_SALES', 'W1B04_ADJ'] and report1.column_ids and report1.line_ids)
+check("report line parent_id / children_ids == PostgreSQL rows, both sides",
+      [(l.id, l.parent_id.id or None) for l in ReportLine.search([], order='id')] == sql("SELECT id, parent_id FROM account_report_line ORDER BY id")
+      and all(l.children_ids.ids == [x[0] for x in sql("SELECT id FROM account_report_line WHERE parent_id = %s ORDER BY sequence, id", (l.id,))] for l in ReportLine.search([]))
+      and report1.line_ids[0].children_ids == report1.line_ids[1])
+check("expression_ids / report_line_id == PostgreSQL rows, both sides (root collection <-> embedded line)",
+      all(l.expression_ids.ids == [x[0] for x in sql("SELECT id FROM account_report_expression WHERE report_line_id = %s ORDER BY id", (l.id,))] for l in ReportLine.search([]))
+      and [(x.id, x.report_line_id.id) for x in expressions] == sql("SELECT id, report_line_id FROM account_report_expression ORDER BY id") and expressions)
+pg_sections = sql("SELECT main_report_id, sub_report_id FROM account_report_section_rel ORDER BY 1, 2")
+check("report sections == PostgreSQL rows, both sides (section_report_ids / section_main_report_ids)",
+      all(sorted(r.section_report_ids.ids) == [x[1] for x in pg_sections if x[0] == r.id]
+          and sorted(r.section_main_report_ids.ids) == [x[0] for x in pg_sections if x[1] == r.id] for r in reports)
+      and Report.browse(5).section_report_ids.ids == [2, 3] and Report.browse(2).section_main_report_ids.ids == [5]
+      and Report.browse(3).section_main_report_ids.ids == [5], pg_sections)
+Group, Journal = env['account.journal.group'], env['account.journal']
+check("journal group included_journal_ids / journal_group_id == PostgreSQL rows, both sides (PostgreSQL -> MongoDB one2many)",
+      all(g.included_journal_ids.ids == [x[0] for x in sql("SELECT id FROM account_journal WHERE journal_group_id = %s ORDER BY sequence, id", (g.id,))] for g in Group.search([]))
+      and [(j.id, j.journal_group_id.id or None) for j in Journal.with_context(active_test=False).search([], order='id')] == sql("SELECT id, journal_group_id FROM account_journal ORDER BY id"))
 
 # 3. domains, read_group, translated search
 n = sql("SELECT count(*) FROM account_payment_term WHERE name->>'en_US' ILIKE %s", ('%days%',))[0][0]
@@ -176,6 +194,15 @@ term = Term.create({'name': 'Scenario 30/60', 'line_ids': [
     (0, 0, {'value': 'percent', 'value_amount': 40, 'nb_days': 30}),
     (0, 0, {'value': 'percent', 'value_amount': 60, 'nb_days': 60}),
 ]})
+check("search right after an unflushed create finds the record", Term.search([('name', '=', 'Scenario 30/60')]) == term
+      and Line.search([('payment_id', '=', term.id)]).ids == term.line_ids.ids)
+term.name = 'Scenario 30/60 renamed'
+check("search right after an unflushed write finds the record", Term.search([('name', '=', 'Scenario 30/60 renamed')]) == term
+      and not Term.search([('name', '=', 'Scenario 30/60')]))
+term.name = 'Scenario 30/60'
+roundings[1].active = False
+check("search_count right after an unflushed archive excludes the record", env['account.cash.rounding'].search_count([]) == 1)
+roundings[1].active = True
 env.flush_all()
 doc = st.model_collection(Term).find_one({'_id': term.id})
 check("create writes the parent document with its embedded lines + shadow rows",
@@ -219,12 +246,21 @@ check("report create embeds sections, columns and lines; expressions are a root 
       rdoc['sectionRel'] == [{'subReportId': 1}] and [c['expressionLabel'] for c in rdoc['column']] == ['balance']
       and [l['code'] for l in rdoc['line']] == ['SCN'] and report.line_ids.expression_ids.report_line_id == report.line_ids
       and st.model_collection(env['account.report.expression']).find_one({'_id': report.line_ids.expression_ids.id})['formula'] == 'sum', rdoc)
+check("inverse side of the written section relation", report1.section_main_report_ids == report and report.section_report_ids == report1
+      and Report.search([('section_main_report_ids', 'in', report.ids)]) == report1 and Report.search([('section_report_ids', 'in', report1.ids)]) == report)
+journal = Journal.search([], limit=1)
+group = Group.create({'name': 'Scenario ledger', 'included_journal_ids': [(4, journal.id)]})
+env.flush_all()
+check("journal group one2many written from the MongoDB side, read from both sides",
+      journal.journal_group_id == group and group.included_journal_ids == journal
+      and sql("SELECT journal_group_id FROM account_journal WHERE id = %s", (journal.id,))[0][0] == group.id
+      and Journal.search([('journal_group_id', '=', group.id)]) == journal and Group.search([('included_journal_ids', 'in', journal.ids)]) == group)
 refused("unique natural key refused (journal group name)", lambda: env['account.journal.group'].create({'name': 'IFRS ledger'}),
         lambda exc: 'E11000' in str(exc) or 'duplicate key' in str(exc))
 refused("unique (report_line_id, label) refused", lambda: env['account.report.expression'].create(
     {'report_line_id': 1, 'label': 'balance', 'engine': 'external', 'formula': 'sum'}), lambda exc: 'E11000' in str(exc) or 'duplicate key' in str(exc))
-refused("domain engine without subformula refused (CHECK mirrored by _check_domain_engine_subformula)", lambda: env['account.report.expression'].create(
-    {'report_line_id': 1, 'label': 'scn', 'engine': 'domain', 'formula': '[]'}), lambda exc: type(exc).__name__ == 'ValidationError')
+refused("domain engine without subformula refused (SQL CHECK enforced by the storage path)", lambda: env['account.report.expression'].create(
+    {'report_line_id': 1, 'label': 'scn', 'engine': 'domain', 'formula': '[]'}), lambda exc: 'domain_engine_subformula_required' in str(exc))
 refused("duplicate line code per report refused (unique mirrored by _check_code_uniq)", lambda: env['account.report.line'].create(
     {'report_id': 1, 'name': 'Dup', 'code': 'W1B04_ADJ'}), lambda exc: type(exc).__name__ == 'ValidationError')
 refused("duplicate column label per report refused (unique mirrored by _check_expression_label_uniq)", lambda: env['account.report.column'].create(

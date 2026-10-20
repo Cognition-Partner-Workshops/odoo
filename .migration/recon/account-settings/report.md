@@ -7,7 +7,7 @@
 - Tolerance version: `unt12-3` (sha256 `7b426db21459`)
 - Collections: `accountCashRounding`, `accountIncoterms`, `accountJournalGroup`, `accountLockException`, `accountPaymentTerm`, `accountReport`, `accountReportExpression`, `accountReportExternalValue`
 - Seed: `0`
-- Generated: 2026-10-20T14:29:53.713813+00:00
+- Generated: 2026-10-20T16:07:56.733660+00:00
 - 111 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 36 string fields: min/max/distinct deferred to Tier 3
 
