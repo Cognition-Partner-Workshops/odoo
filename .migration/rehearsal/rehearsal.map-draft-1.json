@@ -1,0 +1,1594 @@
+{
+ "spec_version": "map-draft-1",
+ "spec_file": ".migration/mapping_spec.json",
+ "target_db": "odoo_unt12",
+ "target_class": "local",
+ "source_database": "odoo_fixture",
+ "collections": 65,
+ "documents": 1709,
+ "indexes_in_spec": 635,
+ "indexes_created": 631,
+ "indexes_failed": 4,
+ "largest_document": {
+  "collection": "productAttribute",
+  "bytes": 7585,
+  "limit_bytes": 16777216,
+  "pct_of_limit": 0.0452
+ },
+ "longest_array": {
+  "collection": "accountFiscalPosition",
+  "array_path": "accountTaxRel",
+  "child_table": "account_fiscal_position_account_tax_rel",
+  "max": 46
+ },
+ "per_collection": [
+  {
+   "collection": "accountAccount",
+   "root_table": "account_account",
+   "documents": 184,
+   "max_doc_bytes": 518,
+   "p50_doc_bytes": 420,
+   "indexes_in_spec": 11,
+   "indexes_created": 11,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "resCompanyRel",
+     "child_table": "account_account_res_company_rel",
+     "child_rows": 184,
+     "embedded": 184,
+     "skipped_no_parent": 0,
+     "p50": 1,
+     "p99": 1,
+     "max": 1
+    },
+    {
+     "array_path": "accountTag",
+     "child_table": "account_account_account_tag",
+     "child_rows": 13,
+     "embedded": 13,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 1,
+     "max": 1
+    },
+    {
+     "array_path": "taxDefaultRel",
+     "child_table": "account_account_tax_default_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "accountAccountTag",
+   "root_table": "account_account_tag",
+   "documents": 8,
+   "max_doc_bytes": 281,
+   "p50_doc_bytes": 265,
+   "indexes_in_spec": 3,
+   "indexes_created": 3,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "accountMoveLineRel",
+     "child_table": "account_account_tag_account_move_line_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "accountTaxRepartitionLineRel",
+     "child_table": "account_account_tag_account_tax_repartition_line_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "productTemplateRel",
+     "child_table": "account_account_tag_product_template_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "accountBankStatement",
+   "root_table": "account_bank_statement",
+   "documents": 2,
+   "max_doc_bytes": 403,
+   "p50_doc_bytes": 403,
+   "indexes_in_spec": 7,
+   "indexes_created": 7,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "irAttachmentRel",
+     "child_table": "account_bank_statement_ir_attachment_rel",
+     "child_rows": 2,
+     "embedded": 2,
+     "skipped_no_parent": 0,
+     "p50": 1,
+     "p99": 1,
+     "max": 1
+    }
+   ]
+  },
+  {
+   "collection": "accountBankStatementLine",
+   "root_table": "account_bank_statement_line",
+   "documents": 18,
+   "max_doc_bytes": 478,
+   "p50_doc_bytes": 443,
+   "indexes_in_spec": 13,
+   "indexes_created": 13,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "accountCashRounding",
+   "root_table": "account_cash_rounding",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 5,
+   "indexes_created": 5,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "resCurrencyRel",
+     "child_table": "account_cash_rounding_res_currency_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "resPartnerCategoryRel",
+     "child_table": "account_cash_rounding_res_partner_category_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "accountPaymentMethodLineRel",
+     "child_table": "account_cash_rounding_account_payment_method_line_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "accountFiscalPosition",
+   "root_table": "account_fiscal_position",
+   "documents": 4,
+   "max_doc_bytes": 1541,
+   "p50_doc_bytes": 366,
+   "indexes_in_spec": 6,
+   "indexes_created": 6,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "account",
+     "child_table": "account_fiscal_position_account",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "resCountryStateRel",
+     "child_table": "account_fiscal_position_res_country_state_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "accountTaxRel",
+     "child_table": "account_fiscal_position_account_tax_rel",
+     "child_rows": 50,
+     "embedded": 50,
+     "skipped_no_parent": 0,
+     "p50": 2,
+     "p99": 46,
+     "max": 46
+    }
+   ]
+  },
+  {
+   "collection": "accountFullReconcile",
+   "root_table": "account_full_reconcile",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 0,
+   "indexes_created": 0,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "accountIncoterms",
+   "root_table": "account_incoterms",
+   "documents": 11,
+   "max_doc_bytes": 158,
+   "p50_doc_bytes": 146,
+   "indexes_in_spec": 1,
+   "indexes_created": 1,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "accountJournal",
+   "root_table": "account_journal",
+   "documents": 14,
+   "max_doc_bytes": 703,
+   "p50_doc_bytes": 696,
+   "indexes_in_spec": 19,
+   "indexes_created": 19,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "accountReconcileModelRel",
+     "child_table": "account_journal_account_reconcile_model_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "accountJournalGroup",
+   "root_table": "account_journal_group",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 1,
+   "indexes_created": 1,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "accountLockException",
+   "root_table": "account_lock_exception",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 4,
+   "indexes_created": 4,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "accountMove",
+   "root_table": "account_move",
+   "documents": 59,
+   "max_doc_bytes": 1774,
+   "p50_doc_bytes": 1745,
+   "indexes_in_spec": 67,
+   "indexes_created": 63,
+   "indexes_failed": [
+    {
+     "keys": [
+      [
+       "journalId",
+       1
+      ],
+      [
+       "_id",
+       1
+      ],
+      [
+       "sequencePrefix",
+       1
+      ]
+     ],
+     "code": 67,
+     "error": "add index fails, too many indexes for odoo_unt12.accountMove key:{ journalId: 1, _id: 1, sequencePrefix: 1 }"
+    },
+    {
+     "keys": [
+      [
+       "accountPayment.paymentId",
+       1
+      ]
+     ],
+     "code": 67,
+     "error": "add index fails, too many indexes for odoo_unt12.accountMove key:{ accountPayment.paymentId: 1 }"
+    },
+    {
+     "keys": [
+      [
+       "purchaseOrderRel.purchaseOrderId",
+       1
+      ]
+     ],
+     "code": 67,
+     "error": "add index fails, too many indexes for odoo_unt12.accountMove key:{ purchaseOrderRel.purchaseOrderId: 1 }"
+    },
+    {
+     "keys": [
+      [
+       "adjustingEntriesAccountMove.moveId",
+       1
+      ]
+     ],
+     "code": 67,
+     "error": "add index fails, too many indexes for odoo_unt12.accountMove key:{ adjustingEntriesAccountMove.moveId: 1 }"
+    }
+   ],
+   "embeds": [
+    {
+     "array_path": "accountPayment",
+     "child_table": "account_move__account_payment",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "purchaseOrderRel",
+     "child_table": "account_move_purchase_order_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "adjustingEntriesAccountMove",
+     "child_table": "adjusting_entries__account_move",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "accountMoveLine",
+   "root_table": "account_move_line",
+   "documents": 171,
+   "max_doc_bytes": 1247,
+   "p50_doc_bytes": 1200,
+   "indexes_in_spec": 41,
+   "indexes_created": 41,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "accountTaxRel",
+     "child_table": "account_move_line_account_tax_rel",
+     "child_rows": 55,
+     "embedded": 55,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 1,
+     "max": 2
+    },
+    {
+     "array_path": "accountPartialReconcile",
+     "child_table": "account_partial_reconcile",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "accountPayment",
+   "root_table": "account_payment",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 20,
+   "indexes_created": 20,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "accountBankStatementLineRel",
+     "child_table": "account_payment_account_bank_statement_line_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "accountPaymentMethod",
+   "root_table": "account_payment_method",
+   "documents": 2,
+   "max_doc_bytes": 523,
+   "p50_doc_bytes": 522,
+   "indexes_in_spec": 4,
+   "indexes_created": 4,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "line",
+     "child_table": "account_payment_method_line",
+     "child_rows": 4,
+     "embedded": 4,
+     "skipped_no_parent": 0,
+     "p50": 2,
+     "p99": 2,
+     "max": 2
+    }
+   ]
+  },
+  {
+   "collection": "accountPaymentTerm",
+   "root_table": "account_payment_term",
+   "documents": 11,
+   "max_doc_bytes": 787,
+   "p50_doc_bytes": 563,
+   "indexes_in_spec": 2,
+   "indexes_created": 2,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "line",
+     "child_table": "account_payment_term_line",
+     "child_rows": 13,
+     "embedded": 13,
+     "skipped_no_parent": 0,
+     "p50": 1,
+     "p99": 2,
+     "max": 2
+    }
+   ]
+  },
+  {
+   "collection": "accountReconcileModel",
+   "root_table": "account_reconcile_model",
+   "documents": 8,
+   "max_doc_bytes": 1003,
+   "p50_doc_bytes": 734,
+   "indexes_in_spec": 3,
+   "indexes_created": 3,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "resPartnerRel",
+     "child_table": "account_reconcile_model_res_partner_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "line",
+     "child_table": "account_reconcile_model_line",
+     "child_rows": 10,
+     "embedded": 10,
+     "skipped_no_parent": 0,
+     "p50": 1,
+     "p99": 2,
+     "max": 2
+    }
+   ]
+  },
+  {
+   "collection": "accountReconcileModelLineAccountTaxRel",
+   "root_table": "account_reconcile_model_line_account_tax_rel",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 2,
+   "indexes_created": 2,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "accountReport",
+   "root_table": "account_report",
+   "documents": 4,
+   "max_doc_bytes": 1303,
+   "p50_doc_bytes": 1303,
+   "indexes_in_spec": 5,
+   "indexes_created": 5,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "column",
+     "child_table": "account_report_column",
+     "child_rows": 8,
+     "embedded": 8,
+     "skipped_no_parent": 0,
+     "p50": 2,
+     "p99": 2,
+     "max": 2
+    },
+    {
+     "array_path": "line",
+     "child_table": "account_report_line",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "sectionRel",
+     "child_table": "account_report_section_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "accountReportExpression",
+   "root_table": "account_report_expression",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 3,
+   "indexes_created": 3,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "accountReportExternalValue",
+   "root_table": "account_report_external_value",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 3,
+   "indexes_created": 3,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "accountTax",
+   "root_table": "account_tax",
+   "documents": 57,
+   "max_doc_bytes": 2343,
+   "p50_doc_bytes": 848,
+   "indexes_in_spec": 15,
+   "indexes_created": 15,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "alternatives",
+     "child_table": "account_tax_alternatives",
+     "child_rows": 2,
+     "embedded": 2,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 1,
+     "max": 1
+    },
+    {
+     "array_path": "filiationRel",
+     "child_table": "account_tax_filiation_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "purchaseOrderLineRel",
+     "child_table": "account_tax_purchase_order_line_rel",
+     "child_rows": 31,
+     "embedded": 31,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 7,
+     "max": 24
+    },
+    {
+     "array_path": "saleOrderLineRel",
+     "child_table": "account_tax_sale_order_line_rel",
+     "child_rows": 50,
+     "embedded": 50,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 14,
+     "max": 36
+    },
+    {
+     "array_path": "productSupplierTaxesRel",
+     "child_table": "product_supplier_taxes_rel",
+     "child_rows": 72,
+     "embedded": 72,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 36,
+     "max": 36
+    },
+    {
+     "array_path": "productTaxesRel",
+     "child_table": "product_taxes_rel",
+     "child_rows": 72,
+     "embedded": 72,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 36,
+     "max": 36
+    }
+   ]
+  },
+  {
+   "collection": "accountTaxGroup",
+   "root_table": "account_tax_group",
+   "documents": 26,
+   "max_doc_bytes": 195,
+   "p50_doc_bytes": 193,
+   "indexes_in_spec": 2,
+   "indexes_created": 2,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "accountTaxRepartitionLine",
+   "root_table": "account_tax_repartition_line",
+   "documents": 228,
+   "max_doc_bytes": 237,
+   "p50_doc_bytes": 234,
+   "indexes_in_spec": 4,
+   "indexes_created": 4,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "productAttribute",
+   "root_table": "product_attribute",
+   "documents": 14,
+   "max_doc_bytes": 7585,
+   "p50_doc_bytes": 1029,
+   "indexes_in_spec": 3,
+   "indexes_created": 3,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "productTemplateRel",
+     "child_table": "product_attribute_product_template_rel",
+     "child_rows": 9,
+     "embedded": 9,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 2,
+     "max": 2
+    },
+    {
+     "array_path": "value",
+     "child_table": "product_attribute_value",
+     "child_rows": 101,
+     "embedded": 101,
+     "skipped_no_parent": 0,
+     "p50": 4,
+     "p99": 40,
+     "max": 40
+    }
+   ]
+  },
+  {
+   "collection": "productAttributeValueProductTemplateAttributeLineRel",
+   "root_table": "product_attribute_value_product_template_attribute_line_rel",
+   "documents": 24,
+   "max_doc_bytes": 70,
+   "p50_doc_bytes": 70,
+   "indexes_in_spec": 2,
+   "indexes_created": 2,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "productBaseUnit",
+   "root_table": "product_base_unit",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 0,
+   "indexes_created": 0,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "productCategory",
+   "root_table": "product_category",
+   "documents": 7,
+   "max_doc_bytes": 603,
+   "p50_doc_bytes": 595,
+   "indexes_in_spec": 6,
+   "indexes_created": 6,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "stockPickingTypeRel",
+     "child_table": "product_category_stock_picking_type_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "productCombo",
+   "root_table": "product_combo",
+   "documents": 3,
+   "max_doc_bytes": 633,
+   "p50_doc_bytes": 623,
+   "indexes_in_spec": 3,
+   "indexes_created": 3,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "item",
+     "child_table": "product_combo_item",
+     "child_rows": 8,
+     "embedded": 8,
+     "skipped_no_parent": 0,
+     "p50": 3,
+     "p99": 3,
+     "max": 3
+    },
+    {
+     "array_path": "productTemplateRel",
+     "child_table": "product_combo_product_template_rel",
+     "child_rows": 3,
+     "embedded": 3,
+     "skipped_no_parent": 0,
+     "p50": 1,
+     "p99": 1,
+     "max": 1
+    }
+   ]
+  },
+  {
+   "collection": "productDocument",
+   "root_table": "product_document",
+   "documents": 2,
+   "max_doc_bytes": 152,
+   "p50_doc_bytes": 152,
+   "indexes_in_spec": 1,
+   "indexes_created": 1,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "productPricelist",
+   "root_table": "product_pricelist",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 4,
+   "indexes_created": 4,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "productPricelistItem",
+   "root_table": "product_pricelist_item",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 10,
+   "indexes_created": 10,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "productProduct",
+   "root_table": "product_product",
+   "documents": 48,
+   "max_doc_bytes": 574,
+   "p50_doc_bytes": 481,
+   "indexes_in_spec": 13,
+   "indexes_created": 13,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "customerProductReference",
+     "child_table": "customer_product_reference",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "uomUomRel",
+     "child_table": "product_product_uom_uom_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "productUom",
+     "child_table": "product_uom",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "productVariantCombination",
+     "child_table": "product_variant_combination",
+     "child_rows": 20,
+     "embedded": 20,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 2,
+     "max": 2
+    }
+   ]
+  },
+  {
+   "collection": "productRemoval",
+   "root_table": "product_removal",
+   "documents": 4,
+   "max_doc_bytes": 159,
+   "p50_doc_bytes": 158,
+   "indexes_in_spec": 0,
+   "indexes_created": 0,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "productSupplierinfo",
+   "root_table": "product_supplierinfo",
+   "documents": 88,
+   "max_doc_bytes": 320,
+   "p50_doc_bytes": 320,
+   "indexes_in_spec": 6,
+   "indexes_created": 6,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "productTag",
+   "root_table": "product_tag",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 3,
+   "indexes_created": 3,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "productProductRel",
+     "child_table": "product_tag_product_product_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "productTemplateRel",
+     "child_table": "product_tag_product_template_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "productTemplate",
+   "root_table": "product_template",
+   "documents": 38,
+   "max_doc_bytes": 1306,
+   "p50_doc_bytes": 1024,
+   "indexes_in_spec": 16,
+   "indexes_created": 16,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "productOptionalRel",
+     "child_table": "product_optional_rel",
+     "child_rows": 3,
+     "embedded": 3,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 2,
+     "max": 2
+    },
+    {
+     "array_path": "attributeLine",
+     "child_table": "product_template_attribute_line",
+     "child_rows": 9,
+     "embedded": 9,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 2,
+     "max": 2
+    },
+    {
+     "array_path": "uomUomRel",
+     "child_table": "product_template_uom_uom_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "productTemplateAttributeValue",
+   "root_table": "product_template_attribute_value",
+   "documents": 24,
+   "max_doc_bytes": 432,
+   "p50_doc_bytes": 387,
+   "indexes_in_spec": 8,
+   "indexes_created": 8,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "productTemplateAttributeExcludedValueIdsRel",
+     "child_table": "product_template_attribute_excluded_value_ids_rel",
+     "child_rows": 1,
+     "embedded": 1,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 1,
+     "max": 1
+    },
+    {
+     "array_path": "purchaseOrderLineRel",
+     "child_table": "product_template_attribute_value_purchase_order_line_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "saleOrderLineRel",
+     "child_table": "product_template_attribute_value_sale_order_line_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "templateAttributeValueStockMoveRel",
+     "child_table": "template_attribute_value_stock_move_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "productValue",
+   "root_table": "product_value",
+   "documents": 6,
+   "max_doc_bytes": 333,
+   "p50_doc_bytes": 333,
+   "indexes_in_spec": 9,
+   "indexes_created": 9,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "purchaseOrder",
+   "root_table": "purchase_order",
+   "documents": 16,
+   "max_doc_bytes": 844,
+   "p50_doc_bytes": 784,
+   "indexes_in_spec": 25,
+   "indexes_created": 25,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "stockPickingRel",
+     "child_table": "purchase_order_stock_picking_rel",
+     "child_rows": 5,
+     "embedded": 5,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 1,
+     "max": 1
+    }
+   ]
+  },
+  {
+   "collection": "purchaseOrderLine",
+   "root_table": "purchase_order_line",
+   "documents": 31,
+   "max_doc_bytes": 847,
+   "p50_doc_bytes": 831,
+   "indexes_in_spec": 14,
+   "indexes_created": 14,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "accrualMoveRel",
+     "child_table": "purchase_order_line_accrual_move_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "returnReason",
+   "root_table": "return_reason",
+   "documents": 5,
+   "max_doc_bytes": 167,
+   "p50_doc_bytes": 152,
+   "indexes_in_spec": 0,
+   "indexes_created": 0,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "saleOrder",
+   "root_table": "sale_order",
+   "documents": 24,
+   "max_doc_bytes": 1020,
+   "p50_doc_bytes": 993,
+   "indexes_in_spec": 29,
+   "indexes_created": 29,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "tagRel",
+     "child_table": "sale_order_tag_rel",
+     "child_rows": 8,
+     "embedded": 8,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 2,
+     "max": 2
+    },
+    {
+     "array_path": "transactionRel",
+     "child_table": "sale_order_transaction_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "saleOrderLine",
+   "root_table": "sale_order_line",
+   "documents": 50,
+   "max_doc_bytes": 1126,
+   "p50_doc_bytes": 1119,
+   "indexes_in_spec": 14,
+   "indexes_created": 14,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "productAttributeCustomValue",
+     "child_table": "product_attribute_custom_value",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "accrualMoveRel",
+     "child_table": "sale_order_line_accrual_move_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "invoiceRel",
+     "child_table": "sale_order_line_invoice_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "stockRouteRel",
+     "child_table": "sale_order_line_stock_route_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "stockLocation",
+   "root_table": "stock_location",
+   "documents": 32,
+   "max_doc_bytes": 460,
+   "p50_doc_bytes": 424,
+   "indexes_in_spec": 16,
+   "indexes_created": 16,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "stockPickingTypeRel",
+     "child_table": "stock_location_stock_picking_type_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "stockLot",
+   "root_table": "stock_lot",
+   "documents": 4,
+   "max_doc_bytes": 189,
+   "p50_doc_bytes": 188,
+   "indexes_in_spec": 7,
+   "indexes_created": 7,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "stockMove",
+   "root_table": "stock_move",
+   "documents": 135,
+   "max_doc_bytes": 1082,
+   "p50_doc_bytes": 1062,
+   "indexes_in_spec": 32,
+   "indexes_created": 32,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "accountAnalyticLineStockMoveRel",
+     "child_table": "account_analytic_line_stock_move_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "createdPurchaseLineRel",
+     "child_table": "stock_move_created_purchase_line_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "moveRel",
+     "child_table": "stock_move_move_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "stockScrapReasonTagRel",
+     "child_table": "stock_move_stock_scrap_reason_tag_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "stockMoveLine",
+   "root_table": "stock_move_line",
+   "documents": 103,
+   "max_doc_bytes": 404,
+   "p50_doc_bytes": 389,
+   "indexes_in_spec": 26,
+   "indexes_created": 26,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "consumeRel",
+     "child_table": "stock_move_line_consume_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "stockPackage",
+   "root_table": "stock_package",
+   "documents": 2,
+   "max_doc_bytes": 259,
+   "p50_doc_bytes": 257,
+   "indexes_in_spec": 8,
+   "indexes_created": 8,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "stockPackageHistory",
+   "root_table": "stock_package_history",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 8,
+   "indexes_created": 8,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "stockPickingRel",
+     "child_table": "stock_package_history_stock_picking_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "stockPackageType",
+   "root_table": "stock_package_type",
+   "documents": 2,
+   "max_doc_bytes": 317,
+   "p50_doc_bytes": 314,
+   "indexes_in_spec": 3,
+   "indexes_created": 3,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "stockPutawayRuleRel",
+     "child_table": "stock_package_type_stock_putaway_rule_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "stockRouteRel",
+     "child_table": "stock_package_type_stock_route_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "stockPicking",
+   "root_table": "stock_picking",
+   "documents": 83,
+   "max_doc_bytes": 530,
+   "p50_doc_bytes": 503,
+   "indexes_in_spec": 19,
+   "indexes_created": 19,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "stockPickingBatch",
+   "root_table": "stock_picking_batch",
+   "documents": 2,
+   "max_doc_bytes": 248,
+   "p50_doc_bytes": 248,
+   "indexes_in_spec": 7,
+   "indexes_created": 7,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "stockPickingType",
+   "root_table": "stock_picking_type",
+   "documents": 16,
+   "max_doc_bytes": 1221,
+   "p50_doc_bytes": 1212,
+   "indexes_in_spec": 10,
+   "indexes_created": 10,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "pickingTypeFavoriteUserRel",
+     "child_table": "picking_type_favorite_user_rel",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "stockPutawayRule",
+   "root_table": "stock_putaway_rule",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 6,
+   "indexes_created": 6,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "stockQuant",
+   "root_table": "stock_quant",
+   "documents": 59,
+   "max_doc_bytes": 379,
+   "p50_doc_bytes": 355,
+   "indexes_in_spec": 13,
+   "indexes_created": 13,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "stockReference",
+   "root_table": "stock_reference",
+   "documents": 23,
+   "max_doc_bytes": 245,
+   "p50_doc_bytes": 205,
+   "indexes_in_spec": 3,
+   "indexes_created": 3,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "moveRel",
+     "child_table": "stock_reference_move_rel",
+     "child_rows": 45,
+     "embedded": 45,
+     "skipped_no_parent": 0,
+     "p50": 2,
+     "p99": 4,
+     "max": 4
+    },
+    {
+     "array_path": "purchaseRel",
+     "child_table": "stock_reference_purchase_rel",
+     "child_rows": 5,
+     "embedded": 5,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 1,
+     "max": 1
+    },
+    {
+     "array_path": "saleRel",
+     "child_table": "stock_reference_sale_rel",
+     "child_rows": 18,
+     "embedded": 18,
+     "skipped_no_parent": 0,
+     "p50": 1,
+     "p99": 1,
+     "max": 1
+    }
+   ]
+  },
+  {
+   "collection": "stockRoute",
+   "root_table": "stock_route",
+   "documents": 6,
+   "max_doc_bytes": 402,
+   "p50_doc_bytes": 392,
+   "indexes_in_spec": 11,
+   "indexes_created": 11,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "categ",
+     "child_table": "stock_route_categ",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "move",
+     "child_table": "stock_route_move",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "product",
+     "child_table": "stock_route_product",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    },
+    {
+     "array_path": "warehouse",
+     "child_table": "stock_route_warehouse",
+     "child_rows": 6,
+     "embedded": 6,
+     "skipped_no_parent": 0,
+     "p50": 1,
+     "p99": 2,
+     "max": 2
+    }
+   ]
+  },
+  {
+   "collection": "stockRule",
+   "root_table": "stock_rule",
+   "documents": 8,
+   "max_doc_bytes": 450,
+   "p50_doc_bytes": 442,
+   "indexes_in_spec": 13,
+   "indexes_created": 13,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "stockScrapReasonTag",
+   "root_table": "stock_scrap_reason_tag",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 1,
+   "indexes_created": 1,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "stockStorageCategory",
+   "root_table": "stock_storage_category",
+   "documents": 6,
+   "max_doc_bytes": 182,
+   "p50_doc_bytes": 179,
+   "indexes_in_spec": 1,
+   "indexes_created": 1,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "stockStorageCategoryCapacity",
+   "root_table": "stock_storage_category_capacity",
+   "documents": 0,
+   "max_doc_bytes": 0,
+   "p50_doc_bytes": 0,
+   "indexes_in_spec": 3,
+   "indexes_created": 3,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "stockWarehouse",
+   "root_table": "stock_warehouse",
+   "documents": 2,
+   "max_doc_bytes": 589,
+   "p50_doc_bytes": 577,
+   "indexes_in_spec": 26,
+   "indexes_created": 26,
+   "indexes_failed": [],
+   "embeds": [
+    {
+     "array_path": "stockWhResupplyTable",
+     "child_table": "stock_wh_resupply_table",
+     "child_rows": 0,
+     "embedded": 0,
+     "skipped_no_parent": 0,
+     "p50": 0,
+     "p99": 0,
+     "max": 0
+    }
+   ]
+  },
+  {
+   "collection": "stockWarehouseOrderpoint",
+   "root_table": "stock_warehouse_orderpoint",
+   "documents": 5,
+   "max_doc_bytes": 469,
+   "p50_doc_bytes": 467,
+   "indexes_in_spec": 11,
+   "indexes_created": 11,
+   "indexes_failed": [],
+   "embeds": []
+  },
+  {
+   "collection": "uomUom",
+   "root_table": "uom_uom",
+   "documents": 30,
+   "max_doc_bytes": 277,
+   "p50_doc_bytes": 264,
+   "indexes_in_spec": 4,
+   "indexes_created": 4,
+   "indexes_failed": [],
+   "embeds": []
+  }
+ ]
+}
