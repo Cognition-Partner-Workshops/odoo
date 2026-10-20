@@ -8332,13 +8332,13 @@ class AccountMove(models.Model):
 
         # account.cash.rounding is stored in MongoDB: the invoice's own rounding first, then _order
         domain = CashRounding._check_company_domain(self.company_id or self.env.company)
-        roundings = CashRounding.search(domain, order=CashRounding._order, limit=limit)
+        roundings = CashRounding.search(domain, order=CashRounding._order, limit=limit or None)
         current = self.invoice_cash_rounding_id
-        if current and (current in roundings or current.filtered_domain(domain)):
-            roundings = (current | roundings)[:limit]
+        if current and current.active and current.filtered_domain(domain):
+            roundings = current | roundings
         return {
             'total_length': CashRounding.search_count(domain),
-            'records': [{'id': rounding.id, 'display_name': rounding.name} for rounding in roundings],
+            'records': [{'id': rounding.id, 'display_name': rounding.name} for rounding in roundings[:limit or None]],
         }
 
     def _get_document_partner_ident_line(self):
