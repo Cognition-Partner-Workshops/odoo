@@ -1,0 +1,35 @@
+{
+  "batch": "w1-b05",
+  "status": "PASS",
+  "recon_results": [
+    ".migration/recon/product-attributes/result.json"
+  ],
+  "fixture_results": [
+    ".migration/recon/product-attributes/fixture/result.json"
+  ],
+  "write_targets": [
+    "odoo_unt12.productAttribute"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/59",
+  "branch": "devin/1792505471-w1-b05-product-attributes",
+  "failure_class": "",
+  "manifest_sha": "b965d1e5f34e",
+  "plugin_sha": "9a584b4cdb311ddd64fb07cbd1cf35fc9485062c",
+  "mapping_version": "map-draft-2",
+  "recon_tolerances_version": "unt12-3",
+  "tier_checks": {
+    "live": [
+      6,
+      6,
+      124,
+      3
+    ],
+    "fixture": [
+      3,
+      6,
+      124,
+      3
+    ]
+  },
+  "one_line_summary": "product-attributes: live PASS, merge_eligible true, 0 warnings; fixture PASS; 29/29 ORM scenario checks on the storage path (root + value/productTemplateRel arrays)"
+}
