@@ -45,6 +45,7 @@ AGGREGATION_ENGINE_FORMULA_REGEX = re.compile(
 
 class AccountReport(models.Model):
     _name = 'account.report'
+    _storage = 'mongodb'
     _description = "Accounting Report"
     _order = 'sequence, id'
 
@@ -404,6 +405,7 @@ class AccountReport(models.Model):
 
 class AccountReportLine(models.Model):
     _name = 'account.report.line'
+    _storage = 'mongodb'
     _description = "Accounting Report Line"
     _order = 'sequence, id'
 
@@ -464,6 +466,13 @@ class AccountReportLine(models.Model):
         'unique (report_id, code)',
         'A report line with the same code already exists.',
     )
+
+    @api.constrains('report_id', 'code')
+    def _check_code_uniq(self):
+        # the SQL unique constraint only guards the PostgreSQL id shadow of this MongoDB-stored model
+        for line in self.filtered('code'):
+            if self.search_count([('report_id', '=', line.report_id.id), ('code', '=', line.code), ('id', '!=', line.id)], limit=1):
+                raise ValidationError(_("A report line with the same code already exists."))
 
     @api.depends('parent_id.hierarchy_level')
     def _compute_hierarchy_level(self):
@@ -663,6 +672,7 @@ class AccountReportLine(models.Model):
 
 class AccountReportExpression(models.Model):
     _name = 'account.report.expression'
+    _storage = 'mongodb'
     _description = "Accounting Report Expression"
     _rec_name = 'report_line_name'
 
@@ -720,6 +730,12 @@ class AccountReportExpression(models.Model):
         "CHECK(engine != 'domain' OR subformula IS NOT NULL)",
         "Expressions using 'domain' engine should all have a subformula.",
     )
+
+    @api.constrains('engine', 'subformula')
+    def _check_domain_engine_subformula(self):
+        # the SQL CHECK only guards the PostgreSQL id shadow of this MongoDB-stored model
+        if any(expression.engine == 'domain' and not expression.subformula for expression in self):
+            raise ValidationError(_("Expressions using 'domain' engine should all have a subformula."))
     _line_label_uniq = models.Constraint(
         'UNIQUE(report_line_id,label)',
         'The expression label must be unique per report line.',
@@ -1038,6 +1054,7 @@ class AccountReportExpression(models.Model):
 
 class AccountReportColumn(models.Model):
     _name = 'account.report.column'
+    _storage = 'mongodb'
     _description = "Accounting Report Column"
     _order = 'sequence, id'
 
@@ -1055,9 +1072,17 @@ class AccountReportColumn(models.Model):
         "The Expression label must be unique per account report."
     )
 
+    @api.constrains('report_id', 'expression_label')
+    def _check_expression_label_uniq(self):
+        # the SQL unique constraint only guards the PostgreSQL id shadow of this MongoDB-stored model
+        for column in self:
+            if self.search_count([('report_id', '=', column.report_id.id), ('expression_label', '=', column.expression_label), ('id', '!=', column.id)], limit=1):
+                raise ValidationError(_("The Expression label must be unique per account report."))
+
 
 class AccountReportExternalValue(models.Model):
     _name = 'account.report.external.value'
+    _storage = 'mongodb'
     _inherit = ['res.currency.rate.consolidation.mixin']
     _description = 'Accounting Report External Value'
     _check_company_auto = True

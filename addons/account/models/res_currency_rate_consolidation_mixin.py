@@ -29,6 +29,14 @@ class ConsolidationRateMixin(models.AbstractModel):
         if len(self.env.companies.currency_id) <= 1:
             self.consolidation_rate = 1
             return
+        if self._storage == 'mongodb':
+            # no SQL over a MongoDB-stored inheritor: same rate as _compute_sql_consolidation_rate, in Python
+            date_to = fields.Date.to_date(self.env.context.get('date_to'))
+            _historical, _average, current = self.env['res.currency']._get_parsed_rates(self.env.companies - self.env.company, date_to, date_to)
+            for record in self:
+                rate = current.get(record.company_id.id)
+                record.consolidation_rate = 1 if rate is None else rate
+            return
         query = self._search([('id', 'in', self.ids)])
         line2rate = dict(self.env.execute_query(query.select(query.table.id, query.table.consolidation_rate)))
         for record in self:

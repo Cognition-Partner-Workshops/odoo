@@ -1,0 +1,32 @@
+[
+  {
+    "name": "payment_terms_with_line_count",
+    "collection": "accountPaymentTerm",
+    "source_sql": "SELECT t.id, t.name->>'en_US' AS name, t.sequence, t.early_discount, (SELECT count(*) FROM account_payment_term_line l WHERE l.payment_id = t.id) AS line_count FROM account_payment_term t",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "name": "$name.en_US", "sequence": {"$ifNull": ["$sequence", null]}, "early_discount": {"$ifNull": ["$earlyDiscount", null]}, "line_count": {"$size": {"$ifNull": ["$line", []]}}}}]
+  },
+  {
+    "name": "incoterm_codes",
+    "collection": "accountIncoterms",
+    "source_sql": "SELECT id, code, name->>'en_US' AS name, active FROM account_incoterms",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "code": 1, "name": "$name.en_US", "active": 1}}]
+  },
+  {
+    "name": "cash_roundings_with_relation_counts",
+    "collection": "accountCashRounding",
+    "source_sql": "SELECT r.id, r.name->>'en_US' AS name, r.rounding, r.strategy, r.rounding_method, (SELECT count(*) FROM account_cash_rounding_res_currency_rel c WHERE c.account_cash_rounding_id = r.id) AS currencies, (SELECT count(*) FROM account_cash_rounding_account_payment_method_line_rel p WHERE p.account_cash_rounding_id = r.id) AS payment_method_lines FROM account_cash_rounding r",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "name": "$name.en_US", "rounding": 1, "strategy": 1, "rounding_method": "$roundingMethod", "currencies": {"$size": {"$ifNull": ["$resCurrencyRel", []]}}, "payment_method_lines": {"$size": {"$ifNull": ["$accountPaymentMethodLineRel", []]}}}}]
+  },
+  {
+    "name": "reports_with_line_column_section_counts",
+    "collection": "accountReport",
+    "source_sql": "SELECT r.id, r.name->>'en_US' AS name, r.sequence, (SELECT count(*) FROM account_report_line l WHERE l.report_id = r.id) AS lines, (SELECT count(*) FROM account_report_column c WHERE c.report_id = r.id) AS columns, (SELECT count(*) FROM account_report_section_rel s WHERE s.main_report_id = r.id) AS sections FROM account_report r",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "name": "$name.en_US", "sequence": {"$ifNull": ["$sequence", null]}, "lines": {"$size": {"$ifNull": ["$line", []]}}, "columns": {"$size": {"$ifNull": ["$column", []]}}, "sections": {"$size": {"$ifNull": ["$sectionRel", []]}}}}]
+  },
+  {
+    "name": "report_expressions_by_line",
+    "collection": "accountReportExpression",
+    "source_sql": "SELECT id, report_line_id, label, engine, formula FROM account_report_expression",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "report_line_id": "$reportLineId", "label": 1, "engine": 1, "formula": 1}}]
+  }
+]

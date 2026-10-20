@@ -6,6 +6,7 @@ from odoo import api, fields, models
 
 class AccountIncoterms(models.Model):
     _name = 'account.incoterms'
+    _storage = 'mongodb'
     _description = 'Incoterms'
     _rec_names_search = ('name', 'code')
 

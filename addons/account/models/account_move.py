@@ -8330,26 +8330,15 @@ class AccountMove(models.Model):
 
         CashRounding = self.env['account.cash.rounding']
 
-        query = CashRounding._search(
-            domain=CashRounding._check_company_domain(self.company_id or self.env.company),
-            order=CashRounding._order,
-            limit=limit,
-        )
-        if self.invoice_cash_rounding_id:
-            query.order = SQL(
-                "(%s = %s) DESC, %s",
-                query.table.id,
-                self.invoice_cash_rounding_id.id,
-                query.order,
-            )
-        rows = self.env.execute_query(query.select(
-            query.table.id,
-            query.table.name,
-            SQL("COUNT(*) OVER ()"),
-        ))
+        # account.cash.rounding is stored in MongoDB: the invoice's own rounding first, then _order
+        domain = CashRounding._check_company_domain(self.company_id or self.env.company)
+        roundings = CashRounding.search(domain, order=CashRounding._order)
+        current = self.invoice_cash_rounding_id
+        if current in roundings:
+            roundings = current | (roundings - current)
         return {
-            'total_length': rows[0][2] if rows else 0,
-            'records': [{'id': rounding_method_id, 'display_name': name} for rounding_method_id, name, _count in rows],
+            'total_length': len(roundings),
+            'records': [{'id': rounding.id, 'display_name': rounding.name} for rounding in roundings[:limit]],
         }
 
     def _get_document_partner_ident_line(self):
