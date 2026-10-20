@@ -249,3 +249,31 @@ Commands (read-only; secret bound by name in one-shot execs): the PostgreSQL cli
 `ir_cron ⋈ ir_act_server ⋈ ir_model`, `pg_views`, `pg_matviews`, `pg_trigger`, `pg_rules`, `pg_proc`, `pg_constraint`
 (contype = 'f') and the polymorphic counts; `ast`-based scans of `addons/<module>/**/*.py` for `cr.execute*`, `env.execute_query*`,
 `_auto = False`, `_table_sql`, `init`, and of `__manifest__.py` hooks.
+
+## s3.1 Design decisions: map-draft-2, the plugin gap, and the tolerance bump
+
+- Every open item of the map-draft-1 proposal (580 questions in 10 kinds) is answered in `.migration/answers.txt` (11 lines) and
+  `.migration/design_decisions.json` (17 hand-written decisions). The sign-off pack is `.migration/model_review_pack.md`
+  (rendered by `.migration/review_pack.py` from the artifacts).
+- Plugin gap at the pinned `9a584b4` (reported, not patched): `model_proposal.py:1734` builds `decision.references` from the raw
+  table foreign keys after `--exclude-table` removed the excluded tables, so the proposal carries 299 reference rows whose `to`
+  names a collection that does not exist (`resUsers`, `resCompany`, `resPartner`, `resCurrency`, ...). `model_patch.py:1743`
+  (`_check_references`) then refuses every `--answers`/`--decisions` run with `dangling references after decisions`
+  (`.migration/rehearsal/patch_attempt.map-draft-1.txt`), and `check_spec` (`model_patch.py:1961`) skips only
+  `modeling.excluded` (the `exclude` op), never `modeling.excluded_tables`, so 1460 census FK edges into excluded tables stay
+  `no rationale row` failures that no decision can clear (`exclude` needs an existing, unreferenced collection).
+- Plan decision `d-plugin-gap = accept-scratch-draft2`: `.migration/mapping_spec.json` (map-draft-2, mapping_sha256
+  `88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc`) is the proposal with those 299 dangling reference rows
+  filtered out of a copy, then patched by the pinned, unpatched `model_patch.py`. `.migration/rehearsal/scratch_draft2.sh` is
+  the reproducible recipe (input: map-draft-1 from `origin/mongo-run/unt12`; it prints the rebuilt sha256 next to the committed
+  one). The filtered rows pointed only at excluded tables, which stay in PostgreSQL; their FK columns remain integer id fields on
+  the documents. Gate `g-model-evidence` is read as: `--check` leaves only the 1460 excluded-table lines and 0 open items
+  (`.migration/rehearsal/check.map-draft-2.txt`).
+- Plan decision `d-float-aggregates = rel-tol-float8`: `.migration/recon_tolerances.json` is `unt12-3` with
+  `aggregate_rel_tol: 1e-12`, everything else unchanged. Reason: Tier 2 `SUM()` of float8 columns differs in the last place
+  between PostgreSQL and MongoDB (summation order) while Tier 3 matches every row. The pinned harness applies the relative
+  tolerance to every numeric aggregate (`_agg_close`, `recon/tiers.py`), not to float8 only.
+- Model findings from the local rehearsal: the proposal gave `accountMove` 67 indexes against MongoDB's 64-per-collection cap
+  (12 unexercised source-index entries removed by `index` decisions); `account_partial_reconcile` keeps its own collection
+  with a `debitMoveId` index (hot reads filter on both debit and credit); the stock `post_init_hook` (row 28 above) needs stock
+  installed before `product_product` opts in, on every database — an id-only shadow fails its SELECT.

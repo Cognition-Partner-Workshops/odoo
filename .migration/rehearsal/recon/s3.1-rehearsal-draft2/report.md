@@ -1,20 +1,37 @@
-# Recon report: unit `s3.1-rehearsal-draft2-scratch`
+# Recon report: unit `s3.1-rehearsal-draft2`
 
-- **Verdict: FAIL** (values redacted)
+- **Verdict: PASS** (values redacted)
 - Mode: `fixture` (fixture data: NOT a merge verdict, run live once before merging) | Target: `local` (local target: NOT a merge verdict)
 - Merge eligible: no (fixture/continuous evidence never merges)
 - Mapping version: `map-draft-2` (sha256 `88650faf41b7`)
-- Tolerance version: `unt12-2` (sha256 `2bfd841d50ca`)
+- Tolerance version: `unt12-3` (sha256 `7b426db21459`)
 - Collections: `accountAccount`, `accountAccountTag`, `accountBankStatement`, `accountBankStatementLine`, `accountCashRounding`, `accountFiscalPosition`, `accountFullReconcile`, `accountIncoterms`, `accountJournal`, `accountJournalGroup`, `accountLockException`, `accountMove`, `accountMoveLine`, `accountPayment`, `accountPaymentMethod`, `accountPaymentTerm`, `accountReconcileModel`, `accountReconcileModelLineAccountTaxRel`, `accountReport`, `accountReportExpression`, `accountReportExternalValue`, `accountTax`, `accountTaxGroup`, `accountTaxRepartitionLine`, `productAttribute`, `productAttributeValueProductTemplateAttributeLineRel`, `productBaseUnit`, `productCategory`, `productCombo`, `productDocument`, `productPricelist`, `productPricelistItem`, `productProduct`, `productRemoval`, `productSupplierinfo`, `productTag`, `productTemplate`, `productTemplateAttributeValue`, `productValue`, `purchaseOrder`, `purchaseOrderLine`, `returnReason`, `saleOrder`, `saleOrderLine`, `stockLocation`, `stockLot`, `stockMove`, `stockMoveLine`, `stockPackage`, `stockPackageHistory`, `stockPackageType`, `stockPicking`, `stockPickingBatch`, `stockPickingType`, `stockPutawayRule`, `stockQuant`, `stockReference`, `stockRoute`, `stockRule`, `stockScrapReasonTag`, `stockStorageCategory`, `stockStorageCategoryCapacity`, `stockWarehouse`, `stockWarehouseOrderpoint`, `uomUom`, `accountPartialReconcile`
 - Seed: `1`
-- Generated: 2026-10-20T04:21:13.132056+00:00
+- Generated: 2026-10-20T11:38:03.874287+00:00
+- **WARNING: UNVERIFIED collection accountCashRounding: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection accountFullReconcile: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection accountJournalGroup: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection accountLockException: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection accountPayment: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection accountReconcileModelLineAccountTaxRel: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection accountReportExpression: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection accountReportExternalValue: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection productBaseUnit: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection productPricelist: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection productPricelistItem: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection productTag: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection stockPackageHistory: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection stockPutawayRule: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection stockScrapReasonTag: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection stockStorageCategoryCapacity: 0 source rows, key/shape/field rules unexercised**
+- **WARNING: UNVERIFIED collection accountPartialReconcile: 0 source rows, key/shape/field rules unexercised**
 - 1212 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 310 string fields: min/max/distinct deferred to Tier 3
 
 | Tier | Name | Checks | Result |
 |---|---|---|---|
 | 1 | counts_through_mapping | 142 | PASS |
-| 2 | per_field_aggregates | 776 | FAIL (2 findings) |
+| 2 | per_field_aggregates | 776 | PASS |
 | 3 | keyed_diffs | 2516 | PASS |
 
 ## Tier 1 coverage
@@ -4119,10 +4136,6 @@
   "fields_fully_deferred": 541
 }
 ```
-
-## Tier 2 findings (2)
-- `accountBankStatementLine` aggregate_sum: field amount_residual->amountResidual | source=float:6bd37d47dbbd target=float:c69271fb2436 | rules=['null_missing_equiv']
-- `purchaseOrderLine` aggregate_sum: field technical_price_unit->technicalPriceUnit | source=float:b8ab7ef5d039 target=float:dac9c737124b | rules=['null_missing_equiv']
 
 ## Tier 3 coverage
 ```json

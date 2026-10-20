@@ -1,6 +1,6 @@
 {
  "spec_version": "map-draft-2",
- "spec_file": ".migration/rehearsal/mapping_spec.map-draft-2.scratch.json",
+ "spec_file": ".migration/mapping_spec.json",
  "target_db": "odoo_unt12",
  "target_class": "local",
  "source_database": "odoo_fixture",

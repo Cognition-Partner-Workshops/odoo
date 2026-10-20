@@ -1,11 +1,11 @@
 {
-  "unit": "s3.1-rehearsal-draft2-scratch",
+  "unit": "s3.1-rehearsal-draft2",
   "mode": "fixture",
   "target_class": "local",
   "mapping_version": "map-draft-2",
   "mapping_sha256": "88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc",
-  "tolerance_version": "unt12-2",
-  "tolerance_sha256": "2bfd841d50ca4d44818b285c134b7f608270c1f1e731ed39cccff7d12badbcc1",
+  "tolerance_version": "unt12-3",
+  "tolerance_sha256": "7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea",
   "collections": [
     "accountAccount",
     "accountAccountTag",
@@ -77,7 +77,7 @@
   "seed": 1,
   "params": {},
   "snapshot": null,
-  "generated_at": "2026-10-20T04:21:13.132056+00:00",
+  "generated_at": "2026-10-20T11:38:03.874287+00:00",
   "redacted": true,
   "redaction_salted": false,
   "tiers": [
@@ -161,7 +161,7 @@
     {
       "tier": 2,
       "name": "per_field_aggregates",
-      "passed": false,
+      "passed": true,
       "checks_run": 776,
       "stats": {
         "deferred_to_tier3": [
@@ -4188,30 +4188,7 @@
         ],
         "fields_fully_deferred": 541
       },
-      "findings": [
-        {
-          "collection": "accountBankStatementLine",
-          "check": "aggregate_sum",
-          "detail": "field amount_residual->amountResidual",
-          "source_value": "float:6bd37d47dbbd",
-          "target_value": "float:c69271fb2436",
-          "rules_applied": [
-            "null_missing_equiv"
-          ],
-          "rules_configured": []
-        },
-        {
-          "collection": "purchaseOrderLine",
-          "check": "aggregate_sum",
-          "detail": "field technical_price_unit->technicalPriceUnit",
-          "source_value": "float:b8ab7ef5d039",
-          "target_value": "float:dac9c737124b",
-          "rules_applied": [
-            "null_missing_equiv"
-          ],
-          "rules_configured": []
-        }
-      ]
+      "findings": []
     },
     {
       "tier": 3,
@@ -4631,8 +4608,26 @@
       "findings": []
     }
   ],
-  "warnings": [],
-  "verdict": "FAIL",
+  "warnings": [
+    "UNVERIFIED collection accountCashRounding: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection accountFullReconcile: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection accountJournalGroup: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection accountLockException: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection accountPayment: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection accountReconcileModelLineAccountTaxRel: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection accountReportExpression: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection accountReportExternalValue: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection productBaseUnit: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection productPricelist: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection productPricelistItem: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection productTag: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection stockPackageHistory: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection stockPutawayRule: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection stockScrapReasonTag: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection stockStorageCategoryCapacity: 0 source rows, key/shape/field rules unexercised",
+    "UNVERIFIED collection accountPartialReconcile: 0 source rows, key/shape/field rules unexercised"
+  ],
+  "verdict": "PASS",
   "merge_eligible": false,
   "error": null
 }
