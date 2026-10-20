@@ -34,6 +34,7 @@ import re
 import typing
 from collections import defaultdict
 
+from bson import encode as bson_encode
 from bson.decimal128 import Decimal128
 from pymongo import ASCENDING, MongoClient, UpdateOne
 from pymongo.errors import BulkWriteError, OperationFailure
@@ -1494,11 +1495,14 @@ def write_multi(model: BaseModel, vals_list: list[dict]) -> None:
             for element in doc.get(spec.array_path) or []:
                 by_parent[doc['_id']].append({**element, **updates[element[spec.element_key]]})
         _check_element_keys(model, spec, coll, by_parent)
-    groups: dict[tuple, list[int]] = defaultdict(list)
+    # elements sharing the same values are set in one update; grouped by the BSON image of the values,
+    # as dict and array values (Json, properties, translations, company-dependent) are not hashable
+    groups: dict[bytes, tuple[dict[str, object], list[int]]] = {}
     for id_, values in updates.items():
-        groups[tuple(sorted(values.items(), key=lambda kv: kv[0]))].append(id_)
-    for items, group_ids in groups.items():
-        st.set_elements(cr, coll, spec.array_path, group_ids, dict(items), spec.element_key)
+        image = bson_encode(dict(sorted(values.items(), key=lambda kv: kv[0])))
+        groups.setdefault(image, (values, []))[1].append(id_)
+    for values, group_ids in groups.values():
+        st.set_elements(cr, coll, spec.array_path, group_ids, values, spec.element_key)
 
 
 def unlink_rows(model: BaseModel, ids: list[int]) -> None:

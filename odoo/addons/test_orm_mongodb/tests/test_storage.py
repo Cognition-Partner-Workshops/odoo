@@ -6,7 +6,7 @@ import psycopg2
 from odoo.exceptions import UserError
 from odoo.orm.storage_mongodb import _check_constraints, relax_registry_shadow_tables
 from odoo.tests import TransactionCase, tagged
-from odoo.tools import mute_logger, sql
+from odoo.tools import SQL, mute_logger, sql
 
 
 @tagged('post_install', '-at_install', 'mongodb')
@@ -675,6 +675,72 @@ class TestMongoStorage(TransactionCase):
         self.assertFalse(chapters[1].exists())
         self.assertEqual(Chapter.search_count([]), 0)
         self.assertFalse(attachment.exists())
+
+    def _chapter_twins(self):
+        """ The chapters of book_a1 and PostgreSQL reviews of it, written alike and compared field by field. """
+        chapters = self.book_a1.chapter_ids
+        reviews = self.env['test.mongo.review'].create([{'name': 'r1', 'book_id': self.book_a1.id},
+                                                        {'name': 'r2', 'book_id': self.book_a1.id}])
+        return chapters, reviews
+
+    def _stored_twins(self, chapters, reviews, path, column):
+        """ (element value, jsonb value) per chapter/review pair, as stored. """
+        self.env.flush_all()
+        by_id = {e['id']: e.get(path) for e in self.doc(self.book_a1)['chapter']}
+        self.env.cr.execute(SQL("SELECT %s FROM test_mongo_review WHERE id IN %s ORDER BY id", SQL.identifier(column), tuple(reviews.ids)))
+        return list(zip([by_id[c.id] for c in chapters], [r[0] for r in self.env.cr.fetchall()]))
+
+    def test_embedded_json_write(self):
+        # account.reconcile.model.line.analytic_distribution: a Json value written on an embedded record goes
+        # through the grouped element update, which must take dict and list values (unhashable)
+        chapters, reviews = self._chapter_twins()
+        cases = [
+            ('same dict on every record', [{'12': 60.0, '13,14': 40.0}] * 2),
+            ('distinct dicts', [{'12': 100.0}, {'nested': {'a': [1, {'b': None}]}}]),
+            ('list and dict', [[{'k': 1}, 2, 'x'], {'12': 100.0}]),
+            ('reset', [False, {'12': 100.0}]),
+        ]
+        for label, values in cases:
+            with self.subTest(label=label):
+                for records in (chapters, reviews):
+                    for record, value in zip(records, values):
+                        record.meta = value
+                for element, jsonb in self._stored_twins(chapters, reviews, 'meta', 'meta'):
+                    self.assertEqual(element, jsonb)
+                for records in (chapters, reviews):
+                    records.invalidate_recordset(['meta'])
+                self.assertEqual(chapters.mapped('meta'), reviews.mapped('meta'))
+                self.assertEqual(chapters.mapped('meta'), values)
+
+    def test_embedded_translated_write(self):
+        chapters, reviews = self._chapter_twins()
+        for records in (chapters, reviews):
+            records.write({'subtitle': 'Intro'})
+            records[0].with_context(lang='fr_FR').subtitle = 'Préface'
+        stored = self._stored_twins(chapters, reviews, 'subtitle', 'subtitle')
+        self.assertEqual(stored, [({'en_US': 'Intro', 'fr_FR': 'Préface'},) * 2, ({'en_US': 'Intro'},) * 2])
+        for records in (chapters, reviews):
+            records.invalidate_recordset(['subtitle'])
+        for lang in ('en_US', 'fr_FR'):
+            self.assertEqual(chapters.with_context(lang=lang).mapped('subtitle'),
+                             reviews.with_context(lang=lang).mapped('subtitle'))
+        self.assertEqual(chapters.with_context(lang='fr_FR').mapped('subtitle'), ['Préface', 'Intro'])
+
+    def test_embedded_properties_write(self):
+        chapters, reviews = self._chapter_twins()
+        self.book_a1.chapter_properties_definition = [{'name': 'mood', 'type': 'char', 'string': 'Mood'},
+                                                      {'name': 'stars', 'type': 'integer', 'string': 'Stars'}]
+        for records in (chapters, reviews):
+            records.write({'chapter_properties': {'mood': 'dark', 'stars': 3}})
+            records[1].chapter_properties = {'mood': 'light'}
+        stored = self._stored_twins(chapters, reviews, 'chapterProperties', 'chapter_properties')
+        self.assertEqual(stored, [({'mood': 'dark', 'stars': 3},) * 2, ({'mood': 'light'},) * 2])
+        for records in (chapters, reviews):
+            records.invalidate_recordset(['chapter_properties'])
+        read = [[(p['name'], p.get('value')) for p in r['chapter_properties']]
+                for records in (chapters, reviews) for r in records.read(['chapter_properties'])]
+        self.assertEqual(read[:2], read[2:])
+        self.assertEqual(read[:2], [[('mood', 'dark'), ('stars', 3)], [('mood', 'light'), ('stars', None)]])
 
     def test_inherits(self):
         Variant = self.env['test.mongo.variant']
