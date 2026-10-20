@@ -30,10 +30,15 @@ class TestMongoTag(models.Model):
     _description = 'MongoDB test tag'
     _storage = 'mongodb'
     _order = 'name, id'
-    _mongodb_spec = _spec('test_mongo_tag', 'testMongoTag', [('name', 'name', 'string')])
+    _mongodb_spec = _spec('test_mongo_tag', 'testMongoTag', [('name', 'name', 'string')],
+                          indexes=[{'keys': [['name', 1]], 'unique': True}])
 
     name = fields.Char(required=True)
     author_ids = fields.Many2many('test.mongo.author', 'test_mongo_author_tag_rel', 'tag_id', 'author_id')
+
+    def init(self):
+        # DDL on a data column, like the sequence/analytic mixins do; the id shadow has none
+        self.env.cr.execute("CREATE INDEX IF NOT EXISTS test_mongo_tag_name_index ON test_mongo_tag (name)")
 
 
 class TestMongoAuthor(models.Model):
@@ -94,6 +99,7 @@ class TestMongoBook(models.Model):
     author_id = fields.Many2one('test.mongo.author', required=True, ondelete='cascade')
     price = fields.Float(digits=(16, 2))
     pages = fields.Integer()
+    _check_pages = models.Constraint('CHECK (pages >= 0)', 'Pages must be positive.')
     published = fields.Datetime()
     chapter_ids = fields.One2many('test.mongo.chapter', 'book_id')
     tag_ids = fields.Many2many('test.mongo.tag', 'test_mongo_book_tag_rel', 'book_id', 'tag_id')
@@ -130,8 +136,13 @@ class TestMongoReview(models.Model):
     _name = 'test.mongo.review'
     _description = 'PostgreSQL test review of a MongoDB book'
     _order = 'book_id, id'
+    # the spec maps a relation table whose both sides stay on PostgreSQL (a later wave): it must not move
+    _mongodb_spec = _spec('test_mongo_review_partner_rel', 'testMongoReviewPartnerRel',
+                          [('review_id', 'reviewId', 'int'), ('partner_id', 'partnerId', 'int')],
+                          key={'source': ['review_id', 'partner_id'], 'target': ['reviewId', 'partnerId']})
 
     name = fields.Char()
     book_id = fields.Many2one('test.mongo.book', ondelete='cascade')
     author_id = fields.Many2one('test.mongo.author', ondelete='restrict')
     tag_ids = fields.Many2many('test.mongo.tag', 'test_mongo_review_tag_rel', 'review_id', 'tag_id')
+    partner_ids = fields.Many2many('res.partner', 'test_mongo_review_partner_rel', 'review_id', 'partner_id')

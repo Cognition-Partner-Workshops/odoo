@@ -36,8 +36,9 @@ from collections import defaultdict
 
 from bson.decimal128 import Decimal128
 from pymongo import ASCENDING, MongoClient, UpdateOne
-from pymongo.errors import OperationFailure
-import psycopg2
+from pymongo.errors import BulkWriteError, OperationFailure
+from psycopg2.extensions import QuotedString
+from psycopg2.extras import Json as PsycopgJson
 
 from odoo.tools import config
 from odoo.tools.misc import OrderedSet
@@ -55,6 +56,7 @@ if typing.TYPE_CHECKING:
     from collections.abc import Iterable
     from .fields import Field
     from .models import BaseModel
+    from .table_objects import TableObject
     from .registry import Registry
 
 _logger = logging.getLogger(__name__)
@@ -372,10 +374,15 @@ class MongoStore:
 
     # -- journaled primitives ---------------------------------------------------
 
-    def insert_docs(self, cr, coll, docs: list[dict]) -> None:
+    def insert_docs(self, cr, coll, docs: list[dict], table: str = '') -> None:
         if not docs:
             return
-        coll.insert_many(docs, ordered=True)
+        try:
+            coll.insert_many(docs, ordered=True)
+        except BulkWriteError as exc:
+            if inserted := [doc['_id'] for doc in docs[:exc.details.get('nInserted', 0)]]:
+                coll.delete_many({'_id': {'$in': inserted}})
+            _raise_bulk_error(cr, coll, exc, table)
         ids = [doc['_id'] for doc in docs]
         self.journal(cr).record(lambda: coll.delete_many({'_id': {'$in': ids}}))
 
@@ -388,7 +395,7 @@ class MongoStore:
             self.journal(cr).record(lambda: coll.insert_many(old))
         return old
 
-    def update_docs(self, cr, coll, updates: dict[int, dict[str, object]]) -> None:
+    def update_docs(self, cr, coll, updates: dict[int, dict[str, object]], table: str = '') -> None:
         """ ``$set`` per-document values (``{_id: {path: value}}``); the touched
         top-level paths are snapshotted for undo. """
         if not updates:
@@ -396,7 +403,6 @@ class MongoStore:
         ids = list(updates)
         tops = sorted({p.split('.', 1)[0] for values in updates.values() for p in values})
         old = list(coll.find({'_id': {'$in': ids}}, {top: 1 for top in tops}))
-        coll.bulk_write([UpdateOne({'_id': id_}, {'$set': values}) for id_, values in updates.items()], ordered=False)
 
         def undo():
             for doc in old:
@@ -408,6 +414,11 @@ class MongoStore:
                         continue
                     op = {'$set': {top: doc[top]}} if top in doc else {'$unset': {top: ''}}
                     coll.update_one({'_id': doc['_id'], **condition}, op)
+        try:
+            coll.bulk_write([UpdateOne({'_id': id_}, {'$set': values}) for id_, values in updates.items()], ordered=False)
+        except BulkWriteError as exc:
+            undo()
+            _raise_bulk_error(cr, coll, exc, table)
         self.journal(cr).record(undo)
 
     # -- embedded elements ----------------------------------------------------------
@@ -1018,9 +1029,104 @@ def fetch_query(model: BaseModel, query: MongoQuery, fields: Iterable[Field]) ->
 # Writes
 # ---------------------------------------------------------------------------
 
-def _not_null_violation(model: BaseModel, fname: str):
-    return psycopg2.IntegrityError(
-        f'null value in column "{fname}" of relation "{model._table}" violates not-null constraint')
+def _pg_error(cr, condition: str, message: str, **diagnostics: str | None) -> typing.NoReturn:
+    """ Raise ``condition`` (check_violation, unique_violation, ...) from
+    PostgreSQL itself, so the error has the class and diagnostics of the one a
+    PostgreSQL table raises and aborts the transaction the same way. """
+    options = [('MESSAGE', message), *diagnostics.items()]
+    using = ', '.join(
+        f"{option} = {QuotedString(str(value)).getquoted().decode()}"
+        for option, value in options if value is not None)
+    cr.execute(SQL("DO %s", f"BEGIN RAISE {condition} USING {using}; END"))
+    raise AssertionError("unreachable")  # pragma: no cover
+
+
+def _not_null_violation(model: BaseModel, fname: str) -> typing.NoReturn:
+    _pg_error(model.env.cr, 'not_null_violation',
+              f'null value in column "{fname}" of relation "{model._table}" violates not-null constraint',
+              TABLE=model._table, COLUMN=fname)
+
+
+def _foreign_key_violation(model: BaseModel, message: str) -> typing.NoReturn:
+    _pg_error(model.env.cr, 'foreign_key_violation', message, TABLE=model._table)
+
+
+def _raise_bulk_error(cr, coll, exc: BulkWriteError, table: str) -> typing.NoReturn:
+    """ A duplicate key in a bulk write becomes the unique_violation PostgreSQL
+    raises; anything else is re-raised as is. """
+    error = (exc.details.get('writeErrors') or [{}])[0]
+    if error.get('code') != 11000:
+        raise exc
+    match = re.search(r'index: (\S+)', error.get('errmsg', ''))
+    index = match.group(1) if match else coll.name
+    key = error.get('keyValue') or {}
+    _pg_error(cr, 'unique_violation', f'duplicate key value violates unique constraint "{index}"',
+              TABLE=table or coll.name, CONSTRAINT=index,
+              DETAIL=f"Key ({', '.join(key)})=({', '.join(str(v) for v in key.values())}) already exists.")
+
+
+_CHECK_RE = re.compile(r'^\s*CHECK\s*(\(.*\))\s*$', re.IGNORECASE | re.DOTALL)
+_IDENT_RE = re.compile(r'[A-Za-z_][A-Za-z0-9_]*')
+
+
+def _check_constraints(model: BaseModel) -> list[tuple[TableObject, str, list[str]]]:
+    """ (constraint, expression, referenced columns) of the model's SQL CHECK constraints. """
+    result = []
+    for cons in model._table_objects.values():
+        if match := _CHECK_RE.match(cons.get_definition(model.env.registry)):
+            expr = match.group(1)
+            columns = sorted({
+                name for name in _IDENT_RE.findall(expr)
+                if name in model._fields and model._fields[name].column_type
+            })
+            result.append((cons, expr, columns))
+    return result
+
+
+def _bson_to_column(value):
+    if isinstance(value, Decimal128):
+        return value.to_decimal()
+    if isinstance(value, (dict, list)):
+        return PsycopgJson(value)
+    return value
+
+
+def _enforce_checks(model: BaseModel, rows: dict[int, dict[str, object]], fnames: typing.Collection[str] | None = None) -> None:
+    """ Let PostgreSQL evaluate the CHECK constraints of ``model`` on ``rows``
+    (``{id: {column: value}}`` in column format; the columns a constraint reads
+    and the written ``fnames`` miss are fetched from the documents), and raise
+    like a PostgreSQL table does when one fails. """
+    checks = _check_constraints(model)
+    if fnames is not None:
+        checks = [c for c in checks if any(col in fnames for col in c[2])]
+    if not checks or not rows:
+        return
+    cr = model.env.cr
+    columns = sorted({col for c in checks for col in c[2]})
+    if missing := [col for col in columns if any(col not in row for row in rows.values())]:
+        spec = store(model).storage(model)
+        projection = {spec.target(col): 1 for col in missing}
+        for doc in run_pipeline(model, MongoQuery(model), projection, list(rows)):
+            row = rows[doc['_id']]
+            for col in missing:
+                row.setdefault(col, _bson_to_column(doc.get(spec.target(col))))
+    values = SQL(", ").join(
+        SQL("(%s)", SQL(", ").join([
+            SQL("%s", id_),
+            *(SQL("%s::%s", row.get(col), SQL(model._fields[col].column_type[1])) for col in columns),
+        ]))
+        for id_, row in rows.items()
+    )
+    for cons, expr, _ in checks:
+        cr.execute(SQL(
+            "SELECT t.__id FROM (VALUES %s) AS t(__id, %s) WHERE NOT %s LIMIT 1",
+            values, SQL(", ").join(SQL.identifier(col) for col in columns), SQL(expr),
+        ))
+        if cr.rowcount:
+            name = cons.full_name(model)
+            _pg_error(cr, 'check_violation',
+                      f'new row for relation "{model._table}" violates check constraint "{name}"',
+                      TABLE=model._table, CONSTRAINT=name)
 
 
 def _required_column_fields(model: BaseModel) -> list[Field]:
@@ -1036,13 +1142,15 @@ def create(model: BaseModel, data_list: list[dict]) -> tuple[list[int], OrderedS
     required = _required_column_fields(model)
     ids = st.allocate_ids(model, len(data_list))
     docs = []
+    rows: dict[int, dict[str, object]] = {}
     for id_, data in zip(ids, data_list):
         stored = data['stored']
         doc = {}
+        row = rows[id_] = {}
         for fname, value in stored.items():
             field = model._fields[fname]
             if field.column_type:
-                column = field.convert_to_column_insert(value, model, stored)
+                column = row[fname] = field.convert_to_column_insert(value, model, stored)
                 doc[spec.target(fname)] = to_bson(column, spec.bson_type(fname, field))
             else:
                 other_fields.add(field)
@@ -1050,8 +1158,9 @@ def create(model: BaseModel, data_list: list[dict]) -> tuple[list[int], OrderedS
                 other_fields.add(field)
         for field in required:
             if doc.get(spec.target(field.name)) is None:
-                raise _not_null_violation(model, field.name)
+                _not_null_violation(model, field.name)
         docs.append(doc)
+    _enforce_checks(model, {id_: {col: row.get(col) for col in model._fields if model._fields[col].column_type} for id_, row in rows.items()})
 
     cr = model.env.cr
     coll = model_collection(model)
@@ -1061,17 +1170,17 @@ def create(model: BaseModel, data_list: list[dict]) -> tuple[list[int], OrderedS
         for id_, doc in zip(ids, docs):
             parent_id = doc.pop(parent_target, None)
             if parent_id is None:
-                raise _not_null_violation(model, spec.parent_column)
+                _not_null_violation(model, spec.parent_column)
             element = {spec.key_target: id_, **doc}
             by_parent[parent_id].append(element)
         if missing := set(by_parent) - {d['_id'] for d in coll.find({'_id': {'$in': list(by_parent)}}, {'_id': 1})}:
-            raise psycopg2.IntegrityError(
-                f'insert on table "{model._table}" violates foreign key constraint: {spec.parent_column} {sorted(missing)} not found')
+            _foreign_key_violation(
+                model, f'insert on table "{model._table}" violates foreign key constraint: {spec.parent_column} {sorted(missing)} not found')
         st.push_elements(cr, coll, spec.array_path, by_parent, spec.key_target)
     else:
         for id_, doc in zip(ids, docs):
             doc['_id'] = id_
-        st.insert_docs(cr, coll, docs)
+        st.insert_docs(cr, coll, docs, model._table)
     return ids, other_fields
 
 
@@ -1110,6 +1219,7 @@ def write_multi(model: BaseModel, vals_list: list[dict]) -> None:
         else:
             old_json = {doc['_id']: doc for doc in coll.find({'_id': {'$in': ids}}, projection)}
     required = {f.name for f in _required_column_fields(model)}
+    _enforce_checks(model, {id_: dict(vals) for id_, vals in zip(ids, vals_list)}, {f for vals in vals_list for f in vals})
 
     updates: dict[int, dict[str, object]] = {}
     moves: dict[int, int] = {}      # embedded records whose parent changes
@@ -1124,7 +1234,7 @@ def write_multi(model: BaseModel, vals_list: list[dict]) -> None:
             else:
                 value = to_bson(value, spec.bson_type(fname, field))
             if value is None and fname in required:
-                raise _not_null_violation(model, fname)
+                _not_null_violation(model, fname)
             if spec.embedded and fname == spec.parent_column:
                 moves[id_] = value
                 continue
@@ -1133,12 +1243,12 @@ def write_multi(model: BaseModel, vals_list: list[dict]) -> None:
             updates[id_] = values
 
     if not spec.embedded:
-        st.update_docs(cr, coll, updates)
+        st.update_docs(cr, coll, updates, model._table)
         return
     if moves:
         if missing := set(moves.values()) - {d['_id'] for d in coll.find({'_id': {'$in': list(moves.values())}}, {'_id': 1})}:
-            raise psycopg2.IntegrityError(
-                f'update on table "{model._table}" violates foreign key constraint: {spec.parent_column} {sorted(missing)} not found')
+            _foreign_key_violation(
+                model, f'update on table "{model._table}" violates foreign key constraint: {spec.parent_column} {sorted(missing)} not found')
         removed = st.pull_elements(cr, coll, spec.array_path, list(moves), spec.key_target)
         by_parent: dict[int, list[dict]] = defaultdict(list)
         for elements in removed.values():
@@ -1245,8 +1355,8 @@ def on_delete(model: BaseModel, ids: list[int], check_only: bool = False) -> Non
                 query = comodel._search([(field.name, 'in', ids)], bypass_access=True)
                 query.limit = 1
                 if query.get_result_ids():
-                    raise psycopg2.IntegrityError(
-                        f'update or delete on table "{model._table}" violates foreign key constraint '
+                    _foreign_key_violation(
+                        model, f'update or delete on table "{model._table}" violates foreign key constraint '
                         f'"{comodel._table}_{field.name}_fkey" on table "{comodel._table}"')
             continue
         query = comodel._search([(field.name, 'in', ids)], bypass_access=True)
@@ -1289,14 +1399,18 @@ def auto_init(model: BaseModel) -> None:
 # ---------------------------------------------------------------------------
 
 def many2many_rel_storage(field: Field, model: BaseModel) -> CollectionSpec | None:
-    """ Where the relation table lives in MongoDB, or None (PostgreSQL). """
+    """ Where the relation table lives in MongoDB, or None (PostgreSQL). A
+    relation between two PostgreSQL models stays in PostgreSQL even when the
+    mapping spec maps its table: nothing is written for models not opted in. """
     comodel = model.env[field.comodel_name]
+    if not (is_mongodb(model) or is_mongodb(comodel)):
+        return None
     st = store(model)
     return st.table_storage(field.relation, model) or st.table_storage(field.relation, comodel)
 
 
 def many2many_cross_store(field: Field, model: BaseModel) -> bool:
-    return is_mongodb(model) or is_mongodb(model.env[field.comodel_name]) or many2many_rel_storage(field, model) is not None
+    return is_mongodb(model) or is_mongodb(model.env[field.comodel_name])
 
 
 def _rel_pairs(field: Field, model: BaseModel, ids: list[int] | None = None, coids: list[int] | None = None) -> list[tuple[int, int]]:
@@ -1410,7 +1524,12 @@ def many2many_write_pairs(field: Field, model: BaseModel, add_pairs: list, remov
         present = {(d[t1], d[t2]) for d in coll.find({'$or': [{t1: x, t2: y} for x, y in add_pairs]}, {t1: 1, t2: 1})}
         docs = [{t1: x, t2: y} for x, y in add_pairs if (x, y) not in present]
         if docs:
-            coll.insert_many(docs)
+            try:
+                coll.insert_many(docs, ordered=True)
+            except BulkWriteError as exc:
+                if inserted := [d['_id'] for d in docs[:exc.details.get('nInserted', 0)]]:
+                    coll.delete_many({'_id': {'$in': inserted}})
+                _raise_bulk_error(cr, coll, exc, field.relation)
             inserted = [d['_id'] for d in docs]
             st.journal(cr).record(lambda: coll.delete_many({'_id': {'$in': inserted}}))
 
