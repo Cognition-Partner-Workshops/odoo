@@ -229,7 +229,13 @@ def from_bson(value, field: Field):
 
 class MongoJournal:
     """ Inverse operations of the MongoDB writes made through a cursor, undone
-    on rollback (full or to a savepoint, see :class:`odoo.sql_db.Savepoint`). """
+    on rollback (full or to a savepoint, see :class:`odoo.sql_db.Savepoint`).
+
+    MongoDB writes are visible to other cursors as soon as they are made (they
+    are not part of the PostgreSQL transaction): the undo of an update only
+    restores a value this cursor still holds, so a value committed in between
+    by another cursor is kept. Inserts and deletes have no such race on a
+    record's own id (ids come from the shadow table's sequence). """
 
     def __init__(self, cr):
         self.cr = cr
@@ -401,7 +407,8 @@ class MongoStore:
                     ops['$set'] = sets
                 if unsets:
                     ops['$unset'] = unsets
-                coll.update_one({'_id': doc['_id']}, ops)
+                # only where the document still holds the values written here
+                coll.update_one({'_id': doc['_id'], **updates[doc['_id']]}, ops)
         self.journal(cr).record(undo)
 
     # -- embedded elements ----------------------------------------------------------
@@ -453,11 +460,12 @@ class MongoStore:
         )
 
         def undo():
+            written = {f'e.{path}': value for path, value in values.items()}
             for element_id, previous in old.items():
                 coll.update_many(
                     {f'{array_path}.{key}': element_id},
                     {'$set': {f'{array_path}.$[e].{path}': value for path, value in previous.items()}},
-                    array_filters=[{f'e.{key}': element_id}],
+                    array_filters=[{f'e.{key}': element_id, **written}],    # still holds the values written here
                 )
         self.journal(cr).record(undo)
 
@@ -1151,8 +1159,8 @@ def unlink_rows(model: BaseModel, ids: list[int]) -> None:
     spec = st.storage(model)
     cr = model.env.cr
     coll = model_collection(model)
-    # elements embedded in the deleted documents go with them (shadow rows included)
-    children = []
+    on_delete(model, ids, check_only=True)
+    # records embedded in the deleted documents go with them, through their own unlink()
     if not spec.embedded:
         child_specs = embedded_children(model)
         if child_specs:
@@ -1160,20 +1168,21 @@ def unlink_rows(model: BaseModel, ids: list[int]) -> None:
             for child, cs in child_specs:
                 child_ids = [e[cs.key_target] for doc in docs for e in doc.get(cs.array_path) or [] if cs.key_target in e]
                 if child_ids:
-                    children.append((child, child_ids))
-    on_delete(model, ids, check_only=True)
-    for child, child_ids in children:
-        on_delete(child, child_ids, check_only=True)
+                    child.browse(child_ids).unlink()
+    # many2many links stored in MongoDB have no foreign key to cascade them
+    for field in many2many_fields_of(model):
+        Model = model.env[field.model_name].sudo()
+        own = field.model_name == model._name
+        pairs = _rel_pairs(field, Model, ids=ids) if own else _rel_pairs(field, Model, coids=ids)
+        if pairs:
+            many2many_write_pairs(field, Model, [], pairs)
+            Model.invalidate_model([field.name])
     cr.execute(SQL("DELETE FROM %s WHERE id IN %s", SQL.identifier(model._table), tuple(ids)))
     if spec.embedded:
         st.pull_elements(cr, coll, spec.array_path, ids, spec.key_target)
     else:
         st.delete_docs(cr, coll, ids)
     on_delete(model, ids)
-    for child, child_ids in children:
-        child.browse(child_ids).invalidate_recordset()
-        cr.execute(SQL("DELETE FROM %s WHERE id IN %s", SQL.identifier(child._table), tuple(child_ids)))
-        on_delete(child, child_ids)
 
 
 def embedded_children(model: BaseModel) -> list[tuple[BaseModel, CollectionSpec]]:
@@ -1189,6 +1198,22 @@ def embedded_children(model: BaseModel) -> list[tuple[BaseModel, CollectionSpec]
             if cs.embedded and cs.parent_table == table:
                 result.append((child, cs))
     return result
+
+
+def many2many_fields_of(model: BaseModel) -> list[Field]:
+    """ Stored many2many fields on either side of ``model`` whose relation table
+    is in MongoDB, one per relation table. """
+    env = model.env
+    result: dict[str, Field] = {}
+    for Model in env.registry.models.values():
+        for field in Model._fields.values():
+            if (
+                field.type == 'many2many' and field.store and field.relation not in result
+                and model._name in (field.model_name, field.comodel_name)
+                and many2many_rel_storage(field, env[field.model_name]) is not None
+            ):
+                result[field.relation] = field
+    return list(result.values())
 
 
 def referencing_fields(registry: Registry, model_name: str) -> list[Field]:

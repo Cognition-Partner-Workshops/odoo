@@ -191,6 +191,17 @@ class TestMongoStorage(TransactionCase):
         review = self.env['test.mongo.review'].create({'name': 'r', 'tag_ids': [(6, 0, (self.tag_x + self.tag_y).ids)]})
         self.assertEqual(review.tag_ids, self.tag_x + self.tag_y)
         self.assertEqual(self.env['test.mongo.review'].search([('tag_ids.name', '=', 'y')]), review)
+        # deleting either endpoint removes the MongoDB-stored links
+        self.book_a1.tag_ids = [(4, self.tag_y.id)]
+        self.env.flush_all()
+        book_id, tag_id = self.book_a1.id, self.tag_x.id
+        self.assertEqual(rel.count_documents({'bookId': book_id}), 1)
+        self.book_a1.unlink()
+        self.assertEqual(rel.count_documents({'bookId': book_id}), 0)
+        self.assertEqual([e['tagId'] for e in self.doc(self.author_a)['tagRel']], [tag_id])
+        self.tag_x.unlink()
+        self.assertEqual(self.doc(self.author_a)['tagRel'], [])
+        self.assertFalse(self.author_a.tag_ids)
 
     def test_embedded_model(self):
         Chapter = self.env['test.mongo.chapter']
@@ -217,10 +228,12 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual(self.doc(self.book_a2)['chapter'], [])
         self.env.cr.execute("SELECT id FROM test_mongo_chapter")
         self.assertEqual([r[0] for r in self.env.cr.fetchall()], [chapters[1].id])
-        # deleting the book cascades (document array and shadow rows)
+        # deleting the book cascades through the chapters' own unlink (array, shadow rows, attachments)
+        attachment = self.env['ir.attachment'].create({'name': 'a', 'res_model': Chapter._name, 'res_id': chapters[1].id})
         self.book_a1.unlink()
         self.assertFalse(chapters[1].exists())
         self.assertEqual(Chapter.search_count([]), 0)
+        self.assertFalse(attachment.exists())
 
     def test_inherits(self):
         Variant = self.env['test.mongo.variant']
@@ -308,6 +321,24 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual(coll.count_documents({}), before)
         self.assertEqual(coll.find_one({'_id': self.author_a.id})['name'], 'Ann')
         self.assertEqual(coll.find_one({'_id': self.author_b.id})['name'], 'Ben')
+        # a value committed by another cursor in between is kept on rollback
+        with self.assertRaises(ZeroDivisionError), self.env.cr.savepoint():
+            self.author_a.write({'name': 'Mine'})
+            self.env.flush_all()
+            coll.update_one({'_id': self.author_a.id}, {'$set': {'name': 'Theirs'}})
+            1 / 0
+        self.assertEqual(coll.find_one({'_id': self.author_a.id})['name'], 'Theirs')
+        coll.update_one({'_id': self.author_a.id}, {'$set': {'name': 'Ann'}})
+        # the first MongoDB write of a cursor made inside a savepoint rolls back with it
+        with self.registry.cursor() as cr:
+            env = self.env(cr=cr)
+            with self.assertRaises(ZeroDivisionError), cr.savepoint():
+                extra = env['test.mongo.author'].create({'name': 'Gone'})
+                env.flush_all()
+                self.assertEqual(coll.find_one({'_id': extra.id})['name'], 'Gone')
+                1 / 0
+            self.assertIsNone(coll.find_one({'_id': extra.id}))
+            cr.rollback()
 
     def test_translations(self):
         author = self.author_a

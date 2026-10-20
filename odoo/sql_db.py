@@ -135,9 +135,9 @@ class Savepoint:
         self.closed: bool = False
         cr.execute(psql.SQL('SAVEPOINT {}').format(psql.Identifier(self.name)))
         # listeners (e.g. the MongoDB write journal) roll back with the savepoint
-        self._listener_marks = [
-            (listener, listener.mark()) for listener in getattr(cr, 'savepoint_listeners', ())
-        ]
+        self._listener_marks = {
+            listener: listener.mark() for listener in getattr(cr, 'savepoint_listeners', ())
+        }
 
     def __enter__(self):
         return self
@@ -151,8 +151,9 @@ class Savepoint:
 
     def rollback(self):
         self._cr.execute(psql.SQL('ROLLBACK TO SAVEPOINT {}').format(psql.Identifier(self.name)))
-        for listener, mark in self._listener_marks:
-            listener.rollback_to(mark)
+        # a listener registered after the savepoint started undoes everything
+        for listener in getattr(self._cr, 'savepoint_listeners', ()):
+            listener.rollback_to(self._listener_marks.get(listener, 0))
 
     def _close(self, rollback: bool):
         if rollback:
