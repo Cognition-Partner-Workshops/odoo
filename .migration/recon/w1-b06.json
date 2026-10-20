@@ -37,13 +37,15 @@
     ]
   },
   "storage_path_findings": [
-    "many2many_read: PG-side m2m with context active_test=False into a Mongo comodel raises TypeError (sale/purchase order line tax_ids, account.move.line tax_ids/tax_tag_ids, payment_state) - hot path",
-    "account_move_line_account_tax_rel embedded in accountMoveLine (later wave): account.tax.account_move_line_ids and account.move.line.tax_ids read empty",
-    "self-referential embedded m2m reads empty from the non-array side: account.tax.children_tax_ids, replacing_tax_ids",
-    "PG-model domain ('taxes_id','in',ids) into a Mongo comodel with active raises NotImplementedError",
-    "embedded child rows with a composite key (account.fiscal.position.account) cannot be created: TypeError unhashable list",
-    "NULL ordering differs: Mongo missing-first vs PG NULLS LAST (account.fiscal.position sequence,id)",
-    "account.account.tag.report_expression_id/balance_negate raise on read (row 3b-22, owner account-settings)"
+    "account.account default _order (code_path, name_path: compute_sql) raises NotImplementedError on the MongoDB path since 83cc4af; every search() in this batch passes order='id' and the search panel sorts in Python; generic list views of account.account still hit it",
+    "PG-model domain ('taxes_id', 'in', ids) into account.tax raises NotImplementedError (fields_relational.condition_to_sql -> MongoQuery.add_where, storage_mongodb.py:654) despite PR #63"
   ],
-  "one_line_summary": "account-chart: live PASS, merge_eligible true, 0 warnings; fixture PASS; 7 models opted in, 13 R rows rewritten; ORM scenario 62/75 - the 13 failures are storage-path gaps (above) that break tax reads from sale/purchase/move lines on this branch until UNT12-22/33 land"
+  "one_line_summary": "account-chart: live PASS on 83cc4af, merge_eligible true, 0 warnings; fixture PASS; ORM scenario 77/79 - the 2 failures are storage-path gaps (compute_sql _order; PG domain into a Mongo comodel)",
+  "head_sha": "83f6c05a0c6c67fd3d4ceba60f0bc6385bed0763",
+  "base": "mongo-run/unt12@83cc4af173e",
+  "scenario": {
+    "path": ".migration/load/scenario_account_chart.py",
+    "passed": 77,
+    "total": 79
+  }
 }
