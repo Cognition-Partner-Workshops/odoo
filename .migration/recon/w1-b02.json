@@ -35,7 +35,7 @@
       7
     ]
   },
-  "one_line_summary": "product-taxonomy on mongo-run/unt12 83cc4af: live PASS, merge_eligible true, 0 warnings; fixture PASS; 70/70 ORM scenario checks incl. company-dependent writes and get_property_definition (fixed by PR #58/#63); no storage-path gap outstanding",
-  "base_commit": "83cc4af173e",
-  "evidence_commit": "2ea68e1723c"
+  "one_line_summary": "product-taxonomy on mongo-run/unt12 79c5ab0: live PASS, merge_eligible true, 0 warnings; fixture PASS; 70/70 ORM scenario checks incl. company-dependent writes and get_property_definition; no storage-path gap outstanding",
+  "base_commit": "79c5ab03773",
+  "evidence_commit": "1b0f8831f18"
 }
