@@ -1,0 +1,32 @@
+[
+  {
+    "name": "journals_by_type_with_reconcile_model_count",
+    "collection": "accountJournal",
+    "source_sql": "SELECT j.id, j.code, j.type, j.company_id, j.currency_id, j.default_account_id, j.active, j.name->>'en_US' AS name, (SELECT count(*) FROM account_journal_account_reconcile_model_rel r WHERE r.account_journal_id = j.id) AS reconcile_model_count FROM account_journal j",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "code": "$code", "type": "$type", "company_id": "$companyId", "currency_id": {"$ifNull": ["$currencyId", null]}, "default_account_id": {"$ifNull": ["$defaultAccountId", null]}, "active": "$active", "name": "$name.en_US", "reconcile_model_count": {"$size": {"$ifNull": ["$accountReconcileModelRel", []]}}}}]
+  },
+  {
+    "name": "dashboard_journals_per_company_and_type",
+    "collection": "accountJournal",
+    "source_sql": "SELECT company_id, type, count(*) AS journals, count(*) FILTER (WHERE show_on_dashboard) AS on_dashboard FROM account_journal GROUP BY company_id, type",
+    "target_pipeline": [{"$group": {"_id": {"company_id": "$companyId", "type": "$type"}, "journals": {"$sum": 1}, "on_dashboard": {"$sum": {"$cond": [{"$eq": ["$showOnDashboard", true]}, 1, 0]}}}}, {"$project": {"_id": 0, "company_id": "$_id.company_id", "type": "$_id.type", "journals": 1, "on_dashboard": 1}}]
+  },
+  {
+    "name": "payment_method_lines_per_journal",
+    "collection": "accountPaymentMethod",
+    "source_sql": "SELECT l.id, l.journal_id, l.payment_method_id, m.code, m.payment_type, l.sequence, l.payment_account_id FROM account_payment_method_line l JOIN account_payment_method m ON m.id = l.payment_method_id",
+    "target_pipeline": [{"$unwind": "$line"}, {"$project": {"_id": 0, "id": "$line.id", "journal_id": {"$ifNull": ["$line.journalId", null]}, "payment_method_id": "$_id", "code": "$code", "payment_type": "$paymentType", "sequence": {"$ifNull": ["$line.sequence", null]}, "payment_account_id": {"$ifNull": ["$line.paymentAccountId", null]}}}]
+  },
+  {
+    "name": "reconcile_models_with_line_and_partner_counts",
+    "collection": "accountReconcileModel",
+    "source_sql": "SELECT r.id, r.name->>'en_US' AS name, r.rule_type, r.company_id, r.sequence, r.active, (SELECT count(*) FROM account_reconcile_model_line l WHERE l.model_id = r.id) AS line_count, (SELECT count(*) FROM account_reconcile_model_res_partner_rel p WHERE p.account_reconcile_model_id = r.id) AS partner_count FROM account_reconcile_model r",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "name": "$name.en_US", "rule_type": "$ruleType", "company_id": "$companyId", "sequence": "$sequence", "active": "$active", "line_count": {"$size": {"$ifNull": ["$line", []]}}, "partner_count": {"$size": {"$ifNull": ["$resPartnerRel", []]}}}}]
+  },
+  {
+    "name": "reconcile_model_line_taxes",
+    "collection": "accountReconcileModelLineAccountTaxRel",
+    "source_sql": "SELECT t.account_reconcile_model_line_id, t.account_tax_id, l.model_id FROM account_reconcile_model_line_account_tax_rel t JOIN account_reconcile_model_line l ON l.id = t.account_reconcile_model_line_id",
+    "target_pipeline": [{"$lookup": {"from": "accountReconcileModel", "localField": "accountReconcileModelLineId", "foreignField": "line.id", "as": "model"}}, {"$project": {"_id": 0, "account_reconcile_model_line_id": "$accountReconcileModelLineId", "account_tax_id": "$accountTaxId", "model_id": {"$arrayElemAt": ["$model._id", 0]}}}]
+  }
+]

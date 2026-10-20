@@ -6,6 +6,7 @@ from odoo.exceptions import UserError, ValidationError
 
 class AccountReconcileModelLine(models.Model):
     _name = 'account.reconcile.model.line'
+    _storage = 'mongodb'
     _inherit = ['analytic.mixin']
     _description = 'Rules for the reconciliation model'
     _order = 'sequence, id'
@@ -92,6 +93,7 @@ class AccountReconcileModelLine(models.Model):
 
 class AccountReconcileModel(models.Model):
     _name = 'account.reconcile.model'
+    _storage = 'mongodb'
     _description = 'Preset to create journal entries during a invoices and payments matching'
     _inherit = ['mail.thread']
     _order = 'sequence, id'

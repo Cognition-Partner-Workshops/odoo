@@ -46,7 +46,7 @@ class AccountJournal(models.Model):
     def _compute_last_bank_statement(self):
         self.env.cr.execute("""
             SELECT journal.id, statement.id
-              FROM account_journal journal
+              FROM unnest(%s::int[]) AS journal(id)
          LEFT JOIN LATERAL (
                       SELECT id, company_id
                         FROM account_bank_statement
@@ -55,8 +55,7 @@ class AccountJournal(models.Model):
                     ORDER BY first_line_index DESC
                        LIMIT 1
                    ) statement ON TRUE
-             WHERE journal.id = ANY(%s)
-               AND statement.company_id = ANY(%s)
+             WHERE statement.company_id = ANY(%s)
         """, [self.ids, self.env.companies.ids])
         last_statements = {journal_id: statement_id for journal_id, statement_id in self.env.cr.fetchall()}
         for journal in self:
@@ -314,17 +313,17 @@ class AccountJournal(models.Model):
                 act_type.category as activity_category,
                 activity.date_deadline,
                 journal.id as journal_id
-           FROM account_journal journal
+           FROM unnest(%(ids)s::int[]) AS journal(id)
            JOIN mail_activity activity ON activity.res_id = journal.id AND activity.res_model = 'account.journal'
       LEFT JOIN mail_activity_type act_type ON activity.activity_type_id = act_type.id
-          WHERE journal.id = ANY(%(ids)s)
-            AND journal.company_id = ANY(%(company_ids)s)
+          WHERE journal.id = ANY(%(company_journal_ids)s)
             AND activity.active = TRUE
             """,
             today=today,
             act_type_name=act_type_name,
             ids=self.ids,
             company_ids=self.env.companies.ids,
+            company_journal_ids=self.filtered(lambda journal: journal.company_id in self.env.companies).ids,
         )
         self.env.cr.execute(sql_query)
         for activity_data in self.env.cr.dictfetchall():
@@ -400,7 +399,7 @@ class AccountJournal(models.Model):
                        SELECT j.id,
                               has_posted_entries.val,
                               has_entries.val
-                         FROM account_journal j
+                         FROM unnest(%(journal_ids)s::int[]) AS j(id)
             LEFT JOIN LATERAL (
                                   SELECT bool(m.id) as val
                                     FROM account_move m
@@ -414,9 +413,8 @@ class AccountJournal(models.Model):
                                    WHERE m.journal_id = j.id
                                    LIMIT 1
                               ) AS has_entries ON true
-                        WHERE j.id in %(journal_ids)s
             """,
-            journal_ids=tuple(self.ids),
+            journal_ids=self.ids,
         )
         self.env.cr.execute(sql_query)
         res = {journal_id: (has_posted, has_entries) for journal_id, has_posted, has_entries in self.env.cr.fetchall()}
@@ -783,7 +781,7 @@ class AccountJournal(models.Model):
 
         self.env.cr.execute(SQL("""
             SELECT id, moves_exists
-            FROM account_journal journal
+            FROM unnest(%(journal_ids)s::int[]) AS journal(id)
             LEFT JOIN LATERAL (
                 SELECT EXISTS(SELECT 1
                               FROM account_move move
@@ -791,7 +789,6 @@ class AccountJournal(models.Model):
                               AND move.company_id = ANY (%(companies_ids)s) AND
                                   move.journal_id = ANY (%(journal_ids)s)) AS moves_exists
             ) moves ON TRUE
-            WHERE journal.id = ANY (%(journal_ids)s);
         """,
             journal_ids=sale_purchase_journals.ids,
             companies_ids=self.env.companies.ids,
@@ -1008,7 +1005,7 @@ class AccountJournal(models.Model):
                    COALESCE(statement.balance_end_real, 0) AS balance_end_real,
                    without_statement.amount AS unlinked_amount,
                    without_statement.count AS unlinked_count
-              FROM account_journal journal
+              FROM unnest(%s::int[]) AS journal(id)
          LEFT JOIN LATERAL (  -- select latest statement based on the date
                            SELECT id,
                                   first_line_index,
@@ -1032,8 +1029,7 @@ class AccountJournal(models.Model):
                               AND stl.internal_index >= COALESCE(statement.first_line_index, '')
                             LIMIT 1
                    ) without_statement ON TRUE
-             WHERE journal.id = ANY(%s)
-        """, [self.env.companies.ids, self.env.companies.ids, self.ids])
+        """, [self.ids, self.env.companies.ids, self.env.companies.ids])
         query_res = {res['journal_id']: res for res in self.env.cr.dictfetchall()}
         result = {}
         for journal in self:
@@ -1056,14 +1052,14 @@ class AccountJournal(models.Model):
                    SUM(amount_company_currency_signed) AS amount_total_company
               FROM account_payment payment
               JOIN account_move move ON move.origin_payment_id = payment.id
-              JOIN account_journal journal ON move.journal_id = journal.id
+              JOIN unnest(%s::int[], %s::int[]) AS journal(id, default_account_id) ON move.journal_id = journal.id
              WHERE payment.is_matched IS TRUE
                AND move.state = 'posted'
                AND payment.journal_id = ANY(%s)
                AND payment.company_id = ANY(%s)
                AND payment.outstanding_account_id = journal.default_account_id
           GROUP BY move.company_id, move.journal_id, move.currency_id
-        """, [self.ids, self.env.companies.ids])
+        """, [self.ids, [journal.default_account_id.id or None for journal in self], self.ids, self.env.companies.ids])
         query_result = group_by_journal(self.env.cr.dictfetchall())
         result = {}
         for journal in self:

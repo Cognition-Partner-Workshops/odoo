@@ -1,0 +1,40 @@
+{
+  "batch": "w2-b01",
+  "status": "PASS",
+  "recon_results": [
+    ".migration/recon/account-journal/result.json"
+  ],
+  "fixture_results": [
+    ".migration/recon/account-journal/fixture/result.json"
+  ],
+  "write_targets": [
+    "odoo_unt12.accountJournal",
+    "odoo_unt12.accountPaymentMethod",
+    "odoo_unt12.accountReconcileModel",
+    "odoo_unt12.accountReconcileModelLineAccountTaxRel"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/69",
+  "branch": "devin/1792527678-w2-b01-account-journal",
+  "failure_class": "",
+  "manifest_sha": "ae71ec6a28e6",
+  "plugin_sha": "9a584b4cdb311ddd64fb07cbd1cf35fc9485062c",
+  "mapping_version": "map-draft-2",
+  "recon_tolerances_version": "unt12-3",
+  "tier_checks": {
+    "live": [
+      36,
+      38,
+      41,
+      5
+    ],
+    "fixture": [
+      8,
+      38,
+      41,
+      5
+    ]
+  },
+  "one_line_summary": "account-journal: live PASS, merge_eligible true, 0 warnings (tiers 36/38/41/5, re-run from the rebased head, no reload); fixture PASS; 33/33 ORM scenario checks on a prefixed clone of mongo-run/unt12@036360b53b2 (incl. a Json write of analytic_distribution after PR #70); 5 models opted in; dashboard, bank-statement validity and payment-method-information SQL read journals through the ORM; analytic_distribution search rewritten for MongoDB-stored analytic.mixin models; shared loader gains composite-key relation collections; kpi_provider.get_kpi_summary deferred to the account-ledger batch (s3.1 decision)",
+  "head_sha": "957e08be80c79aea0f55e4aa52c6942d8c8b942a",
+  "base": "mongo-run/unt12@036360b53b2"
+}

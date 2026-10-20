@@ -9,7 +9,7 @@ The unit's collections come from .migration/units.json and must all be write tar
 in --target-db; rows, field targets and indexes come from .migration/mapping_spec.json; values go
 through the ORM's own ``odoo.orm.storage_mongodb.to_bson`` so a loaded document is what
 ``_storage = 'mongodb'`` would have written (NULL columns are omitted: ``null_missing_equiv``).
-Roots are keyed id -> _id; each spec ``embeds[]`` entry (One2many children keyed by ``id``, Many2many
+Roots are keyed id -> _id (a relation table mapped to its own collection is keyed by its composite natural key); each spec ``embeds[]`` entry (One2many children keyed by ``id``, Many2many
 relation tables keyed by the other side's id) becomes one array per parent document, its elements
 shaped as ``storage_mongodb.create`` pushes them (the child fields in mapping order, NULLs omitted,
 in child key order); a parent without children carries no array. Every run empties the collection first;
@@ -68,6 +68,8 @@ def convert(fields, values, into):
 
 
 def documents(cur, coll_spec):
+    if isinstance(coll_spec['key']['target'], list) and not coll_spec['embeds']:
+        return relation_documents(cur, coll_spec)
     if coll_spec['key']['source'] != ['id'] or coll_spec['key']['target'] != '_id':
         raise SystemExit(f'{coll_spec["collection"]}: only roots keyed by id -> _id are supported')
     fields = coll_spec['fields']
@@ -76,6 +78,17 @@ def documents(cur, coll_spec):
     for embed in coll_spec['embeds']:
         embed_elements(cur, coll_spec['collection'], embed, docs)
     return list(docs.values())
+
+
+def relation_documents(cur, coll_spec):
+    """A relation table mapped to its own collection (composite natural key, shape 'collection'): one
+    document per row holding the key columns under their target names, as the storage path writes them
+    (``_id`` is left to the server)."""
+    key = coll_spec['key']
+    key_types = {f['source']: f.get('bson_type') or 'int' for f in coll_spec.get('decision', {}).get('key_fields', [])}
+    fields = ([{'source': s, 'target': t, 'bson_type': key_types.get(s, 'int')} for s, t in zip(key['source'], key['target'])]
+              + coll_spec['fields'])
+    return [convert(fields, row, {}) for row in select(cur, coll_spec['root_table'], [f['source'] for f in fields], key['source'])]
 
 
 def embed_elements(cur, name, embed, docs):
@@ -105,7 +118,7 @@ def validate(name, coll_spec, docs):
         for doc in docs:
             key = bson.encode({field: doc.get(field) for field, _ in key_spec})
             if key in seen:
-                raise SystemExit(f'{name}: duplicate value for unique index {key_spec} at _id={doc["_id"]}; nothing was changed')
+                raise SystemExit(f'{name}: duplicate value for unique index {key_spec} at _id={doc.get("_id", doc)}; nothing was changed')
             seen.add(key)
 
 
