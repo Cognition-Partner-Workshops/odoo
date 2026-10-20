@@ -410,7 +410,8 @@ class AccountAccount(models.Model):
     def _compute_field_path(self, fname):
         for record in self:
             parents_field_values = record.parent_ids.mapped(fname)
-            if all(parents_field_values):
+            # as in _compute_sql_field_path (COUNT): only a missing value breaks the path, an empty one is part of it
+            if all(value is not False for value in parents_field_values):
                 record[f'{fname}_path'] = " / ".join(parents_field_values)
             else:
                 record[f'{fname}_path'] = False
