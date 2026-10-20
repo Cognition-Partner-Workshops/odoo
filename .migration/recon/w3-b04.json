@@ -11,7 +11,7 @@
     "odoo_migration.productAttributeCustomValue",
     "odoo_migration.productLabelLayout"
   ],
-  "pr_url": "",
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/47",
   "branch": "devin/1792462617-w3-b04-variant-extras",
   "failure_class": "",
   "manifest_sha": "3548af4a78e1",
