@@ -1395,9 +1395,15 @@ def create(model: BaseModel, data_list: list[dict]) -> tuple[list[int], OrderedS
     return ids, other_fields
 
 
-def _merge_json(field: Field, old, update):
+class _RawJson(dict):
+    """ A JSON column value to store as is, without the UPDATE semantics of :func:`_merge_json`. """
+
+
+def _merge_json(field: Field, old, update, model: BaseModel):
     """ Apply the ORM's UPDATE semantics for translated (``(is_partial, dict)``)
     and company-dependent (``{company_id: value}``) JSON columns in Python. """
+    if isinstance(update, _RawJson):
+        return dict(update) or None
     update = _unwrap_json(update)
     if update is None:
         return None
@@ -1409,7 +1415,11 @@ def _merge_json(field: Field, old, update):
         base = dict(old) if isinstance(old, dict) else {'en_US': next(iter(translations.values()))}
         return base | translations
     if field.company_dependent and isinstance(update, dict):
-        return (dict(old) if isinstance(old, dict) else {}) | _bson_object(update)
+        merged = (dict(old) if isinstance(old, dict) else {}) | _bson_object(update)
+        # the UPDATE keeps a company's value only where it differs from that company's ir.default
+        # fallback (the cache holds the fallback for every company read), so the fallbacks never land in the document
+        fallbacks = _bson_object(json.loads(model.env['ir.default']._get_field_column_fallbacks(field.model_name, field.name)))
+        return {key: value for key, value in merged.items() if key in fallbacks and value != fallbacks[key]} or None
     return dict(update) if isinstance(update, StoredTranslations) else update
 
 
@@ -1442,7 +1452,7 @@ def write_multi(model: BaseModel, vals_list: list[dict]) -> None:
             assert field.store and field.column_type
             path = spec.target(fname)
             if field in json_fields:
-                value = _merge_json(field, old_json.get(id_, {}).get(path), value)
+                value = _merge_json(field, old_json.get(id_, {}).get(path), value, model)
                 row[fname] = PsycopgJson(value) if value is not None else None
             else:
                 row[fname] = value
@@ -1626,16 +1636,12 @@ def on_delete_company_dependent(model: BaseModel, field: Field, ids: list[int]) 
         raise UserError(env._('You cannot delete %(to_delete_record)s, as it is used by %(on_restrict_record)s',
                               to_delete_record=env[field.comodel_name].browse(to_delete_id),
                               on_restrict_record=holder.browse(doc['_id'])))
-    by_company = defaultdict(list)
-    for doc in docs:
-        for company_id, value in company_values(doc).items():
-            if value in ids:
-                by_company[int(company_id)].append(doc['_id'])
-    for company_id, holder_ids in by_company.items():
-        records = holder.browse(holder_ids)
-        # the storage-level update (merged into the object, journaled): like the SQL UPDATE it leaves write_uid/write_date alone
-        write_multi(records, [{field.name: {str(company_id): None}}] * len(holder_ids))
-        records.invalidate_recordset([field.name])
+    # the storage-level update, journaled: like the SQL UPDATE it nulls the pointing values (keys kept, the
+    # other companies untouched, no fallback filtering) and leaves write_uid/write_date alone
+    records = holder.browse([doc['_id'] for doc in docs])
+    write_multi(records, [{field.name: _RawJson({key: None if value in ids else value for key, value in company_values(doc).items()})}
+                          for doc in docs])
+    records.invalidate_recordset([field.name])
 
 
 # ---------------------------------------------------------------------------
