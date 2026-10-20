@@ -296,6 +296,15 @@ def _init_model_class_attributes(model_cls: type[BaseModel]):
             model_cls._description = base._description or model_cls._description
             model_cls._table = base._table or model_cls._table
             model_cls._log_access = getattr(base, '_log_access', model_cls._log_access)
+            if '_storage' in base.__dict__:
+                if '_name' in base.__dict__ and base._name == model_cls._name:
+                    model_cls._storage = base._storage
+                else:
+                    raise TypeError(
+                        f"{base} cannot set _storage while extending model {model_cls._name!r}: "
+                        "the storage is declared on the model's own class")
+            if '_mongodb_spec' in base.__dict__:
+                model_cls._mongodb_spec = base._mongodb_spec
 
         inherits.update(base._inherits)
 

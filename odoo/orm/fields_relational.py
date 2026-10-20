@@ -18,6 +18,7 @@ from .fields_reference import Many2oneReference
 from .identifiers import NewId
 from .models import BaseModel
 from .query import FieldSQL, Query, TableSQL
+from . import storage_mongodb
 from .utils import COLLECTION_TYPES, Prefetch, SQL_OPERATORS, check_pg_name
 
 if typing.TYPE_CHECKING:
@@ -492,8 +493,8 @@ class Many2one(_Relational):
         bypass_access = operator in ('any!', 'not any!') or self.bypass_search_access
         positive = operator in ('any', 'any!')
 
-        # Decide whether to use a LEFT JOIN or JOIN
-        use_join = bypass_access and isinstance(value, Domain)
+        # Decide whether to use a LEFT JOIN or JOIN (never into a MongoDB-stored comodel)
+        use_join = bypass_access and isinstance(value, Domain) and comodel._storage != 'mongodb'
         if use_join and not positive:
             # For 'not any!', we get a better query with a NOT IN when we have a
             # lot of positive conditions which have a better chance to use
@@ -553,6 +554,8 @@ class Many2one(_Relational):
         """
         model = table._model
         comodel = model.env[self.comodel_name]
+        if comodel._storage == 'mongodb':
+            raise NotImplementedError(f"Cannot join {comodel._name} (stored in MongoDB) through {self}")
         can_be_null = self not in model.env.registry.not_null_fields
         if self.compute_sudo or self.delegate or model.env.su:
             coquery = None
@@ -1186,6 +1189,8 @@ class One2many(_RelationalMulti):
         """
         model = table._model
         comodel = model.env[self.comodel_name].with_context(**self.context)
+        if comodel._storage == 'mongodb':
+            raise NotImplementedError(f"Cannot join {comodel._name} (stored in MongoDB) through {self}")
         codomain = self.get_comodel_domain(model)
         coquery = comodel._search(codomain, bypass_access=self.bypass_search_access)
 
@@ -1204,6 +1209,8 @@ class One2many(_RelationalMulti):
 
     def _condition_to_sql_relational(self, table: TableSQL, exists: bool, coquery: Query) -> SQL:
         assert not coquery.is_empty()
+        if isinstance(coquery, storage_mongodb.MongoQuery):
+            return storage_mongodb.one2many_condition_sql(self, table, exists, coquery)
         model = table._model
         comodel = model.env[self.comodel_name].sudo()
         inverse_field = comodel._fields[self.inverse_name]
@@ -1376,6 +1383,8 @@ class Many2many(_RelationalMulti):
             model.pool.post_init(model.env['ir.model.relation']._reflect_relation,
                                  model, self.relation, self._module)
         comodel = model.env[self.comodel_name]
+        if storage_mongodb.many2many_rel_storage(self, model) is not None:
+            return  # the relation lives in a MongoDB document array or collection
         if not sql.table_exists(cr, self.relation):
             cr.execute(SQL(
                 """ CREATE TABLE %(rel)s (%(id1)s INTEGER NOT NULL,
@@ -1426,6 +1435,8 @@ class Many2many(_RelationalMulti):
             )
 
     def read(self, records):
+        if storage_mongodb.many2many_cross_store(self, records):
+            return storage_mongodb.many2many_read(self, records)
         context = {'active_test': False}
         context.update(self.context)
         comodel = records.env[self.comodel_name].with_context(**context)
@@ -1609,7 +1620,9 @@ class Many2many(_RelationalMulti):
         add_pairs = [(x, y) for x, ys in new_relation.items() for y in ys - old_relation[x]]
         remove_pairs = [(x, y) for x, ys in old_relation.items() for y in ys - new_relation[x]]
 
-        if is_real and self.store:
+        if is_real and self.store and storage_mongodb.many2many_rel_storage(self, model) is not None:
+            storage_mongodb.many2many_write_pairs(self, model, add_pairs, remove_pairs)
+        elif is_real and self.store:
             if add_pairs:
                 cr.execute(SQL(
                     "INSERT INTO %s (%s, %s) SELECT * FROM UNNEST(%s, %s) ON CONFLICT DO NOTHING",
@@ -1724,6 +1737,8 @@ class Many2many(_RelationalMulti):
 
         model = table._model
         comodel = model.env[self.comodel_name].with_context(**self.context)
+        if comodel._storage == 'mongodb' or storage_mongodb.many2many_rel_storage(self, model) is not None:
+            raise NotImplementedError(f"Cannot join {comodel._name} through {self}: stored in MongoDB")
         rel_table, rel_id1, rel_id2 = self.relation, self.column1, self.column2
         codomain = self.get_comodel_domain(model)
         coquery = comodel._search(codomain, bypass_access=self.bypass_search_access)
@@ -1765,6 +1780,8 @@ class Many2many(_RelationalMulti):
 
     def _condition_to_sql_relational(self, table: TableSQL, exists: bool, coquery: Query) -> SQL:
         assert not coquery.is_empty()
+        if storage_mongodb.many2many_rel_storage(self, table._model) is not None:
+            return storage_mongodb.many2many_condition_sql(self, table, exists, coquery)
         rel_table, rel_id1, rel_id2 = self.relation, self.column1, self.column2
         rel_alias = table._make_alias(self.name)
         if not coquery.where_clause:

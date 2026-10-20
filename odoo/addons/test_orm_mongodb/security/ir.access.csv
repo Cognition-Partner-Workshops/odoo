@@ -1,0 +1,7 @@
+id,name,model_id,group_id/id,operation,domain
+access_test_mongo_author,test.mongo.author,test.mongo.author,base.group_user,crud,
+access_test_mongo_tag,test.mongo.tag,test.mongo.tag,base.group_user,crud,
+access_test_mongo_book,test.mongo.book,test.mongo.book,base.group_user,crud,
+access_test_mongo_chapter,test.mongo.chapter,test.mongo.chapter,base.group_user,crud,
+access_test_mongo_variant,test.mongo.variant,test.mongo.variant,base.group_user,crud,
+access_test_mongo_review,test.mongo.review,test.mongo.review,base.group_user,crud,
