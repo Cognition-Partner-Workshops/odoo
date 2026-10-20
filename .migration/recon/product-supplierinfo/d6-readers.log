@@ -6,3 +6,22 @@ REPORT purchase.bill.line.match OK rows 27
 VIEW report_stock_quantity rows 5263
 VIEW stock_avco_report rows 7
 VIEW vendor_delay_report rows 10
+
+# same-day baseline rerun (2026-10-20): odoo_src rebuilt by build_source.sh, clone odoo_w3b02_src reseeded (seed_scenario_rows.py, 32 supplierinfo rows pinned), odoo-base worktree 03a3cb5 on clone odoo_w3b02_estate_base
+REPORT sale.report OK rows 51
+REPORT purchase.report OK rows 32
+REPORT account.invoice.report OK rows 62
+REPORT purchase.bill.line.match OK rows 27
+VIEW report_stock_quantity rows 5263
+VIEW stock_avco_report rows 7
+VIEW vendor_delay_report rows 10
+
+# opted-in clone odoo_w3b02_estate (prefixed namespace odoo_w3b02_estate__*, 21 unprefixed odoo_migration collections pre-copied through the guard from inside the clone), run-branch tip 3c87755 + this batch at 57d1b58: -u product,purchase,purchase_stock exit 0, 50 s, 0 ERROR/Traceback lines in the update log; readers:
+REPORT sale.report OK rows 51
+REPORT purchase.report OK rows 32
+REPORT account.invoice.report OK rows 62
+REPORT purchase.bill.line.match OK rows 27
+VIEW report_stock_quantity rows 5263
+VIEW stock_avco_report rows 7
+VIEW vendor_delay_report rows 10
+# all seven counts equal the baseline

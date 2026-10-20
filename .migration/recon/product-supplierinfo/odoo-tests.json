@@ -58,7 +58,12 @@
  },
  "unprefixed_unchanged": true,
  "focused_tags_run": {
-  "command": "-i purchase_stock --test-enable --test-tags /product:TestSeller,/purchase_stock:TestSupplier on odoo_w3b02_test2",
-  "result": "NOT RUN: install fails in addons/stock/__init__.py:46 post_init_hook raw SQL on product_product (shared storage path, wave-2 model); see odoo-tests-focused.log"
+  "command": "-i purchase_stock --test-enable --test-tags /product:TestSeller,/purchase_stock:TestSupplier on fresh odoo_w3b02_test2 (odoo_w3b02_test2__* namespace)",
+  "result": "0 failed, 0 error(s) of 10 tests (3 TestSupplier + 7 TestSeller), install OK with the run-branch stock hook fix (PR #51); see odoo-tests-focused.log"
+ },
+ "run": "post-rebase rerun on run-branch tip 3c87755 + batch head 57d1b58, after dropping the stale odoo_w3b02_test__*/_test2__* namespaces through the merged mongo_guard (plugin PR #111); fresh PG16 database, one odoo-bin process at a time",
+ "full_estate_probe": {
+  "command": "-u product,purchase,purchase_stock on clone odoo_w3b02_estate of the reseeded odoo_w3b02_src (odoo_w3b02_estate__* namespace pre-copied from the 21 unprefixed collections), then the seven readers; baseline rerun same day on odoo-base 03a3cb5",
+  "result": "update exit 0, 0 ERROR/Traceback lines; all seven reader counts equal the baseline (51/32/62/27/5263/7/10); see d6-readers.log"
  }
 }
