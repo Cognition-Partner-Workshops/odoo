@@ -1,0 +1,49 @@
+{
+  "batch": "w1-b06",
+  "status": "PASS",
+  "recon_results": [
+    ".migration/recon/account-chart/result.json"
+  ],
+  "fixture_results": [
+    ".migration/recon/account-chart/fixture/result.json"
+  ],
+  "write_targets": [
+    "odoo_unt12.accountAccount",
+    "odoo_unt12.accountAccountTag",
+    "odoo_unt12.accountTax",
+    "odoo_unt12.accountTaxGroup",
+    "odoo_unt12.accountTaxRepartitionLine",
+    "odoo_unt12.accountFiscalPosition"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/64",
+  "branch": "devin/1792506997-w1-b06-account-chart",
+  "failure_class": "",
+  "manifest_sha": "b965d1e5f34e",
+  "plugin_sha": "9a584b4cdb311ddd64fb07cbd1cf35fc9485062c",
+  "mapping_version": "map-draft-2",
+  "recon_tolerances_version": "unt12-3",
+  "tier_checks": {
+    "live": [
+      62,
+      52,
+      997,
+      6
+    ],
+    "fixture": [
+      21,
+      52,
+      981,
+      6
+    ]
+  },
+  "storage_path_findings": [
+    "many2many_read: PG-side m2m with context active_test=False into a Mongo comodel raises TypeError (sale/purchase order line tax_ids, account.move.line tax_ids/tax_tag_ids, payment_state) - hot path",
+    "account_move_line_account_tax_rel embedded in accountMoveLine (later wave): account.tax.account_move_line_ids and account.move.line.tax_ids read empty",
+    "self-referential embedded m2m reads empty from the non-array side: account.tax.children_tax_ids, replacing_tax_ids",
+    "PG-model domain ('taxes_id','in',ids) into a Mongo comodel with active raises NotImplementedError",
+    "embedded child rows with a composite key (account.fiscal.position.account) cannot be created: TypeError unhashable list",
+    "NULL ordering differs: Mongo missing-first vs PG NULLS LAST (account.fiscal.position sequence,id)",
+    "account.account.tag.report_expression_id/balance_negate raise on read (row 3b-22, owner account-settings)"
+  ],
+  "one_line_summary": "account-chart: live PASS, merge_eligible true, 0 warnings; fixture PASS; 7 models opted in, 13 R rows rewritten; ORM scenario 62/75 - the 13 failures are storage-path gaps (above) that break tax reads from sale/purchase/move lines on this branch until UNT12-22/33 land"
+}
