@@ -165,7 +165,7 @@ def main():
       f"`--exclude-table` tables; transcript `.migration/rehearsal/patch_attempt.map-draft-1.txt`). Per "
       f"`d-plugin-gap`, `{spec2['version']}` is built by `scratch_draft2.sh`, which filters those rows out of a "
       f"copy of the proposal before patching (section 3); the recipe reproduces the committed sha256 byte for byte.")
-    w(f"- `model_patch.py --check`: committed `{spec1['version']}` exits {chk1[0]} ({chk1[1]} `no rationale row`, "
+    w(f"- `model_patch.py --check`: proposal `{spec1['version']}` exits {chk1[0]} ({chk1[1]} `no rationale row`, "
       f"{chk1[2]} pending-decision lines, {len(chk1[3])} other); committed `{spec2['version']}` exits {chk2[0]} with "
       f"**exactly {chk2[1]} `no rationale row` lines, {len(chk2[3])} other failures and 0 open items** — the "
       f"`g-model-evidence` gate as redefined by `d-plugin-gap` (section 2.3; transcript "
