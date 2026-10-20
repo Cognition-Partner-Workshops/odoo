@@ -4,7 +4,7 @@
   "recon_results": [".migration/recon/product-taxonomy/result.json"],
   "fixture_results": [".migration/recon/product-taxonomy/fixture/result.json"],
   "write_targets": ["odoo_unt12.productCategory", "odoo_unt12.productRemoval", "odoo_unt12.productTag", "odoo_unt12.productDocument", "odoo_unt12.productBaseUnit"],
-  "pr_url": "",
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/61",
   "branch": "devin/1792505455-w1-b02-product-taxonomy",
   "failure_class": "",
   "manifest_sha": "b965d1e5f34e",
