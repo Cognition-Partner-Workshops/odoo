@@ -116,6 +116,14 @@ class CollectionSpec:
     def embedded(self) -> bool:
         return self.array_path is not None
 
+    @property
+    def element_key(self) -> str:
+        """ The element path holding the row id of an embedded table: the key
+        target, or the ``id`` field when the key is composite (natural key). """
+        if isinstance(self.key_target, str):
+            return self.key_target
+        return self.fields['id'][0] if 'id' in self.fields else 'id'
+
     def target(self, column: str) -> str:
         if column == 'id':
             return '_id'
@@ -129,8 +137,13 @@ class CollectionSpec:
         return _field_bson_type(field) if field is not None else 'string'
 
 
-def _parse_fields(entries) -> dict[str, tuple[str, str]]:
-    return {f['source']: (f['target'], f.get('bson_type') or 'string') for f in entries}
+def _parse_fields(entries, key: dict | None = None) -> dict[str, tuple[str, str | None]]:
+    fields = {f['source']: (f['target'], f.get('bson_type') or 'string') for f in entries}
+    if key and isinstance(key['target'], list):
+        # composite (natural) key columns are fields of the element, kept as the ORM passes them
+        for source, target in zip(key['source'], key['target']):
+            fields.setdefault(source, (target, None))
+    return fields
 
 
 class MappingSpec:
@@ -152,13 +165,13 @@ class MappingSpec:
     def add_collection(self, coll: dict, owner_tables: list[str] | None = None) -> None:
         key = coll.get('key') or {'source': ['id'], 'target': '_id'}
         self.by_table[coll['root_table']] = CollectionSpec(
-            coll['root_table'], coll['collection'], _parse_fields(coll.get('fields', ())),
+            coll['root_table'], coll['collection'], _parse_fields(coll.get('fields', ()), key),
             key['target'], coll.get('indexes'), key_source=key['source'],
             owner_tables=owner_tables if owner_tables is not None else self.owners.get(coll['collection'], []),
         )
         for emb in coll.get('embeds', ()):
             self.by_table[emb['child_table']] = CollectionSpec(
-                emb['child_table'], coll['collection'], _parse_fields(emb.get('fields', ())),
+                emb['child_table'], coll['collection'], _parse_fields(emb.get('fields', ()), emb['key']),
                 emb['key']['target'], array_path=emb['array_path'], parent_table=coll['root_table'],
                 parent_column=emb['parent_key'][0], key_source=emb['key']['source'],
             )
@@ -662,7 +675,7 @@ def base_stages(model: BaseModel) -> list[dict]:
     if not spec.embedded:
         return []
     path = spec.array_path
-    key = spec.key_target if isinstance(spec.key_target, str) else 'id'
+    key = spec.element_key
     return [
         {'$unwind': f'${path}'},
         {'$replaceRoot': {'newRoot': {'$mergeObjects': [
@@ -1011,7 +1024,7 @@ def sort_stages(model: BaseModel, order: str, filter: dict, reverse: bool = Fals
             continue
         if isinstance(expr, tuple):     # ranks already encode the direction
             expr, direction = expr
-        fields[f'__n{index}'] = {'$eq': [expr, None]}
+        fields[f'__n{index}'] = {'$eq': [{'$ifNull': [expr, None]}, None]}     # a missing field is NULL
         fields[f'__k{index}'] = expr
         sort[f'__n{index}'] = 1 if nulls == 'NULLS LAST' else -1
         sort[f'__k{index}'] = 1 if direction == 'ASC' else -1
@@ -1286,12 +1299,12 @@ def create(model: BaseModel, data_list: list[dict]) -> tuple[list[int], OrderedS
             parent_id = doc.pop(parent_target, None)
             if parent_id is None:
                 _not_null_violation(model, spec.parent_column)
-            element = {spec.key_target: id_, **doc}
+            element = {spec.element_key: id_, **doc}
             by_parent[parent_id].append(element)
         if missing := set(by_parent) - {d['_id'] for d in coll.find({'_id': {'$in': list(by_parent)}}, {'_id': 1})}:
             _foreign_key_violation(
                 model, f'insert on table "{model._table}" violates foreign key constraint: {spec.parent_column} {sorted(missing)} not found')
-        st.push_elements(cr, coll, spec.array_path, by_parent, spec.key_target)
+        st.push_elements(cr, coll, spec.array_path, by_parent, spec.element_key)
     else:
         for id_, doc in zip(ids, docs):
             doc['_id'] = id_
@@ -1368,18 +1381,18 @@ def write_multi(model: BaseModel, vals_list: list[dict]) -> None:
         if missing := set(moves.values()) - {d['_id'] for d in coll.find({'_id': {'$in': list(moves.values())}}, {'_id': 1})}:
             _foreign_key_violation(
                 model, f'update on table "{model._table}" violates foreign key constraint: {spec.parent_column} {sorted(missing)} not found')
-        removed = st.pull_elements(cr, coll, spec.array_path, list(moves), spec.key_target)
+        removed = st.pull_elements(cr, coll, spec.array_path, list(moves), spec.element_key)
         by_parent: dict[int, list[dict]] = defaultdict(list)
         for elements in removed.values():
             for element in elements:
-                element.update(updates.pop(element[spec.key_target], {}))
-                by_parent[moves[element[spec.key_target]]].append(element)
-        st.push_elements(cr, coll, spec.array_path, by_parent, spec.key_target)
+                element.update(updates.pop(element[spec.element_key], {}))
+                by_parent[moves[element[spec.element_key]]].append(element)
+        st.push_elements(cr, coll, spec.array_path, by_parent, spec.element_key)
     groups: dict[tuple, list[int]] = defaultdict(list)
     for id_, values in updates.items():
         groups[tuple(sorted(values.items(), key=lambda kv: kv[0]))].append(id_)
     for items, group_ids in groups.items():
-        st.set_elements(cr, coll, spec.array_path, group_ids, dict(items), spec.key_target)
+        st.set_elements(cr, coll, spec.array_path, group_ids, dict(items), spec.element_key)
 
 
 def unlink_rows(model: BaseModel, ids: list[int]) -> None:
@@ -1395,7 +1408,7 @@ def unlink_rows(model: BaseModel, ids: list[int]) -> None:
         if child_specs:
             docs = list(coll.find({'_id': {'$in': ids}}, {cs.array_path: 1 for _, cs in child_specs}))
             for child, cs in child_specs:
-                child_ids = [e[cs.key_target] for doc in docs for e in doc.get(cs.array_path) or [] if cs.key_target in e]
+                child_ids = [e[cs.element_key] for doc in docs for e in doc.get(cs.array_path) or [] if cs.element_key in e]
                 if child_ids:
                     child.browse(child_ids).unlink()
     # many2many links stored in MongoDB have no foreign key to cascade them
@@ -1411,7 +1424,7 @@ def unlink_rows(model: BaseModel, ids: list[int]) -> None:
             Model.invalidate_model([field.name])
     cr.execute(SQL("DELETE FROM %s WHERE id IN %s", SQL.identifier(model._table), tuple(ids)))
     if spec.embedded:
-        st.pull_elements(cr, coll, spec.array_path, ids, spec.key_target)
+        st.pull_elements(cr, coll, spec.array_path, ids, spec.element_key)
     else:
         st.delete_docs(cr, coll, ids)
     on_delete(model, ids)
@@ -1619,7 +1632,7 @@ def many2many_filter(field: Field, model: BaseModel, coids: list[int]) -> dict:
 
 def many2many_read(field: Field, records: BaseModel) -> None:
     """ :meth:`Many2many.read` when a side or the relation table is in MongoDB. """
-    comodel = records.env[field.comodel_name].with_context(active_test=False, **field.context)
+    comodel = records.env[field.comodel_name].with_context(**{'active_test': False, **field.context})
     pairs = _rel_pairs(field, records, ids=list(records.ids))
     coids = list(OrderedSet(coid for _, coid in pairs))
     allowed = comodel.sudo()._search(
@@ -1691,8 +1704,22 @@ def many2many_write_pairs(field: Field, model: BaseModel, add_pairs: list, remov
 
 def many2many_condition_sql(field: Field, table: TableSQL, exists: bool, coquery: Query) -> SQL:
     """ ``_condition_to_sql_relational`` of a PostgreSQL model whose relation
-    table (or comodel) lives in MongoDB: resolve the ids, compare in SQL. """
+    table or comodel lives in MongoDB: resolve the comodel ids, compare in SQL. """
     model = table._model
+    if many2many_rel_storage(field, model) is None:
+        # PostgreSQL relation table, MongoDB comodel: EXISTS over the relation rows, restricted to
+        # the comodel ids the filter selects (an unconstrained comodel needs no id list)
+        rel_alias = table._make_alias(field.name)
+        condition = SQL("%s = %s", rel_alias[field.column1], table.id)
+        if coquery.filter:
+            coids = coquery.get_result_ids()
+            if not coids:
+                return SQL("FALSE") if exists else SQL("TRUE")
+            condition = SQL("%s AND %s IN %s", condition, rel_alias[field.column2], tuple(coids))
+        return SQL(
+            "%sEXISTS (SELECT 1 FROM %s AS %s WHERE %s)",
+            SQL() if exists else SQL("NOT "), SQL.identifier(field.relation), rel_alias, condition,
+        )
     ids = tuple(OrderedSet(id_ for id_, _ in _rel_pairs(field, model, coids=list(coquery.get_result_ids()))))
     if not ids:
         return SQL("FALSE") if exists else SQL("TRUE")
@@ -1939,7 +1966,7 @@ def _set_paths(model: BaseModel, paths: dict[int, str]) -> None:
     target = spec.target('parent_path')
     if spec.embedded:
         for id_, path in paths.items():
-            st.set_elements(model.env.cr, coll, spec.array_path, [id_], {target: path}, spec.key_target)
+            st.set_elements(model.env.cr, coll, spec.array_path, [id_], {target: path}, spec.element_key)
     else:
         st.update_docs(model.env.cr, coll, {id_: {target: path} for id_, path in paths.items()})
     field = model._fields['parent_path']

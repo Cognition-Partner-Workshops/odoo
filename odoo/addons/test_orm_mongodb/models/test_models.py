@@ -56,7 +56,9 @@ class TestMongoAuthor(models.Model):
          ('state', 'state', 'string'), ('parent_id', 'parentId', 'int'), ('parent_path', 'parentPath', 'string'),
          ('property_note', 'propertyNote', 'object'), ('book_properties_definition', 'bookPropertiesDefinition', 'object')],
         embeds=[_embed('tagRel', 'test_mongo_author_tag_rel', 'author_id', 'tag_id', 'tagId'),
-                _embed('coauthorRel', 'test_mongo_coauthor_rel', 'author_id', 'coauthor_id', 'coauthorId')],
+                _embed('coauthorRel', 'test_mongo_coauthor_rel', 'author_id', 'coauthor_id', 'coauthorId'),
+                # a PostgreSQL model's relation held by this document (product.template.taxes_id in accountTax)
+                _embed('reviewRel', 'test_mongo_author_review_rel', 'author_id', 'review_id', 'reviewId')],
         indexes=[{'keys': [['partnerId', 1]]}, {'keys': [['rating', -1], ['_id', 1]]}],
     )
 
@@ -99,7 +101,11 @@ class TestMongoBook(models.Model):
          ('pages', 'pages', 'int'), ('published', 'published', 'date'), ('archived', 'archived', 'bool'),
          ('book_properties', 'bookProperties', 'object')],
         embeds=[_embed('chapter', 'test_mongo_chapter', 'book_id', 'id', 'id',
-                       [('name', 'name', 'string'), ('sequence', 'sequence', 'int')])],
+                       [('name', 'name', 'string'), ('sequence', 'sequence', 'int')]),
+                # child rows keyed by a natural composite key, with their id as a plain field
+                {'array_path': 'edition', 'child_table': 'test_mongo_edition', 'parent_key': ['book_id'], 'parent_ref': ['id'],
+                 'key': {'source': ['lang', 'year'], 'target': ['lang', 'year']},
+                 'fields': [{'source': 'id', 'target': 'id', 'bson_type': 'int'}, {'source': 'note', 'target': 'note', 'bson_type': 'string'}]}],
     ), _spec(
         # the relation table as its own collection, like the spec's composite-key relations
         'test_mongo_book_tag_rel', 'testMongoBookTagRel',
@@ -121,6 +127,7 @@ class TestMongoBook(models.Model):
     chapter_ids = fields.One2many('test.mongo.chapter', 'book_id')
     tag_ids = fields.Many2many('test.mongo.tag', 'test_mongo_book_tag_rel', 'book_id', 'tag_id')
     review_ids = fields.One2many('test.mongo.review', 'book_id')
+    edition_ids = fields.One2many('test.mongo.edition', 'book_id')
     book_properties = fields.Properties(definition='author_id.book_properties_definition')
     # relation table mapped by the spec but owned by the review's (later) unit: served by PostgreSQL until then
     review_m2m_ids = fields.Many2many('test.mongo.review', 'test_mongo_review_book_rel', 'book_id', 'review_id')
@@ -144,6 +151,19 @@ class TestMongoChapter(models.Model):
     name = fields.Char(required=True)
     sequence = fields.Integer(default=10)
     book_id = fields.Many2one('test.mongo.book', required=True, ondelete='cascade')
+
+
+class TestMongoEdition(models.Model):
+    _name = 'test.mongo.edition'
+    _description = 'MongoDB test edition (embedded in the book document under a composite key)'
+    _storage = 'mongodb'
+    _order = 'year, id'
+    _mongodb_spec = TestMongoBook._mongodb_spec
+
+    book_id = fields.Many2one('test.mongo.book', required=True, ondelete='cascade')
+    lang = fields.Char(required=True)
+    year = fields.Integer(required=True)
+    note = fields.Char()
 
 
 class TestMongoVariant(models.Model):
@@ -184,3 +204,6 @@ class TestMongoReview(models.Model):
     tag_ids = fields.Many2many('test.mongo.tag', 'test_mongo_review_tag_rel', 'review_id', 'tag_id')
     partner_ids = fields.Many2many('res.partner', 'test_mongo_review_partner_rel', 'review_id', 'partner_id')
     book_ids = fields.Many2many('test.mongo.book', 'test_mongo_review_book_rel', 'review_id', 'book_id')
+    author_ids = fields.Many2many('test.mongo.author', 'test_mongo_author_review_rel', 'review_id', 'author_id')
+    archived_book_ids = fields.Many2many('test.mongo.book', 'test_mongo_review_book_rel', 'review_id', 'book_id',
+                                         context={'active_test': False})

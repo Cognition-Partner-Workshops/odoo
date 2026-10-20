@@ -1737,7 +1737,7 @@ class Many2many(_RelationalMulti):
 
         model = table._model
         comodel = model.env[self.comodel_name].with_context(**self.context)
-        if comodel._storage == 'mongodb' or storage_mongodb.many2many_rel_storage(self, model) is not None:
+        if storage_mongodb.many2many_rel_storage(self, model) is not None or (comodel._storage == 'mongodb' and not only_ids):
             raise NotImplementedError(f"Cannot join {comodel._name} through {self}: stored in MongoDB")
         rel_table, rel_id1, rel_id2 = self.relation, self.column1, self.column2
         codomain = self.get_comodel_domain(model)
@@ -1751,7 +1751,12 @@ class Many2many(_RelationalMulti):
         )
         if only_ids:
             result_id = TableSQLId(rel_alias._alias, rel_id2, table._query)
-            if coquery.where_clause:
+            if isinstance(coquery, storage_mongodb.MongoQuery):
+                # MongoDB-stored comodel on a PostgreSQL relation table: its filter becomes an id list
+                if coquery.filter:
+                    coids = coquery.get_result_ids()
+                    condition = SQL("%s AND %s IN %s", condition, result_id.id, tuple(coids)) if coids else SQL("FALSE")
+            elif coquery.where_clause:
                 condition = SQL(
                     "%s AND %s IN %s",
                     condition,
@@ -1780,7 +1785,7 @@ class Many2many(_RelationalMulti):
 
     def _condition_to_sql_relational(self, table: TableSQL, exists: bool, coquery: Query) -> SQL:
         assert not coquery.is_empty()
-        if storage_mongodb.many2many_rel_storage(self, table._model) is not None:
+        if isinstance(coquery, storage_mongodb.MongoQuery) or storage_mongodb.many2many_rel_storage(self, table._model) is not None:
             return storage_mongodb.many2many_condition_sql(self, table, exists, coquery)
         rel_table, rel_id1, rel_id2 = self.relation, self.column1, self.column2
         rel_alias = table._make_alias(self.name)

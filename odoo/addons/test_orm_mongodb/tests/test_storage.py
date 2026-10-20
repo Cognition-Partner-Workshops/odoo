@@ -342,6 +342,73 @@ class TestMongoStorage(TransactionCase):
         values = self.book_a1.read(['book_properties'])[0]['book_properties']
         self.assertEqual([(d['name'], d['value']) for d in values], [('genre', 'Novel')])
 
+    def test_many2many_read_with_active_test_context(self):
+        # a field context carrying active_test must not clash with the default the read sets;
+        # like PostgreSQL, the plain field hides archived comodel records, the context one shows them
+        Review = self.env['test.mongo.review']
+        review = Review.create({'name': 'ctx', 'book_ids': [(6, 0, (self.book_a1 + self.book_b1).ids)]})
+        self.book_b1.archived = True
+        self.env.flush_all()
+        review.invalidate_recordset()
+        self.assertEqual(review.archived_book_ids, self.book_a1 + self.book_b1)
+        self.assertEqual(review.book_ids, self.book_a1)
+
+    def test_postgresql_domain_into_mongodb_comodel(self):
+        Review = self.env['test.mongo.review']
+        review = Review.create({'name': 'dom', 'book_ids': [(6, 0, (self.book_a1 + self.book_b1).ids)]})
+        other = Review.create({'name': 'none'})
+        self.book_b1.archived = True
+        self.env.flush_all()
+        # PostgreSQL semantics: an id list matches archived records, a subdomain obeys active_test
+        self.assertEqual(Review.search([('book_ids', 'in', self.book_b1.ids)]), review)
+        self.assertEqual(Review.search([('book_ids', 'in', self.book_a1.ids)]), review)
+        self.assertEqual(Review.search([('book_ids', 'any', [('id', '=', self.book_a1.id)])]), review)
+        self.assertFalse(Review.search([('book_ids', 'any', [('id', '=', self.book_b1.id)])]))
+        self.assertEqual(Review.with_context(active_test=False).search([('book_ids', 'any', [('id', '=', self.book_b1.id)])]), review)
+        not_a1 = Review.search([('book_ids', 'not in', self.book_a1.ids)])
+        self.assertIn(other, not_a1)
+        self.assertNotIn(review, not_a1)
+        groups = Review._read_group([('id', 'in', (review + other).ids)], ['book_ids'], ['__count'])
+        self.assertEqual({(book.id, count) for book, count in groups}, {(self.book_a1.id, 1), (False, 1)})
+        # the relation embedded in the comodel's documents, served from MongoDB (owner opted in)
+        review.author_ids = self.author_a
+        self.env.flush_all()
+        self.assertEqual(self.doc(self.author_a)['reviewRel'], [{'reviewId': review.id}])
+        self.assertEqual(review.author_ids, self.author_a)
+        self.assertEqual(Review.search([('author_ids', 'in', self.author_a.ids)]), review)
+        self.assertEqual(Review.search([('author_ids', 'any', [('name', '=', self.author_a.name)])]), review)
+        self.assertNotIn(review, Review.search([('author_ids', 'not in', self.author_a.ids)]))
+        self.assertFalse(self.env.registry.db_name and self.store.db.list_collection_names(filter={'name': {'$regex': 'AuthorReview'}}))
+
+    def test_embedded_composite_key_rows(self):
+        Edition = self.env['test.mongo.edition']
+        e1, e2 = Edition.create([
+            {'book_id': self.book_a1.id, 'lang': 'en', 'year': 2001, 'note': 'first'},
+            {'book_id': self.book_a1.id, 'lang': 'fr', 'year': 2002},
+        ])
+        elements = self.doc(self.book_a1)['edition']
+        self.assertEqual([(e['id'], e['lang'], e['year']) for e in elements], [(e1.id, 'en', 2001), (e2.id, 'fr', 2002)])
+        self.assertEqual(self.book_a1.edition_ids, e1 + e2)
+        self.assertEqual(Edition.search([('book_id', '=', self.book_a1.id), ('lang', '=', 'fr')]), e2)
+        e1.note = 'revised'
+        e1.flush_recordset()
+        self.assertEqual(self.doc(self.book_a1)['edition'][0]['note'], 'revised')
+        e2.book_id = self.book_a2
+        e2.flush_recordset()
+        self.assertEqual([e['id'] for e in self.doc(self.book_a2)['edition']], [e2.id])
+        self.assertEqual([e['id'] for e in self.doc(self.book_a1)['edition']], [e1.id])
+        e1.unlink()
+        self.assertFalse(self.doc(self.book_a1).get('edition'))
+
+    def test_missing_field_sorts_as_null(self):
+        # the loader omits NULL columns: a missing field orders like NULL in PostgreSQL (last on ASC, first on DESC)
+        Book = self.env['test.mongo.book']
+        book = Book.create({'name': 'Unpaged', 'author_id': self.author_a.id, 'pages': 5})
+        getattr(self.store.model_collection(Book), 'update' + '_one')({'_id': book.id}, {'$unset': {'pages': ''}})
+        self.assertEqual(Book.search([], order='pages asc, id')[-1], book)
+        self.assertEqual(Book.search([], order='pages desc, id')[0], book)
+        self.assertEqual(Book.search([], order='pages asc nulls first, id')[0], book)
+
     def test_shadow_table_relaxed_at_load(self):
         # a model opted in on an existing database keeps its NOT NULL data columns until the shadow is adapted
         Tag = self.env['test.mongo.tag']
