@@ -92,7 +92,9 @@ BEGIN
                      t.table_name, t.column_name, current_setting('fixture.instant'), t.column_name);
     ELSE
       -- now()-derived values sit at a whole-hour offset from FIXED_INSTANT plus the install's
-      -- run time; anything further from the hour means the clock assumption broke.
+      -- run time; anything further from the hour means the clock assumption broke (a PostgreSQL
+      -- now() default, which FAKETIME does not reach, or a demo time with sub-hour precision,
+      -- of which the installed demo data has none).
       EXECUTE format($q$SELECT coalesce(max(greatest(%1$I - date_trunc('hour', %1$I + interval '30 min'),
                                                      date_trunc('hour', %1$I + interval '30 min') - %1$I)), '0')
                      FROM %2$I$q$, t.column_name, t.table_name) INTO residual;
@@ -110,9 +112,12 @@ UPDATE product_template_attribute_value v SET color = a.color
   FROM product_attribute_value a WHERE a.id = v.product_attribute_value_id;
 UPDATE crm_team SET color = (id - 1) % 11 + 1;
 UPDATE account_analytic_plan SET color = (id - 1) % 11 + 1;
-UPDATE sale_order SET access_token = md5('sale_order.access_token:' || id)::uuid::text WHERE access_token IS NOT NULL;
-UPDATE purchase_order SET access_token = md5('purchase_order.access_token:' || id)::uuid::text WHERE access_token IS NOT NULL;
+-- Portal tokens are runtime state, not demo data: clear them instead of pinning guessable ones.
+UPDATE sale_order SET access_token = NULL;
+UPDATE purchase_order SET access_token = NULL;
 UPDATE discuss_channel SET uuid = left(md5('discuss_channel.uuid:' || id), 10);
+-- odoo_src is a read-only fixture that no Odoo server ever serves; a fixed database.secret is
+-- the determinism contract, not a signing key in use.
 UPDATE ir_config_parameter SET value = md5('odoo_src ' || key)::uuid::text WHERE key IN ('database.uuid', 'database.secret');
 UPDATE ir_config_parameter SET value = :'instant' WHERE key = 'database.create_date';
 INSERT INTO ir_config_parameter (key, value, create_uid, create_date, write_uid, write_date)
