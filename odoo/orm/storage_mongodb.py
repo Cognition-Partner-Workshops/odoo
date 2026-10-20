@@ -98,8 +98,11 @@ class CollectionSpec:
     def __init__(self, table: str, collection: str, fields: dict[str, tuple[str, str]],
                  key_target, indexes: list | None = None,
                  array_path: str | None = None, parent_table: str | None = None,
-                 parent_column: str | None = None, key_source: list[str] | None = None):
+                 parent_column: str | None = None, key_source: list[str] | None = None,
+                 owner_tables: list[str] | None = None):
         self.table = table
+        # tables of the models that must be opted in before this collection is served
+        self.owner_tables = list(owner_tables) if owner_tables is not None else [parent_table] if parent_table else []
         self.collection = collection
         self.fields = fields              # source column -> (target, bson_type)
         self.key_target = key_target      # '_id', 'id' or a list of targets
@@ -131,19 +134,27 @@ def _parse_fields(entries) -> dict[str, tuple[str, str]]:
 
 
 class MappingSpec:
-    """ The committed mapping spec, indexed by source table. """
+    """ The committed mapping spec, indexed by source table. A root collection
+    is owned by the unit listing it in ``units.json`` (its models' tables), an
+    embedded array by its parent table. """
 
-    def __init__(self, data: dict | None):
+    def __init__(self, data: dict | None, units: dict | None = None):
         self.version = (data or {}).get('version')
+        self.owners: dict[str, list[str]] = defaultdict(list)       # collection -> owning tables
+        for unit in (units or {}).get('units', ()):
+            tables = [m['table'] for m in unit.get('models', {}).values() if m.get('table')]
+            for collection in unit.get('collections', ()):
+                self.owners[collection].extend(tables)
         self.by_table: dict[str, CollectionSpec] = {}
         for coll in (data or {}).get('collections', ()):
             self.add_collection(coll)
 
-    def add_collection(self, coll: dict) -> None:
+    def add_collection(self, coll: dict, owner_tables: list[str] | None = None) -> None:
         key = coll.get('key') or {'source': ['id'], 'target': '_id'}
         self.by_table[coll['root_table']] = CollectionSpec(
             coll['root_table'], coll['collection'], _parse_fields(coll.get('fields', ())),
             key['target'], coll.get('indexes'), key_source=key['source'],
+            owner_tables=owner_tables if owner_tables is not None else self.owners.get(coll['collection'], []),
         )
         for emb in coll.get('embeds', ()):
             self.by_table[emb['child_table']] = CollectionSpec(
@@ -156,10 +167,13 @@ class MappingSpec:
         return self.by_table.get(table)
 
 
-def _own_spec(own: dict | list) -> MappingSpec:
+def _own_spec(own: dict | list, owner_table: str) -> MappingSpec:
     """ A model's ``_mongodb_spec``: one collection entry, or a list of them
     (the model's collection plus the relation tables it owns). """
-    return MappingSpec({'collections': own if isinstance(own, list) else [own]})
+    spec = MappingSpec(None)
+    for coll in (own if isinstance(own, list) else [own]):
+        spec.add_collection(coll, owner_tables=[owner_table])
+    return spec
 
 
 # ---------------------------------------------------------------------------
@@ -169,6 +183,17 @@ def _own_spec(own: dict | list) -> MappingSpec:
 def _unwrap_json(value):
     adapted = getattr(value, 'adapted', None)       # PsycopgJson
     return adapted if adapted is not None else value
+
+
+def _bson_object(value):
+    """ A JSON column value as a BSON object: the company-dependent
+    ``{company_id: value}`` the ORM builds has int keys, which jsonb stringifies
+    and BSON refuses; dates inside have no BSON type of their own. """
+    if isinstance(value, dict):
+        return {str(key): _bson_object(val) for key, val in value.items()}
+    if isinstance(value, datetime.date) and not isinstance(value, datetime.datetime):
+        return datetime.datetime(value.year, value.month, value.day)
+    return value
 
 
 def to_bson(value, bson_type: str):
@@ -199,12 +224,20 @@ def to_bson(value, bson_type: str):
     if bson_type == 'object':
         if isinstance(value, StoredTranslations):
             return dict(value)
-        return value
+        return _bson_object(value)
     if isinstance(value, decimal.Decimal):
         return Decimal128(value)
     if isinstance(value, datetime.date) and not isinstance(value, datetime.datetime):
         return datetime.datetime(value.year, value.month, value.day)
     return value
+
+
+def column_to_bson(field: Field, value, bson_type: str):
+    """ :func:`to_bson` for a field's column value; properties fields pass
+    their jsonb parameter as JSON text, stored as the object it denotes. """
+    if isinstance(value, str) and field.type in ('properties', 'properties_definition'):
+        value = json.loads(value)
+    return to_bson(value, bson_type)
 
 
 def from_bson(value, field: Field):
@@ -287,6 +320,7 @@ class MongoStore:
         self.prefix = '' if migration_db and migration_db == registry.db_name else f"{registry.db_name}__"
         self.spec = self._load_spec()
         self._storages: dict[str, CollectionSpec] = {}
+        self._served: dict[str, bool] = {}
 
     @staticmethod
     def _default_database() -> str:
@@ -304,7 +338,15 @@ class MongoStore:
             _logger.warning("MongoDB storage: no mapping spec at %s, using camelCase defaults", path)
             return MappingSpec(None)
         with open(path, encoding='utf-8') as fh:
-            return MappingSpec(json.load(fh))
+            data = json.load(fh)
+        units = None
+        units_path = config.get('mongodb_units') or os.path.join(os.path.dirname(path), 'units.json')
+        if os.path.exists(units_path):
+            with open(units_path, encoding='utf-8') as fh:
+                units = json.load(fh)
+        else:
+            _logger.warning("MongoDB storage: no units file at %s, relation collections of the spec have no owner", units_path)
+        return MappingSpec(data, units)
 
     # -- naming --------------------------------------------------------------
 
@@ -315,7 +357,7 @@ class MongoStore:
         if spec is None:
             own = getattr(model, '_mongodb_spec', None)
             if own:
-                spec = _own_spec(own).for_table(model._table)
+                spec = _own_spec(own, model._table).for_table(model._table)
             else:
                 spec = self.spec.for_table(model._table)
             if spec is None:
@@ -326,10 +368,27 @@ class MongoStore:
     def table_storage(self, table: str, owner: BaseModel | None = None) -> CollectionSpec | None:
         """ The spec entry of a relation table, or None when it stays on PostgreSQL. """
         if owner is not None and (own := getattr(owner, '_mongodb_spec', None)):
-            spec = _own_spec(own).for_table(table)
+            spec = _own_spec(own, owner._table).for_table(table)
             if spec:
                 return spec
         return self.spec.for_table(table)
+
+    def relation_served(self, rel: CollectionSpec) -> bool:
+        """ Whether a mapped relation table is served from MongoDB yet: only
+        once every model of the unit owning its collection is opted in (the
+        embedding parent's model, or the models of the ``units.json`` unit that
+        lists the collection). A collection without a resolvable owner stays on
+        PostgreSQL. """
+        served = self._served.get(rel.table)
+        if served is None:
+            by_table = {Model._table: Model for Model in self.registry.models.values() if not Model._abstract}
+            owners = [by_table[t] for t in rel.owner_tables if t in by_table]
+            served = bool(owners) and all(is_mongodb(Model) for Model in owners)
+            if not owners:
+                _logger.info("MongoDB storage: relation table %s (collection %s) has no owning model in the registry, kept on PostgreSQL",
+                             rel.table, rel.collection)
+            self._served[rel.table] = served
+        return served
 
     def collection(self, name: str):
         return self.db[self.prefix + name]
@@ -710,6 +769,8 @@ class FilterCompiler:
             raise NotImplementedError(f"Property paths ({condition.field_expr!r}) are not supported on MongoDB-stored model {model._name}")
         if field.type == 'properties':
             raise NotImplementedError(f"Properties field {field} is not supported on MongoDB-stored model {model._name}")
+        if not field.store and field.compute_sql:
+            return self.computed(field, condition)
         if operator in ('any', 'not any', 'any!', 'not any!'):
             if field.name == 'id':
                 return self.id_any(operator, value)
@@ -726,6 +787,17 @@ class FilterCompiler:
         if field.translate:
             return self._per_lang(field, lambda path: self.scalar(field, path, operator, value, lambda v: v if isinstance(v, str) else str(v)))
         return self.scalar(field, self.path(field), operator, value, to_column)
+
+    def computed(self, field: Field, condition: DomainCondition) -> dict:
+        """ A non-stored field with ``compute_sql`` has no document path (the
+        domain optimizer keeps its conditions for SQL): compute it in Python
+        over the model's records and match on their ids. """
+        model = self.model.with_context(active_test=False)
+        if field.compute_sudo:
+            model = model.sudo()
+        records = model.browse(doc['_id'] for doc in MongoQuery(model).run({'_id': 1}))
+        matched = records.filtered_domain(Domain(condition.field_expr, condition.operator, condition.value))
+        return {'_id': {'$in': list(matched._ids)}}
 
     def scalar(self, field: Field, path: str, operator: str, value, to_column) -> dict:
         model = self.model
@@ -892,6 +964,8 @@ def sort_key_expr(model: BaseModel, fname: str, property_name: str | None, direc
     field = model._fields.get(fname)
     if not field:
         raise ValueError(f"Invalid field {fname!r} on model {model._name!r}")
+    if not field.store and field.compute_sql and not field.inherited:
+        raise NotImplementedError(f"Ordering by compute_sql field {field} is not supported on MongoDB-stored model {model._name}")
     spec = store(model).storage(model)
     path = spec.target(fname)
     env = model.env
@@ -960,6 +1034,7 @@ def order_rank_sql(model: BaseModel, field: Field, sql_field: SQL, direction: SQ
 
 def search(model: BaseModel, domain: Domain, sec_domain: Domain, sec_model: BaseModel,
            offset: int, limit: int | None, order: str | None) -> MongoQuery:
+    model.flush_model()     # pending writes reach the documents first (SQL flushes per referenced field)
     filter = FilterCompiler(model).compile(domain) if not domain.is_true() else {}
     if not sec_domain.is_true():
         sec_filter = FilterCompiler(sec_model).compile(sec_domain)
@@ -993,6 +1068,21 @@ def doc_value(model: BaseModel, field: Field, doc: dict, spec: CollectionSpec):
             raw = field.convert_to_column(field.convert_to_write(field.get_company_dependent_fallback(model), model), model)
         return field.convert_to_cache(from_bson(raw, field), model) if raw is not None else None
     return from_bson(raw, field)
+
+
+def property_definition(model: BaseModel, field: Field, property_name: str) -> dict:
+    """ :meth:`BaseModel.get_property_definition` when the definition record's
+    model is stored in MongoDB: the first document whose ``field`` (a properties
+    definition array) holds ``property_name``, like the SQL over the column. """
+    model.flush_model([field.name])
+    path = store(model).path(model, field.name)
+    query = MongoQuery(model, {f'{path}.name': property_name})
+    query.limit = 1
+    for doc in query.run({path: 1}):
+        for definition in doc.get(path) or ():
+            if isinstance(definition, dict) and definition.get('name') == property_name:
+                return definition
+    return {}
 
 
 def fetch_query(model: BaseModel, query: MongoQuery, fields: Iterable[Field]) -> BaseModel:
@@ -1176,7 +1266,7 @@ def create(model: BaseModel, data_list: list[dict]) -> tuple[list[int], OrderedS
             field = model._fields[fname]
             if field.column_type:
                 column = row[fname] = field.convert_to_column_insert(value, model, stored)
-                doc[spec.target(fname)] = to_bson(column, spec.bson_type(fname, field))
+                doc[spec.target(fname)] = column_to_bson(field, column, spec.bson_type(fname, field))
             else:
                 other_fields.add(field)
             if field.type == 'properties':
@@ -1223,7 +1313,7 @@ def _merge_json(field: Field, old, update):
         base = dict(old) if isinstance(old, dict) else {'en_US': next(iter(translations.values()))}
         return base | translations
     if field.company_dependent and isinstance(update, dict):
-        return (dict(old) if isinstance(old, dict) else {}) | update
+        return (dict(old) if isinstance(old, dict) else {}) | _bson_object(update)
     return dict(update) if isinstance(update, StoredTranslations) else update
 
 
@@ -1260,7 +1350,7 @@ def write_multi(model: BaseModel, vals_list: list[dict]) -> None:
                 row[fname] = PsycopgJson(value) if value is not None else None
             else:
                 row[fname] = value
-                value = to_bson(value, spec.bson_type(fname, field))
+                value = column_to_bson(field, value, spec.bson_type(fname, field))
             if value is None and fname in required:
                 _not_null_violation(model, fname)
             if spec.embedded and fname == spec.parent_column:
@@ -1404,6 +1494,31 @@ def on_delete(model: BaseModel, ids: list[int], check_only: bool = False) -> Non
 # Schema
 # ---------------------------------------------------------------------------
 
+def relax_shadow_tables(cr, tables: typing.Collection[str]) -> None:
+    """ Drop the NOT NULL constraints the data columns of id shadow tables kept
+    from when PostgreSQL stored the rows: the storage path inserts id-only
+    shadow rows and enforces ``required`` on the documents. """
+    from odoo.tools import sql  # noqa: PLC0415
+    if not tables:
+        return
+    cr.execute(SQL(
+        "SELECT table_name, column_name FROM information_schema.columns"
+        " WHERE table_schema = current_schema() AND table_name IN %s AND column_name != 'id' AND is_nullable = 'NO'",
+        tuple(tables),
+    ))
+    for table, column in cr.fetchall():
+        sql.drop_not_null(cr, table, column)
+
+
+def relax_registry_shadow_tables(registry: Registry, cr) -> None:
+    """ At registry load: a model opted in on an existing database takes ORM
+    writes right away, without a module update running :func:`auto_init`. """
+    relax_shadow_tables(cr, {
+        Model._table for Model in registry.models.values()
+        if is_mongodb(Model) and Model._auto and not Model._abstract
+    })
+
+
 def auto_init(model: BaseModel) -> None:
     """ Create or adapt the id shadow table, create the spec indexes, and keep
     the PostgreSQL relation tables of many2many fields the spec leaves there. """
@@ -1412,9 +1527,7 @@ def auto_init(model: BaseModel) -> None:
     if not sql.table_exists(cr, model._table):
         sql.create_model_table(cr, model._table, model._description)
     else:
-        for name, column in sql.table_columns(cr, model._table).items():
-            if name != 'id' and column['is_nullable'] == 'NO':
-                sql.drop_not_null(cr, model._table, name)
+        relax_shadow_tables(cr, [model._table])
     st = store(model)
     st.ensure_indexes(model)
     columns = sql.table_columns(cr, model._table)
@@ -1429,13 +1542,26 @@ def auto_init(model: BaseModel) -> None:
 
 def many2many_rel_storage(field: Field, model: BaseModel) -> CollectionSpec | None:
     """ Where the relation table lives in MongoDB, or None (PostgreSQL). A
-    relation between two PostgreSQL models stays in PostgreSQL even when the
-    mapping spec maps its table: nothing is written for models not opted in. """
+    mapped relation table is served from MongoDB only once the unit owning its
+    collection is opted in (:meth:`MongoStore.relation_served`): with one side
+    opted in and the collection owned by a later unit, reads and writes stay on
+    the PostgreSQL relation table. """
     comodel = model.env[field.comodel_name]
     if not (is_mongodb(model) or is_mongodb(comodel)):
         return None
     st = store(model)
-    return st.table_storage(field.relation, model) or st.table_storage(field.relation, comodel)
+    rel = st.table_storage(field.relation, model) or st.table_storage(field.relation, comodel)
+    if rel is None or not st.relation_served(rel):
+        return None
+    return rel
+
+
+def _owns_relation(rel: CollectionSpec, field: Field, model: BaseModel) -> bool:
+    """ Whether ``model``'s documents hold the embedded array of ``field``'s
+    relation table. The array sits on the embed's parent table, keyed by the
+    other column; on a self-referential relation both fields have that table,
+    and only the one whose ``column1`` is the parent key owns the array. """
+    return rel.parent_table == model._table and rel.parent_column == field.column1
 
 
 def many2many_cross_store(field: Field, model: BaseModel) -> bool:
@@ -1458,7 +1584,7 @@ def _rel_pairs(field: Field, model: BaseModel, ids: list[int] | None = None, coi
     st = store(model)
     coll = st.collection(rel.collection)
     if rel.embedded:
-        own_side = rel.parent_table == model._table
+        own_side = _owns_relation(rel, field, model)
         owner_col, other_col = (field.column1, field.column2) if own_side else (field.column2, field.column1)
         element_key = rel.target(other_col)
         owner_ids, other_ids = (ids, coids) if own_side else (coids, ids)
@@ -1486,7 +1612,7 @@ def _rel_pairs(field: Field, model: BaseModel, ids: list[int] | None = None, coi
 def many2many_filter(field: Field, model: BaseModel, coids: list[int]) -> dict:
     """ Filter on a MongoDB-stored ``model`` selecting the records linked to ``coids``. """
     rel = many2many_rel_storage(field, model)
-    if rel is not None and rel.embedded and rel.parent_table == model._table:
+    if rel is not None and rel.embedded and _owns_relation(rel, field, model):
         return {f'{rel.array_path}.{rel.target(field.column2)}': {'$in': coids}}
     return {'_id': {'$in': [id_ for id_, _ in _rel_pairs(field, model, coids=coids)]}}
 
@@ -1516,7 +1642,7 @@ def many2many_write_pairs(field: Field, model: BaseModel, add_pairs: list, remov
     cr = model.env.cr
     coll = st.collection(rel.collection)
     if rel.embedded:
-        own_side = rel.parent_table == model._table
+        own_side = _owns_relation(rel, field, model)
         element_key = rel.target(field.column2 if own_side else field.column1)
         by_owner_add, by_owner_remove = defaultdict(list), defaultdict(list)
         for x, y in add_pairs:
@@ -1597,12 +1723,12 @@ def _group_key_expr(model: BaseModel, spec: CollectionSpec, groupby_spec: str, f
     field = model._fields.get(fname)
     if field is None:
         raise ValueError(f"Invalid field {fname!r} on model {model._name!r}")
-    if seq or field.type == 'properties':
+    if seq or field.type == 'properties' or (not field.store and field.compute_sql and not field.inherited):
         raise NotImplementedError(f"Group by {groupby_spec!r} is not supported on MongoDB-stored model {model._name}")
     path = spec.target(fname)
     if field.type == 'many2many':
         rel = many2many_rel_storage(field, model)
-        if rel is None or not rel.embedded or rel.parent_table != model._table:
+        if rel is None or not rel.embedded or not _owns_relation(rel, field, model):
             raise NotImplementedError(f"Group by many2many {field} needs its relation table embedded in {model._name}'s documents")
         unwinds.append({'$unwind': {'path': f'${rel.array_path}', 'preserveNullAndEmptyArrays': True}})
         return f'${rel.array_path}.{rel.target(field.column2)}'

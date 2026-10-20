@@ -3,7 +3,7 @@ import datetime
 
 import psycopg2
 
-from odoo.orm.storage_mongodb import _check_constraints
+from odoo.orm.storage_mongodb import _check_constraints, relax_registry_shadow_tables
 from odoo.tests import TransactionCase, tagged
 from odoo.tools import mute_logger, sql
 
@@ -204,6 +204,152 @@ class TestMongoStorage(TransactionCase):
         self.tag_x.unlink()
         self.assertEqual(self.doc(self.author_a)['tagRel'], [])
         self.assertFalse(self.author_a.tag_ids)
+
+    def test_embedded_relation_inverse_side(self):
+        # self-referential relation table embedded on the author document: both fields read and write it
+        Author = self.env['test.mongo.author']
+        a, b = self.author_a, self.author_b
+        a.coauthor_ids = [(4, b.id)]
+        a.flush_recordset()
+        self.assertEqual(self.doc(a)['coauthorRel'], [{'coauthorId': b.id}])
+        self.assertNotIn('coauthorRel', self.doc(b))
+        (a + b).invalidate_recordset()
+        self.assertEqual(a.coauthor_ids, b)
+        self.assertEqual(b.coauthor_of_ids, a)
+        self.assertFalse(a.coauthor_of_ids)
+        self.assertFalse(b.coauthor_ids)
+        self.assertEqual(Author.search([('coauthor_ids', 'in', b.ids)]), a)
+        self.assertEqual(Author.search([('coauthor_of_ids', 'in', a.ids)]), b)
+        self.assertEqual(Author.search([('coauthor_of_ids', '=', False)]), a)
+        self.assertEqual(Author.search([('coauthor_of_ids.name', '=', 'Ann')]), b)
+        self.assertEqual(Author.search([('coauthor_ids.name', '=', 'Ann')]), Author)
+        # writes through the inverse side land on the owning document
+        c = Author.create({'name': 'Cid', 'coauthor_of_ids': [(4, b.id)]})
+        self.env.flush_all()
+        self.assertEqual(self.doc(b)['coauthorRel'], [{'coauthorId': c.id}])
+        self.assertNotIn('coauthorRel', self.doc(c))
+        (b + c).invalidate_recordset()
+        self.assertEqual(b.coauthor_ids, c)
+        self.assertEqual(c.coauthor_of_ids, b)
+        c.coauthor_of_ids = [(3, b.id)]
+        self.env.flush_all()
+        self.assertEqual(self.doc(b)['coauthorRel'], [])
+        # deleting the inverse endpoint removes the link from the owner's document
+        a.coauthor_ids = [(4, c.id)]
+        self.env.flush_all()
+        self.assertEqual([e['coauthorId'] for e in self.doc(a)['coauthorRel']], [b.id, c.id])
+        c.unlink()
+        self.assertEqual([e['coauthorId'] for e in self.doc(a)['coauthorRel']], [b.id])
+        a.invalidate_recordset()
+        self.assertEqual(a.coauthor_ids, b)
+
+    def test_company_dependent_write(self):
+        Author = self.env['test.mongo.author']
+        company = self.env.company
+        other = self.env['res.company'].create({'name': 'Other'})
+        author = self.author_a
+        author.property_note = 'main'
+        author.flush_recordset()
+        self.assertEqual(self.doc(author)['propertyNote'], {str(company.id): 'main'})
+        author.with_company(other).property_note = 'other'
+        author.flush_recordset()
+        self.assertEqual(self.doc(author)['propertyNote'], {str(company.id): 'main', str(other.id): 'other'})
+        author.invalidate_recordset()
+        self.assertEqual(author.property_note, 'main')
+        self.assertEqual(author.with_company(other).property_note, 'other')
+        created = Author.with_company(other).create({'name': 'Cat', 'property_note': 'new'})
+        created.flush_recordset()
+        self.assertEqual(self.doc(created)['propertyNote'], {str(other.id): 'new'})
+        self.assertFalse(created.with_company(company).property_note)
+        self.assertEqual(Author.search([('property_note', '=', 'main')]), author)
+        self.assertEqual(Author.with_company(other).search([('property_note', '=', 'main')]), Author)
+        self.assertEqual(Author.with_company(other).search([('property_note', 'in', ['other', 'new'])]), author + created)
+
+    def test_compute_sql_domain(self):
+        Book = self.env['test.mongo.book']
+        self.assertEqual(Book.search([]), self.book_a2 + self.book_a1 + self.book_b1)
+        self.book_b1.archived = True
+        self.book_b1.flush_recordset()
+        self.assertIs(self.doc(self.book_b1)['archived'], True)
+        self.assertFalse(self.book_b1.active)
+        # active_test adds ('active', '=', True): no document path, the field is computed in Python
+        self.assertEqual(Book.search([]), self.book_a2 + self.book_a1)
+        self.assertEqual(Book.search_count([]), 2)
+        self.assertEqual(Book.with_context(active_test=False).search([]), self.book_a2 + self.book_a1 + self.book_b1)
+        self.assertEqual(Book.search([('active', '=', False)]), self.book_b1)
+        self.assertEqual(Book.search([('active', '!=', True)]), self.book_b1)
+        self.assertEqual(Book.search([('active', '=', True), ('author_id', '=', self.author_b.id)]), Book)
+        self.author_b.invalidate_recordset(['book_ids'])
+        self.assertEqual(self.author_b.book_ids, Book)
+        self.assertEqual(self.author_b.with_context(active_test=False).book_ids, self.book_b1)
+
+    def test_relation_owned_by_later_unit_stays_in_postgresql(self):
+        # one side opted in (books), the mapped relation collection owned by the reviews' unit (not opted in)
+        Book, Review = self.env['test.mongo.book'], self.env['test.mongo.review']
+        before = set(self.store.db.list_collection_names())
+        review = Review.create({'name': 'r', 'book_ids': [(6, 0, (self.book_a1 + self.book_b1).ids)]})
+        self.env.flush_all()
+        self.env.cr.execute("SELECT book_id FROM test_mongo_review_book_rel WHERE review_id = %s ORDER BY book_id", (review.id,))
+        self.assertEqual([r[0] for r in self.env.cr.fetchall()], sorted((self.book_a1 + self.book_b1).ids))
+        self.assertEqual(review.book_ids, self.book_a1 + self.book_b1)
+        self.book_a1.invalidate_recordset()
+        self.assertEqual(self.book_a1.review_m2m_ids, review)
+        self.assertEqual(Book.search([('review_m2m_ids', 'in', review.ids)]), self.book_a1 + self.book_b1)
+        self.assertEqual(Book.search([('review_m2m_ids.name', '=', 'r')]), self.book_a1 + self.book_b1)
+        self.assertEqual(Review.search([('book_ids', 'in', self.book_b1.ids)]), review)
+        self.assertEqual(Review.search([('book_ids.name', '=', 'Mango')]), review)
+        self.book_b1.review_m2m_ids = [(3, review.id)]
+        self.env.flush_all()
+        self.assertEqual(review.book_ids, self.book_a1)
+        self.assertEqual(set(self.store.db.list_collection_names()) - before, set())
+        # the relation a MongoDB-stored model owns is served from MongoDB (books' own tag relation)
+        self.assertEqual(self.store.collection('testMongoBookTagRel').count_documents({'bookId': self.book_a1.id}), 1)
+
+    def test_search_flushes_pending_writes(self):
+        Author = self.env['test.mongo.author']
+        self.author_a.name = 'Renamed'                      # pending in cache, not flushed
+        self.assertEqual(Author.search([('name', '=', 'Renamed')]), self.author_a)
+        self.assertEqual(self.doc(self.author_a)['name'], 'Renamed')
+        self.author_b.rating = 9
+        self.assertEqual(Author.search([], order='rating desc', limit=1), self.author_b)
+        created = Author.create({'name': 'Fresh', 'rating': 1})
+        created.tag_ids = [(4, self.tag_y.id)]
+        self.assertEqual(Author.search([('tag_ids', 'in', self.tag_y.ids)]), created)
+        self.assertEqual(Author.search_count([('tag_ids', 'in', self.tag_y.ids)]), 1)
+
+    def test_property_definition(self):
+        Book = self.env['test.mongo.book']
+        self.author_a.book_properties_definition = [{'name': 'genre', 'type': 'char', 'string': 'Genre'}]
+        self.author_a.flush_recordset()
+        stored = self.doc(self.author_a)['bookPropertiesDefinition']
+        self.assertEqual([(d['name'], d['type']) for d in stored], [('genre', 'char')])    # an array, not JSON text
+        definition = Book.get_property_definition('book_properties.genre')
+        self.assertEqual((definition['name'], definition['type'], definition['string']), ('genre', 'char', 'Genre'))
+        self.assertEqual(Book.get_property_definition('book_properties.missing'), {})
+        self.book_a1.book_properties = {'genre': 'Novel'}
+        self.book_a1.flush_recordset()
+        self.assertEqual(self.doc(self.book_a1)['bookProperties'], {'genre': 'Novel'})
+        self.book_a1.invalidate_recordset()
+        values = self.book_a1.read(['book_properties'])[0]['book_properties']
+        self.assertEqual([(d['name'], d['value']) for d in values], [('genre', 'Novel')])
+
+    def test_shadow_table_relaxed_at_load(self):
+        # a model opted in on an existing database keeps its NOT NULL data columns until the shadow is adapted
+        Tag = self.env['test.mongo.tag']
+        cr = self.env.cr
+        cr.execute("ALTER TABLE test_mongo_tag ADD COLUMN legacy_code varchar NOT NULL DEFAULT 'x', "
+                   "ADD COLUMN legacy_seq integer NOT NULL DEFAULT 0")
+        cr.execute("ALTER TABLE test_mongo_tag ALTER COLUMN legacy_code DROP DEFAULT, ALTER COLUMN legacy_seq DROP DEFAULT")
+        with self.assertRaises(psycopg2.IntegrityError), mute_logger('odoo.sql_db'):
+            with cr.savepoint():
+                Tag.create({'name': 'z'})
+        # what load_modules runs once the registry is loaded, instead of a manual -u
+        relax_registry_shadow_tables(self.env.registry, cr)
+        tag = Tag.create({'name': 'z'})
+        tag.flush_recordset()
+        self.assertEqual(self.doc(tag)['name'], 'z')
+        cr.execute("SELECT column_name, is_nullable FROM information_schema.columns WHERE table_name = 'test_mongo_tag' ORDER BY column_name")
+        self.assertEqual(cr.fetchall(), [('id', 'NO'), ('legacy_code', 'YES'), ('legacy_seq', 'YES')])
 
     def test_embedded_model(self):
         Chapter = self.env['test.mongo.chapter']

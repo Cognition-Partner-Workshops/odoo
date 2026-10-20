@@ -18,6 +18,7 @@ import odoo.tools.sql
 from odoo import api, tools
 from odoo.tools import OrderedSet
 from odoo.tools.convert import convert_file, IdRef, ConvertMode as LoadMode
+from odoo.orm import storage_mongodb
 
 from . import db as modules_db
 from .migration import MigrationManager
@@ -588,7 +589,10 @@ def load_modules(
         model._register_hook()
     env.flush_all()
 
-    # STEP 10: check that we can trust nullable columns
+    # STEP 10: id shadow tables of MongoDB-stored models take writes as loaded
+    storage_mongodb.relax_registry_shadow_tables(registry, cr)
+
+    # STEP 11: check that we can trust nullable columns
     registry.check_null_constraints(cr)
 
 

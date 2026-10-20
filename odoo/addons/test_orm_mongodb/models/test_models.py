@@ -6,6 +6,7 @@ many2many relation embedded as an array of the owning document, a many2many
 relation kept as its own collection, and a child model embedded as an array."""
 
 from odoo import api, fields, models
+from odoo.tools import SQL
 
 
 def _spec(table, collection, fields_, embeds=(), key=None, indexes=()):
@@ -52,8 +53,10 @@ class TestMongoAuthor(models.Model):
         'test_mongo_author', 'testMongoAuthor',
         [('name', 'name', 'string'), ('rating', 'rating', 'decimal'), ('score', 'score', 'double'),
          ('partner_id', 'partnerId', 'int'), ('birthday', 'birthday', 'date'), ('title', 'title', 'object'),
-         ('state', 'state', 'string'), ('parent_id', 'parentId', 'int'), ('parent_path', 'parentPath', 'string')],
-        embeds=[_embed('tagRel', 'test_mongo_author_tag_rel', 'author_id', 'tag_id', 'tagId')],
+         ('state', 'state', 'string'), ('parent_id', 'parentId', 'int'), ('parent_path', 'parentPath', 'string'),
+         ('property_note', 'propertyNote', 'object'), ('book_properties_definition', 'bookPropertiesDefinition', 'object')],
+        embeds=[_embed('tagRel', 'test_mongo_author_tag_rel', 'author_id', 'tag_id', 'tagId'),
+                _embed('coauthorRel', 'test_mongo_coauthor_rel', 'author_id', 'coauthor_id', 'coauthorId')],
         indexes=[{'keys': [['partnerId', 1]]}, {'keys': [['rating', -1], ['_id', 1]]}],
     )
 
@@ -71,6 +74,11 @@ class TestMongoAuthor(models.Model):
     parent_path = fields.Char(index=True)
     child_ids = fields.One2many('test.mongo.author', 'parent_id')
     tag_ids = fields.Many2many('test.mongo.tag', 'test_mongo_author_tag_rel', 'author_id', 'tag_id')
+    property_note = fields.Char(company_dependent=True)
+    book_properties_definition = fields.PropertiesDefinition()
+    # a self-referential relation table embedded on the owning side's documents, read from both sides
+    coauthor_ids = fields.Many2many('test.mongo.author', 'test_mongo_coauthor_rel', 'author_id', 'coauthor_id')
+    coauthor_of_ids = fields.Many2many('test.mongo.author', 'test_mongo_coauthor_rel', 'coauthor_id', 'author_id')
     book_ids = fields.One2many('test.mongo.book', 'author_id')
     book_count = fields.Integer(compute='_compute_book_count', store=True)
 
@@ -88,7 +96,8 @@ class TestMongoBook(models.Model):
     _mongodb_spec = [_spec(
         'test_mongo_book', 'testMongoBook',
         [('name', 'name', 'string'), ('author_id', 'authorId', 'int'), ('price', 'price', 'decimal'),
-         ('pages', 'pages', 'int'), ('published', 'published', 'date')],
+         ('pages', 'pages', 'int'), ('published', 'published', 'date'), ('archived', 'archived', 'bool'),
+         ('book_properties', 'bookProperties', 'object')],
         embeds=[_embed('chapter', 'test_mongo_chapter', 'book_id', 'id', 'id',
                        [('name', 'name', 'string'), ('sequence', 'sequence', 'int')])],
     ), _spec(
@@ -106,9 +115,23 @@ class TestMongoBook(models.Model):
     # no column, and a literal spelling a column name
     _check_const = models.Constraint("CHECK ('pages' <> '')", 'Always true.')
     published = fields.Datetime()
+    archived = fields.Boolean()
+    # non-stored, with an SQL form: the domain optimizer keeps its conditions (account.report.active)
+    active = fields.Boolean(compute='_compute_active', compute_sql='_compute_sql_active', compute_sudo=False)
     chapter_ids = fields.One2many('test.mongo.chapter', 'book_id')
     tag_ids = fields.Many2many('test.mongo.tag', 'test_mongo_book_tag_rel', 'book_id', 'tag_id')
     review_ids = fields.One2many('test.mongo.review', 'book_id')
+    book_properties = fields.Properties(definition='author_id.book_properties_definition')
+    # relation table mapped by the spec but owned by the review's (later) unit: served by PostgreSQL until then
+    review_m2m_ids = fields.Many2many('test.mongo.review', 'test_mongo_review_book_rel', 'book_id', 'review_id')
+
+    @api.depends('archived')
+    def _compute_active(self):
+        for book in self:
+            book.active = not book.archived
+
+    def _compute_sql_active(self, table):
+        return SQL("NOT COALESCE(%s, FALSE)", table.archived)
 
 
 class TestMongoChapter(models.Model):
@@ -141,13 +164,20 @@ class TestMongoReview(models.Model):
     _name = 'test.mongo.review'
     _description = 'PostgreSQL test review of a MongoDB book'
     _order = 'book_id, id'
-    # the spec maps a relation table whose both sides stay on PostgreSQL (a later wave): it must not move
-    _mongodb_spec = _spec('test_mongo_review_partner_rel', 'testMongoReviewPartnerRel',
-                          [('review_id', 'reviewId', 'int'), ('partner_id', 'partnerId', 'int')],
-                          key={'source': ['review_id', 'partner_id'], 'target': ['reviewId', 'partnerId']})
+    # the spec maps relation tables owned by this (later-wave) model: they must not move before it does,
+    # whether the other side is PostgreSQL (partners) or already MongoDB-stored (books)
+    _mongodb_spec = [
+        _spec('test_mongo_review_partner_rel', 'testMongoReviewPartnerRel',
+              [('review_id', 'reviewId', 'int'), ('partner_id', 'partnerId', 'int')],
+              key={'source': ['review_id', 'partner_id'], 'target': ['reviewId', 'partnerId']}),
+        _spec('test_mongo_review_book_rel', 'testMongoReviewBookRel',
+              [('review_id', 'reviewId', 'int'), ('book_id', 'bookId', 'int')],
+              key={'source': ['review_id', 'book_id'], 'target': ['reviewId', 'bookId']}),
+    ]
 
     name = fields.Char()
     book_id = fields.Many2one('test.mongo.book', ondelete='cascade')
     author_id = fields.Many2one('test.mongo.author', ondelete='restrict')
     tag_ids = fields.Many2many('test.mongo.tag', 'test_mongo_review_tag_rel', 'review_id', 'tag_id')
     partner_ids = fields.Many2many('res.partner', 'test_mongo_review_partner_rel', 'review_id', 'partner_id')
+    book_ids = fields.Many2many('test.mongo.book', 'test_mongo_review_book_rel', 'review_id', 'book_id')
