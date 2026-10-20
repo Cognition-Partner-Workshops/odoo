@@ -2,7 +2,7 @@
  "source": "odoo_src (migration.fixture_source=3, profile census_sha256=f34de2c831f935b87f82eca66bfcf5090dff76511aa5b94ffa285eff010fe101)",
  "method": "synthetic",
  "masked_columns": [],
- "produced_at": "2026-10-20T03:40:01+00:00",
+ "produced_at": "2026-10-20T03:43:37+00:00",
  "produced_by": ".migration/fixtures/build_fixture.sh",
  "database": "odoo_fixture",
  "filestore": "~/.local/share/Odoo/filestore/odoo_fixture",
@@ -12,7 +12,7 @@
   "product_product_id": 56,
   "stock_quants_copied_from_sibling": 4,
   "children": 60,
-  "uom_id": "round-robin over uom_uom",
+  "uom_id": "round-robin over the 3 units related to the product's unit",
   "product_code_prefix": "FIXTURE-OUTLIER-"
  },
  "row_counts": {
@@ -2717,9 +2717,9 @@
     "max": 28
    },
    "fixture": {
-    "p50": 2,
-    "p99": 30,
-    "max": 30
+    "p50": 0,
+    "p99": 48,
+    "max": 48
    }
   },
   {

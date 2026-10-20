@@ -86,13 +86,16 @@ cur.execute(f"GRANT CONNECT ON DATABASE {q(fixtureDb)} TO {q(readOnlyRole)}")
 # synthetic outlier: copy the template with the most vendor pricelist lines (with
 # one variant, as the ORM would create, stocked like the sibling variant it is
 # copied from so the stock_quant fan-out keeps its median), then clone one of its lines
-# OUTLIER_CHILDREN times under the new template. uom_id is spread round-robin
-# over uom_uom so the vendor lines do not become a second outlier on uom fan-outs.
+# OUTLIER_CHILDREN times under the new template. uom_id is spread round-robin over
+# the units related to the product's own unit (same parent_path root) so the vendor
+# lines stay convertible and do not pile up on a single uom fan-out.
 cur.execute("SELECT product_tmpl_id, MIN(id) FROM product_supplierinfo GROUP BY 1 ORDER BY COUNT(*) DESC, 1 LIMIT 1")
 baseTmpl, baseLine = cur.fetchone()
 cur.execute("SELECT MIN(id) FROM product_product WHERE product_tmpl_id=%s", (baseTmpl,))
 baseVariant = cur.fetchone()[0]
-cur.execute("SELECT id FROM uom_uom ORDER BY id")
+cur.execute("SELECT id FROM uom_uom WHERE split_part(parent_path, '/', 1) = ("
+            "SELECT split_part(u.parent_path, '/', 1) FROM uom_uom u JOIN product_template pt ON pt.uom_id = u.id "
+            "WHERE pt.id = %s) ORDER BY id", (baseTmpl,))
 uomIds = [u for (u,) in cur.fetchall()]
 cols = ", ".join(map(q, columns("product_template", {"id", "name", "default_code"})))
 cur.execute(f"INSERT INTO product_template (name, {cols}) "
@@ -105,8 +108,11 @@ cur.execute(f"INSERT INTO product_product (product_tmpl_id, default_code, {cols}
             f"SELECT %s, 'FIXTURE-OUTLIER', {cols} FROM product_product WHERE id=%s RETURNING id",
             (outlierTmpl, baseVariant))
 outlierVariant = cur.fetchone()[0]
-cols = ", ".join(map(q, columns("stock_quant", {"id", "product_id"})))
-cur.execute(f"INSERT INTO stock_quant (product_id, {cols}) SELECT %s, {cols} FROM stock_quant WHERE product_id=%s",
+# unreserved, lot-free, unowned copies of the sibling's quants: stock without a
+# reservation or lot has no move line or lot record to stay consistent with
+cols = ", ".join(map(q, columns("stock_quant", {"id", "product_id", "reserved_quantity", "lot_id", "package_id", "owner_id"})))
+cur.execute(f"INSERT INTO stock_quant (product_id, reserved_quantity, lot_id, package_id, owner_id, {cols}) "
+            f"SELECT %s, 0, NULL, NULL, NULL, {cols} FROM stock_quant WHERE product_id=%s AND lot_id IS NULL",
             (outlierVariant, baseVariant))
 quants = cur.rowcount
 cols = ", ".join(map(q, columns("product_supplierinfo",
@@ -178,7 +184,7 @@ manifest = {
         "product_product_id": outlierVariant,
         "stock_quants_copied_from_sibling": quants,
         "children": outlierChildren,
-        "uom_id": "round-robin over uom_uom",
+        "uom_id": f"round-robin over the {len(uomIds)} units related to the product's unit",
         "product_code_prefix": "FIXTURE-OUTLIER-",
     },
     "row_counts": rowCounts,
