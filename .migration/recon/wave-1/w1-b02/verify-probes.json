@@ -1,0 +1,997 @@
+{
+ "probes": [
+  {
+   "probe": "declared_collections_present",
+   "pass": true,
+   "evidence": [
+    "_connectivity_probe",
+    "accountCashRounding",
+    "accountIncoterms",
+    "accountJournalGroup",
+    "accountLockException",
+    "accountPaymentTerm",
+    "accountReport",
+    "accountReportExpression",
+    "accountReportExternalValue",
+    "productAttribute",
+    "productAttributeValueProductTemplateAttributeLineRel",
+    "productBaseUnit",
+    "productCategory",
+    "productDocument",
+    "productRemoval",
+    "productTag",
+    "returnReason",
+    "stockPackageType",
+    "stockScrapReasonTag",
+    "stockStorageCategory",
+    "uomUom"
+   ]
+  },
+  {
+   "probe": "other_collections_in_target_db",
+   "pass": true,
+   "evidence": "not in this batch: ['_connectivity_probe', 'accountCashRounding', 'accountIncoterms', 'accountJournalGroup', 'accountLockException', 'accountPaymentTerm', 'accountReport', 'accountReportExpression', 'accountReportExternalValue', 'productAttribute', 'productAttributeValueProductTemplateAttributeLineRel', 'returnReason', 'stockPackageType', 'stockScrapReasonTag', 'stockStorageCategory', 'uomUom']"
+  },
+  {
+   "probe": "productCategory.row_count",
+   "pass": true,
+   "evidence": "source=7 target=7"
+  },
+  {
+   "probe": "productCategory.not_empty",
+   "pass": true,
+   "evidence": "target=7"
+  },
+  {
+   "probe": "productCategory.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "productCategory.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "productCategory.boundary_max_id",
+   "pass": true,
+   "evidence": "id=7 present=True"
+  },
+  {
+   "probe": "productCategory.parentId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=5/7 target_missing_or_null=5/7"
+  },
+  {
+   "probe": "productCategory.parentId.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.companyId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=7/7 target_missing_or_null=7/7"
+  },
+  {
+   "probe": "productCategory.companyId.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/7 target_missing_or_null=0/7"
+  },
+  {
+   "probe": "productCategory.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/7 target_missing_or_null=0/7"
+  },
+  {
+   "probe": "productCategory.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.parentPath.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/7 target_missing_or_null=0/7"
+  },
+  {
+   "probe": "productCategory.parentPath.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/7 target_missing_or_null=0/7"
+  },
+  {
+   "probe": "productCategory.name.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.productPropertiesDefinition.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=7/7 target_missing_or_null=7/7"
+  },
+  {
+   "probe": "productCategory.productPropertiesDefinition.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/7 target_missing_or_null=0/7"
+  },
+  {
+   "probe": "productCategory.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/7 target_missing_or_null=0/7"
+  },
+  {
+   "probe": "productCategory.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.propertyAccountIncomeCategId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=7/7 target_missing_or_null=7/7"
+  },
+  {
+   "probe": "productCategory.propertyAccountIncomeCategId.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.propertyAccountExpenseCategId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=7/7 target_missing_or_null=7/7"
+  },
+  {
+   "probe": "productCategory.propertyAccountExpenseCategId.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.propertyValuation.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=7/7 target_missing_or_null=7/7"
+  },
+  {
+   "probe": "productCategory.propertyValuation.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.propertyStockValuationAccountId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=7/7 target_missing_or_null=7/7"
+  },
+  {
+   "probe": "productCategory.propertyStockValuationAccountId.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.propertyStockJournal.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=7/7 target_missing_or_null=7/7"
+  },
+  {
+   "probe": "productCategory.propertyStockJournal.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.propertyCostMethod.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=7/7 target_missing_or_null=7/7"
+  },
+  {
+   "probe": "productCategory.propertyCostMethod.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.propertyPriceDifferenceAccountId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=7/7 target_missing_or_null=7/7"
+  },
+  {
+   "probe": "productCategory.propertyPriceDifferenceAccountId.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.removalStrategyId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=7/7 target_missing_or_null=7/7"
+  },
+  {
+   "probe": "productCategory.removalStrategyId.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.packagingReserveMethod.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/7 target_missing_or_null=0/7"
+  },
+  {
+   "probe": "productCategory.packagingReserveMethod.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.propertyAccountBillsToReceiveId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=7/7 target_missing_or_null=7/7"
+  },
+  {
+   "probe": "productCategory.propertyAccountBillsToReceiveId.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.propertyAccountBilledNotReceivedId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=7/7 target_missing_or_null=7/7"
+  },
+  {
+   "probe": "productCategory.propertyAccountBilledNotReceivedId.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.propertyAccountInvoicesToIssueId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=7/7 target_missing_or_null=7/7"
+  },
+  {
+   "probe": "productCategory.propertyAccountInvoicesToIssueId.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.propertyAccountInvoicedNotDeliveredId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=7/7 target_missing_or_null=7/7"
+  },
+  {
+   "probe": "productCategory.propertyAccountInvoicedNotDeliveredId.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productCategory.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "productCategory.index[('name', 1), ('parentId', 1)]",
+   "pass": true,
+   "evidence": "matching=['name_1_parentId_1'] unique_required=False all=['_id_', 'companyId_1', 'name_1_parentId_1', 'parentId_1_name_1', 'parentPath_1', 'removalStrategyId_1', 'stockPickingTypeRel.stockPickingTypeId_1']"
+  },
+  {
+   "probe": "productCategory.index[('parentId', 1), ('name', 1)]",
+   "pass": true,
+   "evidence": "matching=['parentId_1_name_1'] unique_required=False all=['_id_', 'companyId_1', 'name_1_parentId_1', 'parentId_1_name_1', 'parentPath_1', 'removalStrategyId_1', 'stockPickingTypeRel.stockPickingTypeId_1']"
+  },
+  {
+   "probe": "productCategory.index[('companyId', 1)]",
+   "pass": true,
+   "evidence": "matching=['companyId_1'] unique_required=False all=['_id_', 'companyId_1', 'name_1_parentId_1', 'parentId_1_name_1', 'parentPath_1', 'removalStrategyId_1', 'stockPickingTypeRel.stockPickingTypeId_1']"
+  },
+  {
+   "probe": "productCategory.index[('removalStrategyId', 1)]",
+   "pass": true,
+   "evidence": "matching=['removalStrategyId_1'] unique_required=False all=['_id_', 'companyId_1', 'name_1_parentId_1', 'parentId_1_name_1', 'parentPath_1', 'removalStrategyId_1', 'stockPickingTypeRel.stockPickingTypeId_1']"
+  },
+  {
+   "probe": "productCategory.index[('parentPath', 1)]",
+   "pass": true,
+   "evidence": "matching=['parentPath_1'] unique_required=False all=['_id_', 'companyId_1', 'name_1_parentId_1', 'parentId_1_name_1', 'parentPath_1', 'removalStrategyId_1', 'stockPickingTypeRel.stockPickingTypeId_1']"
+  },
+  {
+   "probe": "productCategory.index[('stockPickingTypeRel.stockPickingTypeId', 1)]",
+   "pass": true,
+   "evidence": "matching=['stockPickingTypeRel.stockPickingTypeId_1'] unique_required=False all=['_id_', 'companyId_1', 'name_1_parentId_1', 'parentId_1_name_1', 'parentPath_1', 'removalStrategyId_1', 'stockPickingTypeRel.stockPickingTypeId_1']"
+  },
+  {
+   "probe": "productCategory.stockPickingTypeRel.child_rows_seeded",
+   "pass": true,
+   "evidence": "source_child_rows=3 parents_with_rows=3"
+  },
+  {
+   "probe": "productCategory.stockPickingTypeRel.array_length_vs_child_rows",
+   "pass": true,
+   "evidence": "source_lengths={1: 1, 4: 1, 5: 1} mismatches={}"
+  },
+  {
+   "probe": "productCategory.stockPickingTypeRel.element_key_sets",
+   "pass": true,
+   "evidence": "mismatches={}"
+  },
+  {
+   "probe": "productCategory.stockPickingTypeRel.no_duplicate_elements",
+   "pass": true,
+   "evidence": "duplicates={}"
+  },
+  {
+   "probe": "productCategory.stockPickingTypeRel.absent_on_parents_without_rows",
+   "pass": true,
+   "evidence": "parents_without_rows_but_array=[]"
+  },
+  {
+   "probe": "productCategory.stockPickingTypeRel.element_fields_only_key",
+   "pass": true,
+   "evidence": "extra_element_fields=[]"
+  },
+  {
+   "probe": "productCategory.stockPickingTypeRel.stockPickingTypeId->stock_picking_type.child_reference",
+   "pass": true,
+   "evidence": "referenced=[1, 3] missing_in_source_table=[]"
+  },
+  {
+   "probe": "productRemoval.row_count",
+   "pass": true,
+   "evidence": "source=4 target=4"
+  },
+  {
+   "probe": "productRemoval.not_empty",
+   "pass": true,
+   "evidence": "target=4"
+  },
+  {
+   "probe": "productRemoval.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "productRemoval.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "productRemoval.boundary_max_id",
+   "pass": true,
+   "evidence": "id=4 present=True"
+  },
+  {
+   "probe": "productRemoval.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/4 target_missing_or_null=0/4"
+  },
+  {
+   "probe": "productRemoval.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productRemoval.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/4 target_missing_or_null=0/4"
+  },
+  {
+   "probe": "productRemoval.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productRemoval.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/4 target_missing_or_null=0/4"
+  },
+  {
+   "probe": "productRemoval.name.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productRemoval.method.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/4 target_missing_or_null=0/4"
+  },
+  {
+   "probe": "productRemoval.method.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productRemoval.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/4 target_missing_or_null=0/4"
+  },
+  {
+   "probe": "productRemoval.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productRemoval.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/4 target_missing_or_null=0/4"
+  },
+  {
+   "probe": "productRemoval.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productRemoval.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "productTag.row_count",
+   "pass": true,
+   "evidence": "source=3 target=3"
+  },
+  {
+   "probe": "productTag.not_empty",
+   "pass": true,
+   "evidence": "target=3"
+  },
+  {
+   "probe": "productTag.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "productTag.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "productTag.boundary_max_id",
+   "pass": true,
+   "evidence": "id=3 present=True"
+  },
+  {
+   "probe": "productTag.sequence.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "productTag.sequence.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productTag.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "productTag.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productTag.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "productTag.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productTag.color.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "productTag.color.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productTag.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "productTag.name.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productTag.visibleToCustomers.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "productTag.visibleToCustomers.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productTag.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "productTag.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productTag.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/3 target_missing_or_null=0/3"
+  },
+  {
+   "probe": "productTag.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productTag.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "productTag.natural_key_unique[product_tag_name_uniq]",
+   "pass": true,
+   "evidence": "duplicates=[]"
+  },
+  {
+   "probe": "productTag.index[('name', 1)]",
+   "pass": true,
+   "evidence": "matching=['name_1'] unique_required=True all=['_id_', 'name_1', 'productProductRel.productProductId_1', 'productTemplateRel.productTemplateId_1']"
+  },
+  {
+   "probe": "productTag.index[('productProductRel.productProductId', 1)]",
+   "pass": true,
+   "evidence": "matching=['productProductRel.productProductId_1'] unique_required=False all=['_id_', 'name_1', 'productProductRel.productProductId_1', 'productTemplateRel.productTemplateId_1']"
+  },
+  {
+   "probe": "productTag.index[('productTemplateRel.productTemplateId', 1)]",
+   "pass": true,
+   "evidence": "matching=['productTemplateRel.productTemplateId_1'] unique_required=False all=['_id_', 'name_1', 'productProductRel.productProductId_1', 'productTemplateRel.productTemplateId_1']"
+  },
+  {
+   "probe": "productTag.productProductRel.child_rows_seeded",
+   "pass": true,
+   "evidence": "source_child_rows=3 parents_with_rows=1"
+  },
+  {
+   "probe": "productTag.productProductRel.array_length_vs_child_rows",
+   "pass": true,
+   "evidence": "source_lengths={1: 3} mismatches={}"
+  },
+  {
+   "probe": "productTag.productProductRel.element_key_sets",
+   "pass": true,
+   "evidence": "mismatches={}"
+  },
+  {
+   "probe": "productTag.productProductRel.no_duplicate_elements",
+   "pass": true,
+   "evidence": "duplicates={}"
+  },
+  {
+   "probe": "productTag.productProductRel.absent_on_parents_without_rows",
+   "pass": true,
+   "evidence": "parents_without_rows_but_array=[]"
+  },
+  {
+   "probe": "productTag.productProductRel.element_fields_only_key",
+   "pass": true,
+   "evidence": "extra_element_fields=[]"
+  },
+  {
+   "probe": "productTag.productProductRel.productProductId->product_product.child_reference",
+   "pass": true,
+   "evidence": "referenced=[1, 2, 3] missing_in_source_table=[]"
+  },
+  {
+   "probe": "productTag.productTemplateRel.child_rows_seeded",
+   "pass": true,
+   "evidence": "source_child_rows=3 parents_with_rows=2"
+  },
+  {
+   "probe": "productTag.productTemplateRel.array_length_vs_child_rows",
+   "pass": true,
+   "evidence": "source_lengths={1: 2, 2: 1} mismatches={}"
+  },
+  {
+   "probe": "productTag.productTemplateRel.element_key_sets",
+   "pass": true,
+   "evidence": "mismatches={}"
+  },
+  {
+   "probe": "productTag.productTemplateRel.no_duplicate_elements",
+   "pass": true,
+   "evidence": "duplicates={}"
+  },
+  {
+   "probe": "productTag.productTemplateRel.absent_on_parents_without_rows",
+   "pass": true,
+   "evidence": "parents_without_rows_but_array=[]"
+  },
+  {
+   "probe": "productTag.productTemplateRel.element_fields_only_key",
+   "pass": true,
+   "evidence": "extra_element_fields=[]"
+  },
+  {
+   "probe": "productTag.productTemplateRel.productTemplateId->product_template.child_reference",
+   "pass": true,
+   "evidence": "referenced=[1, 2] missing_in_source_table=[]"
+  },
+  {
+   "probe": "productDocument.row_count",
+   "pass": true,
+   "evidence": "source=2 target=2"
+  },
+  {
+   "probe": "productDocument.not_empty",
+   "pass": true,
+   "evidence": "target=2"
+  },
+  {
+   "probe": "productDocument.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "productDocument.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "productDocument.boundary_max_id",
+   "pass": true,
+   "evidence": "id=2 present=True"
+  },
+  {
+   "probe": "productDocument.irAttachmentId.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "productDocument.irAttachmentId.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productDocument.sequence.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "productDocument.sequence.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productDocument.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "productDocument.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productDocument.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "productDocument.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productDocument.active.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "productDocument.active.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productDocument.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "productDocument.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productDocument.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "productDocument.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productDocument.attachedOnSale.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "productDocument.attachedOnSale.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productDocument.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "productDocument.index[('irAttachmentId', 1)]",
+   "pass": true,
+   "evidence": "matching=['irAttachmentId_1'] unique_required=False all=['_id_', 'irAttachmentId_1']"
+  },
+  {
+   "probe": "productBaseUnit.row_count",
+   "pass": true,
+   "evidence": "source=2 target=2"
+  },
+  {
+   "probe": "productBaseUnit.not_empty",
+   "pass": true,
+   "evidence": "target=2"
+  },
+  {
+   "probe": "productBaseUnit.key_set",
+   "pass": true,
+   "evidence": "missing_in_target=[] extra_in_target=[]"
+  },
+  {
+   "probe": "productBaseUnit.boundary_min_id",
+   "pass": true,
+   "evidence": "id=1 present=True"
+  },
+  {
+   "probe": "productBaseUnit.boundary_max_id",
+   "pass": true,
+   "evidence": "id=2 present=True"
+  },
+  {
+   "probe": "productBaseUnit.createUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "productBaseUnit.createUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productBaseUnit.writeUid.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "productBaseUnit.writeUid.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productBaseUnit.name.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "productBaseUnit.name.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productBaseUnit.createDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "productBaseUnit.createDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productBaseUnit.writeDate.null_missing_rate",
+   "pass": true,
+   "evidence": "source_null=0/2 target_missing_or_null=0/2"
+  },
+  {
+   "probe": "productBaseUnit.writeDate.value_equality",
+   "pass": true,
+   "evidence": "differing_ids=[]"
+  },
+  {
+   "probe": "productBaseUnit.no_unmapped_target_fields",
+   "pass": true,
+   "evidence": "extra=[]"
+  },
+  {
+   "probe": "productTag.sequence.boundary_values",
+   "pass": true,
+   "evidence": "source=(5,20) target=(5,20)"
+  },
+  {
+   "probe": "productDocument.sequence.boundary_values",
+   "pass": true,
+   "evidence": "source=(10,10) target=(10,10)"
+  },
+  {
+   "probe": "productDocument.irAttachmentId.boundary_values",
+   "pass": true,
+   "evidence": "source=(410,411) target=(410,411)"
+  },
+  {
+   "probe": "productCategory.parentPath.boundary_values",
+   "pass": true,
+   "evidence": "source=(1/,7/) target=(1/,7/)"
+  },
+  {
+   "probe": "productCategory.name.translation_keys",
+   "pass": true,
+   "evidence": "source={1: ['en_US'], 2: ['en_US'], 3: ['en_US'], 4: ['en_US'], 5: ['en_US'], 6: ['en_US'], 7: ['en_US']} target={6: ['en_US'], 7: ['en_US'], 2: ['en_US'], 5: ['en_US'], 3: ['en_US'], 1: ['en_US'], 4: ['en_US']}"
+  },
+  {
+   "probe": "productRemoval.name.translation_keys",
+   "pass": true,
+   "evidence": "source={1: ['en_US'], 2: ['en_US'], 3: ['en_US'], 4: ['en_US']} target={1: ['en_US'], 4: ['en_US'], 2: ['en_US'], 3: ['en_US']}"
+  },
+  {
+   "probe": "productRemoval.method.translation_keys",
+   "pass": true,
+   "evidence": "source={1: ['en_US'], 2: ['en_US'], 3: ['en_US'], 4: ['en_US']} target={1: ['en_US'], 4: ['en_US'], 2: ['en_US'], 3: ['en_US']}"
+  },
+  {
+   "probe": "productTag.name.translation_keys",
+   "pass": true,
+   "evidence": "source={1: ['en_US'], 2: ['en_US'], 3: ['en_US']} target={2: ['en_US'], 3: ['en_US'], 1: ['en_US']}"
+  },
+  {
+   "probe": "productBaseUnit.name.translation_keys",
+   "pass": true,
+   "evidence": "source={1: ['en_US'], 2: ['en_US']} target={1: ['en_US'], 2: ['en_US']}"
+  },
+  {
+   "probe": "productCategory.parent_path_consistent_with_parentId",
+   "pass": true,
+   "evidence": "inconsistent=[]"
+  },
+  {
+   "probe": "productCategory.parentId->productCategory.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[4] missing=[] side=target"
+  },
+  {
+   "probe": "productCategory.removalStrategyId->productRemoval.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[] missing=[] side=target"
+  },
+  {
+   "probe": "productCategory.companyId->res_company.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[] missing=[] side=source"
+  },
+  {
+   "probe": "productCategory.createUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing=[] side=source"
+  },
+  {
+   "probe": "productCategory.writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing=[] side=source"
+  },
+  {
+   "probe": "productRemoval.writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing=[] side=source"
+  },
+  {
+   "probe": "productTag.writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing=[] side=source"
+  },
+  {
+   "probe": "productDocument.irAttachmentId->ir_attachment.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[410, 411] missing=[] side=source"
+  },
+  {
+   "probe": "productDocument.writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing=[] side=source"
+  },
+  {
+   "probe": "productBaseUnit.writeUid->res_users.outbound_reference",
+   "pass": true,
+   "evidence": "referenced=[1] missing=[] side=source"
+  },
+  {
+   "probe": "productCategory.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "references_to=['productCategory', 'productRemoval', 'stockPickingType'] wave1_siblings_hit=[]"
+  },
+  {
+   "probe": "productRemoval.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "references_to=[] wave1_siblings_hit=[]"
+  },
+  {
+   "probe": "productTag.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "references_to=['productProduct', 'productTemplate'] wave1_siblings_hit=[]"
+  },
+  {
+   "probe": "productDocument.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "references_to=[] wave1_siblings_hit=[]"
+  },
+  {
+   "probe": "productBaseUnit.no_same_wave_sibling_reference",
+   "pass": true,
+   "evidence": "references_to=[] wave1_siblings_hit=[]"
+  },
+  {
+   "probe": "tier4_replay.category_tree",
+   "pass": true,
+   "evidence": "source_rows=7 target_rows=7 first_diff=None"
+  },
+  {
+   "probe": "tier4_replay.category_wave_picking_types",
+   "pass": true,
+   "evidence": "source_rows=3 target_rows=3 first_diff=None"
+  },
+  {
+   "probe": "tier4_replay.removal_strategies",
+   "pass": true,
+   "evidence": "source_rows=4 target_rows=4 first_diff=None"
+  },
+  {
+   "probe": "tier4_replay.tags_with_templates",
+   "pass": true,
+   "evidence": "source_rows=4 target_rows=4 first_diff=None"
+  },
+  {
+   "probe": "tier4_replay.tag_variants",
+   "pass": true,
+   "evidence": "source_rows=3 target_rows=3 first_diff=None"
+  },
+  {
+   "probe": "tier4_replay.documents_by_attachment",
+   "pass": true,
+   "evidence": "source_rows=2 target_rows=2 first_diff=None"
+  },
+  {
+   "probe": "tier4_replay.base_units",
+   "pass": true,
+   "evidence": "source_rows=2 target_rows=2 first_diff=None"
+  }
+ ],
+ "findings": []
+}
