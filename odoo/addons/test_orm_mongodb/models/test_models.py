@@ -103,9 +103,11 @@ class TestMongoBook(models.Model):
         'test_mongo_book', 'testMongoBook',
         [('name', 'name', 'string'), ('author_id', 'authorId', 'int'), ('price', 'price', 'decimal'),
          ('pages', 'pages', 'int'), ('published', 'published', 'date'), ('archived', 'archived', 'bool'),
-         ('book_properties', 'bookProperties', 'object')],
+         ('book_properties', 'bookProperties', 'object'),
+         ('chapter_properties_definition', 'chapterPropertiesDefinition', 'object')],
         embeds=[_embed('chapter', 'test_mongo_chapter', 'book_id', 'id', 'id',
-                       [('name', 'name', 'string'), ('sequence', 'sequence', 'int')]),
+                       [('name', 'name', 'string'), ('sequence', 'sequence', 'int'), ('subtitle', 'subtitle', 'object'),
+                        ('meta', 'meta', 'object'), ('chapter_properties', 'chapterProperties', 'object')]),
                 # child rows keyed by a natural composite key, with their id as a plain field
                 {'array_path': 'edition', 'child_table': 'test_mongo_edition', 'parent_key': ['book_id'], 'parent_ref': ['id'],
                  'key': {'source': ['lang', 'year'], 'target': ['lang', 'year']},
@@ -133,6 +135,7 @@ class TestMongoBook(models.Model):
     review_ids = fields.One2many('test.mongo.review', 'book_id')
     edition_ids = fields.One2many('test.mongo.edition', 'book_id')
     book_properties = fields.Properties(definition='author_id.book_properties_definition')
+    chapter_properties_definition = fields.PropertiesDefinition()
     # relation table mapped by the spec but owned by the review's (later) unit: served by PostgreSQL until then
     review_m2m_ids = fields.Many2many('test.mongo.review', 'test_mongo_review_book_rel', 'book_id', 'review_id')
 
@@ -177,6 +180,11 @@ class TestMongoChapter(models.Model):
     name = fields.Char(required=True)
     sequence = fields.Integer(default=10)
     book_id = fields.Many2one('test.mongo.book', required=True, ondelete='cascade')
+    # jsonb columns of embedded records, written through the grouped element update
+    # (account.reconcile.model.line.analytic_distribution is a Json field)
+    subtitle = fields.Char(translate=True)
+    meta = fields.Json()
+    chapter_properties = fields.Properties(definition='book_id.chapter_properties_definition')
 
 
 class TestMongoEdition(models.Model):
@@ -231,6 +239,10 @@ class TestMongoReview(models.Model):
     author_id = fields.Many2one('test.mongo.author', ondelete='restrict')
     # the PostgreSQL twin of test.mongo.author.property_currency_id, for exact-equality checks of searches
     property_currency_id = fields.Many2one('res.currency', company_dependent=True)
+    # the PostgreSQL twins of test.mongo.chapter's jsonb columns
+    subtitle = fields.Char(translate=True)
+    meta = fields.Json()
+    chapter_properties = fields.Properties(definition='book_id.chapter_properties_definition')
     tag_ids = fields.Many2many('test.mongo.tag', 'test_mongo_review_tag_rel', 'review_id', 'tag_id')
     partner_ids = fields.Many2many('res.partner', 'test_mongo_review_partner_rel', 'review_id', 'partner_id')
     book_ids = fields.Many2many('test.mongo.book', 'test_mongo_review_book_rel', 'review_id', 'book_id')
