@@ -89,8 +89,11 @@ FORWARD_EXCEPTIONS = {
         "addons/stock_account/models/stock_move.py:260-285 _create_account_move creates the valuation "
         "account.move from the validated stock.move and writes account_move_id back (:283)",
     ("productValue", "account_move_id"):
-        "addons/stock_account/models/product_value.py:46 account_move_id is set from the valuation entry "
-        "that stock_account creates after the product.value row exists (stock_move.py:260-285)",
+        "addons/stock_account/models/product_value.py:46 declares the column; no installed module writes it "
+        "(product.value.create at :90-121 never sets it, stock_account/models/account_move.py:9 only reads it "
+        "as the One2many product_value_id) and 0 of the 6 product_value rows in odoo_src carry a value, so the "
+        "ledger cannot be a prerequisite of product.value in this estate; the plain integer id resolves through "
+        "the id shadow like stockMove.account_move_id",
 }
 
 # s2.3 §4 rows name a module, not a table: the hook's unit is the unit owning the module's
@@ -697,6 +700,12 @@ def scenarios(u, tests):
     for c in u["recon_unverified"]["collections"]:
         out.append({"kind": "seed", "collection": c,
                     "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"})
+    for path in u["recon_unverified"]["embedded_arrays_zero_rows"]:
+        coll, array = path.split(".", 1)
+        table = next(e["table"] for e in u["embedded_tables"] if e["collection"] == coll and e["array_path"] == array)
+        out.append({"kind": "seed", "collection": coll, "array_path": array, "child_table": table,
+                    "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture "
+                             "(pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"})
     return out
 
 

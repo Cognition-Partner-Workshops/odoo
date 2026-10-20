@@ -48,7 +48,7 @@
   {
    "collection": "productValue",
    "column": "account_move_id",
-   "why": "addons/stock_account/models/product_value.py:46 account_move_id is set from the valuation entry that stock_account creates after the product.value row exists (stock_move.py:260-285)"
+   "why": "addons/stock_account/models/product_value.py:46 declares the column; no installed module writes it (product.value.create at :90-121 never sets it, stock_account/models/account_move.py:9 only reads it as the One2many product_value_id) and 0 of the 6 product_value rows in odoo_src carry a value, so the ledger cannot be a prerequisite of product.value in this estate; the plain integer id resolves through the id shadow like stockMove.account_move_id"
   }
  ],
  "coverage": {
@@ -872,6 +872,20 @@
      "model": "vendor.delay.report (addons/purchase_stock/report/vendor_delay_report.py:8)",
      "owner": "product-taxonomy",
      "check": "re-check after this unit's tables move: read_group / search_read of the report (rewritten by the owner batch) equals the PostgreSQL result on the fixture"
+    },
+    {
+     "kind": "seed",
+     "collection": "stockPackageType",
+     "array_path": "stockPutawayRuleRel",
+     "child_table": "stock_package_type_stock_putaway_rule_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "stockPackageType",
+     "array_path": "stockRouteRel",
+     "child_table": "stock_package_type_stock_route_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
     }
    ]
   },
@@ -1694,6 +1708,27 @@
      "kind": "seed",
      "collection": "productBaseUnit",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "productCategory",
+     "array_path": "stockPickingTypeRel",
+     "child_table": "product_category_stock_picking_type_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "productTag",
+     "array_path": "productProductRel",
+     "child_table": "product_tag_product_product_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "productTag",
+     "array_path": "productTemplateRel",
+     "child_table": "product_tag_product_template_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
     }
    ]
   },
@@ -3148,6 +3183,41 @@
      "kind": "seed",
      "collection": "accountReportExternalValue",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountCashRounding",
+     "array_path": "resCurrencyRel",
+     "child_table": "account_cash_rounding_res_currency_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountCashRounding",
+     "array_path": "resPartnerCategoryRel",
+     "child_table": "account_cash_rounding_res_partner_category_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountCashRounding",
+     "array_path": "accountPaymentMethodLineRel",
+     "child_table": "account_cash_rounding_account_payment_method_line_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountReport",
+     "array_path": "line",
+     "child_table": "account_report_line",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountReport",
+     "array_path": "sectionRel",
+     "child_table": "account_report_section_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
     }
    ]
   },
@@ -6714,6 +6784,55 @@
      "where": "account.merge.wizard `_action_merge` (§3a row 16) → `base.partner.merge.automatic.wizard._update_foreign_keys_generic` (odoo/addons/base/wizard/base_partner_merge.py:119) and `_update_reference_fields_generic` (:198)",
      "owner": "product-taxonomy",
      "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountAccount",
+     "array_path": "taxDefaultRel",
+     "child_table": "account_account_tax_default_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountAccountTag",
+     "array_path": "accountMoveLineRel",
+     "child_table": "account_account_tag_account_move_line_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountAccountTag",
+     "array_path": "accountTaxRepartitionLineRel",
+     "child_table": "account_account_tag_account_tax_repartition_line_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountAccountTag",
+     "array_path": "productTemplateRel",
+     "child_table": "account_account_tag_product_template_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountTax",
+     "array_path": "filiationRel",
+     "child_table": "account_tax_filiation_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountFiscalPosition",
+     "array_path": "account",
+     "child_table": "account_fiscal_position_account",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountFiscalPosition",
+     "array_path": "resCountryStateRel",
+     "child_table": "account_fiscal_position_res_country_state_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
     }
    ]
   },
@@ -8589,6 +8708,20 @@
      "kind": "seed",
      "collection": "accountReconcileModelLineAccountTaxRel",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountJournal",
+     "array_path": "accountReconcileModelRel",
+     "child_table": "account_journal_account_reconcile_model_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountReconcileModel",
+     "array_path": "resPartnerRel",
+     "child_table": "account_reconcile_model_res_partner_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
     }
    ]
   },
@@ -13145,6 +13278,55 @@
      "kind": "seed",
      "collection": "productPricelistItem",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "productTemplate",
+     "array_path": "uomUomRel",
+     "child_table": "product_template_uom_uom_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "productProduct",
+     "array_path": "customerProductReference",
+     "child_table": "customer_product_reference",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "productProduct",
+     "array_path": "uomUomRel",
+     "child_table": "product_product_uom_uom_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "productProduct",
+     "array_path": "productUom",
+     "child_table": "product_uom",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "productTemplateAttributeValue",
+     "array_path": "purchaseOrderLineRel",
+     "child_table": "product_template_attribute_value_purchase_order_line_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "productTemplateAttributeValue",
+     "array_path": "saleOrderLineRel",
+     "child_table": "product_template_attribute_value_sale_order_line_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "productTemplateAttributeValue",
+     "array_path": "templateAttributeValueStockMoveRel",
+     "child_table": "template_attribute_value_stock_move_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
     }
    ]
   },
@@ -17685,6 +17867,48 @@
      "kind": "seed",
      "collection": "stockStorageCategoryCapacity",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "stockWarehouse",
+     "array_path": "stockWhResupplyTable",
+     "child_table": "stock_wh_resupply_table",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "stockLocation",
+     "array_path": "stockPickingTypeRel",
+     "child_table": "stock_location_stock_picking_type_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "stockPickingType",
+     "array_path": "pickingTypeFavoriteUserRel",
+     "child_table": "picking_type_favorite_user_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "stockRoute",
+     "array_path": "categ",
+     "child_table": "stock_route_categ",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "stockRoute",
+     "array_path": "move",
+     "child_table": "stock_route_move",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "stockRoute",
+     "array_path": "product",
+     "child_table": "stock_route_product",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
     }
    ]
   },
@@ -19891,6 +20115,41 @@
      "where": "module load of account.reconcile.model.line, account.move.line, sale.order.line, purchase.order.line → `analytic.mixin.init` (addons/analytic/models/analytic_mixin.py:33)",
      "owner": "account-journal",
      "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "seed",
+     "collection": "saleOrder",
+     "array_path": "transactionRel",
+     "child_table": "sale_order_transaction_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "saleOrderLine",
+     "array_path": "productAttributeCustomValue",
+     "child_table": "product_attribute_custom_value",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "saleOrderLine",
+     "array_path": "accrualMoveRel",
+     "child_table": "sale_order_line_accrual_move_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "saleOrderLine",
+     "array_path": "invoiceRel",
+     "child_table": "sale_order_line_invoice_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "saleOrderLine",
+     "array_path": "stockRouteRel",
+     "child_table": "sale_order_line_stock_route_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
     }
    ]
   },
@@ -21820,6 +22079,13 @@
      "where": "module load of account.reconcile.model.line, account.move.line, sale.order.line, purchase.order.line → `analytic.mixin.init` (addons/analytic/models/analytic_mixin.py:33)",
      "owner": "account-journal",
      "check": "re-run the owner's rewrite against this unit's Mongo-backed tables"
+    },
+    {
+     "kind": "seed",
+     "collection": "purchaseOrderLine",
+     "array_path": "accrualMoveRel",
+     "child_table": "purchase_order_line_accrual_move_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
     }
    ]
   },
@@ -22027,7 +22293,7 @@
    },
    "forward_refs": {
     "account-ledger": [
-     "productValue.account_move_id → accountMove (reference); forward: addons/stock_account/models/product_value.py:46 account_move_id is set from the valuation entry that stock_account creates after the product.value row exists (stock_move.py:260-285)",
+     "productValue.account_move_id → accountMove (reference); forward: addons/stock_account/models/product_value.py:46 declares the column; no installed module writes it (product.value.create at :90-121 never sets it, stock_account/models/account_move.py:9 only reads it as the One2many product_value_id) and 0 of the 6 product_value rows in odoo_src carry a value, so the ledger cannot be a prerequisite of product.value in this estate; the plain integer id resolves through the id shadow like stockMove.account_move_id",
      "stockMove.account_move_id → accountMove (reference); forward: addons/stock_account/models/stock_move.py:260-285 _create_account_move creates the valuation account.move from the validated stock.move and writes account_move_id back (:283)"
     ]
    },
@@ -29203,6 +29469,48 @@
      "kind": "seed",
      "collection": "stockPackageHistory",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "stockMove",
+     "array_path": "accountAnalyticLineStockMoveRel",
+     "child_table": "account_analytic_line_stock_move_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "stockMove",
+     "array_path": "createdPurchaseLineRel",
+     "child_table": "stock_move_created_purchase_line_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "stockMove",
+     "array_path": "moveRel",
+     "child_table": "stock_move_move_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "stockMove",
+     "array_path": "stockScrapReasonTagRel",
+     "child_table": "stock_move_stock_scrap_reason_tag_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "stockMoveLine",
+     "array_path": "consumeRel",
+     "child_table": "stock_move_line_consume_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "stockPackageHistory",
+     "array_path": "stockPickingRel",
+     "child_table": "stock_package_history_stock_picking_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
     }
    ]
   },
@@ -36344,6 +36652,34 @@
      "kind": "seed",
      "collection": "accountPayment",
      "check": "ORM seed on a clone of the fixture with pinned create_date/write_date so recon grades rows, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountMove",
+     "array_path": "accountPayment",
+     "child_table": "account_move__account_payment",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountMove",
+     "array_path": "purchaseOrderRel",
+     "child_table": "account_move_purchase_order_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountMove",
+     "array_path": "adjustingEntriesAccountMove",
+     "child_table": "adjusting_entries__account_move",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
+    },
+    {
+     "kind": "seed",
+     "collection": "accountPayment",
+     "array_path": "accountBankStatementLineRel",
+     "child_table": "account_payment_account_bank_statement_line_rel",
+     "check": "ORM seed of at least one parent row with elements in this array on a clone of the fixture (pinned create_date/write_date) so recon grades the embed mapping, never on odoo_src"
     }
    ]
   }

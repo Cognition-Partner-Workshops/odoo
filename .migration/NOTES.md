@@ -312,10 +312,14 @@ the longest path over the *hard* edges: `decision.references` columns and the FK
 (`child_key` = `id`). Over hard edges alone the 13 units still formed one cycle through two columns, which are forward
 references by the code that writes them (`forward_exceptions`):
 
-- `stockMove.account_move_id` and `productValue.account_move_id`: `addons/stock_account/models/stock_move.py:260-285`
-  `_create_account_move` creates the valuation `account.move` from the validated stock move and writes the id back
-  (`:283`); the account entry is always younger than the move, so the ledger unit comes after stock-ops and
-  `accountMoveLine.stock_move_id` is the dependency edge.
+- `stockMove.account_move_id`: `addons/stock_account/models/stock_move.py:260-285` `_create_account_move` creates the
+  valuation `account.move` from the validated stock move and writes the id back (`:283`); the account entry is always
+  younger than the move, so the ledger unit comes after stock-ops and `accountMoveLine.stock_move_id` is the dependency
+  edge.
+- `productValue.account_move_id`: `addons/stock_account/models/product_value.py:46` declares the column, but no installed
+  module writes it (`product.value.create` at `:90-121` never sets it; `stock_account/models/account_move.py:9` only reads
+  it as the `product_value_id` One2many) and 0 of the 6 `product_value` rows in `odoo_src` carry a value, so the ledger is
+  not a prerequisite of `product.value` in this estate; the integer id resolves through the id shadow like the one above.
 
 Junction arrays (two-column key, one field, the `*_rel` tables) are not hard edges: the element holds only the referenced
 row's integer id, identical on PostgreSQL (id shadow, disposition S) and MongoDB (`_id`), so the array loads and the ORM
