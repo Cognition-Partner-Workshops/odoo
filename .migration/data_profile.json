@@ -2,7 +2,7 @@
   "profile_version": 1,
   "source_family": "postgresql",
   "census_sha256": "f34de2c831f935b87f82eca66bfcf5090dff76511aa5b94ffa285eff010fe101",
-  "as_of": "2026-10-20T03:08:22.506924+00:00",
+  "as_of": "2026-10-20T03:39:39.245418+00:00",
   "origin": "live",
   "stats": [
     {
@@ -30145,8 +30145,8 @@
       "status": "ok",
       "values": {
         "p50": 0.0,
-        "p99": 21768,
-        "max": 21768
+        "p99": 21672,
+        "max": 21672
       }
     },
     {
@@ -30161,8 +30161,8 @@
       "status": "ok",
       "values": {
         "rows_seen": 25,
-        "avg_bytes": 870.72,
-        "max_bytes": 1902.0
+        "avg_bytes": 866.88,
+        "max_bytes": 1899.0
       }
     },
     {
@@ -30225,8 +30225,8 @@
       "status": "ok",
       "values": {
         "p50": 0.0,
-        "p99": 21768,
-        "max": 21768
+        "p99": 21672,
+        "max": 21672
       }
     },
     {
