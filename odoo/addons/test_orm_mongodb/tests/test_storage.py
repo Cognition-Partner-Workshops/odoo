@@ -561,6 +561,71 @@ class TestMongoStorage(TransactionCase):
             country.unlink()
         self.assertEqual(self.author_a.with_company(company_b).property_country_id, country)
 
+    def test_company_dependent_write_keeps_fallbacks_out(self):
+        # the UPDATE of a company-dependent column keeps a company's value only where it differs from its
+        # ir.default fallback (the cache holds the fallback of every company read): the document must hold the
+        # same map as the PostgreSQL jsonb, or a later fallback change / unlink leaves stale values behind
+        Review = self.env['test.mongo.review']
+        company_a = self.env.company
+        company_b, company_c = (self.env['res.company'].create({'name': name}) for name in ('B', 'C'))
+        companies = company_a + company_b + company_c
+        eur = self.env.ref('base.EUR')
+        gon = self.env['res.currency'].create({'name': 'GON', 'symbol': 'G'})
+        review = Review.create({'name': 'r'})
+        author = self.author_a
+        for model in ('test.mongo.author', 'test.mongo.review'):
+            self.env['ir.default'].set(model, 'property_currency_id', eur.id, company_id=company_a.id)
+
+        def stored():
+            self.env.flush_all()
+            self.env.cr.execute("SELECT property_currency_id FROM test_mongo_review WHERE id = %s", [review.id])
+            return self.doc(author).get('propertyCurrencyId'), self.env.cr.fetchone()[0]
+
+        def compare(label):
+            for company in companies:
+                with self.subTest(label=label, company=company.name):
+                    a, r = author.with_company(company), review.with_company(company)
+                    self.assertEqual(a.property_currency_id, r.property_currency_id)
+                    for value in (False, eur.id, gon.id):
+                        self.assertEqual(bool(a.search([('property_currency_id', '=', value), ('id', '=', author.id)])),
+                                         bool(r.search([('property_currency_id', '=', value), ('id', '=', review.id)])))
+
+        # read every company (the cache now holds the fallbacks), then write one company's value
+        for record in (author, review):
+            for company in companies:
+                record.with_company(company).property_currency_id
+            record.with_company(company_c).property_currency_id = gon
+        mongo, postgresql = stored()
+        self.assertEqual(mongo, {str(company_c.id): gon.id})
+        self.assertEqual(postgresql, {str(company_c.id): gon.id})
+        compare('written in C')
+        # writing the fallback itself stores nothing; writing False where the fallback is set stores null
+        for record in (author, review):
+            record.with_company(company_a).property_currency_id = eur
+            record.with_company(company_b).property_currency_id = False
+        mongo, postgresql = stored()
+        self.assertEqual(mongo, postgresql)
+        self.assertEqual(mongo, {str(company_c.id): gon.id})
+        for record in (author, review):
+            record.with_company(company_a).property_currency_id = False
+        mongo, postgresql = stored()
+        self.assertEqual(mongo, postgresql)
+        self.assertEqual(mongo, {str(company_a.id): None, str(company_c.id): gon.id})
+        compare('A cleared')
+        # a later fallback change is followed where no value is stored
+        for model in ('test.mongo.author', 'test.mongo.review'):
+            self.env['ir.default'].set(model, 'property_currency_id', gon.id, company_id=company_b.id)
+        self.env.invalidate_all()
+        self.assertEqual(author.with_company(company_b).property_currency_id, gon)
+        compare('fallback changed')
+        # the unlink nulls the stored value, the fallback is discarded with the record
+        self.env['ir.default'].discard_records(gon)
+        gon.unlink()
+        mongo, postgresql = stored()
+        self.assertEqual(mongo, postgresql)
+        self.assertEqual(mongo, {str(company_a.id): None, str(company_c.id): None})
+        compare('after unlink')
+
     def test_shadow_table_relaxed_at_load(self):
         # a model opted in on an existing database keeps its NOT NULL data columns until the shadow is adapted
         Tag = self.env['test.mongo.tag']
