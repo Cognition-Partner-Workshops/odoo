@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Render the s3.1 schema sign-off pack (.migration/model_review_pack.md) from the
-artifacts, never from hand-typed numbers: the committed spec, the scratch map-draft-2,
+artifacts, never from hand-typed numbers: the map-draft-1 proposal on the base ref, the committed map-draft-2,
 the data profile, the reviewed access patterns, the rehearsal and recon outputs and the
 --check transcripts. Re-run after any of them changes.
 
@@ -99,16 +99,21 @@ def md_table(headers, rows):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", default=str(MIG / "model_review_pack.md"))
+    ap.add_argument("--base-ref", default="origin/mongo-run/unt12",
+                    help="ref holding the map-draft-1 proposal the questions were asked on")
     a = ap.parse_args()
 
-    spec1 = load(MIG / "mapping_spec.json")
-    spec2 = load(REH / "mapping_spec.map-draft-2.scratch.json")
+    import subprocess
+    spec1 = json.loads(subprocess.run(["git", "show", f"{a.base_ref}:.migration/mapping_spec.json"],
+                                      cwd=MIG.parent, check=True, capture_output=True, text=True).stdout)
+    spec2 = load(MIG / "mapping_spec.json")
+    tol = load(MIG / "recon_tolerances.json")
     census = load(MIG / "census.json")
     access = load(MIG / "access_patterns.json")
     reh1 = load(REH / "rehearsal.map-draft-1.json")
-    reh2 = load(REH / "rehearsal.map-draft-2-scratch.json")
+    reh2 = load(REH / "rehearsal.map-draft-2.json")
     rec1 = load(REH / "recon" / "s3.1-rehearsal-draft1" / "result.json")
-    rec2 = load(REH / "recon" / "s3.1-rehearsal-draft2-scratch" / "result.json")
+    rec2 = load(REH / "recon" / "s3.1-rehearsal-draft2" / "result.json")
     decisions = load(MIG / "design_decisions.json")
     answers = [l for l in open(MIG / "answers.txt").read().splitlines()
                if l.strip() and not l.lstrip().startswith("#")]
@@ -118,7 +123,7 @@ def main():
     u1, c1, k1 = question_counts(spec1)
     u2, c2, k2 = question_counts(spec2)
     chk1 = check_summary(REH / "check.map-draft-1.txt")
-    chk2 = check_summary(REH / "check.map-draft-2.scratch.txt")
+    chk2 = check_summary(REH / "check.map-draft-2.txt")
     cats, targets = edge_categories(spec2, census)
     attempt = open(REH / "patch_attempt.map-draft-1.txt").read()
     attempt_exit = re.search(r"^exit=(\d+)$", attempt, re.M).group(1)
@@ -136,39 +141,41 @@ def main():
     refused2 = [(c["collection"], c["indexes_in_spec"], c["indexes_created"], len(c["indexes_failed"]))
                 for c in reh2["per_collection"] if c["indexes_failed"]]
     empty2 = [c["collection"] for c in reh2["per_collection"] if c["documents"] == 0]
-    sha2 = __import__("hashlib").sha256(open(REH / "mapping_spec.map-draft-2.scratch.json", "rb").read()).hexdigest()
-    sha1 = __import__("hashlib").sha256(open(MIG / "mapping_spec.json", "rb").read()).hexdigest()
+    sha2 = __import__("hashlib").sha256(open(MIG / "mapping_spec.json", "rb").read()).hexdigest()
+    sha1 = "(proposal on " + a.base_ref + ")"
+    tol_sha = __import__("hashlib").sha256(open(MIG / "recon_tolerances.json", "rb").read()).hexdigest()
 
     L = []
     w = L.append
     w("# Schema sign-off pack — s3.1 (board UNT12, ticket UNT12-9)\n")
-    w(f"Plugin pinned at `{plugin_sha[:7]}` (unpatched). Committed spec: `{spec1['version']}` "
-      f"(sha256 `{sha1}`). Scratch answered spec: `{spec2['version']}` "
-      f"(sha256 `{sha2}`, `.migration/rehearsal/mapping_spec.map-draft-2.scratch.json`, built by "
-      f"`.migration/rehearsal/scratch_draft2.sh`). Rendered review pages: `.migration/model_cards.md` "
-      f"({spec1['version']}) and `.migration/rehearsal/model_cards.map-draft-2.scratch.md` ({spec2['version']}).\n")
+    w(f"Plugin pinned at `{plugin_sha[:7]}` (unpatched). Committed spec: **`{spec2['version']}`** "
+      f"(mapping_sha256 `{sha2}`), rebuilt from the `{spec1['version']}` proposal {sha1} by "
+      f"`.migration/rehearsal/scratch_draft2.sh` (plan decision `d-plugin-gap = accept-scratch-draft2`). "
+      f"Review page: `.migration/model_cards.md`. Tolerances `{tol['version']}` (sha256 `{tol_sha}`, "
+      f"`aggregate_rel_tol` {tol['aggregate_rel_tol']}; plan decision `d-float-aggregates = rel-tol-float8`).\n")
 
     w("## 1. Where this stands (read first)\n")
     w(f"- Every open item of `{spec1['version']}` has an answer: {len(answers)} answer lines in "
       f"`.migration/answers.txt` plus {len(hand)} hand-written decisions in `.migration/design_decisions.json` "
-      f"(the answer lines compile to {compiled} decisions; the scratch spec records {len(recorded)} decisions in all). "
-      f"Applied to a scratch copy they leave "
+      f"(the answer lines compile to {compiled} decisions; {spec2['version']} records {len(recorded)} decisions in all). "
+      f"Applied by `scratch_draft2.sh` they leave "
       f"**{u2} `modeling.unresolved` and {c2} collection/embed open questions**.")
-    w(f"- **The pinned plugin refuses to apply them to the committed spec** (exit {attempt_exit}): "
-      f"`model_patch.py` rejects any decision on `{spec1['version']}` with `dangling references after decisions` "
-      f"({dangling} referrer→target pairs, all pointing at collections of tables excluded by `--exclude-table`). "
-      f"Transcript: `.migration/rehearsal/patch_attempt.map-draft-1.txt`. Section 3 has the cause and the options; "
-      f"this is the gap the manager asked to report rather than patch.")
+    w(f"- The pinned plugin refuses to apply them to `{spec1['version']}` as proposed (exit {attempt_exit}, "
+      f"`dangling references after decisions`, {dangling} referrer→target pairs pointing at collections of "
+      f"`--exclude-table` tables; transcript `.migration/rehearsal/patch_attempt.map-draft-1.txt`). Per "
+      f"`d-plugin-gap`, `{spec2['version']}` is built by `scratch_draft2.sh`, which filters those rows out of a "
+      f"copy of the proposal before patching (section 3); the recipe reproduces the committed sha256 byte for byte.")
     w(f"- `model_patch.py --check`: committed `{spec1['version']}` exits {chk1[0]} ({chk1[1]} `no rationale row`, "
-      f"{chk1[2]} pending-decision lines, {len(chk1[3])} other); scratch `{spec2['version']}` exits {chk2[0]} with "
-      f"**exactly {chk2[1]} `no rationale row` lines and {len(chk2[3])} other failures** — the 1460 FK edges into "
-      f"excluded tables are the only thing between the answered spec and exit 0 (section 2.3).")
+      f"{chk1[2]} pending-decision lines, {len(chk1[3])} other); committed `{spec2['version']}` exits {chk2[0]} with "
+      f"**exactly {chk2[1]} `no rationale row` lines, {len(chk2[3])} other failures and 0 open items** — the "
+      f"`g-model-evidence` gate as redefined by `d-plugin-gap` (section 2.3; transcript "
+      f"`.migration/rehearsal/check.map-draft-2.txt`).")
     w(f"- Local rehearsal (odoo_fixture → local mongo:7, `--target-class local`): {reh2['documents']} documents in "
       f"{reh2['collections']} collections; largest document {reh2['largest_document']['bytes']} bytes "
       f"({reh2['largest_document']['pct_of_limit']}% of 16 MB, `{reh2['largest_document']['collection']}`); "
       f"longest array {reh2['longest_array']['max']} elements (`{reh2['longest_array']['collection']}.{reh2['longest_array']['array_path']}`). "
-      f"Recon fixture mode: {spec1['version']} **{rec1['verdict']}**, scratch {spec2['version']} **{rec2['verdict']}** "
-      f"(section 6: the failures are two float8 SUM rounding differences under zero tolerance, not row differences). "
+      f"Recon fixture mode: {spec1['version']} at tolerances {rec1['tolerance_version']} **{rec1['verdict']}** (two float8 SUM "
+      f"rounding differences at zero tolerance), {spec2['version']} at {rec2['tolerance_version']} **{rec2['verdict']}** (section 6). "
       f"A fixture PASS/FAIL proves the load path only, never parity.")
     w(f"- Two model findings from the rehearsal, both answered in `design_decisions.json`: the proposal gives "
       f"`accountMove` {idx1['accountMove']} indexes and MongoDB caps a collection at 64 (section 5.3); "
@@ -177,7 +184,7 @@ def main():
     w("## 2. Questions the schema step asked, and the answers\n")
     w("### 2.1 Count by kind\n")
     rows = [(k, k1.get(k, 0), k2.get(k, 0)) for k in sorted(k1)]
-    w(md_table(["kind", f"open in {spec1['version']}", f"open in scratch {spec2['version']}"], rows))
+    w(md_table(["kind", f"open in {spec1['version']}", f"open in {spec2['version']}"], rows))
     w(f"\nTotal: **{u1 + c1}** ({u1} spec-wide `modeling.unresolved`, {c1} collection and embed `open_questions`) "
       f"in {len(k1)} kinds → **{u2 + c2}** after the answers. `known_incompatibilities`: the spec has no such key at "
       f"this plugin version; the ddl/census findings surface as the kinds above.\n")
@@ -220,12 +227,10 @@ def main():
       f"every census FK touching an excluded table is a `no rationale row` failure ({chk2[1]} here). The `exclude` "
       "decision cannot be used instead: it needs an existing collection and refuses one that is referenced "
       "(`decision refused: no collection named 'resUsers'`).\n")
-    w("Options for the manager: (a) pin a plugin SHA where the proposer skips references to excluded tables and "
-      "`check_spec` honours `excluded_tables` (two small changes; the scratch run in this PR shows exactly what "
-      "that produces: 0 open items, --check limited to the 1460 edges); (b) accept the scratch map-draft-2 as "
-      "the signed-off model and pin its sha256 — this pack and the rehearsal already describe it; (c) re-propose "
-      "without `--exclude-table` and model the 379 shared tables, which re-litigates the s2.1 scope rule. "
-      "Recommended: (a).\n")
+    w(f"Plan decision `d-plugin-gap = accept-scratch-draft2`: the committed `{spec2['version']}` is the proposal with those "
+      f"{dangling} reference rows filtered out and the answers applied by the pinned patcher (`scratch_draft2.sh`, "
+      "reproducible byte for byte); `g-model-evidence` is read as `--check` leaving only the 1460 excluded-table "
+      "lines and 0 open items. The two plugin fixes stay open for the plugin repo.\n")
 
     w("## 4. Hot queries confirmed in s2.2\n")
     w(f"{len(hot)} confirmed `hot` access patterns ({Counter(p['kind'] for p in hot)['sql']} raw SQL, "
@@ -264,14 +269,14 @@ def main():
       f"{sum(r[3] for r in refused1)} of them (`CannotCreateIndex`, code 67) and the recon reported them as "
       f"`index_missing`. The index decisions remove the {n_idx} entries that carry the 13 unexercised source indexes "
       f"(their `source_index_not_exercised` questions), leaving {dict((c, n) for n, c in idx_counts)['accountMove']}. "
-      f"Highest index counts in the scratch spec: " + ", ".join(f"`{c}` {n}" for n, c in idx_counts[:5]) + ".\n")
+      f"Highest index counts in {spec2['version']}: " + ", ".join(f"`{c}` {n}" for n, c in idx_counts[:5]) + ".\n")
 
     w("## 6. Local rehearsal (fixture mode, local target)\n")
     w(f"Source `odoo_fixture` ({reh2['source_database']}, built by `.migration/fixtures/build_fixture.sh` from "
       f"`odoo_src` as a template), target local `mongo:7` from the plugin's `docker-compose.local.yml`, loaded by "
       f"`.migration/rehearsal/load_fixture.py` straight from the spec. Numbers below are from "
-      f"`rehearsal.map-draft-2-scratch.json`; `rehearsal.map-draft-1.json` holds the committed spec's run.\n")
-    w(md_table(["", spec1["version"], f"scratch {spec2['version']}"], [
+      f"`rehearsal.map-draft-2.json`; `rehearsal.map-draft-1.json` holds the proposal's run.\n")
+    w(md_table(["", spec1["version"], f"{spec2['version']}"], [
         ("collections loaded", reh1["collections"], reh2["collections"]),
         ("documents", reh1["documents"], reh2["documents"]),
         ("largest document (bytes)", f"{reh1['largest_document']['bytes']} ({reh1['largest_document']['collection']})",
@@ -283,20 +288,24 @@ def main():
          f"{reh2['indexes_created']} / {reh2['indexes_in_spec']} ({reh2['indexes_failed']} refused)"),
         ("recon verdict", rec1["verdict"], rec2["verdict"]),
     ]))
-    w("\nRecon tiers (`.migration/rehearsal/recon/<unit>/result.json`, redacted values):\n")
+    w(f"\nRecon tiers (`.migration/rehearsal/recon/<unit>/result.json`, redacted values; {spec2['version']} run: "
+      f"tolerances `{rec2['tolerance_version']}` sha256 `{rec2['tolerance_sha256']}`, mapping_sha256 `{rec2['mapping_sha256']}`, "
+      f"{len([x for x in rec2['warnings'] if x.startswith('UNVERIFIED')])} UNVERIFIED warnings for collections with 0 fixture rows):\n")
     t_rows = []
-    for name, rec in ((spec1["version"], rec1), (f"scratch {spec2['version']}", rec2)):
+    for name, rec in ((spec1["version"], rec1), (f"{spec2['version']}", rec2)):
         for t in rec["tiers"]:
             t_rows.append((name, t["tier"], t["checks_run"], "PASS" if t["passed"] else f"FAIL ({len(t['findings'])})",
                            "; ".join(f"{f['collection']} {f['check']} {f['detail']}" for f in t["findings"])))
     w(md_table(["spec", "tier", "checks", "result", "findings"], t_rows))
     w("\nThe Tier 2 findings are `SUM()` of float8 columns compared at `aggregate_rel_tol: 0`: PostgreSQL sums in "
       "row order and MongoDB `$sum` in document order, so the two doubles differ in the last place "
-      "(seen with `--raw-values` in local scratch: -5081.860000000001 vs -5081.86 on "
+      "(seen with `--raw-values` on the map-draft-1 run: -5081.860000000001 vs -5081.86 on "
       "`account_bank_statement_line.amount_residual`, 11979.099999999999 vs 11979.1 on "
       "`purchase_order_line.technical_price_unit`). Tier 3 keyed diffs pass on every row, so the values themselves "
-      "match. Tolerances are not changed here; the manager decides whether float8 aggregates get a relative "
-      "tolerance or a `decimal_round` rule.\n")
+      f"match. Plan decision `d-float-aggregates = rel-tol-float8`: tolerances `{tol['version']}` set `aggregate_rel_tol` "
+      f"to {tol['aggregate_rel_tol']}, everything else unchanged; the {spec2['version']} run passes every tier. Note: the pinned "
+      "harness applies `aggregate_rel_tol` to every numeric aggregate (`_agg_close` in `recon/tiers.py`: min/max/sum of int, "
+      "numeric and float alike), not to float8 only; at 1e-12 relative it only absorbs last-place double rounding.\n")
     w("Environment note: the local container aborted once with a WiredTiger `Too many open files` panic while "
       "building the committed spec's ~630 indexes (the container's default `nofile` limit, not a model property); it was "
       "restarted with a compose override file raising `ulimits.nofile` to 65536 (the plugin's compose file is untouched) "
@@ -310,7 +319,7 @@ def main():
                 for c in sorted(reh2["per_collection"], key=lambda c: -c["documents"])]))
 
     w("\n## 7. Fan-out per embed (profile p50 / p99 / max on odoo_src; fixture max)\n")
-    w(f"{len(fan2)} embeds in the scratch {spec2['version']}. `parents` is the profiled parent-row count; an embed "
+    w(f"{len(fan2)} embeds in {spec2['version']}. `parents` is the profiled parent-row count; an embed "
       f"with 0 parents in odoo_src is **unexercised** by the fixture (section 8). `embed bytes max` is the profiled "
       f"embedded-child byte total per parent.\n")
     w(md_table(["collection", "array", "child table", "rule", "basis", "parents", "p50", "p99", "max", "embed bytes max", "fixture max", "unexercised"],
@@ -334,7 +343,7 @@ def main():
     w("$PY $PLUGIN/skills/schema-modeling/model_patch.py --spec .migration/mapping_spec.json --answers .migration/answers.txt \\")
     w("    --decisions .migration/design_decisions.json --out .migration/mapping_spec.json --version map-draft-2 \\")
     w("    --data-profile .migration/data_profile.json --census .migration/census.json --access-patterns .migration/access_patterns.json")
-    w("    -> refused (patch_attempt.map-draft-1.txt); .migration/rehearsal/scratch_draft2.sh is the scratch run")
+    w("    -> refused (patch_attempt.map-draft-1.txt); .migration/rehearsal/scratch_draft2.sh rebuilds map-draft-2 (d-plugin-gap)")
     w("$PY $PLUGIN/skills/schema-modeling/model_patch.py --spec <spec> --data-profile ... --census ... --access-patterns ... --check")
     w("$PY .migration/rehearsal/load_fixture.py --spec <spec> --source-dsn-secret ODOO_PG_FIXTURE_DSN --target-uri-secret MONGO_LOCAL_URI --target-db odoo_unt12 --out <json>")
     w("recon run --unit <unit> --family postgresql --mapping <spec> --tolerances .migration/recon_tolerances.json \\")

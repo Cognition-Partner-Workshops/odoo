@@ -1,20 +1,20 @@
 # Schema sign-off pack — s3.1 (board UNT12, ticket UNT12-9)
 
-Plugin pinned at `9a584b4` (unpatched). Committed spec: `map-draft-1` (sha256 `f85e20f9a5932b72f5316d24e3dc7f197001b804b3c0dfe49a98a2ca6caa88c1`). Scratch answered spec: `map-draft-2` (sha256 `88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc`, `.migration/rehearsal/mapping_spec.map-draft-2.scratch.json`, built by `.migration/rehearsal/scratch_draft2.sh`). Rendered review pages: `.migration/model_cards.md` (map-draft-1) and `.migration/rehearsal/model_cards.map-draft-2.scratch.md` (map-draft-2).
+Plugin pinned at `9a584b4` (unpatched). Committed spec: **`map-draft-2`** (mapping_sha256 `88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc`), rebuilt from the `map-draft-1` proposal (proposal on origin/mongo-run/unt12) by `.migration/rehearsal/scratch_draft2.sh` (plan decision `d-plugin-gap = accept-scratch-draft2`). Review page: `.migration/model_cards.md`. Tolerances `unt12-3` (sha256 `7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea`, `aggregate_rel_tol` 1e-12; plan decision `d-float-aggregates = rel-tol-float8`).
 
 ## 1. Where this stands (read first)
 
-- Every open item of `map-draft-1` has an answer: 11 answer lines in `.migration/answers.txt` plus 17 hand-written decisions in `.migration/design_decisions.json` (the answer lines compile to 182 decisions; the scratch spec records 199 decisions in all). Applied to a scratch copy they leave **0 `modeling.unresolved` and 0 collection/embed open questions**.
-- **The pinned plugin refuses to apply them to the committed spec** (exit 1): `model_patch.py` rejects any decision on `map-draft-1` with `dangling references after decisions` (299 referrer→target pairs, all pointing at collections of tables excluded by `--exclude-table`). Transcript: `.migration/rehearsal/patch_attempt.map-draft-1.txt`. Section 3 has the cause and the options; this is the gap the manager asked to report rather than patch.
-- `model_patch.py --check`: committed `map-draft-1` exits 1 (1460 `no rationale row`, 8 pending-decision lines, 0 other); scratch `map-draft-2` exits 1 with **exactly 1460 `no rationale row` lines and 0 other failures** — the 1460 FK edges into excluded tables are the only thing between the answered spec and exit 0 (section 2.3).
-- Local rehearsal (odoo_fixture → local mongo:7, `--target-class local`): 1709 documents in 66 collections; largest document 7585 bytes (0.0452% of 16 MB, `productAttribute`); longest array 46 elements (`accountFiscalPosition.accountTaxRel`). Recon fixture mode: map-draft-1 **FAIL**, scratch map-draft-2 **FAIL** (section 6: the failures are two float8 SUM rounding differences under zero tolerance, not row differences). A fixture PASS/FAIL proves the load path only, never parity.
+- Every open item of `map-draft-1` has an answer: 11 answer lines in `.migration/answers.txt` plus 17 hand-written decisions in `.migration/design_decisions.json` (the answer lines compile to 182 decisions; map-draft-2 records 199 decisions in all). Applied by `scratch_draft2.sh` they leave **0 `modeling.unresolved` and 0 collection/embed open questions**.
+- The pinned plugin refuses to apply them to `map-draft-1` as proposed (exit 1, `dangling references after decisions`, 299 referrer→target pairs pointing at collections of `--exclude-table` tables; transcript `.migration/rehearsal/patch_attempt.map-draft-1.txt`). Per `d-plugin-gap`, `map-draft-2` is built by `scratch_draft2.sh`, which filters those rows out of a copy of the proposal before patching (section 3); the recipe reproduces the committed sha256 byte for byte.
+- `model_patch.py --check`: committed `map-draft-1` exits 1 (1460 `no rationale row`, 8 pending-decision lines, 0 other); committed `map-draft-2` exits 1 with **exactly 1460 `no rationale row` lines, 0 other failures and 0 open items** — the `g-model-evidence` gate as redefined by `d-plugin-gap` (section 2.3; transcript `.migration/rehearsal/check.map-draft-2.txt`).
+- Local rehearsal (odoo_fixture → local mongo:7, `--target-class local`): 1709 documents in 66 collections; largest document 7585 bytes (0.0452% of 16 MB, `productAttribute`); longest array 46 elements (`accountFiscalPosition.accountTaxRel`). Recon fixture mode: map-draft-1 at tolerances unt12-2 **FAIL** (two float8 SUM rounding differences at zero tolerance), map-draft-2 at unt12-3 **PASS** (section 6). A fixture PASS/FAIL proves the load path only, never parity.
 - Two model findings from the rehearsal, both answered in `design_decisions.json`: the proposal gives `accountMove` 67 indexes and MongoDB caps a collection at 64 (section 5.3); `account_partial_reconcile` has two parents and keeps its own collection (section 5.1).
 
 ## 2. Questions the schema step asked, and the answers
 
 ### 2.1 Count by kind
 
-| kind | open in map-draft-1 | open in scratch map-draft-2 |
+| kind | open in map-draft-1 | open in map-draft-2 |
 |---|---|---|
 | cascade_into_embed | 44 | 0 |
 | embed_unbounded | 8 | 0 |
@@ -71,7 +71,7 @@ Total 1460. Most-referenced excluded parents: `res_users` (711), `res_company` (
 1. `model_patch.py` runs `_check_references` (`model_patch.py:1743`) after every decision list and refuses the whole patch on these pre-existing rows, so **no `--answers` or `--decisions` run can be applied** to a spec proposed with `--exclude-table` targets that are FK parents. Repro: `model_patch.py --spec .migration/mapping_spec.json --decisions <one note decision> --out /tmp/x.json --version probe` → `dangling references after decisions`.
 2. `check_spec` (`model_patch.py:1961`) skips relationships only for tables in `modeling.excluded` (written by the `exclude` decision) and never consults `modeling.excluded_tables` (written by `--exclude-table`), so every census FK touching an excluded table is a `no rationale row` failure (1460 here). The `exclude` decision cannot be used instead: it needs an existing collection and refuses one that is referenced (`decision refused: no collection named 'resUsers'`).
 
-Options for the manager: (a) pin a plugin SHA where the proposer skips references to excluded tables and `check_spec` honours `excluded_tables` (two small changes; the scratch run in this PR shows exactly what that produces: 0 open items, --check limited to the 1460 edges); (b) accept the scratch map-draft-2 as the signed-off model and pin its sha256 — this pack and the rehearsal already describe it; (c) re-propose without `--exclude-table` and model the 379 shared tables, which re-litigates the s2.1 scope rule. Recommended: (a).
+Plan decision `d-plugin-gap = accept-scratch-draft2`: the committed `map-draft-2` is the proposal with those 299 reference rows filtered out and the answers applied by the pinned patcher (`scratch_draft2.sh`, reproducible byte for byte); `g-model-evidence` is read as `--check` leaving only the 1460 excluded-table lines and 0 open items. The two plugin fixes stay open for the plugin repo.
 
 ## 4. Hot queries confirmed in s2.2
 
@@ -1552,13 +1552,13 @@ No ORM code is written here; both are model-side answers for the plan.
 
 ### 5.3 Index cap: `accountMove`
 
-map-draft-1 proposes 67 indexes on `accountMove` (origins: access 34, reference_fk 18, source_index 15). MongoDB allows 64 per collection including `_id`; loading odoo_fixture refused 4 of them (`CannotCreateIndex`, code 67) and the recon reported them as `index_missing`. The index decisions remove the 12 entries that carry the 13 unexercised source indexes (their `source_index_not_exercised` questions), leaving 55. Highest index counts in the scratch spec: `accountMove` 55, `accountMoveLine` 36, `stockMove` 32, `saleOrder` 29, `stockWarehouse` 26.
+map-draft-1 proposes 67 indexes on `accountMove` (origins: access 34, reference_fk 18, source_index 15). MongoDB allows 64 per collection including `_id`; loading odoo_fixture refused 4 of them (`CannotCreateIndex`, code 67) and the recon reported them as `index_missing`. The index decisions remove the 12 entries that carry the 13 unexercised source indexes (their `source_index_not_exercised` questions), leaving 55. Highest index counts in map-draft-2: `accountMove` 55, `accountMoveLine` 36, `stockMove` 32, `saleOrder` 29, `stockWarehouse` 26.
 
 ## 6. Local rehearsal (fixture mode, local target)
 
-Source `odoo_fixture` (odoo_fixture, built by `.migration/fixtures/build_fixture.sh` from `odoo_src` as a template), target local `mongo:7` from the plugin's `docker-compose.local.yml`, loaded by `.migration/rehearsal/load_fixture.py` straight from the spec. Numbers below are from `rehearsal.map-draft-2-scratch.json`; `rehearsal.map-draft-1.json` holds the committed spec's run.
+Source `odoo_fixture` (odoo_fixture, built by `.migration/fixtures/build_fixture.sh` from `odoo_src` as a template), target local `mongo:7` from the plugin's `docker-compose.local.yml`, loaded by `.migration/rehearsal/load_fixture.py` straight from the spec. Numbers below are from `rehearsal.map-draft-2.json`; `rehearsal.map-draft-1.json` holds the proposal's run.
 
-|  | map-draft-1 | scratch map-draft-2 |
+|  | map-draft-1 | map-draft-2 |
 |---|---|---|
 | collections loaded | 65 | 66 |
 | documents | 1709 | 1709 |
@@ -1566,20 +1566,20 @@ Source `odoo_fixture` (odoo_fixture, built by `.migration/fixtures/build_fixture
 | largest document, % of 16 MB | 0.0452 | 0.0452 |
 | longest array | 46 (accountFiscalPosition.accountTaxRel) | 46 (accountFiscalPosition.accountTaxRel) |
 | indexes created / in spec | 631 / 635 (4 refused) | 623 / 623 (0 refused) |
-| recon verdict | FAIL | FAIL |
+| recon verdict | FAIL | PASS |
 
-Recon tiers (`.migration/rehearsal/recon/<unit>/result.json`, redacted values):
+Recon tiers (`.migration/rehearsal/recon/<unit>/result.json`, redacted values; map-draft-2 run: tolerances `unt12-3` sha256 `7b426db2145915686a86975ccdb3192d2f622282975207e8f8bb59363de498ea`, mapping_sha256 `88650faf41b79db3c9bc266313ea224c37047053636507942f23ebe0b20b0ebc`, 17 UNVERIFIED warnings for collections with 0 fixture rows):
 
 | spec | tier | checks | result | findings |
 |---|---|---|---|---|
 | map-draft-1 | 1 | 142 | PASS |  |
 | map-draft-1 | 2 | 764 | FAIL (2) | accountBankStatementLine aggregate_sum field amount_residual->amountResidual; purchaseOrderLine aggregate_sum field technical_price_unit->technicalPriceUnit |
 | map-draft-1 | 3 | 2516 | PASS |  |
-| scratch map-draft-2 | 1 | 142 | PASS |  |
-| scratch map-draft-2 | 2 | 776 | FAIL (2) | accountBankStatementLine aggregate_sum field amount_residual->amountResidual; purchaseOrderLine aggregate_sum field technical_price_unit->technicalPriceUnit |
-| scratch map-draft-2 | 3 | 2516 | PASS |  |
+| map-draft-2 | 1 | 142 | PASS |  |
+| map-draft-2 | 2 | 776 | PASS |  |
+| map-draft-2 | 3 | 2516 | PASS |  |
 
-The Tier 2 findings are `SUM()` of float8 columns compared at `aggregate_rel_tol: 0`: PostgreSQL sums in row order and MongoDB `$sum` in document order, so the two doubles differ in the last place (seen with `--raw-values` in local scratch: -5081.860000000001 vs -5081.86 on `account_bank_statement_line.amount_residual`, 11979.099999999999 vs 11979.1 on `purchase_order_line.technical_price_unit`). Tier 3 keyed diffs pass on every row, so the values themselves match. Tolerances are not changed here; the manager decides whether float8 aggregates get a relative tolerance or a `decimal_round` rule.
+The Tier 2 findings are `SUM()` of float8 columns compared at `aggregate_rel_tol: 0`: PostgreSQL sums in row order and MongoDB `$sum` in document order, so the two doubles differ in the last place (seen with `--raw-values` on the map-draft-1 run: -5081.860000000001 vs -5081.86 on `account_bank_statement_line.amount_residual`, 11979.099999999999 vs 11979.1 on `purchase_order_line.technical_price_unit`). Tier 3 keyed diffs pass on every row, so the values themselves match. Plan decision `d-float-aggregates = rel-tol-float8`: tolerances `unt12-3` set `aggregate_rel_tol` to 1e-12, everything else unchanged; the map-draft-2 run passes every tier. Note: the pinned harness applies `aggregate_rel_tol` to every numeric aggregate (`_agg_close` in `recon/tiers.py`: min/max/sum of int, numeric and float alike), not to float8 only; at 1e-12 relative it only absorbs last-place double rounding.
 
 Environment note: the local container aborted once with a WiredTiger `Too many open files` panic while building the committed spec's ~630 indexes (the container's default `nofile` limit, not a model property); it was restarted with a compose override file raising `ulimits.nofile` to 65536 (the plugin's compose file is untouched) and the runs above completed on that container.
 
@@ -1658,7 +1658,7 @@ Per collection:
 
 ## 7. Fan-out per embed (profile p50 / p99 / max on odoo_src; fixture max)
 
-76 embeds in the scratch map-draft-2. `parents` is the profiled parent-row count; an embed with 0 parents in odoo_src is **unexercised** by the fixture (section 8). `embed bytes max` is the profiled embedded-child byte total per parent.
+76 embeds in map-draft-2. `parents` is the profiled parent-row count; an embed with 0 parents in odoo_src is **unexercised** by the fixture (section 8). `embed bytes max` is the profiled embedded-child byte total per parent.
 
 | collection | array | child table | rule | basis | parents | p50 | p99 | max | embed bytes max | fixture max | unexercised |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -1764,7 +1764,7 @@ docker compose -f $PLUGIN/skills/schema-modeling/docker-compose.local.yml up -d 
 $PY $PLUGIN/skills/schema-modeling/model_patch.py --spec .migration/mapping_spec.json --answers .migration/answers.txt \
     --decisions .migration/design_decisions.json --out .migration/mapping_spec.json --version map-draft-2 \
     --data-profile .migration/data_profile.json --census .migration/census.json --access-patterns .migration/access_patterns.json
-    -> refused (patch_attempt.map-draft-1.txt); .migration/rehearsal/scratch_draft2.sh is the scratch run
+    -> refused (patch_attempt.map-draft-1.txt); .migration/rehearsal/scratch_draft2.sh rebuilds map-draft-2 (d-plugin-gap)
 $PY $PLUGIN/skills/schema-modeling/model_patch.py --spec <spec> --data-profile ... --census ... --access-patterns ... --check
 $PY .migration/rehearsal/load_fixture.py --spec <spec> --source-dsn-secret ODOO_PG_FIXTURE_DSN --target-uri-secret MONGO_LOCAL_URI --target-db odoo_unt12 --out <json>
 recon run --unit <unit> --family postgresql --mapping <spec> --tolerances .migration/recon_tolerances.json \
