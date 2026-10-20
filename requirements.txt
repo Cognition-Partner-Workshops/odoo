@@ -33,6 +33,7 @@ Pillow==11.1.0 ; python_version >= '3.13' and python_version < '3.14'  # (Trixie
 Pillow==12.1.1 ; python_version >= '3.14'  # (Resolute)
 polib==1.1.1
 psutil==5.9.8 ; python_version >= '3.12' # (Noble) Mostly to have a wheel package
+pymongo==4.19.0 ; python_version >= '3.12' # MongoDB storage path (odoo/orm/storage_mongodb.py)
 psycopg2==2.9.9 ; python_version >= '3.12' and python_version < '3.13' # (Noble)
 psycopg2==2.9.10 ; python_version >= '3.13' # (Trixie)
 pyopenssl==24.1.0 ; python_version >= '3.12' # (Noble) min 23.2.0, pinned for compatibility with cryptography==42.0.8 and security patches

@@ -885,6 +885,10 @@ class Registry(Mapping[str, type["BaseModel"]]):
                 for field_name, field in Model._fields.items():
                     if field_name == 'id':
                         self.not_null_fields.add(field)
+                    elif Model._storage == 'mongodb':
+                        # enforced by the storage path, no PostgreSQL column
+                        if field.required and field.column_type and field.store:
+                            self.not_null_fields.add(field)
                     elif field.required and field.column_type:
                         if field.store:
                             if (Model._table, field_name) in not_null_columns:
@@ -901,7 +905,7 @@ class Registry(Mapping[str, type["BaseModel"]]):
             (sql.make_index_name(Model._table, field.name), Model._table, field)
             for model_name in model_names
             for Model in [self.models[model_name]]
-            if Model._auto and not Model._abstract
+            if Model._auto and not Model._abstract and Model._storage != 'mongodb'
             for field in Model._fields.values()
             if field.column_type and field.store
         ]
@@ -1065,6 +1069,12 @@ class Registry(Mapping[str, type["BaseModel"]]):
             missing_tables = set(table2model).difference(sql.existing_tables(cr, table2model))
             for table in missing_tables:
                 _logger.error("Model %s has no table.", table2model[table])
+
+    @functools.cached_property
+    def mongo_store(self):
+        """ The MongoDB store of models with ``_storage = 'mongodb'`` (lazy). """
+        from .storage_mongodb import MongoStore  # noqa: PLC0415
+        return MongoStore(self)
 
     def is_an_ordinary_table(self, model: BaseModel) -> bool:
         """ Return whether the given model has an ordinary table. """

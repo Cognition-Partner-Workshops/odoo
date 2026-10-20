@@ -65,6 +65,7 @@ from .fields_textual import Char, StoredTranslations
 
 from .identifiers import NewId
 from .query import Query, TableSQL
+from . import storage_mongodb
 from .utils import (
     OriginIds, Prefetch, ReversibleComparator, check_object_name, parse_field_expr,
     COLLECTION_TYPES, SQL_OPERATORS,
@@ -462,6 +463,8 @@ class BaseModel(metaclass=MetaModel):
     """
     _check_inherits_access: bool = True           #: check access for _inherits models
     _table: str = ''                 #: SQL table name used by model if :attr:`_auto`
+    _storage: str = 'postgresql'     #: where records live: 'postgresql' or 'mongodb' (see :mod:`.storage_mongodb`)
+    _mongodb_spec: dict | list | None = None  #: mapping-spec collection entry for a model absent from the committed spec
     _table_objects: dict[str, TableObject] = frozendict()  #: SQL/Table objects
     _inherit_children: OrderedSet[str]
 
@@ -1732,6 +1735,9 @@ class BaseModel(metaclass=MetaModel):
         result = [[] for __ in grouping_sets]
         if query.is_empty():
             return result
+        if isinstance(query, storage_mongodb.MongoQuery):
+            # no GROUPING SETS in MongoDB: one aggregation per grouping
+            return [self._read_group(domain, groupby_spec, aggregates, order=order) for groupby_spec in grouping_sets]
 
         # grouping_sets: [(a, b), (a), ()]
         # all_groupby_specs: (a, b)
@@ -2043,6 +2049,35 @@ class BaseModel(metaclass=MetaModel):
                 )]
             return []
 
+        if isinstance(query, storage_mongodb.MongoQuery):
+            if not groupby and not aggregates:
+                raise ValueError(self.env._("Need groupby or aggregates."))
+            row_values = storage_mongodb.read_group_rows(
+                self, query, list(groupby), list(aggregates), list(having), offset, limit, order)
+        else:
+            row_values = self._read_group_sql(query, groupby, aggregates, having, offset, limit, order)
+
+        if not row_values:
+            return row_values
+
+        # post-process values column by column
+        column_iterator = zip(*row_values)
+
+        # column_result: [(a1, a2, ...), (b1, b2, ...), (c1, c2, ...)]
+        column_result = []
+        for spec in groupby:
+            column = self._read_group_postprocess_groupby(spec, next(column_iterator))
+            column_result.append(column)
+        for spec in aggregates:
+            column = self._read_group_postprocess_aggregate(spec, next(column_iterator))
+            column_result.append(column)
+        assert next(column_iterator, None) is None
+
+        # return [(a1, b1, c1), (a2, b2, c2), ...]
+        return list(zip(*column_result))
+
+    def _read_group_sql(self, query: Query, groupby, aggregates, having, offset, limit, order) -> list[tuple]:
+        """ Execute the SQL of :meth:`_read_group` and return its raw rows. """
         query.limit = limit
         query.offset = offset
 
@@ -2063,26 +2098,7 @@ class BaseModel(metaclass=MetaModel):
             raise ValueError(self.env._("Need groupby or aggregates."))
 
         # row_values: [(a1, b1, c1), (a2, b2, c2), ...]
-        row_values = self.env.execute_query(query.select(*select_args))
-
-        if not row_values:
-            return row_values
-
-        # post-process values column by column
-        column_iterator = zip(*row_values)
-
-        # column_result: [(a1, a2, ...), (b1, b2, ...), (c1, c2, ...)]
-        column_result = []
-        for spec in groupby:
-            column = self._read_group_postprocess_groupby(spec, next(column_iterator))
-            column_result.append(column)
-        for spec in aggregates:
-            column = self._read_group_postprocess_aggregate(spec, next(column_iterator))
-            column_result.append(column)
-        assert next(column_iterator, None) is None
-
-        # return [(a1, b1, c1), (a2, b2, c2), ...]
-        return list(zip(*column_result))
+        return self.env.execute_query(query.select(*select_args))
 
     def _read_group_select(self, table: TableSQL, aggregate_spec: str) -> SQL:
         """ Return <SQL expression> corresponding to the given aggregation.
@@ -2440,6 +2456,8 @@ class BaseModel(metaclass=MetaModel):
         # Note: the final '/' is necessary to match subtrees correctly: '42/63'
         # is a prefix of '42/630', but '42/63/' is not a prefix of '42/630/'.
         _logger.info('Computing parent_path for table %s...', self._table)
+        if self._storage == 'mongodb':
+            return storage_mongodb.parent_store_compute(self)
         query = SQL(
             """ WITH RECURSIVE __parent_store_compute(id, parent_path) AS (
                     SELECT row.id, concat(row.id, '/')
@@ -2460,7 +2478,7 @@ class BaseModel(metaclass=MetaModel):
         self.invalidate_model(['parent_path'])
 
     def _check_removed_columns(self, log=False):
-        if self._abstract:
+        if self._abstract or self._storage == 'mongodb':
             return
         # iterate on the database columns to drop the NOT NULL constraints of
         # fields which were required but have been removed (or will be added by
@@ -2521,6 +2539,9 @@ class BaseModel(metaclass=MetaModel):
             which is called right after this one.
         """
         raise_on_invalid_object_name(self._name)
+        if self._storage == 'mongodb':
+            storage_mongodb.auto_init(self.with_context(prefetch_fields=False))
+            return
 
         # This prevents anything called by this method (in particular default
         # values) from prefetching a field for which the corresponding column
@@ -3234,6 +3255,9 @@ class BaseModel(metaclass=MetaModel):
         or to change the values that are put in cache.
         """
 
+        if isinstance(query, storage_mongodb.MongoQuery):
+            return storage_mongodb.fetch_query(self, query, fields)
+
         # determine columns fields and those with their own read() method
         column_fields: OrderedSet[Field] = OrderedSet()
         other_fields: OrderedSet[Field] = OrderedSet()
@@ -3701,10 +3725,15 @@ class BaseModel(metaclass=MetaModel):
         for sub_ids in split_every(IN_MAX, self.ids):
             records = self.browse(sub_ids)
 
-            cr.execute(SQL(
-                "DELETE FROM %s WHERE id IN %s",
-                SQL.identifier(self._table), sub_ids,
-            ))
+            if self._storage == 'mongodb':
+                storage_mongodb.unlink_rows(self, list(sub_ids))
+            else:
+                storage_mongodb.on_delete(self, list(sub_ids), check_only=True)
+                cr.execute(SQL(
+                    "DELETE FROM %s WHERE id IN %s",
+                    SQL.identifier(self._table), sub_ids,
+                ))
+                storage_mongodb.on_delete(self, list(sub_ids))
 
             # Removing the ir_model_data reference if the record being deleted
             # is a record created by xml/csv file, as these are not connected
@@ -4009,6 +4038,12 @@ class BaseModel(metaclass=MetaModel):
             # set magic fields (already done by write(), but not for computed fields)
             log_vals = {'write_uid': self.env.uid, 'write_date': self.env.cr.now()}
             vals_list = [(log_vals | vals) for vals in vals_list]
+
+        if self._storage == 'mongodb':
+            storage_mongodb.write_multi(self, vals_list)
+            if parent_records:
+                parent_records._parent_store_update()
+            return
 
         # determine SQL updates, grouped by set of updated fields:
         # {(col1, col2, col3): [(id, val1, val2, val3)]}
@@ -4355,7 +4390,12 @@ class BaseModel(metaclass=MetaModel):
         ids: list[int] = []                     # ids of created records
         other_fields: OrderedSet[Field] = OrderedSet()  # non-column fields
 
-        for data_sublist in split_every(INSERT_BATCH_SIZE, data_list):
+        if self._storage == 'mongodb':
+            ids, other_fields = storage_mongodb.create(self, data_list)
+            data_list_sql = []
+        else:
+            data_list_sql = data_list
+        for data_sublist in split_every(INSERT_BATCH_SIZE, data_list_sql):
             stored_list = [data['stored'] for data in data_sublist]
             fnames = sorted({name for stored in stored_list for name in stored})
 
@@ -4461,6 +4501,8 @@ class BaseModel(metaclass=MetaModel):
         """ Set the parent_path field on ``self`` after its creation. """
         if not self._parent_store:
             return
+        if self._storage == 'mongodb':
+            return storage_mongodb.parent_store_create(self)
 
         updated = self.env.execute_query(SQL(
             """ UPDATE %(table)s node
@@ -4498,6 +4540,8 @@ class BaseModel(metaclass=MetaModel):
             return self.browse()
 
         self.flush_recordset([self._parent_name])
+        if self._storage == 'mongodb':
+            return storage_mongodb.parent_store_update_prepare(self, vals_list)
 
         # return the records for which the parent field will change
         sql_parent = SQL.identifier(self._parent_name)
@@ -4518,6 +4562,8 @@ class BaseModel(metaclass=MetaModel):
 
     def _parent_store_update(self) -> None:
         """ Update the parent_path field of ``self``. """
+        if self._storage == 'mongodb':
+            return storage_mongodb.parent_store_update(self)
         for parent, records in self.grouped(self._parent_name).items():
             # determine new prefix of parent_path of records
             prefix = parent.parent_path or ""
@@ -4812,6 +4858,10 @@ class BaseModel(metaclass=MetaModel):
             if coorder == 'id':
                 table._query._order_groupby.append(sql_field)
                 return SQL("%s %s %s", sql_field, direction, nulls)
+            if comodel._storage == 'mongodb':
+                # the comodel ranks its ids in its own store
+                table._query._order_groupby.append(sql_field)
+                return storage_mongodb.order_rank_sql(self, field, sql_field, direction, nulls)
 
             # instead of ordering by the field's raw value, use the comodel's
             # order on many2one values
@@ -4900,6 +4950,13 @@ class BaseModel(metaclass=MetaModel):
         domain = domain.optimize_full(self)
         if domain.is_false():
             return self.browse()._as_query()
+        if self._storage == 'mongodb':
+            self_sudo = self.sudo().with_context(active_test=False)
+            if not sec_domain.is_true():
+                sec_domain = sec_domain.optimize_full(self_sudo, search_domain=domain)
+                if sec_domain.is_false():
+                    return self.browse()._as_query()
+            return storage_mongodb.search(self, domain, sec_domain, self_sudo, offset, limit, order)
         query = Query(self)
         if not domain.is_true():
             query.add_where(domain._to_sql(query.table))
@@ -4947,7 +5004,7 @@ class BaseModel(metaclass=MetaModel):
 
         :param ordered: whether the recordset order must be enforced by the query
         """
-        query = Query(self)
+        query = storage_mongodb.MongoQuery(self) if self._storage == 'mongodb' else Query(self)
         query.set_result_ids(self._ids, ordered)
         return query
 
