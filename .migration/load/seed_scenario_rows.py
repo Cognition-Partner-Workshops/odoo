@@ -20,15 +20,25 @@ every other seeded value is a literal. Prove it with two clones and a data-only 
 """
 FIXED_INSTANT = '2026-10-14 00:00:00'   # UTC; keep equal to build_source.sh FIXED_INSTANT
 
+
+def unseeded(section, rows, expected):
+    """`rows` are the section's own scenario rows. None present: seed; all present: skip. Anything else
+    is a clone edited after seeding (sections commit together, so seeding cannot leave one half done),
+    which this script refuses to repair rather than trip a unique constraint halfway through."""
+    if len(rows) not in (0, expected):
+        raise SystemExit(f'refusing: {section} holds {len(rows)} of its {expected} scenario rows; '
+                         'reseed from a fresh clone of odoo_src')
+    return not rows
+
 Tag = env['product.tag']
-if not Tag.with_context(lang='en_US').search_count([('name', '=', 'Seasonal')]):
+if unseeded('product_tag', Tag.with_context(lang='en_US').search([('name', 'in', ['Seasonal', 'Clearance', 'Staff pick'])]), 3):
     seasonal = Tag.create({'name': 'Seasonal', 'sequence': 1, 'color': '#FF7F0E', 'visible_to_customers': True})
     env['res.lang']._activate_lang('fr_FR')  # one translated value exercises the {lang: value} shape
     seasonal.with_context(lang='fr_FR').name = 'Saisonnier'
     Tag.create({'name': 'Clearance', 'sequence': 5, 'color': '#3C3C3C', 'visible_to_customers': False})
     Tag.create({'name': 'Staff pick', 'sequence': 10, 'color': '#2CA02C', 'visible_to_customers': True})
 BaseUnit = env['product.base.unit']
-if not BaseUnit.with_context(lang='en_US').search_count([('name', '=', 'per 100 g')]):
+if unseeded('product_base_unit', BaseUnit.with_context(lang='en_US').search([('name', 'in', ['per 100 g', 'per litre'])]), 2):
     BaseUnit.create([{'name': 'per 100 g'}, {'name': 'per litre'}])
 
 # --- product-catalog (wave 2, w2-b01): product_uom and the four empty relation tables, seeded the
@@ -38,7 +48,7 @@ if not BaseUnit.with_context(lang='en_US').search_count([('name', '=', 'per 100 
 # (product_tag_ids). Packagings come from wave 1's uom.uom (Pack of 6 / Dozens, xml ids), tags
 # from the rows above; products are the three lowest-id active variants with a barcode.
 ProductUom = env['product.uom']
-if not ProductUom.search_count([('barcode', '=like', 'SCN-%')]):
+if unseeded('product_uom', ProductUom.search([('barcode', '=like', 'SCN-%')]), 6):
     pack6, dozen = env.ref('uom.product_uom_pack_6'), env.ref('uom.product_uom_dozen')
     tags = env['product.tag'].search([], order='sequence, id')
     products = env['product.product'].search([('barcode', '!=', False)], order='id', limit=3)
@@ -56,7 +66,7 @@ if not ProductUom.search_count([('barcode', '=like', 'SCN-%')]):
 # are only observable on a seeded combo (createdb -T odoo_src odoo_w3b03_src). Products: the two
 # lowest-id active non-combo variants whose template carries taxes (the account D5 tax writer).
 Combo = env['product.combo']
-if not Combo.with_context(lang='en_US').search_count([('name', '=', 'Chicago Desk Set')]):
+if unseeded('product_combo', Combo.with_context(lang='en_US').search([('name', '=', 'Chicago Desk Set')]), 1):
     env['res.lang']._activate_lang('fr_FR')
     taxed = env['product.product'].search([('type', '!=', 'combo'), ('taxes_id', '!=', False)], order='id', limit=2)
     combo = Combo.create({
@@ -77,9 +87,10 @@ if not Combo.with_context(lang='en_US').search_count([('name', '=', 'Chicago Des
 # belong to sale order lines. Wizard rows cover every print_format, the three product arrays,
 # pricelist, packaging and stock's move_ids / move_quantity / print_packaging.
 CustomValue = env['product.attribute.custom.value']
-if not CustomValue.search_count([('custom_value', '=', 'Walnut legs, 72 cm')]):
-    ptavs = env['product.template.attribute.value'].search(
-        [('product_attribute_value_id.is_custom', '=', True)], order='id')
+ptavs = env['product.template.attribute.value'].search(
+    [('product_attribute_value_id.is_custom', '=', True)], order='id')
+if unseeded('product_attribute_custom_value',
+            CustomValue.search([('custom_product_template_attribute_value_id', 'in', ptavs.ids)]), 6):
     lines = env['sale.order.line'].search([], order='id', limit=3)
     CustomValue.create([
         {'custom_product_template_attribute_value_id': ptavs[0].id, 'custom_value': 'Walnut legs, 72 cm'},
@@ -91,7 +102,7 @@ if not CustomValue.search_count([('custom_value', '=', 'Walnut legs, 72 cm')]):
         for i, line in enumerate(lines)
     ])
 Layout = env['product.label.layout']
-if not Layout.search_count([('print_format', '=', 'dymo'), ('pricelist_id', '!=', False)]):
+if unseeded('product_label_layout', Layout.search([('print_format', 'in', ['dymo', '2x7', '4x7', '4x12', 'zpl'])]), 5):
     # Transient rows can be vacuumed; a re-seed into an emptied clone would allocate new wizard ids and no
     # longer match a load keyed on the first run's ids. Seed a fresh clone of odoo_src instead.
     env.cr.execute("SELECT is_called FROM product_label_layout_id_seq")
@@ -131,7 +142,8 @@ if not Layout.search_count([('print_format', '=', 'dymo'), ('pricelist_id', '!='
 # min_quantity > 0 and a uom_id. mail.thread rows are suppressed so only the unit's tables change.
 Pricelist = env['product.pricelist'].with_context(tracking_disable=True, mail_create_nolog=True)
 Item = env['product.pricelist.item']
-if not Pricelist.with_context(active_test=False, lang='en_US').search_count([('name', '=', 'Europe Wholesale')]):
+if unseeded('product_pricelist', Pricelist.with_context(active_test=False, lang='en_US').search(
+        [('name', 'in', ['Europe Wholesale', 'US Company Retail', 'Legacy 2024'])]), 3):
     env['res.lang']._activate_lang('fr_FR')
     furniture = env['product.category'].search([('name', '=', 'Furniture')], limit=1)
     chair = env['product.template'].search([('categ_id', 'child_of', furniture.id)], order='id', limit=1)
