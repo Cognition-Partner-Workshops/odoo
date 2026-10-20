@@ -1,0 +1,8 @@
+[
+  {"rule": "datetime_utc_truncate_ms", "applies_to": "timestamp,timestamptz->date", "params": {"precision": "ms"}},
+  {"rule": "rstrip_spaces", "applies_to": "char->string", "params": {}},
+  {"rule": "null_missing_equiv", "applies_to": "*", "params": {"policy": "SET_BY_PLAN_DECISION"}},
+  {"rule": "collation_casefold", "applies_to": "string", "params": {"enabled_if": "plan decision requires case folding"}},
+  {"rule": "uuid_normalize", "applies_to": "uuid", "params": {}},
+  {"rule": "json_parse", "applies_to": "json->object", "params": {}}
+]

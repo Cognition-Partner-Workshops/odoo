@@ -1,0 +1,234 @@
+[
+  {
+    "op": "reference",
+    "child_table": "account_partial_reconcile",
+    "from": "accountMoveLine",
+    "evidence": {
+      "kind": "access_pattern",
+      "ref": "ap-26541a49e3",
+      "note": "manager s3.1 note (2): the proposer embedded account_partial_reconcile under account_move_line through debit_move_id only, but the s2.2-confirmed hot reads ap-26541a49e3, ap-d62ff6e982 (AccountMove._get_all_reconciled_invoice_partials) and ap-8eda2da30f (AccountMoveLine._compute_amount_residual) filter on both debit_move_id and credit_move_id; a partial has two parents, so it keeps its own collection and account_move_line references it from both sides"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "accountPartialReconcile",
+    "keys": [
+      [
+        "debitMoveId",
+        1
+      ]
+    ],
+    "evidence": {
+      "kind": "access_pattern",
+      "ref": "ap-8eda2da30f",
+      "note": "AccountMoveLine._compute_amount_residual filters account_partial_reconcile by debit_move_id (hot); the restored collection keeps the proposer's creditMoveId+exchangeMoveId, companyId, exchangeMoveId and fullReconcileId indexes but none led by debit_move_id, so the debit-side lookup needs one (credit side is covered by the creditMoveId+exchangeMoveId prefix)"
+    }
+  },
+  {
+    "op": "note",
+    "subject": "FK edges into excluded tables (1460 census relationships)",
+    "decision": "Tables in the shared_postgresql and orm_framework buckets (table_buckets.json, 379 excluded via --exclude-table) stay in PostgreSQL. Every FK column from a migrated collection into one of them (create_uid, write_uid, company_id, currency_id, partner_id, ...) remains a plain integer field holding the PostgreSQL id, resolved by the ORM across stores; edges between two excluded tables are not modeled. model_patch.py --check at 9a584b4 still reports these edges as 'no rationale row' because it consults modeling.excluded (the exclude decision) and not modeling.excluded_tables (the proposer's --exclude-table list): reported as a plugin gap on UNT12-9, not patched.",
+    "evidence": {
+      "source": "customer",
+      "note": "manager s3.1 note (1): answer the 1460 FK edges into excluded tables without patching the plugin; s2.1 scope rule in .migration/table_buckets.py (migrate tables only)"
+    }
+  },
+  {
+    "op": "note",
+    "subject": "kpi_provider.get_kpi_summary runs without a registry (NOTES.md s2.3 row 23, blocked)",
+    "decision": "Model-side answer: no spec change. The KPI query reads account_move.state, account_move.review_state, account_move.journal_id, account_move.statement_line_id, account_journal.type and account_bank_statement_line.is_reconciled; all six stay top-level fields of the accountMove, accountJournal and accountBankStatementLine collections (none is embedded), so the HTTP-layer endpoint can run the same filters as one aggregation on accountMove with $lookup on accountJournal and accountBankStatementLine, no registry needed. The information_schema probe that guards it becomes a check that the three collections exist. Until that rewrite ships, the endpoint returns [] (its own 'module not installed' path) once account_move leaves PostgreSQL; the PG id shadow cannot serve it because it has no state/journal columns.",
+    "evidence": {
+      "file": "addons/account/models/kpi_provider.py:31-71",
+      "note": "manager s3.1 note (3): propose a model-side answer for the blocked register items, no ORM code"
+    }
+  },
+  {
+    "op": "note",
+    "subject": "stock post_init_hook reads product_product.qty_available raw (NOTES.md s2.3 row 28, blocked)",
+    "decision": "Model-side answer: no spec change, an ordering rule for the plan. _create_inventory_adjustment reads the pre-stock stored JSONB column product_product.qty_available at `-i stock` time only. The rule: on every database that can install stock, stock is installed before product_product opts into MongoDB (fresh installs: `-i stock` before the product unit migrates; existing databases already have stock), so the hook always finds the column in PostgreSQL. This order must hold without exception: once product_product is Mongo-backed its PostgreSQL shadow keeps id only, the hook's SELECT fails with `column qty_available does not exist` (it does not return an empty result), and `-i stock` aborts. If the wave plan cannot guarantee the order, row 28 stays blocked and the storage-path wave owns a rewrite of the hook (detect a Mongo-backed product_product and skip or read the stored quantities from the product documents); that is ORM code and is not written here. The productProduct collection does not need a qty_available field: with stock installed the field is computed from stock_quant.",
+    "evidence": {
+      "file": "addons/stock/__init__.py:46-65",
+      "note": "manager s3.1 note (3): keep product_product readable through the id shadow or the PG side; no ORM code"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "accountMove",
+    "keys": [
+      [
+        "invoiceDateDue",
+        1
+      ]
+    ],
+    "drop": true,
+    "evidence": {
+      "source": "customer",
+      "note": "manager s3.1 note / local rehearsal: the proposal gives accountMove 67 indexes (34 access, 18 reference_fk, 15 source_index) and MongoDB refuses the 65th (code 67 CannotCreateIndex, seen loading odoo_fixture into the local mongo:7); drop the index entries for the source indexes no confirmed s2.2 access pattern exercises (12 entries covering the 13 unexercised indexes; this one: account_move__invoice_date_due_index) so the collection carries 55, all evidence-backed; recreate later with an index decision if the real estate's workload needs one"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "accountMove",
+    "keys": [
+      [
+        "invoiceDate",
+        1
+      ]
+    ],
+    "drop": true,
+    "evidence": {
+      "source": "customer",
+      "note": "manager s3.1 note / local rehearsal: the proposal gives accountMove 67 indexes (34 access, 18 reference_fk, 15 source_index) and MongoDB refuses the 65th (code 67 CannotCreateIndex, seen loading odoo_fixture into the local mongo:7); drop the index entries for the source indexes no confirmed s2.2 access pattern exercises (12 entries covering the 13 unexercised indexes; this one: account_move__invoice_date_index) so the collection carries 55, all evidence-backed; recreate later with an index decision if the real estate's workload needs one"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "accountMove",
+    "keys": [
+      [
+        "mediumId",
+        1
+      ]
+    ],
+    "drop": true,
+    "evidence": {
+      "source": "customer",
+      "note": "manager s3.1 note / local rehearsal: the proposal gives accountMove 67 indexes (34 access, 18 reference_fk, 15 source_index) and MongoDB refuses the 65th (code 67 CannotCreateIndex, seen loading odoo_fixture into the local mongo:7); drop the index entries for the source indexes no confirmed s2.2 access pattern exercises (12 entries covering the 13 unexercised indexes; this one: account_move__medium_id_index) so the collection carries 55, all evidence-backed; recreate later with an index decision if the real estate's workload needs one"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "accountMove",
+    "keys": [
+      [
+        "name",
+        1
+      ]
+    ],
+    "drop": true,
+    "evidence": {
+      "source": "customer",
+      "note": "manager s3.1 note / local rehearsal: the proposal gives accountMove 67 indexes (34 access, 18 reference_fk, 15 source_index) and MongoDB refuses the 65th (code 67 CannotCreateIndex, seen loading odoo_fixture into the local mongo:7); drop the index entries for the source indexes no confirmed s2.2 access pattern exercises (12 entries covering the 13 unexercised indexes; this one: account_move__name_index) so the collection carries 55, all evidence-backed; recreate later with an index decision if the real estate's workload needs one"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "accountMove",
+    "keys": [
+      [
+        "paymentReference",
+        1
+      ]
+    ],
+    "drop": true,
+    "evidence": {
+      "source": "customer",
+      "note": "manager s3.1 note / local rehearsal: the proposal gives accountMove 67 indexes (34 access, 18 reference_fk, 15 source_index) and MongoDB refuses the 65th (code 67 CannotCreateIndex, seen loading odoo_fixture into the local mongo:7); drop the index entries for the source indexes no confirmed s2.2 access pattern exercises (12 entries covering the 13 unexercised indexes; this one: account_move__payment_reference_index) so the collection carries 55, all evidence-backed; recreate later with an index decision if the real estate's workload needs one"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "accountMove",
+    "keys": [
+      [
+        "ref",
+        1
+      ]
+    ],
+    "drop": true,
+    "evidence": {
+      "source": "customer",
+      "note": "manager s3.1 note / local rehearsal: the proposal gives accountMove 67 indexes (34 access, 18 reference_fk, 15 source_index) and MongoDB refuses the 65th (code 67 CannotCreateIndex, seen loading odoo_fixture into the local mongo:7); drop the index entries for the source indexes no confirmed s2.2 access pattern exercises (12 entries covering the 13 unexercised indexes; this one: account_move__ref_index, account_move_duplicate_bills_idx) so the collection carries 55, all evidence-backed; recreate later with an index decision if the real estate's workload needs one"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "accountMove",
+    "keys": [
+      [
+        "secureSequenceNumber",
+        1
+      ]
+    ],
+    "drop": true,
+    "evidence": {
+      "source": "customer",
+      "note": "manager s3.1 note / local rehearsal: the proposal gives accountMove 67 indexes (34 access, 18 reference_fk, 15 source_index) and MongoDB refuses the 65th (code 67 CannotCreateIndex, seen loading odoo_fixture into the local mongo:7); drop the index entries for the source indexes no confirmed s2.2 access pattern exercises (12 entries covering the 13 unexercised indexes; this one: account_move__secure_sequence_number_index) so the collection carries 55, all evidence-backed; recreate later with an index decision if the real estate's workload needs one"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "accountMove",
+    "keys": [
+      [
+        "sourceId",
+        1
+      ]
+    ],
+    "drop": true,
+    "evidence": {
+      "source": "customer",
+      "note": "manager s3.1 note / local rehearsal: the proposal gives accountMove 67 indexes (34 access, 18 reference_fk, 15 source_index) and MongoDB refuses the 65th (code 67 CannotCreateIndex, seen loading odoo_fixture into the local mongo:7); drop the index entries for the source indexes no confirmed s2.2 access pattern exercises (12 entries covering the 13 unexercised indexes; this one: account_move__source_id_index) so the collection carries 55, all evidence-backed; recreate later with an index decision if the real estate's workload needs one"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "accountMove",
+    "keys": [
+      [
+        "utmReference",
+        1
+      ]
+    ],
+    "drop": true,
+    "evidence": {
+      "source": "customer",
+      "note": "manager s3.1 note / local rehearsal: the proposal gives accountMove 67 indexes (34 access, 18 reference_fk, 15 source_index) and MongoDB refuses the 65th (code 67 CannotCreateIndex, seen loading odoo_fixture into the local mongo:7); drop the index entries for the source indexes no confirmed s2.2 access pattern exercises (12 entries covering the 13 unexercised indexes; this one: account_move__utm_reference_index) so the collection carries 55, all evidence-backed; recreate later with an index decision if the real estate's workload needs one"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "accountMove",
+    "keys": [
+      [
+        "accountPayment.paymentId",
+        1
+      ]
+    ],
+    "drop": true,
+    "evidence": {
+      "source": "customer",
+      "note": "manager s3.1 note / local rehearsal: the proposal gives accountMove 67 indexes (34 access, 18 reference_fk, 15 source_index) and MongoDB refuses the 65th (code 67 CannotCreateIndex, seen loading odoo_fixture into the local mongo:7); drop the index entries for the source indexes no confirmed s2.2 access pattern exercises (12 entries covering the 13 unexercised indexes; this one: account_move__account_payment_payment_id_invoice_id_idx) so the collection carries 55, all evidence-backed; recreate later with an index decision if the real estate's workload needs one"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "accountMove",
+    "keys": [
+      [
+        "purchaseOrderRel.purchaseOrderId",
+        1
+      ]
+    ],
+    "drop": true,
+    "evidence": {
+      "source": "customer",
+      "note": "manager s3.1 note / local rehearsal: the proposal gives accountMove 67 indexes (34 access, 18 reference_fk, 15 source_index) and MongoDB refuses the 65th (code 67 CannotCreateIndex, seen loading odoo_fixture into the local mongo:7); drop the index entries for the source indexes no confirmed s2.2 access pattern exercises (12 entries covering the 13 unexercised indexes; this one: account_move_purchase_order_r_account_move_id_purchase_orde_idx) so the collection carries 55, all evidence-backed; recreate later with an index decision if the real estate's workload needs one"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "accountMove",
+    "keys": [
+      [
+        "adjustingEntriesAccountMove.moveId",
+        1
+      ]
+    ],
+    "drop": true,
+    "evidence": {
+      "source": "customer",
+      "note": "manager s3.1 note / local rehearsal: the proposal gives accountMove 67 indexes (34 access, 18 reference_fk, 15 source_index) and MongoDB refuses the 65th (code 67 CannotCreateIndex, seen loading odoo_fixture into the local mongo:7); drop the index entries for the source indexes no confirmed s2.2 access pattern exercises (12 entries covering the 13 unexercised indexes; this one: adjusting_entries__account_mo_adjusting_entry_move_id_move__idx) so the collection carries 55, all evidence-backed; recreate later with an index decision if the real estate's workload needs one"
+    }
+  }
+]

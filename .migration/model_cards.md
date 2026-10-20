@@ -1,44 +1,16 @@
-# Model review: map-draft-1
+# Model review: map-draft-2
 
 ## Review
 
-- **Draft:** 65 collections, 77 embedded tables, 379 tables excluded.
+- **Draft:** 66 collections, 76 embedded tables, 379 tables excluded.
 - **Evidence:** of 357 relationship choices, 283 rest on measured data or app code and 0 on a recorded decision (`derived`); the rest follow the schema alone (`assumed`).
-- **Decisions:** 10 kinds of question, 580 items. The draft already applies each proposal; answer each group with one line in `.migration/answers.txt` (template below).
+- **Decisions:** 0 kinds of question, 0 items. The draft already applies each proposal; answer each group with one line in `.migration/answers.txt` (template below).
 
-1. **many_to_many_junction** (56): junction embedded via read evidence as an array in account_account; confirm the other side never needs the reverse lookup (else add a multikey index or keep a reference)  
-   Applies to: account_account_account_tag, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_account_tax_default_rel, account_cash_rounding_account_payment_method_line_rel, account_fiscal_position_account_tax_rel, account_journal_account_reconcile_model_rel and 48 more
-2. **embed_unbounded** (8): 1:N embed: confirm the fan-out bound and document size (16 MB) against data, or bucket/reference  
-   Applies to: account_cash_rounding_res_currency_rel, account_cash_rounding_res_partner_category_rel, account_fiscal_position_res_country_state_rel, account_reconcile_model_res_partner_rel, customer_product_reference, sale_order_transaction_rel, account_analytic_line_stock_move_rel, picking_type_favorite_user_rel
-3. **transient_tables** (1): 88 table(s) back transient models, scratch state the framework deletes on a timer, so they are not migrated: account_account_account_merge_wizard_rel, account_accrued_orders_wizard, account_automatic_entry_wizard, account_automatic_entry_wizard_account_move_line_rel, account_autopost_bills_wizard, account_financial_year_op, account_merge_wizard, account_merge_wizard_line, account_move_account_move_send_batch_wizard_rel, account_move_account_resequence_wizard_rel, account_move_reversal, account_move_reversal_move, account_move_reversal_new_move, account_move_send_batch_wizard, account_move_send_wizard, account_move_send_wizard_res_partner_rel, account_move_validate_account_move_rel, account_payment_register, account_payment_register_move_line_rel, account_resequence_wizard, account_secure_entries_wizard, account_setup_bank_manual_config, base_document_layout, bill_to_po_wizard, lot_label_layout, lot_label_layout_stock_lot_rel, lot_label_layout_stock_move_line_rel, mail_compose_message, mail_compose_message_ir_attachments_rel, mail_compose_message_res_partner_cc_rel, mail_compose_message_res_partner_rel, payment_link_wizard, picking_label_type, picking_label_type_stock_picking_rel, product_label_layout, product_label_layout_product_product_rel, product_label_layout_product_template_rel, product_label_layout_product_uom_rel, product_label_layout_stock_move_rel, product_replenish, product_supplierinfo_stock_replenishment_info_rel, res_config_settings, sale_advance_payment_inv, sale_advance_payment_inv_sale_order_rel, sale_mass_cancel_orders, sale_order_discount, sale_order_mass_cancel_wizard_rel, stock_add_to_wave, stock_add_to_wave_stock_move_line_rel, stock_add_to_wave_stock_picking_rel, stock_backorder_confirmation, stock_backorder_confirmation_line, stock_conflict_quant_rel, stock_inventory_adjustment_name, stock_inventory_adjustment_name_stock_quant_rel, stock_inventory_conflict, stock_inventory_conflict_stock_quant_rel, stock_inventory_warning, stock_inventory_warning_stock_quant_rel, stock_location_label_layout, stock_move_line_stock_package_destination_rel, stock_move_line_stock_put_in_pack_rel, stock_orderpoint_snooze, stock_orderpoint_snooze_stock_warehouse_orderpoint_rel, stock_orderpoint_suggest, stock_orderpoint_suggest_stock_warehouse_orderpoint_rel, stock_package_destination, stock_package_label_layout, stock_package_stock_put_in_pack_rel, stock_picking_backorder_rel, stock_picking_stock_zero_demand_confirmation_rel, stock_picking_to_batch, stock_picking_type_label_layout, stock_put_in_pack, stock_quant_relocate, stock_quant_stock_quant_relocate_rel, stock_quant_stock_request_count_rel, stock_replenishment_info, stock_replenishment_option, stock_request_count, stock_route_stock_rules_report_rel, stock_rules_report, stock_rules_report_stock_warehouse_rel, stock_traceability_report, stock_warn_insufficient_qty_scrap, stock_zero_demand_confirmation, update_product_attribute_value, validate_account_move; confirm none must survive cutover
-4. **extended_reference_candidate** (269): app reads account_account_tag with every account_account_account_tag: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference  
-   Applies to: account_account_account_tag, account_account_tax_default_rel, account_account, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_bank_statement, account_bank_statement_line and 94 more
-5. **source_index_not_exercised** (122): source index not exercised by any confirmed access pattern; keep or drop  
-   Applies to: account_account, account_account_account_tag, account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_bank_statement, account_bank_statement_ir_attachment_rel and 80 more
-6. **fanout_unmeasured** (49): account_account_tax_default_rel has no rows per account_account in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding  
-   Applies to: account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_cash_rounding_res_currency_rel, account_cash_rounding_res_partner_category_rel, account_cash_rounding_account_payment_method_line_rel, account_fiscal_position_account and 41 more
-7. **cascade_into_embed** (44): account_account_tax_default_rel is embedded in account_account, but deleting a account_tax row cascades to its account_account_tax_default_rel: the app must pull them from every account_account document, or keep account_account_tax_default_rel separate  
-   Applies to: account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_cash_rounding_account_payment_method_line_rel, account_fiscal_position_account_tax_rel, account_journal_account_reconcile_model_rel, account_move__account_payment and 36 more
-8. **lob** (13): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)  
-   Applies to: account_account, account_journal, account_move, account_move_line, account_report_expression, product_template, purchase_order, purchase_order_line and 5 more
-9. **single_valued_index_key** (11): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan  
-   Applies to: account_bank_statement, account_bank_statement_line, account_move, product_product, product_template, product_template_attribute_line, purchase_order, stock_quant and 2 more
-10. **nullable_unique_key** (7): source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
 
 **Answers template.** Copy it to `.migration/answers.txt` and replace each `<...>` with who decided and why. `accept` keeps the embeds and copied fields a rule proposed (from the schema alone), `reject` makes its embeds references, `except` exempts tables, `close` settles every question of a kind. Delete lines you are not ready to answer.
 
 ```
 accept ownership: <who said so, and why>  # 8 tables: account_analytic_line_stock_move_rel, account_cash_rounding_res_currency_rel, account_cash_rounding_res_partner_category_rel, account_fiscal_position_res_country_state_rel, account_reconcile_model_res_partner_rel, customer_product_reference, picking_type_favorite_user_rel, sale_order_transaction_rel
-close many_to_many_junction: <who said so, and why>  # 56 questions
-close embed_unbounded: <who said so, and why>  # 8 questions
-close transient_tables: <who said so, and why>  # 1 questions
-close extended_reference_candidate: <who said so, and why>  # 269 questions
-close source_index_not_exercised: <who said so, and why>  # 122 questions
-close fanout_unmeasured: <who said so, and why>  # 49 questions
-close cascade_into_embed: <who said so, and why>  # 44 questions
-close lob: <who said so, and why>  # 13 questions
-close single_valued_index_key: <who said so, and why>  # 11 questions
-close nullable_unique_key: <who said so, and why>  # 7 questions
 ```
 
 ## accountAccount
@@ -85,19 +57,6 @@ Why:
 - account_tax → account_account_tax_default_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_account → account_fiscal_position_account, account_payment, account_payment_method_line, account_reconcile_model_line, account_tax_repartition_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 
-Open questions (11):
-- **fanout_unmeasured** (account_account_tax_default_rel): account_account_tax_default_rel has no rows per account_account in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (account_account_account_tag): app reads account_account_tag with every account_account_account_tag: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_account_tax_default_rel): app reads account_tax with every account_account_tax_default_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_account): app reads account_account with every account_account: copy up to 5 read fields of account_account into account_account documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_account): app reads account_account with every account_account: copy up to 5 read fields of account_account into account_account documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_account): app reads account_account with every account_account: copy up to 5 read fields of account_account into account_account documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (account_account_tax_default_rel): account_account_tax_default_rel is embedded in account_account, but deleting a account_tax row cascades to its account_account_tax_default_rel: the app must pull them from every account_account document, or keep account_account_tax_default_rel separate
-- **lob** (account_account): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **source_index_not_exercised** (account_account): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_account_account_tag): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_account_tax_default_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## accountAccountTag
 
 From `account_account_tag` with `account_account_tag_account_move_line_rel`, `account_account_tag_account_tax_repartition_line_rel`, `account_account_tag_product_template_rel` embedded.
@@ -133,21 +92,6 @@ Why:
 - account_tax_repartition_line → account_account_tag_account_tax_repartition_line_rel: **reference**, a link table, embedded on the other side (assumed)
 - product_template → account_account_tag_product_template_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (13):
-- **fanout_unmeasured** (account_account_tag_account_move_line_rel): account_account_tag_account_move_line_rel has no rows per account_account_tag in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (account_account_tag_account_tax_repartition_line_rel): account_account_tag_account_tax_repartition_line_rel has no rows per account_account_tag in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (account_account_tag_product_template_rel): account_account_tag_product_template_rel has no rows per account_account_tag in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (account_account_tag_account_move_line_rel): app reads account_move_line with every account_account_tag_account_move_line_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_account_tag_account_tax_repartition_line_rel): app reads account_tax_repartition_line with every account_account_tag_account_tax_repartition_line_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_account_tag_product_template_rel): app reads product_template with every account_account_tag_product_template_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (account_account_tag_account_move_line_rel): account_account_tag_account_move_line_rel is embedded in account_account_tag, but deleting a account_move_line row cascades to its account_account_tag_account_move_line_rel: the app must pull them from every account_account_tag document, or keep account_account_tag_account_move_line_rel separate
-- **cascade_into_embed** (account_account_tag_account_tax_repartition_line_rel): account_account_tag_account_tax_repartition_line_rel is embedded in account_account_tag, but deleting a account_tax_repartition_line row cascades to its account_account_tag_account_tax_repartition_line_rel: the app must pull them from every account_account_tag document, or keep account_account_tag_account_tax_repartition_line_rel separate
-- **cascade_into_embed** (account_account_tag_product_template_rel): account_account_tag_product_template_rel is embedded in account_account_tag, but deleting a product_template row cascades to its account_account_tag_product_template_rel: the app must pull them from every account_account_tag document, or keep account_account_tag_product_template_rel separate
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **source_index_not_exercised** (account_account_tag_account_move_line_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_account_tag_account_tax_repartition_line_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_account_tag_product_template_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## accountBankStatement
 
 From `account_bank_statement` with `account_bank_statement_ir_attachment_rel` embedded.
@@ -182,13 +126,6 @@ Why:
 - account_bank_statement → account_bank_statement_ir_attachment_rel: **embed**, owned by its parent (cascade delete or ordinal key) (derived)
 - account_bank_statement → account_bank_statement_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 - account_bank_statement → account_move_line: **reference**, other tables also point at it, so it keeps its own collection (derived)
-
-Open questions (5):
-- **extended_reference_candidate** (account_bank_statement): app reads account_journal with every account_bank_statement: copy up to 5 read fields of account_journal into account_bank_statement documents (extended reference) or keep the $lookup
-- **single_valued_index_key** (account_bank_statement): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan
-- **single_valued_index_key** (account_bank_statement): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan
-- **source_index_not_exercised** (account_bank_statement): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_bank_statement_ir_attachment_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## accountCashRounding
 
@@ -227,16 +164,6 @@ Why:
 - account_cash_rounding → account_cash_rounding_account_payment_method_line_rel: **embed**, a link table, kept as an array on this side (derived)
 - account_cash_rounding → account_cash_rounding_res_currency_rel, account_cash_rounding_res_partner_category_rel: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 - account_cash_rounding → account_move: **reference**, it is embedded under another parent; this one is referenced (derived)
-
-Open questions (8):
-- **fanout_unmeasured** (account_cash_rounding_res_currency_rel): account_cash_rounding_res_currency_rel has no rows per account_cash_rounding in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (account_cash_rounding_res_partner_category_rel): account_cash_rounding_res_partner_category_rel has no rows per account_cash_rounding in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (account_cash_rounding_account_payment_method_line_rel): account_cash_rounding_account_payment_method_line_rel has no rows per account_cash_rounding in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (account_cash_rounding_account_payment_method_line_rel): app reads account_payment_method_line with every account_cash_rounding_account_payment_method_line_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (account_cash_rounding_account_payment_method_line_rel): account_cash_rounding_account_payment_method_line_rel is embedded in account_cash_rounding, but deleting a account_payment_method_line row cascades to its account_cash_rounding_account_payment_method_line_rel: the app must pull them from every account_cash_rounding document, or keep account_cash_rounding_account_payment_method_line_rel separate
-- **source_index_not_exercised** (account_cash_rounding_account_payment_method_line_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_cash_rounding_res_currency_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_cash_rounding_res_partner_category_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## accountFiscalPosition
 
@@ -289,16 +216,6 @@ Why:
 - account_fiscal_position → account_fiscal_position_res_country_state_rel: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 - account_fiscal_position → account_move: **reference**, it is embedded under another parent; this one is referenced (derived)
 - account_fiscal_position → purchase_order, sale_order: **reference**, other tables also point at it, so it keeps its own collection (derived)
-
-Open questions (8):
-- **fanout_unmeasured** (account_fiscal_position_account): account_fiscal_position_account has no rows per account_fiscal_position in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (account_fiscal_position_res_country_state_rel): account_fiscal_position_res_country_state_rel has no rows per account_fiscal_position in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (account_fiscal_position_account): app reads account_account with every account_fiscal_position_account: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_fiscal_position_account): app reads account_account with every account_fiscal_position_account: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_fiscal_position_account_tax_rel): app reads account_tax with every account_fiscal_position_account_tax_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (account_fiscal_position_account_tax_rel): account_fiscal_position_account_tax_rel is embedded in account_fiscal_position, but deleting a account_tax row cascades to its account_fiscal_position_account_tax_rel: the app must pull them from every account_fiscal_position document, or keep account_fiscal_position_account_tax_rel separate
-- **source_index_not_exercised** (account_fiscal_position_account_tax_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_fiscal_position_res_country_state_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## accountJournal
 
@@ -353,20 +270,6 @@ Why:
 - account_reconcile_model → account_journal_account_reconcile_model_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_journal → account_journal_account_reconcile_model_rel: **embed**, a link table, kept as an array on this side (derived)
 - account_journal → account_move_line, sale_order: **reference**, other tables also point at it, so it keeps its own collection (derived)
-
-Open questions (12):
-- **fanout_unmeasured** (account_journal_account_reconcile_model_rel): account_journal_account_reconcile_model_rel has no rows per account_journal in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (account_journal_account_reconcile_model_rel): app reads account_reconcile_model with every account_journal_account_reconcile_model_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_journal): app reads account_account with every account_journal: copy up to 5 read fields of account_account into account_journal documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_journal): app reads account_journal_group with every account_journal: copy up to 5 read fields of account_journal_group into account_journal documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_journal): app reads account_account with every account_journal: copy up to 5 read fields of account_account into account_journal documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_journal): app reads account_account with every account_journal: copy up to 5 read fields of account_account into account_journal documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_journal): app reads account_account with every account_journal: copy up to 5 read fields of account_account into account_journal documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_journal): app reads account_account with every account_journal: copy up to 5 read fields of account_account into account_journal documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (account_journal_account_reconcile_model_rel): account_journal_account_reconcile_model_rel is embedded in account_journal, but deleting a account_reconcile_model row cascades to its account_journal_account_reconcile_model_rel: the app must pull them from every account_journal document, or keep account_journal_account_reconcile_model_rel separate
-- **lob** (account_journal): LOB column(s) sequence_override_regex measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **source_index_not_exercised** (account_journal): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_journal_account_reconcile_model_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## accountMove
 
@@ -475,47 +378,9 @@ Why:
 - purchase_order → account_move_purchase_order_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_move → adjusting_entries__account_move, purchase_order_line_accrual_move_rel, sale_order_line_accrual_move_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (36):
-- **fanout_unmeasured** (account_move__account_payment): account_move__account_payment has no rows per account_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (account_move_purchase_order_rel): account_move_purchase_order_rel has no rows per account_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (adjusting_entries__account_move): adjusting_entries__account_move has no rows per account_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (account_move__account_payment): app reads account_payment with every account_move__account_payment: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_move_purchase_order_rel): app reads purchase_order with every account_move_purchase_order_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (adjusting_entries__account_move): app reads account_move with every adjusting_entries__account_move: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_move): app reads account_move with every account_move: copy up to 5 read fields of account_move into account_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move): app reads account_fiscal_position with every account_move: copy up to 5 read fields of account_fiscal_position into account_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move): app reads account_cash_rounding with every account_move: copy up to 5 read fields of account_cash_rounding into account_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move): app reads account_incoterms with every account_move: copy up to 5 read fields of account_incoterms into account_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move): app reads account_payment_term with every account_move: copy up to 5 read fields of account_payment_term into account_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move): app reads account_journal with every account_move: copy up to 5 read fields of account_journal into account_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move): app reads account_payment with every account_move: copy up to 5 read fields of account_payment into account_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move): app reads account_payment_method_line with every account_move: copy up to 5 read fields of account_payment_method_line into account_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move): app reads account_move with every account_move: copy up to 5 read fields of account_move into account_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move): app reads account_bank_statement_line with every account_move: copy up to 5 read fields of account_bank_statement_line into account_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move): copy the parent fields this read uses into the child (extended reference); parent has no hot/warm writer
-- **extended_reference_candidate** (account_move): app reads account_move with every account_move: copy up to 5 read fields of account_move into account_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move): app reads account_partial_reconcile with every account_move: copy up to 5 read fields of account_partial_reconcile into account_move documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (account_move__account_payment): account_move__account_payment is embedded in account_move, but deleting a account_payment row cascades to its account_move__account_payment: the app must pull them from every account_move document, or keep account_move__account_payment separate
-- **cascade_into_embed** (account_move_purchase_order_rel): account_move_purchase_order_rel is embedded in account_move, but deleting a purchase_order row cascades to its account_move_purchase_order_rel: the app must pull them from every account_move document, or keep account_move_purchase_order_rel separate
-- **lob** (account_move): LOB column(s) narration measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **single_valued_index_key** (account_move): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan
-- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move__account_payment): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move_purchase_order_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (adjusting_entries__account_move): source index not exercised by any confirmed access pattern; keep or drop
-
 ## accountMoveLine
 
-From `account_move_line` with `account_move_line_account_tax_rel`, `account_partial_reconcile` embedded.
+From `account_move_line` with `account_move_line_account_tax_rel` embedded.
 
 ```js
 {
@@ -583,24 +448,6 @@ From `account_move_line` with `account_move_line_account_tax_rel`, `account_part
   accountTaxRel: [{  // account_move_line_account_tax_rel, 1:N derived
     accountTaxId: int,  // account_tax_id
   }],
-  accountPartialReconcile: [{  // account_partial_reconcile, 1:N derived
-    id: int,  // id
-    creditMoveId: int,  // credit_move_id
-    fullReconcileId: int,  // full_reconcile_id
-    exchangeMoveId: int,  // exchange_move_id
-    debitCurrencyId: int,  // debit_currency_id
-    creditCurrencyId: int,  // credit_currency_id
-    companyId: int,  // company_id
-    createUid: int,  // create_uid
-    writeUid: int,  // write_uid
-    maxDate: date,  // max_date
-    draftCabaMoveVals: object,  // draft_caba_move_vals
-    amount: decimal,  // amount
-    debitAmountCurrency: decimal,  // debit_amount_currency
-    creditAmountCurrency: decimal,  // credit_amount_currency
-    createDate: date,  // create_date
-    writeDate: date,  // write_date
-  }],
 }
 ```
 
@@ -612,38 +459,6 @@ Why:
 - account_tax → account_move_line_account_tax_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_move_line → account_partial_reconcile: **reference**, it is embedded under another parent; this one is referenced (derived)
 - account_move_line → account_partial_reconcile: **embed**, the app reads it with its parent (derived)
-- account_move, account_full_reconcile → account_partial_reconcile: **reference**, it is embedded under another parent; this one is referenced (derived)
-
-Open questions (29):
-- **fanout_unmeasured** (account_partial_reconcile): account_partial_reconcile has no rows per account_move_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (account_move_line_account_tax_rel): app reads account_tax with every account_move_line_account_tax_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_partial_reconcile): app reads account_move_line with every account_partial_reconcile: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_partial_reconcile): app reads account_move with every account_partial_reconcile: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_partial_reconcile): app reads account_full_reconcile with every account_partial_reconcile: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_move_line): app reads account_account with every account_move_line: copy up to 5 read fields of account_account into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_move_line with every account_move_line: copy up to 5 read fields of account_move_line into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_full_reconcile with every account_move_line: copy up to 5 read fields of account_full_reconcile into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_tax with every account_move_line: copy up to 5 read fields of account_tax into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_move with every account_move_line: copy up to 5 read fields of account_move into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_payment with every account_move_line: copy up to 5 read fields of account_payment into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads product_product with every account_move_line: copy up to 5 read fields of product_product into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads uom_uom with every account_move_line: copy up to 5 read fields of uom_uom into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads purchase_order_line with every account_move_line: copy up to 5 read fields of purchase_order_line into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_reconcile_model with every account_move_line: copy up to 5 read fields of account_reconcile_model into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_bank_statement_line with every account_move_line: copy up to 5 read fields of account_bank_statement_line into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads stock_move with every account_move_line: copy up to 5 read fields of stock_move into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_tax with every account_move_line: copy up to 5 read fields of account_tax into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_tax_repartition_line with every account_move_line: copy up to 5 read fields of account_tax_repartition_line into account_move_line documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (account_move_line_account_tax_rel): account_move_line_account_tax_rel is embedded in account_move_line, but deleting a account_tax row cascades to its account_move_line_account_tax_rel: the app must pull them from every account_move_line document, or keep account_move_line_account_tax_rel separate
-- **lob** (account_move_line): LOB column(s) name measured max 56 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_partial_reconcile): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_partial_reconcile): source index not exercised by any confirmed access pattern; keep or drop
 
 ## accountPayment
 
@@ -701,22 +516,6 @@ Why:
 - account_bank_statement_line → account_payment_account_bank_statement_line_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_payment → account_payment_account_bank_statement_line_rel: **embed**, a link table, kept as an array on this side (derived)
 
-Open questions (14):
-- **fanout_unmeasured** (account_payment_account_bank_statement_line_rel): account_payment_account_bank_statement_line_rel has no rows per account_payment in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (account_payment_account_bank_statement_line_rel): app reads account_bank_statement_line with every account_payment_account_bank_statement_line_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_payment): app reads account_account with every account_payment: copy up to 5 read fields of account_account into account_payment documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_payment): app reads account_journal with every account_payment: copy up to 5 read fields of account_journal into account_payment documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_payment): app reads account_move with every account_payment: copy up to 5 read fields of account_move into account_payment documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_payment): app reads account_account with every account_payment: copy up to 5 read fields of account_account into account_payment documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_payment): app reads account_payment with every account_payment: copy up to 5 read fields of account_payment into account_payment documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_payment): app reads account_payment_method_line with every account_payment: copy up to 5 read fields of account_payment_method_line into account_payment documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_payment): app reads account_payment with every account_payment: copy up to 5 read fields of account_payment into account_payment documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (account_payment_account_bank_statement_line_rel): account_payment_account_bank_statement_line_rel is embedded in account_payment, but deleting a account_bank_statement_line row cascades to its account_payment_account_bank_statement_line_rel: the app must pull them from every account_payment document, or keep account_payment_account_bank_statement_line_rel separate
-- **source_index_not_exercised** (account_payment): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_payment): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_payment): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_payment_account_bank_statement_line_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## accountPaymentMethod
 
 From `account_payment_method` with `account_payment_method_line` embedded.
@@ -750,11 +549,6 @@ Why:
 - account_payment_method → account_payment: **reference**, it is embedded under another parent; this one is referenced (derived)
 - account_journal, account_account → account_payment_method_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 - account_payment_method → account_payment_method_line: **embed**, the app reads it with its parent (derived)
-
-Open questions (3):
-- **extended_reference_candidate** (account_payment_method_line): app reads account_journal with every account_payment_method_line: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_payment_method_line): app reads account_account with every account_payment_method_line: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **source_index_not_exercised** (account_payment_method_line): source index not exercised by any confirmed access pattern; keep or drop
 
 ## accountPaymentTerm
 
@@ -854,12 +648,6 @@ Why:
 - account_reconcile_model → account_reconcile_model_line: **embed**, the app reads it with its parent (derived)
 - account_reconcile_model → account_reconcile_model_res_partner_rel: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 
-Open questions (4):
-- **fanout_unmeasured** (account_reconcile_model_res_partner_rel): account_reconcile_model_res_partner_rel has no rows per account_reconcile_model in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (account_reconcile_model_line): app reads account_account with every account_reconcile_model_line: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (account_reconcile_model_line): account_reconcile_model_line is embedded in account_reconcile_model, but deleting a account_account row cascades to its account_reconcile_model_line: the app must pull them from every account_reconcile_model document, or keep account_reconcile_model_line separate
-- **source_index_not_exercised** (account_reconcile_model_res_partner_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## accountReport
 
 From `account_report` with `account_report_column`, `account_report_line`, `account_report_section_rel` embedded.
@@ -952,15 +740,6 @@ Why:
 - account_report → account_report_section_rel: **embed**, a link table, kept as an array on this side (derived)
 - account_report → account_report_section_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (7):
-- **fanout_unmeasured** (account_report_line): account_report_line has no rows per account_report in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (account_report_section_rel): account_report_section_rel has no rows per account_report in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (account_report_line): app reads account_report_line with every account_report_line: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_report_section_rel): app reads account_report with every account_report_section_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_report): app reads account_report with every account_report: copy up to 5 read fields of account_report into account_report documents (extended reference) or keep the $lookup
-- **source_index_not_exercised** (account_report_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_report_section_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## accountTax
 
 From `account_tax` with `account_tax_alternatives`, `account_tax_filiation_rel`, `account_tax_purchase_order_line_rel`, `account_tax_sale_order_line_rel`, `product_supplier_taxes_rel`, `product_taxes_rel` embedded.
@@ -1033,30 +812,6 @@ Why:
 - product_template → product_supplier_taxes_rel: **reference**, a link table, embedded on the other side (assumed)
 - product_template → product_taxes_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (22):
-- **fanout_unmeasured** (account_tax_filiation_rel): account_tax_filiation_rel has no rows per account_tax in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (account_tax_alternatives): app reads account_tax with every account_tax_alternatives: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_tax_filiation_rel): app reads account_tax with every account_tax_filiation_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_tax_purchase_order_line_rel): app reads purchase_order_line with every account_tax_purchase_order_line_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_tax_sale_order_line_rel): app reads sale_order_line with every account_tax_sale_order_line_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (product_supplier_taxes_rel): app reads product_template with every product_supplier_taxes_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (product_taxes_rel): app reads product_template with every product_taxes_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (account_tax): app reads account_account with every account_tax: copy up to 5 read fields of account_account into account_tax documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_tax): app reads account_tax with every account_tax: copy up to 5 read fields of account_tax into account_tax documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_tax): app reads account_tax with every account_tax: copy up to 5 read fields of account_tax into account_tax documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_tax): app reads account_tax_group with every account_tax: copy up to 5 read fields of account_tax_group into account_tax documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (account_tax_purchase_order_line_rel): account_tax_purchase_order_line_rel is embedded in account_tax, but deleting a purchase_order_line row cascades to its account_tax_purchase_order_line_rel: the app must pull them from every account_tax document, or keep account_tax_purchase_order_line_rel separate
-- **cascade_into_embed** (account_tax_sale_order_line_rel): account_tax_sale_order_line_rel is embedded in account_tax, but deleting a sale_order_line row cascades to its account_tax_sale_order_line_rel: the app must pull them from every account_tax document, or keep account_tax_sale_order_line_rel separate
-- **cascade_into_embed** (product_supplier_taxes_rel): product_supplier_taxes_rel is embedded in account_tax, but deleting a product_template row cascades to its product_supplier_taxes_rel: the app must pull them from every account_tax document, or keep product_supplier_taxes_rel separate
-- **cascade_into_embed** (product_taxes_rel): product_taxes_rel is embedded in account_tax, but deleting a product_template row cascades to its product_taxes_rel: the app must pull them from every account_tax document, or keep product_taxes_rel separate
-- **source_index_not_exercised** (account_tax): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_tax): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_tax_alternatives): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_tax_purchase_order_line_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_tax_sale_order_line_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_supplier_taxes_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_taxes_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## productAttribute
 
 From `product_attribute` with `product_attribute_product_template_rel`, `product_attribute_value` embedded.
@@ -1098,11 +853,6 @@ Why:
 - product_template → product_attribute_product_template_rel: **reference**, a link table, embedded on the other side (assumed)
 - product_attribute → product_attribute_value: **embed**, the app reads it with its parent (derived)
 - product_attribute → product_template_attribute_line, product_template_attribute_value: **reference**, it is embedded under another parent; this one is referenced (derived)
-
-Open questions (3):
-- **extended_reference_candidate** (product_attribute_product_template_rel): app reads product_template with every product_attribute_product_template_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (product_attribute_product_template_rel): product_attribute_product_template_rel is embedded in product_attribute, but deleting a product_template row cascades to its product_attribute_product_template_rel: the app must pull them from every product_attribute document, or keep product_attribute_product_template_rel separate
-- **source_index_not_exercised** (product_attribute_product_template_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## productCategory
 
@@ -1148,15 +898,6 @@ Why:
 - product_category → stock_putaway_rule: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - product_category → stock_route_categ: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (7):
-- **fanout_unmeasured** (product_category_stock_picking_type_rel): product_category_stock_picking_type_rel has no rows per product_category in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (product_category_stock_picking_type_rel): app reads stock_picking_type with every product_category_stock_picking_type_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (product_category): app reads product_category with every product_category: copy up to 5 read fields of product_category into product_category documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (product_category): app reads product_removal with every product_category: copy up to 5 read fields of product_removal into product_category documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (product_category_stock_picking_type_rel): product_category_stock_picking_type_rel is embedded in product_category, but deleting a stock_picking_type row cascades to its product_category_stock_picking_type_rel: the app must pull them from every product_category document, or keep product_category_stock_picking_type_rel separate
-- **source_index_not_exercised** (product_category): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_category_stock_picking_type_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## productCombo
 
 From `product_combo` with `product_combo_item`, `product_combo_product_template_rel` embedded.
@@ -1192,12 +933,6 @@ Why:
 - product_product → product_combo_item: **reference**, it is embedded under another parent; this one is referenced (derived)
 - product_combo → product_combo_product_template_rel: **embed**, a link table, kept as an array on this side (derived)
 - product_template → product_combo_product_template_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (4):
-- **extended_reference_candidate** (product_combo_item): app reads product_product with every product_combo_item: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (product_combo_product_template_rel): app reads product_template with every product_combo_product_template_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (product_combo_product_template_rel): product_combo_product_template_rel is embedded in product_combo, but deleting a product_template row cascades to its product_combo_product_template_rel: the app must pull them from every product_combo document, or keep product_combo_product_template_rel separate
-- **source_index_not_exercised** (product_combo_product_template_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## productProduct
 
@@ -1268,25 +1003,6 @@ Why:
 - product_product → stock_putaway_rule, stock_storage_category_capacity: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - product_product → stock_warehouse_orderpoint: **reference**, the app reads it on its own (derived)
 
-Open questions (17):
-- **fanout_unmeasured** (customer_product_reference): customer_product_reference has no rows per product_product in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (product_product_uom_uom_rel): product_product_uom_uom_rel has no rows per product_product in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (product_uom): product_uom has no rows per product_product in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (product_product_uom_uom_rel): app reads uom_uom with every product_product_uom_uom_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (product_uom): app reads uom_uom with every product_uom: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (product_variant_combination): app reads product_template_attribute_value with every product_variant_combination: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (product_product): app reads product_base_unit with every product_product: copy up to 5 read fields of product_base_unit into product_product documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (product_product): app reads product_template with every product_product: copy up to 5 read fields of product_template into product_product documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (product_product_uom_uom_rel): product_product_uom_uom_rel is embedded in product_product, but deleting a uom_uom row cascades to its product_product_uom_uom_rel: the app must pull them from every product_product document, or keep product_product_uom_uom_rel separate
-- **cascade_into_embed** (product_uom): product_uom is embedded in product_product, but deleting a uom_uom row cascades to its product_uom: the app must pull them from every product_product document, or keep product_uom separate
-- **single_valued_index_key** (product_product): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan
-- **source_index_not_exercised** (product_product): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_product): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_product_uom_uom_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_uom): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_uom): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_variant_combination): source index not exercised by any confirmed access pattern; keep or drop
-
 ## productTag
 
 From `product_tag` with `product_tag_product_product_rel`, `product_tag_product_template_rel` embedded.
@@ -1315,16 +1031,6 @@ Why:
 - product_product → product_tag_product_product_rel: **reference**, a link table, embedded on the other side (assumed)
 - product_tag → product_tag_product_product_rel, product_tag_product_template_rel: **embed**, a link table, kept as an array on this side (derived)
 - product_template → product_tag_product_template_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (8):
-- **fanout_unmeasured** (product_tag_product_product_rel): product_tag_product_product_rel has no rows per product_tag in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (product_tag_product_template_rel): product_tag_product_template_rel has no rows per product_tag in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (product_tag_product_product_rel): app reads product_product with every product_tag_product_product_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (product_tag_product_template_rel): app reads product_template with every product_tag_product_template_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (product_tag_product_product_rel): product_tag_product_product_rel is embedded in product_tag, but deleting a product_product row cascades to its product_tag_product_product_rel: the app must pull them from every product_tag document, or keep product_tag_product_product_rel separate
-- **cascade_into_embed** (product_tag_product_template_rel): product_tag_product_template_rel is embedded in product_tag, but deleting a product_template row cascades to its product_tag_product_template_rel: the app must pull them from every product_tag document, or keep product_tag_product_template_rel separate
-- **source_index_not_exercised** (product_tag_product_product_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_tag_product_template_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## productTemplate
 
@@ -1412,22 +1118,6 @@ Why:
 - product_template → product_template_attribute_line: **embed**, the app reads it with its parent (derived)
 - uom_uom → product_template_uom_uom_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (14):
-- **fanout_unmeasured** (product_template_uom_uom_rel): product_template_uom_uom_rel has no rows per product_template in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (product_optional_rel): app reads product_template with every product_optional_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (product_template_attribute_line): app reads product_attribute with every product_template_attribute_line: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (product_template_uom_uom_rel): app reads uom_uom with every product_template_uom_uom_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (product_template): app reads product_base_unit with every product_template: copy up to 5 read fields of product_base_unit into product_template documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (product_template): app reads product_category with every product_template: copy up to 5 read fields of product_category into product_template documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (product_template): app reads uom_uom with every product_template: copy up to 5 read fields of uom_uom into product_template documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (product_template_uom_uom_rel): product_template_uom_uom_rel is embedded in product_template, but deleting a uom_uom row cascades to its product_template_uom_uom_rel: the app must pull them from every product_template document, or keep product_template_uom_uom_rel separate
-- **lob** (product_template): LOB column(s) purchase_line_warn_msg, sale_line_warn_msg measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **single_valued_index_key** (product_template): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan
-- **single_valued_index_key** (product_template_attribute_line): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan
-- **source_index_not_exercised** (product_optional_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_template): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_template_uom_uom_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## productTemplateAttributeValue
 
 From `product_template_attribute_value` with `product_template_attribute_excluded_value_ids_rel`, `product_template_attribute_value_purchase_order_line_rel`, `product_template_attribute_value_sale_order_line_rel`, `template_attribute_value_stock_move_rel` embedded.
@@ -1472,25 +1162,6 @@ Why:
 - purchase_order_line → product_template_attribute_value_purchase_order_line_rel: **reference**, a link table, embedded on the other side (assumed)
 - sale_order_line → product_template_attribute_value_sale_order_line_rel: **reference**, a link table, embedded on the other side (assumed)
 - stock_move → template_attribute_value_stock_move_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (17):
-- **fanout_unmeasured** (product_template_attribute_value_purchase_order_line_rel): product_template_attribute_value_purchase_order_line_rel has no rows per product_template_attribute_value in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (product_template_attribute_value_sale_order_line_rel): product_template_attribute_value_sale_order_line_rel has no rows per product_template_attribute_value in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (template_attribute_value_stock_move_rel): template_attribute_value_stock_move_rel has no rows per product_template_attribute_value in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (product_template_attribute_excluded_value_ids_rel): app reads product_template_attribute_value with every product_template_attribute_excluded_value_ids_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (product_template_attribute_value_purchase_order_line_rel): app reads purchase_order_line with every product_template_attribute_value_purchase_order_line_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (product_template_attribute_value_sale_order_line_rel): app reads sale_order_line with every product_template_attribute_value_sale_order_line_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (template_attribute_value_stock_move_rel): app reads stock_move with every template_attribute_value_stock_move_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (product_template_attribute_value): app reads product_attribute_value with every product_template_attribute_value: copy up to 5 read fields of product_attribute_value into product_template_attribute_value documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (product_template_attribute_value): app reads product_template_attribute_line with every product_template_attribute_value: copy up to 5 read fields of product_template_attribute_line into product_template_attribute_value documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (product_template_attribute_value_purchase_order_line_rel): product_template_attribute_value_purchase_order_line_rel is embedded in product_template_attribute_value, but deleting a purchase_order_line row cascades to its product_template_attribute_value_purchase_order_line_rel: the app must pull them from every product_template_attribute_value document, or keep product_template_attribute_value_purchase_order_line_rel separate
-- **cascade_into_embed** (product_template_attribute_value_sale_order_line_rel): product_template_attribute_value_sale_order_line_rel is embedded in product_template_attribute_value, but deleting a sale_order_line row cascades to its product_template_attribute_value_sale_order_line_rel: the app must pull them from every product_template_attribute_value document, or keep product_template_attribute_value_sale_order_line_rel separate
-- **cascade_into_embed** (template_attribute_value_stock_move_rel): template_attribute_value_stock_move_rel is embedded in product_template_attribute_value, but deleting a stock_move row cascades to its template_attribute_value_stock_move_rel: the app must pull them from every product_template_attribute_value document, or keep template_attribute_value_stock_move_rel separate
-- **source_index_not_exercised** (product_template_attribute_excluded_value_ids_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_template_attribute_value): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_template_attribute_value_purchase_order_line_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_template_attribute_value_sale_order_line_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (template_attribute_value_stock_move_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## purchaseOrder
 
@@ -1552,22 +1223,6 @@ Why:
 - purchase_order → purchase_order_stock_picking_rel: **embed**, a link table, kept as an array on this side (derived)
 - stock_picking → purchase_order_stock_picking_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (14):
-- **extended_reference_candidate** (purchase_order_stock_picking_rel): app reads stock_picking with every purchase_order_stock_picking_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (purchase_order): app reads account_fiscal_position with every purchase_order: copy up to 5 read fields of account_fiscal_position into purchase_order documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (purchase_order): app reads account_incoterms with every purchase_order: copy up to 5 read fields of account_incoterms into purchase_order documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (purchase_order): app reads account_payment_term with every purchase_order: copy up to 5 read fields of account_payment_term into purchase_order documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (purchase_order): app reads stock_picking_type with every purchase_order: copy up to 5 read fields of stock_picking_type into purchase_order documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (purchase_order_stock_picking_rel): purchase_order_stock_picking_rel is embedded in purchase_order, but deleting a stock_picking row cascades to its purchase_order_stock_picking_rel: the app must pull them from every purchase_order document, or keep purchase_order_stock_picking_rel separate
-- **lob** (purchase_order): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **single_valued_index_key** (purchase_order): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan
-- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (purchase_order_stock_picking_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## purchaseOrderLine
 
 From `purchase_order_line` with `purchase_order_line_accrual_move_rel` embedded.
@@ -1625,20 +1280,6 @@ Why:
 - purchase_order → purchase_order_line: **reference**, the app reads it on its own (derived)
 - account_move → purchase_order_line_accrual_move_rel: **reference**, a link table, embedded on the other side (assumed)
 - purchase_order_line → purchase_order_line_accrual_move_rel: **embed**, a link table, kept as an array on this side (derived)
-
-Open questions (12):
-- **fanout_unmeasured** (purchase_order_line_accrual_move_rel): purchase_order_line_accrual_move_rel has no rows per purchase_order_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (purchase_order_line_accrual_move_rel): app reads account_move with every purchase_order_line_accrual_move_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (purchase_order_line): app reads stock_location with every purchase_order_line: copy up to 5 read fields of stock_location into purchase_order_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (purchase_order_line): app reads purchase_order with every purchase_order_line: copy up to 5 read fields of purchase_order into purchase_order_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (purchase_order_line): app reads stock_warehouse_orderpoint with every purchase_order_line: copy up to 5 read fields of stock_warehouse_orderpoint into purchase_order_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (purchase_order_line): app reads product_product with every purchase_order_line: copy up to 5 read fields of product_product into purchase_order_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (purchase_order_line): app reads sale_order_line with every purchase_order_line: copy up to 5 read fields of sale_order_line into purchase_order_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (purchase_order_line): app reads uom_uom with every purchase_order_line: copy up to 5 read fields of uom_uom into purchase_order_line documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (purchase_order_line_accrual_move_rel): purchase_order_line_accrual_move_rel is embedded in purchase_order_line, but deleting a account_move row cascades to its purchase_order_line_accrual_move_rel: the app must pull them from every purchase_order_line document, or keep purchase_order_line_accrual_move_rel separate
-- **lob** (purchase_order_line): LOB column(s) name measured max 25 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **source_index_not_exercised** (purchase_order_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (purchase_order_line_accrual_move_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## saleOrder
 
@@ -1715,25 +1356,6 @@ Why:
 - sale_order → sale_order_transaction_rel: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 - sale_order → stock_picking: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - sale_order → stock_reference_sale_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (17):
-- **fanout_unmeasured** (sale_order_transaction_rel): sale_order_transaction_rel has no rows per sale_order in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (sale_order): app reads account_fiscal_position with every sale_order: copy up to 5 read fields of account_fiscal_position into sale_order documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (sale_order): app reads account_incoterms with every sale_order: copy up to 5 read fields of account_incoterms into sale_order documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (sale_order): app reads account_journal with every sale_order: copy up to 5 read fields of account_journal into sale_order documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (sale_order): app reads account_payment_term with every sale_order: copy up to 5 read fields of account_payment_term into sale_order documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (sale_order): app reads account_payment_method_line with every sale_order: copy up to 5 read fields of account_payment_method_line into sale_order documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (sale_order): app reads product_pricelist with every sale_order: copy up to 5 read fields of product_pricelist into sale_order documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (sale_order): app reads stock_warehouse with every sale_order: copy up to 5 read fields of stock_warehouse into sale_order documents (extended reference) or keep the $lookup
-- **lob** (sale_order): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (sale_order_tag_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (sale_order_transaction_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## saleOrderLine
 
@@ -1822,31 +1444,6 @@ Why:
 - stock_route → sale_order_line_stock_route_rel: **reference**, a link table, embedded on the other side (assumed)
 - sale_order_line → stock_move: **reference**, other tables also point at it, so it keeps its own collection (derived)
 
-Open questions (23):
-- **fanout_unmeasured** (product_attribute_custom_value): product_attribute_custom_value has no rows per sale_order_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (sale_order_line_accrual_move_rel): sale_order_line_accrual_move_rel has no rows per sale_order_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (sale_order_line_invoice_rel): sale_order_line_invoice_rel has no rows per sale_order_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (sale_order_line_stock_route_rel): sale_order_line_stock_route_rel has no rows per sale_order_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (product_attribute_custom_value): app reads product_template_attribute_value with every product_attribute_custom_value: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (sale_order_line_accrual_move_rel): app reads account_move with every sale_order_line_accrual_move_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (sale_order_line_invoice_rel): app reads account_move_line with every sale_order_line_invoice_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (sale_order_line_stock_route_rel): app reads stock_route with every sale_order_line_stock_route_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (sale_order_line): app reads product_combo_item with every sale_order_line: copy up to 5 read fields of product_combo_item into sale_order_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (sale_order_line): app reads sale_order_line with every sale_order_line: copy up to 5 read fields of sale_order_line into sale_order_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (sale_order_line): app reads sale_order with every sale_order_line: copy up to 5 read fields of sale_order into sale_order_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (sale_order_line): app reads product_product with every sale_order_line: copy up to 5 read fields of product_product into sale_order_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (sale_order_line): app reads uom_uom with every sale_order_line: copy up to 5 read fields of uom_uom into sale_order_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (sale_order_line): app reads uom_uom with every sale_order_line: copy up to 5 read fields of uom_uom into sale_order_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (sale_order_line): app reads stock_warehouse with every sale_order_line: copy up to 5 read fields of stock_warehouse into sale_order_line documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (sale_order_line_accrual_move_rel): sale_order_line_accrual_move_rel is embedded in sale_order_line, but deleting a account_move row cascades to its sale_order_line_accrual_move_rel: the app must pull them from every sale_order_line document, or keep sale_order_line_accrual_move_rel separate
-- **cascade_into_embed** (sale_order_line_invoice_rel): sale_order_line_invoice_rel is embedded in sale_order_line, but deleting a account_move_line row cascades to its sale_order_line_invoice_rel: the app must pull them from every sale_order_line document, or keep sale_order_line_invoice_rel separate
-- **lob** (sale_order_line): LOB column(s) name measured max 45 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **source_index_not_exercised** (sale_order_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (sale_order_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (sale_order_line_accrual_move_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (sale_order_line_invoice_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (sale_order_line_stock_route_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## stockLocation
 
 From `stock_location` with `stock_location_stock_picking_type_rel` embedded.
@@ -1887,20 +1484,6 @@ Why:
 - stock_picking_type → stock_location_stock_picking_type_rel: **reference**, a link table, embedded on the other side (assumed)
 - stock_location → stock_location_stock_picking_type_rel: **embed**, a link table, kept as an array on this side (derived)
 - stock_location → stock_putaway_rule: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (12):
-- **fanout_unmeasured** (stock_location_stock_picking_type_rel): stock_location_stock_picking_type_rel has no rows per stock_location in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (stock_location_stock_picking_type_rel): app reads stock_picking_type with every stock_location_stock_picking_type_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (stock_location): app reads stock_location with every stock_location: copy up to 5 read fields of stock_location into stock_location documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_location): app reads product_removal with every stock_location: copy up to 5 read fields of product_removal into stock_location documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_location): app reads stock_storage_category with every stock_location: copy up to 5 read fields of stock_storage_category into stock_location documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_location): app reads account_account with every stock_location: copy up to 5 read fields of account_account into stock_location documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_location): app reads stock_warehouse with every stock_location: copy up to 5 read fields of stock_warehouse into stock_location documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (stock_location_stock_picking_type_rel): stock_location_stock_picking_type_rel is embedded in stock_location, but deleting a stock_picking_type row cascades to its stock_location_stock_picking_type_rel: the app must pull them from every stock_location document, or keep stock_location_stock_picking_type_rel separate
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **source_index_not_exercised** (stock_location): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (stock_location): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (stock_location_stock_picking_type_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## stockMove
 
@@ -1986,37 +1569,6 @@ Why:
 - stock_move → stock_move_move_rel, stock_reference_move_rel, stock_route_move, template_attribute_value_stock_move_rel: **reference**, a link table, embedded on the other side (assumed)
 - stock_scrap_reason_tag → stock_move_stock_scrap_reason_tag_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (29):
-- **fanout_unmeasured** (account_analytic_line_stock_move_rel): account_analytic_line_stock_move_rel has no rows per stock_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (stock_move_created_purchase_line_rel): stock_move_created_purchase_line_rel has no rows per stock_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (stock_move_move_rel): stock_move_move_rel has no rows per stock_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (stock_move_stock_scrap_reason_tag_rel): stock_move_stock_scrap_reason_tag_rel has no rows per stock_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (stock_move_created_purchase_line_rel): app reads purchase_order_line with every stock_move_created_purchase_line_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (stock_move_move_rel): app reads stock_move with every stock_move_move_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (stock_move_stock_scrap_reason_tag_rel): app reads stock_scrap_reason_tag with every stock_move_stock_scrap_reason_tag_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (stock_move): app reads account_move with every stock_move: copy up to 5 read fields of account_move into stock_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move): app reads stock_location with every stock_move: copy up to 5 read fields of stock_location into stock_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move): app reads stock_location with every stock_move: copy up to 5 read fields of stock_location into stock_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move): app reads stock_location with every stock_move: copy up to 5 read fields of stock_location into stock_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move): app reads stock_warehouse_orderpoint with every stock_move: copy up to 5 read fields of stock_warehouse_orderpoint into stock_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move): app reads stock_move with every stock_move: copy up to 5 read fields of stock_move into stock_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move): app reads uom_uom with every stock_move: copy up to 5 read fields of uom_uom into stock_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move): app reads stock_picking with every stock_move: copy up to 5 read fields of stock_picking into stock_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move): app reads stock_picking_type with every stock_move: copy up to 5 read fields of stock_picking_type into stock_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move): app reads product_product with every stock_move: copy up to 5 read fields of product_product into stock_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move): app reads purchase_order_line with every stock_move: copy up to 5 read fields of purchase_order_line into stock_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move): app reads stock_rule with every stock_move: copy up to 5 read fields of stock_rule into stock_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move): app reads sale_order_line with every stock_move: copy up to 5 read fields of sale_order_line into stock_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move): app reads uom_uom with every stock_move: copy up to 5 read fields of uom_uom into stock_move documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move): app reads stock_warehouse with every stock_move: copy up to 5 read fields of stock_warehouse into stock_move documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (stock_move_created_purchase_line_rel): stock_move_created_purchase_line_rel is embedded in stock_move, but deleting a purchase_order_line row cascades to its stock_move_created_purchase_line_rel: the app must pull them from every stock_move document, or keep stock_move_created_purchase_line_rel separate
-- **cascade_into_embed** (stock_move_stock_scrap_reason_tag_rel): stock_move_stock_scrap_reason_tag_rel is embedded in stock_move, but deleting a stock_scrap_reason_tag row cascades to its stock_move_stock_scrap_reason_tag_rel: the app must pull them from every stock_move document, or keep stock_move_stock_scrap_reason_tag_rel separate
-- **lob** (stock_move): LOB column(s) description_picking_manual measured max 49 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **source_index_not_exercised** (account_analytic_line_stock_move_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (stock_move_created_purchase_line_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (stock_move_move_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (stock_move_stock_scrap_reason_tag_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## stockMoveLine
 
 From `stock_move_line` with `stock_move_line_consume_rel` embedded.
@@ -2058,21 +1610,6 @@ Why:
 - stock_move_line → stock_move_line_consume_rel: **embed**, a link table, kept as an array on this side (derived)
 - stock_move_line → stock_move_line_consume_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (13):
-- **fanout_unmeasured** (stock_move_line_consume_rel): stock_move_line_consume_rel has no rows per stock_move_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (stock_move_line_consume_rel): app reads stock_move_line with every stock_move_line_consume_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (stock_move_line): app reads stock_location with every stock_move_line: copy up to 5 read fields of stock_location into stock_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move_line): app reads stock_location with every stock_move_line: copy up to 5 read fields of stock_location into stock_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move_line): app reads stock_lot with every stock_move_line: copy up to 5 read fields of stock_lot into stock_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move_line): app reads stock_move with every stock_move_line: copy up to 5 read fields of stock_move into stock_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move_line): app reads stock_package_history with every stock_move_line: copy up to 5 read fields of stock_package_history into stock_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move_line): app reads stock_package with every stock_move_line: copy up to 5 read fields of stock_package into stock_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move_line): app reads stock_picking with every stock_move_line: copy up to 5 read fields of stock_picking into stock_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move_line): app reads product_product with every stock_move_line: copy up to 5 read fields of product_product into stock_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move_line): app reads stock_package with every stock_move_line: copy up to 5 read fields of stock_package into stock_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_move_line): app reads uom_uom with every stock_move_line: copy up to 5 read fields of uom_uom into stock_move_line documents (extended reference) or keep the $lookup
-- **source_index_not_exercised** (stock_move_line_consume_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## stockPackageHistory
 
 From `stock_package_history` with `stock_package_history_stock_picking_rel` embedded.
@@ -2105,18 +1642,6 @@ Why:
 - stock_location, stock_package → stock_package_history: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - stock_package_history → stock_package_history_stock_picking_rel: **embed**, a link table, kept as an array on this side (derived)
 - stock_picking → stock_package_history_stock_picking_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (10):
-- **fanout_unmeasured** (stock_package_history_stock_picking_rel): stock_package_history_stock_picking_rel has no rows per stock_package_history in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (stock_package_history_stock_picking_rel): app reads stock_picking with every stock_package_history_stock_picking_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (stock_package_history): app reads stock_location with every stock_package_history: copy up to 5 read fields of stock_location into stock_package_history documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_package_history): app reads stock_location with every stock_package_history: copy up to 5 read fields of stock_location into stock_package_history documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_package_history): app reads stock_package with every stock_package_history: copy up to 5 read fields of stock_package into stock_package_history documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_package_history): app reads stock_package with every stock_package_history: copy up to 5 read fields of stock_package into stock_package_history documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_package_history): app reads stock_package with every stock_package_history: copy up to 5 read fields of stock_package into stock_package_history documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_package_history): app reads stock_package with every stock_package_history: copy up to 5 read fields of stock_package into stock_package_history documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (stock_package_history_stock_picking_rel): stock_package_history_stock_picking_rel is embedded in stock_package_history, but deleting a stock_picking row cascades to its stock_package_history_stock_picking_rel: the app must pull them from every stock_package_history document, or keep stock_package_history_stock_picking_rel separate
-- **source_index_not_exercised** (stock_package_history_stock_picking_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## stockPackageType
 
@@ -2155,17 +1680,6 @@ Why:
 - stock_putaway_rule → stock_package_type_stock_putaway_rule_rel: **reference**, a link table, embedded on the other side (assumed)
 - stock_route → stock_package_type_stock_route_rel: **reference**, a link table, embedded on the other side (assumed)
 - stock_package_type → stock_storage_category_capacity: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (9):
-- **fanout_unmeasured** (stock_package_type_stock_putaway_rule_rel): stock_package_type_stock_putaway_rule_rel has no rows per stock_package_type in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (stock_package_type_stock_route_rel): stock_package_type_stock_route_rel has no rows per stock_package_type in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (stock_package_type_stock_putaway_rule_rel): app reads stock_putaway_rule with every stock_package_type_stock_putaway_rule_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (stock_package_type_stock_route_rel): app reads stock_route with every stock_package_type_stock_route_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (stock_package_type_stock_putaway_rule_rel): stock_package_type_stock_putaway_rule_rel is embedded in stock_package_type, but deleting a stock_putaway_rule row cascades to its stock_package_type_stock_putaway_rule_rel: the app must pull them from every stock_package_type document, or keep stock_package_type_stock_putaway_rule_rel separate
-- **cascade_into_embed** (stock_package_type_stock_route_rel): stock_package_type_stock_route_rel is embedded in stock_package_type, but deleting a stock_route row cascades to its stock_package_type_stock_route_rel: the app must pull them from every stock_package_type document, or keep stock_package_type_stock_route_rel separate
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **source_index_not_exercised** (stock_package_type_stock_putaway_rule_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (stock_package_type_stock_route_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## stockPickingType
 
@@ -2241,15 +1755,6 @@ Why:
 - stock_location, stock_warehouse → stock_picking_type: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - stock_picking_type → stock_rule: **reference**, it is embedded under another parent; this one is referenced (derived)
 
-Open questions (7):
-- **fanout_unmeasured** (picking_type_favorite_user_rel): picking_type_favorite_user_rel has no rows per stock_picking_type in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (stock_picking_type): app reads stock_location with every stock_picking_type: copy up to 5 read fields of stock_location into stock_picking_type documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_picking_type): app reads stock_location with every stock_picking_type: copy up to 5 read fields of stock_location into stock_picking_type documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_picking_type): app reads stock_location with every stock_picking_type: copy up to 5 read fields of stock_location into stock_picking_type documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_picking_type): app reads stock_picking_type with every stock_picking_type: copy up to 5 read fields of stock_picking_type into stock_picking_type documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_picking_type): app reads stock_warehouse with every stock_picking_type: copy up to 5 read fields of stock_warehouse into stock_picking_type documents (extended reference) or keep the $lookup
-- **source_index_not_exercised** (picking_type_favorite_user_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## stockReference
 
 From `stock_reference` with `stock_reference_move_rel`, `stock_reference_purchase_rel`, `stock_reference_sale_rel` embedded.
@@ -2279,17 +1784,6 @@ Why:
 - stock_reference → stock_reference_move_rel, stock_reference_purchase_rel, stock_reference_sale_rel: **embed**, a link table, kept as an array on this side (derived)
 - purchase_order → stock_reference_purchase_rel: **reference**, a link table, embedded on the other side (assumed)
 - sale_order → stock_reference_sale_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (9):
-- **extended_reference_candidate** (stock_reference_move_rel): app reads stock_move with every stock_reference_move_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (stock_reference_purchase_rel): app reads purchase_order with every stock_reference_purchase_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (stock_reference_sale_rel): app reads sale_order with every stock_reference_sale_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (stock_reference_move_rel): stock_reference_move_rel is embedded in stock_reference, but deleting a stock_move row cascades to its stock_reference_move_rel: the app must pull them from every stock_reference document, or keep stock_reference_move_rel separate
-- **cascade_into_embed** (stock_reference_purchase_rel): stock_reference_purchase_rel is embedded in stock_reference, but deleting a purchase_order row cascades to its stock_reference_purchase_rel: the app must pull them from every stock_reference document, or keep stock_reference_purchase_rel separate
-- **cascade_into_embed** (stock_reference_sale_rel): stock_reference_sale_rel is embedded in stock_reference, but deleting a sale_order row cascades to its stock_reference_sale_rel: the app must pull them from every stock_reference document, or keep stock_reference_sale_rel separate
-- **source_index_not_exercised** (stock_reference_move_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (stock_reference_purchase_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (stock_reference_sale_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## stockRoute
 
@@ -2339,26 +1833,6 @@ Why:
 - stock_route → stock_rule: **reference**, the app reads it on its own (derived)
 - stock_route → stock_warehouse: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - stock_route → stock_warehouse_orderpoint: **reference**, it is embedded under another parent; this one is referenced (derived)
-
-Open questions (18):
-- **fanout_unmeasured** (stock_route_categ): stock_route_categ has no rows per stock_route in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (stock_route_move): stock_route_move has no rows per stock_route in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (stock_route_product): stock_route_product has no rows per stock_route in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (stock_route_categ): app reads product_category with every stock_route_categ: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (stock_route_move): app reads stock_move with every stock_route_move: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (stock_route_product): app reads product_template with every stock_route_product: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (stock_route_warehouse): app reads stock_warehouse with every stock_route_warehouse: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (stock_route): app reads stock_warehouse with every stock_route: copy up to 5 read fields of stock_warehouse into stock_route documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_route): app reads stock_warehouse with every stock_route: copy up to 5 read fields of stock_warehouse into stock_route documents (extended reference) or keep the $lookup
-- **cascade_into_embed** (stock_route_categ): stock_route_categ is embedded in stock_route, but deleting a product_category row cascades to its stock_route_categ: the app must pull them from every stock_route document, or keep stock_route_categ separate
-- **cascade_into_embed** (stock_route_move): stock_route_move is embedded in stock_route, but deleting a stock_move row cascades to its stock_route_move: the app must pull them from every stock_route document, or keep stock_route_move separate
-- **cascade_into_embed** (stock_route_product): stock_route_product is embedded in stock_route, but deleting a product_template row cascades to its stock_route_product: the app must pull them from every stock_route document, or keep stock_route_product separate
-- **cascade_into_embed** (stock_route_warehouse): stock_route_warehouse is embedded in stock_route, but deleting a stock_warehouse row cascades to its stock_route_warehouse: the app must pull them from every stock_route document, or keep stock_route_warehouse separate
-- **single_valued_index_key** (stock_route): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan
-- **source_index_not_exercised** (stock_route_categ): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (stock_route_move): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (stock_route_product): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (stock_route_warehouse): source index not exercised by any confirmed access pattern; keep or drop
 
 ## stockWarehouse
 
@@ -2410,30 +1884,6 @@ Why:
 - stock_rule, stock_route, stock_picking_type, stock_location → stock_warehouse: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - stock_warehouse → stock_wh_resupply_table: **embed**, a link table, kept as an array on this side (derived)
 
-Open questions (22):
-- **fanout_unmeasured** (stock_wh_resupply_table): stock_wh_resupply_table has no rows per stock_warehouse in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (stock_wh_resupply_table): app reads stock_warehouse with every stock_wh_resupply_table: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (stock_warehouse): app reads stock_rule with every stock_warehouse: copy up to 5 read fields of stock_rule into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_route with every stock_warehouse: copy up to 5 read fields of stock_route into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_picking_type with every stock_warehouse: copy up to 5 read fields of stock_picking_type into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_picking_type with every stock_warehouse: copy up to 5 read fields of stock_picking_type into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_location with every stock_warehouse: copy up to 5 read fields of stock_location into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_rule with every stock_warehouse: copy up to 5 read fields of stock_rule into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_picking_type with every stock_warehouse: copy up to 5 read fields of stock_picking_type into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_picking_type with every stock_warehouse: copy up to 5 read fields of stock_picking_type into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_picking_type with every stock_warehouse: copy up to 5 read fields of stock_picking_type into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_picking_type with every stock_warehouse: copy up to 5 read fields of stock_picking_type into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_route with every stock_warehouse: copy up to 5 read fields of stock_route into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_picking_type with every stock_warehouse: copy up to 5 read fields of stock_picking_type into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_location with every stock_warehouse: copy up to 5 read fields of stock_location into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_location with every stock_warehouse: copy up to 5 read fields of stock_location into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_location with every stock_warehouse: copy up to 5 read fields of stock_location into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_location with every stock_warehouse: copy up to 5 read fields of stock_location into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_location with every stock_warehouse: copy up to 5 read fields of stock_location into stock_warehouse documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse): app reads stock_picking_type with every stock_warehouse: copy up to 5 read fields of stock_picking_type into stock_warehouse documents (extended reference) or keep the $lookup
-- **single_valued_index_key** (stock_warehouse): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan
-- **source_index_not_exercised** (stock_wh_resupply_table): source index not exercised by any confirmed access pattern; keep or drop
-
 ## accountBankStatementLine
 
 From `account_bank_statement_line`.
@@ -2444,14 +1894,6 @@ Why:
 - account_bank_statement_line → account_move: **reference**, the app reads it on its own (derived)
 - account_bank_statement_line → account_move_line: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - account_bank_statement_line → account_payment_account_bank_statement_line_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (6):
-- **extended_reference_candidate** (account_bank_statement_line): app reads account_journal with every account_bank_statement_line: copy up to 5 read fields of account_journal into account_bank_statement_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_bank_statement_line): app reads account_move with every account_bank_statement_line: copy up to 5 read fields of account_move into account_bank_statement_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_bank_statement_line): app reads account_bank_statement with every account_bank_statement_line: copy up to 5 read fields of account_bank_statement into account_bank_statement_line documents (extended reference) or keep the $lookup
-- **single_valued_index_key** (account_bank_statement_line): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan
-- **source_index_not_exercised** (account_bank_statement_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_bank_statement_line): source index not exercised by any confirmed access pattern; keep or drop
 
 ## accountFullReconcile
 
@@ -2496,9 +1938,6 @@ Why:
 - account_report_line → account_report_expression: **reference**, its parent is itself embedded, and arrays don't nest (derived)
 - account_report_expression → account_report_external_value: **reference**, its parent is itself embedded, and arrays don't nest (assumed)
 
-Open questions (1):
-- **lob** (account_report_expression): LOB column(s) formula, subformula: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
-
 ## accountReportExternalValue
 
 From `account_report_external_value`.
@@ -2506,9 +1945,6 @@ From `account_report_external_value`.
 Why:
 - account_report_line → account_report_external_value: **reference**, it is embedded under another parent; this one is referenced (derived)
 - account_report_expression → account_report_external_value: **reference**, its parent is itself embedded, and arrays don't nest (assumed)
-
-Open questions (1):
-- **extended_reference_candidate** (account_report_external_value): app reads account_report_line with every account_report_external_value: copy up to 5 read fields of account_report_line into account_report_external_value documents (extended reference) or keep the $lookup
 
 ## accountTaxGroup
 
@@ -2526,10 +1962,6 @@ Why:
 - account_tax_repartition_line → account_move_line: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - account_account → account_tax_repartition_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 - account_tax → account_tax_repartition_line: **reference**, the app reads it on its own (derived)
-
-Open questions (2):
-- **extended_reference_candidate** (account_tax_repartition_line): app reads account_account with every account_tax_repartition_line: copy up to 5 read fields of account_account into account_tax_repartition_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_tax_repartition_line): app reads account_tax with every account_tax_repartition_line: copy up to 5 read fields of account_tax into account_tax_repartition_line documents (extended reference) or keep the $lookup
 
 ## productAttributeValueProductTemplateAttributeLineRel
 
@@ -2568,15 +2000,6 @@ Why:
 - product_pricelist, product_category, product_product, product_template, uom_uom → product_pricelist_item: **reference**, it is embedded under another parent; this one is referenced (derived)
 - product_pricelist → product_pricelist_item: **reference**, the app reads it on its own (derived)
 
-Open questions (7):
-- **extended_reference_candidate** (product_pricelist_item): app reads product_pricelist with every product_pricelist_item: copy up to 5 read fields of product_pricelist into product_pricelist_item documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (product_pricelist_item): app reads product_category with every product_pricelist_item: copy up to 5 read fields of product_category into product_pricelist_item documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (product_pricelist_item): app reads product_pricelist with every product_pricelist_item: copy up to 5 read fields of product_pricelist into product_pricelist_item documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (product_pricelist_item): app reads product_product with every product_pricelist_item: copy up to 5 read fields of product_product into product_pricelist_item documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (product_pricelist_item): app reads product_template with every product_pricelist_item: copy up to 5 read fields of product_template into product_pricelist_item documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (product_pricelist_item): app reads uom_uom with every product_pricelist_item: copy up to 5 read fields of uom_uom into product_pricelist_item documents (extended reference) or keep the $lookup
-- **source_index_not_exercised** (product_pricelist_item): source index not exercised by any confirmed access pattern; keep or drop
-
 ## productRemoval
 
 From `product_removal`.
@@ -2592,23 +2015,12 @@ Why:
 - product_product, product_template, uom_uom → product_supplierinfo: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - product_supplierinfo → stock_warehouse_orderpoint: **reference**, it is embedded under another parent; this one is referenced (derived)
 
-Open questions (3):
-- **extended_reference_candidate** (product_supplierinfo): app reads product_product with every product_supplierinfo: copy up to 5 read fields of product_product into product_supplierinfo documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (product_supplierinfo): app reads product_template with every product_supplierinfo: copy up to 5 read fields of product_template into product_supplierinfo documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (product_supplierinfo): app reads uom_uom with every product_supplierinfo: copy up to 5 read fields of uom_uom into product_supplierinfo documents (extended reference) or keep the $lookup
-
 ## productValue
 
 From `product_value`.
 
 Why:
 - account_move, stock_lot, stock_move, product_product → product_value: **reference**, other tables also point at it, so it keeps its own collection (derived)
-
-Open questions (4):
-- **extended_reference_candidate** (product_value): app reads account_move with every product_value: copy up to 5 read fields of account_move into product_value documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (product_value): app reads stock_lot with every product_value: copy up to 5 read fields of stock_lot into product_value documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (product_value): app reads stock_move with every product_value: copy up to 5 read fields of stock_move into product_value documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (product_value): app reads product_product with every product_value: copy up to 5 read fields of product_product into product_value documents (extended reference) or keep the $lookup
 
 ## returnReason
 
@@ -2625,11 +2037,6 @@ Why:
 - stock_lot → product_value, stock_move_line, stock_quant: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - stock_location, product_product → stock_lot: **reference**, other tables also point at it, so it keeps its own collection (derived)
 
-Open questions (3):
-- **extended_reference_candidate** (stock_lot): app reads stock_location with every stock_lot: copy up to 5 read fields of stock_location into stock_lot documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_lot): app reads product_product with every stock_lot: copy up to 5 read fields of product_product into stock_lot documents (extended reference) or keep the $lookup
-- **lob** (stock_lot): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## stockPackage
 
 From `stock_package`.
@@ -2637,13 +2044,6 @@ From `stock_package`.
 Why:
 - stock_package → stock_move_line, stock_package, stock_package_history, stock_quant: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - stock_location, stock_package_type → stock_package: **reference**, other tables also point at it, so it keeps its own collection (derived)
-
-Open questions (5):
-- **extended_reference_candidate** (stock_package): app reads stock_location with every stock_package: copy up to 5 read fields of stock_location into stock_package documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_package): app reads stock_package with every stock_package: copy up to 5 read fields of stock_package into stock_package documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_package): app reads stock_package_type with every stock_package: copy up to 5 read fields of stock_package_type into stock_package documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_package): app reads stock_package with every stock_package: copy up to 5 read fields of stock_package into stock_package documents (extended reference) or keep the $lookup
-- **source_index_not_exercised** (stock_package): source index not exercised by any confirmed access pattern; keep or drop
 
 ## stockPicking
 
@@ -2654,21 +2054,6 @@ Why:
 - stock_picking → stock_move, stock_move_line, stock_picking: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - stock_picking_batch, stock_location, stock_picking_type, return_reason, sale_order → stock_picking: **reference**, other tables also point at it, so it keeps its own collection (derived)
 
-Open questions (13):
-- **extended_reference_candidate** (stock_picking): app reads stock_picking with every stock_picking: copy up to 5 read fields of stock_picking into stock_picking documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_picking): app reads stock_picking_batch with every stock_picking: copy up to 5 read fields of stock_picking_batch into stock_picking documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_picking): app reads stock_location with every stock_picking: copy up to 5 read fields of stock_location into stock_picking documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_picking): app reads stock_location with every stock_picking: copy up to 5 read fields of stock_location into stock_picking documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_picking): app reads stock_picking_type with every stock_picking: copy up to 5 read fields of stock_picking_type into stock_picking documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_picking): app reads stock_picking with every stock_picking: copy up to 5 read fields of stock_picking into stock_picking documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_picking): app reads return_reason with every stock_picking: copy up to 5 read fields of return_reason into stock_picking documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_picking): app reads sale_order with every stock_picking: copy up to 5 read fields of sale_order into stock_picking documents (extended reference) or keep the $lookup
-- **lob** (stock_picking): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **source_index_not_exercised** (stock_picking): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (stock_picking): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (stock_picking): source index not exercised by any confirmed access pattern; keep or drop
-
 ## stockPickingBatch
 
 From `stock_picking_batch`.
@@ -2676,10 +2061,6 @@ From `stock_picking_batch`.
 Why:
 - stock_picking_batch → stock_picking: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - stock_picking_type → stock_picking_batch: **reference**, other tables also point at it, so it keeps its own collection (derived)
-
-Open questions (2):
-- **extended_reference_candidate** (stock_picking_batch): app reads stock_picking_type with every stock_picking_batch: copy up to 5 read fields of stock_picking_type into stock_picking_batch documents (extended reference) or keep the $lookup
-- **source_index_not_exercised** (stock_picking_batch): source index not exercised by any confirmed access pattern; keep or drop
 
 ## stockPutawayRule
 
@@ -2689,27 +2070,12 @@ Why:
 - stock_putaway_rule → stock_package_type_stock_putaway_rule_rel: **reference**, a link table, embedded on the other side (assumed)
 - product_category, stock_location, product_product, stock_storage_category → stock_putaway_rule: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (5):
-- **extended_reference_candidate** (stock_putaway_rule): app reads product_category with every stock_putaway_rule: copy up to 5 read fields of product_category into stock_putaway_rule documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_putaway_rule): app reads stock_location with every stock_putaway_rule: copy up to 5 read fields of stock_location into stock_putaway_rule documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_putaway_rule): app reads stock_location with every stock_putaway_rule: copy up to 5 read fields of stock_location into stock_putaway_rule documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_putaway_rule): app reads product_product with every stock_putaway_rule: copy up to 5 read fields of product_product into stock_putaway_rule documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_putaway_rule): app reads stock_storage_category with every stock_putaway_rule: copy up to 5 read fields of stock_storage_category into stock_putaway_rule documents (extended reference) or keep the $lookup
-
 ## stockQuant
 
 From `stock_quant`.
 
 Why:
 - stock_location, stock_lot, stock_package, product_product → stock_quant: **reference**, other tables also point at it, so it keeps its own collection (derived)
-
-Open questions (6):
-- **extended_reference_candidate** (stock_quant): app reads stock_location with every stock_quant: copy up to 5 read fields of stock_location into stock_quant documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_quant): app reads stock_lot with every stock_quant: copy up to 5 read fields of stock_lot into stock_quant documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_quant): app reads stock_package with every stock_quant: copy up to 5 read fields of stock_package into stock_quant documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_quant): app reads product_product with every stock_quant: copy up to 5 read fields of product_product into stock_quant documents (extended reference) or keep the $lookup
-- **single_valued_index_key** (stock_quant): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan
-- **source_index_not_exercised** (stock_quant): source index not exercised by any confirmed access pattern; keep or drop
 
 ## stockRule
 
@@ -2719,13 +2085,6 @@ Why:
 - stock_rule → stock_move, stock_warehouse: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - stock_location, stock_picking_type, stock_warehouse → stock_rule: **reference**, it is embedded under another parent; this one is referenced (derived)
 - stock_route → stock_rule: **reference**, the app reads it on its own (derived)
-
-Open questions (5):
-- **extended_reference_candidate** (stock_rule): app reads stock_location with every stock_rule: copy up to 5 read fields of stock_location into stock_rule documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_rule): app reads stock_location with every stock_rule: copy up to 5 read fields of stock_location into stock_rule documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_rule): app reads stock_picking_type with every stock_rule: copy up to 5 read fields of stock_picking_type into stock_rule documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_rule): app reads stock_route with every stock_rule: copy up to 5 read fields of stock_route into stock_rule documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_rule): app reads stock_warehouse with every stock_rule: copy up to 5 read fields of stock_warehouse into stock_rule documents (extended reference) or keep the $lookup
 
 ## stockScrapReasonTag
 
@@ -2749,13 +2108,6 @@ From `stock_storage_category_capacity`.
 Why:
 - stock_package_type, product_product, stock_storage_category → stock_storage_category_capacity: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (5):
-- **extended_reference_candidate** (stock_storage_category_capacity): app reads stock_package_type with every stock_storage_category_capacity: copy up to 5 read fields of stock_package_type into stock_storage_category_capacity documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_storage_category_capacity): app reads product_product with every stock_storage_category_capacity: copy up to 5 read fields of product_product into stock_storage_category_capacity documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_storage_category_capacity): app reads stock_storage_category with every stock_storage_category_capacity: copy up to 5 read fields of stock_storage_category into stock_storage_category_capacity documents (extended reference) or keep the $lookup
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## stockWarehouseOrderpoint
 
 From `stock_warehouse_orderpoint`.
@@ -2765,14 +2117,6 @@ Why:
 - stock_warehouse_orderpoint → stock_move: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - stock_location, uom_uom, stock_route, product_supplierinfo, stock_warehouse → stock_warehouse_orderpoint: **reference**, it is embedded under another parent; this one is referenced (derived)
 - product_product → stock_warehouse_orderpoint: **reference**, the app reads it on its own (derived)
-
-Open questions (6):
-- **extended_reference_candidate** (stock_warehouse_orderpoint): app reads stock_location with every stock_warehouse_orderpoint: copy up to 5 read fields of stock_location into stock_warehouse_orderpoint documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse_orderpoint): app reads product_product with every stock_warehouse_orderpoint: copy up to 5 read fields of product_product into stock_warehouse_orderpoint documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse_orderpoint): app reads uom_uom with every stock_warehouse_orderpoint: copy up to 5 read fields of uom_uom into stock_warehouse_orderpoint documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse_orderpoint): app reads stock_route with every stock_warehouse_orderpoint: copy up to 5 read fields of stock_route into stock_warehouse_orderpoint documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse_orderpoint): app reads product_supplierinfo with every stock_warehouse_orderpoint: copy up to 5 read fields of product_supplierinfo into stock_warehouse_orderpoint documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (stock_warehouse_orderpoint): app reads stock_warehouse with every stock_warehouse_orderpoint: copy up to 5 read fields of stock_warehouse into stock_warehouse_orderpoint documents (extended reference) or keep the $lookup
 
 ## uomUom
 
@@ -2784,8 +2128,11 @@ Why:
 - uom_uom → product_product_uom_uom_rel, product_template_uom_uom_rel: **reference**, a link table, embedded on the other side (assumed)
 - stock_package_type → uom_uom: **reference**, other tables also point at it, so it keeps its own collection (derived)
 
-Open questions (4):
-- **extended_reference_candidate** (uom_uom): app reads stock_package_type with every uom_uom: copy up to 5 read fields of stock_package_type into uom_uom documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (uom_uom): app reads uom_uom with every uom_uom: copy up to 5 read fields of uom_uom into uom_uom documents (extended reference) or keep the $lookup
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **source_index_not_exercised** (uom_uom): source index not exercised by any confirmed access pattern; keep or drop
+## accountPartialReconcile
+
+From `account_partial_reconcile`.
+
+Why:
+- account_partial_reconcile → account_move: **reference**, it is embedded under another parent; this one is referenced (derived)
+- account_move_line, account_move, account_full_reconcile → account_partial_reconcile: **reference**, it is embedded under another parent; this one is referenced (derived)
+- account_move_line → account_partial_reconcile: **embed**, the app reads it with its parent (derived)
