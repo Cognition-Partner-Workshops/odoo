@@ -19,8 +19,8 @@
   ],
   "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/71",
   "branch": "devin/1792530332-w2-b02-product-catalog",
-  "head_sha": "f570b3be961",
-  "base_sha": "036360b53b2",
+  "head_sha": "be4d6578dee",
+  "base_sha": "8ac087cabc1",
   "failure_class": "",
   "manifest_sha": "ae71ec6a28e6",
   "plugin_sha": "9a584b4cdb311ddd64fb07cbd1cf35fc9485062c",
@@ -41,5 +41,5 @@
     ]
   },
   "redaction_salted": false,
-  "one_line_summary": "product-catalog: 8 collections loaded from seeded clone odoo_w2b02 (2 zero-fixture roots + 7 zero-fixture arrays seeded), live recon PASS merge_eligible true, fixture PASS; 11 models opted in, 2 UNION ALL raw-SQL sites rewritten, 3 _table_sql reports inline product fields, loader gains composite-key relation roots; scenario 58/59 (1 shared storage-path gap: embedded element keyed by partnerId read as record id); findings for manager: element_key gap, 3 PG views still join legacy product columns, RECON_REDACT_SALT unavailable (unsalted), blocked rows 23/28/29 unchanged."
+  "one_line_summary": "product-catalog: 8 collections loaded once from seeded clone odoo_w2b02 (2 zero-fixture roots + 7 zero-fixture arrays seeded; seed block pins sequences so a fresh odoo_src clone reproduces the live ids), live recon PASS merge_eligible true and fixture PASS re-run against fresh clone odoo_w2b02f; 11 models opted in, 2 UNION ALL raw-SQL sites rewritten, 3 _table_sql reports inline product fields, 3 PG views (s2.3 rows 61-63) inline product columns via product.product._values_sql(), load_unit.py identical to PR #69's; scenario 59/59 on the rebased head (PR #72 element-key fix included); for manager: RECON_REDACT_SALT unavailable (unsalted), blocked rows 23/28/29 unchanged."
 }
