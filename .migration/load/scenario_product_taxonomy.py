@@ -102,6 +102,20 @@ check("stock.picking.type.wave_category_ids (PostgreSQL owner, array on the cate
     (c.id, pt.id) for pt in PickingType.with_context(active_test=False).search([]) for c in pt.wave_category_ids) == rel, rel)
 check("stock.picking.type domain on wave categories", PickingType.search([('wave_category_ids', 'in', [4])]).ids == [1])
 
+for model, table in (('product.template', 'product_template'), ('product.product', 'product_product')):
+    pg_pairs = sql("SELECT a.res_id, d.id FROM product_document d JOIN ir_attachment a ON a.id = d.ir_attachment_id "
+                   "WHERE a.res_model = %s AND d.active ORDER BY 1, 2", (model,))
+    orm_pairs = sorted((rec.id, d.id) for rec in env[model].with_context(active_test=False).search([]) for d in rec.product_document_ids)
+    check(f"{model}.product_document_ids (one2many into MongoDB through the inherited res_id, every record)", pg_pairs and orm_pairs == pg_pairs, len(pg_pairs))
+pg_pairs = sql("SELECT parent_id, id FROM product_category WHERE parent_id IS NOT NULL ORDER BY 1, 2")
+check("product.category.child_id (one2many, every category)", pg_pairs and sorted((c.id, ch.id) for c in env['product.category'].search([]) for ch in c.child_id) == pg_pairs, pg_pairs)
+pg_pairs = sql("SELECT id, categ_id FROM product_template ORDER BY 1")
+check("product.template.categ_id (many2one into MongoDB, every template)", pg_pairs and sorted(
+    (t.id, t.categ_id.id) for t in env['product.template'].with_context(active_test=False).search([])) == pg_pairs, len(pg_pairs))
+pg_pairs = sql("SELECT id, removal_strategy_id FROM stock_location WHERE removal_strategy_id IS NOT NULL ORDER BY 1")
+check("stock.location.removal_strategy_id (many2one into MongoDB) matches PostgreSQL", sorted(
+    (l.id, l.removal_strategy_id.id) for l in env['stock.location'].with_context(active_test=False).search([('removal_strategy_id', '!=', False)])) == pg_pairs, len(pg_pairs))
+
 # 4. domains, hierarchy, read_group, name search
 Cat = env['product.category']
 check("child_of on parent_path", Cat.search([('id', 'child_of', 4)]).ids == [r[0] for r in sql(
@@ -145,24 +159,27 @@ check("stock.avco.report: cost-method filter moved from the view to _search", se
       (len(expected), Avco.search_count([])))
 if move_rows:
     move_id, company_id, categ_id = move_rows[0]
-    try:
-        with cr.savepoint():
-            Cat.browse(categ_id).with_company(company_id).write({'property_cost_method': 'fifo'})
-            env.flush_all()
-        check("company-dependent write on a MongoDB model", True)
-    except Exception as exc:  # noqa: BLE001
-        # storage-path gap reported on the ticket (not patched here): the company-dependent column value
-        # {company_id: value} reaches the driver with an int key, which BSON refuses
-        check("company-dependent write on a MongoDB model: known storage-path gap (int company key)",
-              type(exc).__name__ == 'InvalidDocument' and 'string keys' in str(exc), f'{type(exc).__name__}: {exc}')
+    with cr.savepoint():
+        # a category costed at fifo for one company (company-dependent write on the MongoDB document)
+        categ = Cat.browse(categ_id)
+        categ.with_company(company_id).write({'property_cost_method': 'fifo'})
+        env.flush_all()
+        stored = st.model_collection(Cat).find_one({'_id': categ_id}).get('propertyCostMethod')
+        check("company-dependent write lands under the string company key and reads back per company",
+              stored == {str(company_id): 'fifo'} and categ.with_company(company_id).property_cost_method == 'fifo'
+              and all(categ.with_company(c).property_cost_method == 'standard' for c in companies if c.id != company_id), stored)
+        fifo_now = {r[0] for r in move_rows if r[1] == company_id and r[2] == categ_id}
+        found = set(Avco.search([('res_model_name', '=', 'stock.move')]).ids)
+        check("stock.avco.report: fifo category brings exactly its done moves in", fifo_now and found == fifo_now, (len(found), len(fifo_now)))
     with cr.savepoint():
         # the company default (ir.default, PostgreSQL) set to fifo: every category without an explicit
         # value now costs at fifo for that company, so its done moves come in through the fallback branch
         env['ir.default'].sudo().set('product.category', 'property_cost_method', 'fifo', company_id=company_id)
-        explicit = {c.id for c in cats if 'propertyCostMethod' in (st.model_collection(Cat).find_one({'_id': c.id}) or {})}
-        fifo_now = {r[0] for r in move_rows if r[1] == company_id and r[2] not in explicit}
+        # expected = every done move of that company whose category now resolves to fifo/average (explicit value or default)
+        methods = {c.id: c.with_company(company_id).property_cost_method for c in Cat.search([])}
+        fifo_now = {r[0] for r in move_rows if r[1] == company_id and methods[r[2]] in ('fifo', 'average')}
         found = set(Avco.search([('res_model_name', '=', 'stock.move')]).ids)
-        check("stock.avco.report: fifo company default brings the done moves in (fallback branch)", found == fifo_now, (len(found), len(fifo_now)))
+        check("stock.avco.report: fifo company default brings the done moves in (fallback branch)", fifo_now and found == fifo_now, (len(found), len(fifo_now)))
         check("stock.avco.report: read_group on the filtered rows", sum(
             g[-1] for g in Avco._read_group([], ['product_id'], ['__count'])) == Avco.search_count([]))
 VendorDelay = env['vendor.delay.report']
@@ -229,6 +246,13 @@ new_doc.unlink()
 env.flush_all()
 check("document unlink removes document, shadow row and attachment", st.model_collection(Doc).find_one({'_id': new_doc.id}) is None
       and sql("SELECT count(*) FROM product_document WHERE id = %s", (new_doc.id,))[0][0] == 0)
+definition = [{'name': 'scenario_colour', 'type': 'char', 'string': 'Scenario colour'}]
+cats[0].write({'product_properties_definition': definition})
+env.flush_all()
+found = env['product.template'].get_property_definition('product_properties.scenario_colour')
+check("get_property_definition reads product_properties_definition from the category document",
+      found.get('name') == 'scenario_colour' and found.get('type') == 'char' and found.get('string') == 'Scenario colour'
+      and env['product.template'].get_property_definition('product_properties.nope') == {}, found)
 new_unit = env['product.base.unit'].create({'name': 'Scenario unit'})
 new_unit.write({'name': 'Scenario unit renamed'})
 env.flush_all()
@@ -242,12 +266,18 @@ wiz._update_foreign_keys_generic('product.removal', src, dst)
 check("_update_foreign_keys_generic repoints MongoDB many2ones (product.category.removal_strategy_id)",
       referrers and all(c.removal_strategy_id == dst for c in referrers) and not Cat.search_count([('removal_strategy_id', '=', src.id)]), referrers.ids)
 account = env['account.account'].sudo().search([], limit=1)
-env['ir.default'].sudo().set('product.category', 'property_account_income_categ_id', account.id, company_id=companies[0].id)
-# the company-dependent branch of _action_unmerge's _update_mongodb_references: the search half works on the
-# loaded documents (explicit value or the company fallback); its write half is the gap recorded above
-found = sorted(Cat.with_company(companies[0]).search([('property_account_income_categ_id', '=', account.id)]).ids)
-check("company-dependent account field searched as the company on MongoDB categories (fallback branch)",
-      found and found == sorted(c.id for c in Cat.search([]) if c.with_company(companies[0]).property_account_income_categ_id == account), found)
+other_account = env['account.account'].sudo().search([('id', '!=', account.id)], limit=1)
+cats[0].with_company(companies[0]).write({'property_account_income_categ_id': account.id})
+env.flush_all()
+check("company-dependent account field write lands under the string company key",
+      st.model_collection(Cat).find_one({'_id': cats[0].id}).get('propertyAccountIncomeCategId') == {str(companies[0].id): account.id})
+# what _action_unmerge's _update_mongodb_references does for a company-dependent field: search as the company, write
+Cat.with_company(companies[0]).search([('property_account_income_categ_id', '=', account.id)]).write({'property_account_income_categ_id': other_account.id})
+env.flush_all()
+check("company-dependent account field rewritten through the ORM (the _action_unmerge path)",
+      cats[0].with_company(companies[0]).property_account_income_categ_id == other_account
+      and Cat.with_company(companies[0]).search([('property_account_income_categ_id', '=', other_account.id)]) == cats[0]
+      and not Cat.with_company(companies[0]).search_count([('property_account_income_categ_id', '=', account.id)]))
 
 cr.rollback()
 after = snapshot()
