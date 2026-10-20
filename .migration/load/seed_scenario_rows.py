@@ -40,7 +40,7 @@ if not BaseUnit.search_count([]):
 ProductUom = env['product.uom']
 if not ProductUom.search_count([]):
     pack6, dozen = env.ref('uom.product_uom_pack_6'), env.ref('uom.product_uom_dozen')
-    tags = Tag.search([], order='sequence, id')
+    tags = env['product.tag'].search([], order='sequence, id')
     products = env['product.product'].search([('barcode', '!=', False)], order='id', limit=3)
     for i, product in enumerate(products):
         ProductUom.create([
@@ -57,6 +57,7 @@ if not ProductUom.search_count([]):
 # lowest-id active non-combo variants whose template carries taxes (the account D5 tax writer).
 Combo = env['product.combo']
 if not Combo.search([('company_id', '!=', False)]):
+    env['res.lang']._activate_lang('fr_FR')
     taxed = env['product.product'].search([('type', '!=', 'combo'), ('taxes_id', '!=', False)], order='id', limit=2)
     combo = Combo.create({
         'name': 'Chicago Desk Set',
@@ -107,21 +108,18 @@ if not Layout.search_count([]):
         {'print_format': '2x7', 'product_tmpl_ids': [(6, 0, products.product_tmpl_id.ids)],
          'with_price': False, 'extra_html': '<p>Fragile</p>'},
         {'print_format': '4x7', 'product_ids': [(6, 0, products[:1].ids)], 'packaging_id': pack6.id,
-         'product_uom_ids': [(6, 0, ProductUom.search([('product_id', '=', products[0].id)], order='id').ids)]},
+         'product_uom_ids': [(6, 0, env['product.uom'].search([('product_id', '=', products[0].id)], order='id').ids)]},
         {'print_format': '4x12', 'barcode_format': 'qr', 'move_ids': [(6, 0, moves.ids)],
          'move_quantity': 'move', 'print_packaging': True},
         {'print_format': 'zpl', 'zpl_template': 'jewelry', 'product_ids': [(6, 0, products[1:].ids)],
          'move_ids': [(6, 0, moves[:2].ids)], 'move_quantity': 'custom', 'custom_quantity': 3},
     ])
-env.flush_all()   # the pending translation write would re-stamp write_date after the pin
-for table in ('product_tag', 'product_base_unit', 'product_uom', 'product_product', 'product_template',
-              'product_combo', 'product_combo_item', 'product_attribute_custom_value', 'product_label_layout'):
-    env.cr.execute(f"UPDATE {table} SET create_date = %(t)s, write_date = %(t)s", {'t': FIXED_INSTANT})
-env.invalidate_all()
-env.cr.commit()
-print('scenario rows:', Tag.search_count([]), 'tags,', BaseUnit.search_count([]), 'base units,',
-      ProductUom.search_count([]), 'product uoms,', Combo.search_count([]), 'combos,',
-      CustomValue.search_count([]), 'custom values,', Layout.search_count([]), 'label layouts')
+
+# Guard every section on the presence of its own rows, never on a table's total count: a
+# neighbouring section can add rows to a shared table as a side effect (activating a currency makes
+# `res.company._activate_or_create_pricelists` add a Default pricelist per company), which turned the
+# former `search_count([]) == 1` guard false and skipped the whole section. Each section also looks
+# up what it needs itself, so sections can be reordered or run alone; one pin and commit at the end.
 
 # --- product-pricing (wave 3, w3-b01): odoo_src holds one pricelist and one item, seeded the same
 # way on a clone (createdb -T odoo_src odoo_w3b01_src). Adds the second currency (base.EUR is
@@ -132,9 +130,8 @@ print('scenario rows:', Tag.search_count([]), 'tags,', BaseUnit.search_count([])
 # min_quantity > 0 and a uom_id. mail.thread rows are suppressed so only the unit's tables change.
 Pricelist = env['product.pricelist'].with_context(tracking_disable=True, mail_create_nolog=True)
 Item = env['product.pricelist.item']
-if Pricelist.with_context(active_test=False).search_count([]) == 1:
+if not Pricelist.with_context(active_test=False).search_count([('name', '=', 'Europe Wholesale')]):
     env['res.lang']._activate_lang('fr_FR')
-    base_pl = Pricelist.search([], order='id', limit=1)
     furniture = env['product.category'].search([('name', '=', 'Furniture')], limit=1)
     chair = env['product.template'].search([('categ_id', 'child_of', furniture.id)], order='id', limit=1)
     europe = Pricelist.create({
@@ -168,10 +165,15 @@ if Pricelist.with_context(active_test=False).search_count([]) == 1:
          'base_pricelist_id': europe.id, 'price_discount': 5.0, 'price_surcharge': 1.5,
          'price_round': 0.05, 'price_min_margin': 1.0, 'price_max_margin': 20.0},
     ])
-env.flush_all()
-for table in ('product_pricelist', 'product_pricelist_item'):
+env.flush_all()   # the pending translation writes would re-stamp write_date after the pin
+for table in ('product_tag', 'product_base_unit', 'product_uom', 'product_product', 'product_template',
+              'product_combo', 'product_combo_item', 'product_attribute_custom_value', 'product_label_layout',
+              'product_pricelist', 'product_pricelist_item'):
     env.cr.execute(f"UPDATE {table} SET create_date = %(t)s, write_date = %(t)s", {'t': FIXED_INSTANT})
 env.invalidate_all()
 env.cr.commit()
-print('scenario rows:', Pricelist.with_context(active_test=False).search_count([]), 'pricelists,',
+print('scenario rows:', Tag.search_count([]), 'tags,', BaseUnit.search_count([]), 'base units,',
+      ProductUom.search_count([]), 'product uoms,', Combo.search_count([]), 'combos,',
+      CustomValue.search_count([]), 'custom values,', Layout.search_count([]), 'label layouts,',
+      Pricelist.with_context(active_test=False).search_count([]), 'pricelists,',
       Item.search_count([]), 'pricelist items')
