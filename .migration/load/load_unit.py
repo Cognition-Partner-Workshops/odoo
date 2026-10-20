@@ -20,6 +20,7 @@ import os
 import sys
 from pathlib import Path
 
+import bson
 import psycopg2
 from pymongo import ASCENDING, MongoClient
 
@@ -68,6 +69,42 @@ def documents(cur, coll_spec):
     return docs
 
 
+def validate(name, coll_spec, docs):
+    """Refuse up front what the target would refuse mid-load: unencodable documents, duplicate unique keys."""
+    for doc in docs:
+        bson.encode(doc)
+    for key_spec, unique in index_specs(coll_spec):
+        if not unique:
+            continue
+        seen = set()
+        for doc in docs:
+            key = bson.encode({field: doc.get(field) for field, _ in key_spec})
+            if key in seen:
+                raise SystemExit(f'{name}: duplicate value for unique index {key_spec} at _id={doc["_id"]}; nothing was changed')
+            seen.add(key)
+
+
+def index_specs(coll_spec):
+    """The entries MongoStore.ensure_indexes creates."""
+    specs = []
+    for index in coll_spec.get('indexes', []):
+        keys = index.get('keys')
+        if not isinstance(keys, list) or not keys:
+            continue
+        key_spec = [(k[0], k[1]) if isinstance(k, list) else (k, ASCENDING) for k in keys]
+        if key_spec != [('_id', ASCENDING)]:
+            specs.append((key_spec, bool(index.get('unique'))))
+    return specs
+
+
+def write_collection(coll, docs, indexes):
+    coll.drop()
+    if docs:
+        coll.insert_many(docs, ordered=True)
+    for key_spec, unique in indexes:
+        coll.create_index(key_spec, unique=unique)
+
+
 def load(unit_id, source_secret, target_secret, target_db, replace):
     if target_db not in json.load(ALLOWED.open())['databases']:
         raise SystemExit(f'{target_db} is not in {ALLOWED.relative_to(ROOT)}')
@@ -76,28 +113,34 @@ def load(unit_id, source_secret, target_secret, target_db, replace):
     missing = [n for n in names if n not in spec]
     if missing:
         raise SystemExit(f'{missing} are not in {MAPPING.relative_to(ROOT)}')
+    # 1. read and convert the whole unit, then validate it, before any collection is touched
     conn, source_db = connect_source(source_secret)
-    db = MongoClient(os.environ[target_secret], appname=f'odoo-load-{unit_id}')[target_db]
     cur = conn.cursor()
-    for name in names:
-        docs = documents(cur, spec[name])
-        coll = db[name]
-        if coll.estimated_document_count() and not replace:
-            raise SystemExit(f'{target_db}.{name} already holds documents: pass --replace to reload it '
-                             '(the ORM writes here once the model is opted in)')
-        coll.drop()
-        if docs:
-            coll.insert_many(docs, ordered=True)
-        for index in spec[name].get('indexes', []):  # the entries MongoStore.ensure_indexes creates
-            keys = index.get('keys')
-            if not isinstance(keys, list) or not keys:
-                continue
-            key_spec = [(k[0], k[1]) if isinstance(k, list) else (k, ASCENDING) for k in keys]
-            if key_spec != [('_id', ASCENDING)]:
-                coll.create_index(key_spec, unique=bool(index.get('unique')))
-        print(f'{spec[name]["root_table"]} ({source_db}) -> {target_db}.{name}: {len(docs)} documents, '
-              f'{len(coll.index_information())} indexes')
+    loads = {name: documents(cur, spec[name]) for name in names}
     conn.close()
+    for name in names:
+        validate(name, spec[name], loads[name])
+    db = MongoClient(os.environ[target_secret], appname=f'odoo-load-{unit_id}')[target_db]
+    occupied = [n for n in names if db[n].estimated_document_count()]
+    if occupied and not replace:
+        raise SystemExit(f'{target_db}.{occupied} already hold documents: pass --replace to reload the whole unit '
+                         f'(the ORM writes there once the models are opted in); nothing was changed')
+    # 2. keep every collection's current documents and indexes so a failed reload is undone
+    originals = {name: (list(db[name].find()),
+                        [(list(info['key']), bool(info.get('unique'))) for key, info in db[name].index_information().items() if key != '_id_'])
+                 for name in names}
+    touched = []
+    try:
+        for name in names:
+            touched.append(name)
+            write_collection(db[name], loads[name], index_specs(spec[name]))
+            print(f'{spec[name]["root_table"]} ({source_db}) -> {target_db}.{name}: {len(loads[name])} documents, '
+                  f'{len(db[name].index_information())} indexes')
+    except Exception:
+        for name in touched:
+            write_collection(db[name], *originals[name])
+        print(f'reload failed: {touched} restored to their pre-run documents and indexes', file=sys.stderr)
+        raise
 
 
 if __name__ == '__main__':
@@ -106,6 +149,6 @@ if __name__ == '__main__':
     parser.add_argument('--source-dsn-secret', required=True, help='ENV VAR NAME of the PostgreSQL JSON secret')
     parser.add_argument('--target-uri-secret', default='MONGODB_ATLAS_URI')
     parser.add_argument('--target-db', default=json.load(ALLOWED.open())['databases'][0])
-    parser.add_argument('--replace', action='store_true', help='reload collections that already hold documents')
+    parser.add_argument('--replace', action='store_true', help='reload a unit whose collections already hold documents')
     args = parser.parse_args()
     load(args.unit, args.source_dsn_secret, args.target_uri_secret, args.target_db, args.replace)
