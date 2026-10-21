@@ -880,6 +880,67 @@ class TestMongoStorage(TransactionCase):
                          [(self.author_a, 2)])
         self.assertEqual(Book.read_group([], ['author_id'], ['pages:sum'])[0][1], 150)
 
+    def test_read_group_order_by_unrequested_aggregate(self):
+        # an order term that is an aggregate not in ``aggregates`` is computed for the ordering only, like
+        # PostgreSQL does (stock.rule._search_rule_for_warehouses orders by route_sequence:min)
+        Rating, Twin = self.env['test.mongo.rating'], self.env['test.mongo.rating.twin']
+        vals = [{'book_id': self.book_a1.id, 'partner_id': self.partner_a.id, 'score': 4},
+                {'book_id': self.book_a1.id, 'partner_id': self.partner_b.id, 'score': 2},
+                {'book_id': self.book_a2.id, 'partner_id': self.partner_a.id, 'score': 5}]
+        Rating.create(vals)
+        Twin.create(vals)
+        self.env.flush_all()
+        for order in ('score:max desc', 'score:sum, __count', '__count desc, score:avg desc', 'comment:count, score:min'):
+            self.assertEqual(Rating._read_group([], ['book_id'], ['__count'], order=order),
+                             Twin._read_group([], ['book_id'], ['__count'], order=order), order)
+        self.assertEqual(Rating._read_group([], ['book_id'], ['__count'], order='score:max desc'),
+                         [(self.book_a2, 1), (self.book_a1, 2)])
+        self.assertEqual(Rating._read_group([], ['book_id'], ['score:max'], order='score:max desc'),
+                         [(self.book_a2, 5), (self.book_a1, 4)])
+        self.assertEqual(Rating._read_group([], [], ['__count'], order='score:sum'), [(3,)])
+        with self.assertRaises(ValueError):
+            Rating._read_group([], ['book_id'], ['__count'], order='pages:max')
+        with self.assertRaises(ValueError):
+            Rating._read_group([], ['book_id'], ['__count'], order='score')
+
+    def test_fields_get_descriptions(self):
+        # sortable/groupable/aggregator describe what the aggregation pipeline can do; the SQL path has no
+        # expression for a MongoDB-stored field (stock.warehouse.orderpoint.product_uom_name, stock.route.rule_ids)
+        # and cannot join a relation table embedded in MongoDB documents (purchase.order.line.tax_ids)
+        attributes = ['sortable', 'groupable', 'aggregator']
+        Rating, Twin = self.env['test.mongo.rating'], self.env['test.mongo.rating.twin']
+        self.assertEqual(Rating.fields_get(attributes=attributes), Twin.fields_get(attributes=attributes))
+        described = Rating.fields_get(['book_name', 'score', 'partner_id'], attributes)
+        self.assertEqual(described['book_name'], {'sortable': False, 'groupable': False})
+        self.assertEqual(described['score'], {'sortable': True, 'groupable': True, 'aggregator': 'sum'})
+        self.assertEqual(described['partner_id'], {'sortable': True, 'groupable': True})
+
+        Author = self.env['test.mongo.author']
+        described = Author.fields_get(attributes=attributes)
+        self.assertEqual(described['child_ids'], {'sortable': False, 'groupable': False})
+        self.assertEqual(described['book_ids'], {'sortable': False, 'groupable': False})
+        # a many2many groups when its relation table is embedded in the model's own documents
+        self.assertEqual(described['tag_ids'], {'sortable': False, 'groupable': True})
+        self.assertEqual(described['coauthor_ids'], {'sortable': False, 'groupable': True})
+        self.assertEqual(described['coauthor_of_ids'], {'sortable': False, 'groupable': False})
+        self.assertEqual(described['title'], {'sortable': True, 'groupable': True})
+        self.assertEqual(Author._read_group([], ['tag_ids'], ['__count'], order='tag_ids'),
+                         [(self.tag_x, 1), (self.tag_x.browse(), 1)])
+        # inherited fields are ordered through the parent record, not grouped by
+        Variant = self.env['test.mongo.variant']
+        described = Variant.fields_get(['name', 'code', 'pages'], attributes)
+        self.assertEqual(described['name'], {'sortable': True, 'groupable': False})
+        self.assertEqual(described['code'], {'sortable': True, 'groupable': True})
+        self.assertEqual(described['pages'], {'sortable': True, 'groupable': False})
+
+        # a PostgreSQL model whose relation table (or comodel) is stored in MongoDB
+        Review = self.env['test.mongo.review']
+        described = Review.fields_get(attributes=attributes)
+        self.assertEqual(described['author_ids'], {'sortable': False, 'groupable': False})
+        self.assertEqual(described['tag_ids'], {'sortable': False, 'groupable': False})
+        self.assertEqual(described['book_ids'], {'sortable': False, 'groupable': False})
+        self.assertEqual(described['book_id'], {'sortable': True, 'groupable': True})
+
     def test_required_and_ondelete(self):
         with self.assertRaises(psycopg2.IntegrityError), mute_logger('odoo.sql_db'):
             with self.env.cr.savepoint():

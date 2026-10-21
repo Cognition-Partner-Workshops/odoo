@@ -1962,9 +1962,49 @@ def _aggregate_expr(model: BaseModel, spec: CollectionSpec, aggregate_spec: str)
         'bool_and': {'$min': path}, 'bool_or': {'$max': path},
         'array_agg': {'$push': path}, 'recordset': {'$push': path},
         'array_agg_distinct': {'$addToSet': path}, 'count_distinct': {'$addToSet': path},
-        'count': {'$sum': {'$cond': [{'$ne': [path, None]}, 1, 0]}},
+        'count': {'$sum': {'$cond': [{'$ne': [{'$ifNull': [path, None]}, None]}, 1, 0]}},
     }[func]
     return expr, func, field
+
+
+def describe_sortable(model: BaseModel, field: Field) -> bool:
+    """ The ``sortable`` entry of ``fields_get``: whether :func:`sort_key_expr`
+    can order ``model`` by ``field``. It needs a document path (a stored
+    column), a ranked parent record (an inherited field) or a computed form
+    (``compute_sql``); it never has an SQL expression. """
+    if field.relational and getattr(model.env[field.comodel_name], '_access_domain_heavy', False):
+        return False
+    if not field.store and field.compute_sql and not field.inherited:
+        return True
+    if field.inherited:
+        return field.inherited_field._description_sortable(model.env)
+    return bool(field.store and field.column_type)
+
+
+def describe_groupable(model: BaseModel, field: Field) -> bool:
+    """ The ``groupable`` entry of ``fields_get``: whether :func:`_group_key_expr`
+    can group ``model`` by ``field``: a stored column, or a many2many whose
+    relation table is embedded in the model's own documents. """
+    if field.relational and getattr(model.env[field.comodel_name], '_access_domain_heavy', False):
+        return False
+    if field.type == 'many2many':
+        rel = many2many_rel_storage(field, model)
+        return rel is not None and rel.embedded and _owns_relation(rel, field, model)
+    if field.type == 'properties' or field.inherited or (not field.store and field.compute_sql):
+        return False
+    return bool(field.store and field.column_type)
+
+
+def describe_aggregator(model: BaseModel, field: Field) -> str | None:
+    """ The ``aggregator`` entry of ``fields_get``: the field's aggregator when
+    :func:`_aggregate_expr` can apply it to a document path, else None. """
+    if not field.aggregator or not (field.store and field.column_type):
+        return None
+    try:
+        _aggregate_expr(model, store(model).storage(model), f"{field.name}:{field.aggregator}")
+    except ValueError:
+        return None
+    return field.aggregator
 
 
 def _group_value(field: Field | None, func: str | None, value):
@@ -2035,7 +2075,24 @@ def read_group_rows(model: BaseModel, query: MongoQuery, groupby: list[str], agg
     spec = store(model).storage(model)
     unwinds: list[dict] = []
     group_id = {f'g{i}': _group_key_expr(model, spec, gspec, query.filter, unwinds) for i, gspec in enumerate(groupby)}
-    aggs = [_aggregate_expr(model, spec, aspec) for aspec in aggregates]
+    # an order term that is neither a groupby nor a requested aggregate is an
+    # aggregate computed for the ordering only, as _read_group_orderby does
+    order_parts = [part for part in (order or ','.join(groupby)).split(',') if part]
+    order_aggregates = []
+    for part in order_parts:
+        match = regex_order_part_read_group.fullmatch(part)
+        if not match:
+            raise ValueError(f"Invalid order {order!r} for _read_group()")
+        term = match['term']
+        if term in groupby or term in aggregates or term in order_aggregates:
+            continue
+        try:
+            _aggregate_expr(model, spec, term)
+        except ValueError as e:
+            raise ValueError(f"Order term {part!r} is not a valid aggregate nor valid groupby") from e
+        order_aggregates.append(term)
+    all_aggregates = [*aggregates, *order_aggregates]
+    aggs = [_aggregate_expr(model, spec, aspec) for aspec in all_aggregates]
     pipeline = [*base_stages(model), *match_stages(query.filter), *unwinds,
                 {'$group': {'_id': group_id, **{f'a{i}': expr for i, (expr, _, _) in enumerate(aggs)}}}]
     rows = []
@@ -2050,12 +2107,8 @@ def read_group_rows(model: BaseModel, query: MongoQuery, groupby: list[str], agg
     # ordering happens here so many2one, selection and translated groups follow
     # their own order (PostgreSQL joins the comodel; MongoDB cannot)
     terms = []
-    for part in (order or ','.join(groupby)).split(','):
-        if not part:
-            continue
+    for part in order_parts:
         match = regex_order_part_read_group.fullmatch(part)
-        if not match:
-            raise ValueError(f"Invalid order {order!r} for _read_group()")
         term, direction = match['term'], (match['direction'] or 'ASC').upper()
         nulls = (match['nulls'] or '').upper() or ('NULLS LAST' if direction == 'ASC' else 'NULLS FIRST')
         rank = None
@@ -2071,10 +2124,8 @@ def read_group_rows(model: BaseModel, query: MongoQuery, groupby: list[str], agg
             elif field.translate:
                 langs = StoredTranslations.fallback_langs(field.translation_lang(env))
                 rank = lambda value, langs=langs: next((value[c] for c in langs if c in value), None) if isinstance(value, dict) else value
-        elif term in aggregates:
-            kind, position = 'agg', aggregates.index(term)
         else:
-            raise ValueError(f"Order term {part!r} is not a valid aggregate nor valid groupby")
+            kind, position = 'agg', all_aggregates.index(term)
         terms.append((kind, position, rank, direction, nulls))
 
     def sort_key(row):
@@ -2099,6 +2150,7 @@ def read_group_rows(model: BaseModel, query: MongoQuery, groupby: list[str], agg
 
     result = []
     for groups, values in rows:
+        values = values[:len(aggregates)]
         converted = [
             _group_value(model._fields[parse_read_group_spec(gspec)[0]], None, value)
             for gspec, value in zip(groupby, groups)

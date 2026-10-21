@@ -1031,6 +1031,10 @@ class Field[T]:
         return bool(self.store or self.search or self.compute_sql)
 
     def _description_sortable(self, env: Environment):
+        from . import storage_mongodb  # noqa: PLC0415
+        if storage_mongodb.is_mongodb(env.registry[self.model_name]):
+            # no SQL expression: what the aggregation pipeline can order by
+            return storage_mongodb.describe_sortable(env[self.model_name], self)
         if self.column_type and (self.store or self.compute_sql):  # shortcut
             return True
         if self.inherited_field and self.inherited_field._description_sortable(env):
@@ -1044,10 +1048,15 @@ class Field[T]:
         try:
             model._order_field_to_sql(query.table, self.name, SQL(), SQL())
             return True
-        except (ValueError, AccessError):
+        except (ValueError, AccessError, NotImplementedError):
+            # NotImplementedError: the field joins a table stored in MongoDB
             return False
 
     def _description_groupable(self, env: Environment):
+        from . import storage_mongodb  # noqa: PLC0415
+        if storage_mongodb.is_mongodb(env.registry[self.model_name]):
+            # no SQL expression: what the aggregation pipeline can group by
+            return storage_mongodb.describe_groupable(env[self.model_name], self)
         if self.column_type and (self.store or self.compute_sql):  # shortcut
             return True
         if self.inherited_field and self.inherited_field._description_groupable(env):
@@ -1065,10 +1074,15 @@ class Field[T]:
         try:
             model._read_group_groupby(Query(model).table, groupby)
             return True
-        except (ValueError, AccessError):
+        except (ValueError, AccessError, NotImplementedError):
+            # NotImplementedError: the field joins a table stored in MongoDB
             return False
 
     def _description_aggregator(self, env: Environment):
+        from . import storage_mongodb  # noqa: PLC0415
+        if storage_mongodb.is_mongodb(env.registry[self.model_name]):
+            # no SQL expression: what the aggregation pipeline can aggregate
+            return storage_mongodb.describe_aggregator(env[self.model_name], self)
         if not self.aggregator or (self.column_type and (self.store or self.compute_sql)):  # shortcut
             return self.aggregator
         if self.inherited_field and self.inherited_field._description_aggregator(env):
@@ -1086,7 +1100,8 @@ class Field[T]:
         try:
             model._read_group_select(query.table, f"{self.name}:{self.aggregator}")
             return self.aggregator
-        except (ValueError, AccessError):
+        except (ValueError, AccessError, NotImplementedError):
+            # NotImplementedError: the field joins a table stored in MongoDB
             return None
 
     def _description_string(self, env: Environment) -> str:
