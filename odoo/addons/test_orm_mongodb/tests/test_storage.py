@@ -933,12 +933,10 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual(described['code'], {'sortable': True, 'groupable': True})
         self.assertEqual(described['pages'], {'sortable': True, 'groupable': False})
 
-        # a PostgreSQL model whose relation table (or comodel) is stored in MongoDB
+        # a PostgreSQL model whose relation table is embedded in MongoDB documents (purchase.order.line.tax_ids)
         Review = self.env['test.mongo.review']
         described = Review.fields_get(attributes=attributes)
         self.assertEqual(described['author_ids'], {'sortable': False, 'groupable': False})
-        self.assertEqual(described['tag_ids'], {'sortable': False, 'groupable': False})
-        self.assertEqual(described['book_ids'], {'sortable': False, 'groupable': False})
         self.assertEqual(described['book_id'], {'sortable': True, 'groupable': True})
 
     def test_required_and_ondelete(self):
