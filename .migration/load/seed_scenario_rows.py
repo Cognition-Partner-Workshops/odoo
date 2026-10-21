@@ -343,12 +343,18 @@ else:
     # switched off again, so the committed scenarios still run against a single active warehouse per company
     group_user = env.ref('base.group_user')
     implied_before = group_user.implied_ids
+    # switching the multi-location group on goes through res.config.settings.execute(), whose product side
+    # archives every active pricelist while the pricelist feature is off: the active set is restored below
+    Pricelist = env['product.pricelist'].with_context(active_test=False)
+    active_pricelists = Pricelist.search([('active', '=', True)])
     depot = Warehouse.create({'name': 'Seeded Depot', 'code': 'SEED', 'company_id': wh.company_id.id, 'resupply_wh_ids': [(6, 0, wh.ids)]})
     depot.write({'active': False})
     for group in group_user.implied_ids - implied_before:
         group_user.write({'implied_ids': [(3, group.id)]})
         group.write({'user_ids': [(3, user.id) for user in group_user.all_user_ids]})
+    (active_pricelists - Pricelist.search([('active', '=', True)])).write({'active': True})
     assert depot.resupply_wh_ids == wh and not depot.active and group_user.implied_ids == implied_before
+    assert Pricelist.search([('active', '=', True)]) == active_pricelists, Pricelist.search([('active', '=', True)]).ids
     wh.in_type_id.write({'favorite_user_ids': [(4, env.ref('base.user_admin').id)],
                          'wave_location_ids': [(6, 0, (wh.lot_stock_id | shelf1).ids)]})
     furniture.write({'route_ids': [(4, mto.id)]})
@@ -372,10 +378,11 @@ else:
           f"resupplied from {wh.id}; receipts {wh.in_type_id.id} favorite of admin, wave locations {(wh.lot_stock_id | shelf1).ids}; "
           f"MTO route {mto.id} on category {furniture.id}, template {chair.product_tmpl_id.id}, move {routed_move.id}; "
           f"putaway rules {putaway_rules.ids}; capacities {capacities.ids}")
-# every row of the unit's tables (and of the wave-1/2 tables the arrays above hang off) carries the fixture instant
-# again, so a verifier's reseed reproduces the documents byte for byte
+# every row of the unit's tables (and of the wave-1/2 tables the arrays above hang off or the settings run touched)
+# carries the fixture instant again, so a verifier's reseed reproduces the documents byte for byte
 for table in ('stock_warehouse', 'stock_location', 'stock_picking_type', 'stock_route', 'stock_rule', 'stock_putaway_rule',
-              'stock_storage_category_capacity', 'stock_warehouse_orderpoint', 'stock_move', 'product_template', 'product_category', 'ir_sequence'):
+              'stock_storage_category_capacity', 'stock_warehouse_orderpoint', 'stock_move', 'product_template', 'product_product',
+              'product_category', 'product_pricelist', 'ir_sequence'):
     env.cr.execute(f"UPDATE {table} SET create_date = %s, write_date = %s WHERE create_date <> %s OR write_date <> %s",
                    (FIXED_INSTANT, FIXED_INSTANT, FIXED_INSTANT, FIXED_INSTANT))
     if env.cr.rowcount:

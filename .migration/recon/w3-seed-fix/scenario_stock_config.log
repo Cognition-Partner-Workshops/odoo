@@ -1,0 +1,68 @@
+2026-10-21 05:52:21,320 8585 WARNING odoo_w3sf_new odoo.addons.mail.controllers.attachment: markdown2 is not installed, markdown will not be rendered
+2026-10-21 05:52:51,419 8585 ERROR odoo_w3sf_new odoo.sql_db: bad query: b'DO \'BEGIN RAISE unique_violation USING MESSAGE = \'\'duplicate key value violates unique constraint "stock_warehouse_warehouse_code_uniq"\'\', TABLE = \'\'stock_warehouse\'\', CONSTRAINT = \'\'stock_warehouse_warehouse_code_uniq\'\', DETAIL = \'\'Key (code, companyId)=(WH, 1) already exists.\'\'; END\''
+ERROR: duplicate key value violates unique constraint "stock_warehouse_warehouse_code_uniq"
+DETAIL:  Key (code, companyId)=(WH, 1) already exists.
+CONTEXT:  PL/pgSQL function inline_code_block line 1 at RAISE
+
+PASS stock.warehouse search([]) order -- 2
+PASS stock.warehouse search_count
+PASS stock.warehouse exists()
+PASS stock.location search([]) order -- 22
+PASS stock.location search_count
+PASS stock.location exists()
+PASS stock.picking.type search([]) order -- 6
+PASS stock.picking.type search_count
+PASS stock.picking.type exists()
+PASS stock.route search([]) order -- 6
+PASS stock.route search_count
+PASS stock.route exists()
+PASS stock.rule search([]) order -- 9
+PASS stock.rule search_count
+PASS stock.rule exists()
+PASS stock.putaway.rule search([]) order -- 3
+PASS stock.putaway.rule search_count
+PASS stock.putaway.rule exists()
+PASS stock.storage.category.capacity search([]) order -- 2
+PASS stock.storage.category.capacity search_count
+PASS stock.storage.category.capacity exists()
+PASS stock.warehouse.orderpoint search([]) order -- 5
+PASS stock.warehouse.orderpoint search_count
+PASS stock.warehouse.orderpoint exists()
+PASS stock.warehouse field values -- [('YourCompany', 'WH'), ('My Company (Chicago)', 'My Co')]
+PASS stock.location field values incl. parent_path -- 22
+PASS stock.picking.type field values (translated name) -- 6
+PASS stock.rule field values -- 9
+PASS stock.warehouse.orderpoint field values (decimal quantities) -- 5
+PASS stock.putaway.rule field values (uom-packaging seed row + the two seeded here) -- [(1, None, None, 7, 7, None, None), (2, 5, None, 7, 17, None, 10), (3, None, 5, 7, 16, 1, 20)]
+PASS stock.storage.category.capacity field values (seeded rows) -- [(1, 1, 5, None, 10.0), (2, 2, None, 1, 4.0)]
+PASS stockWarehouse.stockWhResupplyTable both directions -- [1]
+PASS domain on the resupply array (archived depot)
+PASS stockPickingType.pickingTypeFavoriteUserRel + is_favorite (compute_sql field)
+PASS stock.picking.type default order is_favorite desc, sequence, id -- ([1, 7, 2], [1, 7, 2])
+PASS stockLocation.stockPickingTypeRel (wave locations) both directions
+PASS stockRoute.categ / product (wave-1/2 readers of the route array) == PostgreSQL twin
+PASS stockRoute.move forward ref into stock-ops (stock.move still PostgreSQL) == PostgreSQL twin
+PASS stockRoute.warehouse
+PASS putaway rule -> package types (uom-packaging array) and storage category (stock-reference), both directions, exact vs PostgreSQL -- ([3], [1, 2], [1, 3])
+PASS capacity one2many from the storage category (wave-1 side) and from the package type, exact vs PostgreSQL -- ([1], [2], {1: [1], 2: [2]})
+PASS child_of / parent_path domain
+PASS many2one into MongoDB from a PostgreSQL model: stock.quant.location_id
+PASS read_group by usage
+PASS name_search on stock.location (complete_name)
+PASS row 31 _init_column_warehouse_id ORM rewrite equals legacy UPDATE ... FROM stock_warehouse -- 25
+PASS row 22 run_scheduler runs on the storage path (stock.rule._get_rule reads MongoDB rules; procurements land in PostgreSQL moves/PO lines) -- moves+po lines 169 -> 170
+PASS storage gap 1 (read_group ordered by a non-requested aggregate) fixed centrally -- no longer raises
+PASS row 1 _unlink_processed_orderpoints runs on the storage path
+PASS report.stock.quantity view rebuilt over MongoDB-stored stock_location/stock_warehouse
+PASS create writes a document + shadow row -- ['_id', 'active', 'categoryId', 'companyId', 'createDate', 'createUid', 'locationInId', 'locationOutId', 'productId', 'sequence', 'sublocation', 'writeDate', 'writeUid']
+PASS search sees the new row first
+PASS write updates the document and the junction array on the package type side
+PASS parent_path/complete_name on create
+PASS product._get_domain_locations_new includes a location created on the storage path
+PASS purchase.report effective_date join resolves destinations through the ORM
+PASS parent_path/complete_name on reparent
+PASS capacity create: Float stored as double -- {'_id': 4, 'storageCategoryId': 2, 'productId': 5, 'quantity': 3.0, 'createUid': 1, 'createDate': datetime.datetime(2026, 10, 21, 5, 52, 21, 681000), 'writeUid': 1, 'writeDate': datetime.datetime(2026, 10, 21, 5, 52, 21, 681000)}
+PASS warehouse unique (code, company) refused -- UniqueViolation
+PASS unlink removes document + shadow row
+PASS rollback leaves the mirrored collections byte-identical
+61/61 checks passed
