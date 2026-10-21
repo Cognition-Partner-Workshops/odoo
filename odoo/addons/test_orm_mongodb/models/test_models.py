@@ -218,6 +218,8 @@ class TestMongoRating(models.Model):
     partner_id = fields.Many2one('res.partner', required=True, ondelete='cascade')
     score = fields.Integer(required=True)
     comment = fields.Char()
+    # related field without an SQL form (stock.warehouse.orderpoint.product_uom_name): described, never sorted or grouped by
+    book_name = fields.Char(related='book_id.display_name')
 
     _book_partner_uniq = models.Constraint('unique (book_id, partner_id)', 'One rating per partner and book.')
 
@@ -232,6 +234,8 @@ class TestMongoRatingTwin(models.Model):
     partner_id = fields.Many2one('res.partner', required=True, ondelete='cascade')
     score = fields.Integer(required=True)
     comment = fields.Char()
+    # related field without an SQL form (stock.warehouse.orderpoint.product_uom_name): described, never sorted or grouped by
+    book_name = fields.Char(related='book_id.display_name')
 
     _book_partner_uniq = models.Constraint('unique (book_id, partner_id)', 'One rating per partner and book.')
 

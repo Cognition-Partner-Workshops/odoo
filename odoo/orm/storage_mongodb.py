@@ -798,6 +798,7 @@ class FilterCompiler:
         model = self.model
         field = condition._field(model)
         model.check_field_access(field, 'read')
+        model.flush_model([field.name])
         fname, property_name = parse_field_expr(condition.field_expr)
         operator, value = condition.operator, condition.value
         if property_name:
@@ -956,6 +957,7 @@ def one2many_parent_ids(field: Field, coquery: Query) -> list:
     inverse = comodel._fields[field.inverse_name]
     if isinstance(coquery, MongoQuery):
         if inverse.store and inverse.column_type:
+            comodel.flush_model([inverse.name])
             path = store(comodel).path(comodel, inverse.name)
             return [doc[path] for doc in coquery.run({path: 1}) if doc.get(path) is not None]
     elif inverse.store and inverse.column_type:
@@ -1036,6 +1038,7 @@ def sort_key_expr(model: BaseModel, fname: str, property_name: str | None, direc
         raise ValueError(f"Invalid field {fname!r} on model {model._name!r}")
     if not field.store and field.compute_sql and not field.inherited:
         return computed_rank_expr(model, field, filter)
+    model.flush_model([fname])
     spec = store(model).storage(model)
     path = spec.target(fname)
     env = model.env
@@ -1044,6 +1047,7 @@ def sort_key_expr(model: BaseModel, fname: str, property_name: str | None, direc
         if field.inherited:
             parent_fname, coorder = field.related.split('.', 1)
             parent_field = model._fields[parent_fname]
+            model.flush_model([parent_fname])
         else:
             parent_field, coorder = field, env[field.comodel_name]._order
             if property_name:
@@ -1104,7 +1108,10 @@ def order_rank_sql(model: BaseModel, field: Field, sql_field: SQL, direction: SQ
 
 def search(model: BaseModel, domain: Domain, sec_domain: Domain, sec_model: BaseModel,
            offset: int, limit: int | None, order: str | None) -> MongoQuery:
-    model.flush_model()     # pending writes reach the documents first (SQL flushes per referenced field)
+    # pending writes reach the documents as the fields are referenced (the
+    # compilers flush per field, like the SQL ``to_flush`` of a column): a
+    # whole-model flush here would recompute unrelated stored fields before
+    # the records they depend on are flushed (stock.warehouse.orderpoint.qty_to_order_computed)
     filter = FilterCompiler(model).compile(domain) if not domain.is_true() else {}
     if not sec_domain.is_true():
         sec_filter = FilterCompiler(sec_model).compile(sec_domain)
@@ -1168,6 +1175,8 @@ def fetch_query(model: BaseModel, query: MongoQuery, fields: Iterable[Field]) ->
 
     spec = store(model).storage(model)
     if column_fields:
+        # like the SQL fetch, the fetched columns themselves are not flushed:
+        # their pending values are in cache already
         projection = {spec.target(field.name): 1 for field in column_fields}
         projection['_id'] = 1
         docs = query.run(projection)
@@ -1911,6 +1920,7 @@ def _group_key_expr(model: BaseModel, spec: CollectionSpec, groupby_spec: str, f
         raise ValueError(f"Invalid field {fname!r} on model {model._name!r}")
     if seq or field.type == 'properties' or (not field.store and field.compute_sql and not field.inherited):
         raise NotImplementedError(f"Group by {groupby_spec!r} is not supported on MongoDB-stored model {model._name}")
+    model.flush_model([fname])
     path = spec.target(fname)
     if field.type == 'many2many':
         rel = many2many_rel_storage(field, model)
@@ -1956,15 +1966,59 @@ def _aggregate_expr(model: BaseModel, spec: CollectionSpec, aggregate_spec: str)
         raise ValueError(f"Invalid aggregate method {func!r} for {aggregate_spec!r}.")
     if func == 'recordset' and not (field.relational or fname == 'id'):
         raise ValueError(f"Aggregate method {func!r} can be only used on relational field (or id) (for {aggregate_spec!r}).")
+    # like _field_to_sql: the field must be readable and have a document path
+    model.check_field_access(field, 'read')
+    if fname != 'id' and not (field.store and field.column_type):
+        raise ValueError(f"Cannot aggregate {field} for {aggregate_spec!r}: it has no document path")
     path = f'${spec.target(fname)}'
     expr = {
         'sum': {'$sum': path}, 'avg': {'$avg': path}, 'max': {'$max': path}, 'min': {'$min': path},
         'bool_and': {'$min': path}, 'bool_or': {'$max': path},
         'array_agg': {'$push': path}, 'recordset': {'$push': path},
         'array_agg_distinct': {'$addToSet': path}, 'count_distinct': {'$addToSet': path},
-        'count': {'$sum': {'$cond': [{'$ne': [path, None]}, 1, 0]}},
+        'count': {'$sum': {'$cond': [{'$ne': [{'$ifNull': [path, None]}, None]}, 1, 0]}},
     }[func]
     return expr, func, field
+
+
+def describe_sortable(model: BaseModel, field: Field) -> bool:
+    """ The ``sortable`` entry of ``fields_get``: whether :func:`sort_key_expr`
+    can order ``model`` by ``field``. It needs a document path (a stored
+    column), a ranked parent record (an inherited field) or a computed form
+    (``compute_sql``); it never has an SQL expression. """
+    if field.relational and getattr(model.env[field.comodel_name], '_access_domain_heavy', False):
+        return False
+    if not field.store and field.compute_sql and not field.inherited:
+        return True
+    if field.inherited:
+        return field.inherited_field._description_sortable(model.env)
+    return bool(field.store and field.column_type)
+
+
+def describe_groupable(model: BaseModel, field: Field) -> bool:
+    """ The ``groupable`` entry of ``fields_get``: whether :func:`_group_key_expr`
+    can group ``model`` by ``field``: a stored column, or a many2many whose
+    relation table is embedded in the model's own documents. """
+    if field.relational and getattr(model.env[field.comodel_name], '_access_domain_heavy', False):
+        return False
+    if field.type == 'many2many':
+        rel = many2many_rel_storage(field, model)
+        return rel is not None and rel.embedded and _owns_relation(rel, field, model)
+    if field.type == 'properties' or field.inherited or (not field.store and field.compute_sql):
+        return False
+    return bool(field.store and field.column_type)
+
+
+def describe_aggregator(model: BaseModel, field: Field) -> str | None:
+    """ The ``aggregator`` entry of ``fields_get``: the field's aggregator when
+    :func:`_aggregate_expr` can apply it to a document path, else None. """
+    if not field.aggregator or not (field.store and field.column_type):
+        return None
+    try:
+        _aggregate_expr(model, store(model).storage(model), f"{field.name}:{field.aggregator}")
+    except ValueError:
+        return None
+    return field.aggregator
 
 
 def _group_value(field: Field | None, func: str | None, value):
@@ -2035,7 +2089,25 @@ def read_group_rows(model: BaseModel, query: MongoQuery, groupby: list[str], agg
     spec = store(model).storage(model)
     unwinds: list[dict] = []
     group_id = {f'g{i}': _group_key_expr(model, spec, gspec, query.filter, unwinds) for i, gspec in enumerate(groupby)}
-    aggs = [_aggregate_expr(model, spec, aspec) for aspec in aggregates]
+    # an order term that is neither a groupby nor a requested aggregate is an
+    # aggregate computed for the ordering only, as _read_group_orderby does
+    order_parts = [part for part in (order or ','.join(groupby)).split(',') if part]
+    order_aggregates = []
+    for part in order_parts:
+        match = regex_order_part_read_group.fullmatch(part)
+        if not match:
+            raise ValueError(f"Invalid order {order!r} for _read_group()")
+        term = match['term']
+        if term in groupby or term in aggregates or term in order_aggregates:
+            continue
+        try:
+            _aggregate_expr(model, spec, term)
+        except ValueError as e:
+            raise ValueError(f"Order term {part!r} is not a valid aggregate nor valid groupby") from e
+        order_aggregates.append(term)
+    all_aggregates = [*aggregates, *order_aggregates]
+    aggs = [_aggregate_expr(model, spec, aspec) for aspec in all_aggregates]
+    model.flush_model([field.name for _expr, _func, field in aggs if field is not None])
     pipeline = [*base_stages(model), *match_stages(query.filter), *unwinds,
                 {'$group': {'_id': group_id, **{f'a{i}': expr for i, (expr, _, _) in enumerate(aggs)}}}]
     rows = []
@@ -2050,12 +2122,8 @@ def read_group_rows(model: BaseModel, query: MongoQuery, groupby: list[str], agg
     # ordering happens here so many2one, selection and translated groups follow
     # their own order (PostgreSQL joins the comodel; MongoDB cannot)
     terms = []
-    for part in (order or ','.join(groupby)).split(','):
-        if not part:
-            continue
+    for part in order_parts:
         match = regex_order_part_read_group.fullmatch(part)
-        if not match:
-            raise ValueError(f"Invalid order {order!r} for _read_group()")
         term, direction = match['term'], (match['direction'] or 'ASC').upper()
         nulls = (match['nulls'] or '').upper() or ('NULLS LAST' if direction == 'ASC' else 'NULLS FIRST')
         rank = None
@@ -2071,10 +2139,8 @@ def read_group_rows(model: BaseModel, query: MongoQuery, groupby: list[str], agg
             elif field.translate:
                 langs = StoredTranslations.fallback_langs(field.translation_lang(env))
                 rank = lambda value, langs=langs: next((value[c] for c in langs if c in value), None) if isinstance(value, dict) else value
-        elif term in aggregates:
-            kind, position = 'agg', aggregates.index(term)
         else:
-            raise ValueError(f"Order term {part!r} is not a valid aggregate nor valid groupby")
+            kind, position = 'agg', all_aggregates.index(term)
         terms.append((kind, position, rank, direction, nulls))
 
     def sort_key(row):
@@ -2099,6 +2165,7 @@ def read_group_rows(model: BaseModel, query: MongoQuery, groupby: list[str], agg
 
     result = []
     for groups, values in rows:
+        values = values[:len(aggregates)]
         converted = [
             _group_value(model._fields[parse_read_group_spec(gspec)[0]], None, value)
             for gspec, value in zip(groupby, groups)
