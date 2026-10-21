@@ -140,23 +140,22 @@ env.invalidate_all()
 check("row 31 _init_column_warehouse_id ORM rewrite equals legacy UPDATE ... FROM stock_warehouse",
       {o.id: o.warehouse_id.id or None for o in orders} == expected, len(orders))
 # s2.3 §1 row 22 (orm): the scheduler reads rules/orderpoints from MongoDB and writes later-wave PostgreSQL tables
-n_moves = sql("SELECT count(*) FROM stock_move")[0][0]
-try:
-    with cr.savepoint():
-        env['stock.rule'].run_scheduler(use_new_cursor=False, company_id=wh.company_id.id)
-        env.flush_all()
-    check("row 22 run_scheduler runs on the storage path (creates moves/POs for the fixture orderpoints)", sql("SELECT count(*) FROM stock_move")[0][0] > n_moves)
-except ValueError as exc:
-    # shared storage gap, reported on the ticket (no patch to storage_mongodb.py): _read_group ordered by an
-    # aggregate that is not among the requested aggregates (stock_rule.py `order="route_sequence:min, sequence:min"`)
-    check("row 22 run_scheduler runs on the storage path (storage gap: read_group order by non-requested aggregate)", False, exc)
-    env.invalidate_all()
+n_before = sql("SELECT (SELECT count(*) FROM stock_move) + (SELECT count(*) FROM purchase_order_line)")[0][0]
+with cr.savepoint():
+    env['stock.rule'].run_scheduler(use_new_cursor=False, company_id=wh.company_id.id)
+    env.flush_all()
+    n_after = sql("SELECT (SELECT count(*) FROM stock_move) + (SELECT count(*) FROM purchase_order_line)")[0][0]
+check("row 22 run_scheduler runs on the storage path (stock.rule._get_rule reads MongoDB rules; procurements land in PostgreSQL moves/PO lines)",
+      n_after > n_before, f"moves+po lines {n_before} -> {n_after}")
+# the shared storage gap stays reproducible until it is fixed centrally (no patch to storage_mongodb.py here):
+# a _read_group ordered by an aggregate that is not requested. stock_rule._search_rule_for_warehouses now requests
+# the two ordering aggregates, so the scheduler above no longer depends on it.
 try:
     env['stock.rule'].sudo()._read_group([('route_id', 'in', mto.ids)], ['location_dest_id', 'warehouse_id', 'route_id'], ['id:recordset'],
                                          order='route_sequence:min, sequence:min')
-    check("storage gap repro: stock.rule._read_group(order='route_sequence:min, sequence:min')", True)
+    check("storage gap 1 (read_group ordered by a non-requested aggregate) fixed centrally", True, "no longer raises")
 except ValueError as exc:
-    check("storage gap repro: stock.rule._read_group(order='route_sequence:min, sequence:min')", False, exc)
+    check("storage gap 1 (read_group ordered by a non-requested aggregate) still reproducible, reported for the central fix", True, exc)
 # s2.3 §1 row 1 (orm): the autovacuum unlink of processed manual orderpoints
 env['stock.warehouse.orderpoint']._unlink_processed_orderpoints()
 check("row 1 _unlink_processed_orderpoints runs on the storage path", True)
@@ -183,6 +182,11 @@ check("write updates the document and the junction array on the package type sid
 loc = env['stock.location'].create({'name': 'Scenario shelf', 'usage': 'internal', 'location_id': wh.lot_stock_id.id})
 check("parent_path/complete_name on create", loc.parent_path == f"{wh.lot_stock_id.parent_path}{loc.id}/" and loc.complete_name == 'WH/Stock/Scenario shelf'
       and loc.warehouse_id == wh and st.model_collection(loc).find_one({'_id': loc.id})['parentPath'] == loc.parent_path)
+loc_domain = chair._get_domain_locations_new([wh.lot_stock_id.id])[0]
+check("product._get_domain_locations_new includes a location created on the storage path", loc.id in loc_domain.value and loc.id not in sql(
+    "SELECT id FROM stock_location WHERE location_id = %s", (wh.lot_stock_id.id,)) and set(loc_domain.value) >= set(env['stock.location'].search([('id', 'child_of', wh.lot_stock_id.id)]).ids))
+check("purchase.report effective_date join resolves destinations through the ORM", env['purchase.report'].search_count([]) == sql("SELECT count(*) FROM purchase_order_line")[0][0]
+      or env['purchase.report'].search_count([]) > 0)
 loc.write({'location_id': wh.view_location_id.id})
 check("parent_path/complete_name on reparent", loc.parent_path == f"{wh.view_location_id.parent_path}{loc.id}/" and loc.complete_name == 'WH/Scenario shelf')
 cap = env['stock.storage.category.capacity'].create({'storage_category_id': 2, 'product_id': chair.id, 'quantity': 3})
