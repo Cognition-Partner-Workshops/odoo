@@ -316,15 +316,16 @@ Warehouse = env['stock.warehouse']
 if Warehouse.with_context(active_test=False).search_count([('code', '=', 'SEED')]):
     print(f"stock-config already seeded: warehouse {Warehouse.with_context(active_test=False).search([('code', '=', 'SEED')]).ids}")
 else:
-    # forward-only pins to the ids the live w3-b01 load used, so a fresh `createdb -T odoo_src` clone reproduces them
+    # forward-only pins to the ids the live w3-b01 load used, so a fresh `createdb -T odoo_src` clone reproduces them;
+    # stock_putaway_rule and stock_storage_category_capacity are not pinned: their rows follow whatever the earlier
+    # committed seeds left (seed_uom_packaging.py creates putaway rule 1), never below the existing max id
     LIVE_SEQUENCES = {'stock_warehouse_id_seq': 2, 'stock_location_id_seq': 32, 'stock_picking_type_id_seq': 16,
-                      'stock_route_id_seq': 6, 'stock_rule_id_seq': 8, 'stock_putaway_rule_id_seq': 0,
-                      'stock_storage_category_capacity_id_seq': 0, 'ir_sequence_id_seq': 32, 'stock_move_id_seq': 136}
+                      'stock_route_id_seq': 6, 'stock_rule_id_seq': 8, 'ir_sequence_id_seq': 32, 'stock_move_id_seq': 136}
     for seq, last in LIVE_SEQUENCES.items():
         env.cr.execute(f"SELECT last_value, is_called FROM {seq}")
         value, is_called = env.cr.fetchone()
         if (value if is_called else value - 1) <= last:
-            env.cr.execute("SELECT setval(%s, %s, %s)", (seq, max(last, 1), last > 0))
+            env.cr.execute("SELECT setval(%s, %s, true)", (seq, last))
         else:
             print(f"{seq} is already past {last} ({value}): ids on this clone will differ from the live load")
     wh = env.ref('stock.warehouse0')

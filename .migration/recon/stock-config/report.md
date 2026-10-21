@@ -7,7 +7,7 @@
 - Tolerance version: `unt12-3` (sha256 `7b426db21459`)
 - Collections: `stockLocation`, `stockPickingType`, `stockPutawayRule`, `stockRoute`, `stockRule`, `stockStorageCategoryCapacity`, `stockWarehouse`, `stockWarehouseOrderpoint`
 - Seed: `0`
-- Generated: 2026-10-21T03:19:02.398334+00:00
+- Generated: 2026-10-21T04:05:31.460487+00:00
 - 164 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 31 string fields: min/max/distinct deferred to Tier 3
 
@@ -15,7 +15,7 @@
 |---|---|---|---|
 | 1 | counts_through_mapping | 111 | PASS |
 | 2 | per_field_aggregates | 114 | PASS |
-| 3 | keyed_diffs | 114 | PASS |
+| 3 | keyed_diffs | 115 | PASS |
 | 4 | app_level_parity | 5 | PASS |
 
 ## Tier 1 coverage
@@ -24,7 +24,7 @@
   "source_counts": {
     "stockLocation": 38,
     "stockPickingType": 24,
-    "stockPutawayRule": 2,
+    "stockPutawayRule": 3,
     "stockRoute": 9,
     "stockRule": 15,
     "stockStorageCategoryCapacity": 2,
@@ -503,7 +503,7 @@
   },
   "stockPutawayRule": {
     "mode": "full_diff",
-    "population": 2,
+    "population": 3,
     "duplicate_source_key_count": 0
   },
   "stockRoute": {

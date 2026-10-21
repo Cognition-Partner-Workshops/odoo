@@ -85,8 +85,8 @@ check("stock.warehouse.orderpoint field values (decimal quantities)", all(
     for o, r in zip(ops, rows)), len(rows))
 rows = sql("SELECT id, product_id, category_id, location_in_id, location_out_id, storage_category_id, sequence FROM stock_putaway_rule ORDER BY id")
 pr = env['stock.putaway.rule'].browse([r[0] for r in rows])
-check("stock.putaway.rule field values (seeded rows)", rows and all(
-    (x.product_id.id or None, x.category_id.id or None, x.location_in_id.id, x.location_out_id.id, x.storage_category_id.id or None, x.sequence) == r[1:]
+check("stock.putaway.rule field values (uom-packaging seed row + the two seeded here)", rows and len(rows) == 3 and all(
+    (x.product_id.id or None, x.category_id.id or None, x.location_in_id.id, x.location_out_id.id, x.storage_category_id.id or None, x.sequence or None) == r[1:]
     for x, r in zip(pr, rows)), rows)
 rows = sql("SELECT id, storage_category_id, product_id, package_type_id, quantity FROM stock_storage_category_capacity ORDER BY id")
 caps = env['stock.storage.category.capacity'].browse([r[0] for r in rows])
@@ -118,9 +118,21 @@ check("stockRoute.categ / product (wave-1/2 readers of the route array) == Postg
 check("stockRoute.move forward ref into stock-ops (stock.move still PostgreSQL) == PostgreSQL twin",
       env['stock.move'].search([('route_ids', 'in', mto.ids)]).ids == [137] and env['stock.move'].browse(137).route_ids.ids == [])
 check("stockRoute.warehouse", sorted(mto.warehouse_ids.ids) == [r[0] for r in sql("SELECT warehouse_id FROM stock_route_warehouse WHERE route_id = %s ORDER BY 1", (mto.id,))])
-check("putaway rule -> package types (uom-packaging array) and storage category (stock-reference)", pr[1].package_type_ids.ids == [1, 2] and pr[1].storage_category_id.name == 'High frequency - Small'
-      and env['stock.package.type'].browse(1).putaway_rule_ids if 'putaway_rule_ids' in env['stock.package.type']._fields else True)
-check("capacity one2many from the storage category (wave-1 side)", env['stock.storage.category'].browse(1).capacity_ids == caps[0] and caps[1].uom_id.id is False or caps[0].uom_id == chair.uom_id)
+category_rule = env['stock.putaway.rule'].search([('category_id', '=', chair.categ_id.id)])
+check("putaway rule -> package types (uom-packaging array) and storage category (stock-reference), both directions, exact vs PostgreSQL",
+      len(category_rule) == 1 and category_rule.package_type_ids.ids == [1, 2]
+      and category_rule.package_type_ids.ids == [r[0] for r in sql("SELECT stock_package_type_id FROM stock_package_type_stock_putaway_rule_rel WHERE stock_putaway_rule_id = %s ORDER BY 1", (category_rule.id,))]
+      and category_rule.storage_category_id.name == 'High frequency - Small'
+      and env['stock.putaway.rule'].search([('package_type_ids', 'in', [1])], order='id').ids == [r[0] for r in sql(
+          "SELECT stock_putaway_rule_id FROM stock_package_type_stock_putaway_rule_rel WHERE stock_package_type_id = 1 ORDER BY 1")],
+      (category_rule.ids, category_rule.package_type_ids.ids, env['stock.putaway.rule'].search([('package_type_ids', 'in', [1])], order='id').ids))
+pg_caps_by_category = {cat: [r[0] for r in sql("SELECT id FROM stock_storage_category_capacity WHERE storage_category_id = %s ORDER BY id", (cat,))] for cat in (1, 2)}
+check("capacity one2many from the storage category (wave-1 side) and from the package type, exact vs PostgreSQL",
+      env['stock.storage.category'].browse(1).capacity_ids.ids == pg_caps_by_category[1] == [caps[0].id]
+      and env['stock.storage.category'].browse(2).capacity_ids.ids == pg_caps_by_category[2] == [caps[1].id]
+      and env['stock.package.type'].browse(1).storage_category_capacity_ids.ids == [r[0] for r in sql("SELECT id FROM stock_storage_category_capacity WHERE package_type_id = 1 ORDER BY id")] == [caps[1].id]
+      and caps[0].uom_id == chair.uom_id and not caps[1].uom_id,
+      (env['stock.storage.category'].browse(1).capacity_ids.ids, env['stock.storage.category'].browse(2).capacity_ids.ids, pg_caps_by_category))
 check("child_of / parent_path domain", env['stock.location'].search_count([('id', 'child_of', wh.view_location_id.id)]) == sql(
     "SELECT count(*) FROM stock_location WHERE active AND parent_path LIKE %s", (wh.view_location_id.parent_path + '%',))[0][0])
 check("many2one into MongoDB from a PostgreSQL model: stock.quant.location_id", env['stock.quant'].search_count([('location_id.usage', '=', 'internal')]) == sql(
