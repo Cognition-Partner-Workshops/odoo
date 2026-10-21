@@ -7,7 +7,7 @@
 - Tolerance version: `unt12-3` (sha256 `7b426db21459`)
 - Collections: `stockLocation`, `stockPickingType`, `stockPutawayRule`, `stockRoute`, `stockRule`, `stockStorageCategoryCapacity`, `stockWarehouse`, `stockWarehouseOrderpoint`
 - Seed: `0`
-- Generated: 2026-10-20T23:47:55.100811+00:00
+- Generated: 2026-10-21T03:19:02.398334+00:00
 - 164 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 31 string fields: min/max/distinct deferred to Tier 3
 

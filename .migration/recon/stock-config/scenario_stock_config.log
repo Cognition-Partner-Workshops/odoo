@@ -1,23 +1,23 @@
-2026-10-21 00:54:55,325 38910 INFO ? odoo: Odoo version 20.0
-2026-10-21 00:54:55,326 38910 INFO ? odoo: addons paths: _NamespacePath(['/home/ubuntu/repos/odoo/odoo/addons', '/home/ubuntu/.local/share/Odoo/addons/20.0', '/home/ubuntu/repos/odoo/addons'])
-2026-10-21 00:54:55,326 38910 INFO ? odoo: database: default@default:5433
-2026-10-21 00:54:55,579 38910 INFO ? odoo.service.server.ThreadedServer: Initiating shutdown
-2026-10-21 00:54:55,579 38910 INFO ? odoo.service.server.ThreadedServer: Hit CTRL-C again or send a second signal to force the shutdown.
-2026-10-21 00:54:55,593 38910 INFO odoo_w3b01 odoo.modules.loading: loading 1 modules...
-2026-10-21 00:54:55,595 38910 INFO odoo_w3b01 odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra)
-2026-10-21 00:54:55,605 38910 INFO odoo_w3b01 odoo.modules.loading: loading 70 modules...
-2026-10-21 00:54:55,708 38910 WARNING odoo_w3b01 odoo.addons.mail.controllers.attachment: markdown2 is not installed, markdown will not be rendered
-2026-10-21 00:54:55,878 38910 INFO odoo_w3b01 odoo.modules.loading: 70 modules loaded in 0.27s, 0 queries (+0 extra)
-2026-10-21 00:54:55,994 38910 INFO odoo_w3b01 odoo.modules.loading: Modules loaded.
-2026-10-21 00:54:56,029 38910 INFO odoo_w3b01 odoo.registry: Registry loaded in 0.445s
-2026-10-21 00:55:15,863 38910 INFO odoo_w3b01 odoo.models.unlink: User #1 deleted ir.model.data records with IDs: [73421, 73420, 67386]
-2026-10-21 00:55:15,864 38910 INFO odoo_w3b01 odoo.models.unlink: User #1 deleted stock.quant records with IDs: [4, 45, 44]
-2026-10-21 00:55:24,749 38910 ERROR odoo_w3b01 odoo.sql_db: bad query: b'DO \'BEGIN RAISE unique_violation USING MESSAGE = \'\'duplicate key value violates unique constraint "stock_warehouse_warehouse_code_uniq"\'\', TABLE = \'\'stock_warehouse\'\', CONSTRAINT = \'\'stock_warehouse_warehouse_code_uniq\'\', DETAIL = \'\'Key (code, companyId)=(WH, 1) already exists.\'\'; END\''
+2026-10-21 03:17:43,871 52140 INFO ? odoo: Odoo version 20.0
+2026-10-21 03:17:43,872 52140 INFO ? odoo: addons paths: _NamespacePath(['/home/ubuntu/repos/odoo/odoo/addons', '/home/ubuntu/.local/share/Odoo/addons/20.0', '/home/ubuntu/repos/odoo/addons'])
+2026-10-21 03:17:43,872 52140 INFO ? odoo: database: default@default:5433
+2026-10-21 03:17:44,313 52140 INFO ? odoo.service.server.ThreadedServer: Initiating shutdown
+2026-10-21 03:17:44,313 52140 INFO ? odoo.service.server.ThreadedServer: Hit CTRL-C again or send a second signal to force the shutdown.
+2026-10-21 03:17:44,342 52140 INFO odoo_w3b01 odoo.modules.loading: loading 1 modules...
+2026-10-21 03:17:44,347 52140 INFO odoo_w3b01 odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra)
+2026-10-21 03:17:44,370 52140 INFO odoo_w3b01 odoo.modules.loading: loading 70 modules...
+2026-10-21 03:17:44,503 52140 WARNING odoo_w3b01 odoo.addons.mail.controllers.attachment: markdown2 is not installed, markdown will not be rendered
+2026-10-21 03:17:44,701 52140 INFO odoo_w3b01 odoo.modules.loading: 70 modules loaded in 0.33s, 0 queries (+0 extra)
+2026-10-21 03:17:44,838 52140 INFO odoo_w3b01 odoo.modules.loading: Modules loaded.
+2026-10-21 03:17:44,870 52140 INFO odoo_w3b01 odoo.registry: Registry loaded in 0.541s
+2026-10-21 03:18:04,916 52140 INFO odoo_w3b01 odoo.models.unlink: User #1 deleted ir.model.data records with IDs: [73421, 73420, 67386]
+2026-10-21 03:18:04,917 52140 INFO odoo_w3b01 odoo.models.unlink: User #1 deleted stock.quant records with IDs: [4, 45, 44]
+2026-10-21 03:18:13,646 52140 ERROR odoo_w3b01 odoo.sql_db: bad query: b'DO \'BEGIN RAISE unique_violation USING MESSAGE = \'\'duplicate key value violates unique constraint "stock_warehouse_warehouse_code_uniq"\'\', TABLE = \'\'stock_warehouse\'\', CONSTRAINT = \'\'stock_warehouse_warehouse_code_uniq\'\', DETAIL = \'\'Key (code, companyId)=(WH, 1) already exists.\'\'; END\''
 ERROR: duplicate key value violates unique constraint "stock_warehouse_warehouse_code_uniq"
 DETAIL:  Key (code, companyId)=(WH, 1) already exists.
 CONTEXT:  PL/pgSQL function inline_code_block line 1 at RAISE
 
-2026-10-21 00:55:26,427 38910 INFO odoo_w3b01 odoo.models.unlink: User #1 deleted stock.putaway.rule records with IDs: [6]
+2026-10-21 03:18:15,274 52140 INFO odoo_w3b01 odoo.models.unlink: User #1 deleted stock.putaway.rule records with IDs: [7]
 PASS stock.warehouse search([]) order -- 2
 PASS stock.warehouse search_count
 PASS stock.warehouse exists()
@@ -65,7 +65,7 @@ PASS read_group by usage
 PASS name_search on stock.location (complete_name)
 PASS row 31 _init_column_warehouse_id ORM rewrite equals legacy UPDATE ... FROM stock_warehouse -- 25
 PASS row 22 run_scheduler runs on the storage path (stock.rule._get_rule reads MongoDB rules; procurements land in PostgreSQL moves/PO lines) -- moves+po lines 169 -> 170
-PASS storage gap 1 (read_group ordered by a non-requested aggregate) still reproducible, reported for the central fix -- Order term 'route_sequence:min' is not a valid aggregate nor valid groupby
+PASS storage gap 1 (read_group ordered by a non-requested aggregate) fixed centrally -- no longer raises
 PASS row 1 _unlink_processed_orderpoints runs on the storage path
 PASS report.stock.quantity view rebuilt over MongoDB-stored stock_location/stock_warehouse
 PASS create writes a document + shadow row -- ['_id', 'active', 'categoryId', 'companyId', 'createDate', 'createUid', 'locationInId', 'locationOutId', 'productId', 'sequence', 'sublocation', 'writeDate', 'writeUid']
@@ -75,7 +75,7 @@ PASS parent_path/complete_name on create
 PASS product._get_domain_locations_new includes a location created on the storage path
 PASS purchase.report effective_date join resolves destinations through the ORM
 PASS parent_path/complete_name on reparent
-PASS capacity create: Float stored as double -- {'_id': 4, 'storageCategoryId': 2, 'productId': 5, 'quantity': 3.0, 'createUid': 1, 'createDate': datetime.datetime(2026, 10, 21, 0, 54, 56, 39000), 'writeUid': 1, 'writeDate': datetime.datetime(2026, 10, 21, 0, 54, 56, 39000)}
+PASS capacity create: Float stored as double -- {'_id': 5, 'storageCategoryId': 2, 'productId': 5, 'quantity': 3.0, 'createUid': 1, 'createDate': datetime.datetime(2026, 10, 21, 3, 17, 44, 881000), 'writeUid': 1, 'writeDate': datetime.datetime(2026, 10, 21, 3, 17, 44, 881000)}
 PASS warehouse unique (code, company) refused -- UniqueViolation
 PASS unlink removes document + shadow row
 PASS rollback leaves the mirrored collections byte-identical
