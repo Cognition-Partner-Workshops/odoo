@@ -1,0 +1,172 @@
+2026-10-20 23:49:54,107 20791 INFO ? odoo: Odoo version 20.0
+2026-10-20 23:49:54,107 20791 INFO ? odoo: addons paths: _NamespacePath(['/home/ubuntu/repos/odoo/odoo/addons', '/home/ubuntu/.local/share/Odoo/addons/20.0', '/home/ubuntu/repos/odoo/addons'])
+2026-10-20 23:49:54,107 20791 INFO ? odoo: database: default@default:5433
+2026-10-20 23:49:54,386 20791 INFO ? odoo.service.server.ThreadedServer: Initiating shutdown
+2026-10-20 23:49:54,386 20791 INFO ? odoo.service.server.ThreadedServer: Hit CTRL-C again or send a second signal to force the shutdown.
+2026-10-20 23:49:54,400 20791 INFO odoo_w3b01 odoo.modules.loading: loading 1 modules...
+2026-10-20 23:49:54,402 20791 INFO odoo_w3b01 odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra)
+2026-10-20 23:49:54,413 20791 INFO odoo_w3b01 odoo.modules.loading: loading 70 modules...
+2026-10-20 23:49:54,505 20791 WARNING odoo_w3b01 odoo.addons.mail.controllers.attachment: markdown2 is not installed, markdown will not be rendered
+2026-10-20 23:49:54,668 20791 INFO odoo_w3b01 odoo.modules.loading: 70 modules loaded in 0.25s, 0 queries (+0 extra)
+2026-10-20 23:49:54,801 20791 INFO odoo_w3b01 odoo.modules.loading: Modules loaded.
+2026-10-20 23:49:54,830 20791 INFO odoo_w3b01 odoo.registry: Registry loaded in 0.440s
+2026-10-20 23:50:03,179 20791 ERROR odoo_w3b01 odoo.addons.stock.models.stock_rule: Error during stock scheduler
+Traceback (most recent call last):
+  File "/home/ubuntu/repos/odoo/addons/stock/models/stock_rule.py", line 728, in run_scheduler
+    self._run_scheduler_tasks(use_new_cursor=use_new_cursor, company_id=company_id)
+  File "/home/ubuntu/repos/odoo/addons/stock/models/stock_rule.py", line 689, in _run_scheduler_tasks
+    orderpoints.sudo()._compute_qty_to_order_computed()
+  File "/home/ubuntu/repos/odoo/addons/purchase_stock/models/stock.py", line 188, in _compute_qty_to_order_computed
+    return super()._compute_qty_to_order_computed()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/addons/stock/models/stock_orderpoint.py", line 464, in _compute_qty_to_order_computed
+    orderpoints = self.filtered(to_compute)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/odoo/orm/models.py", line 5747, in filtered
+    ids = tuple(id_ for id_, rec in zip(self._ids, self) if func(rec))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/odoo/orm/models.py", line 5747, in <genexpr>
+    ids = tuple(id_ for id_, rec in zip(self._ids, self) if func(rec))
+                                                            ^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/addons/stock/models/stock_orderpoint.py", line 461, in to_compute
+    and orderpoint.uom_id.compare(orderpoint.qty_forecast, orderpoint.product_min_qty) < 0
+                                  ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/odoo/orm/fields.py", line 1924, in __get__
+    self.compute_value(recs)
+  File "/home/ubuntu/repos/odoo/odoo/orm/fields.py", line 2100, in compute_value
+    records._compute_field_value(self)
+  File "/home/ubuntu/repos/odoo/odoo/orm/models.py", line 4498, in _compute_field_value
+    determine(field.compute, self)
+  File "/home/ubuntu/repos/odoo/odoo/orm/fields.py", line 82, in determine
+    return needle(*args)
+           ^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/addons/stock/models/stock_orderpoint.py", line 419, in _compute_qty
+    orderpoint_context = orderpoint._get_product_context()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/addons/stock/models/stock_orderpoint.py", line 527, in _get_product_context
+    'to_date': datetime.combine(self.lead_horizon_date, time.max)
+                                ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/odoo/orm/fields.py", line 1924, in __get__
+    self.compute_value(recs)
+  File "/home/ubuntu/repos/odoo/odoo/orm/fields.py", line 2100, in compute_value
+    records._compute_field_value(self)
+  File "/home/ubuntu/repos/odoo/odoo/orm/models.py", line 4498, in _compute_field_value
+    determine(field.compute, self)
+  File "/home/ubuntu/repos/odoo/odoo/orm/fields.py", line 82, in determine
+    return needle(*args)
+           ^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/addons/purchase_stock/models/stock.py", line 192, in _compute_lead_days
+    return super()._compute_lead_days()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/addons/stock/models/stock_orderpoint.py", line 213, in _compute_lead_days
+    lead_days, _ = orderpoint.sudo().rule_ids._get_lead_days(orderpoint.product_id, bypass_delay_description=True, **values)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/odoo/orm/fields_relational.py", line 45, in __get__
+    return super().__get__(records, owner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/odoo/orm/fields.py", line 1924, in __get__
+    self.compute_value(recs)
+  File "/home/ubuntu/repos/odoo/odoo/orm/fields.py", line 2100, in compute_value
+    records._compute_field_value(self)
+  File "/home/ubuntu/repos/odoo/odoo/orm/models.py", line 4498, in _compute_field_value
+    determine(field.compute, self)
+  File "/home/ubuntu/repos/odoo/odoo/orm/fields.py", line 82, in determine
+    return needle(*args)
+           ^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/addons/stock/models/stock_orderpoint.py", line 237, in _compute_rules
+    rule_ids = rules_cache.get(cache_key) or orderpoint.product_id._get_rules_from_location(
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/addons/stock/models/product.py", line 711, in _get_rules_from_location
+    rule = self.env['stock.rule'].with_context(active_test=True)._get_rule(self, location, {
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/addons/stock/models/stock_rule.py", line 562, in _get_rule
+    rule_dict = self._search_rule_for_warehouses(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/addons/stock/models/stock_rule.py", line 499, in _search_rule_for_warehouses
+    res = self.env["stock.rule"].sudo()._read_group(  # sudo() needed for cross company warehouse usage
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/odoo/orm/models.py", line 2055, in _read_group
+    row_values = storage_mongodb.read_group_rows(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/repos/odoo/odoo/orm/storage_mongodb.py", line 2077, in read_group_rows
+    raise ValueError(f"Order term {part!r} is not a valid aggregate nor valid groupby")
+ValueError: Order term 'route_sequence:min' is not a valid aggregate nor valid groupby
+2026-10-20 23:50:08,970 20791 ERROR odoo_w3b01 odoo.sql_db: bad query: b'DO \'BEGIN RAISE unique_violation USING MESSAGE = \'\'duplicate key value violates unique constraint "stock_warehouse_warehouse_code_uniq"\'\', TABLE = \'\'stock_warehouse\'\', CONSTRAINT = \'\'stock_warehouse_warehouse_code_uniq\'\', DETAIL = \'\'Key (code, companyId)=(WH, 1) already exists.\'\'; END\''
+ERROR: duplicate key value violates unique constraint "stock_warehouse_warehouse_code_uniq"
+DETAIL:  Key (code, companyId)=(WH, 1) already exists.
+CONTEXT:  PL/pgSQL function inline_code_block line 1 at RAISE
+
+2026-10-20 23:50:10,536 20791 INFO odoo_w3b01 odoo.models.unlink: User #1 deleted stock.putaway.rule records with IDs: [3]
+PASS stock.warehouse search([]) order -- 2
+PASS stock.warehouse search_count
+PASS stock.warehouse exists()
+PASS stock.location search([]) order -- 22
+PASS stock.location search_count
+PASS stock.location exists()
+PASS stock.picking.type search([]) order -- 6
+PASS stock.picking.type search_count
+PASS stock.picking.type exists()
+PASS stock.route search([]) order -- 6
+PASS stock.route search_count
+PASS stock.route exists()
+PASS stock.rule search([]) order -- 9
+PASS stock.rule search_count
+PASS stock.rule exists()
+PASS stock.putaway.rule search([]) order -- 2
+PASS stock.putaway.rule search_count
+PASS stock.putaway.rule exists()
+PASS stock.storage.category.capacity search([]) order -- 2
+PASS stock.storage.category.capacity search_count
+PASS stock.storage.category.capacity exists()
+PASS stock.warehouse.orderpoint search([]) order -- 5
+PASS stock.warehouse.orderpoint search_count
+PASS stock.warehouse.orderpoint exists()
+PASS stock.warehouse field values -- [('YourCompany', 'WH'), ('My Company (Chicago)', 'My Co')]
+PASS stock.location field values incl. parent_path -- 22
+PASS stock.picking.type field values (translated name) -- 6
+PASS stock.rule field values -- 9
+PASS stock.warehouse.orderpoint field values (decimal quantities) -- 5
+PASS stock.putaway.rule field values (seeded rows) -- [(1, 5, None, 7, 17, None, 10), (2, None, 5, 7, 16, 1, 20)]
+PASS stock.storage.category.capacity field values (seeded rows) -- [(1, 1, 5, None, 10.0), (2, 2, None, 1, 4.0)]
+PASS stockWarehouse.stockWhResupplyTable both directions -- [1]
+PASS domain on the resupply array (archived depot)
+PASS stockPickingType.pickingTypeFavoriteUserRel + is_favorite (compute_sql field)
+PASS stock.picking.type default order is_favorite desc, sequence, id -- ([1, 7, 2], [1, 7, 2])
+PASS stockLocation.stockPickingTypeRel (wave locations) both directions
+PASS stockRoute.categ / product (wave-1/2 readers of the route array) == PostgreSQL twin
+PASS stockRoute.move forward ref into stock-ops (stock.move still PostgreSQL) == PostgreSQL twin
+PASS stockRoute.warehouse
+PASS putaway rule -> package types (uom-packaging array) and storage category (stock-reference)
+PASS capacity one2many from the storage category (wave-1 side)
+PASS child_of / parent_path domain
+PASS many2one into MongoDB from a PostgreSQL model: stock.quant.location_id
+PASS read_group by usage
+PASS name_search on stock.location (complete_name)
+PASS row 31 _init_column_warehouse_id ORM rewrite equals legacy UPDATE ... FROM stock_warehouse -- 25
+FAIL row 22 run_scheduler runs on the storage path (storage gap: read_group order by non-requested aggregate) -- Order term 'route_sequence:min' is not a valid aggregate nor valid groupby
+FAIL storage gap repro: stock.rule._read_group(order='route_sequence:min, sequence:min') -- Order term 'route_sequence:min' is not a valid aggregate nor valid groupby
+PASS row 1 _unlink_processed_orderpoints runs on the storage path
+PASS report.stock.quantity view rebuilt over MongoDB-stored stock_location/stock_warehouse
+PASS create writes a document + shadow row -- ['_id', 'active', 'categoryId', 'companyId', 'createDate', 'createUid', 'locationInId', 'locationOutId', 'productId', 'sequence', 'sublocation', 'writeDate', 'writeUid']
+PASS search sees the new row first
+PASS write updates the document and the junction array on the package type side
+PASS parent_path/complete_name on create
+PASS parent_path/complete_name on reparent
+PASS capacity create: Float stored as double -- {'_id': 3, 'storageCategoryId': 2, 'productId': 5, 'quantity': 3.0, 'createUid': 1, 'createDate': datetime.datetime(2026, 10, 20, 23, 49, 54, 841000), 'writeUid': 1, 'writeDate': datetime.datetime(2026, 10, 20, 23, 49, 54, 841000)}
+PASS warehouse unique (code, company) refused -- UniqueViolation
+PASS unlink removes document + shadow row
+PASS rollback leaves the mirrored collections byte-identical
+57/59 checks passed
+Traceback (most recent call last):
+  File "/home/ubuntu/repos/odoo/odoo-bin", line 6, in <module>
+    odoo.cli.main()
+  File "/home/ubuntu/repos/odoo/odoo/cli/command.py", line 139, in main
+    command().run(args)
+  File "/home/ubuntu/repos/odoo/odoo/cli/shell.py", line 161, in run
+    self.shell(dbnames[0])
+  File "/home/ubuntu/repos/odoo/odoo/cli/shell.py", line 147, in shell
+    self.console(local_vars)
+  File "/home/ubuntu/repos/odoo/odoo/cli/shell.py", line 82, in console
+    exec(sys.stdin.read(), local_vars)
+  File "<string>", line 206, in <module>
+AssertionError

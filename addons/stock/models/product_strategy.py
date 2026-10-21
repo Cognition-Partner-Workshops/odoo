@@ -16,6 +16,7 @@ class ProductRemoval(models.Model):
 
 class StockPutawayRule(models.Model):
     _name = 'stock.putaway.rule'
+    _storage = 'mongodb'
     _order = 'sequence,product_id'
     _description = 'Putaway Rule'
     _check_company_auto = True

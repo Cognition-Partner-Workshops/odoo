@@ -42,6 +42,7 @@ class Procurement(NamedTuple):
 class StockRule(models.Model):
     """ A rule describe what a procurement should do; produce, buy, move, ... """
     _name = 'stock.rule'
+    _storage = 'mongodb'
     _description = "Stock Rule"
     _order = "sequence, id"
     _check_company_auto = True

@@ -1,0 +1,32 @@
+[
+  {
+    "name": "warehouse_resupply",
+    "collection": "stockWarehouse",
+    "source_sql": "SELECT w.id, w.code, w.company_id, (SELECT count(*) FROM stock_wh_resupply_table r WHERE r.supplied_wh_id = w.id) AS n_resupply FROM stock_warehouse w",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "code": 1, "company_id": "$companyId", "n_resupply": {"$size": {"$ifNull": ["$stockWhResupplyTable", []]}}}}]
+  },
+  {
+    "name": "internal_locations_by_warehouse",
+    "collection": "stockLocation",
+    "source_sql": "SELECT warehouse_id, count(*) AS n FROM stock_location WHERE usage = 'internal' AND active GROUP BY warehouse_id",
+    "target_pipeline": [{"$match": {"usage": "internal", "active": true}}, {"$group": {"_id": "$warehouseId", "n": {"$sum": 1}}}, {"$project": {"_id": 0, "warehouse_id": {"$ifNull": ["$_id", null]}, "n": 1}}]
+  },
+  {
+    "name": "picking_types_per_code",
+    "collection": "stockPickingType",
+    "source_sql": "SELECT id, code, sequence, warehouse_id, (SELECT count(*) FROM picking_type_favorite_user_rel f WHERE f.picking_type_id = t.id) AS n_favorites FROM stock_picking_type t WHERE active",
+    "target_pipeline": [{"$match": {"active": true}}, {"$project": {"_id": 0, "id": "$_id", "code": 1, "sequence": 1, "warehouse_id": {"$ifNull": ["$warehouseId", null]}, "n_favorites": {"$size": {"$ifNull": ["$pickingTypeFavoriteUserRel", []]}}}}]
+  },
+  {
+    "name": "pull_rules_per_route",
+    "collection": "stockRule",
+    "source_sql": "SELECT route_id, action, count(*) AS n FROM stock_rule WHERE active GROUP BY route_id, action",
+    "target_pipeline": [{"$match": {"active": true}}, {"$group": {"_id": {"r": "$routeId", "a": "$action"}, "n": {"$sum": 1}}}, {"$project": {"_id": 0, "route_id": "$_id.r", "action": "$_id.a", "n": 1}}]
+  },
+  {
+    "name": "orderpoint_bounds",
+    "collection": "stockWarehouseOrderpoint",
+    "source_sql": "SELECT id, product_id, location_id, trigger, product_min_qty, product_max_qty FROM stock_warehouse_orderpoint",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "product_id": "$productId", "location_id": "$locationId", "trigger": 1, "product_min_qty": "$productMinQty", "product_max_qty": "$productMaxQty"}}]
+  }
+]

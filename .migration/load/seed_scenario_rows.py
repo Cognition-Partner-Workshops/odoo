@@ -306,3 +306,86 @@ for table, cols in (('product_pricelist', "name->>'en_US', active"),
                     ('template_attribute_value_stock_move_rel', 'template_attribute_value_id, move_id')):
     env.cr.execute(f"SELECT * FROM (SELECT {cols} FROM {table}) t ORDER BY 1, 2")
     print(table, env.cr.fetchall())
+
+# --- w3-b01 (unit stock-config): the two roots and six arrays with 0 fixture rows (units.json recon_unverified) ---
+# stockPutawayRule, stockStorageCategoryCapacity, stockWarehouse.stockWhResupplyTable (an archived third warehouse resupplied from WH),
+# stockLocation.stockPickingTypeRel (wave locations of WH receipts), stockPickingType.pickingTypeFavoriteUserRel (admin),
+# stockRoute.{categ, product, move} (the MTO route on the Office Chair's category, its template and one stock.move).
+# Anchored on fixture warehouse WH, storage categories 1-2, package types Pallet/Box and product 5 (Office Chair).
+Warehouse = env['stock.warehouse']
+if Warehouse.with_context(active_test=False).search_count([('code', '=', 'SEED')]):
+    print(f"stock-config already seeded: warehouse {Warehouse.with_context(active_test=False).search([('code', '=', 'SEED')]).ids}")
+else:
+    # forward-only pins to the ids the live w3-b01 load used, so a fresh `createdb -T odoo_src` clone reproduces them
+    LIVE_SEQUENCES = {'stock_warehouse_id_seq': 2, 'stock_location_id_seq': 32, 'stock_picking_type_id_seq': 16,
+                      'stock_route_id_seq': 6, 'stock_rule_id_seq': 8, 'stock_putaway_rule_id_seq': 0,
+                      'stock_storage_category_capacity_id_seq': 0, 'ir_sequence_id_seq': 32, 'stock_move_id_seq': 136}
+    for seq, last in LIVE_SEQUENCES.items():
+        env.cr.execute(f"SELECT last_value, is_called FROM {seq}")
+        value, is_called = env.cr.fetchone()
+        if (value if is_called else value - 1) <= last:
+            env.cr.execute("SELECT setval(%s, %s, %s)", (seq, max(last, 1), last > 0))
+        else:
+            print(f"{seq} is already past {last} ({value}): ids on this clone will differ from the live load")
+    wh = env.ref('stock.warehouse0')
+    chair = env['product.product'].browse(5)
+    furniture = chair.categ_id
+    mto = env.ref('stock.route_warehouse0_mto')
+    shelf1 = env['stock.location'].search([('complete_name', '=', 'WH/Stock/Shelf 1')])
+    shelf2 = env['stock.location'].search([('complete_name', '=', 'WH/Stock/Shelf 2')])
+    small, big = env['stock.storage.category'].browse([1, 2])
+    pallet, box = env['stock.package.type'].browse([1, 2])
+    assert chair.name == 'Office Chair' and chair.is_storable and shelf1 and shelf2 and small.name and big.name and pallet.name and box.name, \
+        f"seed inputs on this clone: {chair.name!r} {shelf1.ids} {shelf2.ids} {small.name!r} {big.name!r} {pallet.name!r} {box.name!r}"
+    # the depot exists only to carry the resupply array: it is archived at once (its routes, rules, picking types and
+    # locations with it) and the multi-warehouse/multi-location groups its creation switched on for every user are
+    # switched off again, so the committed scenarios still run against a single active warehouse per company
+    group_user = env.ref('base.group_user')
+    implied_before = group_user.implied_ids
+    depot = Warehouse.create({'name': 'Seeded Depot', 'code': 'SEED', 'company_id': wh.company_id.id, 'resupply_wh_ids': [(6, 0, wh.ids)]})
+    depot.write({'active': False})
+    for group in group_user.implied_ids - implied_before:
+        group_user.write({'implied_ids': [(3, group.id)]})
+        group.write({'user_ids': [(3, user.id) for user in group_user.all_user_ids]})
+    assert depot.resupply_wh_ids == wh and not depot.active and group_user.implied_ids == implied_before
+    wh.in_type_id.write({'favorite_user_ids': [(4, env.ref('base.user_admin').id)],
+                         'wave_location_ids': [(6, 0, (wh.lot_stock_id | shelf1).ids)]})
+    furniture.write({'route_ids': [(4, mto.id)]})
+    chair.product_tmpl_id.write({'route_ids': [(4, mto.id)]})
+    routed_move = env['stock.move'].create({
+        'product_id': chair.id, 'product_uom_qty': 2.0, 'route_ids': [(6, 0, mto.ids)],
+        'location_id': wh.lot_stock_id.id, 'location_dest_id': env.ref('stock.stock_location_customers').id})
+    putaway_rules = env['stock.putaway.rule'].create([
+        {'product_id': chair.id, 'location_in_id': wh.lot_stock_id.id, 'location_out_id': shelf1.id, 'sequence': 10},
+        {'category_id': furniture.id, 'location_in_id': wh.lot_stock_id.id, 'location_out_id': shelf2.id,
+         'storage_category_id': small.id, 'package_type_ids': [(6, 0, (pallet | box).ids)], 'sequence': 20},
+    ])
+    capacities = env['stock.storage.category.capacity'].create([
+        {'storage_category_id': small.id, 'product_id': chair.id, 'quantity': 10.0},
+        {'storage_category_id': big.id, 'package_type_id': pallet.id, 'quantity': 4.0},
+    ])
+    env.flush_all()
+    print(f"stock-config seeded: archived warehouse {depot.id} (locations {depot.view_location_id.ids + depot.view_location_id.child_ids.ids}, "
+          f"picking types {env['stock.picking.type'].with_context(active_test=False).search([('warehouse_id', '=', depot.id)]).ids}, "
+          f"routes {env['stock.route'].with_context(active_test=False).search([('warehouse_ids', 'in', depot.ids)]).ids}, rules {env['stock.rule'].with_context(active_test=False).search([('warehouse_id', '=', depot.id)]).ids}) "
+          f"resupplied from {wh.id}; receipts {wh.in_type_id.id} favorite of admin, wave locations {(wh.lot_stock_id | shelf1).ids}; "
+          f"MTO route {mto.id} on category {furniture.id}, template {chair.product_tmpl_id.id}, move {routed_move.id}; "
+          f"putaway rules {putaway_rules.ids}; capacities {capacities.ids}")
+# every row of the unit's tables (and of the wave-1/2 tables the arrays above hang off) carries the fixture instant
+# again, so a verifier's reseed reproduces the documents byte for byte
+for table in ('stock_warehouse', 'stock_location', 'stock_picking_type', 'stock_route', 'stock_rule', 'stock_putaway_rule',
+              'stock_storage_category_capacity', 'stock_warehouse_orderpoint', 'stock_move', 'product_template', 'product_category', 'ir_sequence'):
+    env.cr.execute(f"UPDATE {table} SET create_date = %s, write_date = %s WHERE create_date <> %s OR write_date <> %s",
+                   (FIXED_INSTANT, FIXED_INSTANT, FIXED_INSTANT, FIXED_INSTANT))
+    if env.cr.rowcount:
+        print(f"{table}: {env.cr.rowcount} rows re-pinned to {FIXED_INSTANT}")
+env.cr.commit()
+for table, cols in (('stock_putaway_rule', 'product_id, category_id, location_in_id, location_out_id, storage_category_id, sequence'),
+                    ('stock_storage_category_capacity', 'storage_category_id, product_id, package_type_id, quantity'),
+                    ('stock_wh_resupply_table', 'supplied_wh_id, supplier_wh_id'),
+                    ('stock_location_stock_picking_type_rel', 'stock_picking_type_id, stock_location_id'),
+                    ('picking_type_favorite_user_rel', 'picking_type_id, user_id'),
+                    ('stock_route_categ', 'route_id, categ_id'), ('stock_route_product', 'route_id, product_id'), ('stock_route_move', 'route_id, move_id'),
+                    ('stock_package_type_stock_putaway_rule_rel', 'stock_putaway_rule_id, stock_package_type_id')):
+    env.cr.execute(f"SELECT * FROM (SELECT {cols} FROM {table}) t ORDER BY 1, 2")
+    print(table, env.cr.fetchall())

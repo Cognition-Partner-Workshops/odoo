@@ -53,18 +53,15 @@ class SaleOrder(models.Model):
         We therefore enforce the default here, without going through
         the default function on the warehouse_id field.
         """
-        default_warehouse = self.env["stock.warehouse"].search([], limit=1)
-
-        query = """
-        UPDATE sale_order so
-        SET warehouse_id = COALESCE(wh.id, %s)
-        FROM stock_warehouse wh
-        WHERE so.company_id = wh.company_id and so.warehouse_id IS NULL and wh.active
-        """
-        params = [default_warehouse.id]
-
+        # stock_warehouse is MongoDB-stored: take each company's first active warehouse through the ORM
+        # and keep the column write on the PostgreSQL sale_order table (NOTES.md s2.3 row 31)
+        warehouses = self.env["stock.warehouse"].search([], order='id')
         _logger.debug("Initializing column 'warehouse_id' in table '%s'", self._table)
-        self.env.cr.execute(query, params)
+        for company, company_warehouses in warehouses.grouped('company_id').items():
+            self.env.cr.execute(
+                "UPDATE sale_order SET warehouse_id = %s WHERE company_id = %s AND warehouse_id IS NULL",
+                [company_warehouses[0].id, company.id],
+            )
 
     @api.depends('picking_ids.date_done')
     def _compute_effective_date(self):

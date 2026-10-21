@@ -12,6 +12,7 @@ from odoo.fields import Command, Domain
 
 class StockLocation(models.Model):
     _name = 'stock.location'
+    _storage = 'mongodb'
     _description = "Inventory Location"
     _parent_name = "location_id"
     _parent_store = True
@@ -512,6 +513,7 @@ class StockLocation(models.Model):
 
 class StockRoute(models.Model):
     _name = 'stock.route'
+    _storage = 'mongodb'
     _description = "Inventory Route"
     _order = 'sequence'
     _check_company_auto = True

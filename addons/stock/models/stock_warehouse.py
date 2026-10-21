@@ -22,6 +22,7 @@ ROUTE_NAMES = {
 
 class StockWarehouse(models.Model):
     _name = 'stock.warehouse'
+    _storage = 'mongodb'
     _description = "Warehouse"
     _order = 'sequence,id'
     _check_company_auto = True
