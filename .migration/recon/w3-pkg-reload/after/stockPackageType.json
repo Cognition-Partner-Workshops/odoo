@@ -1,0 +1,88 @@
+[
+ {
+  "_id": 1,
+  "barcode": "PAL",
+  "createDate": {
+   "$date": "2026-10-20T00:00:00Z"
+  },
+  "createUid": 1,
+  "height": 130.0,
+  "maxWeight": 4000.0,
+  "name": "Pallet",
+  "packageUse": "disposable",
+  "packagingLength": 1200.0,
+  "sequence": 1,
+  "sequenceId": 19,
+  "stockPutawayRuleRel": [
+   {
+    "stockPutawayRuleId": 1
+   },
+   {
+    "stockPutawayRuleId": 3
+   }
+  ],
+  "width": 800.0,
+  "writeDate": {
+   "$date": "2026-10-20T00:00:00Z"
+  },
+  "writeUid": 1
+ },
+ {
+  "_id": 2,
+  "barcode": "BOX",
+  "createDate": {
+   "$date": "2026-10-20T00:00:00Z"
+  },
+  "createUid": 1,
+  "height": 374.0,
+  "maxWeight": 30.0,
+  "name": "Box",
+  "packageUse": "disposable",
+  "packagingLength": 562.0,
+  "sequence": 1,
+  "sequenceId": 20,
+  "stockPutawayRuleRel": [
+   {
+    "stockPutawayRuleId": 3
+   }
+  ],
+  "width": 362.0,
+  "writeDate": {
+   "$date": "2026-10-20T00:00:00Z"
+  },
+  "writeUid": 1
+ },
+ {
+  "_id": 3,
+  "barcode": "TOTE-SEED",
+  "baseWeight": 1.5,
+  "createDate": {
+   "$date": "2026-10-20T00:00:00Z"
+  },
+  "createUid": 1,
+  "height": 30.0,
+  "maxWeight": 25.0,
+  "name": "Seeded tote",
+  "packageUse": "reusable",
+  "packagingLength": 60.0,
+  "sequence": 5,
+  "stockPutawayRuleRel": [
+   {
+    "stockPutawayRuleId": 1
+   }
+  ],
+  "stockRouteRel": [
+   {
+    "stockRouteId": 2
+   },
+   {
+    "stockRouteId": 3
+   }
+  ],
+  "width": 40.0,
+  "writeDate": {
+   "$date": "2026-10-20T00:00:00Z"
+  },
+  "writeUid": 1
+ }
+]

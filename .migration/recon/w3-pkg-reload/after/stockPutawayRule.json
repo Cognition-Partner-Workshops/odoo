@@ -1,0 +1,55 @@
+[
+ {
+  "_id": 1,
+  "active": true,
+  "companyId": 1,
+  "createDate": {
+   "$date": "2026-10-20T00:00:00Z"
+  },
+  "createUid": 1,
+  "locationInId": 7,
+  "locationOutId": 7,
+  "sublocation": "no",
+  "writeDate": {
+   "$date": "2026-10-20T00:00:00Z"
+  },
+  "writeUid": 1
+ },
+ {
+  "_id": 2,
+  "active": true,
+  "companyId": 1,
+  "createDate": {
+   "$date": "2026-10-20T00:00:00Z"
+  },
+  "createUid": 1,
+  "locationInId": 7,
+  "locationOutId": 17,
+  "productId": 5,
+  "sequence": 10,
+  "sublocation": "no",
+  "writeDate": {
+   "$date": "2026-10-20T00:00:00Z"
+  },
+  "writeUid": 1
+ },
+ {
+  "_id": 3,
+  "active": true,
+  "categoryId": 5,
+  "companyId": 1,
+  "createDate": {
+   "$date": "2026-10-20T00:00:00Z"
+  },
+  "createUid": 1,
+  "locationInId": 7,
+  "locationOutId": 16,
+  "sequence": 20,
+  "storageCategoryId": 1,
+  "sublocation": "no",
+  "writeDate": {
+   "$date": "2026-10-20T00:00:00Z"
+  },
+  "writeUid": 1
+ }
+]
