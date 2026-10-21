@@ -1175,7 +1175,8 @@ def fetch_query(model: BaseModel, query: MongoQuery, fields: Iterable[Field]) ->
 
     spec = store(model).storage(model)
     if column_fields:
-        model.flush_model([field.name for field in column_fields])     # the SQL SELECT flushes its columns
+        # like the SQL fetch, the fetched columns themselves are not flushed:
+        # their pending values are in cache already
         projection = {spec.target(field.name): 1 for field in column_fields}
         projection['_id'] = 1
         docs = query.run(projection)
