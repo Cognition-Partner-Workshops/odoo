@@ -44,6 +44,7 @@ LOT_LABEL_FORMATS = [
 
 class StockPickingType(models.Model):
     _name = 'stock.picking.type'
+    _storage = 'mongodb'
     _description = "Picking Type"
     _explanation = "Defines the type of stock operation (e.g., Receipts, Deliveries, Internal Transfers) and contains configuration for how these operations should behave in the warehouse."
     _order = 'is_favorite desc, sequence, id'

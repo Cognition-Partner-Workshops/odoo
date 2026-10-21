@@ -415,34 +415,17 @@ class ProductProduct(models.Model):
             dest_loc_domain_out = Domain('location_dest_id', 'not in', locations.ids)
             dest_loc_domain_done = dest_loc_domain
         elif locations:
-            descendants_query = SQL(
-                    """
-                    (
-                        WITH RECURSIVE descendants AS (
-                            SELECT id
-                            FROM stock_location
-                            WHERE id IN %s
-
-                            UNION
-
-                            SELECT sl.id
-                            FROM stock_location sl
-                            JOIN descendants d
-                                ON sl.location_id = d.id
-                        )
-                        SELECT id FROM descendants
-                    )
-                    """,
-                    tuple(locations.ids),
-            )
-            loc_domain = Domain('location_id', 'in', descendants_query)
+            # stock_location is MongoDB-stored: the descendants come from the storage path (parent_path), not from a
+            # recursive query on the PostgreSQL id shadow, which holds no location_id for locations created since
+            descendant_ids = locations.sudo().with_context(active_test=False).search([('id', 'child_of', locations.ids)]).ids
+            loc_domain = Domain('location_id', 'in', descendant_ids)
             # The condition should be split for done and not-done moves as the final_dest_id only make sense
             # for the part of the move chain that is not done yet.
-            dest_loc_domain_done = Domain('location_dest_id', 'in', descendants_query)
+            dest_loc_domain_done = Domain('location_dest_id', 'in', descendant_ids)
             dest_loc_domain_in_progress = Domain([
                 '|',
-                    '&', ('forecasted_location_id', '!=', False), ('forecasted_location_id', 'in', descendants_query),
-                    '&', ('forecasted_location_id', '=', False), ('location_dest_id', 'in', descendants_query),
+                    '&', ('forecasted_location_id', '!=', False), ('forecasted_location_id', 'in', descendant_ids),
+                    '&', ('forecasted_location_id', '=', False), ('location_dest_id', 'in', descendant_ids),
             ])
             dest_loc_domain = Domain([
                 '|',

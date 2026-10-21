@@ -51,6 +51,7 @@ class StockStorageCategory(models.Model):
 
 class StockStorageCategoryCapacity(models.Model):
     _name = 'stock.storage.category.capacity'
+    _storage = 'mongodb'
     _description = "Storage Category Capacity"
     _check_company_auto = True
     _order = "storage_category_id"

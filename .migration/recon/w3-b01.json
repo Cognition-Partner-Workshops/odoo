@@ -1,0 +1,60 @@
+{
+  "batch": "w3-b01",
+  "status": "PASS",
+  "recon_results": [
+    ".migration/recon/stock-config/result.json"
+  ],
+  "fixture_results": [
+    ".migration/recon/stock-config/fixture/result.json"
+  ],
+  "write_targets": [
+    "odoo_unt12.stockWarehouse",
+    "odoo_unt12.stockLocation",
+    "odoo_unt12.stockPickingType",
+    "odoo_unt12.stockRoute",
+    "odoo_unt12.stockRule",
+    "odoo_unt12.stockPutawayRule",
+    "odoo_unt12.stockStorageCategoryCapacity",
+    "odoo_unt12.stockWarehouseOrderpoint"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/73",
+  "branch": "devin/1792537372-w3-b01-stock-config",
+  "head_sha": "5b2cca27d2a4559e4667d00b5f6d8ba1560917eb",
+  "base_sha": "f8050a09b32",
+  "failure_class": "",
+  "manifest_sha": "ec3ed6d13acd",
+  "plugin_sha": "9a584b4cdb311ddd64fb07cbd1cf35fc9485062c",
+  "mapping_version": "map-draft-2",
+  "recon_tolerances_version": "unt12-3",
+  "tier_checks": {
+    "counts_through_mapping": {
+      "passed": true,
+      "checks_run": 111
+    },
+    "per_field_aggregates": {
+      "passed": true,
+      "checks_run": 114
+    },
+    "keyed_diffs": {
+      "passed": true,
+      "checks_run": 115
+    },
+    "app_level_parity": {
+      "passed": true,
+      "checks_run": 5
+    }
+  },
+  "redaction_salted": false,
+  "scenario_tests": {
+    "mongodb_clone": [
+      "stock: 2 failures, 2 errors of 23",
+      "all modules (incl. post_install classes): 3 failures, 2 errors of 86"
+    ],
+    "postgresql_twin": [
+      "stock: 2 failures, 2 errors of 23",
+      "all modules (incl. post_install classes): 3 failures, 2 errors of 86"
+    ],
+    "failing_only_on_mongodb": []
+  },
+  "one_line_summary": "stock-config: 8 collections loaded once from seeded clone odoo_w3b01 (2 zero-fixture roots + 6 zero-fixture arrays seeded forward-only after the earlier committed seeds), live recon PASS merge_eligible true re-run after the rebase onto f8050a0 (PR #74 central fix) and fixture PASS against seeded odoo_fixture; 8 models opted in, s2.3 row 31 rewritten, product._get_domain_locations_new and purchase_stock purchase.report moved off raw SQL over stock_location/stock_picking_type, stock.rule._search_rule_for_warehouses requests its ordering aggregates; committed tests 3 failed / 2 errors of 86 on the MongoDB clone vs 3 / 2 of 86 on the PostgreSQL twin, the twin's failures pre-existing and identical on both; ORM scenario 61/61"
+}

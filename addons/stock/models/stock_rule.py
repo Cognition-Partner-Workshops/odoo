@@ -42,6 +42,7 @@ class Procurement(NamedTuple):
 class StockRule(models.Model):
     """ A rule describe what a procurement should do; produce, buy, move, ... """
     _name = 'stock.rule'
+    _storage = 'mongodb'
     _description = "Stock Rule"
     _order = "sequence, id"
     _check_company_auto = True
@@ -498,7 +499,9 @@ class StockRule(models.Model):
         res = self.env["stock.rule"].sudo()._read_group(  # sudo() needed for cross company warehouse usage
             domain,
             groupby=["location_dest_id", "warehouse_id", "route_id"],
-            aggregates=["id:recordset"],
+            # the order terms are requested too: stock_rule is MongoDB-stored and its read_group only orders by
+            # requested aggregates (the PostgreSQL path accepts both forms)
+            aggregates=["id:recordset", "route_sequence:min", "sequence:min"],
             order="route_sequence:min, sequence:min",
         )
         rule_dict = defaultdict(OrderedDict)
