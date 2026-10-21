@@ -338,6 +338,8 @@ class TestMongoStorage(TransactionCase):
             Model = record.browse()
             field = Model._fields[computed]
             self.env.add_to_compute(field, record)
+            Model.fields_get([computed], ['sortable', 'groupable', 'aggregator'])
+            self.assertIn(record, self.env.records_to_compute(field), f"describing {Model._name}.{computed} flushed it")
             Model.search([(other, '=', 'no such value')], order='id')
             self.assertIn(record, self.env.records_to_compute(field), f"{Model._name}.{other} flushed {computed}")
             Model.search([(computed, '!=', False)], order='id')
@@ -918,6 +920,9 @@ class TestMongoStorage(TransactionCase):
             Rating._read_group([], ['book_id'], ['__count'], order='pages:max')
         with self.assertRaises(ValueError):
             Rating._read_group([], ['book_id'], ['__count'], order='score')
+        # a non-stored compute_sql field has no document path to aggregate: refused, not sorted by nothing
+        with self.assertRaises(ValueError):
+            self.env['test.mongo.book']._read_group([], ['author_id'], ['__count'], order='half_price:max desc')
 
     def test_fields_get_descriptions(self):
         # sortable/groupable/aggregator describe what the aggregation pipeline can do; the SQL path has no

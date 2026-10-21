@@ -1966,7 +1966,10 @@ def _aggregate_expr(model: BaseModel, spec: CollectionSpec, aggregate_spec: str)
         raise ValueError(f"Invalid aggregate method {func!r} for {aggregate_spec!r}.")
     if func == 'recordset' and not (field.relational or fname == 'id'):
         raise ValueError(f"Aggregate method {func!r} can be only used on relational field (or id) (for {aggregate_spec!r}).")
-    model.flush_model([fname])
+    # like _field_to_sql: the field must be readable and have a document path
+    model.check_field_access(field, 'read')
+    if fname != 'id' and not (field.store and field.column_type):
+        raise ValueError(f"Cannot aggregate {field} for {aggregate_spec!r}: it has no document path")
     path = f'${spec.target(fname)}'
     expr = {
         'sum': {'$sum': path}, 'avg': {'$avg': path}, 'max': {'$max': path}, 'min': {'$min': path},
@@ -2104,6 +2107,7 @@ def read_group_rows(model: BaseModel, query: MongoQuery, groupby: list[str], agg
         order_aggregates.append(term)
     all_aggregates = [*aggregates, *order_aggregates]
     aggs = [_aggregate_expr(model, spec, aspec) for aspec in all_aggregates]
+    model.flush_model([field.name for _expr, _func, field in aggs if field is not None])
     pipeline = [*base_stages(model), *match_stages(query.filter), *unwinds,
                 {'$group': {'_id': group_id, **{f'a{i}': expr for i, (expr, _, _) in enumerate(aggs)}}}]
     rows = []
