@@ -1,0 +1,510 @@
+[
+  {
+    "name": "warehouses_with_resupply",
+    "collection": "stockWarehouse",
+    "source_sql": "SELECT w.id, w.code, w.company_id, w.lot_stock_id, w.in_type_id, w.out_type_id, w.reception_steps, w.delivery_steps, w.active, (SELECT count(*) FROM stock_wh_resupply_table r WHERE r.supplied_wh_id = w.id) AS n_resupply, (SELECT min(r.supplier_wh_id) FROM stock_wh_resupply_table r WHERE r.supplied_wh_id = w.id) AS first_supplier FROM stock_warehouse w",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "code": 1,
+          "company_id": "$companyId",
+          "lot_stock_id": "$lotStockId",
+          "in_type_id": "$inTypeId",
+          "out_type_id": "$outTypeId",
+          "reception_steps": "$receptionSteps",
+          "delivery_steps": "$deliverySteps",
+          "active": 1,
+          "n_resupply": {
+            "$size": {
+              "$ifNull": [
+                "$stockWhResupplyTable",
+                []
+              ]
+            }
+          },
+          "first_supplier": {
+            "$ifNull": [
+              {
+                "$min": "$stockWhResupplyTable.supplierWhId"
+              },
+              null
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "locations_tree_with_wave_picking_types",
+    "collection": "stockLocation",
+    "source_sql": "SELECT l.id, l.location_id, l.usage, l.complete_name, l.warehouse_id, l.storage_category_id, l.active, l.replenish_location, (SELECT count(*) FROM stock_location_stock_picking_type_rel r WHERE r.stock_location_id = l.id) AS n_picking_types FROM stock_location l",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "location_id": {
+            "$ifNull": [
+              "$locationId",
+              null
+            ]
+          },
+          "usage": 1,
+          "complete_name": "$completeName",
+          "warehouse_id": {
+            "$ifNull": [
+              "$warehouseId",
+              null
+            ]
+          },
+          "storage_category_id": {
+            "$ifNull": [
+              "$storageCategoryId",
+              null
+            ]
+          },
+          "active": 1,
+          "replenish_location": {
+            "$ifNull": [
+              "$replenishLocation",
+              null
+            ]
+          },
+          "n_picking_types": {
+            "$size": {
+              "$ifNull": [
+                "$stockPickingTypeRel",
+                []
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "picking_types_per_warehouse_and_code",
+    "collection": "stockPickingType",
+    "source_sql": "SELECT warehouse_id, code, count(*) AS n, count(*) FILTER (WHERE active) AS n_active, min(id) AS min_id, max(sequence) AS max_sequence FROM stock_picking_type GROUP BY warehouse_id, code",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": {
+            "w": {
+              "$ifNull": [
+                "$warehouseId",
+                null
+              ]
+            },
+            "c": "$code"
+          },
+          "n": {
+            "$sum": 1
+          },
+          "n_active": {
+            "$sum": {
+              "$cond": [
+                "$active",
+                1,
+                0
+              ]
+            }
+          },
+          "min_id": {
+            "$min": "$_id"
+          },
+          "max_sequence": {
+            "$max": "$sequence"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "warehouse_id": "$_id.w",
+          "code": "$_id.c",
+          "n": 1,
+          "n_active": 1,
+          "min_id": 1,
+          "max_sequence": 1
+        }
+      }
+    ]
+  },
+  {
+    "name": "routes_with_rule_and_link_counts",
+    "collection": "stockRoute",
+    "source_sql": "SELECT r.id, r.sequence, r.active, r.company_id, r.product_selectable, r.product_categ_selectable, r.warehouse_selectable, r.package_type_selectable, r.sale_selectable, (SELECT count(*) FROM stock_rule s WHERE s.route_id = r.id) AS n_rules, (SELECT count(*) FROM stock_route_categ c WHERE c.route_id = r.id) AS n_categ, (SELECT count(*) FROM stock_route_product p WHERE p.route_id = r.id) AS n_product, (SELECT count(*) FROM stock_route_move m WHERE m.route_id = r.id) AS n_move, (SELECT count(*) FROM stock_route_warehouse w WHERE w.route_id = r.id) AS n_warehouse FROM stock_route r",
+    "target_pipeline": [
+      {
+        "$lookup": {
+          "from": "stockRule",
+          "localField": "_id",
+          "foreignField": "routeId",
+          "as": "rules"
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "sequence": 1,
+          "active": 1,
+          "company_id": {
+            "$ifNull": [
+              "$companyId",
+              null
+            ]
+          },
+          "product_selectable": {
+            "$ifNull": [
+              "$productSelectable",
+              null
+            ]
+          },
+          "product_categ_selectable": {
+            "$ifNull": [
+              "$productCategSelectable",
+              null
+            ]
+          },
+          "warehouse_selectable": {
+            "$ifNull": [
+              "$warehouseSelectable",
+              null
+            ]
+          },
+          "package_type_selectable": {
+            "$ifNull": [
+              "$packageTypeSelectable",
+              null
+            ]
+          },
+          "sale_selectable": {
+            "$ifNull": [
+              "$saleSelectable",
+              null
+            ]
+          },
+          "n_rules": {
+            "$size": "$rules"
+          },
+          "n_categ": {
+            "$size": {
+              "$ifNull": [
+                "$categ",
+                []
+              ]
+            }
+          },
+          "n_product": {
+            "$size": {
+              "$ifNull": [
+                "$product",
+                []
+              ]
+            }
+          },
+          "n_move": {
+            "$size": {
+              "$ifNull": [
+                "$move",
+                []
+              ]
+            }
+          },
+          "n_warehouse": {
+            "$size": {
+              "$ifNull": [
+                "$warehouse",
+                []
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "rules_detail",
+    "collection": "stockRule",
+    "source_sql": "SELECT id, action, procure_method, route_id, route_sequence, picking_type_id, location_src_id, location_dest_id, warehouse_id, company_id, sequence, delay, active, auto, propagate_cancel FROM stock_rule",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "action": 1,
+          "procure_method": "$procureMethod",
+          "route_id": {
+            "$ifNull": [
+              "$routeId",
+              null
+            ]
+          },
+          "route_sequence": {
+            "$ifNull": [
+              "$routeSequence",
+              null
+            ]
+          },
+          "picking_type_id": {
+            "$ifNull": [
+              "$pickingTypeId",
+              null
+            ]
+          },
+          "location_src_id": {
+            "$ifNull": [
+              "$locationSrcId",
+              null
+            ]
+          },
+          "location_dest_id": {
+            "$ifNull": [
+              "$locationDestId",
+              null
+            ]
+          },
+          "warehouse_id": {
+            "$ifNull": [
+              "$warehouseId",
+              null
+            ]
+          },
+          "company_id": {
+            "$ifNull": [
+              "$companyId",
+              null
+            ]
+          },
+          "sequence": {
+            "$ifNull": [
+              "$sequence",
+              null
+            ]
+          },
+          "delay": {
+            "$ifNull": [
+              "$delay",
+              null
+            ]
+          },
+          "active": 1,
+          "auto": {
+            "$ifNull": [
+              "$auto",
+              null
+            ]
+          },
+          "propagate_cancel": {
+            "$ifNull": [
+              "$propagateCancel",
+              null
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "putaway_rules_with_package_type_links",
+    "collection": "stockPutawayRule",
+    "source_sql": "SELECT p.id, p.product_id, p.category_id, p.location_in_id, p.location_out_id, p.storage_category_id, p.sequence, p.company_id, p.sublocation, p.active, (SELECT count(*) FROM stock_package_type_stock_putaway_rule_rel r WHERE r.stock_putaway_rule_id = p.id) AS n_package_types, (SELECT string_agg(r.stock_package_type_id::text, ',' ORDER BY r.stock_package_type_id) FROM stock_package_type_stock_putaway_rule_rel r WHERE r.stock_putaway_rule_id = p.id) AS package_type_ids FROM stock_putaway_rule p",
+    "target_pipeline": [
+      {
+        "$lookup": {
+          "from": "stockPackageType",
+          "let": {
+            "rid": "$_id"
+          },
+          "pipeline": [
+            {
+              "$match": {
+                "$expr": {
+                  "$in": [
+                    "$$rid",
+                    {
+                      "$ifNull": [
+                        {
+                          "$map": {
+                            "input": "$stockPutawayRuleRel",
+                            "in": "$$this.stockPutawayRuleId"
+                          }
+                        },
+                        []
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "$sort": {
+                "_id": 1
+              }
+            },
+            {
+              "$project": {
+                "_id": 1
+              }
+            }
+          ],
+          "as": "pt"
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "product_id": {
+            "$ifNull": [
+              "$productId",
+              null
+            ]
+          },
+          "category_id": {
+            "$ifNull": [
+              "$categoryId",
+              null
+            ]
+          },
+          "location_in_id": "$locationInId",
+          "location_out_id": "$locationOutId",
+          "storage_category_id": {
+            "$ifNull": [
+              "$storageCategoryId",
+              null
+            ]
+          },
+          "sequence": {
+            "$ifNull": [
+              "$sequence",
+              null
+            ]
+          },
+          "company_id": "$companyId",
+          "sublocation": 1,
+          "active": 1,
+          "n_package_types": {
+            "$size": "$pt"
+          },
+          "package_type_ids": {
+            "$cond": [
+              {
+                "$eq": [
+                  {
+                    "$size": "$pt"
+                  },
+                  0
+                ]
+              },
+              null,
+              {
+                "$reduce": {
+                  "input": "$pt",
+                  "initialValue": "",
+                  "in": {
+                    "$concat": [
+                      "$$value",
+                      {
+                        "$cond": [
+                          {
+                            "$eq": [
+                              "$$value",
+                              ""
+                            ]
+                          },
+                          "",
+                          ","
+                        ]
+                      },
+                      {
+                        "$toString": "$$this._id"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "storage_capacity_rows",
+    "collection": "stockStorageCategoryCapacity",
+    "source_sql": "SELECT id, storage_category_id, product_id, package_type_id, quantity FROM stock_storage_category_capacity",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "storage_category_id": "$storageCategoryId",
+          "product_id": {
+            "$ifNull": [
+              "$productId",
+              null
+            ]
+          },
+          "package_type_id": {
+            "$ifNull": [
+              "$packageTypeId",
+              null
+            ]
+          },
+          "quantity": 1
+        }
+      }
+    ]
+  },
+  {
+    "name": "orderpoints_per_warehouse_trigger",
+    "collection": "stockWarehouseOrderpoint",
+    "source_sql": "SELECT warehouse_id, trigger, count(*) AS n, min(product_min_qty) AS min_min_qty, max(product_max_qty) AS max_max_qty, count(DISTINCT product_id) AS n_products, count(DISTINCT location_id) AS n_locations FROM stock_warehouse_orderpoint GROUP BY warehouse_id, trigger",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": {
+            "w": "$warehouseId",
+            "t": "$trigger"
+          },
+          "n": {
+            "$sum": 1
+          },
+          "min_min_qty": {
+            "$min": "$productMinQty"
+          },
+          "max_max_qty": {
+            "$max": "$productMaxQty"
+          },
+          "products": {
+            "$addToSet": "$productId"
+          },
+          "locations": {
+            "$addToSet": "$locationId"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "warehouse_id": "$_id.w",
+          "trigger": "$_id.t",
+          "n": 1,
+          "min_min_qty": 1,
+          "max_max_qty": 1,
+          "n_products": {
+            "$size": "$products"
+          },
+          "n_locations": {
+            "$size": "$locations"
+          }
+        }
+      }
+    ]
+  }
+]

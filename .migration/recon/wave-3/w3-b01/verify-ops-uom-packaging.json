@@ -1,0 +1,14 @@
+[
+  {
+    "name": "package_types_with_links",
+    "collection": "stockPackageType",
+    "source_sql": "SELECT t.id, t.barcode, t.package_use, t.sequence, t.company_id, (SELECT count(*) FROM stock_package_type_stock_putaway_rule_rel r WHERE r.stock_package_type_id = t.id) AS n_putaway_rules, (SELECT string_agg(r.stock_putaway_rule_id::text, ',' ORDER BY r.stock_putaway_rule_id) FROM stock_package_type_stock_putaway_rule_rel r WHERE r.stock_package_type_id = t.id) AS putaway_rule_ids, (SELECT count(*) FROM stock_package_type_stock_route_rel r WHERE r.stock_package_type_id = t.id) AS n_routes, (SELECT string_agg(r.stock_route_id::text, ',' ORDER BY r.stock_route_id) FROM stock_package_type_stock_route_rel r WHERE r.stock_package_type_id = t.id) AS route_ids FROM stock_package_type t",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "barcode": {"$ifNull": ["$barcode", null]}, "package_use": "$packageUse", "sequence": {"$ifNull": ["$sequence", null]}, "company_id": {"$ifNull": ["$companyId", null]}, "n_putaway_rules": {"$size": {"$ifNull": ["$stockPutawayRuleRel", []]}}, "putaway_rule_ids": {"$cond": [{"$eq": [{"$size": {"$ifNull": ["$stockPutawayRuleRel", []]}}, 0]}, null, {"$reduce": {"input": {"$sortArray": {"input": "$stockPutawayRuleRel.stockPutawayRuleId", "sortBy": 1}}, "initialValue": "", "in": {"$concat": ["$$value", {"$cond": [{"$eq": ["$$value", ""]}, "", ","]}, {"$toString": "$$this"}]}}}]}, "n_routes": {"$size": {"$ifNull": ["$stockRouteRel", []]}}, "route_ids": {"$cond": [{"$eq": [{"$size": {"$ifNull": ["$stockRouteRel", []]}}, 0]}, null, {"$reduce": {"input": {"$sortArray": {"input": "$stockRouteRel.stockRouteId", "sortBy": 1}}, "initialValue": "", "in": {"$concat": ["$$value", {"$cond": [{"$eq": ["$$value", ""]}, "", ","]}, {"$toString": "$$this"}]}}}]}}}]
+  },
+  {
+    "name": "uom_relative_tree",
+    "collection": "uomUom",
+    "source_sql": "SELECT id, relative_uom_id, parent_path, factor, relative_factor, active, package_type_id, unece_code, sequence FROM uom_uom",
+    "target_pipeline": [{"$project": {"_id": 0, "id": "$_id", "relative_uom_id": {"$ifNull": ["$relativeUomId", null]}, "parent_path": {"$ifNull": ["$parentPath", null]}, "factor": 1, "relative_factor": "$relativeFactor", "active": 1, "package_type_id": {"$ifNull": ["$packageTypeId", null]}, "unece_code": {"$ifNull": ["$uneceCode", null]}, "sequence": {"$ifNull": ["$sequence", null]}}}]
+  }
+]

@@ -1,0 +1,3226 @@
+{
+ "unit": "stock-config",
+ "batch": "w3-b01",
+ "clone": "odoo_v48",
+ "collections": [
+  "stockWarehouse",
+  "stockLocation",
+  "stockPickingType",
+  "stockRoute",
+  "stockRule",
+  "stockPutawayRule",
+  "stockStorageCategoryCapacity",
+  "stockWarehouseOrderpoint",
+  "uomUom",
+  "stockPackageType"
+ ],
+ "probes": [
+  {
+   "probe": "count:stockWarehouse",
+   "status": "PASS",
+   "source": 3,
+   "target": 3,
+   "empty": false
+  },
+  {
+   "probe": "count:stockLocation",
+   "status": "PASS",
+   "source": 38,
+   "target": 38,
+   "empty": false
+  },
+  {
+   "probe": "count:stockPickingType",
+   "status": "PASS",
+   "source": 24,
+   "target": 24,
+   "empty": false
+  },
+  {
+   "probe": "count:stockRoute",
+   "status": "PASS",
+   "source": 9,
+   "target": 9,
+   "empty": false
+  },
+  {
+   "probe": "count:stockRule",
+   "status": "PASS",
+   "source": 15,
+   "target": 15,
+   "empty": false
+  },
+  {
+   "probe": "count:stockPutawayRule",
+   "status": "PASS",
+   "source": 3,
+   "target": 3,
+   "empty": false
+  },
+  {
+   "probe": "count:stockStorageCategoryCapacity",
+   "status": "PASS",
+   "source": 2,
+   "target": 2,
+   "empty": false
+  },
+  {
+   "probe": "count:stockWarehouseOrderpoint",
+   "status": "PASS",
+   "source": 5,
+   "target": 5,
+   "empty": false
+  },
+  {
+   "probe": "count:uomUom",
+   "status": "PASS",
+   "source": 30,
+   "target": 30,
+   "empty": false
+  },
+  {
+   "probe": "count:stockPackageType",
+   "status": "PASS",
+   "source": 3,
+   "target": 3,
+   "empty": false
+  },
+  {
+   "probe": "null_missing:stockWarehouse.companyId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.partnerId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.viewLocationId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.lotStockId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.whInputStockLocId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.whQcStockLocId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.whOutputStockLocId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.whPackStockLocId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.mtoPullId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.pickTypeId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.packTypeId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.outTypeId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.inTypeId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.intTypeId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.qcTypeId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.storeTypeId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.xdockTypeId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.receptionRouteId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.deliveryRouteId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.sequence",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.createUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.writeUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.name",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.code",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.receptionSteps",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.deliverySteps",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.active",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.createDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.writeDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouse.buyPullId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.locationId",
+   "status": "PASS",
+   "source_null": 16,
+   "target_missing": 16,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.companyId",
+   "status": "PASS",
+   "source_null": 3,
+   "target_missing": 3,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.removalStrategyId",
+   "status": "PASS",
+   "source_null": 38,
+   "target_missing": 38,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.cyclicInventoryFrequency",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.warehouseId",
+   "status": "PASS",
+   "source_null": 13,
+   "target_missing": 13,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.storageCategoryId",
+   "status": "PASS",
+   "source_null": 38,
+   "target_missing": 38,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.createUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.writeUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.name",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.completeName",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.usage",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.parentPath",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.barcode",
+   "status": "PASS",
+   "source_null": 20,
+   "target_missing": 20,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.lastInventoryDate",
+   "status": "PASS",
+   "source_null": 36,
+   "target_missing": 36,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.nextInventoryDate",
+   "status": "PASS",
+   "source_null": 38,
+   "target_missing": 38,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.active",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.replenishLocation",
+   "status": "PASS",
+   "source_null": 19,
+   "target_missing": 19,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.createDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.writeDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockLocation.valuationAccountId",
+   "status": "PASS",
+   "source_null": 38,
+   "target_missing": 38,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.color",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.sequence",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.sequenceId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.defaultLocationSrcId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.defaultLocationDestId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.allocatedLocationId",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.returnPickingTypeId",
+   "status": "PASS",
+   "source_null": 18,
+   "target_missing": 18,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.warehouseId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.reservationDaysBefore",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.reservationDaysBeforePriority",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.companyId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.batchMaxLines",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.batchMaxPickings",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.createUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.writeUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.code",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.reservationMethod",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.productLabelFormat",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.lotLabelFormat",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.packageLabelToPrint",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.barcode",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.createBackorder",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.moveType",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.waveDateGranularity",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.name",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.pickingPropertiesDefinition",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.batchPropertiesDefinition",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.showEntirePacks",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.setPackageType",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.active",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.useCreateLots",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.useExistingLots",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.printLabel",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.autoShowAllocationReport",
+   "status": "PASS",
+   "source_null": 21,
+   "target_missing": 21,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.autoPrintDeliverySlip",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.autoPrintReturnSlip",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.autoPrintProductLabels",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.autoPrintLotLabels",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.autoPrintReceptionReport",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.autoPrintReceptionReportLabels",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.autoPrintPackages",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.autoPrintPackageLabel",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.autoBatch",
+   "status": "PASS",
+   "source_null": 18,
+   "target_missing": 18,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.batchGroupByPartner",
+   "status": "PASS",
+   "source_null": 18,
+   "target_missing": 18,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.batchGroupByDestination",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.batchGroupBySrcLoc",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.batchGroupByDestLoc",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.waveGroupByProduct",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.waveGroupByCategory",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.waveGroupByLocation",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.waveGroupByDate",
+   "status": "PASS",
+   "source_null": 24,
+   "target_missing": 24,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.batchAutoConfirm",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.createDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPickingType.writeDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRoute.sequence",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRoute.suppliedWhId",
+   "status": "PASS",
+   "source_null": 8,
+   "target_missing": 8,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRoute.supplierWhId",
+   "status": "PASS",
+   "source_null": 8,
+   "target_missing": 8,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRoute.companyId",
+   "status": "PASS",
+   "source_null": 2,
+   "target_missing": 2,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRoute.createUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRoute.writeUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRoute.name",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRoute.active",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRoute.productSelectable",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRoute.productCategSelectable",
+   "status": "PASS",
+   "source_null": 1,
+   "target_missing": 1,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRoute.warehouseSelectable",
+   "status": "PASS",
+   "source_null": 1,
+   "target_missing": 1,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRoute.packageTypeSelectable",
+   "status": "PASS",
+   "source_null": 9,
+   "target_missing": 9,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRoute.createDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRoute.writeDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRoute.saleSelectable",
+   "status": "PASS",
+   "source_null": 8,
+   "target_missing": 8,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.sequence",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.companyId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.locationDestId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.locationSrcId",
+   "status": "PASS",
+   "source_null": 3,
+   "target_missing": 3,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.routeId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.routeSequence",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.pickingTypeId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.delay",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.partnerAddressId",
+   "status": "PASS",
+   "source_null": 12,
+   "target_missing": 12,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.warehouseId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.createUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.writeUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.action",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.procureMethod",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.auto",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.pushDomain",
+   "status": "PASS",
+   "source_null": 13,
+   "target_missing": 13,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.name",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.active",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.locationDestFromRule",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.propagateCancel",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.propagateCarrier",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.createDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockRule.writeDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPutawayRule.productId",
+   "status": "PASS",
+   "source_null": 2,
+   "target_missing": 2,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPutawayRule.categoryId",
+   "status": "PASS",
+   "source_null": 2,
+   "target_missing": 2,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPutawayRule.locationInId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPutawayRule.locationOutId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPutawayRule.sequence",
+   "status": "PASS",
+   "source_null": 1,
+   "target_missing": 1,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPutawayRule.companyId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPutawayRule.storageCategoryId",
+   "status": "PASS",
+   "source_null": 2,
+   "target_missing": 2,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPutawayRule.createUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPutawayRule.writeUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPutawayRule.sublocation",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPutawayRule.active",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPutawayRule.createDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPutawayRule.writeDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockStorageCategoryCapacity.storageCategoryId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockStorageCategoryCapacity.productId",
+   "status": "PASS",
+   "source_null": 1,
+   "target_missing": 1,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockStorageCategoryCapacity.packageTypeId",
+   "status": "PASS",
+   "source_null": 1,
+   "target_missing": 1,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockStorageCategoryCapacity.createUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockStorageCategoryCapacity.writeUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockStorageCategoryCapacity.createDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockStorageCategoryCapacity.writeDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockStorageCategoryCapacity.quantity",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.warehouseId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.locationId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.productId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.minMaxBasedOnFactor",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.replenishmentUomId",
+   "status": "PASS",
+   "source_null": 5,
+   "target_missing": 5,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.companyId",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.routeId",
+   "status": "PASS",
+   "source_null": 5,
+   "target_missing": 5,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.createUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.writeUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.name",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.trigger",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.minMaxBasedOn",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.snoozedUntil",
+   "status": "PASS",
+   "source_null": 5,
+   "target_missing": 5,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.deadlineDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.productMinQty",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.productMaxQty",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.dailyDemand",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.qtyToOrderComputed",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.qtyToOrderManual",
+   "status": "PASS",
+   "source_null": 5,
+   "target_missing": 5,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.active",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.createDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.writeDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockWarehouseOrderpoint.supplierId",
+   "status": "PASS",
+   "source_null": 5,
+   "target_missing": 5,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:uomUom.sequence",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:uomUom.relativeUomId",
+   "status": "PASS",
+   "source_null": 7,
+   "target_missing": 7,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:uomUom.createUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:uomUom.writeUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:uomUom.parentPath",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:uomUom.name",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:uomUom.relativeFactor",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:uomUom.factor",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:uomUom.active",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:uomUom.createDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:uomUom.writeDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:uomUom.packageTypeId",
+   "status": "PASS",
+   "source_null": 30,
+   "target_missing": 30,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:uomUom.uneceCode",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPackageType.sequence",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPackageType.sequenceId",
+   "status": "PASS",
+   "source_null": 1,
+   "target_missing": 1,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPackageType.companyId",
+   "status": "PASS",
+   "source_null": 3,
+   "target_missing": 3,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPackageType.createUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPackageType.writeUid",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPackageType.name",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPackageType.barcode",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPackageType.packageUse",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPackageType.createDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPackageType.writeDate",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPackageType.height",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPackageType.width",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPackageType.packagingLength",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPackageType.baseWeight",
+   "status": "PASS",
+   "source_null": 2,
+   "target_missing": 2,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "null_missing:stockPackageType.maxWeight",
+   "status": "PASS",
+   "source_null": 0,
+   "target_missing": 0,
+   "target_explicit_null": 0
+  },
+  {
+   "probe": "duplicates:stockWarehouse._id",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:stockWarehouse.code+companyId",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:stockWarehouse.name+companyId",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:stockLocation._id",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:stockLocation.barcode+companyId",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:stockPickingType._id",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:stockRoute._id",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:stockRule._id",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:stockPutawayRule._id",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:stockStorageCategoryCapacity._id",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:stockStorageCategoryCapacity.storageCategoryId+productId",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:stockStorageCategoryCapacity.storageCategoryId+packageTypeId",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:stockWarehouseOrderpoint._id",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:stockWarehouseOrderpoint.productId+locationId+companyId",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:stockPackageType._id",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:stockPackageType.barcode",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "duplicates:uomUom._id",
+   "status": "PASS",
+   "duplicates": []
+  },
+  {
+   "probe": "boundaries:stockWarehouse",
+   "status": "PASS",
+   "sequence": {
+    "source": [
+     10,
+     10
+    ],
+    "target": [
+     10,
+     10
+    ]
+   },
+   "source": [
+    1,
+    3
+   ],
+   "target": [
+    1,
+    3
+   ]
+  },
+  {
+   "probe": "boundaries:stockLocation",
+   "status": "PASS",
+   "parent_path": {
+    "source": [
+     "1/",
+     "6/9/"
+    ],
+    "target": [
+     "1/",
+     "6/9/"
+    ]
+   },
+   "source": [
+    1,
+    38
+   ],
+   "target": [
+    1,
+    38
+   ]
+  },
+  {
+   "probe": "boundaries:stockPickingType",
+   "status": "PASS",
+   "sequence": {
+    "source": [
+     1,
+     22
+    ],
+    "target": [
+     1,
+     22
+    ]
+   },
+   "source": [
+    1,
+    24
+   ],
+   "target": [
+    1,
+    24
+   ]
+  },
+  {
+   "probe": "boundaries:stockRoute",
+   "status": "PASS",
+   "sequence": {
+    "source": [
+     0,
+     60
+    ],
+    "target": [
+     0,
+     60
+    ]
+   },
+   "source": [
+    1,
+    9
+   ],
+   "target": [
+    1,
+    9
+   ]
+  },
+  {
+   "probe": "boundaries:stockRule",
+   "status": "PASS",
+   "sequence": {
+    "source": [
+     20,
+     20
+    ],
+    "target": [
+     20,
+     20
+    ]
+   },
+   "source": [
+    1,
+    15
+   ],
+   "target": [
+    1,
+    15
+   ]
+  },
+  {
+   "probe": "boundaries:stockPutawayRule",
+   "status": "PASS",
+   "sequence": {
+    "source": [
+     10,
+     20
+    ],
+    "target": [
+     10,
+     20
+    ]
+   },
+   "source": [
+    1,
+    3
+   ],
+   "target": [
+    1,
+    3
+   ]
+  },
+  {
+   "probe": "boundaries:stockStorageCategoryCapacity",
+   "status": "PASS",
+   "quantity": {
+    "source": [
+     4.0,
+     10.0
+    ],
+    "target": [
+     4.0,
+     10.0
+    ]
+   },
+   "source": [
+    1,
+    2
+   ],
+   "target": [
+    1,
+    2
+   ]
+  },
+  {
+   "probe": "boundaries:stockWarehouseOrderpoint",
+   "status": "PASS",
+   "product_max_qty": {
+    "source": [
+     5.0,
+     225.0
+    ],
+    "target": [
+     5.0,
+     225.0
+    ]
+   },
+   "source": [
+    1,
+    5
+   ],
+   "target": [
+    1,
+    5
+   ]
+  },
+  {
+   "probe": "boundaries:uomUom",
+   "status": "PASS",
+   "factor": {
+    "source": [
+     0.0166667,
+     1609343.9999999998
+    ],
+    "target": [
+     0.0166667,
+     1609343.9999999998
+    ]
+   },
+   "source": [
+    1,
+    30
+   ],
+   "target": [
+    1,
+    30
+   ]
+  },
+  {
+   "probe": "boundaries:stockPackageType",
+   "status": "PASS",
+   "max_weight": {
+    "source": [
+     25.0,
+     4000.0
+    ],
+    "target": [
+     25.0,
+     4000.0
+    ]
+   },
+   "source": [
+    1,
+    3
+   ],
+   "target": [
+    1,
+    3
+   ]
+  },
+  {
+   "probe": "boundary_doc:stockWarehouse.first",
+   "status": "PASS",
+   "id": 1,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockWarehouse.last",
+   "status": "PASS",
+   "id": 3,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockLocation.first",
+   "status": "PASS",
+   "id": 1,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockLocation.last",
+   "status": "PASS",
+   "id": 38,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockPickingType.first",
+   "status": "PASS",
+   "id": 1,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockPickingType.last",
+   "status": "PASS",
+   "id": 24,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockRoute.first",
+   "status": "PASS",
+   "id": 1,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockRoute.last",
+   "status": "PASS",
+   "id": 9,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockRule.first",
+   "status": "PASS",
+   "id": 1,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockRule.last",
+   "status": "PASS",
+   "id": 15,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockPutawayRule.first",
+   "status": "PASS",
+   "id": 1,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockPutawayRule.last",
+   "status": "PASS",
+   "id": 3,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockStorageCategoryCapacity.first",
+   "status": "PASS",
+   "id": 1,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockStorageCategoryCapacity.last",
+   "status": "PASS",
+   "id": 2,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockWarehouseOrderpoint.first",
+   "status": "PASS",
+   "id": 1,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockWarehouseOrderpoint.last",
+   "status": "PASS",
+   "id": 5,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:uomUom.first",
+   "status": "PASS",
+   "id": 1,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:uomUom.last",
+   "status": "PASS",
+   "id": 30,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockPackageType.first",
+   "status": "PASS",
+   "id": 1,
+   "diffs": []
+  },
+  {
+   "probe": "boundary_doc:stockPackageType.last",
+   "status": "PASS",
+   "id": 3,
+   "diffs": []
+  },
+  {
+   "probe": "full_rows:stockWarehouse",
+   "status": "PASS",
+   "rows": 3,
+   "fields": 30,
+   "mismatch_rows": 0,
+   "mismatches": {},
+   "documents_without_row": []
+  },
+  {
+   "probe": "full_rows:stockRoute",
+   "status": "PASS",
+   "rows": 9,
+   "fields": 15,
+   "mismatch_rows": 0,
+   "mismatches": {},
+   "documents_without_row": []
+  },
+  {
+   "probe": "full_rows:stockRule",
+   "status": "PASS",
+   "rows": 15,
+   "fields": 23,
+   "mismatch_rows": 0,
+   "mismatches": {},
+   "documents_without_row": []
+  },
+  {
+   "probe": "full_rows:stockPutawayRule",
+   "status": "PASS",
+   "rows": 3,
+   "fields": 13,
+   "mismatch_rows": 0,
+   "mismatches": {},
+   "documents_without_row": []
+  },
+  {
+   "probe": "full_rows:stockStorageCategoryCapacity",
+   "status": "PASS",
+   "rows": 2,
+   "fields": 8,
+   "mismatch_rows": 0,
+   "mismatches": {},
+   "documents_without_row": []
+  },
+  {
+   "probe": "full_rows:stockWarehouseOrderpoint",
+   "status": "PASS",
+   "rows": 5,
+   "fields": 23,
+   "mismatch_rows": 0,
+   "mismatches": {},
+   "documents_without_row": []
+  },
+  {
+   "probe": "full_rows:stockPackageType",
+   "status": "PASS",
+   "rows": 3,
+   "fields": 15,
+   "mismatch_rows": 0,
+   "mismatches": {},
+   "documents_without_row": []
+  },
+  {
+   "probe": "jsonb_fields:stockPickingType",
+   "status": "PASS",
+   "fields": [
+    "name",
+    "pickingPropertiesDefinition",
+    "batchPropertiesDefinition"
+   ],
+   "rows": 24,
+   "source_non_null": {
+    "name": 24,
+    "pickingPropertiesDefinition": 0,
+    "batchPropertiesDefinition": 0
+   },
+   "mismatches": {},
+   "mismatch_rows": 0
+  },
+  {
+   "probe": "jsonb_fields:stockRoute",
+   "status": "PASS",
+   "fields": [
+    "name"
+   ],
+   "rows": 9,
+   "source_non_null": {
+    "name": 9
+   },
+   "mismatches": {},
+   "mismatch_rows": 0
+  },
+  {
+   "probe": "jsonb_fields:stockRule",
+   "status": "PASS",
+   "fields": [
+    "name"
+   ],
+   "rows": 15,
+   "source_non_null": {
+    "name": 15
+   },
+   "mismatches": {},
+   "mismatch_rows": 0
+  },
+  {
+   "probe": "jsonb_fields:uomUom",
+   "status": "PASS",
+   "fields": [
+    "name"
+   ],
+   "rows": 30,
+   "source_non_null": {
+    "name": 30
+   },
+   "mismatches": {},
+   "mismatch_rows": 0
+  },
+  {
+   "probe": "embed_lengths:stockWarehouse.stockWhResupplyTable",
+   "status": "PASS",
+   "child_table": "stock_wh_resupply_table",
+   "parents": 3,
+   "total_children_source": 1,
+   "total_children_target": 1,
+   "length_distribution": {
+    "0": 2,
+    "1": 1
+   },
+   "mismatches": {},
+   "children_without_parent_doc": []
+  },
+  {
+   "probe": "embed_elements:stockWarehouse.stockWhResupplyTable",
+   "status": "PASS",
+   "child_table": "stock_wh_resupply_table",
+   "elements_source": 1,
+   "elements_target": 1,
+   "child_fields": [
+    "supplierWhId"
+   ],
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "embed_lengths:stockLocation.stockPickingTypeRel",
+   "status": "PASS",
+   "child_table": "stock_location_stock_picking_type_rel",
+   "parents": 38,
+   "total_children_source": 2,
+   "total_children_target": 2,
+   "length_distribution": {
+    "0": 36,
+    "1": 2
+   },
+   "mismatches": {},
+   "children_without_parent_doc": []
+  },
+  {
+   "probe": "embed_elements:stockLocation.stockPickingTypeRel",
+   "status": "PASS",
+   "child_table": "stock_location_stock_picking_type_rel",
+   "elements_source": 2,
+   "elements_target": 2,
+   "child_fields": [
+    "stockPickingTypeId"
+   ],
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "embed_lengths:stockPickingType.pickingTypeFavoriteUserRel",
+   "status": "PASS",
+   "child_table": "picking_type_favorite_user_rel",
+   "parents": 24,
+   "total_children_source": 1,
+   "total_children_target": 1,
+   "length_distribution": {
+    "0": 23,
+    "1": 1
+   },
+   "mismatches": {},
+   "children_without_parent_doc": []
+  },
+  {
+   "probe": "embed_elements:stockPickingType.pickingTypeFavoriteUserRel",
+   "status": "PASS",
+   "child_table": "picking_type_favorite_user_rel",
+   "elements_source": 1,
+   "elements_target": 1,
+   "child_fields": [
+    "userId"
+   ],
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "embed_lengths:stockRoute.categ",
+   "status": "PASS",
+   "child_table": "stock_route_categ",
+   "parents": 9,
+   "total_children_source": 1,
+   "total_children_target": 1,
+   "length_distribution": {
+    "0": 8,
+    "1": 1
+   },
+   "mismatches": {},
+   "children_without_parent_doc": []
+  },
+  {
+   "probe": "embed_elements:stockRoute.categ",
+   "status": "PASS",
+   "child_table": "stock_route_categ",
+   "elements_source": 1,
+   "elements_target": 1,
+   "child_fields": [
+    "categId"
+   ],
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "embed_lengths:stockRoute.move",
+   "status": "PASS",
+   "child_table": "stock_route_move",
+   "parents": 9,
+   "total_children_source": 1,
+   "total_children_target": 1,
+   "length_distribution": {
+    "0": 8,
+    "1": 1
+   },
+   "mismatches": {},
+   "children_without_parent_doc": []
+  },
+  {
+   "probe": "embed_elements:stockRoute.move",
+   "status": "PASS",
+   "child_table": "stock_route_move",
+   "elements_source": 1,
+   "elements_target": 1,
+   "child_fields": [
+    "moveId"
+   ],
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "embed_lengths:stockRoute.product",
+   "status": "PASS",
+   "child_table": "stock_route_product",
+   "parents": 9,
+   "total_children_source": 1,
+   "total_children_target": 1,
+   "length_distribution": {
+    "0": 8,
+    "1": 1
+   },
+   "mismatches": {},
+   "children_without_parent_doc": []
+  },
+  {
+   "probe": "embed_elements:stockRoute.product",
+   "status": "PASS",
+   "child_table": "stock_route_product",
+   "elements_source": 1,
+   "elements_target": 1,
+   "child_fields": [
+    "productId"
+   ],
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "embed_lengths:stockRoute.warehouse",
+   "status": "PASS",
+   "child_table": "stock_route_warehouse",
+   "parents": 9,
+   "total_children_source": 9,
+   "total_children_target": 9,
+   "length_distribution": {
+    "0": 2,
+    "1": 6,
+    "3": 1
+   },
+   "mismatches": {},
+   "children_without_parent_doc": []
+  },
+  {
+   "probe": "embed_elements:stockRoute.warehouse",
+   "status": "PASS",
+   "child_table": "stock_route_warehouse",
+   "elements_source": 9,
+   "elements_target": 9,
+   "child_fields": [
+    "warehouseId"
+   ],
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "embed_lengths:stockPackageType.stockPutawayRuleRel",
+   "status": "PASS",
+   "child_table": "stock_package_type_stock_putaway_rule_rel",
+   "parents": 3,
+   "total_children_source": 4,
+   "total_children_target": 4,
+   "length_distribution": {
+    "1": 2,
+    "2": 1
+   },
+   "mismatches": {},
+   "children_without_parent_doc": []
+  },
+  {
+   "probe": "embed_elements:stockPackageType.stockPutawayRuleRel",
+   "status": "PASS",
+   "child_table": "stock_package_type_stock_putaway_rule_rel",
+   "elements_source": 4,
+   "elements_target": 4,
+   "child_fields": [
+    "stockPutawayRuleId"
+   ],
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "embed_lengths:stockPackageType.stockRouteRel",
+   "status": "PASS",
+   "child_table": "stock_package_type_stock_route_rel",
+   "parents": 3,
+   "total_children_source": 2,
+   "total_children_target": 2,
+   "length_distribution": {
+    "0": 2,
+    "2": 1
+   },
+   "mismatches": {},
+   "children_without_parent_doc": []
+  },
+  {
+   "probe": "embed_elements:stockPackageType.stockRouteRel",
+   "status": "PASS",
+   "child_table": "stock_package_type_stock_route_rel",
+   "elements_source": 2,
+   "elements_target": 2,
+   "child_fields": [
+    "stockRouteId"
+   ],
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "junction:stockPackageType.stockPutawayRuleRel",
+   "status": "PASS",
+   "source_pairs": [
+    [
+     1,
+     1
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     3,
+     1
+    ]
+   ],
+   "target_pairs": [
+    [
+     1,
+     1
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     3,
+     1
+    ]
+   ],
+   "embedded_rule_ids": [
+    1,
+    3
+   ],
+   "rule_ids_unresolved_in_stockPutawayRule": [],
+   "stockPutawayRule_ids_live": [
+    1,
+    2,
+    3
+   ],
+   "stock_putaway_rule_ids_source": [
+    1,
+    2,
+    3
+   ]
+  },
+  {
+   "probe": "junction:stockPackageType.stockRouteRel",
+   "status": "PASS",
+   "source_pairs": [
+    [
+     3,
+     2
+    ],
+    [
+     3,
+     3
+    ]
+   ],
+   "target_pairs": [
+    [
+     3,
+     2
+    ],
+    [
+     3,
+     3
+    ]
+   ],
+   "route_ids_unresolved_in_stockRoute": []
+  },
+  {
+   "probe": "reference:stockWarehouse.buyPullId->stockRule._id",
+   "status": "PASS",
+   "ref_table": "stock_rule",
+   "declared_to": "stockRule",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.deliveryRouteId->stockRoute._id",
+   "status": "PASS",
+   "ref_table": "stock_route",
+   "declared_to": "stockRoute",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.inTypeId->stockPickingType._id",
+   "status": "PASS",
+   "ref_table": "stock_picking_type",
+   "declared_to": "stockPickingType",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.intTypeId->stockPickingType._id",
+   "status": "PASS",
+   "ref_table": "stock_picking_type",
+   "declared_to": "stockPickingType",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.lotStockId->stockLocation._id",
+   "status": "PASS",
+   "ref_table": "stock_location",
+   "declared_to": "stockLocation",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.mtoPullId->stockRule._id",
+   "status": "PASS",
+   "ref_table": "stock_rule",
+   "declared_to": "stockRule",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.outTypeId->stockPickingType._id",
+   "status": "PASS",
+   "ref_table": "stock_picking_type",
+   "declared_to": "stockPickingType",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.packTypeId->stockPickingType._id",
+   "status": "PASS",
+   "ref_table": "stock_picking_type",
+   "declared_to": "stockPickingType",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.pickTypeId->stockPickingType._id",
+   "status": "PASS",
+   "ref_table": "stock_picking_type",
+   "declared_to": "stockPickingType",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.qcTypeId->stockPickingType._id",
+   "status": "PASS",
+   "ref_table": "stock_picking_type",
+   "declared_to": "stockPickingType",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.receptionRouteId->stockRoute._id",
+   "status": "PASS",
+   "ref_table": "stock_route",
+   "declared_to": "stockRoute",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.storeTypeId->stockPickingType._id",
+   "status": "PASS",
+   "ref_table": "stock_picking_type",
+   "declared_to": "stockPickingType",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.viewLocationId->stockLocation._id",
+   "status": "PASS",
+   "ref_table": "stock_location",
+   "declared_to": "stockLocation",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.whInputStockLocId->stockLocation._id",
+   "status": "PASS",
+   "ref_table": "stock_location",
+   "declared_to": "stockLocation",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.whOutputStockLocId->stockLocation._id",
+   "status": "PASS",
+   "ref_table": "stock_location",
+   "declared_to": "stockLocation",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.whPackStockLocId->stockLocation._id",
+   "status": "PASS",
+   "ref_table": "stock_location",
+   "declared_to": "stockLocation",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.whQcStockLocId->stockLocation._id",
+   "status": "PASS",
+   "ref_table": "stock_location",
+   "declared_to": "stockLocation",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.xdockTypeId->stockPickingType._id",
+   "status": "PASS",
+   "ref_table": "stock_picking_type",
+   "declared_to": "stockPickingType",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouse.stockWhResupplyTable.supplierWhId->stockWarehouse._id",
+   "status": "PASS",
+   "ref_table": "stock_warehouse",
+   "declared_to": "stockWarehouse",
+   "target_wave": "same_batch",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockLocation.locationId->stockLocation._id",
+   "status": "PASS",
+   "ref_table": "stock_location",
+   "declared_to": "stockLocation",
+   "target_wave": "same_batch",
+   "distinct_values": 8,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockLocation.removalStrategyId->productRemoval._id",
+   "status": "PASS",
+   "ref_table": "product_removal",
+   "declared_to": "productRemoval",
+   "target_wave": "merged",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockLocation.storageCategoryId->stockStorageCategory._id",
+   "status": "PASS",
+   "ref_table": "stock_storage_category",
+   "declared_to": "stockStorageCategory",
+   "target_wave": "merged",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockLocation.valuationAccountId->accountAccount._id",
+   "status": "PASS",
+   "ref_table": "account_account",
+   "declared_to": "accountAccount",
+   "target_wave": "merged",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockLocation.warehouseId->stockWarehouse._id",
+   "status": "PASS",
+   "ref_table": "stock_warehouse",
+   "declared_to": "stockWarehouse",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockLocation.stockPickingTypeRel.stockPickingTypeId->stockPickingType._id",
+   "status": "PASS",
+   "ref_table": "stock_picking_type",
+   "declared_to": "stockPickingType",
+   "target_wave": "same_batch",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockPickingType.allocatedLocationId->stockLocation._id",
+   "status": "PASS",
+   "ref_table": "stock_location",
+   "declared_to": "stockLocation",
+   "target_wave": "same_batch",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockPickingType.defaultLocationDestId->stockLocation._id",
+   "status": "PASS",
+   "ref_table": "stock_location",
+   "declared_to": "stockLocation",
+   "target_wave": "same_batch",
+   "distinct_values": 13,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockPickingType.defaultLocationSrcId->stockLocation._id",
+   "status": "PASS",
+   "ref_table": "stock_location",
+   "declared_to": "stockLocation",
+   "target_wave": "same_batch",
+   "distinct_values": 13,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockPickingType.returnPickingTypeId->stockPickingType._id",
+   "status": "PASS",
+   "ref_table": "stock_picking_type",
+   "declared_to": "stockPickingType",
+   "target_wave": "same_batch",
+   "distinct_values": 6,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockPickingType.warehouseId->stockWarehouse._id",
+   "status": "PASS",
+   "ref_table": "stock_warehouse",
+   "declared_to": "stockWarehouse",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockRoute.suppliedWhId->stockWarehouse._id",
+   "status": "PASS",
+   "ref_table": "stock_warehouse",
+   "declared_to": "stockWarehouse",
+   "target_wave": "same_batch",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockRoute.supplierWhId->stockWarehouse._id",
+   "status": "PASS",
+   "ref_table": "stock_warehouse",
+   "declared_to": "stockWarehouse",
+   "target_wave": "same_batch",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockRoute.categ.categId->productCategory._id",
+   "status": "PASS",
+   "ref_table": "product_category",
+   "declared_to": "productCategory",
+   "target_wave": "merged",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockRoute.move.moveId->stockMove",
+   "status": "SKIP",
+   "ref_table": "stock_move",
+   "reason": "target collection not in a merged wave (later wave, PostgreSQL-resident)"
+  },
+  {
+   "probe": "reference:stockRoute.product.productId->productTemplate._id",
+   "status": "PASS",
+   "ref_table": "product_template",
+   "declared_to": "productTemplate",
+   "target_wave": "merged",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockRoute.warehouse.warehouseId->stockWarehouse._id",
+   "status": "PASS",
+   "ref_table": "stock_warehouse",
+   "declared_to": "stockWarehouse",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockRule.locationDestId->stockLocation._id",
+   "status": "PASS",
+   "ref_table": "stock_location",
+   "declared_to": "stockLocation",
+   "target_wave": "same_batch",
+   "distinct_values": 5,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockRule.locationSrcId->stockLocation._id",
+   "status": "PASS",
+   "ref_table": "stock_location",
+   "declared_to": "stockLocation",
+   "target_wave": "same_batch",
+   "distinct_values": 5,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockRule.pickingTypeId->stockPickingType._id",
+   "status": "PASS",
+   "ref_table": "stock_picking_type",
+   "declared_to": "stockPickingType",
+   "target_wave": "same_batch",
+   "distinct_values": 6,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockRule.routeId->stockRoute._id",
+   "status": "PASS",
+   "ref_table": "stock_route",
+   "declared_to": "stockRoute",
+   "target_wave": "same_batch",
+   "distinct_values": 8,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockRule.warehouseId->stockWarehouse._id",
+   "status": "PASS",
+   "ref_table": "stock_warehouse",
+   "declared_to": "stockWarehouse",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockPutawayRule.categoryId->productCategory._id",
+   "status": "PASS",
+   "ref_table": "product_category",
+   "declared_to": "productCategory",
+   "target_wave": "merged",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockPutawayRule.locationInId->stockLocation._id",
+   "status": "PASS",
+   "ref_table": "stock_location",
+   "declared_to": "stockLocation",
+   "target_wave": "same_batch",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockPutawayRule.locationOutId->stockLocation._id",
+   "status": "PASS",
+   "ref_table": "stock_location",
+   "declared_to": "stockLocation",
+   "target_wave": "same_batch",
+   "distinct_values": 3,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockPutawayRule.productId->productProduct._id",
+   "status": "PASS",
+   "ref_table": "product_product",
+   "declared_to": "productProduct",
+   "target_wave": "merged",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockPutawayRule.storageCategoryId->stockStorageCategory._id",
+   "status": "PASS",
+   "ref_table": "stock_storage_category",
+   "declared_to": "stockStorageCategory",
+   "target_wave": "merged",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockStorageCategoryCapacity.packageTypeId->stockPackageType._id",
+   "status": "PASS",
+   "ref_table": "stock_package_type",
+   "declared_to": "stockPackageType",
+   "target_wave": "merged",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockStorageCategoryCapacity.productId->productProduct._id",
+   "status": "PASS",
+   "ref_table": "product_product",
+   "declared_to": "productProduct",
+   "target_wave": "merged",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockStorageCategoryCapacity.storageCategoryId->stockStorageCategory._id",
+   "status": "PASS",
+   "ref_table": "stock_storage_category",
+   "declared_to": "stockStorageCategory",
+   "target_wave": "merged",
+   "distinct_values": 2,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouseOrderpoint.locationId->stockLocation._id",
+   "status": "PASS",
+   "ref_table": "stock_location",
+   "declared_to": "stockLocation",
+   "target_wave": "same_batch",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouseOrderpoint.productId->productProduct._id",
+   "status": "PASS",
+   "ref_table": "product_product",
+   "declared_to": "productProduct",
+   "target_wave": "merged",
+   "distinct_values": 5,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouseOrderpoint.replenishmentUomId->uomUom._id",
+   "status": "PASS",
+   "ref_table": "uom_uom",
+   "declared_to": "uomUom",
+   "target_wave": "merged",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouseOrderpoint.routeId->stockRoute._id",
+   "status": "PASS",
+   "ref_table": "stock_route",
+   "declared_to": "stockRoute",
+   "target_wave": "same_batch",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouseOrderpoint.supplierId->productSupplierinfo._id",
+   "status": "PASS",
+   "ref_table": "product_supplierinfo",
+   "declared_to": "productSupplierinfo",
+   "target_wave": "merged",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockWarehouseOrderpoint.warehouseId->stockWarehouse._id",
+   "status": "PASS",
+   "ref_table": "stock_warehouse",
+   "declared_to": "stockWarehouse",
+   "target_wave": "same_batch",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:uomUom.packageTypeId->stockPackageType._id",
+   "status": "PASS",
+   "ref_table": "stock_package_type",
+   "declared_to": "stockPackageType",
+   "target_wave": "merged",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:uomUom.relativeUomId->uomUom._id",
+   "status": "PASS",
+   "ref_table": "uom_uom",
+   "declared_to": "uomUom",
+   "target_wave": "merged",
+   "distinct_values": 17,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockPackageType.stockPutawayRuleRel.stockPutawayRuleId->stockPutawayRule._id",
+   "status": "PASS",
+   "ref_table": "stock_putaway_rule",
+   "declared_to": "stockPutawayRule",
+   "target_wave": "same_batch",
+   "distinct_values": 2,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockPackageType.stockRouteRel.stockRouteId->stockRoute._id",
+   "status": "PASS",
+   "ref_table": "stock_route",
+   "declared_to": "stockRoute",
+   "target_wave": "same_batch",
+   "distinct_values": 2,
+   "dangling": []
+  },
+  {
+   "probe": "indexes:stockWarehouse",
+   "status": "PASS",
+   "declared": 26,
+   "missing": []
+  },
+  {
+   "probe": "indexes:stockLocation",
+   "status": "PASS",
+   "declared": 16,
+   "missing": []
+  },
+  {
+   "probe": "indexes:stockPickingType",
+   "status": "PASS",
+   "declared": 10,
+   "missing": []
+  },
+  {
+   "probe": "indexes:stockRoute",
+   "status": "PASS",
+   "declared": 11,
+   "missing": []
+  },
+  {
+   "probe": "indexes:stockRule",
+   "status": "PASS",
+   "declared": 13,
+   "missing": []
+  },
+  {
+   "probe": "indexes:stockPutawayRule",
+   "status": "PASS",
+   "declared": 6,
+   "missing": []
+  },
+  {
+   "probe": "indexes:stockStorageCategoryCapacity",
+   "status": "PASS",
+   "declared": 3,
+   "missing": []
+  },
+  {
+   "probe": "indexes:stockWarehouseOrderpoint",
+   "status": "PASS",
+   "declared": 11,
+   "missing": []
+  },
+  {
+   "probe": "indexes:uomUom",
+   "status": "PASS",
+   "declared": 4,
+   "missing": []
+  },
+  {
+   "probe": "indexes:stockPackageType",
+   "status": "PASS",
+   "declared": 3,
+   "missing": []
+  },
+  {
+   "probe": "ops_replay:warehouses_with_resupply",
+   "status": "PASS",
+   "rows_source": 3,
+   "rows_target": 3,
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "ops_replay:locations_tree_with_wave_picking_types",
+   "status": "PASS",
+   "rows_source": 38,
+   "rows_target": 38,
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "ops_replay:picking_types_per_warehouse_and_code",
+   "status": "PASS",
+   "rows_source": 9,
+   "rows_target": 9,
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "ops_replay:routes_with_rule_and_link_counts",
+   "status": "PASS",
+   "rows_source": 9,
+   "rows_target": 9,
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "ops_replay:rules_detail",
+   "status": "PASS",
+   "rows_source": 15,
+   "rows_target": 15,
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "ops_replay:putaway_rules_with_package_type_links",
+   "status": "PASS",
+   "rows_source": 3,
+   "rows_target": 3,
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "ops_replay:storage_capacity_rows",
+   "status": "PASS",
+   "rows_source": 2,
+   "rows_target": 2,
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "ops_replay:orderpoints_per_warehouse_trigger",
+   "status": "PASS",
+   "rows_source": 2,
+   "rows_target": 2,
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "ops_replay:package_types_with_links",
+   "status": "PASS",
+   "rows_source": 3,
+   "rows_target": 3,
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "ops_replay:uom_relative_tree",
+   "status": "PASS",
+   "rows_source": 30,
+   "rows_target": 30,
+   "only_source": [],
+   "only_target": []
+  },
+  {
+   "probe": "seeded_nonempty:stockPutawayRule",
+   "status": "PASS",
+   "target_elements": 3
+  },
+  {
+   "probe": "seeded_nonempty:stockStorageCategoryCapacity",
+   "status": "PASS",
+   "target_elements": 2
+  },
+  {
+   "probe": "seeded_nonempty:stockWarehouse.stockWhResupplyTable",
+   "status": "PASS",
+   "target_elements": 1
+  },
+  {
+   "probe": "seeded_nonempty:stockLocation.stockPickingTypeRel",
+   "status": "PASS",
+   "target_elements": 2
+  },
+  {
+   "probe": "seeded_nonempty:stockPickingType.pickingTypeFavoriteUserRel",
+   "status": "PASS",
+   "target_elements": 1
+  },
+  {
+   "probe": "seeded_nonempty:stockRoute.categ",
+   "status": "PASS",
+   "target_elements": 1
+  },
+  {
+   "probe": "seeded_nonempty:stockRoute.product",
+   "status": "PASS",
+   "target_elements": 1
+  },
+  {
+   "probe": "seeded_nonempty:stockRoute.move",
+   "status": "PASS",
+   "target_elements": 1
+  },
+  {
+   "probe": "seeded_nonempty:stockPackageType.stockPutawayRuleRel",
+   "status": "PASS",
+   "target_elements": 4
+  },
+  {
+   "probe": "seeded_nonempty:stockPackageType.stockRouteRel",
+   "status": "PASS",
+   "target_elements": 2
+  },
+  {
+   "probe": "source_stability",
+   "status": "PASS",
+   "counts": {
+    "stockWarehouse": 3,
+    "stockLocation": 38,
+    "stockPickingType": 24,
+    "stockRoute": 9,
+    "stockRule": 15,
+    "stockPutawayRule": 3,
+    "stockStorageCategoryCapacity": 2,
+    "stockWarehouseOrderpoint": 5,
+    "uomUom": 30,
+    "stockPackageType": 3
+   }
+  }
+ ],
+ "sibling_units": [],
+ "sibling_collections": [],
+ "merged_wave_collections": [
+  "accountAccount",
+  "accountAccountTag",
+  "accountCashRounding",
+  "accountFiscalPosition",
+  "accountIncoterms",
+  "accountJournal",
+  "accountJournalGroup",
+  "accountLockException",
+  "accountPaymentMethod",
+  "accountPaymentTerm",
+  "accountReconcileModel",
+  "accountReconcileModelLineAccountTaxRel",
+  "accountReport",
+  "accountReportExpression",
+  "accountReportExternalValue",
+  "accountTax",
+  "accountTaxGroup",
+  "accountTaxRepartitionLine",
+  "productAttribute",
+  "productAttributeValueProductTemplateAttributeLineRel",
+  "productBaseUnit",
+  "productCategory",
+  "productCombo",
+  "productDocument",
+  "productPricelist",
+  "productPricelistItem",
+  "productProduct",
+  "productRemoval",
+  "productSupplierinfo",
+  "productTag",
+  "productTemplate",
+  "productTemplateAttributeValue",
+  "returnReason",
+  "stockPackageType",
+  "stockScrapReasonTag",
+  "stockStorageCategory",
+  "uomUom"
+ ],
+ "summary": {
+  "PASS": 391,
+  "SKIP": 1
+ },
+ "verdict": "PASS"
+}
