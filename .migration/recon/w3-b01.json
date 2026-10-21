@@ -19,7 +19,7 @@
   ],
   "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/73",
   "branch": "devin/1792537372-w3-b01-stock-config",
-  "head_sha": "20a2b8a482d",
+  "head_sha": "5b2cca27d2a",
   "base_sha": "f8050a09b32",
   "failure_class": "",
   "manifest_sha": "ec3ed6d13acd",
@@ -37,7 +37,7 @@
     },
     "keyed_diffs": {
       "passed": true,
-      "checks_run": 114
+      "checks_run": 115
     },
     "app_level_parity": {
       "passed": true,
