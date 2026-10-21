@@ -65,4 +65,4 @@ Observations (not findings, for the manager):
 - Not re-run by the verifier: the batch's ORM scenario (`scenario_stock_config.py`, worker 61/61) and the committed Odoo tests (worker: 3 failures / 2 errors of 86 on both the MongoDB clone and the PostgreSQL twin) - both need an opted-in Odoo instance against a prefixed copy of the collections, which this no-write verify did not start. The recon gate, the full-row, element-level embed, junction and reference checks above are the evidence this verdict rests on.
 
 ## Verdict
-**PASS** - graded from the committed reruns `stock-config/result.json` and `uom-packaging/result.json` (head `4947aabe930`), not asserted.
+**PASS** - graded from the committed rerun `stock-config/result.json` (head `4947aabe930`), the batch's only unit, not asserted. `uom-packaging/result.json` is supplementary evidence for the two reloaded wave-1 collections the ticket added to the scope; it is not listed in `verify-result.json` `recon_results`, which preflight accepts only for the batch's own units.
