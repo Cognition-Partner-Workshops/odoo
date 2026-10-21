@@ -1,0 +1,233 @@
+{
+ "taken_at": "2026-10-21T06:12:30.679252+00:00",
+ "db": "odoo_unt12",
+ "collections": {
+  "stockStorageCategory": {
+   "count": 6,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "faff8bc5a6c09ab522d024cea447c58f40d0225f544261d2af91323c463bfc05"
+  },
+  "stockScrapReasonTag": {
+   "count": 3,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "b659e5698fa79d7dc7b357344cd36f5e6489021ffd7bdb2d8ac9b610d91e9d61"
+  },
+  "returnReason": {
+   "count": 5,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "1370a0920f1aa4d6d7a4f6627f27c39d6e28d61bbf85d3a0ce869c05e0cb48ff"
+  },
+  "productCategory": {
+   "count": 7,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "15c90bd80785f84f2797ebabc3f8741f5e3e61aa38cea8491ce37de07ef54c3d"
+  },
+  "productRemoval": {
+   "count": 4,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "205367f5bca13bb2b80d1c4eafc53358030aa79d6eaf5027de60f80d1da46340"
+  },
+  "productTag": {
+   "count": 3,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "73fcf2d6b5319798c5b8b2b8dcb5f6d4361b81992401a51a8ca127b14a163bc7"
+  },
+  "productDocument": {
+   "count": 2,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "b1bb0c15d92c0c80b16abb6113c1f21eaeb52a436d2a318b6909ea794575b7c9"
+  },
+  "productBaseUnit": {
+   "count": 2,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "9bd2c12167633f3df51bcd9265e1e863d9a1f411b53c21f9868d57ef92cdb990"
+  },
+  "uomUom": {
+   "count": 30,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "2ced47e0e426a87baa3898f147e267d735f3d06941bbcec09acd975664d0af38"
+  },
+  "stockPackageType": {
+   "count": 3,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "250d56f3d2a1839adb9e6a4932f1dcd6975ef50988f2866e195676659b4cf163"
+  },
+  "accountPaymentTerm": {
+   "count": 11,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "f594e144c1fe564fb5ebe838eea99efc3ec41d81c635737b56d21ce11c9b5d74"
+  },
+  "accountIncoterms": {
+   "count": 11,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "44d4f1aa08842ad5d95673ba3e223d1aae1cfe655e17c9365b8b2e73c5c9ae2b"
+  },
+  "accountCashRounding": {
+   "count": 2,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "90d7d46b7d7a6addf5d7e174f6a2d23449ee0393cd9a50f1bb2ccc0a5b817c5a"
+  },
+  "accountJournalGroup": {
+   "count": 2,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "6667624a3e9405f26674ac4b6cef570deb992df0caad5ca87c1ea40667e8ff12"
+  },
+  "accountLockException": {
+   "count": 1,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "f2389147ac1401a2ef42b5ce87c25c96441627513d69532edf56ced8a84ef9c0"
+  },
+  "accountReport": {
+   "count": 5,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "ed4a0ae51f8126ca1338a28c55370538533d9c131be95f76727d7d92baf891a8"
+  },
+  "accountReportExpression": {
+   "count": 3,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "d3eab2a026dfbbd3511fccd2a893486979f375463f78d4290dfe8bca95d5e3dc"
+  },
+  "accountReportExternalValue": {
+   "count": 1,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "4b4c6f211f8b11cb50795345f1dcb0a30687c7c299e5ef1a22e11d4395228064"
+  },
+  "productAttribute": {
+   "count": 14,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "d59bca0b8aa6e06ab31b9feac2d8e63f2470fdbff1a2b903c983e8e800bdc320"
+  },
+  "accountAccount": {
+   "count": 184,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "4163001e37f15d6ab7187c9c286b7426c29ec373f4146262233028acab92cf6b"
+  },
+  "accountAccountTag": {
+   "count": 10,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "89b06de32c5e706c7b894199440b3df5c969895a132199e905f85d0c09407258"
+  },
+  "accountTax": {
+   "count": 58,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "2b95434d2f5d007825d6b6f05c41c881514a036ed9370625dce61c9e58ff9044"
+  },
+  "accountTaxGroup": {
+   "count": 26,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "cada419b4d5485863b776ebea097c212539bb38877d87b94ceea63763b24263f"
+  },
+  "accountTaxRepartitionLine": {
+   "count": 232,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "8b455f1b2fa856d850dcb91157b72caaada9ddc1a398cc56777a78e18ff6ffe3"
+  },
+  "accountFiscalPosition": {
+   "count": 4,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "21df59d5d2b186b767570f093941cff4f9c0f2acfaeb235aa785a4f7c9f185a6"
+  },
+  "accountJournal": {
+   "count": 14,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "734c66427415e15d6442201fc1c328c940bb19e855f2f6fcec22916d7c0b7d61"
+  },
+  "accountPaymentMethod": {
+   "count": 2,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "def965a4d4ae8b2b9aae206834d6a4b93bec7b5d1d9ac1bd41baa5b43e577238"
+  },
+  "accountReconcileModel": {
+   "count": 8,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "eba9110bb5d4dcfdf80f753049980b6489b366d160da71413b882f4fdd2ce07a"
+  },
+  "accountReconcileModelLineAccountTaxRel": {
+   "count": 1,
+   "max_writeDate": null,
+   "bson_sha256": "68ed25cd50a248c7b4bf00ef3ad8722fe357ddf27c97862be686234098c1de4a"
+  },
+  "productTemplate": {
+   "count": 37,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "da14dfcccc5ec3bc735e6ffbbb251c9dabe2f86bf0a61192d8d59a793d8d7bd0"
+  },
+  "productProduct": {
+   "count": 47,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "836a7215e10689f18dcfe6e5eb0a19ded3a4ad2d19b9d313fe8f379655edfb1d"
+  },
+  "productTemplateAttributeValue": {
+   "count": 24,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "e3907b33a60ccf3bbd05ba95ca144eefb88e1f5383fa4b6bcbdec108b558e6c9"
+  },
+  "productAttributeValueProductTemplateAttributeLineRel": {
+   "count": 24,
+   "max_writeDate": null,
+   "bson_sha256": "8359807927914e17c844b05964c6b7650eea39657534bb9bd1d6261700fe8bd0"
+  },
+  "productCombo": {
+   "count": 3,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "4dc1f6d58fc614415bd0b217e46737399845fa3d90ec63472d28500fe5d0db7c"
+  },
+  "productSupplierinfo": {
+   "count": 28,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "9979cdbbe606ff608720748ea8c54d95d23574fb73b75c930028f288a235224e"
+  },
+  "productPricelist": {
+   "count": 2,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "dd10408dedec21cebbcbffb29b18ce194c6a40d1d6b160b44b22becdd46a2b4f"
+  },
+  "productPricelistItem": {
+   "count": 2,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "a9e0a42fb12d4b5eb3ad448b7dec5a511f6253c1b03a5f6db40ea102072120f3"
+  },
+  "stockWarehouse": {
+   "count": 3,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "ac694a8c632081efb159ec8f776dd3793804ef9b17eeed0addf1f1d4ad9b4ac0"
+  },
+  "stockLocation": {
+   "count": 38,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "426af436f60de374841fbc6af2a22fa8dc1e1d79fd5874eb2151de0cecc17656"
+  },
+  "stockPickingType": {
+   "count": 24,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "064d1e23233125daa3aeaaf0ac9310df83e4131feba002b35dbe96d5458606a5"
+  },
+  "stockRoute": {
+   "count": 9,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "c20c40ef12e7d006523628b17b081afd151312e1224ab35636a9316d5e0b8dfc"
+  },
+  "stockRule": {
+   "count": 15,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "76f8204970ac39fa0ca2eec2bef333a12af4b6a78a7a0f598070ad425a46c55d"
+  },
+  "stockPutawayRule": {
+   "count": 3,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "cb2fab854626dcedf1011b99d18eed2c1834deab7ee5c1b95520d3ac0c347b80"
+  },
+  "stockStorageCategoryCapacity": {
+   "count": 2,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "a74797ac6768d3b6c79084e49637411442b624117c3b9331083d0e672d5d164e"
+  },
+  "stockWarehouseOrderpoint": {
+   "count": 5,
+   "max_writeDate": "2026-10-20T00:00:00",
+   "bson_sha256": "ba47ade9b2806e75c15c40fa652a1ce7c78a39fca371082551aaf8e8047d4c98"
+  }
+ },
+ "total_docs": 920,
+ "collections_present": 45
+}

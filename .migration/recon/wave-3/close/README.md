@@ -74,3 +74,5 @@ So without the w3-b01 seed block every wave-1/2 collection except the deliberate
 | `stockPutawayRule` | 3 | 3 | 3 / 3 | PASS | PASS | PASS | - | not graded (wave 3) |
 | `stockStorageCategoryCapacity` | 3 | 2 | 2 / 2 | PASS | PASS | PASS | - | not graded (wave 3) |
 | `stockWarehouseOrderpoint` | 3 | 5 | 5 / 5 | PASS | PASS | PASS | 1 PASS | not graded (wave 3) |
+
+**Superseded by [`rerun-1/`](rerun-1/README.md)** (PASS after the w3-b01 seed fix in PR #75, run-branch tip `c33ddec7cef`); this directory stays as the record of run 1 and its diagnosis.
