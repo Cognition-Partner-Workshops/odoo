@@ -798,6 +798,7 @@ class FilterCompiler:
         model = self.model
         field = condition._field(model)
         model.check_field_access(field, 'read')
+        model.flush_model([field.name])
         fname, property_name = parse_field_expr(condition.field_expr)
         operator, value = condition.operator, condition.value
         if property_name:
@@ -956,6 +957,7 @@ def one2many_parent_ids(field: Field, coquery: Query) -> list:
     inverse = comodel._fields[field.inverse_name]
     if isinstance(coquery, MongoQuery):
         if inverse.store and inverse.column_type:
+            comodel.flush_model([inverse.name])
             path = store(comodel).path(comodel, inverse.name)
             return [doc[path] for doc in coquery.run({path: 1}) if doc.get(path) is not None]
     elif inverse.store and inverse.column_type:
@@ -1036,6 +1038,7 @@ def sort_key_expr(model: BaseModel, fname: str, property_name: str | None, direc
         raise ValueError(f"Invalid field {fname!r} on model {model._name!r}")
     if not field.store and field.compute_sql and not field.inherited:
         return computed_rank_expr(model, field, filter)
+    model.flush_model([fname])
     spec = store(model).storage(model)
     path = spec.target(fname)
     env = model.env
@@ -1044,6 +1047,7 @@ def sort_key_expr(model: BaseModel, fname: str, property_name: str | None, direc
         if field.inherited:
             parent_fname, coorder = field.related.split('.', 1)
             parent_field = model._fields[parent_fname]
+            model.flush_model([parent_fname])
         else:
             parent_field, coorder = field, env[field.comodel_name]._order
             if property_name:
@@ -1104,7 +1108,10 @@ def order_rank_sql(model: BaseModel, field: Field, sql_field: SQL, direction: SQ
 
 def search(model: BaseModel, domain: Domain, sec_domain: Domain, sec_model: BaseModel,
            offset: int, limit: int | None, order: str | None) -> MongoQuery:
-    model.flush_model()     # pending writes reach the documents first (SQL flushes per referenced field)
+    # pending writes reach the documents as the fields are referenced (the
+    # compilers flush per field, like the SQL ``to_flush`` of a column): a
+    # whole-model flush here would recompute unrelated stored fields before
+    # the records they depend on are flushed (stock.warehouse.orderpoint.qty_to_order_computed)
     filter = FilterCompiler(model).compile(domain) if not domain.is_true() else {}
     if not sec_domain.is_true():
         sec_filter = FilterCompiler(sec_model).compile(sec_domain)
@@ -1168,6 +1175,7 @@ def fetch_query(model: BaseModel, query: MongoQuery, fields: Iterable[Field]) ->
 
     spec = store(model).storage(model)
     if column_fields:
+        model.flush_model([field.name for field in column_fields])     # the SQL SELECT flushes its columns
         projection = {spec.target(field.name): 1 for field in column_fields}
         projection['_id'] = 1
         docs = query.run(projection)
@@ -1911,6 +1919,7 @@ def _group_key_expr(model: BaseModel, spec: CollectionSpec, groupby_spec: str, f
         raise ValueError(f"Invalid field {fname!r} on model {model._name!r}")
     if seq or field.type == 'properties' or (not field.store and field.compute_sql and not field.inherited):
         raise NotImplementedError(f"Group by {groupby_spec!r} is not supported on MongoDB-stored model {model._name}")
+    model.flush_model([fname])
     path = spec.target(fname)
     if field.type == 'many2many':
         rel = many2many_rel_storage(field, model)
@@ -1956,6 +1965,7 @@ def _aggregate_expr(model: BaseModel, spec: CollectionSpec, aggregate_spec: str)
         raise ValueError(f"Invalid aggregate method {func!r} for {aggregate_spec!r}.")
     if func == 'recordset' and not (field.relational or fname == 'id'):
         raise ValueError(f"Aggregate method {func!r} can be only used on relational field (or id) (for {aggregate_spec!r}).")
+    model.flush_model([fname])
     path = f'${spec.target(fname)}'
     expr = {
         'sum': {'$sum': path}, 'avg': {'$avg': path}, 'max': {'$max': path}, 'min': {'$min': path},

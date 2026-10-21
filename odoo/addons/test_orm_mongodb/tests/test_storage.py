@@ -327,6 +327,22 @@ class TestMongoStorage(TransactionCase):
         self.assertEqual(Author.search([('tag_ids', 'in', self.tag_y.ids)]), created)
         self.assertEqual(Author.search_count([('tag_ids', 'in', self.tag_y.ids)]), 1)
 
+    def test_search_flushes_only_referenced_fields(self):
+        # a pending recompute reaches the store when its field is referenced, not on any
+        # search of the model (the SQL query flushes per column): a whole-model flush recomputes
+        # a stored field before the records it depends on are flushed (stock.warehouse.orderpoint)
+        for record, computed, other in [
+            (self.author_a, 'book_count', 'name'),
+            (self.partner_a, 'complete_name', 'ref'),
+        ]:
+            Model = record.browse()
+            field = Model._fields[computed]
+            self.env.add_to_compute(field, record)
+            Model.search([(other, '=', 'no such value')], order='id')
+            self.assertIn(record, self.env.records_to_compute(field), f"{Model._name}.{other} flushed {computed}")
+            Model.search([(computed, '!=', False)], order='id')
+            self.assertNotIn(record, self.env.records_to_compute(field), f"{Model._name}.{computed} not flushed")
+
     def test_property_definition(self):
         Book = self.env['test.mongo.book']
         self.author_a.book_properties_definition = [{'name': 'genre', 'type': 'char', 'string': 'Genre'}]
