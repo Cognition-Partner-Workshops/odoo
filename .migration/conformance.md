@@ -42,8 +42,8 @@ PostgreSQL storage (baseline) and MongoDB storage. Base `mongo-run/unt13` at 66e
 | sale_sms | pass 0 run, 0 fail, 0 err | pass 0 run, 0 fail, 0 err | - |
 | stock_sms | pass 0 run, 0 fail, 0 err | pass 0 run, 0 fail, 0 err | - |
 
-Totals: PostgreSQL 3,383 tests run, 37 fail or error. MongoDB 137 tests run, 334 fail or error:
-327 storage-path (G1-G7 and 4 not isolated), 7 also fail on PostgreSQL, 0 unit-specific in the mirrored run.
+Totals: PostgreSQL 3,383 tests run, 36 fail or error (17 fail, 19 error). MongoDB 137 tests run, 334 fail or error:
+327 storage-path (G1-G6 and 4 not isolated), 7 also fail on PostgreSQL, 0 unit-specific in the mirrored run.
 
 ## Storage-path gaps (for the storage-path owner; manager routes)
 
@@ -57,7 +57,7 @@ Repro: `odoo-bin shell` on a seeded MongoDB copy. Each repro line was run: it ra
 | G6 | 8 | `NotNullViolation` on mirrored `product_template.invoice_policy` when stock or purchase_stock tests create products before `sale` is loaded. Seen only with the full mirror, may be a harness artifact. | `setUpClass (stock.tests.test_proc_rule.TestProcRule)` | run `stock` tests on a mirrored copy |
 | G4 | 3 | `storage_mongodb.py:1302` `_sort_stages`: cannot order by a non-stored field (`stock.picking.type` `is_favorite desc`, `product.document` `name`). | `stock.tests.test_picking_tours.TestStockPickingTour.test_generate_serial_1` | `env['stock.picking.type'].search([], order='is_favorite desc')` |
 | G5 | 2 | `storage_mongodb.py:1383` `_condition`: `account.account` `('code', 'not in', [False])` (company-dependent field). | `account.tests.test_sequence.TestSequenceMixinConcurrency.test_sequence_concurency` | `env['account.account'].search([('code', 'not in', [False])])` |
-| G7 | 1 | `domains.py:1112`: `display_name in [...]` on `product.template` unsupported, only under MongoDB storage. | `product.tests.test_name.TestName` | `env['product.template'].search([('display_name', 'in', ['x'])])` |
+| G7 | not counted | `domains.py:1112`: `display_name in [...]` on `product.template` unsupported, only under MongoDB storage. Found while isolating G1; its tests are counted under G1-G3. | - | `env['product.template'].search([('display_name', 'in', ['x'])])` |
 | not isolated | 4 | Two product-catalog tours never become ready, one portal signature tour misses a filestore file, one import subtest. Probably fallout of G1/G2. | `sale.tests.test_sale_product_catalog...test_add_section_from_product_catalog_on_sale_order_tour` | rerun once G1/G2 are fixed |
 
 ## Unit-specific
