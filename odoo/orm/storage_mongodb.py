@@ -785,7 +785,7 @@ def search(model: BaseModel, domain, sec_domain, order: str | None, limit, offse
 _DATE_PARTS = {
     'year_number': '$year', 'month_number': '$month', 'iso_week_number': '$isoWeek',
     'day_of_year': '$dayOfYear', 'day_of_month': '$dayOfMonth',
-    'hour_number': '$hour', 'minute_number': '$minute', 'second_number': '$second',
+    'hour_number': '$hour', 'minute_number': '$minute',
 }
 _WEEKDAYS = ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')
 
@@ -822,9 +822,10 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
             row = {spec: _group_value(model, spec, key.get(f'g{i}')) for i, spec in enumerate(groupby)}
             rows.append(row | {spec: get(group) for spec, get in getters.items()})
     if not groupby:     # like SQL, an aggregate without groups returns one row
-        row = rows[0] if rows else dict.fromkeys(getters)
-        return [tuple(row[spec] for spec in aggregates)]
-    if having:
+        if not ids:     # unpaged, like _read_group on an empty query
+            return [(None,) * len(aggregates)]
+        terms = ()
+    if having and groupby:
         rows = [row for row in rows if _having(having, row) is True]
     for term, direction, nulls in reversed(terms):
         rank = _group_rank(model, term, rows, traverse_many2one=bool(order))
@@ -834,7 +835,7 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
         nulls_first = nulls == 'NULLS FIRST' if nulls else direction == 'DESC'   # PostgreSQL defaults
         rows = empty + valued if nulls_first else valued + empty
     rows = rows[offset or 0:]
-    if limit:
+    if limit is not None:   # LIMIT 0 returns no row
         rows = rows[:limit]
     return [tuple(row[spec] for spec in groupby + aggregates) for row in rows]
 
@@ -889,6 +890,8 @@ def _granularity_expr(model: BaseModel, field: Field, expr, granularity: str):
         return {'$ceil': {'$divide': [{'$month': expr}, 3]}}
     if granularity == 'day_of_week':      # PostgreSQL dow: 0 is Sunday
         return {'$subtract': [{'$dayOfWeek': expr}, 1]}
+    if granularity == 'second_number':    # with its fraction, like date_part()
+        return {'$add': [{'$second': expr}, {'$divide': [{'$millisecond': expr}, 1000]}]}
     if granularity in _DATE_PARTS:
         return {_DATE_PARTS[granularity]: expr}
     raise ValueError(f"Error when processing the granularity {granularity} is not supported.")

@@ -41,6 +41,8 @@ class TestReadGroupMongodb(TransactionCase):
         ])
         self.assertEqual(self.Value._read_group(self.domain, [], ['__count', 'sequence:min']), [(4, 1)])
         self.assertEqual(self.Value._read_group([('id', '=', 0)], [], ['__count', 'sequence:sum']), [(0, False)])
+        self.assertEqual(self.Value._read_group(self.domain, [], ['__count'], offset=1), [])
+        self.assertEqual(self.Value._read_group(self.domain, ['sequence'], ['__count'], limit=0), [])
         self.assertEqual(self.Attribute._read_group([('id', 'in', (self.color + self.size).ids)], ['sequence'], ['__count']),
                          [(1, 1), (2, 1)])
 
@@ -64,6 +66,8 @@ class TestReadGroupMongodb(TransactionCase):
         rows = self.Value.with_context(tz='UTC')._read_group(
             self.domain, ['create_date:day', 'create_date:year_number', 'create_date:day_of_week'], ['__count'])
         self.assertEqual(rows, [(dt.datetime(now.year, now.month, now.day), float(now.year), float(now.isoweekday() % 7), 4)])
+        rows = self.Value.with_context(tz='UTC')._read_group(self.domain, ['create_date:second_number'], ['__count'])
+        self.assertEqual(rows, [(now.second + now.microsecond // 1000 / 1000, 4)])
         local = pytz.utc.localize(now).astimezone(pytz.timezone('Pacific/Kiritimati')).replace(tzinfo=None)
         rows = self.Value.with_context(tz='Pacific/Kiritimati')._read_group(self.domain, ['create_date:hour'], ['__count'])
         self.assertEqual(rows, [(local.replace(minute=0, second=0, microsecond=0), 4)])
