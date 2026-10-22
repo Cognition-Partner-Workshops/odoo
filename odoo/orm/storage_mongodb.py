@@ -777,14 +777,21 @@ def parent_store_update(records: BaseModel, prefix: str) -> dict[int, str]:
     """ Move ``records`` and their descendants under ``prefix``, like
     ``_parent_store_update``, and return the new paths. """
     parent_path = _layout(records)['paths']['parent_path']
-    updated = {}
+    collection = get_collection(records)
+    subtrees = []
     for id_, node in _fetch_docs(records, list(records._ids), {parent_path: 1}).items():
-        if not (old := node.get(parent_path)):
-            continue
-        start = len(old) - len(f'{id_}/')
-        query = {parent_path: {'$gte': old, '$lt': old[:-1] + '0'}}
-        for doc in get_collection(records).find(query, {parent_path: 1}):
-            updated[doc['_id']] = prefix + doc[parent_path][start:]
+        if old := node.get(parent_path):
+            subtrees.append((len(old) - len(f'{id_}/'), {parent_path: {'$gte': old, '$lt': old[:-1] + '0'}}))
+
+    def descendants():
+        return [(start, doc) for start, query in subtrees for doc in collection.find(query, {parent_path: 1})]
+
+    # lock the descendants, then read their paths again: a concurrent move
+    # committed meanwhile may have taken some of them out of the subtree
+    if ids := sorted({doc['_id'] for _start, doc in descendants()}):
+        records.env.cr.execute(SQL("SELECT id FROM %s WHERE id IN %s ORDER BY id FOR UPDATE",
+                                   SQL.identifier(records._table), tuple(ids)))
+    updated = {doc['_id']: prefix + doc[parent_path][start:] for start, doc in descendants()}
     if updated:
         update(records, list(updated), [{'parent_path': path} for path in updated.values()])
     return updated
