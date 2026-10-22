@@ -17,6 +17,18 @@ import re
 
 IDENT_RE = re.compile(r"[a-z_][a-z0-9_]*")
 ON_DEL = {"a": "no action", "r": "restrict", "c": "cascade", "n": "set null", "d": "set default"}
+FANOUT = {
+    ("addons/account/models/account_account.py", "_action_unmerge"): ("account_account",),
+    ("odoo/addons/base/wizard/base_partner_merge.py", "_update_foreign_keys_generic"): (
+        "account_account", "res_partner", "res_partner_bank"),
+    ("odoo/addons/base/wizard/base_partner_merge.py", "_update_reference_fields_generic"): (
+        "account_account", "res_partner", "res_partner_bank"),
+}
+
+
+def is_test(rel):
+    parts = rel.split("/")
+    return "tests" in parts or parts[-1].startswith("test_")
 
 
 def model_methods(src, installed, model):
@@ -58,6 +70,46 @@ def cron_reach(src, installed, model, method):
     return found
 
 
+def class_model_refs(src, installed, model_names):
+    """Model names referenced anywhere in the class bodies defining each model."""
+    refs = collections.defaultdict(set)
+    for module in installed:
+        for base in (src / "addons" / module, src / "odoo" / "addons" / module):
+            if not base.is_dir():
+                continue
+            for f in sorted(base.rglob("*.py")):
+                rel = f.relative_to(src).as_posix()
+                if is_test(rel):
+                    continue
+                tree = ast.parse(f.read_text(), rel)
+                for cls in ast.walk(tree):
+                    if not isinstance(cls, ast.ClassDef):
+                        continue
+                    defined = set()
+                    for st in cls.body:
+                        if isinstance(st, ast.Assign):
+                            targets, value = st.targets, st.value
+                        elif isinstance(st, ast.AnnAssign):
+                            targets, value = [st.target], st.value
+                        else:
+                            continue
+                        if any(isinstance(t, ast.Name) and t.id in ("_name", "_inherit")
+                               for t in targets):
+                            defined |= {n.value for n in ast.walk(value)
+                                        if isinstance(n, ast.Constant) and
+                                        isinstance(n.value, str)}
+                    defined &= model_names
+                    if not defined:
+                        continue
+                    referenced = {n.value for n in ast.walk(cls)
+                                  if isinstance(n, ast.Constant) and
+                                  isinstance(n.value, str) and n.value in model_names}
+                    for model in defined:
+                        refs[model].update(referenced)
+            break
+    return refs
+
+
 def main():
     ap = argparse.ArgumentParser()
     for k in ("src", "db", "probe", "scan"):
@@ -71,6 +123,12 @@ def main():
     in_scope = {t for t, b in bucket.items() if b == "in_scope"}
     scope_mods = set(tb["scope_addons"]) | set(tb["bridges"])
     table_of = {m: v["table"] for m, v in probe["models"].items()}
+    model_names = set(probe["models"])
+    class_refs = class_model_refs(a.src, db["installed_modules"], model_names)
+    fk_fanout = collections.defaultdict(set)
+    for fk in db["foreign_keys"]:
+        if fk["table"] in in_scope:
+            fk_fanout[fk["ref_table"]].add(fk["table"])
     out, counts = [], collections.Counter()
     w = out.append
 
@@ -83,6 +141,12 @@ def main():
             return "B", "bare cursor without a registry: no ORM hook can reroute it"
         if s["function"] == "_action_unmerge":
             return "B", "dynamic: every table holding an account_account FK column"
+        if (s["file"], s["function"]) in {
+                ("odoo/addons/base/wizard/base_partner_merge.py",
+                 "_update_foreign_keys_generic"),
+                ("odoo/addons/base/wizard/base_partner_merge.py",
+                 "_update_reference_fields_generic")}:
+            return "A", "generic core FK fan-out"
         if s["module"] in scope_mods:
             return "B", ""
         if s["dynamic"] or s["unresolved"] or s["orm_query"]:
@@ -93,6 +157,14 @@ def main():
     rows = {"write": [], "read": []}
     other = collections.Counter()
     for s in scan["sites"]:
+        fanout_models = FANOUT.get((s["file"], s["function"]), ())
+        if fanout_models:
+            fanout_tables = set().union(*(fk_fanout[m] for m in fanout_models))
+            s["in_scope"] = dict(s["in_scope"])
+            s["in_scope"].update({t: "write" for t in fanout_tables})
+            s["fanout_note"] = "; ".join(
+                "FK fan-out of %s: %d in-scope tables (catalog FKs; Reference/res_id columns "
+                "not included)" % (m, len(fk_fanout[m])) for m in fanout_models)
         d, why = disp_site(s)
         kind = s["kind"]
         if d == "C" and kind != "upgrade_script":
@@ -149,6 +221,8 @@ def main():
                 note = (note + "; " if note else "") + "view DDL: reads only"
             if s["dynamic"] and not why:
                 note = (note + "; " if note else "") + "dynamic table"
+            if s.get("fanout_note"):
+                note = (note + "; " if note else "") + s["fanout_note"]
             w("| %d | %s | %s | `%s:%d` | `%s.%s` | %s | %s |" % (
                 i, d, s["kind"], s["file"], s["line"], s["model"] or "-",
                 s["function"] or "-", ts, note))
@@ -185,34 +259,52 @@ def main():
     w("")
 
     w("### Scheduled jobs (`ir_cron`)\n")
-    w("| id | disp | xmlid | model | active | every | reaches in-scope | note |")
-    w("|---|---|---|---|---|---|---|---|")
+    w("| id | disp | xmlid | model | active | every | direct (method-level) | "
+      "class-level 2-hop (count + up to 6 names) | note |")
+    w("|---|---|---|---|---|---|---|---|---|")
     sites_by_fn = collections.defaultdict(list)
     for s in scan["sites"]:
         sites_by_fn[(s["model"], s["function"])].append(s)
     for c in db["crons"]:
         meth = re.findall(r"model\.(\w+)\(", c["code"] or "")
-        reach = set()
+        direct_reach = set()
         for mt in meth:
             for x in cron_reach(a.src, db["installed_modules"], c["model"], mt):
                 if table_of.get(x) in in_scope:
-                    reach.add(table_of[x])
+                    direct_reach.add(table_of[x])
         own = table_of.get(c["model"])
         if own in in_scope:
-            reach.add(own)
+            direct_reach.add(own)
+        class_models = set(class_refs.get(c["model"], ()))
+        two_hop_models = class_models | {
+            target for model in class_models for target in class_refs.get(model, ())}
+        class_reach = {table_of[m] for m in two_hop_models if table_of.get(m) in in_scope}
+        if own in in_scope:
+            class_reach.add(own)
         raw = [s for mt in meth for s in sites_by_fn.get((c["model"], mt), []) if s["in_scope"]]
         if c["xmlid"] == "base.autovacuum_job":
             d, note = "A", "vacuums every transient/in-scope model with _gc_* hooks; pause it"
-            reach = {"all in-scope transient wizards"}
-        elif reach:
-            d = "B" if raw else "A"
-            note = "ORM writes; pause during load windows" if not raw else "reaches raw SQL"
+        elif raw:
+            d, note = "B", "reaches raw SQL"
+            if class_reach and not direct_reach:
+                note += "; indirect ORM reach, conservative"
+        elif direct_reach:
+            d, note = "A", "ORM writes; pause during load windows"
+        elif class_reach:
+            d, note = "A", "indirect ORM reach, conservative"
         else:
             d, note = "C", ""
-        counts[("cron", "write" if reach else "read", d)] += 1
-        w("| %d | %s | `%s` | `%s` | %s | %s %s | %s | %s |" % (
+        reaches_scope = bool(direct_reach or class_reach or raw or
+                             c["xmlid"] == "base.autovacuum_job")
+        counts[("cron", "write" if reaches_scope else "read", d)] += 1
+        class_names = sorted(class_reach)
+        class_display = "%d: %s%s" % (
+            len(class_names), ", ".join(class_names[:6]),
+            ", ..." if len(class_names) > 6 else "")
+        w("| %d | %s | `%s` | `%s` | %s | %s %s | %s | %s | %s |" % (
             c["id"], d, c["xmlid"], c["model"], c["active"], c["interval_number"],
-            c["interval_type"], ", ".join(sorted(reach)) or "-", note))
+            c["interval_type"], ", ".join(sorted(direct_reach)) or "-",
+            class_display if class_names else "0: -", note))
     w("")
 
     fks = db["foreign_keys"]
@@ -247,7 +339,21 @@ def main():
         w("| %s | %s | %d | %d | %d |" % (k, o, counts[(k, o, "A")], counts[(k, o, "B")],
                                          counts[(k, o, "C")]))
     w("")
-    print("\n".join(out))
+    reports_b = sum(d == "B" for d, _m, _how, _ins, _err in rep_rows)
+    writing_crons = counts[("cron", "write", "A")] + counts[("cron", "write", "B")]
+    w("### Writes outside odoo_unt13\n")
+    w("None during this ticket: `odoo_src` was only read (role `odoo_ro`, read-only session) and the\n"
+      "`_table_sql` render ran on a throwaway clone `odoo_reg_probe`. Later units will need writes to\n"
+      "the application's PostgreSQL (never `odoo_src`, never Atlas), each needing a plan decision:\n"
+      "- the %d **B** reports/views above: their PostgreSQL view or `_table_sql` stops seeing rows once\n"
+      "  its tables move, so the owning unit re-points or rebuilds them;\n"
+      "- the %d writing crons (including `base.autovacuum_job`): pausing them during load and parallel-run\n"
+      "  windows is an `ir_cron.active` write;\n"
+      "- the %d PostgreSQL -> in-scope foreign keys: dropping each constraint when its target table\n"
+      "  moves is DDL on the PostgreSQL side.\n"
+      % (reports_b, writing_crons, len(into)))
+    w("### Plugin findings\n\nNone new from this ticket.\n")
+    print("\n".join(out).rstrip())
 
 
 if __name__ == "__main__":

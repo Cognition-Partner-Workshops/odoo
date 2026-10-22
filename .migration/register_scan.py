@@ -205,6 +205,7 @@ def main():
         def record(kind, call, cls, func):
             text = " ".join(strings(call))
             # names passed to the call: pull in their assignments in the same function
+            assignment_values = []
             if func is not None:
                 names = {n.id for n in ast.walk(call) if isinstance(n, ast.Name)}
                 for st in ast.walk(func):
@@ -212,19 +213,21 @@ def main():
                         tgts = st.targets if isinstance(st, ast.Assign) else [st.target]
                         if any(isinstance(t, ast.Name) and t.id in names for t in tgts):
                             text += " " + " ".join(strings(st.value))
+                            assignment_values.append(st.value)
             low = LOCK_RE.sub(" ", text.lower())
             literal_tables = {t for t in IDENT_RE.findall(low) if t in known}
             dyn, via_env = set(), set()
-            for n in ast.walk(call):
-                if isinstance(n, ast.Attribute) and n.attr in ("_table", "_name"):
-                    owner = n.value
-                    if isinstance(owner, ast.Subscript) and isinstance(
-                            owner.slice, ast.Constant):     # env['x.y']._table
-                        dyn |= index.concrete_tables(owner.slice.value)
-                    elif cls is not None:
-                        dyn |= index.concrete_tables(cls["model"])
-                    else:
-                        dyn.add("*")
+            for source in [call] + assignment_values:
+                for n in ast.walk(source):
+                    if isinstance(n, ast.Attribute) and n.attr in ("_table", "_name"):
+                        owner = n.value
+                        if isinstance(owner, ast.Subscript) and isinstance(
+                                owner.slice, ast.Constant):     # env['x.y']._table
+                            dyn |= index.concrete_tables(owner.slice.value)
+                        elif cls is not None:
+                            dyn |= index.concrete_tables(cls["model"])
+                        else:
+                            dyn.add("*")
             fname = call.func.attr if isinstance(call.func, ast.Attribute) else getattr(
                 call.func, "id", "")
             if kind == "helper":

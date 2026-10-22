@@ -8,35 +8,46 @@ Dispositions: **A** storage path handles it; **B** unit owns it (the unit that m
 
 ### Coverage
 
-Entry points scanned in every non-test .py file of the 70 installed modules and the core (`odoo/` outside `odoo/addons`): cursor `execute`, `execute_values`, `executemany`, `copy_expert`/`copy_from`/`copy_to`, `mogrify`; `env.execute_query`/`execute_query_dict`; `psycopg2.extras.execute_values`; every `odoo.tools.sql` helper that takes a table (`create_index`, `column_exists`, `drop_view_if_exists`, `add_foreign_key`, `increment_fields_skiplock`, ...); `SQL(...)` fragments built outside a cursor call (search/order/compute overrides); `_auto = False` models (`_table_sql`/`_table_query` rendered from the registry, `init()` views from `pg_rewrite`); `ir_cron` and code server actions; triggers, functions, views and foreign keys from the catalog. Tables come from literal names in the SQL text, `self._table`/`env[m]._table` resolved through the class's model (abstract mixins expand to every stored model inheriting them), and for SQL built from ORM `Query`/`TableSQL` objects the function's `env[...]` models or the class's model. `SELECT ... FOR UPDATE` is a lock, not a write. Sites that name no in-scope table are counted, not listed: 481 fragment, 57 helper, 371 sql.
+Entry points scanned in every non-test .py file of the 70 installed modules and the core (`odoo/` outside `odoo/addons`): cursor `execute`, `execute_values`, `executemany`, `copy_expert`/`copy_from`/`copy_to`, `mogrify`; `env.execute_query`/`execute_query_dict`; `psycopg2.extras.execute_values`; every `odoo.tools.sql` helper that takes a table (`create_index`, `column_exists`, `drop_view_if_exists`, `add_foreign_key`, `increment_fields_skiplock`, ...); `SQL(...)` fragments built outside a cursor call (search/order/compute overrides); `_auto = False` models (`_table_sql`/`_table_query` rendered from the registry, `init()` views from `pg_rewrite`); `ir_cron` and code server actions; triggers, functions, views and foreign keys from the catalog. Tables come from literal names in the SQL text, `self._table`/`env[m]._table` resolved through the class's model (abstract mixins expand to every stored model inheriting them), and for SQL built from ORM `Query`/`TableSQL` objects the function's `env[...]` models or the class's model. `SELECT ... FOR UPDATE` is a lock, not a write. Sites that name no in-scope table are counted, not listed: 481 fragment, 55 helper, 361 sql.
 
-### Raw SQL writes into in-scope tables (21)
+### Raw SQL writes into in-scope tables (32)
 
 | # | disp | kind | site | function | in-scope tables (w = written) | note |
 |---|---|---|---|---|---|---|
 | 1 | C | upgrade_script | `addons/account/migrations/1.5/pre-migrate.py:2` | `-.migrate` | account_account (w) | upgrade script: runs only on -u from an older module version |
-| 2 | B | sql | `addons/account/models/account_account.py:1341` | `account.account._action_unmerge` | account_account (w) | dynamic: every table holding an account_account FK column |
-| 3 | B | sql | `addons/account/models/account_account.py:1362` | `account.account._action_unmerge` | account_account (w) | dynamic: every table holding an account_account FK column |
-| 4 | B | sql | `addons/account/models/account_account.py:1391` | `account.account._action_unmerge` | account_account (w) | dynamic: every table holding an account_account FK column |
-| 5 | B | sql | `addons/account/models/account_account.py:1420` | `account.account._action_unmerge` | account_account (w) | dynamic: every table holding an account_account FK column |
-| 6 | B | sql | `addons/account/models/account_account.py:1441` | `account.account._action_unmerge` | account_account (w) | dynamic: every table holding an account_account FK column |
-| 7 | B | sql | `addons/account/models/account_account.py:1472` | `account.account._action_unmerge` | account_account (w) | dynamic: every table holding an account_account FK column |
-| 8 | B | sql | `addons/account/models/account_account_tag.py:125` | `account.account.tag._translate_tax_tags` | account_account_tag (w), account_report, account_report_line |  |
-| 9 | B | sql | `addons/account/models/account_full_reconcile.py:30` | `account.full.reconcile.create` | account_move_line (w) |  |
-| 10 | B | sql | `addons/account/models/account_full_reconcile.py:39` | `account.full.reconcile.create` | account_partial_reconcile (w) |  |
-| 11 | B | sql | `addons/account/models/account_partial_reconcile.py:226` | `account.partial.reconcile._update_matching_number` | account_move_line (w) |  |
-| 12 | B | sql | `addons/account/models/sequence_mixin.py:56` | `sequence.mixin.init` | account_move (w) | dynamic table |
-| 13 | B | sql | `addons/account/models/sequence_mixin.py:415` | `sequence.mixin._locked_increment` | account_move (w) | dynamic table |
-| 14 | B | sql | `addons/account/wizard/account_merge_wizard.py:185` | `account.merge.wizard._action_merge` | account_account (w) |  |
-| 15 | B | sql | `addons/account/wizard/account_merge_wizard.py:197` | `account.merge.wizard._action_merge` | account_account (w) |  |
-| 16 | B | sql | `addons/account/wizard/account_merge_wizard.py:209` | `account.merge.wizard._action_merge` | account_account (w) |  |
-| 17 | A | sql | `addons/analytic/models/analytic_mixin.py:40` | `analytic.mixin.init` | account_move_line (w), account_reconcile_model_line (w), purchase_order_line (w), sale_order_line (w) | generic code; table resolved per model (4 in-scope tables) |
-| 18 | B | sql | `addons/purchase_stock/models/purchase_order_line.py:24` | `purchase.order.line._ondelete_stock_moves` | purchase_order_line (w) | dynamic table |
-| 19 | B | sql | `addons/sale_stock/models/sale_order.py:67` | `sale.order._init_column_warehouse_id` | sale_order (w), stock_warehouse |  |
-| 20 | B | sql | `addons/stock/__init__.py:92` | `-._save_current_inventory` | product_product (w) |  |
-| 21 | B | sql | `addons/stock/models/stock_quant.py:1251` | `stock.quant._merge_quants` | stock_quant (w) |  |
+| 2 | B | sql | `addons/account/models/account_account.py:1341` | `account.account._action_unmerge` | 18 tables (18 written) | dynamic: every table holding an account_account FK column; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included) |
+| 3 | B | sql | `addons/account/models/account_account.py:1362` | `account.account._action_unmerge` | 18 tables (18 written) | dynamic: every table holding an account_account FK column; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included) |
+| 4 | B | sql | `addons/account/models/account_account.py:1391` | `account.account._action_unmerge` | 18 tables (18 written) | dynamic: every table holding an account_account FK column; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included) |
+| 5 | B | sql | `addons/account/models/account_account.py:1420` | `account.account._action_unmerge` | 18 tables (18 written) | dynamic: every table holding an account_account FK column; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included) |
+| 6 | B | sql | `addons/account/models/account_account.py:1441` | `account.account._action_unmerge` | 18 tables (18 written) | dynamic: every table holding an account_account FK column; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included) |
+| 7 | B | sql | `addons/account/models/account_account.py:1472` | `account.account._action_unmerge` | 18 tables (18 written) | dynamic: every table holding an account_account FK column; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included) |
+| 8 | B | sql | `addons/account/models/account_account.py:1490` | `account.account._action_unmerge` | 18 tables (18 written) | dynamic: every table holding an account_account FK column; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included) |
+| 9 | B | sql | `addons/account/models/account_account_tag.py:125` | `account.account.tag._translate_tax_tags` | account_account_tag (w), account_report, account_report_line |  |
+| 10 | B | sql | `addons/account/models/account_full_reconcile.py:30` | `account.full.reconcile.create` | account_move_line (w) |  |
+| 11 | B | sql | `addons/account/models/account_full_reconcile.py:39` | `account.full.reconcile.create` | account_partial_reconcile (w) |  |
+| 12 | B | sql | `addons/account/models/account_partial_reconcile.py:226` | `account.partial.reconcile._update_matching_number` | account_move_line (w) |  |
+| 13 | B | sql | `addons/account/models/sequence_mixin.py:56` | `sequence.mixin.init` | account_move (w) | dynamic table |
+| 14 | B | sql | `addons/account/models/sequence_mixin.py:415` | `sequence.mixin._locked_increment` | account_move (w) | dynamic table |
+| 15 | B | sql | `addons/account/wizard/account_merge_wizard.py:185` | `account.merge.wizard._action_merge` | account_account (w) |  |
+| 16 | B | sql | `addons/account/wizard/account_merge_wizard.py:197` | `account.merge.wizard._action_merge` | account_account (w) |  |
+| 17 | B | sql | `addons/account/wizard/account_merge_wizard.py:209` | `account.merge.wizard._action_merge` | account_account (w) |  |
+| 18 | A | sql | `addons/analytic/models/analytic_mixin.py:40` | `analytic.mixin.init` | account_move_line (w), account_reconcile_model_line (w), purchase_order_line (w), sale_order_line (w) | generic code; table resolved per model (4 in-scope tables) |
+| 19 | A | sql | `addons/mail/models/mail_thread.py:3109` | `mail.thread.set_message_pin` | 12 tables (12 written) | generic code; table resolved per model (12 in-scope tables) |
+| 20 | B | sql | `addons/purchase_stock/models/purchase_order_line.py:24` | `purchase.order.line._ondelete_stock_moves` | purchase_order_line (w) | dynamic table |
+| 21 | B | sql | `addons/sale_stock/models/sale_order.py:67` | `sale.order._init_column_warehouse_id` | sale_order (w), stock_warehouse |  |
+| 22 | B | sql | `addons/stock/__init__.py:92` | `-._save_current_inventory` | product_product (w) |  |
+| 23 | B | sql | `addons/stock/models/stock_quant.py:1251` | `stock.quant._merge_quants` | stock_quant (w) |  |
+| 24 | A | helper | `odoo/addons/base/wizard/base_partner_merge.py:137` | `base.partner.merge.automatic.wizard._update_foreign_keys_generic` | 39 tables (39 written) | generic core FK fan-out; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner: 24 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner_bank: 5 in-scope tables (catalog FKs; Reference/res_id columns not included) |
+| 25 | A | sql | `odoo/addons/base/wizard/base_partner_merge.py:143` | `base.partner.merge.automatic.wizard._update_foreign_keys_generic` | 39 tables (39 written) | generic core FK fan-out; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner: 24 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner_bank: 5 in-scope tables (catalog FKs; Reference/res_id columns not included) |
+| 26 | A | sql | `odoo/addons/base/wizard/base_partner_merge.py:150` | `base.partner.merge.automatic.wizard._update_foreign_keys_generic` | 39 tables (39 written) | generic core FK fan-out; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner: 24 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner_bank: 5 in-scope tables (catalog FKs; Reference/res_id columns not included) |
+| 27 | A | sql | `odoo/addons/base/wizard/base_partner_merge.py:170` | `base.partner.merge.automatic.wizard._update_foreign_keys_generic` | 39 tables (39 written) | generic core FK fan-out; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner: 24 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner_bank: 5 in-scope tables (catalog FKs; Reference/res_id columns not included) |
+| 28 | A | sql | `odoo/addons/base/wizard/base_partner_merge.py:180` | `base.partner.merge.automatic.wizard._update_foreign_keys_generic` | 39 tables (39 written) | generic core FK fan-out; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner: 24 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner_bank: 5 in-scope tables (catalog FKs; Reference/res_id columns not included) |
+| 29 | A | sql | `odoo/addons/base/wizard/base_partner_merge.py:190` | `base.partner.merge.automatic.wizard._update_foreign_keys_generic` | 39 tables (39 written) | generic core FK fan-out; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner: 24 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner_bank: 5 in-scope tables (catalog FKs; Reference/res_id columns not included) |
+| 30 | A | sql | `odoo/addons/base/wizard/base_partner_merge.py:258` | `base.partner.merge.automatic.wizard._update_reference_fields_generic` | 39 tables (39 written) | generic core FK fan-out; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner: 24 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner_bank: 5 in-scope tables (catalog FKs; Reference/res_id columns not included) |
+| 31 | A | sql | `odoo/addons/base/wizard/base_partner_merge.py:280` | `base.partner.merge.automatic.wizard._update_reference_fields_generic` | 39 tables (39 written) | generic core FK fan-out; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner: 24 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner_bank: 5 in-scope tables (catalog FKs; Reference/res_id columns not included) |
+| 32 | A | sql | `odoo/addons/base/wizard/base_partner_merge.py:307` | `base.partner.merge.automatic.wizard._update_reference_fields_generic` | 39 tables (39 written) | generic core FK fan-out; FK fan-out of account_account: 18 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner: 24 in-scope tables (catalog FKs; Reference/res_id columns not included); FK fan-out of res_partner_bank: 5 in-scope tables (catalog FKs; Reference/res_id columns not included) |
 
-### Raw SQL reads of in-scope tables (244)
+### Raw SQL reads of in-scope tables (245)
 
 | # | disp | kind | site | function | in-scope tables (w = written) | note |
 |---|---|---|---|---|---|---|
@@ -205,85 +216,86 @@ Entry points scanned in every non-test .py file of the 70 installed modules and 
 | 163 | B | sql | `addons/account/models/product.py:246` | `product.template._check_uom_not_in_invoice` | account_move_line, product_product, product_template, uom_uom |  |
 | 164 | B | sql | `addons/account/models/res_currency_rate_consolidation_mixin.py:33` | `res.currency.rate.consolidation.mixin._compute_consolidation_rate` | account_move_line, account_report_external_value, purchase_order_line, sale_order_line | dynamic table |
 | 165 | B | fragment | `addons/account/models/res_currency_rate_consolidation_mixin.py:57` | `res.currency.rate.consolidation.mixin._compute_sql_consolidation_currency_id` | account_move_line, account_report_external_value, purchase_order_line, sale_order_line | dynamic table |
-| 166 | B | sql | `addons/account/models/sequence_mixin.py:66` | `sequence.mixin.init` | account_move | dynamic table |
-| 167 | B | fragment | `addons/account/models/sequence_mixin.py:259` | `sequence.mixin._get_last_sequence_domain` | account_move | dynamic table |
-| 168 | B | fragment | `addons/account/models/sequence_mixin.py:299` | `sequence.mixin._get_last_sequence` | account_move | dynamic table |
-| 169 | B | fragment | `addons/account/models/sequence_mixin.py:303` | `sequence.mixin._get_last_sequence` | account_move | dynamic table |
-| 170 | B | fragment | `addons/account/models/sequence_mixin.py:305` | `sequence.mixin._get_last_sequence` | account_move | dynamic table |
-| 171 | B | fragment | `addons/account/models/sequence_mixin.py:307` | `sequence.mixin._get_last_sequence` | account_move | dynamic table |
-| 172 | B | fragment | `addons/account/models/sequence_mixin.py:308` | `sequence.mixin._get_last_sequence` | account_move | dynamic table |
-| 173 | B | sql | `addons/account/models/sequence_mixin.py:311` | `sequence.mixin._get_last_sequence` | account_move | dynamic table |
-| 174 | B | sql | `addons/account/wizard/account_merge_wizard.py:144` | `account.merge.wizard._action_merge` | account_account |  |
-| 175 | B | sql | `addons/account/wizard/account_merge_wizard.py:170` | `account.merge.wizard._action_merge` | account_account |  |
-| 176 | B | sql | `addons/account/wizard/account_merge_wizard.py:268` | `account.merge.wizard.line._compute_account_has_hashed_entries` | account_move_line |  |
-| 177 | B | sql | `addons/account/wizard/account_secure_entries_wizard.py:76` | `account.secure.entries.wizard._compute_max_hash_date` | account_move | dynamic table |
-| 178 | C | upgrade_script | `addons/analytic/migrations/1.2/pre-migrate.py:6` | `-.migrate` |  | upgrade script: runs only on -u from an older module version |
-| 179 | C | upgrade_script | `addons/analytic/migrations/1.2/pre-migrate.py:14` | `-.migrate` |  | upgrade script: runs only on -u from an older module version |
-| 180 | C | upgrade_script | `addons/analytic/migrations/1.2/pre-migrate.py:18` | `-.migrate` |  | upgrade script: runs only on -u from an older module version |
-| 181 | C | upgrade_script | `addons/analytic/migrations/1.2/pre-migrate.py:30` | `-.migrate` |  | upgrade script: runs only on -u from an older module version |
-| 182 | C | upgrade_script | `addons/analytic/migrations/1.2/pre-migrate.py:31` | `-.migrate` |  | upgrade script: runs only on -u from an older module version |
-| 183 | A | helper | `addons/analytic/models/analytic_mixin.py:35` | `analytic.mixin.init` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
-| 184 | A | fragment | `addons/analytic/models/analytic_mixin.py:44` | `analytic.mixin._query_analytic_accounts` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
-| 185 | A | fragment | `addons/analytic/models/analytic_mixin.py:132` | `analytic.mixin._read_group_groupby` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
-| 186 | A | fragment | `addons/analytic/models/analytic_mixin.py:143` | `analytic.mixin._read_group_groupby` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
-| 187 | A | fragment | `addons/analytic/models/analytic_mixin.py:155` | `analytic.mixin._get_count_id` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
-| 188 | A | fragment | `addons/analytic/models/analytic_mixin.py:157` | `analytic.mixin._get_count_id` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
-| 189 | A | fragment | `addons/analytic/models/analytic_mixin.py:159` | `analytic.mixin._get_count_id` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
-| 190 | A | fragment | `addons/mail/models/mail_activity_mixin.py:184` | `mail.activity.mixin._compute_sql_activity_state` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
-| 191 | A | fragment | `addons/mail/models/mail_activity_mixin.py:204` | `mail.activity.mixin._compute_sql_activity_state` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
-| 192 | A | fragment | `addons/mail/models/mail_activity_mixin.py:206` | `mail.activity.mixin._compute_sql_activity_state` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
-| 193 | A | sql | `addons/mail/models/mail_thread.py:264` | `mail.thread._compute_has_message` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
-| 194 | A | fragment | `addons/mail/models/mail_thread.py:277` | `mail.thread._search_has_message` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
-| 195 | A | sql | `addons/mail/models/mail_thread.py:283` | `mail.thread._compute_message_needaction` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
-| 196 | A | sql | `addons/mail/models/mail_thread.py:307` | `mail.thread._compute_message_has_error` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
-| 197 | A | sql | `addons/mail/models/mail_thread.py:3437` | `mail.thread._notify_cancel_by_type_generic` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
-| 198 | B | fragment | `addons/product/models/product_product.py:1134` | `product.product._search_display_name` | product_supplierinfo, product_template | dynamic table |
-| 199 | B | fragment | `addons/product/models/product_product.py:1138` | `product.product._search_display_name` | product_supplierinfo, product_template | dynamic table |
-| 200 | B | fragment | `addons/product/models/product_template.py:413` | `product.template._compute_sql_cost_currency_id` | product_template | dynamic table |
-| 201 | B | fragment | `addons/product/models/product_template.py:969` | `product.template._search_display_name` | product_template | dynamic table |
-| 202 | B | fragment | `addons/purchase/models/account_invoice.py:154` | `account.move._compute_display_auto_complete` | purchase_order |  |
-| 203 | B | fragment | `addons/purchase/models/account_invoice.py:158` | `account.move._compute_display_auto_complete` | purchase_order | dynamic table |
-| 204 | B | sql | `addons/purchase/models/account_invoice.py:159` | `account.move._compute_display_auto_complete` | purchase_order | dynamic table |
-| 205 | B | fragment | `addons/purchase/models/purchase_bill_line_match.py:98` | `purchase.bill.line.match._select_po_line` | purchase_order, purchase_order_line |  |
-| 206 | B | fragment | `addons/purchase/models/purchase_bill_line_match.py:128` | `purchase.bill.line.match._select_am_line` | account_move, account_move_line |  |
-| 207 | B | sql | `addons/purchase/models/purchase_order.py:401` | `purchase.order._fetch_duplicate_orders` | purchase_order |  |
-| 208 | B | fragment | `addons/purchase/models/purchase_order.py:442` | `purchase.order._search_is_late` | purchase_order | dynamic table |
-| 209 | B | fragment | `addons/purchase/models/purchase_order.py:447` | `purchase.order._search_is_late` | purchase_order | dynamic table |
-| 210 | B | fragment | `addons/purchase/report/purchase_bill.py:45` | `purchase.bill.union._table_sql` | account_move, purchase_order |  |
-| 211 | B | fragment | `addons/purchase/report/purchase_report.py:57` | `purchase.report._table_sql` | purchase_order_line | dynamic table |
-| 212 | B | fragment | `addons/purchase_stock/models/stock_move.py:139` | `stock.move._get_origin_company_domains` | stock_move | dynamic table |
-| 213 | B | fragment | `addons/purchase_stock/report/purchase_report.py:16` | `purchase.report._select_list` | purchase_order, purchase_order_line, stock_location, stock_move, stock_picking |  |
-| 214 | B | sql | `addons/purchase_stock/report/vendor_delay_report.py:23` | `vendor.delay.report.init` | product_category, product_product, product_template, purchase_order_line, stock_move, stock_move_line, uom_uom | view DDL: reads only |
-| 215 | B | sql | `addons/sale/models/sale_order.py:836` | `sale.order._search_invoice_ids` | account_move, account_move_line, sale_order, sale_order_line, sale_order_line_invoice_rel |  |
-| 216 | B | sql | `addons/sale/models/sale_order.py:1060` | `sale.order._fetch_duplicate_orders` | sale_order |  |
-| 217 | B | fragment | `addons/sale/models/sale_order.py:1135` | `sale.order._search_is_unfulfilled` | sale_order | dynamic table |
-| 218 | B | sql | `addons/sale/models/utm_campaign.py:55` | `utm.campaign._compute_sale_invoiced_amount` | account_move, account_move_line |  |
-| 219 | B | fragment | `addons/sale/report/sale_report.py:127` | `sale.report._table_sql` | sale_order_line | dynamic table |
-| 220 | B | fragment | `addons/sale_stock/models/stock.py:59` | `stock.move._compute_sql_order_partner_id` | sale_order_line |  |
-| 221 | B | fragment | `addons/sale_stock/models/stock.py:65` | `stock.move._compute_sql_order_partner_id` | sale_order_line |  |
-| 222 | B | fragment | `addons/sale_stock/models/stock.py:67` | `stock.move._compute_sql_order_partner_id` | sale_order_line |  |
-| 223 | B | fragment | `addons/sale_stock/models/stock.py:157` | `stock.move._get_origin_company_domains` | stock_move | dynamic table |
-| 224 | A | sql | `addons/sms/models/mail_thread.py:23` | `mail.thread._compute_message_has_sms_error` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
-| 225 | B | sql | `addons/stock/__init__.py:46` | `-._create_inventory_adjustment` | product_product |  |
-| 226 | B | fragment | `addons/stock/models/product.py:418` | `product.product._get_domain_locations_new` | stock_location |  |
-| 227 | B | fragment | `addons/stock/models/stock_picking_type.py:361` | `stock.picking.type._compute_sql_is_favorite` | picking_type_favorite_user_rel |  |
-| 228 | B | fragment | `addons/stock/models/stock_quant.py:188` | `stock.quant._compute_sql_last_count_date` | stock_move, stock_move_line, stock_quant |  |
-| 229 | B | fragment | `addons/stock/models/stock_quant.py:207` | `stock.quant._compute_sql_last_count_date` | stock_quant | dynamic table |
-| 230 | B | fragment | `addons/stock/models/stock_quant.py:210` | `stock.quant._compute_sql_last_count_date` | stock_quant | dynamic table |
-| 231 | B | fragment | `addons/stock/models/stock_quant.py:363` | `stock.quant._read_group_select` | stock_quant | dynamic table |
-| 232 | B | fragment | `addons/stock/models/stock_quant.py:367` | `stock.quant._read_group_select` | stock_quant | dynamic table |
-| 233 | B | fragment | `addons/stock/models/stock_quant.py:666` | `stock.quant._run_least_packages_removal_strategy_astar` | stock_quant | dynamic table |
-| 234 | B | fragment | `addons/stock/models/stock_quant.py:667` | `stock.quant._run_least_packages_removal_strategy_astar` | stock_quant | dynamic table |
-| 235 | B | fragment | `addons/stock/models/stock_quant.py:668` | `stock.quant._run_least_packages_removal_strategy_astar` | stock_quant | dynamic table |
-| 236 | B | sql | `addons/stock/models/stock_quant.py:669` | `stock.quant._run_least_packages_removal_strategy_astar` | stock_quant | dynamic table |
-| 237 | B | sql | `addons/stock/models/stock_quant.py:1169` | `stock.quant._unlink_zero_quants` | stock_quant |  |
-| 238 | B | fragment | `addons/stock/report/report_stock_quantity.py:51` | `report.stock.quantity.init` | product_product, product_template, stock_location, stock_move, stock_quant, stock_warehouse, uom_uom | view DDL: reads only |
-| 239 | B | sql | `addons/stock/report/report_stock_quantity.py:194` | `report.stock.quantity.init` | product_product, product_template, stock_location, stock_move, stock_quant, stock_warehouse, uom_uom | view DDL: reads only |
-| 240 | B | fragment | `addons/stock_account/models/product.py:305` | `product.product._get_last_product_value` | product_value |  |
-| 241 | B | fragment | `addons/stock_account/models/product.py:306` | `product.product._get_last_product_value` | product_value |  |
-| 242 | B | sql | `addons/stock_account/models/product.py:307` | `product.product._get_last_product_value` | product_value |  |
-| 243 | B | fragment | `addons/stock_account/models/stock_move.py:131` | `stock.move._compute_sql_order_partner_id` | stock_move | dynamic table |
-| 244 | B | sql | `addons/stock_account/report/stock_avco_audit_report.py:91` | `stock.avco.report.init` | product_category, product_product, product_template, product_value, stock_move, stock_picking, uom_uom | view DDL: reads only |
+| 166 | B | helper | `addons/account/models/sequence_mixin.py:55` | `sequence.mixin.init` | account_move | dynamic table |
+| 167 | B | sql | `addons/account/models/sequence_mixin.py:66` | `sequence.mixin.init` | account_move | dynamic table |
+| 168 | B | fragment | `addons/account/models/sequence_mixin.py:259` | `sequence.mixin._get_last_sequence_domain` | account_move | dynamic table |
+| 169 | B | fragment | `addons/account/models/sequence_mixin.py:299` | `sequence.mixin._get_last_sequence` | account_move | dynamic table |
+| 170 | B | fragment | `addons/account/models/sequence_mixin.py:303` | `sequence.mixin._get_last_sequence` | account_move | dynamic table |
+| 171 | B | fragment | `addons/account/models/sequence_mixin.py:305` | `sequence.mixin._get_last_sequence` | account_move | dynamic table |
+| 172 | B | fragment | `addons/account/models/sequence_mixin.py:307` | `sequence.mixin._get_last_sequence` | account_move | dynamic table |
+| 173 | B | fragment | `addons/account/models/sequence_mixin.py:308` | `sequence.mixin._get_last_sequence` | account_move | dynamic table |
+| 174 | B | sql | `addons/account/models/sequence_mixin.py:311` | `sequence.mixin._get_last_sequence` | account_move | dynamic table |
+| 175 | B | sql | `addons/account/wizard/account_merge_wizard.py:144` | `account.merge.wizard._action_merge` | account_account |  |
+| 176 | B | sql | `addons/account/wizard/account_merge_wizard.py:170` | `account.merge.wizard._action_merge` | account_account |  |
+| 177 | B | sql | `addons/account/wizard/account_merge_wizard.py:268` | `account.merge.wizard.line._compute_account_has_hashed_entries` | account_move_line |  |
+| 178 | B | sql | `addons/account/wizard/account_secure_entries_wizard.py:76` | `account.secure.entries.wizard._compute_max_hash_date` | account_move | dynamic table |
+| 179 | C | upgrade_script | `addons/analytic/migrations/1.2/pre-migrate.py:6` | `-.migrate` |  | upgrade script: runs only on -u from an older module version |
+| 180 | C | upgrade_script | `addons/analytic/migrations/1.2/pre-migrate.py:14` | `-.migrate` |  | upgrade script: runs only on -u from an older module version |
+| 181 | C | upgrade_script | `addons/analytic/migrations/1.2/pre-migrate.py:18` | `-.migrate` |  | upgrade script: runs only on -u from an older module version |
+| 182 | C | upgrade_script | `addons/analytic/migrations/1.2/pre-migrate.py:30` | `-.migrate` |  | upgrade script: runs only on -u from an older module version |
+| 183 | C | upgrade_script | `addons/analytic/migrations/1.2/pre-migrate.py:31` | `-.migrate` |  | upgrade script: runs only on -u from an older module version |
+| 184 | A | helper | `addons/analytic/models/analytic_mixin.py:35` | `analytic.mixin.init` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
+| 185 | A | fragment | `addons/analytic/models/analytic_mixin.py:44` | `analytic.mixin._query_analytic_accounts` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
+| 186 | A | fragment | `addons/analytic/models/analytic_mixin.py:132` | `analytic.mixin._read_group_groupby` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
+| 187 | A | fragment | `addons/analytic/models/analytic_mixin.py:143` | `analytic.mixin._read_group_groupby` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
+| 188 | A | fragment | `addons/analytic/models/analytic_mixin.py:155` | `analytic.mixin._get_count_id` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
+| 189 | A | fragment | `addons/analytic/models/analytic_mixin.py:157` | `analytic.mixin._get_count_id` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
+| 190 | A | fragment | `addons/analytic/models/analytic_mixin.py:159` | `analytic.mixin._get_count_id` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
+| 191 | A | fragment | `addons/mail/models/mail_activity_mixin.py:184` | `mail.activity.mixin._compute_sql_activity_state` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
+| 192 | A | fragment | `addons/mail/models/mail_activity_mixin.py:204` | `mail.activity.mixin._compute_sql_activity_state` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
+| 193 | A | fragment | `addons/mail/models/mail_activity_mixin.py:206` | `mail.activity.mixin._compute_sql_activity_state` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
+| 194 | A | sql | `addons/mail/models/mail_thread.py:264` | `mail.thread._compute_has_message` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
+| 195 | A | fragment | `addons/mail/models/mail_thread.py:277` | `mail.thread._search_has_message` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
+| 196 | A | sql | `addons/mail/models/mail_thread.py:283` | `mail.thread._compute_message_needaction` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
+| 197 | A | sql | `addons/mail/models/mail_thread.py:307` | `mail.thread._compute_message_has_error` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
+| 198 | A | sql | `addons/mail/models/mail_thread.py:3437` | `mail.thread._notify_cancel_by_type_generic` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
+| 199 | B | fragment | `addons/product/models/product_product.py:1134` | `product.product._search_display_name` | product_supplierinfo, product_template | dynamic table |
+| 200 | B | fragment | `addons/product/models/product_product.py:1138` | `product.product._search_display_name` | product_supplierinfo, product_template | dynamic table |
+| 201 | B | fragment | `addons/product/models/product_template.py:413` | `product.template._compute_sql_cost_currency_id` | product_template | dynamic table |
+| 202 | B | fragment | `addons/product/models/product_template.py:969` | `product.template._search_display_name` | product_template | dynamic table |
+| 203 | B | fragment | `addons/purchase/models/account_invoice.py:154` | `account.move._compute_display_auto_complete` | purchase_order |  |
+| 204 | B | fragment | `addons/purchase/models/account_invoice.py:158` | `account.move._compute_display_auto_complete` | purchase_order | dynamic table |
+| 205 | B | sql | `addons/purchase/models/account_invoice.py:159` | `account.move._compute_display_auto_complete` | purchase_order | dynamic table |
+| 206 | B | fragment | `addons/purchase/models/purchase_bill_line_match.py:98` | `purchase.bill.line.match._select_po_line` | purchase_order, purchase_order_line |  |
+| 207 | B | fragment | `addons/purchase/models/purchase_bill_line_match.py:128` | `purchase.bill.line.match._select_am_line` | account_move, account_move_line |  |
+| 208 | B | sql | `addons/purchase/models/purchase_order.py:401` | `purchase.order._fetch_duplicate_orders` | purchase_order |  |
+| 209 | B | fragment | `addons/purchase/models/purchase_order.py:442` | `purchase.order._search_is_late` | purchase_order | dynamic table |
+| 210 | B | fragment | `addons/purchase/models/purchase_order.py:447` | `purchase.order._search_is_late` | purchase_order | dynamic table |
+| 211 | B | fragment | `addons/purchase/report/purchase_bill.py:45` | `purchase.bill.union._table_sql` | account_move, purchase_order |  |
+| 212 | B | fragment | `addons/purchase/report/purchase_report.py:57` | `purchase.report._table_sql` | purchase_order_line | dynamic table |
+| 213 | B | fragment | `addons/purchase_stock/models/stock_move.py:139` | `stock.move._get_origin_company_domains` | stock_move | dynamic table |
+| 214 | B | fragment | `addons/purchase_stock/report/purchase_report.py:16` | `purchase.report._select_list` | purchase_order, purchase_order_line, stock_location, stock_move, stock_picking |  |
+| 215 | B | sql | `addons/purchase_stock/report/vendor_delay_report.py:23` | `vendor.delay.report.init` | product_category, product_product, product_template, purchase_order_line, stock_move, stock_move_line, uom_uom | view DDL: reads only |
+| 216 | B | sql | `addons/sale/models/sale_order.py:836` | `sale.order._search_invoice_ids` | account_move, account_move_line, sale_order, sale_order_line, sale_order_line_invoice_rel |  |
+| 217 | B | sql | `addons/sale/models/sale_order.py:1060` | `sale.order._fetch_duplicate_orders` | sale_order |  |
+| 218 | B | fragment | `addons/sale/models/sale_order.py:1135` | `sale.order._search_is_unfulfilled` | sale_order | dynamic table |
+| 219 | B | sql | `addons/sale/models/utm_campaign.py:55` | `utm.campaign._compute_sale_invoiced_amount` | account_move, account_move_line |  |
+| 220 | B | fragment | `addons/sale/report/sale_report.py:127` | `sale.report._table_sql` | sale_order_line | dynamic table |
+| 221 | B | fragment | `addons/sale_stock/models/stock.py:59` | `stock.move._compute_sql_order_partner_id` | sale_order_line |  |
+| 222 | B | fragment | `addons/sale_stock/models/stock.py:65` | `stock.move._compute_sql_order_partner_id` | sale_order_line |  |
+| 223 | B | fragment | `addons/sale_stock/models/stock.py:67` | `stock.move._compute_sql_order_partner_id` | sale_order_line |  |
+| 224 | B | fragment | `addons/sale_stock/models/stock.py:157` | `stock.move._get_origin_company_domains` | stock_move | dynamic table |
+| 225 | A | sql | `addons/sms/models/mail_thread.py:23` | `mail.thread._compute_message_has_sms_error` | 12 tables (0 written) | generic code; table resolved per model (12 in-scope tables) |
+| 226 | B | sql | `addons/stock/__init__.py:46` | `-._create_inventory_adjustment` | product_product |  |
+| 227 | B | fragment | `addons/stock/models/product.py:418` | `product.product._get_domain_locations_new` | stock_location |  |
+| 228 | B | fragment | `addons/stock/models/stock_picking_type.py:361` | `stock.picking.type._compute_sql_is_favorite` | picking_type_favorite_user_rel |  |
+| 229 | B | fragment | `addons/stock/models/stock_quant.py:188` | `stock.quant._compute_sql_last_count_date` | stock_move, stock_move_line, stock_quant |  |
+| 230 | B | fragment | `addons/stock/models/stock_quant.py:207` | `stock.quant._compute_sql_last_count_date` | stock_quant | dynamic table |
+| 231 | B | fragment | `addons/stock/models/stock_quant.py:210` | `stock.quant._compute_sql_last_count_date` | stock_quant | dynamic table |
+| 232 | B | fragment | `addons/stock/models/stock_quant.py:363` | `stock.quant._read_group_select` | stock_quant | dynamic table |
+| 233 | B | fragment | `addons/stock/models/stock_quant.py:367` | `stock.quant._read_group_select` | stock_quant | dynamic table |
+| 234 | B | fragment | `addons/stock/models/stock_quant.py:666` | `stock.quant._run_least_packages_removal_strategy_astar` | stock_quant | dynamic table |
+| 235 | B | fragment | `addons/stock/models/stock_quant.py:667` | `stock.quant._run_least_packages_removal_strategy_astar` | stock_quant | dynamic table |
+| 236 | B | fragment | `addons/stock/models/stock_quant.py:668` | `stock.quant._run_least_packages_removal_strategy_astar` | stock_quant | dynamic table |
+| 237 | B | sql | `addons/stock/models/stock_quant.py:669` | `stock.quant._run_least_packages_removal_strategy_astar` | stock_quant | dynamic table |
+| 238 | B | sql | `addons/stock/models/stock_quant.py:1169` | `stock.quant._unlink_zero_quants` | stock_quant |  |
+| 239 | B | fragment | `addons/stock/report/report_stock_quantity.py:51` | `report.stock.quantity.init` | product_product, product_template, stock_location, stock_move, stock_quant, stock_warehouse, uom_uom | view DDL: reads only |
+| 240 | B | sql | `addons/stock/report/report_stock_quantity.py:194` | `report.stock.quantity.init` | product_product, product_template, stock_location, stock_move, stock_quant, stock_warehouse, uom_uom | view DDL: reads only |
+| 241 | B | fragment | `addons/stock_account/models/product.py:305` | `product.product._get_last_product_value` | product_value |  |
+| 242 | B | fragment | `addons/stock_account/models/product.py:306` | `product.product._get_last_product_value` | product_value |  |
+| 243 | B | sql | `addons/stock_account/models/product.py:307` | `product.product._get_last_product_value` | product_value |  |
+| 244 | B | fragment | `addons/stock_account/models/stock_move.py:131` | `stock.move._compute_sql_order_partner_id` | stock_move | dynamic table |
+| 245 | B | sql | `addons/stock_account/report/stock_avco_audit_report.py:91` | `stock.avco.report.init` | product_category, product_product, product_template, product_value, stock_move, stock_picking, uom_uom | view DDL: reads only |
 
 ### SQL views and `_table_sql` reports
 
@@ -307,33 +319,33 @@ Entry points scanned in every non-test .py file of the 70 installed modules and 
 
 ### Scheduled jobs (`ir_cron`)
 
-| id | disp | xmlid | model | active | every | reaches in-scope | note |
-|---|---|---|---|---|---|---|---|
-| 1 | A | `base.autovacuum_job` | `ir.autovacuum` | True | 1 days | all in-scope transient wizards | vacuums every transient/in-scope model with _gc_* hooks; pause it |
-| 2 | C | `base.ir_cron_res_users_deletion` | `res.users.deletion` | True | 1 days | - |  |
-| 3 | C | `resource.ir_cron_calendar_clean_up` | `resource.calendar` | True | 1 months | - |  |
-| 4 | C | `mail.ir_cron_mail_scheduler_action` | `mail.mail` | True | 1 hours | - |  |
-| 5 | C | `mail.ir_cron_module_update_notification` | `publisher_warranty.contract` | True | 1 weeks | - |  |
-| 6 | C | `mail.ir_cron_delete_notification` | `mail.notification` | True | 1 months | - |  |
-| 7 | C | `mail.ir_cron_mail_gateway_action` | `fetchmail.server` | False | 5 minutes | - |  |
-| 8 | C | `mail.ir_cron_post_scheduled_message` | `mail.scheduled.message` | True | 1 days | - |  |
-| 9 | C | `mail.ir_cron_send_scheduled_message` | `mail.message.schedule` | True | 1 hours | - |  |
-| 10 | C | `mail.ir_cron_web_push_notification` | `mail.push` | True | 1 days | - |  |
-| 11 | C | `mail.ir_cron_mail_end_polls` | `mail.poll` | True | 1 days | - |  |
-| 12 | C | `mail.ir_cron_discuss_channel_member_unmute` | `discuss.channel.member` | True | 1 days | - |  |
-| 13 | C | `mail.ir_cron_discuss_channel_sync_last_interest_dt` | `discuss.channel` | True | 1 days | - |  |
-| 14 | C | `auth_signup.ir_cron_auth_signup_send_pending_user_reminder` | `res.users` | True | 1 days | - |  |
-| 15 | C | `sms.ir_cron_sms_scheduler_action` | `sms.sms` | True | 24 hours | - |  |
-| 16 | C | `digest.ir_cron_digest_scheduler_action` | `digest.digest` | True | 1 days | - |  |
-| 17 | C | `payment.processing_cron` | `payment.data` | True | 1 days | - |  |
-| 18 | C | `payment.post_processing_cron` | `payment.transaction` | False | 1 days | - |  |
-| 19 | A | `account.ir_cron_auto_post_draft_entry` | `account.move` | True | 1 days | account_move, account_move_line, account_partial_reconcile | ORM writes; pause during load windows |
-| 20 | A | `account.ir_cron_account_move_send` | `account.move` | True | 1 days | account_move | ORM writes; pause during load windows |
-| 21 | A | `account.ir_cron_post_stock_valuation` | `res.company` | True | 1 days | account_accrued_orders_wizard, account_move, stock_warehouse | ORM writes; pause during load windows |
-| 22 | A | `stock.ir_cron_scheduler_action` | `stock.rule` | True | 1 days | stock_move, stock_quant, stock_rule, stock_warehouse_orderpoint | ORM writes; pause during load windows |
-| 23 | A | `purchase.purchase_send_reminder_mail` | `purchase.order` | True | 1 days | purchase_order | ORM writes; pause during load windows |
-| 24 | A | `sale.send_invoice_cron` | `payment.transaction` | False | 1 days | account_move | ORM writes; pause during load windows |
-| 25 | A | `sale.send_pending_emails_cron` | `sale.order` | False | 1 days | sale_order | ORM writes; pause during load windows |
+| id | disp | xmlid | model | active | every | direct (method-level) | class-level 2-hop (count + up to 6 names) | note |
+|---|---|---|---|---|---|---|---|---|
+| 1 | A | `base.autovacuum_job` | `ir.autovacuum` | True | 1 days | - | 0: - | vacuums every transient/in-scope model with _gc_* hooks; pause it |
+| 2 | A | `base.ir_cron_res_users_deletion` | `res.users.deletion` | True | 1 days | - | 1: stock_warehouse | indirect ORM reach, conservative |
+| 3 | A | `resource.ir_cron_calendar_clean_up` | `resource.calendar` | True | 1 months | - | 22: account_account, account_accrued_orders_wizard, account_bank_statement_line, account_cash_rounding, account_fiscal_position, account_incoterms, ... | indirect ORM reach, conservative |
+| 4 | A | `mail.ir_cron_mail_scheduler_action` | `mail.mail` | True | 1 hours | - | 60: account_account, account_account_tag, account_accrued_orders_wizard, account_bank_statement, account_bank_statement_line, account_cash_rounding, ... | indirect ORM reach, conservative |
+| 5 | A | `mail.ir_cron_module_update_notification` | `publisher_warranty.contract` | True | 1 weeks | - | 2: account_account_tag, stock_warehouse | indirect ORM reach, conservative |
+| 6 | A | `mail.ir_cron_delete_notification` | `mail.notification` | True | 1 months | - | 17: account_account, account_fiscal_position, account_incoterms, account_move, account_move_line, account_payment_method_line, ... | indirect ORM reach, conservative |
+| 7 | A | `mail.ir_cron_mail_gateway_action` | `fetchmail.server` | False | 5 minutes | - | 59: account_account, account_account_tag, account_accrued_orders_wizard, account_bank_statement, account_bank_statement_line, account_cash_rounding, ... | indirect ORM reach, conservative |
+| 8 | A | `mail.ir_cron_post_scheduled_message` | `mail.scheduled.message` | True | 1 days | - | 60: account_account, account_account_tag, account_accrued_orders_wizard, account_bank_statement, account_bank_statement_line, account_cash_rounding, ... | indirect ORM reach, conservative |
+| 9 | A | `mail.ir_cron_send_scheduled_message` | `mail.message.schedule` | True | 1 hours | - | 59: account_account, account_account_tag, account_accrued_orders_wizard, account_bank_statement, account_bank_statement_line, account_cash_rounding, ... | indirect ORM reach, conservative |
+| 10 | C | `mail.ir_cron_web_push_notification` | `mail.push` | True | 1 days | - | 0: - |  |
+| 11 | A | `mail.ir_cron_mail_end_polls` | `mail.poll` | True | 1 days | - | 3: account_account, account_move, account_tax | indirect ORM reach, conservative |
+| 12 | A | `mail.ir_cron_discuss_channel_member_unmute` | `discuss.channel.member` | True | 1 days | - | 18: account_account, account_fiscal_position, account_incoterms, account_move, account_move_line, account_payment_method_line, ... | indirect ORM reach, conservative |
+| 13 | A | `mail.ir_cron_discuss_channel_sync_last_interest_dt` | `discuss.channel` | True | 1 days | - | 60: account_account, account_account_tag, account_accrued_orders_wizard, account_bank_statement, account_bank_statement_line, account_cash_rounding, ... | indirect ORM reach, conservative |
+| 14 | A | `auth_signup.ir_cron_auth_signup_send_pending_user_reminder` | `res.users` | True | 1 days | - | 71: account_account, account_account_tag, account_accrued_orders_wizard, account_autopost_bills_wizard, account_bank_statement, account_bank_statement_line, ... | indirect ORM reach, conservative |
+| 15 | A | `sms.ir_cron_sms_scheduler_action` | `sms.sms` | True | 24 hours | - | 17: account_account, account_fiscal_position, account_incoterms, account_move, account_move_line, account_payment_method_line, ... | indirect ORM reach, conservative |
+| 16 | A | `digest.ir_cron_digest_scheduler_action` | `digest.digest` | True | 1 days | - | 47: account_account, account_account_tag, account_accrued_orders_wizard, account_bank_statement, account_bank_statement_line, account_cash_rounding, ... | indirect ORM reach, conservative |
+| 17 | A | `payment.processing_cron` | `payment.data` | True | 1 days | - | 4: account_journal, account_move, account_payment, sale_order | indirect ORM reach, conservative |
+| 18 | A | `payment.post_processing_cron` | `payment.transaction` | False | 1 days | - | 39: account_account, account_autopost_bills_wizard, account_bank_statement, account_bank_statement_line, account_cash_rounding, account_fiscal_position, ... | indirect ORM reach, conservative |
+| 19 | A | `account.ir_cron_auto_post_draft_entry` | `account.move` | True | 1 days | account_move, account_move_line, account_partial_reconcile | 80: account_account, account_account_tag, account_accrued_orders_wizard, account_autopost_bills_wizard, account_bank_statement, account_bank_statement_line, ... | ORM writes; pause during load windows |
+| 20 | A | `account.ir_cron_account_move_send` | `account.move` | True | 1 days | account_move | 80: account_account, account_account_tag, account_accrued_orders_wizard, account_autopost_bills_wizard, account_bank_statement, account_bank_statement_line, ... | ORM writes; pause during load windows |
+| 21 | A | `account.ir_cron_post_stock_valuation` | `res.company` | True | 1 days | account_accrued_orders_wizard, account_move, stock_warehouse | 82: account_account, account_account_tag, account_accrued_orders_wizard, account_autopost_bills_wizard, account_bank_statement, account_bank_statement_line, ... | ORM writes; pause during load windows |
+| 22 | A | `stock.ir_cron_scheduler_action` | `stock.rule` | True | 1 days | stock_move, stock_quant, stock_rule, stock_warehouse_orderpoint | 59: account_account, account_account_tag, account_accrued_orders_wizard, account_bank_statement_line, account_cash_rounding, account_fiscal_position, ... | ORM writes; pause during load windows |
+| 23 | A | `purchase.purchase_send_reminder_mail` | `purchase.order` | True | 1 days | purchase_order | 81: account_account, account_account_tag, account_accrued_orders_wizard, account_autopost_bills_wizard, account_bank_statement, account_bank_statement_line, ... | ORM writes; pause during load windows |
+| 24 | A | `sale.send_invoice_cron` | `payment.transaction` | False | 1 days | account_move | 39: account_account, account_autopost_bills_wizard, account_bank_statement, account_bank_statement_line, account_cash_rounding, account_fiscal_position, ... | ORM writes; pause during load windows |
+| 25 | A | `sale.send_pending_emails_cron` | `sale.order` | False | 1 days | sale_order | 76: account_account, account_account_tag, account_accrued_orders_wizard, account_autopost_bills_wizard, account_bank_statement, account_bank_statement_line, ... | ORM writes; pause during load windows |
 
 ### Database-side writers: foreign keys, triggers, functions
 
@@ -398,14 +410,15 @@ In-scope -> PostgreSQL by `ondelete`: cascade 20, set null 352, restrict 43.
 
 | kind | op | A | B | C |
 |---|---|---|---|---|
-| cron | read | 0 | 0 | 17 |
-| cron | write | 8 | 0 | 0 |
+| cron | read | 0 | 0 | 1 |
+| cron | write | 24 | 0 | 0 |
 | foreign_key | write | 933 | 0 | 0 |
 | fragment | read | 10 | 144 | 0 |
-| helper | read | 1 | 0 | 0 |
+| helper | read | 1 | 1 | 0 |
+| helper | write | 1 | 0 | 0 |
 | report | read | 0 | 8 | 7 |
 | sql | read | 5 | 79 | 0 |
-| sql | write | 1 | 19 | 0 |
+| sql | write | 10 | 20 | 0 |
 | upgrade_script | read | 0 | 0 | 5 |
 | upgrade_script | write | 0 | 0 | 1 |
 
@@ -416,7 +429,7 @@ None during this ticket: `odoo_src` was only read (role `odoo_ro`, read-only ses
 the application's PostgreSQL (never `odoo_src`, never Atlas), each needing a plan decision:
 - the 8 **B** reports/views above: their PostgreSQL view or `_table_sql` stops seeing rows once
   its tables move, so the owning unit re-points or rebuilds them;
-- the 8 writing crons plus `base.autovacuum_job`: pausing them during load and parallel-run
+- the 24 writing crons (including `base.autovacuum_job`): pausing them during load and parallel-run
   windows is an `ir_cron.active` write;
 - the 50 PostgreSQL -> in-scope foreign keys: dropping each constraint when its target table
   moves is DDL on the PostgreSQL side.
