@@ -258,18 +258,22 @@ def lock_links(field: Field, env, layout: dict, links: list[dict], check: bool) 
     """ Lock the shadow rows of the links' records, like the foreign keys of
     the relation table: rows of the column that owns the links FOR UPDATE, so
     writers of the same links serialize and their undo stays correct, the
-    other rows FOR KEY SHARE. With ``check``, a missing record raises. """
+    other rows FOR KEY SHARE. Both columns of a relation on one table lock
+    their union FOR UPDATE in id order, so opposite links cannot deadlock.
+    With ``check``, a missing record raises. """
     tables = {field.column1: env[field.model_name]._table, field.column2: env[field.comodel_name]._table}
     serial = layout['owner'] if 'owner' in layout else next(iter(layout['targets']))
-    for column in sorted(tables, key=lambda column: column != serial):
-        ids = sorted({link[column] for link in links})
-        env.cr.execute(SQL(
-            "SELECT id FROM %s WHERE id = ANY(%s) ORDER BY id %s",
-            SQL.identifier(tables[column]), ids,
-            SQL("FOR UPDATE") if column == serial else SQL("FOR KEY SHARE"),
-        ))
-        if check and (missing := set(ids).difference(id_ for id_, in env.cr.fetchall())):
-            raise psycopg2.errors.ForeignKeyViolation(f"{field}: no {tables[column]} rows {sorted(missing)}")
+    if tables[field.column1] == tables[field.column2]:
+        locks = [(tables[serial], {link[column] for link in links for column in tables}, SQL("FOR UPDATE"))]
+    else:
+        locks = [
+            (tables[column], {link[column] for link in links}, SQL("FOR UPDATE") if column == serial else SQL("FOR KEY SHARE"))
+            for column in sorted(tables, key=lambda column: column != serial)
+        ]
+    for table, ids, lock in locks:
+        env.cr.execute(SQL("SELECT id FROM %s WHERE id = ANY(%s) ORDER BY id %s", SQL.identifier(table), sorted(ids), lock))
+        if check and (missing := ids.difference(id_ for id_, in env.cr.fetchall())):
+            raise psycopg2.errors.ForeignKeyViolation(f"{field}: no {table} rows {sorted(missing)}")
 
 
 def add_links(env, layout: dict, links: list[dict]) -> None:
