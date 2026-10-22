@@ -839,7 +839,8 @@ class Registry(Mapping[str, type["BaseModel"]]):
 
             for model in models:
                 model._auto_init()
-                model.init()
+                if model._storage != 'mongodb':
+                    model.init()
 
             env['ir.model']._reflect_models(model_names)
             env['ir.model.fields']._reflect_fields(model_names)
@@ -1059,7 +1060,8 @@ class Registry(Mapping[str, type["BaseModel"]]):
             # recreate missing tables
             for name in missing:
                 _logger.info("Recreate table of model %s.", name)
-                env[name].init()
+                if env[name]._storage != 'mongodb':
+                    env[name].init()
             env.flush_all()
             # check again, and log errors if tables are still missing
             missing_tables = set(table2model).difference(sql.existing_tables(cr, table2model))

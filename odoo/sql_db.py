@@ -40,6 +40,8 @@ from .tools.func import frame_codeinfo, locked
 from .tools.misc import Callbacks, real_time
 
 if typing.TYPE_CHECKING:
+    from collections.abc import Callable
+
     from odoo.orm.environments import Transaction
 
     # when type checking, the Cursor exposes methods of the psycopg cursor
@@ -133,6 +135,7 @@ class Savepoint:
         self.name = str(uuid.uuid1())
         self._cr = cr
         self.closed: bool = False
+        self._undo_mark = cr._undo_mark() if isinstance(cr, Cursor) else None
         cr.execute(psql.SQL('SAVEPOINT {}').format(psql.Identifier(self.name)))
 
     def __enter__(self):
@@ -146,6 +149,8 @@ class Savepoint:
             self._close(rollback)
 
     def rollback(self):
+        if self._undo_mark is not None:
+            self._cr._undo_to(self._undo_mark)
         self._cr.execute(psql.SQL('ROLLBACK TO SAVEPOINT {}').format(psql.Identifier(self.name)))
 
     def _close(self, rollback: bool):
@@ -259,6 +264,7 @@ class Cursor(_CursorProtocol):
         self.postcommit = Callbacks()
         self.prerollback = Callbacks()
         self.postrollback = Callbacks()
+        self._undo_log: list[Callable[[], typing.Any]] = []
         self._now: datetime | None = None
         self.cache: dict[typing.Any, typing.Any] = {}
 
@@ -304,6 +310,30 @@ class Cursor(_CursorProtocol):
             self.precommit.run()
         else:
             _logger.warning("Too many iterations for flushing the cursor!")
+
+    def _undo_owner(self) -> Cursor:
+        # a TestCursor runs on top of a real cursor through a mocked connection
+        cr = self
+        while isinstance(parent := getattr(cr._cnx, '_cursor', None), Cursor):
+            cr = parent
+        return cr
+
+    def add_undo(self, func: Callable[[], typing.Any]) -> None:
+        """ Register ``func`` to undo a change made outside PostgreSQL. It runs
+        if the change is rolled back, by a rollback or a savepoint rollback. """
+        self._undo_owner()._undo_log.append(func)
+
+    def _undo_mark(self) -> int:
+        return len(self._undo_owner()._undo_log)
+
+    def _undo_to(self, mark: int) -> None:
+        log = self._undo_owner()._undo_log
+        while len(log) > mark:
+            func = log.pop()
+            try:
+                func()
+            except Exception:
+                _logger.exception("Error while undoing %r", func)
 
     def savepoint(self, flush: bool = True) -> Savepoint:
         """context manager entering in a new savepoint
@@ -558,6 +588,8 @@ class Cursor(_CursorProtocol):
         with committing:
             self._cnx.commit()
             self._now = None
+        if self._undo_owner() is self:
+            self._undo_log.clear()
         self.prerollback.clear()
         self.postrollback.clear()
         if self._closing:
@@ -577,6 +609,8 @@ class Cursor(_CursorProtocol):
         with rollbacking:
             self._cnx.rollback()
             self._now = None
+        if self._undo_owner() is self:
+            self._undo_to(0)
         if self._closing:
             self._close()
         try:

@@ -287,9 +287,17 @@ def _init_model_class_attributes(model_cls: type[BaseModel]):
     model_cls._log_access = model_cls._auto
     inherits = {}
     depends = {}
+    model_cls._storage = None
+    model_cls._shadow_columns = ()
 
     for base in reversed(model_cls._base_classes__):
         if is_model_definition(base):
+            if '_storage' in base.__dict__:
+                if model_cls._name in base._inherit:
+                    raise TypeError(f"{base}: _storage must be set where model {model_cls._name!r} is defined, not in an extension")
+                model_cls._storage = base._storage
+            if '_shadow_columns' in base.__dict__:
+                model_cls._shadow_columns = tuple(dict.fromkeys(model_cls._shadow_columns + tuple(base._shadow_columns)))
             # the following attributes are not taken from registry classes
             if model_cls._name not in base._inherit and not base._description:
                 _logger.warning("The model %s has no _description", model_cls._name)

@@ -56,6 +56,7 @@ from odoo.tools.safe_eval import _UNSAFE_ATTRIBUTES, safe_checker, safe_eval
 from odoo.tools.translate import _, LazyTranslate
 
 from . import decorators as api
+from . import storage_mongodb
 from .commands import Command
 from .domains import Domain
 from .fields import Field, determine
@@ -462,6 +463,8 @@ class BaseModel(metaclass=MetaModel):
     """
     _check_inherits_access: bool = True           #: check access for _inherits models
     _table: str = ''                 #: SQL table name used by model if :attr:`_auto`
+    _storage: str | None = None      #: 'mongodb' stores the columns in MongoDB (see storage_mongodb)
+    _shadow_columns: tuple[str, ...] = ()  #: fields also kept in the PostgreSQL table of a MongoDB model
     _table_objects: dict[str, TableObject] = frozendict()  #: SQL/Table objects
     _inherit_children: OrderedSet[str]
 
@@ -2033,6 +2036,8 @@ class BaseModel(metaclass=MetaModel):
 
         :raise AccessError: if user is not allowed to access requested information
         """
+        if self._storage == 'mongodb':
+            raise NotImplementedError(f"{self._name}: grouped reads are not supported on MongoDB storage yet")
         query = self._search(domain)
         if query.is_empty():
             if not groupby:
@@ -2526,6 +2531,10 @@ class BaseModel(metaclass=MetaModel):
         # values) from prefetching a field for which the corresponding column
         # has not been added in database yet!
         self = self.with_context(prefetch_fields=False)
+
+        if self._storage == 'mongodb':
+            storage_mongodb.auto_init(self)
+            return
 
         cr = self.env.cr
         update_custom_fields = self.env.context.get('update_custom_fields', False)
@@ -3243,7 +3252,11 @@ class BaseModel(metaclass=MetaModel):
             assert field.store or field.compute_sql
             (column_fields if field.column_type else other_fields).add(field)
 
-        if column_fields:
+        if column_fields and self._storage == 'mongodb':
+            fetched = storage_mongodb.fetch(self, query, column_fields)
+            if not fetched:
+                return fetched
+        elif column_fields:
             # the query may involve several tables: we need fully-qualified names
             sql_terms = [SQL.identifier(self._table, 'id')]
             for field in column_fields:
@@ -3698,6 +3711,8 @@ class BaseModel(metaclass=MetaModel):
         with self.env.protecting(self._fields.values(), self):
             self.modified(self._fields, before=True)
 
+        storage_mongodb.unlink_dependents(self)
+
         for sub_ids in split_every(IN_MAX, self.ids):
             records = self.browse(sub_ids)
 
@@ -3705,6 +3720,8 @@ class BaseModel(metaclass=MetaModel):
                 "DELETE FROM %s WHERE id IN %s",
                 SQL.identifier(self._table), sub_ids,
             ))
+            if self._storage == 'mongodb':
+                storage_mongodb.delete(self, sub_ids)
 
             # Removing the ir_model_data reference if the record being deleted
             # is a record created by xml/csv file, as these are not connected
@@ -4013,7 +4030,15 @@ class BaseModel(metaclass=MetaModel):
         # determine SQL updates, grouped by set of updated fields:
         # {(col1, col2, col3): [(id, val1, val2, val3)]}
         updates = defaultdict(list)
+        if self._storage == 'mongodb':
+            storage_mongodb.update(self, list(self._ids), vals_list)
+            vals_list = [
+                {fname: val for fname, val in vals.items() if fname in self._shadow_columns}
+                for vals in vals_list
+            ]
         for record, vals in zip(self, vals_list):
+            if not vals:
+                continue
             # sort vals.items() by key, then retrieve its keys and values
             fnames, row = zip(*sorted(vals.items()))
             updates[fnames].append(record._ids + row)
@@ -4363,7 +4388,9 @@ class BaseModel(metaclass=MetaModel):
             rows: list[list[typing.Any]] = [[] for _ in stored_list]
             for fname in fnames:
                 field = self._fields[fname]
-                if field.column_type:
+                if field.column_type and self._storage == 'mongodb' and fname not in self._shadow_columns:
+                    pass    # stored in the MongoDB document only
+                elif field.column_type:
                     columns.append(fname)
                     for stored, row in zip(stored_list, rows):
                         if fname in stored:
@@ -4390,7 +4417,17 @@ class BaseModel(metaclass=MetaModel):
                 SQL(', ').join(map(SQL.identifier, columns)),
                 SQL(', ').join(tuple(row) for row in rows),
             ))
-            ids.extend(id_ for id_, in cr.fetchall())
+            new_ids = [id_ for id_, in cr.fetchall()]
+            if self._storage == 'mongodb':
+                storage_mongodb.insert(self, new_ids, [
+                    {
+                        fname: self._fields[fname].convert_to_column_insert(value, self, stored)
+                        for fname, value in stored.items()
+                        if self._fields[fname].column_type
+                    }
+                    for stored in stored_list
+                ])
+            ids.extend(new_ids)
 
         # put the new records in cache, and update inverse fields, for many2one
         records = self.browse(ids)
@@ -4900,6 +4937,8 @@ class BaseModel(metaclass=MetaModel):
         domain = domain.optimize_full(self)
         if domain.is_false():
             return self.browse()._as_query()
+        if self._storage == 'mongodb':
+            return storage_mongodb.search(self, domain, sec_domain, order, limit, offset)
         query = Query(self)
         if not domain.is_true():
             query.add_where(domain._to_sql(query.table))

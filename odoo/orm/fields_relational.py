@@ -493,7 +493,7 @@ class Many2one(_Relational):
         positive = operator in ('any', 'any!')
 
         # Decide whether to use a LEFT JOIN or JOIN
-        use_join = bypass_access and isinstance(value, Domain)
+        use_join = bypass_access and isinstance(value, Domain) and comodel._storage != 'mongodb'
         if use_join and not positive:
             # For 'not any!', we get a better query with a NOT IN when we have a
             # lot of positive conditions which have a better chance to use
