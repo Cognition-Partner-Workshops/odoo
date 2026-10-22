@@ -11,6 +11,7 @@ from odoo.exceptions import AccessError, MissingError, UserError
 from odoo.tools import SQL, OrderedSet, sql, unique
 from odoo.tools.misc import SENTINEL, Sentinel, unquote
 
+from . import storage_mongodb
 from .commands import Command
 from .domains import Domain
 from .fields import IR_MODELS, Field, _logger, determine
@@ -1369,6 +1370,9 @@ class Many2many(_RelationalMulti):
 
     def update_db(self, model, columns):
         cr = model.env.cr
+        if layout := storage_mongodb.relation_layout(self, model.env):
+            storage_mongodb.ensure_relation_indexes(model.env, layout)
+            return
         # Do not reflect relations for custom fields, as they do not belong to a
         # module. They are automatically removed when dropping the corresponding
         # 'ir.model.field'.
@@ -1429,6 +1433,18 @@ class Many2many(_RelationalMulti):
         context = {'active_test': False}
         context.update(self.context)
         comodel = records.env[self.comodel_name].with_context(**context)
+
+        if layout := storage_mongodb.relation_layout(self, records.env):
+            owners = defaultdict(list)
+            for link in storage_mongodb.find_links(records.env, layout, self.column1, records._ids):
+                owners[link[self.column2]].append(link[self.column1])
+            domain = self.get_comodel_domain(records) & Domain('id', 'in', list(owners))
+            group = defaultdict(list)
+            for id2 in comodel.sudo()._search(domain, order=comodel._order, bypass_access=True).get_result_ids():
+                for id1 in owners[id2]:
+                    group[id1].append(id2)
+            self._insert_cache(records, [tuple(group[id_]) for id_ in records._ids])
+            return
 
         # make the query for the lines
         domain = self.get_comodel_domain(records)
@@ -1609,7 +1625,17 @@ class Many2many(_RelationalMulti):
         add_pairs = [(x, y) for x, ys in new_relation.items() for y in ys - old_relation[x]]
         remove_pairs = [(x, y) for x, ys in old_relation.items() for y in ys - new_relation[x]]
 
-        if is_real and self.store:
+        layout = is_real and self.store and storage_mongodb.relation_layout(self, model.env)
+        if layout:
+            if add_pairs:
+                links = [{self.column1: x, self.column2: y} for x, y in add_pairs]
+                storage_mongodb.lock_links(self, model.env, layout, links, check=True)
+                storage_mongodb.add_links(model.env, layout, links)
+            if remove_pairs:
+                links = [{self.column1: x, self.column2: y} for x, y in remove_pairs]
+                storage_mongodb.lock_links(self, model.env, layout, links, check=False)
+                storage_mongodb.remove_links(model.env, layout, links)
+        elif is_real and self.store:
             if add_pairs:
                 cr.execute(SQL(
                     "INSERT INTO %s (%s, %s) SELECT * FROM UNNEST(%s, %s) ON CONFLICT DO NOTHING",
@@ -1707,6 +1733,8 @@ class Many2many(_RelationalMulti):
         """ Add a LEFT JOIN to ``query`` by following field ``self``,
         and return the joined table's corresponding model and alias.
         """
+        if self.store and storage_mongodb.relation_layout(self, table._model.env):
+            raise NotImplementedError(f"{self}: joins through a many2many stored in MongoDB are not supported yet")
         if not self.store:
             # traverse_related, skip last one if not stored
             if self.related:
@@ -1765,6 +1793,12 @@ class Many2many(_RelationalMulti):
 
     def _condition_to_sql_relational(self, table: TableSQL, exists: bool, coquery: Query) -> SQL:
         assert not coquery.is_empty()
+        if layout := storage_mongodb.relation_layout(self, table._model.env):
+            coids = coquery.get_result_ids()
+            ids = storage_mongodb.linked_ids(table._model.env, layout, self.column1, self.column2, coids)
+            if not ids:
+                return SQL("FALSE") if exists else SQL("TRUE")
+            return SQL("%s %s %s", table.id, SQL("IN") if exists else SQL("NOT IN"), tuple(ids))
         rel_table, rel_id1, rel_id2 = self.relation, self.column1, self.column2
         rel_alias = table._make_alias(self.name)
         if not coquery.where_clause:

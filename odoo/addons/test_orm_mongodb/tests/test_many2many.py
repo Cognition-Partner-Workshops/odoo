@@ -1,0 +1,142 @@
+import psycopg2.errors
+
+from odoo import Command
+from odoo.orm import storage_mongodb
+from odoo.tests import TransactionCase, tagged
+from odoo.tools import sql
+
+
+@tagged('at_install', '-post_install')
+class TestMany2manyMongodb(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.Tag = cls.env['test_orm_mongodb.tag']
+        cls.Link = cls.env['test_orm_mongodb.pg_link']
+        cls.Incoterm = cls.env['test_orm_mongodb.incoterm']
+        cls.links = cls.Link.create([{'name': f'link {i}'} for i in range(3)])
+        cls.incoterms = cls.Incoterm.create([{'code': code, 'name': code} for code in ('EXW', 'FOB')])
+
+    def doc(self, record):
+        return storage_mongodb.get_collection(record).find_one({'_id': record.id})
+
+    def array(self, record, path, key):
+        return sorted(item[key] for item in (self.doc(record) or {}).get(path, []))
+
+    def junction(self):
+        layout = storage_mongodb.relation_layout(self.Incoterm._fields['optional_link_ids'], self.env)
+        collection = storage_mongodb._relation_collection(self.env, layout)
+        return collection, sorted((doc['srcId'], doc['destId']) for doc in collection.find())
+
+    def test_junction_array_commands(self):
+        a, b, c = self.links
+        tag = self.Tag.create({'name': 'red', 'link_ids': [Command.link(a.id), Command.link(b.id)]})
+        self.assertEqual(self.array(tag, 'productTemplateRel', 'productTemplateId'), sorted([a.id, b.id]))
+        self.assertFalse(sql.table_exists(self.env.cr, 'product_tag_product_template_rel'))
+
+        tag.write({'link_ids': [Command.unlink(a.id), Command.link(c.id)]})
+        self.assertEqual(self.array(tag, 'productTemplateRel', 'productTemplateId'), sorted([b.id, c.id]))
+        tag.invalidate_recordset()
+        self.assertEqual(tag.link_ids, b + c)
+        tag.link_ids = [Command.set([a.id])]
+        self.assertEqual(self.array(tag, 'productTemplateRel', 'productTemplateId'), [a.id])
+        tag.link_ids = [Command.clear()]
+        self.assertEqual(self.doc(tag).get('productTemplateRel'), [])
+
+    def test_junction_array_reverse_side(self):
+        a, b, _c = self.links
+        red, blue = self.Tag.create([{'name': 'red', 'sequence': 2}, {'name': 'blue', 'sequence': 1}])
+        a.tag_ids = [Command.set([red.id, blue.id])]
+        b.tag_ids = [Command.link(red.id)]
+        self.assertEqual(self.array(red, 'productTemplateRel', 'productTemplateId'), sorted([a.id, b.id]))
+        self.env.invalidate_all()
+        self.assertEqual(a.tag_ids.ids, [blue.id, red.id], "ordered by the comodel's _order")
+        self.assertEqual(red.link_ids, a + b)
+        a.tag_ids = [Command.unlink(red.id)]
+        self.assertEqual(self.array(red, 'productTemplateRel', 'productTemplateId'), [b.id])
+
+    def test_junction_array_search(self):
+        a, b, c = self.links
+        red, blue, bare = self.Tag.create([
+            {'name': 'red', 'link_ids': [Command.set([a.id, b.id])]},
+            {'name': 'blue', 'link_ids': [Command.set([b.id])]},
+            {'name': 'bare'},
+        ])
+        tags = red + blue + bare
+        self.assertEqual(self.Tag.search([('id', 'in', tags.ids), ('link_ids', 'in', a.ids)]), red)
+        self.assertEqual(self.Tag.search([('id', 'in', tags.ids), ('link_ids', 'not in', a.ids)]), blue + bare)
+        self.assertEqual(self.Tag.search([('id', 'in', tags.ids), ('link_ids', '=', False)]), bare)
+        self.assertEqual(self.Tag.search([('id', 'in', tags.ids), ('link_ids.name', '=', 'link 1')]), red + blue)
+        links = self.links
+        self.assertEqual(self.Link.search([('id', 'in', links.ids), ('tag_ids', 'in', blue.ids)]), b)
+        self.assertEqual(self.Link.search([('id', 'in', links.ids), ('tag_ids', '=', False)]), c)
+        self.assertEqual(self.Link.search([('id', 'in', links.ids), ('tag_ids.name', '=', 'red')]), a + b)
+
+    def test_junction_array_between_mongodb_models(self):
+        exw, fob = self.incoterms
+        tag = self.Tag.create({'name': 'red', 'incoterm_ids': [Command.set([fob.id, exw.id])]})
+        self.assertEqual(self.array(tag, 'productProductRel', 'productProductId'), sorted([exw.id, fob.id]))
+        tag.invalidate_recordset()
+        self.assertEqual(tag.incoterm_ids, exw + fob)
+        self.assertEqual(self.Tag.search([('id', '=', tag.id), ('incoterm_ids.code', '=', 'FOB')]), tag)
+
+    def test_unlink_follows_ondelete(self):
+        a, b, _c = self.links
+        exw, fob = self.incoterms
+        tag = self.Tag.create({'name': 'red', 'link_ids': [Command.set([a.id, b.id])],
+                               'incoterm_ids': [Command.set([exw.id])]})
+        a.unlink()
+        self.assertEqual(self.array(tag, 'productTemplateRel', 'productTemplateId'), [b.id])
+        with self.assertRaises(psycopg2.errors.ForeignKeyViolation):
+            exw.unlink()
+        fob.unlink()
+        self.assertEqual(self.array(tag, 'productProductRel', 'productProductId'), [exw.id])
+
+    def test_root_junction_collection(self):
+        a, b, c = self.links
+        exw, fob = self.incoterms
+        collection, before = self.junction()
+        exw.optional_link_ids = [Command.set([a.id, b.id])]
+        c.optional_incoterm_ids = [Command.link(exw.id), Command.link(fob.id)]
+        expected = sorted(before + [(exw.id, a.id), (exw.id, b.id), (exw.id, c.id), (fob.id, c.id)])
+        self.assertEqual(self.junction()[1], expected)
+        self.assertFalse(sql.table_exists(self.env.cr, 'product_optional_rel'))
+        unique = [index['key'] for index in collection.list_indexes() if index.get('unique')]
+        self.assertIn({'destId': 1, 'srcId': 1}, [dict(key) for key in unique])
+
+        self.env.invalidate_all()
+        self.assertEqual(exw.optional_link_ids, a + b + c)
+        self.assertEqual(c.optional_incoterm_ids, exw + fob)
+        self.assertEqual(self.Incoterm.search([('id', 'in', self.incoterms.ids), ('optional_link_ids', 'in', a.ids)]), exw)
+        self.assertEqual(self.Link.search([('id', 'in', self.links.ids), ('optional_incoterm_ids', 'in', fob.ids)]), c)
+        self.assertEqual(self.Link.search([('id', 'in', self.links.ids), ('optional_incoterm_ids', '=', False)]),
+                         self.Link)
+
+        exw.optional_link_ids = [Command.unlink(a.id)]
+        c.unlink()
+        fob.unlink()
+        self.assertEqual(self.junction()[1], sorted(before + [(exw.id, b.id)]))
+
+    def test_link_to_missing_record_fails(self):
+        exw, _fob = self.incoterms
+        tag = self.Tag.create({'name': 'red'})
+        missing = self.links[-1].id + 1000
+        for record, fname in ((tag, 'link_ids'), (exw, 'optional_link_ids')):
+            with self.subTest(fname=fname), self.assertRaises(psycopg2.errors.ForeignKeyViolation):
+                record[fname] = [Command.link(missing)]
+        self.assertFalse(self.doc(tag).get('productTemplateRel'))
+        self.assertNotIn(missing, [dest for _src, dest in self.junction()[1]])
+
+    def test_savepoint_rollback_undoes_links(self):
+        a, b, _c = self.links
+        exw, _fob = self.incoterms
+        tag = self.Tag.create({'name': 'red', 'link_ids': [Command.set([a.id])]})
+        exw.optional_link_ids = [Command.set([a.id])]
+        _collection, before = self.junction()
+        with self.assertRaises(ZeroDivisionError), self.env.cr.savepoint():
+            tag.link_ids = [Command.set([b.id])]
+            exw.optional_link_ids = [Command.set([b.id])]
+            1 / 0
+        self.assertEqual(self.array(tag, 'productTemplateRel', 'productTemplateId'), [a.id])
+        self.assertEqual(self.junction()[1], before)
