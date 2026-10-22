@@ -33,3 +33,14 @@ class TestCrossStoreOrderMongodb(TransactionCase):
         domain = [('id', 'in', (a + b + c).ids)]
         self.assertEqual(self.Link.search(domain, order='tag_id, id'), b + a + c)     # NULL last
         self.assertEqual(self.Link.search(domain, order='tag_id desc, id'), c + a + b)
+
+    def test_postgresql_model_groups_by_mongodb_many2many(self):
+        red, blue = self.Tag.create([{'name': 'red'}, {'name': 'blue'}])
+        a, b, c = self.Link.create([
+            {'name': 'a', 'tag_ids': [Command.set([red.id, blue.id])]},
+            {'name': 'b', 'tag_ids': [Command.set([red.id])]},
+            {'name': 'c'},
+        ])
+        rows = self.Link._read_group([('id', 'in', (a + b + c).ids)], ['tag_ids'], ['__count'], order='tag_ids')
+        self.assertEqual(sorted((tag.id, count) for tag, count in rows if tag), sorted([(red.id, 2), (blue.id, 1)]))
+        self.assertIn((self.Tag, 1), rows)      # c has no tag

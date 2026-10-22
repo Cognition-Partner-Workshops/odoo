@@ -273,6 +273,27 @@ def linked_ids(env, layout: dict, column: str, other: str, other_ids: typing.Ite
     return list({link[column] for link in find_links(env, layout, other, other_ids)})
 
 
+def links_sql(env, layout: dict, column1: str, column2: str) -> SQL:
+    """ Return a SELECT of every link of the relation, with the relation
+    table's columns, for PostgreSQL queries that join through it. """
+    collection = _relation_collection(env, layout)
+    if 'targets' in layout:
+        targets = layout['targets']
+        docs = collection.find({}, dict.fromkeys(targets.values(), 1))
+        pairs = [(doc[targets[column1]], doc[targets[column2]]) for doc in docs]
+    else:
+        owner, array, element = layout['owner'], layout['array'], layout['element']
+        pairs = [
+            (doc['_id'], item[element]) if column1 == owner else (item[element], doc['_id'])
+            for doc in collection.find({f'{array}.0': {'$exists': True}}, {array: 1})
+            for item in doc[array]
+        ]
+    if not pairs:
+        return SQL("(SELECT NULL::int4 AS %s, NULL::int4 AS %s WHERE FALSE)", SQL.identifier(column1), SQL.identifier(column2))
+    return SQL("(SELECT * FROM (VALUES %s) AS links(%s, %s))", SQL(", ").join(SQL("(%s, %s)", a, b) for a, b in pairs),
+               SQL.identifier(column1), SQL.identifier(column2))
+
+
 def _apply_to_arrays(collection, layout: dict, links: list[dict], add: bool) -> None:
     import pymongo  # noqa: PLC0415
     array, element = layout['array'], layout['element']
