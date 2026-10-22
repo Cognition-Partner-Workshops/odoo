@@ -1,6 +1,7 @@
 # Test models stored in MongoDB. Each maps onto a table of the signed spec
 # (.migration/mapping_spec.json) so the real document layout is exercised.
 from odoo import fields, models
+from odoo.tools import SQL
 
 
 class Test_Orm_MongodbIncoterm(models.Model):
@@ -159,3 +160,11 @@ class Test_Orm_MongodbCategory(models.Model):
     property_cost_method = fields.Selection([('standard', 'Standard'), ('average', 'Average')], company_dependent=True)
     property_stock_journal = fields.Many2one('res.partner', company_dependent=True, ondelete='set null')
     property_account_income_categ_id = fields.Many2one('res.partner', company_dependent=True, ondelete='restrict')
+    parity = fields.Char(compute='_compute_parity', compute_sql='_compute_sql_parity')
+
+    def _compute_parity(self):
+        for category in self:
+            category.parity = 'even' if category.id % 2 == 0 else False
+
+    def _compute_sql_parity(self, table):
+        return SQL("CASE WHEN %s %% 2 = 0 THEN 'even' END", table.id)

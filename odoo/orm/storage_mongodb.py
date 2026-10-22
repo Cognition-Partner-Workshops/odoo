@@ -1382,6 +1382,11 @@ def _condition(model: BaseModel, cond: DomainCondition) -> dict:
         path = '_id' if inverse or field.name == 'id' else _path(model, field)
         return {path: {'$nin' if operator.startswith('not') else '$in': list(ids)}}
 
+    if field.compute_sql and not field.store:
+        # computed in SQL: PostgreSQL evaluates it over the shadow rows
+        query = Query(model)
+        query.add_where(cond._to_sql(query.table))
+        return {'_id': {'$in': list(query.get_result_ids())}}
     if field.name != 'id' and not (field.store and field.column_type):
         raise unsupported
     path = '_id' if field.name == 'id' else _path(model, field)

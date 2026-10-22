@@ -65,3 +65,13 @@ class TestParentStoreMongodb(TransactionCase):
         self.assertFalse(category.property_stock_journal)
         with self.assertRaises(UserError):
             kept.unlink()
+
+
+    def test_compute_sql_condition(self):
+        # account lookups search ('code', 'not in', [False]); code is a compute_sql field
+        categories = self.Category.create([{'name': str(i)} for i in range(4)])
+        domain = [('id', 'in', categories.ids)]
+        even = categories.filtered(lambda c: c.id % 2 == 0)
+        self.assertEqual(self.Category.search(domain + [('parity', 'not in', [False])]), even)
+        self.assertEqual(self.Category.search(domain + [('parity', 'in', [False])]), categories - even)
+        self.assertEqual(self.Category.search(domain + [('parity', '=', 'even')]), even)
