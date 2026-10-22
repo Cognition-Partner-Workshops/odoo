@@ -1,0 +1,47 @@
+# <table> <one-line reason>. Proposal for the human (accepted_empty is decided before wave 1), not a decision.
+# Business tables the built source cannot fill honestly:
+account_analytic_line_stock_move_rel analytic lines from stock valuation of moves with an analytic distribution; only written by the mrp/project stock-analytic flows, which are not installed
+account_payment_account_bank_statement_line_rel payments auto-created by the bank reconciliation widget, which is Odoo Enterprise only
+adjusting_entries__account_move links written only by the accrual/deferral adjusting-entry wizard (Enterprise deferrals), not reachable from Community flows
+purchase_order_line_accrual_move_rel accrued-expense entries from the account.accrued.orders.wizard reversal flow; needs period-end accrual run
+sale_order_line_accrual_move_rel accrued-revenue entries from the account.accrued.orders.wizard reversal flow; needs period-end accrual run
+stock_move_line_consume_rel component-consumption traceability, written only by manufacturing (mrp is not installed)
+# Online payment providers (payment module, pulled in by sale/account): need a live provider integration
+account_invoice_transaction_rel online payment transactions linked to invoices; needs a configured payment provider
+sale_order_transaction_rel online payment transactions linked to sale orders; needs a configured payment provider
+payment_country_rel payment provider country filter; no provider is configured
+payment_currency_rel payment provider currency filter; no provider is configured
+payment_data payment-provider onboarding data; no provider is configured
+payment_method payment method catalogue, loaded only with provider modules
+payment_method_res_country_rel payment method country filter; no payment methods without provider modules
+payment_method_res_currency_rel payment method currency filter; no payment methods without provider modules
+payment_provider_product_pricelist_rel payment provider pricelist filter; no provider is configured
+payment_token saved card/mandate tokens; needs a live payment provider
+payment_transaction online payment transactions; needs a live payment provider
+# Platform/integration tables outside the migrated business scope (no ORM flow in product/sale/purchase/stock/account writes them):
+activity_attachment_rel attachments on scheduled activities; mail-platform table
+auth_passkey_key user passkeys; registered only from a browser WebAuthn ceremony
+auth_totp_device 2FA devices; enrolled only interactively by a user
+digest_tip_res_users_rel digest tips already shown to users; written by the digest email cron
+discuss_channel_last_interest_update discuss channel interest timestamps; written by the live chat client
+discuss_channel_rtc_session live call sessions; only exist while a call is running
+discuss_gif_favorite GIF favourites; needs the Tenor integration
+discuss_voice_metadata voice-message metadata; needs a recorded voice message
+email_template_attachment_rel attachments on mail templates; none ship with these modules
+fetchmail_server incoming mail servers; needs a real mailbox
+html_editor_converter_test test-only model of html_editor
+html_editor_converter_test_sub test-only model of html_editor
+iap_account In-App Purchase accounts; created only on contact with the Odoo IAP service
+iap_account_res_company_rel IAP account company link; no IAP account exists
+iap_account_res_users_rel IAP account warning-user link; no IAP account exists
+iap_service_pack IAP service packs; fetched from the Odoo IAP service
+onboarding_progress_onboarding_progress_step_rel onboarding panel progress; written by the web client onboarding panels
+onboarding_progress_step onboarding panel step progress; written by the web client onboarding panels
+phone_blacklist phone opt-out list; written by SMS opt-out flows
+privacy_log GDPR privacy lookups; written by the privacy lookup wizard on request
+scheduled_message_attachment_rel attachments on scheduled chatter messages; mail-platform table
+sms_sms outgoing SMS queue; needs the IAP SMS service
+sms_tracker SMS delivery tracking; needs the IAP SMS service
+spreadsheet_dashboard_allowed_users_rel per-user spreadsheet dashboard sharing; set interactively
+spreadsheet_dashboard_favorite_filters spreadsheet dashboard saved filters; set interactively
+spreadsheet_dashboard_share spreadsheet dashboard share links; created interactively
