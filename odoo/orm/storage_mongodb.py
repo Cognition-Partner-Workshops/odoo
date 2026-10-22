@@ -1375,6 +1375,8 @@ def _condition(model: BaseModel, cond: DomainCondition) -> dict:
             ids = comodel._search(value & Domain(inverse, 'not in', {False})).get_result_ids()
         elif isinstance(value, Domain):
             ids = comodel.with_context(active_test=False)._search(value).get_result_ids()
+        elif isinstance(value, SQL):   # a subquery of comodel ids, as PostgreSQL runs it
+            ids = [id_ for id_, in model.env.execute_query(value)]
         else:
             raise unsupported
         if inverse:
