@@ -1398,6 +1398,12 @@ def _condition(model: BaseModel, cond: DomainCondition) -> dict:
             ids = comodel._search(value & Domain(inverse, 'not in', {False})).get_result_ids()
         elif isinstance(value, Domain):
             ids = comodel.with_context(active_test=False)._search(value).get_result_ids()
+        elif isinstance(value, SQL):   # a subquery of comodel ids, as PostgreSQL runs it
+            rows = [id_ for id_, in model.env.execute_query(value)]
+            ids = [id_ for id_ in rows if id_ is not None]
+            if len(ids) < len(rows) and operator.startswith('not') and not inverse:
+                # NOT IN over a NULL is never true; only an empty many2one still matches
+                return {'_id': {'$in': []}} if field.name == 'id' else {_path(model, field): None}
         else:
             raise unsupported
         if inverse:
@@ -1405,6 +1411,11 @@ def _condition(model: BaseModel, cond: DomainCondition) -> dict:
         path = '_id' if inverse or field.name == 'id' else _path(model, field)
         return {path: {'$nin' if operator.startswith('not') else '$in': list(ids)}}
 
+    if field.compute_sql and not field.store:
+        # computed in SQL: PostgreSQL evaluates it over the shadow rows
+        query = Query(model)
+        query.add_where(cond._to_sql(query.table))
+        return {'_id': {'$in': list(query.get_result_ids())}}
     if field.name != 'id' and not (field.store and field.column_type):
         raise unsupported
     path = '_id' if field.name == 'id' else _path(model, field)
