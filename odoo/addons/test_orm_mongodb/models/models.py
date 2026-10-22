@@ -74,6 +74,8 @@ class Test_Orm_MongodbPg_Link(models.Model):
     incoterm_id = fields.Many2one('test_orm_mongodb.incoterm', ondelete='cascade')
     lock_exception_id = fields.Many2one('test_orm_mongodb.lock_exception', ondelete='set null')
     tag_id = fields.Many2one('test_orm_mongodb.tag', ondelete='set null')
+    restrict_tag_id = fields.Many2one('test_orm_mongodb.tag', ondelete='restrict')
+    attribute_value_id = fields.Many2one('test_orm_mongodb.attribute_value', ondelete='set null')
     tag_ids = fields.Many2many('test_orm_mongodb.tag', 'product_tag_product_template_rel',
                                'product_template_id', 'product_tag_id')
     optional_incoterm_ids = fields.Many2many('test_orm_mongodb.incoterm', 'product_optional_rel', 'dest_id', 'src_id')

@@ -423,12 +423,36 @@ def auto_init(model: BaseModel) -> None:
             (field.name, field.stored_sql_column_type, field.string) for field in shadow
         ])
     columns = sql.table_columns(cr, model._table)
+    added = [field.name for field in shadow if field.name not in columns]
     for field in shadow:
         field.update_db(model, columns)
+    if added:
+        mirror_columns(model, added)
     if model._table_objects:
         _logger.warning("%s: SQL constraints and indexes are not applied on MongoDB storage: %s",
                         model._name, ", ".join(model._table_objects))
     ensure_indexes(model)
+
+
+def mirror_columns(model: BaseModel, fnames: list[str]) -> None:
+    """ Copy ``fnames`` from the documents into the shadow table. This is the
+    hook of SQL reports over MongoDB models: a report adds the columns its
+    SQL reads to ``_shadow_columns`` (through ``_inherit``), and the columns
+    added to an existing table are filled from the documents here, then kept
+    up to date by every write. """
+    cr = model.env.cr
+    cr.execute(SQL("SELECT id FROM %s ORDER BY id", SQL.identifier(model._table)))
+    records = model.sudo().with_context(active_test=False)
+    for ids in split_every(1000, [row[0] for row in cr.fetchall()]):
+        for record in records.browse(ids):
+            values = [
+                SQL("%s = %s", SQL.identifier(fname), model._fields[fname].convert_to_column_insert(
+                    model._fields[fname].convert_to_write(record[fname], record), record))
+                for fname in fnames
+            ]
+            cr.execute(SQL("UPDATE %s SET %s WHERE id = %s",
+                           SQL.identifier(model._table), SQL(", ").join(values), record.id))
+        records.invalidate_model(fnames)
 
 
 def ensure_indexes(model: BaseModel) -> None:
