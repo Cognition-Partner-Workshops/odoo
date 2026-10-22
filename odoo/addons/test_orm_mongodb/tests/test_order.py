@@ -27,3 +27,16 @@ class TestOrderOutsideDocument(TransactionCase):
         tags[0].sequence = 2
         expected = sorted(tags.ids, key=lambda id_: (id_ == tags[0].id, id_ % 2, id_))
         self.assertEqual(Tag.search([('id', 'in', tags.ids)], order='sequence, is_even desc, id').ids, expected)
+
+    def test_order_many2one_cycle(self):
+        # product.category orders by its own parent_id: the inner parent_id adds no term
+        Category = self.env['test_orm_mongodb.category']
+        self.patch(self.registry[Category._name], '_order', 'parent_id desc, name, id')
+        a, b = Category.create([{'name': 'cycle a'}, {'name': 'cycle b'}])
+        c1, c2, c3 = Category.create([
+            {'name': 'cycle x', 'parent_id': b.id},
+            {'name': 'cycle y', 'parent_id': a.id},
+            {'name': 'cycle w', 'parent_id': a.id},
+        ])
+        records = a | b | c1 | c2 | c3
+        self.assertEqual(Category.search([('id', 'in', records.ids)]), a + b + c1 + c3 + c2)

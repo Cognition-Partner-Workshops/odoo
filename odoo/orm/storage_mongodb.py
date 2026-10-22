@@ -1329,8 +1329,13 @@ def _sort_stages(model: BaseModel, order: str | None) -> list[dict]:
         path = _path(model, field)
         comodel = model.env[field.comodel_name] if many2one else None
         if many2one and not match['property'] and comodel._order != 'id':
+            seen = model.env.context.get('__m2o_order_seen', ())
+            if field in seen:   # a cycle of many2one orders adds no term, as in PostgreSQL
+                continue
             # rank by the comodel's order, wherever the comodel is stored
-            coids = list(comodel.sudo().with_context(active_test=False).search([], order=comodel._order)._ids)
+            coids = list(comodel.sudo().with_context(
+                active_test=False, __m2o_order_seen=frozenset((field, *seen)),
+            ).search([], order=comodel._order)._ids)
             ranks[f'__rank{i}'] = {'$let': {'vars': {'rank': {'$indexOfArray': [coids, f'${path}']}},
                                             'in': {'$cond': [{'$gte': ['$$rank', 0]}, '$$rank', None]}}}
             path = f'__rank{i}'
