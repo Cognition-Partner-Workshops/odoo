@@ -443,9 +443,17 @@ def mirror_columns(model: BaseModel, fnames: list[str]) -> None:
     cr = model.env.cr
     cr.execute(SQL("SELECT id FROM %s ORDER BY id", SQL.identifier(model._table)))
     records = model.sudo().with_context(active_test=False)
+    paths = _layout(model)['paths']
+    # translated and company-dependent columns get the whole map of the document
+    maps = [fname for fname in fnames if _multi_valued(model._fields[fname])]
     for ids in split_every(1000, [row[0] for row in cr.fetchall()]):
+        docs = _fetch_docs(model, ids, {paths[fname]: 1 for fname in maps}) if maps else {}
         for record in records.browse(ids):
             values = [
+                SQL("%s = %s::jsonb", SQL.identifier(fname), json.dumps(
+                    docs.get(record.id, {}).get(paths[fname]) or None,
+                    default=lambda value: float(value.to_decimal())))
+                if fname in maps else
                 SQL("%s = %s", SQL.identifier(fname), model._fields[fname].convert_to_column_insert(
                     model._fields[fname].convert_to_write(record[fname], record), record))
                 for fname in fnames

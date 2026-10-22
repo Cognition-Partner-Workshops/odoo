@@ -61,3 +61,20 @@ class TestReportColumnsMongodb(TransactionCase):
         storage_mongodb.mirror_columns(Lock, ['company_id'])
         self.env.cr.execute("SELECT company_id FROM account_lock_exception WHERE id IN %s", [tuple(locks.ids)])
         self.assertEqual([row[0] for row in self.env.cr.fetchall()], [self.env.company.id] * 2)
+
+    def test_mirror_multi_valued_columns(self):
+        """ Translated and company-dependent columns keep every language and company. """
+        self.env['res.lang']._activate_lang('fr_FR')
+        Category = self.env['test_orm_mongodb.category']
+        other = self.env['res.company'].create({'name': 'Other'})
+        category = Category.create({'name': 'Desk', 'property_cost_method': 'average'})
+        category.with_context(lang='fr_FR').name = 'Bureau'
+        category.with_company(other).property_cost_method = 'standard'
+        self.env.flush_all()
+        self.env.cr.execute("ALTER TABLE product_category ADD COLUMN name jsonb, ADD COLUMN property_cost_method jsonb")
+        storage_mongodb.mirror_columns(Category, ['name', 'property_cost_method'])
+        self.env.cr.execute("SELECT name, property_cost_method FROM product_category WHERE id = %s", [category.id])
+        self.assertEqual(self.env.cr.fetchone(), (
+            {'en_US': 'Desk', 'fr_FR': 'Bureau'},
+            {str(self.env.company.id): 'average', str(other.id): 'standard'},
+        ))
