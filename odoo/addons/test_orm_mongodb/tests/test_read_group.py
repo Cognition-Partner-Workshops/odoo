@@ -71,3 +71,11 @@ class TestReadGroupMongodb(TransactionCase):
         local = pytz.utc.localize(now).astimezone(pytz.timezone('Pacific/Kiritimati')).replace(tzinfo=None)
         rows = self.Value.with_context(tz='Pacific/Kiritimati')._read_group(self.domain, ['create_date:hour'], ['__count'])
         self.assertEqual(rows, [(local.replace(minute=0, second=0, microsecond=0), 4)])
+
+    def test_day_of_week_order(self):
+        from odoo.orm import storage_mongodb  # noqa: PLC0415
+        self.env['res.lang']._activate_lang('en_US').week_start = '1'     # weeks start on Monday
+        term = 'create_date:day_of_week'
+        rows = [{term: float(dow)} for dow in range(7)]     # date_part('dow'): 0 is Sunday
+        rank = storage_mongodb._group_rank(self.Value, term, rows, traverse_many2one=False)
+        self.assertEqual([row[term] for row in sorted(rows, key=rank)], [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 0.0])
