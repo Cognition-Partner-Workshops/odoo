@@ -30,7 +30,8 @@ from pathlib import Path
 
 import psycopg2.errors
 
-from odoo.tools import SQL, sql
+from odoo.tools import SQL, split_every, sql
+from odoo.tools.constants import IN_MAX
 
 from .domains import DomainAnd, DomainBool, DomainCondition, DomainNot, DomainOr
 
@@ -358,21 +359,33 @@ def search(model: BaseModel, domain, sec_domain, order: str | None, limit, offse
         }})
     pipeline.append({'$match': match})
     pipeline.extend(_sort_stages(model, order))
-    if offset:
-        pipeline.append({'$skip': offset})
+    # fetch the page with everything before it, so that documents without a
+    # shadow row (no committed record) can be dropped before paging
+    head = [{'$limit': (offset or 0) + limit}] if limit else []
+    project = [{'$project': {'_id': 1}}]
+    collection = get_collection(model)
+    ids = [doc['_id'] for doc in collection.aggregate(pipeline + head + project)]
+    alive = _alive(model, ids) if ids else set()
+    while len(alive) < len(ids) and head and len(ids) == head[0]['$limit']:
+        head[0]['$limit'] += len(ids) - len(alive)  # orphans are rare: read past them
+        ids = [doc['_id'] for doc in collection.aggregate(pipeline + head + project)]
+        alive = _alive(model, ids)
+    if len(alive) < len(ids):
+        _logger.warning("%s: MongoDB documents without a shadow row: %s",
+                        model._name, [id_ for id_ in ids if id_ not in alive])
+        ids = [id_ for id_ in ids if id_ in alive]
+    ids = ids[offset or 0:]
     if limit:
-        pipeline.append({'$limit': limit})
-    pipeline.append({'$project': {'_id': 1}})
-    ids = [doc['_id'] for doc in get_collection(model).aggregate(pipeline)]
-    if ids:
-        # documents without a shadow row belong to no committed record
-        model.env.cr.execute(SQL("SELECT id FROM %s WHERE id IN %s", SQL.identifier(model._table), tuple(ids)))
-        alive = {id_ for id_, in model.env.cr.fetchall()}
-        if len(alive) < len(ids):
-            _logger.warning("%s: MongoDB documents without a shadow row: %s",
-                            model._name, [id_ for id_ in ids if id_ not in alive])
-            ids = [id_ for id_ in ids if id_ in alive]
+        ids = ids[:limit]
     return model.browse(ids)._as_query(ordered=bool(order))
+
+
+def _alive(model: BaseModel, ids: list[int]) -> set[int]:
+    alive = set()
+    for sub_ids in split_every(IN_MAX, ids):
+        model.env.cr.execute(SQL("SELECT id FROM %s WHERE id IN %s", SQL.identifier(model._table), tuple(sub_ids)))
+        alive.update(id_ for id_, in model.env.cr.fetchall())
+    return alive
 
 
 def _translated_fields(model, domain, sec_domain, order) -> list[str]:

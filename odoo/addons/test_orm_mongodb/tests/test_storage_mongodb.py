@@ -129,8 +129,10 @@ class TestStorageMongodb(TransactionCase):
         lock = self.Lock.create({'company_id': self.company.id, 'reason': 'orphan'})
         self.env.flush_all()
         self.env.cr.execute("DELETE FROM account_lock_exception WHERE id = %s", [lock.id])
+        live = self.Lock.create([{'company_id': self.company.id, 'reason': 'orphan'} for _ in range(2)])
         with mute_logger('odoo.orm.storage_mongodb'):
-            self.assertFalse(self.Lock.search([('reason', '=', 'orphan')]))
+            self.assertEqual(self.Lock.search([('reason', '=', 'orphan')], order='id', limit=2), live)
+            self.assertEqual(self.Lock.search([('reason', '=', 'orphan')], order='id', offset=1), live[1])
 
     # -- domains and order ----------------------------------------------------
 
