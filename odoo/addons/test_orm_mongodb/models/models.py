@@ -91,3 +91,29 @@ class Test_Orm_MongodbTag(models.Model):
                                 'product_tag_id', 'product_template_id')
     incoterm_ids = fields.Many2many('test_orm_mongodb.incoterm', 'product_tag_product_product_rel',
                                     'product_tag_id', 'product_product_id', ondelete='restrict')
+
+
+class Test_Orm_MongodbAttribute(models.Model):
+    _name = 'test_orm_mongodb.attribute'
+    _description = 'Product attribute stored in MongoDB, with embedded values'
+    _table = 'product_attribute'
+    _storage = 'mongodb'
+    _order = 'sequence, id'
+
+    name = fields.Char(translate=True)
+    sequence = fields.Integer()
+    value_ids = fields.One2many('test_orm_mongodb.attribute_value', 'attribute_id')
+
+
+class Test_Orm_MongodbAttributeValue(models.Model):
+    _name = 'test_orm_mongodb.attribute_value'
+    _description = 'Product attribute value embedded in its attribute document'
+    _table = 'product_attribute_value'
+    _storage = 'mongodb'
+    _order = 'sequence, id'
+
+    attribute_id = fields.Many2one('test_orm_mongodb.attribute', required=True, ondelete='cascade')
+    name = fields.Char(translate=True)
+    sequence = fields.Integer()
+    html_color = fields.Char()
+    default_extra_price = fields.Float()
