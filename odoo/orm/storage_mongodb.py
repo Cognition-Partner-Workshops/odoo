@@ -96,10 +96,15 @@ def _layout(model: BaseModel) -> dict:
     layouts = model.pool.__dict__.setdefault('_mongodb_layouts', {})
     fields, layout = layouts.get(model._name, (None, None))
     if fields is not model._fields:     # fields change while modules load
-        spec = _spec_tables().get(model._table)
+        spec, embed = _spec_tables().get(model._table), None
+        if spec is None and (entry := _spec_children().get(model._table)):
+            spec, embed = entry
         if spec is None:
             raise StorageError(f"{model._name}: table {model._table!r} is not in the signed mapping spec")
-        columns = {f['source']: f for f in spec['fields']}
+        if embed:
+            columns = {f['source']: f for f in embed['child_fields'] + embed['parent_key_fields']}
+        else:
+            columns = {f['source']: f for f in spec['fields']}
         paths, types = {'id': '_id'}, {'id': 'int'}
         for field in model._fields.values():
             if not (field.store and field.column_type) or field.name == 'id':
@@ -109,8 +114,32 @@ def _layout(model: BaseModel) -> dict:
             paths[field.name] = columns[field.name]['target']
             types[field.name] = columns[field.name]['bson_type']
         layout = {'collection': spec['collection'], 'indexes': spec['indexes'], 'paths': paths, 'types': types}
+        if embed:
+            parent = embed['parent_key'][0]
+            if parent not in paths:
+                raise StorageError(f"{model._name}: {model._table!r} is embedded in {spec['root_table']!r}, so it needs the field {parent!r}")
+            key = embed['key']['source']
+            layout['indexes'] = []     # embedded documents are indexed with their parent
+            layout['embed'] = {
+                'array': embed['array_path'], 'parent': parent, 'parent_path': paths[parent],
+                'id_path': columns['id']['target'],
+                'key_paths': None if key == ['id'] else [columns[col]['target'] for col in key],
+            }
         layouts[model._name] = (model._fields, layout)
     return layout
+
+
+@functools.cache
+def _spec_children() -> dict[str, tuple[dict, dict]]:
+    """ Return the child tables the signed spec embeds as documents in the
+    array of their parent's collection, with their collection and embed. """
+    relations = _spec_relations()
+    return {
+        embed['child_table']: (coll, embed)
+        for coll in _spec_tables().values()
+        for embed in coll['embeds']
+        if embed['child_table'] not in relations
+    }
 
 
 def _references(registry) -> dict[str, list[Field]]:
@@ -132,6 +161,9 @@ def unlink_dependents(records: BaseModel) -> None:
     """ Apply ``ondelete`` of the many2one fields of MongoDB models that
     reference ``records`` through the ORM, so documents follow. PostgreSQL
     foreign keys on shadow columns would only change the shadow rows. """
+    if records._storage == 'mongodb' and _layout(records).get('embed'):
+        # lock the parents before the shadow rows are deleted, like child writes
+        _lock_parents(records, {prior[0] for prior in _elements(records, records.ids).values()}, check=False)
     _unlink_links(records)
     for field in _references(records.pool).get(records._name, ()):
         dependents = records.env[field.model_name].sudo().with_context(active_test=False).search(
@@ -446,6 +478,150 @@ def _document(model: BaseModel, id_: int, values: dict) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# embedded child documents
+# ---------------------------------------------------------------------------
+# A child record is an element of its parent document's array. Searches and
+# reads see it as a "virtual document": the element with ``_id`` set to the
+# record id and the parent key set to the parent document's ``_id``.
+
+def _virtual_stages(layout: dict, ids: list[int] | None = None) -> list[dict]:
+    match = [] if ids is None else [{'$match': {'_id': {'$in': ids}}}]
+    if not (embed := layout.get('embed')):
+        return match
+    array, id_path = embed['array'], embed['id_path']
+    return ([] if ids is None else [{'$match': {f'{array}.{id_path}': {'$in': ids}}}]) + [
+        {'$unwind': f'${array}'},
+        {'$replaceRoot': {'newRoot': {'$mergeObjects': [
+            f'${array}', {'_id': f'${array}.{id_path}', embed['parent_path']: '$_id'},
+        ]}}},
+    ] + match
+
+
+def _fetch_docs(model: BaseModel, ids: list[int], projection: dict | None = None) -> dict[int, dict]:
+    """ Return the (virtual) documents of ``ids``. """
+    stages = _virtual_stages(_layout(model), ids) + ([{'$project': projection}] if projection else [])
+    return {doc['_id']: doc for doc in get_collection(model).aggregate(stages)}
+
+
+def _element(embed: dict, doc: dict) -> dict:
+    """ Return the array element of the virtual document ``doc``. """
+    return {embed['id_path']: doc['_id']} | {
+        path: value for path, value in doc.items() if path not in ('_id', embed['parent_path'])
+    }
+
+
+def _elements(model: BaseModel, ids: list[int]) -> dict[int, tuple[int, int, dict]]:
+    """ Return the parent id, array index and array element of child ``ids``. """
+    embed = _layout(model)['embed']
+    array, id_path, wanted = embed['array'], embed['id_path'], set(ids)
+    return {
+        element[id_path]: (doc['_id'], index, element)
+        for doc in get_collection(model).find({f'{array}.{id_path}': {'$in': ids}}, {array: 1})
+        for index, element in enumerate(doc[array])
+        if element[id_path] in wanted
+    }
+
+
+def _restore_elements(collection, embed: dict, priors: dict[int, tuple[int, int, dict]]) -> None:
+    """ Put child elements back in their parent at their former index. """
+    array, id_path, ids = embed['array'], embed['id_path'], list(priors)
+    collection.update_many({f'{array}.{id_path}': {'$in': ids}}, {'$pull': {array: {id_path: {'$in': ids}}}})
+    for parent_id, index, element in sorted(priors.values(), key=lambda prior: prior[1]):
+        collection.update_one({'_id': parent_id}, {'$push': {array: {'$each': [element], '$position': index}}})
+
+
+def _lock_parents(model: BaseModel, parent_ids: typing.Iterable, check: bool = True) -> None:
+    """ Lock the parents' shadow rows: writers of one parent's array
+    serialize there, parent first. With ``check``, like the parent foreign
+    key, a missing or NULL parent raises. """
+    embed = _layout(model)['embed']
+    parent_ids = set(parent_ids)
+    if check and None in parent_ids:
+        raise psycopg2.errors.NotNullViolation(f"{model._name}: {embed['parent']} is required on MongoDB storage")
+    parent_ids.discard(None)
+    if not parent_ids:
+        return
+    table = model.env[model._fields[embed['parent']].comodel_name]._table
+    model.env.cr.execute(SQL("SELECT id FROM %s WHERE id = ANY(%s) ORDER BY id FOR UPDATE",
+                             SQL.identifier(table), sorted(parent_ids)))
+    if check and (missing := parent_ids.difference(id_ for id_, in model.env.cr.fetchall())):
+        raise psycopg2.errors.ForeignKeyViolation(f"{model._name}: no {table} rows {sorted(missing)}")
+
+
+def _check_key(model: BaseModel, parent_ids: typing.Iterable[int]) -> None:
+    """ Enforce the spec's unique key of the children within their parent,
+    like the PostgreSQL unique constraint (skipping NULLs). """
+    embed = _layout(model)['embed']
+    if not (key_paths := embed['key_paths']):
+        return
+    array = embed['array']
+    for doc in get_collection(model).find({'_id': {'$in': list(parent_ids)}}, {array: 1}):
+        seen = set()
+        for element in doc.get(array, ()):
+            key = tuple(element.get(path) for path in key_paths)
+            if None in key:
+                continue
+            if key in seen:
+                raise psycopg2.errors.UniqueViolation(f"{model._name}: duplicate key {dict(zip(key_paths, key))!r}")
+            seen.add(key)
+
+
+def _insert_children(model: BaseModel, ids: list[int], rows: list[dict]) -> None:
+    import pymongo  # noqa: PLC0415
+    embed, collection = _layout(model)['embed'], get_collection(model)
+    elements = defaultdict(list)
+    for id_, row in zip(ids, rows, strict=True):
+        doc = _document(model, id_, row)
+        elements[doc.get(embed['parent_path'])].append(_element(embed, doc))
+    _lock_parents(model, elements)
+    array, id_path = embed['array'], embed['id_path']
+    model.env.cr.add_undo(lambda: collection.update_many(
+        {'_id': {'$in': list(elements)}}, {'$pull': {array: {id_path: {'$in': ids}}}}))
+    result = collection.bulk_write([
+        pymongo.UpdateOne({'_id': parent_id}, {'$push': {array: {'$each': children}}})
+        for parent_id, children in elements.items()
+    ])
+    if result.matched_count != len(elements):
+        raise StorageError(f"{model._name}: parent documents missing in MongoDB for {sorted(elements)}")
+    _check_key(model, elements)
+
+
+def _update_children(model: BaseModel, priors: dict[int, dict], changes: list[tuple[int, dict, dict]]) -> None:
+    import pymongo  # noqa: PLC0415
+    embed, collection = _layout(model)['embed'], get_collection(model)
+    array, id_path, parent_path = embed['array'], embed['id_path'], embed['parent_path']
+    ops, parents = [], set()
+    for id_, to_set, to_unset in changes:
+        doc = {path: value for path, value in priors[id_].items() if path not in to_unset} | to_set
+        old_parent, new_parent = priors[id_][parent_path], doc.get(parent_path)
+        element = _element(embed, doc)
+        if new_parent == old_parent:
+            ops.append(pymongo.UpdateOne({'_id': old_parent}, {'$set': {f'{array}.$[e]': element}},
+                                         array_filters=[{f'e.{id_path}': id_}]))
+        else:
+            ops.append(pymongo.UpdateOne({'_id': old_parent}, {'$pull': {array: {id_path: id_}}}))
+            ops.append(pymongo.UpdateOne({'_id': new_parent}, {'$push': {array: element}}))
+        parents.update((old_parent, new_parent))
+    if not ops:
+        return
+    before = _elements(model, [id_ for id_, _set, _unset in changes])
+    model.env.cr.add_undo(lambda: _restore_elements(collection, embed, before))
+    collection.bulk_write(ops, ordered=True)
+    _check_key(model, parents)
+
+
+def _delete_children(model: BaseModel, ids: list[int]) -> None:
+    embed, collection = _layout(model)['embed'], get_collection(model)
+    if not (priors := _elements(model, ids)):
+        return
+    _lock_parents(model, {parent_id for parent_id, _index, _element in priors.values()}, check=False)
+    model.env.cr.add_undo(lambda: _restore_elements(collection, embed, priors))
+    array, id_path = embed['array'], embed['id_path']
+    collection.update_many({'_id': {'$in': [prior[0] for prior in priors.values()]}},
+                           {'$pull': {array: {id_path: {'$in': list(priors)}}}})
+
+
+# ---------------------------------------------------------------------------
 # writes
 # ---------------------------------------------------------------------------
 
@@ -460,6 +636,8 @@ def _raise_unique_violation(model: BaseModel, error) -> typing.NoReturn:
 def insert(model: BaseModel, ids: list[int], rows: list[dict]) -> None:
     """ Insert one document per new record; ``rows`` hold column values. """
     import pymongo.errors  # noqa: PLC0415
+    if _layout(model).get('embed'):
+        return _insert_children(model, ids, rows)
     collection = get_collection(model)
     model.env.cr.add_undo(lambda: collection.delete_many({'_id': {'$in': ids}}))
     try:
@@ -474,12 +652,17 @@ def update(model: BaseModel, ids: list[int], vals_list: list[dict]) -> None:
     import pymongo.errors  # noqa: PLC0415
     layout = _layout(model)
     collection = get_collection(model)
+    if embed := layout.get('embed'):   # lock parents first, like the parent's own writes
+        new_parents = {vals[embed['parent']] for vals in vals_list if embed['parent'] in vals}
+        _lock_parents(model, {prior[0] for prior in _elements(model, ids).values()} | new_parents, check=False)
+        _lock_parents(model, new_parents)
     # lock the shadow rows: concurrent writers of a document serialize there
     model.env.cr.execute(SQL("SELECT id FROM %s WHERE id IN %s FOR UPDATE",
                              SQL.identifier(model._table), tuple(ids)))
-    priors = {doc['_id']: doc for doc in collection.find({'_id': {'$in': ids}})}
-    model.env.cr.add_undo(lambda: [collection.replace_one({'_id': doc['_id']}, doc) for doc in priors.values()])
-    ops = []
+    priors = _fetch_docs(model, ids)
+    if not embed:
+        model.env.cr.add_undo(lambda: [collection.replace_one({'_id': doc['_id']}, doc) for doc in priors.values()])
+    ops, changes = [], []
     for id_, vals in zip(ids, vals_list, strict=True):
         to_set, to_unset = {}, {}
         for fname, value in vals.items():
@@ -498,6 +681,10 @@ def update(model: BaseModel, ids: list[int], vals_list: list[dict]) -> None:
                 to_unset[path] = ''
             else:
                 to_set[path] = value
+        if embed:
+            if to_set or to_unset:
+                changes.append((id_, to_set, to_unset))
+            continue
         change = {}
         if to_set:
             change['$set'] = to_set
@@ -505,7 +692,9 @@ def update(model: BaseModel, ids: list[int], vals_list: list[dict]) -> None:
             change['$unset'] = to_unset
         if change:
             ops.append(pymongo.UpdateOne({'_id': id_}, change))
-    if ops:
+    if embed:
+        _update_children(model, priors, changes)
+    elif ops:
         try:
             collection.bulk_write(ops, ordered=True)
         except pymongo.errors.BulkWriteError as e:
@@ -516,6 +705,8 @@ def delete(model: BaseModel, ids: typing.Iterable[int]) -> None:
     """ Delete documents; run right after the shadow rows are deleted. """
     collection = get_collection(model)
     ids = list(ids)
+    if _layout(model).get('embed'):
+        return _delete_children(model, ids)
     priors = list(collection.find({'_id': {'$in': ids}}))
     if priors:
         model.env.cr.add_undo(lambda: collection.insert_many(priors))
@@ -536,7 +727,7 @@ def fetch(model: BaseModel, query: Query, fields: typing.Iterable[Field]) -> Bas
         return model.browse()
     layout = _layout(model)
     projection = {layout['paths'][field.name]: 1 for field in fields}
-    docs = {doc['_id']: doc for doc in get_collection(model).find({'_id': {'$in': ids}}, projection)}
+    docs = _fetch_docs(model, ids, projection)
     if missing := [id_ for id_ in ids if id_ not in docs]:
         _logger.warning("%s: shadow rows without a MongoDB document: %s", model._name, missing)
     fetched = model.browse([id_ for id_ in ids if id_ in docs])
@@ -556,7 +747,7 @@ def search(model: BaseModel, domain, sec_domain, order: str | None, limit, offse
         if sec_domain.is_false():
             return model.browse()._as_query()
         match = {'$and': [match, to_filter(self_sudo, sec_domain)]}
-    pipeline = []
+    pipeline = _virtual_stages(_layout(model))
     if translated := _translated_fields(model, domain, sec_domain, order):
         pipeline.append({'$addFields': {
             TRANSLATED_PREFIX + fname: _translated_expr(model, fname) for fname in translated
