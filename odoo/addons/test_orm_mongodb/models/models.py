@@ -97,6 +97,14 @@ class Test_Orm_MongodbTag(models.Model):
                                     'product_tag_id', 'product_product_id', ondelete='restrict')
     # relation table outside the signed spec, so it stays in PostgreSQL
     partner_ids = fields.Many2many('res.partner', 'test_orm_mongodb_tag_partner_rel', 'tag_id', 'partner_id')
+    is_even = fields.Boolean(compute='_compute_is_even', compute_sql='_compute_sql_is_even')
+
+    def _compute_is_even(self):
+        for tag in self:
+            tag.is_even = tag.id % 2 == 0
+
+    def _compute_sql_is_even(self, table):
+        return SQL("%s %% 2 = 0", table.id)
 
 
 class Test_Orm_MongodbAttribute(models.Model):
@@ -168,3 +176,24 @@ class Test_Orm_MongodbCategory(models.Model):
 
     def _compute_sql_parity(self, table):
         return SQL("CASE WHEN %s %% 2 = 0 THEN 'even' END", table.id)
+
+
+class Test_Orm_MongodbTemplate(models.Model):
+    _name = 'test_orm_mongodb.template'
+    _description = 'Product template stored in MongoDB'
+    _table = 'product_template'
+    _storage = 'mongodb'
+    _order = 'name, id'
+
+    name = fields.Char(translate=True, required=True)
+
+
+class Test_Orm_MongodbVariant(models.Model):
+    _name = 'test_orm_mongodb.variant'
+    _description = 'Product variant stored in MongoDB, inheriting its template'
+    _table = 'product_product'
+    _storage = 'mongodb'
+    _inherits = {'test_orm_mongodb.template': 'product_tmpl_id'}
+
+    product_tmpl_id = fields.Many2one('test_orm_mongodb.template', required=True, ondelete='cascade')
+    default_code = fields.Char()
