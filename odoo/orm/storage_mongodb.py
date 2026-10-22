@@ -359,24 +359,23 @@ def search(model: BaseModel, domain, sec_domain, order: str | None, limit, offse
         }})
     pipeline.append({'$match': match})
     pipeline.extend(_sort_stages(model, order))
-    # fetch the page with everything before it, so that documents without a
-    # shadow row (no committed record) can be dropped before paging
-    head = [{'$limit': (offset or 0) + limit}] if limit else []
-    project = [{'$project': {'_id': 1}}]
-    collection = get_collection(model)
-    ids = [doc['_id'] for doc in collection.aggregate(pipeline + head + project)]
-    alive = _alive(model, ids) if ids else set()
-    while len(alive) < len(ids) and head and len(ids) == head[0]['$limit']:
-        head[0]['$limit'] += len(ids) - len(alive)  # orphans are rare: read past them
-        ids = [doc['_id'] for doc in collection.aggregate(pipeline + head + project)]
-        alive = _alive(model, ids)
-    if len(alive) < len(ids):
-        _logger.warning("%s: MongoDB documents without a shadow row: %s",
-                        model._name, [id_ for id_ in ids if id_ not in alive])
-        ids = [id_ for id_ in ids if id_ in alive]
-    ids = ids[offset or 0:]
-    if limit:
-        ids = ids[:limit]
+    # stream ids in batches and drop documents without a shadow row (no
+    # committed record) before counting them toward offset and limit
+    cursor = get_collection(model).aggregate(pipeline + [{'$project': {'_id': 1}}], batchSize=IN_MAX)
+    skip, ids, orphans = offset or 0, [], []
+    for batch in split_every(IN_MAX, (doc['_id'] for doc in cursor)):
+        alive = _alive(model, batch)
+        orphans.extend(id_ for id_ in batch if id_ not in alive)
+        live = [id_ for id_ in batch if id_ in alive]
+        dropped = min(skip, len(live))
+        skip -= dropped
+        ids.extend(live[dropped:])
+        if limit and len(ids) >= limit:
+            ids = ids[:limit]
+            break
+    cursor.close()
+    if orphans:
+        _logger.warning("%s: MongoDB documents without a shadow row: %s", model._name, orphans)
     return model.browse(ids)._as_query(ordered=bool(order))
 
 
