@@ -2037,7 +2037,8 @@ class BaseModel(metaclass=MetaModel):
         :raise AccessError: if user is not allowed to access requested information
         """
         if self._storage == 'mongodb':
-            raise NotImplementedError(f"{self._name}: grouped reads are not supported on MongoDB storage yet")
+            row_values = storage_mongodb.read_group(self, domain, groupby, aggregates, having, offset, limit, order)
+            return self._read_group_postprocess_rows(groupby, aggregates, row_values)
         query = self._search(domain)
         if query.is_empty():
             if not groupby:
@@ -2069,7 +2070,10 @@ class BaseModel(metaclass=MetaModel):
 
         # row_values: [(a1, b1, c1), (a2, b2, c2), ...]
         row_values = self.env.execute_query(query.select(*select_args))
+        return self._read_group_postprocess_rows(groupby, aggregates, row_values)
 
+    def _read_group_postprocess_rows(self, groupby, aggregates, row_values: list[tuple]) -> list[tuple]:
+        """ Convert the raw rows of a grouped read into ``_read_group()`` results. """
         if not row_values:
             return row_values
 

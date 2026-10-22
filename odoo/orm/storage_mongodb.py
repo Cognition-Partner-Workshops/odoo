@@ -31,7 +31,7 @@ from pathlib import Path
 
 import psycopg2.errors
 
-from odoo.tools import SQL, split_every, sql
+from odoo.tools import SQL, date_utils, split_every, sql
 from odoo.tools.constants import IN_MAX
 
 from .domains import DomainAnd, DomainBool, DomainCondition, DomainNot, DomainOr
@@ -776,6 +776,236 @@ def search(model: BaseModel, domain, sec_domain, order: str | None, limit, offse
     if limit:
         ids = ids[:limit]
     return model.browse(ids)._as_query(ordered=bool(order))
+
+
+# ---------------------------------------------------------------------------
+# grouped reads
+# ---------------------------------------------------------------------------
+
+_DATE_PARTS = {
+    'year_number': '$year', 'month_number': '$month', 'iso_week_number': '$isoWeek',
+    'day_of_year': '$dayOfYear', 'day_of_month': '$dayOfMonth',
+    'hour_number': '$hour', 'minute_number': '$minute',
+}
+_WEEKDAYS = ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')
+
+
+def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, limit, order) -> list[tuple]:
+    """ Back end of ``_read_group``: return the rows PostgreSQL would return
+    (raw groupby values then aggregate values), grouped by an aggregation over
+    the records of ``domain``; having, order and paging apply to the groups. """
+    from .models import regex_order_part_read_group  # noqa: PLC0415
+    groupby, aggregates, having = list(groupby), list(aggregates), list(having or ())
+    if not (groupby or aggregates):
+        raise ValueError(model.env._("Need groupby or aggregates."))
+    terms = []
+    for part in (order or ','.join(groupby)).split(','):
+        if not part.strip():
+            continue
+        if not (match := regex_order_part_read_group.fullmatch(part)):
+            raise ValueError(f"Invalid order {order!r} for _read_group()")
+        terms.append((match['term'], (match['direction'] or 'ASC').upper(), (match['nulls'] or '').upper()))
+    keys = {f'g{i}': _groupby_expr(model, spec) for i, spec in enumerate(groupby)}
+    extra = [term for term, _dir, _nulls in terms if term not in groupby] if groupby else []
+    extra += [item[0] for item in having if isinstance(item, (list, tuple))] if groupby else []
+    accumulators, getters = {}, {}
+    for i, spec in enumerate(dict.fromkeys(aggregates + extra)):
+        accumulator, getters[spec] = _aggregate(model, spec, f'a{i}')
+        accumulators.update(accumulator)
+
+    ids = list(model._search(domain).get_result_ids())
+    stages = _virtual_stages(_layout(model), ids) + [{'$group': {'_id': keys or None, **accumulators}}]
+    rows = []
+    with get_collection(model).aggregate(stages, allowDiskUse=True) as cursor:
+        for group in cursor:
+            key = group['_id'] or {}
+            row = {spec: _group_value(model, spec, key.get(f'g{i}')) for i, spec in enumerate(groupby)}
+            rows.append(row | {spec: get(group) for spec, get in getters.items()})
+    if not groupby:     # like SQL, an aggregate without groups returns one row
+        if not ids:     # unpaged, like _read_group on an empty query
+            return [(None,) * len(aggregates)]
+        terms = ()
+    if having and groupby:
+        rows = [row for row in rows if _having(having, row) is True]
+    for term, direction, nulls in reversed(terms):
+        rank = _group_rank(model, term, rows, traverse_many2one=bool(order))
+        valued = [row for row in rows if rank(row) is not None]
+        empty = [row for row in rows if rank(row) is None]
+        valued.sort(key=rank, reverse=direction == 'DESC')
+        nulls_first = nulls == 'NULLS FIRST' if nulls else direction == 'DESC'   # PostgreSQL defaults
+        rows = empty + valued if nulls_first else valued + empty
+    rows = rows[offset or 0:]
+    if limit is not None:   # LIMIT 0 returns no row
+        rows = rows[:limit]
+    return [tuple(row[spec] for spec in groupby + aggregates) for row in rows]
+
+
+def _field_expr(model: BaseModel, field: Field):
+    if field.translate is True:
+        return _translated_expr(model, field.name)
+    return '$' + _layout(model)['paths'][field.name]
+
+
+def _groupby_expr(model: BaseModel, spec: str):
+    from .models import parse_read_group_spec  # noqa: PLC0415
+    fname, chain, granularity = parse_read_group_spec(spec)
+    if fname not in model._fields:
+        raise ValueError(f"Invalid field {fname!r} on model {model._name!r}")
+    field = model._fields[fname]
+    model.check_field_access(field, 'read')
+    if chain or field.type in ('many2many', 'properties') or not (field.store and field.column_type):
+        raise NotImplementedError(f"{model._name}: cannot group by {spec!r} on MongoDB storage yet")
+    expr = _field_expr(model, field)
+    if field.type in ('date', 'datetime'):
+        if not granularity:
+            raise ValueError(f"Granularity not set on a date(time) field: {spec!r}")
+        return _granularity_expr(model, field, expr, granularity)
+    if granularity:
+        raise ValueError(f"Granularity set on a no-datetime field or property: {spec!r}")
+    if field.type == 'boolean':
+        return {'$ifNull': [expr, False]}
+    return expr
+
+
+def _granularity_expr(model: BaseModel, field: Field, expr, granularity: str):
+    from odoo.tools.misc import get_lang  # noqa: PLC0415
+    from .utils import READ_GROUP_TIME_GRANULARITY  # noqa: PLC0415
+    tz = model.env.context.get('tz')
+    if field.type == 'datetime' and tz:
+        if tz in date_utils.all_timezones:
+            # like timezone(tz, timezone('UTC', value)): local wall time
+            units = ('year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond')
+            expr = {'$cond': [{'$eq': [{'$ifNull': [expr, None]}, None]}, None, {'$let': {
+                'vars': {'parts': {'$dateToParts': {'date': expr, 'timezone': tz}}},
+                'in': {'$dateFromParts': {unit: f'$$parts.{unit}' for unit in units}},
+            }}]}
+        else:
+            _logger.warning("Grouping in unknown / legacy timezone %r", tz)
+    if granularity in READ_GROUP_TIME_GRANULARITY:
+        trunc = {'date': expr, 'unit': granularity}
+        if granularity == 'week':
+            trunc['startOfWeek'] = _WEEKDAYS[int(get_lang(model.env).week_start) - 1]
+        return {'$dateTrunc': trunc}
+    if granularity == 'quarter_number':
+        return {'$ceil': {'$divide': [{'$month': expr}, 3]}}
+    if granularity == 'day_of_week':      # PostgreSQL dow: 0 is Sunday
+        return {'$subtract': [{'$dayOfWeek': expr}, 1]}
+    if granularity == 'second_number':    # with its fraction, like date_part()
+        return {'$add': [{'$second': expr}, {'$divide': [{'$millisecond': expr}, 1000]}]}
+    if granularity in _DATE_PARTS:
+        return {_DATE_PARTS[granularity]: expr}
+    raise ValueError(f"Error when processing the granularity {granularity} is not supported.")
+
+
+def _plain(field: Field, value):
+    from bson.decimal128 import Decimal128  # noqa: PLC0415
+    if isinstance(value, Decimal128):
+        return float(value.to_decimal())
+    if field.type == 'date' and isinstance(value, dt.datetime):
+        return value.date()
+    return value
+
+
+def _group_value(model: BaseModel, spec: str, value):
+    from .models import parse_read_group_spec  # noqa: PLC0415
+    from .utils import READ_GROUP_NUMBER_GRANULARITY  # noqa: PLC0415
+    fname, _chain, granularity = parse_read_group_spec(spec)
+    if granularity in READ_GROUP_NUMBER_GRANULARITY:   # date_part() is a double
+        return None if value is None else float(value)
+    return _plain(model._fields[fname], value)
+
+
+def _aggregate(model: BaseModel, spec: str, key: str) -> tuple[dict, typing.Callable]:
+    """ Return the ``$group`` accumulators of the aggregate ``spec`` and the
+    function turning their result into the value PostgreSQL returns. """
+    from .models import READ_GROUP_AGGREGATE, parse_read_group_spec  # noqa: PLC0415
+    if spec == '__count':
+        return {key: {'$sum': 1}}, lambda group: group[key]
+    fname, chain, func = parse_read_group_spec(spec)
+    if chain:
+        raise ValueError(f"Invalid {spec!r}, this dot notation is not supported")
+    if fname not in model._fields:
+        raise ValueError(f"Invalid field {fname!r} on model {model._name!r} for {spec!r}.")
+    if not func:
+        raise ValueError(f"Aggregate method is mandatory for {fname!r}")
+    field = model._fields[fname]
+    model.check_field_access(field, 'read')
+    if func != 'sum_currency' and func not in READ_GROUP_AGGREGATE:
+        raise ValueError(f"Invalid aggregate method {func!r} for {spec!r}.")
+    if func == 'sum_currency' or field.type == 'many2many' or not (field.store and field.column_type):
+        raise NotImplementedError(f"{model._name}: cannot aggregate {spec!r} on MongoDB storage yet")
+    expr = _field_expr(model, field)
+    value = {'$ifNull': [expr, None]}
+    present = {'$sum': {'$cond': [{'$eq': [value, None]}, 0, 1]}}
+    match func:
+        case 'sum' | 'avg' | 'max' | 'min':     # NULL when no value, like SQL
+            return ({key: {f'${func}': expr}, f'{key}_n': present},
+                    lambda group: _plain(field, group[key]) if group[f'{key}_n'] else None)
+        case 'bool_and' | 'bool_or':
+            return {key: {'$min' if func == 'bool_and' else '$max': expr}}, lambda group: group[key]
+        case 'count':
+            return {key: present}, lambda group: group[key]
+        case 'count_distinct':
+            return {key: {'$addToSet': expr}}, lambda group: sum(item is not None for item in group[key])
+        case 'array_agg_distinct':
+            return {key: {'$addToSet': value}}, lambda group: sorted(
+                (_plain(field, item) for item in group[key]), key=lambda item: (item is None, item))
+        case _:     # array_agg and recordset, ordered by id
+            return {key: {'$push': {'id': '$_id', 'value': value}}}, lambda group: [
+                _plain(field, item['value']) for item in sorted(group[key], key=lambda item: item['id'])]
+
+
+def _having(having: list, row: dict) -> bool | None:
+    """ Evaluate a having domain on ``row`` with SQL's three-valued logic. """
+    import operator  # noqa: PLC0415
+    comparators = {
+        '=': operator.eq, '!=': operator.ne, '<': operator.lt, '>': operator.gt,
+        '<=': operator.le, '>=': operator.ge,
+        'in': lambda a, b: a in b, 'not in': lambda a, b: a not in b,
+    }
+    stack = []
+    for item in reversed(having):
+        if item == '!':
+            value = stack.pop()
+            stack.append(None if value is None else not value)
+        elif item in ('&', '|'):
+            values = (stack.pop(), stack.pop())
+            decisive = item == '|'
+            stack.append(decisive if decisive in values else None if None in values else not decisive)
+        elif isinstance(item, (list, tuple)) and len(item) == 3:
+            left, op, right = item
+            if op not in comparators:
+                raise ValueError(f"Invalid having clause {item!r}: supported comparators are {tuple(comparators)}")
+            stack.append(None if row[left] is None else comparators[op](row[left], right))
+        else:
+            raise ValueError(f"Invalid having clause {item!r}: it should be a domain-like clause")
+    result = True
+    for value in stack:     # implicit AND
+        result = False if False in (result, value) else None if None in (result, value) else True
+    return result
+
+
+def _group_rank(model: BaseModel, term: str, rows: list[dict], traverse_many2one: bool) -> typing.Callable:
+    """ Return the sort key of the order ``term`` over grouped ``rows``, as
+    ``_read_group_orderby`` orders them; None sorts as NULL. """
+    from odoo.tools.misc import get_lang  # noqa: PLC0415
+    from .models import parse_read_group_spec  # noqa: PLC0415
+    fname, _chain, granularity = parse_read_group_spec(term)
+    field = model._fields.get(term)
+    if field and field.type == 'many2one' and traverse_many2one:
+        comodel = model.env[field.comodel_name]
+        if comodel._order != 'id':
+            ids = {row[term] for row in rows} - {None}
+            ordered = comodel.sudo().with_context(active_test=False).search([('id', 'in', list(ids))], order=comodel._order)
+            ranks = {id_: index for index, id_ in enumerate(ordered._ids)}
+            return lambda row: ranks.get(row[term], len(ranks)) if row[term] is not None else None
+    if field and field.type == 'selection':
+        keys = list(field.get_values(model.env))
+        return lambda row: keys.index(row[term]) if row[term] in keys else None
+    if granularity == 'day_of_week':
+        first_week_day = int(get_lang(model.env).week_start)
+        return lambda row: None if row[term] is None else (7 - first_week_day + int(row[term])) % 7
+    return lambda row: row[term]
 
 
 def _alive(model: BaseModel, ids: list[int]) -> set[int]:

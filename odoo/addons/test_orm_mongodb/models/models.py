@@ -117,6 +117,7 @@ class Test_Orm_MongodbAttributeValue(models.Model):
     sequence = fields.Integer()
     html_color = fields.Char()
     default_extra_price = fields.Float()
+    is_custom = fields.Boolean()
 
 
 class Test_Orm_MongodbFiscalPosition(models.Model):
