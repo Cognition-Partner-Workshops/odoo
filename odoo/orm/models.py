@@ -4854,6 +4854,12 @@ class BaseModel(metaclass=MetaModel):
                 table._query._order_groupby.append(sql_field)
                 return SQL("%s %s %s", sql_field, direction, nulls)
 
+            if comodel._storage == 'mongodb':
+                # the comodel's columns are in MongoDB: rank by its order there
+                coids = comodel.sudo().with_context(active_test=False).search([], order=coorder)._ids
+                table._query._order_groupby.append(sql_field)
+                return SQL("array_position(%s::int4[], %s) %s %s", list(coids), sql_field, direction, nulls)
+
             # instead of ordering by the field's raw value, use the comodel's
             # order on many2one values
             terms = []

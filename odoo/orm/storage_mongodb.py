@@ -1039,16 +1039,24 @@ def _sort_stages(model: BaseModel, order: str | None) -> list[dict]:
     from .models import regex_order  # noqa: PLC0415
     if not order:
         return []
-    flags, sort = {}, {}
+    ranks, flags, sort = {}, {}, {}
     for i, part in enumerate(order.split(',')):
         match = regex_order.match(part)
         if not match:
             raise ValueError(f"Invalid order {order!r}")
         fname, direction, nulls = match['field'], (match['direction'] or 'ASC').upper(), (match['nulls'] or '').upper()
         field = model._fields.get(fname)
-        if field is None or not (field.store and field.column_type) or match['property']:
+        many2one = field is not None and field.type == 'many2one'
+        if field is None or not (field.store and field.column_type) or match['property'] not in (None, *(['id'] if many2one else [])):
             raise NotImplementedError(f"{model._name}: cannot order by {part.strip()!r} on MongoDB storage")
         path = _path(model, field)
+        comodel = model.env[field.comodel_name] if many2one else None
+        if many2one and not match['property'] and comodel._order != 'id':
+            # rank by the comodel's order, wherever the comodel is stored
+            coids = list(comodel.sudo().with_context(active_test=False).search([], order=comodel._order)._ids)
+            ranks[f'__rank{i}'] = {'$let': {'vars': {'rank': {'$indexOfArray': [coids, f'${path}']}},
+                                            'in': {'$cond': [{'$gte': ['$$rank', 0]}, '$$rank', None]}}}
+            path = f'__rank{i}'
         step = 1 if direction == 'ASC' else -1
         # PostgreSQL puts NULLs last ascending and first descending
         nulls_last = nulls == 'NULLS LAST' if nulls else step == 1
@@ -1056,7 +1064,7 @@ def _sort_stages(model: BaseModel, order: str | None) -> list[dict]:
         sort[f'__null{i}'] = 1 if nulls_last else -1
         sort[path] = step
     sort.setdefault('_id', 1)
-    return [{'$addFields': flags}, {'$sort': sort}]
+    return ([{'$addFields': ranks}] if ranks else []) + [{'$addFields': flags}, {'$sort': sort}]
 
 
 # ---------------------------------------------------------------------------
