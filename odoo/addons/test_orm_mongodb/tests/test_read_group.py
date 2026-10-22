@@ -2,8 +2,11 @@ import datetime as dt
 
 import pytz
 
+from unittest.mock import patch
+
 from odoo import Command
-from odoo.tests import TransactionCase, tagged
+from odoo.exceptions import AccessError
+from odoo.tests import TransactionCase, new_test_user, tagged
 
 
 @tagged('at_install', '-post_install')
@@ -58,8 +61,10 @@ class TestReadGroupMongodb(TransactionCase):
                          [(3, 1), (2, 1)])
         self.assertEqual(Value._read_group(self.domain, ['is_custom'], ['__count']), [(False, 2), (True, 2)])
         self.assertEqual([name for name, in Value._read_group(self.domain, ['name'])], ['Blue', 'Green', 'Large', 'Red'])
-        with self.assertRaises(NotImplementedError):
-            Value._read_group(self.domain, ['attribute_id.name'], ['__count'])
+        self.assertEqual(Value._read_group(self.domain, ['attribute_id.name'], ['__count']),
+                         [('Color', 3), ('Size', 1)])     # through the comodel, like a join
+        self.assertEqual(Value._read_group(self.domain, ['attribute_id.sequence'], ['__count'], order='__count'),
+                         [(1, 1), (2, 3)])
 
     def test_date_granularities(self):
         now = self.red.create_date
@@ -79,3 +84,41 @@ class TestReadGroupMongodb(TransactionCase):
         rows = [{term: float(dow)} for dow in range(7)]     # date_part('dow'): 0 is Sunday
         rank = storage_mongodb._group_rank(self.Value, term, rows, traverse_many2one=False)
         self.assertEqual([row[term] for row in sorted(rows, key=rank)], [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 0.0])
+
+    def test_chunked_aggregation_merges_groups(self):
+        from odoo.orm import storage_mongodb  # noqa: PLC0415
+        specs = ['__count', 'sequence:sum', 'sequence:max', 'default_extra_price:avg', 'html_color:count_distinct',
+                 'id:recordset', 'sequence:array_agg', 'is_custom:bool_and']
+        expected = self.Value._read_group(self.domain, ['attribute_id'], specs)
+        with patch.object(storage_mongodb, 'GROUP_CHUNK', 1):
+            self.assertEqual(self.Value._read_group(self.domain, ['attribute_id'], specs), expected)
+
+    def test_chunked_decimal_aggregates(self):
+        from odoo.orm import storage_mongodb  # noqa: PLC0415
+        Category = self.env['test_orm_mongodb.storage_category']
+        categories = Category.create([{'name': 'a', 'max_weight': 1.5}, {'name': 'b', 'max_weight': 2.5}])
+        specs = ['max_weight:sum', 'max_weight:avg', 'max_weight:min', 'max_weight:max']
+        with patch.object(storage_mongodb, 'GROUP_CHUNK', 1):
+            self.assertEqual(Category._read_group([('id', 'in', categories.ids)], [], specs), [(4.0, 2.0, 1.5, 2.5)])
+
+    def test_dotted_groupby_many2many(self):
+        Lock = self.env['test_orm_mongodb.lock_exception']
+        group_a, group_b = self.env['res.groups'].create([{'name': 'A'}, {'name': 'B'}])
+        both = new_test_user(self.env, 'both', groups='base.group_user')
+        both.group_ids += group_a + group_b
+        only_a = new_test_user(self.env, 'only_a', groups='base.group_user')
+        only_a.group_ids += group_a
+        company = self.env.company
+        locks = Lock.create([{'company_id': company.id, 'user_id': user.id} for user in (both, only_a)]
+                            + [{'company_id': company.id}])
+        rows = dict(Lock._read_group([('id', 'in', locks.ids)], ['user_id.group_ids'], ['__count']))
+        self.assertEqual((rows[group_a], rows[group_b]), (2, 1))    # each user counts in every group
+        self.assertEqual(rows[self.env['res.groups']], 1)          # no user: the outer join's null group
+
+    def test_dotted_groupby_checks_field_access(self):
+        Lock = self.env['test_orm_mongodb.lock_exception']
+        user = new_test_user(self.env, 'basic', groups='base.group_user')
+        lock = Lock.create({'company_id': self.env.company.id, 'user_id': user.id})
+        self.patch(self.env['res.users']._fields['login'], 'groups', 'base.group_system')
+        with self.assertRaises(AccessError):
+            Lock.with_user(user)._read_group([('id', '=', lock.id)], ['user_id.login'], ['__count'])

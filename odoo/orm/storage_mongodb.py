@@ -19,8 +19,10 @@ Environment:
 from __future__ import annotations
 
 import datetime as dt
+import decimal
 import functools
 import hashlib
+import itertools
 import json
 import logging
 import os
@@ -271,6 +273,27 @@ def linked_ids(env, layout: dict, column: str, other: str, other_ids: typing.Ite
     if column == layout['owner']:
         return collection.distinct('_id', {f"{layout['array']}.{layout['element']}": {'$in': list(other_ids)}})
     return list({link[column] for link in find_links(env, layout, other, other_ids)})
+
+
+def links_sql(env, layout: dict, column1: str, column2: str) -> SQL:
+    """ Return a SELECT of every link of the relation, with the relation
+    table's columns, for PostgreSQL queries that join through it. """
+    collection = _relation_collection(env, layout)
+    if 'targets' in layout:
+        targets = layout['targets']
+        docs = collection.find({}, dict.fromkeys(targets.values(), 1))
+        pairs = [(doc[targets[column1]], doc[targets[column2]]) for doc in docs]
+    else:
+        owner, array, element = layout['owner'], layout['array'], layout['element']
+        pairs = [
+            (doc['_id'], item[element]) if column1 == owner else (item[element], doc['_id'])
+            for doc in collection.find({f'{array}.0': {'$exists': True}}, {array: 1})
+            for item in doc[array]
+        ]
+    if not pairs:
+        return SQL("(SELECT NULL::int4 AS %s, NULL::int4 AS %s WHERE FALSE)", SQL.identifier(column1), SQL.identifier(column2))
+    return SQL("(SELECT * FROM (VALUES %s) AS links(%s, %s))", SQL(", ").join(SQL("(%s, %s)", a, b) for a, b in pairs),
+               SQL.identifier(column1), SQL.identifier(column2))
 
 
 def _apply_to_arrays(collection, layout: dict, links: list[dict], add: bool) -> None:
@@ -787,6 +810,14 @@ _DATE_PARTS = {
     'day_of_year': '$dayOfYear', 'day_of_month': '$dayOfMonth',
     'hour_number': '$hour', 'minute_number': '$minute',
 }
+GROUP_CHUNK = 100_000      # ids per aggregation, far below the 16 MB command limit
+_MERGE = {
+    '$sum': lambda a, b: a + b,
+    '$min': lambda a, b: b if a is None else a if b is None else min(a, b),
+    '$max': lambda a, b: b if a is None else a if b is None else max(a, b),
+    '$push': lambda a, b: a + b,
+    '$addToSet': lambda a, b: a + [item for item in b if item not in a],
+}
 _WEEKDAYS = ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')
 
 
@@ -814,13 +845,26 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
         accumulators.update(accumulator)
 
     ids = list(model._search(domain).get_result_ids())
-    stages = _virtual_stages(_layout(model), ids) + [{'$group': {'_id': keys or None, **accumulators}}]
+    # aggregate the ids by chunks, and merge the partial groups
+    groups = {}
+    for chunk in map(list, split_every(GROUP_CHUNK, ids)):
+        stages = _virtual_stages(_layout(model), chunk) + [{'$group': {'_id': keys or None, **accumulators}}]
+        with get_collection(model).aggregate(stages, allowDiskUse=True) as cursor:
+            for group in map(_native, cursor):
+                gkey = tuple(sorted((group['_id'] or {}).items()))
+                if (prior := groups.get(gkey)) is None:
+                    groups[gkey] = group
+                    continue
+                for name, accumulator in accumulators.items():
+                    (op,) = accumulator
+                    prior[name] = _MERGE[op](prior[name], group[name])
+    if dotted := {i: spec for i, spec in enumerate(groupby) if '.' in spec.split(':')[0]}:
+        groups = _regroup(model, groups, dotted, accumulators)
     rows = []
-    with get_collection(model).aggregate(stages, allowDiskUse=True) as cursor:
-        for group in cursor:
-            key = group['_id'] or {}
-            row = {spec: _group_value(model, spec, key.get(f'g{i}')) for i, spec in enumerate(groupby)}
-            rows.append(row | {spec: get(group) for spec, get in getters.items()})
+    for group in groups.values():
+        key = group['_id'] or {}
+        row = {spec: _group_value(model, spec, key.get(f'g{i}')) for i, spec in enumerate(groupby)}
+        rows.append(row | {spec: get(group) for spec, get in getters.items()})
     if not groupby:     # like SQL, an aggregate without groups returns one row
         if not ids:     # unpaged, like _read_group on an empty query
             return [(None,) * len(aggregates)]
@@ -840,6 +884,57 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
     return [tuple(row[spec] for spec in groupby + aggregates) for row in rows]
 
 
+def _native(group: dict) -> dict:
+    """ Turn the Decimal128 accumulators of ``group`` into ``decimal.Decimal``,
+    which Python arithmetic can merge across chunks. """
+    from bson.decimal128 import Decimal128  # noqa: PLC0415
+    return {key: value.to_decimal() if isinstance(value, Decimal128) else value for key, value in group.items()}
+
+
+def _regroup(model: BaseModel, groups: dict, dotted: dict[int, str], accumulators: dict) -> dict:
+    """ Replace the many2one ids of the dotted groupby specs by the raw values
+    of their comodel's groupby, like the SQL join would: a multi-valued path
+    puts the group in each of its values, then groups with the same key merge. """
+    from .models import BaseModel, parse_read_group_spec  # noqa: PLC0415
+    mapping = {}
+    for i, spec in dotted.items():
+        fname, chain, granularity = parse_read_group_spec(spec)
+        field = model._fields[fname]
+        comodel = model.env[field.comodel_name].with_context(active_test=False)
+        if field.compute_sudo or field.delegate:    # Many2one.join skips the comodel's rules
+            comodel_hop = comodel
+            for name in chain.split('.'):
+                cofield = comodel_hop._fields[name]
+                comodel_hop.check_field_access(cofield, 'read')
+                if cofield.relational:
+                    comodel_hop = model.env[cofield.comodel_name]
+            comodel = comodel.sudo()
+        ids = {dict(gkey).get(f'g{i}') for gkey in groups} - {None}
+        cofield = comodel._fields[chain.split('.')[0]]
+        values = defaultdict(list)
+        for record, value in comodel._read_group([('id', 'in', list(ids))], ['id', f"{chain}:{granularity}" if granularity else chain]):
+            if isinstance(value, BaseModel):
+                value = value.id or None
+            elif value is False and cofield.type != 'boolean':
+                value = None
+            values[record.id].append(value)
+        mapping[i] = values
+    merged = {}
+    for gkey, group in groups.items():
+        key = dict(gkey)
+        options = [[(f'g{i}', value) for value in values.get(key.get(f'g{i}')) or [None]]
+                   for i, values in mapping.items()]
+        for combination in itertools.product(*options):
+            new_key = key | dict(combination)
+            if (prior := merged.get(gkey := tuple(sorted(new_key.items())))) is None:
+                merged[gkey] = group | {'_id': new_key}
+                continue
+            for name, accumulator in accumulators.items():
+                (op,) = accumulator
+                prior[name] = _MERGE[op](prior[name], group[name])
+    return merged
+
+
 def _field_expr(model: BaseModel, field: Field):
     if field.translate is True:
         return _translated_expr(model, field.name)
@@ -853,9 +948,12 @@ def _groupby_expr(model: BaseModel, spec: str):
         raise ValueError(f"Invalid field {fname!r} on model {model._name!r}")
     field = model._fields[fname]
     model.check_field_access(field, 'read')
-    if chain or field.type in ('many2many', 'properties') or not (field.store and field.column_type):
+    if (chain and field.type != 'many2one') or field.type in ('many2many', 'properties') \
+            or not (field.store and field.column_type):
         raise NotImplementedError(f"{model._name}: cannot group by {spec!r} on MongoDB storage yet")
     expr = _field_expr(model, field)
+    if chain:   # grouped by the many2one, then regrouped by the comodel's value
+        return expr
     if field.type in ('date', 'datetime'):
         if not granularity:
             raise ValueError(f"Granularity not set on a date(time) field: {spec!r}")
@@ -901,6 +999,8 @@ def _plain(field: Field, value):
     from bson.decimal128 import Decimal128  # noqa: PLC0415
     if isinstance(value, Decimal128):
         return float(value.to_decimal())
+    if isinstance(value, decimal.Decimal):
+        return float(value)
     if field.type == 'date' and isinstance(value, dt.datetime):
         return value.date()
     return value
@@ -909,7 +1009,9 @@ def _plain(field: Field, value):
 def _group_value(model: BaseModel, spec: str, value):
     from .models import parse_read_group_spec  # noqa: PLC0415
     from .utils import READ_GROUP_NUMBER_GRANULARITY  # noqa: PLC0415
-    fname, _chain, granularity = parse_read_group_spec(spec)
+    fname, chain, granularity = parse_read_group_spec(spec)
+    if chain:   # already the comodel's raw value
+        return value
     if granularity in READ_GROUP_NUMBER_GRANULARITY:   # date_part() is a double
         return None if value is None else float(value)
     return _plain(model._fields[fname], value)
@@ -938,9 +1040,12 @@ def _aggregate(model: BaseModel, spec: str, key: str) -> tuple[dict, typing.Call
     value = {'$ifNull': [expr, None]}
     present = {'$sum': {'$cond': [{'$eq': [value, None]}, 0, 1]}}
     match func:
-        case 'sum' | 'avg' | 'max' | 'min':     # NULL when no value, like SQL
+        case 'sum' | 'max' | 'min':     # NULL when no value, like SQL
             return ({key: {f'${func}': expr}, f'{key}_n': present},
                     lambda group: _plain(field, group[key]) if group[f'{key}_n'] else None)
+        case 'avg':     # sum / count, so that partial groups merge
+            return ({key: {'$sum': expr}, f'{key}_n': present},
+                    lambda group: _plain(field, group[key]) / group[f'{key}_n'] if group[f'{key}_n'] else None)
         case 'bool_and' | 'bool_or':
             return {key: {'$min' if func == 'bool_and' else '$max': expr}}, lambda group: group[key]
         case 'count':
@@ -1039,16 +1144,24 @@ def _sort_stages(model: BaseModel, order: str | None) -> list[dict]:
     from .models import regex_order  # noqa: PLC0415
     if not order:
         return []
-    flags, sort = {}, {}
+    ranks, flags, sort = {}, {}, {}
     for i, part in enumerate(order.split(',')):
         match = regex_order.match(part)
         if not match:
             raise ValueError(f"Invalid order {order!r}")
         fname, direction, nulls = match['field'], (match['direction'] or 'ASC').upper(), (match['nulls'] or '').upper()
         field = model._fields.get(fname)
-        if field is None or not (field.store and field.column_type) or match['property']:
+        many2one = field is not None and field.type == 'many2one'
+        if field is None or not (field.store and field.column_type) or match['property'] not in (None, *(['id'] if many2one else [])):
             raise NotImplementedError(f"{model._name}: cannot order by {part.strip()!r} on MongoDB storage")
         path = _path(model, field)
+        comodel = model.env[field.comodel_name] if many2one else None
+        if many2one and not match['property'] and comodel._order != 'id':
+            # rank by the comodel's order, wherever the comodel is stored
+            coids = list(comodel.sudo().with_context(active_test=False).search([], order=comodel._order)._ids)
+            ranks[f'__rank{i}'] = {'$let': {'vars': {'rank': {'$indexOfArray': [coids, f'${path}']}},
+                                            'in': {'$cond': [{'$gte': ['$$rank', 0]}, '$$rank', None]}}}
+            path = f'__rank{i}'
         step = 1 if direction == 'ASC' else -1
         # PostgreSQL puts NULLs last ascending and first descending
         nulls_last = nulls == 'NULLS LAST' if nulls else step == 1
@@ -1056,7 +1169,7 @@ def _sort_stages(model: BaseModel, order: str | None) -> list[dict]:
         sort[f'__null{i}'] = 1 if nulls_last else -1
         sort[path] = step
     sort.setdefault('_id', 1)
-    return [{'$addFields': flags}, {'$sort': sort}]
+    return ([{'$addFields': ranks}] if ranks else []) + [{'$addFields': flags}, {'$sort': sort}]
 
 
 # ---------------------------------------------------------------------------

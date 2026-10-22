@@ -1733,8 +1733,7 @@ class Many2many(_RelationalMulti):
         """ Add a LEFT JOIN to ``query`` by following field ``self``,
         and return the joined table's corresponding model and alias.
         """
-        if self.store and storage_mongodb.relation_layout(self, table._model.env):
-            raise NotImplementedError(f"{self}: joins through a many2many stored in MongoDB are not supported yet")
+        layout = self.store and storage_mongodb.relation_layout(self, table._model.env)
         if not self.store:
             # traverse_related, skip last one if not stored
             if self.related:
@@ -1753,6 +1752,8 @@ class Many2many(_RelationalMulti):
         model = table._model
         comodel = model.env[self.comodel_name].with_context(**self.context)
         rel_table, rel_id1, rel_id2 = self.relation, self.column1, self.column2
+        if layout:  # the links are in MongoDB: join a SELECT of them instead
+            rel_table = storage_mongodb.links_sql(model.env, layout, rel_id1, rel_id2)
         codomain = self.get_comodel_domain(model)
         coquery = comodel._search(codomain, bypass_access=self.bypass_search_access)
 
