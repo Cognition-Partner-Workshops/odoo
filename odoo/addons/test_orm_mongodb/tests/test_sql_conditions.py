@@ -25,3 +25,16 @@ class TestSqlConditions(TransactionCase):
         subquery = SQL("SELECT %s", parent.id)
         self.assertEqual(Category.search(domain & Domain('parent_id', 'any!', subquery)), children[0])
         self.assertEqual(Category.search(domain & Domain('parent_id', 'not any!', subquery)), children[1])
+
+    def test_sql_subquery_with_null(self):
+        # PostgreSQL: x IN (.., NULL) ignores the NULL, x NOT IN (.., NULL) is never true
+        Category = self.env['test_orm_mongodb.category']
+        parent = Category.create({'name': 'parent'})
+        child, orphan = Category.create([{'name': 'c', 'parent_id': parent.id}, {'name': 'o'}])
+        records = parent | child | orphan
+        domain = Domain('id', 'in', records.ids)
+        subquery = SQL("SELECT unnest(ARRAY[%s, NULL]::int[])", parent.id)
+        self.assertEqual(Category.search(domain & Domain('id', 'any!', subquery)), parent)
+        self.assertFalse(Category.search(domain & Domain('id', 'not any!', subquery)))
+        self.assertEqual(Category.search(domain & Domain('parent_id', 'any!', subquery)), child)
+        self.assertEqual(Category.search(domain & Domain('parent_id', 'not any!', subquery)), parent | orphan)

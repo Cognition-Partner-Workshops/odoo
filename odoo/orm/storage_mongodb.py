@@ -1376,7 +1376,11 @@ def _condition(model: BaseModel, cond: DomainCondition) -> dict:
         elif isinstance(value, Domain):
             ids = comodel.with_context(active_test=False)._search(value).get_result_ids()
         elif isinstance(value, SQL):   # a subquery of comodel ids, as PostgreSQL runs it
-            ids = [id_ for id_, in model.env.execute_query(value)]
+            rows = [id_ for id_, in model.env.execute_query(value)]
+            ids = [id_ for id_ in rows if id_ is not None]
+            if len(ids) < len(rows) and operator.startswith('not') and not inverse:
+                # NOT IN over a NULL is never true; only an empty many2one still matches
+                return {'_id': {'$in': []}} if field.name == 'id' else {_path(model, field): None}
         else:
             raise unsupported
         if inverse:
