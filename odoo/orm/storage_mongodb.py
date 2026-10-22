@@ -1293,14 +1293,13 @@ def _path(model: BaseModel, field: Field) -> str:
 def _outside_order(model: BaseModel, field: Field, part: str) -> tuple[str, list[int]]:
     """ Rank an order term on a field the document doesn't hold: the parent
     model orders an inherited field, PostgreSQL orders the others over the
-    shadow rows (computed SQL, related paths). """
+    shadow rows (computed SQL). """
     from .query import Query  # noqa: PLC0415
     records = model.sudo().with_context(active_test=False)
     if field.inherited:
-        for parent_name, parent_fname in model._inherits.items():
-            if field.name in records.env[parent_name]._fields:
-                parent_ids = records.env[parent_name].search([], order=part)._ids
-                return '$' + _path(model, model._fields[parent_fname]), list(parent_ids)
+        parent_field = model._fields[field.related.split('.')[0]]
+        parent_ids = records.env[parent_field.comodel_name].search([], order=part)._ids
+        return '$' + _path(model, parent_field), list(parent_ids)
     query = Query(records)
     query.order = records._order_to_sql(query.table, part)
     return '$_id', list(query.get_result_ids())
@@ -1321,7 +1320,7 @@ def _sort_stages(model: BaseModel, order: str | None) -> list[dict]:
         if field is None or field.type in ('one2many', 'many2many') or match['property'] not in (None, *(['id'] if many2one else [])):
             raise NotImplementedError(f"{model._name}: cannot order by {part.strip()!r} on MongoDB storage")
         if field.name != 'id' and field.name not in _layout(model)['paths']:
-            if not (field.inherited or field.compute_sql or field.related):
+            if not (field.inherited or field.compute_sql):
                 raise NotImplementedError(f"{model._name}: cannot order by {part.strip()!r} on MongoDB storage")
             path, ids = _outside_order(model, field, part.strip())
             ranks[f'__rank{i}'] = {'$indexOfArray': [ids, path]}

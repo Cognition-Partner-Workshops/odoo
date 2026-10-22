@@ -22,3 +22,8 @@ class TestOrderOutsideDocument(TransactionCase):
         tags = Tag.create([{'name': str(i)} for i in range(4)])
         expected = sorted(tags.ids, key=lambda id_: (id_ % 2, id_))
         self.assertEqual(Tag.search([('id', 'in', tags.ids)], order='is_even desc, id').ids, expected)
+        # an outside term keeps its place after an in-document term
+        tags.write({'sequence': 1})
+        tags[0].sequence = 2
+        expected = sorted(tags.ids, key=lambda id_: (id_ == tags[0].id, id_ % 2, id_))
+        self.assertEqual(Tag.search([('id', 'in', tags.ids)], order='sequence, is_even desc, id').ids, expected)
