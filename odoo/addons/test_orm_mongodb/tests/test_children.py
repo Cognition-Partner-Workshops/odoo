@@ -104,3 +104,21 @@ class TestEmbeddedChildrenMongodb(TransactionCase):
         with self.assertRaises(psycopg2.errors.NotNullViolation):
             self.color.value_ids[0].attribute_id = False
         self.assertEqual(self.names(self.color), ['Red', 'Blue'])
+
+    def test_unique_key_within_parent(self):
+        Position = self.env['test_orm_mongodb.fiscal_position']
+        Mapping = self.env['test_orm_mongodb.fiscal_position_account']
+        domestic, export = Position.create([
+            {'name': 'Domestic', 'account_ids': [Command.create({'account_src_id': 1, 'account_dest_id': 2})]},
+            {'name': 'Export', 'account_ids': [Command.create({'account_src_id': 1, 'account_dest_id': 2})]},
+        ])
+        Mapping.create([{'position_id': domestic.id, 'account_src_id': 1}] * 2)  # NULLs never collide
+        self.env.flush_all()
+        collection = storage_mongodb.get_collection(domestic)
+        before = [collection.find_one({'_id': position.id})['account'] for position in (domestic, export)]
+        with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
+            Mapping.create({'position_id': domestic.id, 'account_src_id': 1, 'account_dest_id': 2})
+        with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
+            export.account_ids.position_id = domestic
+            self.env.flush_all()
+        self.assertEqual([collection.find_one({'_id': position.id})['account'] for position in (domestic, export)], before)

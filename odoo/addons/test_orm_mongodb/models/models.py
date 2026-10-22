@@ -117,3 +117,24 @@ class Test_Orm_MongodbAttributeValue(models.Model):
     sequence = fields.Integer()
     html_color = fields.Char()
     default_extra_price = fields.Float()
+
+
+class Test_Orm_MongodbFiscalPosition(models.Model):
+    _name = 'test_orm_mongodb.fiscal_position'
+    _description = 'Fiscal position stored in MongoDB, with embedded account mappings'
+    _table = 'account_fiscal_position'
+    _storage = 'mongodb'
+
+    name = fields.Char(translate=True)
+    account_ids = fields.One2many('test_orm_mongodb.fiscal_position_account', 'position_id')
+
+
+class Test_Orm_MongodbFiscalPositionAccount(models.Model):
+    _name = 'test_orm_mongodb.fiscal_position_account'
+    _description = 'Account mapping embedded in its fiscal position, unique per position'
+    _table = 'account_fiscal_position_account'
+    _storage = 'mongodb'
+
+    position_id = fields.Many2one('test_orm_mongodb.fiscal_position', required=True, ondelete='cascade')
+    account_src_id = fields.Integer()
+    account_dest_id = fields.Integer()
