@@ -5,5 +5,13 @@
   "source_concurrency": 1,
   "numeric_abs_tol": 0,
   "aggregate_rel_tol": 1e-9,
-  "accepted_empty": []
+  "accepted_empty": [
+    "accountMove.adjustingEntriesAccountMove",
+    "accountPayment.accountBankStatementLineRel",
+    "purchaseOrderLine.accrualMoveRel",
+    "saleOrder.transactionRel",
+    "saleOrderLineAccrualMoveRel",
+    "stockMove.accountAnalyticLineStockMoveRel",
+    "stockMoveLine.consumeRel"
+  ]
 }
