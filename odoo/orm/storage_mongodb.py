@@ -1258,7 +1258,8 @@ def _alive(model: BaseModel, ids: list[int]) -> set[int]:
 def _translated_fields(model, domain, sec_domain, order) -> list[str]:
     names = {cond.field_expr for dom in (domain, sec_domain) for cond in dom.iter_conditions()}
     names.update(part.split()[0] for part in (order or '').split(',') if part.strip())
-    return sorted(n for n in names if n in model._fields and _multi_valued(model._fields[n]))
+    paths = _layout(model)['paths']
+    return sorted(n for n in names if n in paths and n in model._fields and _multi_valued(model._fields[n]))
 
 
 def _multi_valued(field: Field) -> bool:
@@ -1289,6 +1290,22 @@ def _path(model: BaseModel, field: Field) -> str:
     return _layout(model)['paths'][field.name]
 
 
+def _outside_order(model: BaseModel, field: Field, part: str) -> tuple[str, list[int]]:
+    """ Rank an order term on a field the document doesn't hold: the parent
+    model orders an inherited field, PostgreSQL orders the others over the
+    shadow rows (computed SQL, related paths). """
+    from .query import Query  # noqa: PLC0415
+    records = model.sudo().with_context(active_test=False)
+    if field.inherited:
+        for parent_name, parent_fname in model._inherits.items():
+            if field.name in records.env[parent_name]._fields:
+                parent_ids = records.env[parent_name].search([], order=part)._ids
+                return '$' + _path(model, model._fields[parent_fname]), list(parent_ids)
+    query = Query(records)
+    query.order = records._order_to_sql(query.table, part)
+    return '$_id', list(query.get_result_ids())
+
+
 def _sort_stages(model: BaseModel, order: str | None) -> list[dict]:
     from .models import regex_order  # noqa: PLC0415
     if not order:
@@ -1301,8 +1318,15 @@ def _sort_stages(model: BaseModel, order: str | None) -> list[dict]:
         fname, direction, nulls = match['field'], (match['direction'] or 'ASC').upper(), (match['nulls'] or '').upper()
         field = model._fields.get(fname)
         many2one = field is not None and field.type == 'many2one'
-        if field is None or not (field.store and field.column_type) or match['property'] not in (None, *(['id'] if many2one else [])):
+        if field is None or field.type in ('one2many', 'many2many') or match['property'] not in (None, *(['id'] if many2one else [])):
             raise NotImplementedError(f"{model._name}: cannot order by {part.strip()!r} on MongoDB storage")
+        if field.name != 'id' and field.name not in _layout(model)['paths']:
+            if not (field.inherited or field.compute_sql or field.related):
+                raise NotImplementedError(f"{model._name}: cannot order by {part.strip()!r} on MongoDB storage")
+            path, ids = _outside_order(model, field, part.strip())
+            ranks[f'__rank{i}'] = {'$indexOfArray': [ids, path]}
+            sort[f'__rank{i}'] = 1
+            continue
         path = _path(model, field)
         comodel = model.env[field.comodel_name] if many2one else None
         if many2one and not match['property'] and comodel._order != 'id':
