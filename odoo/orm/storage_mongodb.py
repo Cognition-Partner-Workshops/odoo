@@ -426,6 +426,9 @@ def auto_init(model: BaseModel) -> None:
     added = [field.name for field in shadow if field.name not in columns]
     for field in shadow:
         field.update_db(model, columns)
+    for field in model._fields.values():
+        if field.type == 'many2many' and field.store:   # relation tables outside the spec stay in PostgreSQL
+            field.update_db(model, columns)
     if added:
         mirror_columns(model, added)
     if model._table_objects:
@@ -1419,7 +1422,10 @@ def _many2many_condition(model: BaseModel, field: Field, operator: str, value, u
     from .domains import Domain  # noqa: PLC0415
     from .query import Query  # noqa: PLC0415
     if (layout := relation_layout(field, model.env)) is None:
-        raise unsupported
+        # the relation table stays in PostgreSQL: match the shadow rows there
+        query = Query(model)
+        query.add_where(field.condition_to_sql(query.table, field.name, operator, value))
+        return {'_id': {'$in': list(query.get_result_ids())}}
     comodel = model.env[field.comodel_name].with_context(**field.context)
     if operator.endswith('!'):
         comodel = comodel.sudo()

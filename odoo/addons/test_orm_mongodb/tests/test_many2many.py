@@ -81,6 +81,20 @@ class TestMany2manyMongodb(TransactionCase):
         self.assertEqual(tag.incoterm_ids, exw + fob)
         self.assertEqual(self.Tag.search([('id', '=', tag.id), ('incoterm_ids.code', '=', 'FOB')]), tag)
 
+    def test_postgresql_relation_table_search(self):
+        partner = self.env['res.partner'].create({'name': 'Linked partner'})
+        linked = self.Tag.create({'name': 'linked', 'partner_ids': [Command.link(partner.id)]})
+        unlinked = self.Tag.create({'name': 'unlinked'})
+        self.assertTrue(sql.table_exists(self.env.cr, 'test_orm_mongodb_tag_partner_rel'))
+        Tag = self.Tag.with_context(active_test=False)
+        tags = [('id', 'in', (linked | unlinked).ids)]
+        # pricelist lookups search ('country_group_ids', '=', False), a 'not any!'
+        self.assertEqual(Tag.search(tags + [('partner_ids', '=', False)]), unlinked)
+        self.assertEqual(Tag.search(tags + [('partner_ids', '!=', False)]), linked)
+        self.assertEqual(Tag.search(tags + [('partner_ids', 'in', partner.ids)]), linked)
+        self.assertEqual(Tag.search(tags + [('partner_ids', 'not in', partner.ids)]), unlinked)
+        self.assertEqual(Tag.search(tags + [('partner_ids.name', '=', 'Linked partner')]), linked)
+
     def test_unlink_follows_ondelete(self):
         a, b, _c = self.links
         exw, fob = self.incoterms
