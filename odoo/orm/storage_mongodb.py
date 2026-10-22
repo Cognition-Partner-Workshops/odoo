@@ -372,7 +372,7 @@ def search(model: BaseModel, domain, sec_domain, order: str | None, limit, offse
                 alive = _alive(model, batch)
                 orphans.extend(id_ for id_ in batch if id_ not in alive)
                 ids.extend(id_ for id_ in batch if id_ in alive)
-        if not (bound and orphans and read == bound):
+        if not (bound and orphans and read == bound and len(ids) < (offset or 0) + limit):
             break
         bound += len(orphans)
     if orphans:
