@@ -45,8 +45,7 @@ class TestStorageMongodb(TransactionCase):
             'end_datetime': dt.datetime(2026, 2, 1, 12, 30, 15, 123456),
         })
         doc = self.doc(lock)
-        self.assertEqual(storage_mongodb.get_collection(lock).name,
-                         os.environ.get('ODOO_MONGODB_COLLECTION_PREFIX', '') + 'accountLockException')
+        self.assertEqual(storage_mongodb.get_collection(lock).name, f'{self.env.cr.dbname}__accountLockException')
         self.assertEqual(doc['companyId'], self.company.id)
         self.assertEqual(doc['reason'], 'audit')
         self.assertEqual(doc['lockDate'], dt.datetime(2026, 1, 31))
@@ -119,6 +118,20 @@ class TestStorageMongodb(TransactionCase):
         self.assertFalse(capacity.exists(), "ondelete=cascade of a many2one stored in MongoDB")
         self.assertIsNone(self.doc(capacity))
 
+    def test_cascade_from_shadow_column_removes_documents(self):
+        other = self.env['res.company'].create({'name': 'Doomed'})
+        lock = self.Lock.create({'company_id': other.id})
+        other.unlink()
+        self.assertIsNone(self.doc(lock))
+        self.assertFalse(self.Lock.with_context(active_test=False).search([('id', '=', lock.id)]))
+
+    def test_documents_without_shadow_row_are_ignored(self):
+        lock = self.Lock.create({'company_id': self.company.id, 'reason': 'orphan'})
+        self.env.flush_all()
+        self.env.cr.execute("DELETE FROM account_lock_exception WHERE id = %s", [lock.id])
+        with mute_logger('odoo.orm.storage_mongodb'):
+            self.assertFalse(self.Lock.search([('reason', '=', 'orphan')]))
+
     # -- domains and order ----------------------------------------------------
 
     def test_search_domains(self):
@@ -138,6 +151,9 @@ class TestStorageMongodb(TransactionCase):
         self.assertEqual(search([('user_id', '=', False)]), a | c)
         self.assertEqual(search([('user_id', '!=', False)]), b)
         self.assertEqual(search([('reason', 'not in', ['tax 100%'])]), a | c, "NULL is not in any set")
+        self.assertEqual(search([('user_id', 'not in', [False])]), b)
+        self.assertEqual(search([('reason', '<', 'Z')]), a | c, "unset Char compares as ''")
+        self.assertEqual(search([('reason', '>', '')]), a | b)
         self.assertEqual(search([('active', '=', False)]), c)
         self.assertEqual(search([('lock_date', '>', '2026-02-01')]), b)
         self.assertEqual(search([('lock_date', '<=', '2026-03-31')]), a | b)
@@ -239,6 +255,15 @@ class TestStorageMongodb(TransactionCase):
         self.assertIsNotNone(self.doc(lock))
         self.assertGreater(self.env.cr._undo_mark(), mark, "committing a test cursor only releases its savepoint")
         self.env.cr._undo_to(mark)
+        self.assertIsNone(self.doc(lock))
+
+    def test_test_cursor_rollback_undoes_documents(self):
+        with self.registry_test_mode(), self.registry.cursor() as cr:
+            env = self.env(cr=cr)
+            lock = env['test_orm_mongodb.lock_exception'].create({'company_id': self.company.id})
+            env.flush_all()
+            self.assertIsNotNone(self.doc(lock))
+            cr.rollback()
         self.assertIsNone(self.doc(lock))
 
     # -- fail closed ------------------------------------------------------------

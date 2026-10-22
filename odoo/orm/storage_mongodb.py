@@ -12,7 +12,9 @@ rollback in PostgreSQL also undoes the matching MongoDB writes.
 Environment:
     ODOO_MONGODB_URI                connection string (default: local server)
     ODOO_MONGODB_DATABASE           must be ``DATABASE``; anything else fails closed
-    ODOO_MONGODB_COLLECTION_PREFIX  prefix for every collection name (tests)
+    ODOO_MONGODB_PG_DATABASE        the one PostgreSQL database that owns the spec's
+                                    collection names; any other PostgreSQL database
+                                    (tests, clones) gets ``<dbname>__``-prefixed ones
 """
 from __future__ import annotations
 
@@ -77,8 +79,12 @@ def get_database():
     return _client(os.environ.get('ODOO_MONGODB_URI', DEFAULT_URI)).get_database('odoo_unt13')
 
 
+def collection_prefix(dbname: str) -> str:
+    return '' if dbname == os.environ.get('ODOO_MONGODB_PG_DATABASE') else f'{dbname}__'
+
+
 def get_collection(model: BaseModel):
-    prefix = os.environ.get('ODOO_MONGODB_COLLECTION_PREFIX', '')
+    prefix = collection_prefix(model.env.cr.dbname)
     return get_database().get_collection(prefix + _layout(model)['collection'])
 
 
@@ -106,14 +112,14 @@ def _layout(model: BaseModel) -> dict:
 
 
 def _references(registry) -> dict[str, list[Field]]:
-    """ Return the many2one fields stored only in MongoDB, by comodel name. """
+    """ Return the many2one fields of MongoDB models, by comodel name. """
     refs = registry.__dict__.get('_mongodb_references')
     if refs is None:
         refs = {}
         for model_cls in registry.models.values():
             if model_cls._storage == 'mongodb' and not model_cls._abstract:
                 for field in model_cls._fields.values():
-                    if field.type == 'many2one' and field.store and field.name not in model_cls._shadow_columns:
+                    if field.type == 'many2one' and field.store:
                         refs.setdefault(field.comodel_name, []).append(field)
         if registry.ready:
             registry._mongodb_references = refs
@@ -121,8 +127,9 @@ def _references(registry) -> dict[str, list[Field]]:
 
 
 def unlink_dependents(records: BaseModel) -> None:
-    """ Apply ``ondelete`` of the many2one fields stored in MongoDB that
-    reference ``records``; PostgreSQL foreign keys cannot see them. """
+    """ Apply ``ondelete`` of the many2one fields of MongoDB models that
+    reference ``records`` through the ORM, so documents follow. PostgreSQL
+    foreign keys on shadow columns would only change the shadow rows. """
     for field in _references(records.pool).get(records._name, ()):
         dependents = records.env[field.model_name].sudo().with_context(active_test=False).search(
             [(field.name, 'in', records.ids)])
@@ -357,6 +364,14 @@ def search(model: BaseModel, domain, sec_domain, order: str | None, limit, offse
         pipeline.append({'$limit': limit})
     pipeline.append({'$project': {'_id': 1}})
     ids = [doc['_id'] for doc in get_collection(model).aggregate(pipeline)]
+    if ids:
+        # documents without a shadow row belong to no committed record
+        model.env.cr.execute(SQL("SELECT id FROM %s WHERE id IN %s", SQL.identifier(model._table), tuple(ids)))
+        alive = {id_ for id_, in model.env.cr.fetchall()}
+        if len(alive) < len(ids):
+            _logger.warning("%s: MongoDB documents without a shadow row: %s",
+                            model._name, [id_ for id_ in ids if id_ not in alive])
+            ids = [id_ for id_ in ids if id_ in alive]
     return model.browse(ids)._as_query(ordered=bool(order))
 
 
@@ -482,7 +497,13 @@ def _condition(model: BaseModel, cond: DomainCondition) -> dict:
 
     if operator in ('<', '>', '<=', '>='):
         mongo_op = {'<': '$lt', '>': '$gt', '<=': '$lte', '>=': '$gte'}[operator]
-        return {path: {mongo_op: to_value(value)}}
+        if (falsy := field.falsy_value) is None:
+            return {path: {mongo_op: to_value(value)}}
+        # like PostgreSQL: an unset value compares as the field's falsy value
+        value = field.convert_to_cache(value, model) or falsy
+        accept_null = {'<': falsy < value, '>': falsy > value, '<=': falsy <= value, '>=': falsy >= value}[operator]
+        condition = {path: {mongo_op: to_value(value)}}
+        return {'$or': [condition, {path: None}]} if accept_null else condition
 
     if operator.endswith('like') and (bson_type == 'string' or field.translate is True):
         pattern = str(value) if '=' in operator else f'%{value}%'

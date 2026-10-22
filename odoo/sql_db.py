@@ -131,11 +131,13 @@ class Savepoint:
     :param Cursor cr: the cursor to execute the `SAVEPOINT` queries on
     """
 
-    def __init__(self, cr: _CursorProtocol):
+    def __init__(self, cr: _CursorProtocol, undo_cursor: Cursor | None = None):
         self.name = str(uuid.uuid1())
         self._cr = cr
         self.closed: bool = False
-        self._undo_mark = cr._undo_mark() if isinstance(cr, Cursor) else None
+        # undo_cursor: the Cursor whose undo log this savepoint covers, when cr is a raw cursor
+        self._undo_cursor = undo_cursor or (cr if isinstance(cr, Cursor) else None)
+        self._undo_mark = self._undo_cursor._undo_mark() if self._undo_cursor else None
         cr.execute(psql.SQL('SAVEPOINT {}').format(psql.Identifier(self.name)))
 
     def __enter__(self):
@@ -149,8 +151,8 @@ class Savepoint:
             self._close(rollback)
 
     def rollback(self):
-        if self._undo_mark is not None:
-            self._cr._undo_to(self._undo_mark)
+        if self._undo_cursor is not None:
+            self._undo_cursor._undo_to(self._undo_mark)
         self._cr.execute(psql.SQL('ROLLBACK TO SAVEPOINT {}').format(psql.Identifier(self.name)))
 
     def _close(self, rollback: bool):
@@ -585,9 +587,14 @@ class Cursor(_CursorProtocol):
         """ Commit the current transaction. """
         self.flush()
         committing = self.transaction.committing() if self.transaction is not None else nullcontext()
-        with committing:
-            self._cnx.commit()
-            self._now = None
+        try:
+            with committing:
+                self._cnx.commit()
+                self._now = None
+        except Exception:
+            if self._undo_owner() is self:
+                self._undo_to(0)
+            raise
         if self._undo_owner() is self:
             self._undo_log.clear()
         self.prerollback.clear()
@@ -606,11 +613,11 @@ class Cursor(_CursorProtocol):
             _logger.exception("Error during prerollback execution, ignore")
             self.prerollback.clear()
         rollbacking = self.transaction.rollbacking() if self.transaction is not None else nullcontext()
+        if self._undo_owner() is self:
+            self._undo_to(0)    # while the transaction still holds the row locks
         with rollbacking:
             self._cnx.rollback()
             self._now = None
-        if self._undo_owner() is self:
-            self._undo_to(0)
         if self._closing:
             self._close()
         try:
