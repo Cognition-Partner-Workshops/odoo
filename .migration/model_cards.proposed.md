@@ -1,8 +1,8 @@
-# Model review: map-draft-2
+# Model review: map-draft-3
 
 ## Your data in MongoDB
 
-142 source tables become 71 collections: 38 hold one table each, and 33 also carry 71 smaller tables embedded inside their documents (71 as arrays, 0 as one subdocument; 44 of the arrays are link tables). The most common reason a table keeps its own collection: other tables also point at it, so it keeps its own collection (145 of 210 references). The most common reason a table is embedded: a link table, kept as an array on this side (45 of 72 embeds). 379 tables stay on the source and are not migrated: account_account_account_merge_wizard_rel, account_accrued_orders_wizard, account_analytic_account, account_analytic_applicability, account_analytic_distribution_model, account_analytic_line, account_analytic_plan, account_automatic_entry_wizard and 371 more.
+142 source tables become 70 collections: 36 hold one table each, and 34 also carry 72 smaller tables embedded inside their documents (72 as arrays, 0 as one subdocument; 45 of the arrays are link tables). The most common reason a table keeps its own collection: other tables also point at it, so it keeps its own collection (145 of 209 references). The most common reason a table is embedded: a link table, kept as an array on this side (45 of 72 embeds). 379 tables stay on the source and are not migrated: account_account_account_merge_wizard_rel, account_accrued_orders_wizard, account_analytic_account, account_analytic_applicability, account_analytic_distribution_model, account_analytic_line, account_analytic_plan, account_automatic_entry_wizard and 371 more.
 
 ### Examples
 
@@ -18,26 +18,26 @@ _No rehearsal sample for Reference: re-render with --samples (schema-modeling st
 
 - 68 of 357 relationship choices follow the schema alone (assumed), not measured data or app code.
 - 3 embedded arrays have no measured size bound (cardinality assumed).
-- 495 questions are still open; they are listed below.
+- 497 questions are still open; they are listed below.
 - No rehearsal sample yet: examples appear once the page is re-rendered with --samples.
 
 ## Review
 
-- **Draft:** 71 collections, 71 embedded tables, 379 tables excluded.
+- **Draft:** 70 collections, 72 embedded tables, 379 tables excluded.
 - **Evidence:** of 357 relationship choices, 289 rest on measured data or app code and 0 on a recorded decision (`derived`); the rest follow the schema alone (`assumed`).
-- **Decisions:** 11 kinds of question, 495 items. The draft already applies each proposal; answer each group with one line in `.migration/answers.txt` (template below).
+- **Decisions:** 11 kinds of question, 497 items. The draft already applies each proposal; answer each group with one line in `.migration/answers.txt` (template below).
 
 1. **many_to_many_junction** (56): junction embedded via read evidence as an array in account_account; confirm the other side never needs the reverse lookup (else add a multikey index or keep a reference)  
    Applies to: account_account_account_tag, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_account_tax_default_rel, account_cash_rounding_account_payment_method_line_rel, account_fiscal_position_account_tax_rel, account_journal_account_reconcile_model_rel and 48 more
 2. **embed_unbounded** (2): 1:N embed: confirm the fan-out bound and document size (16 MB) against data, or bucket/reference  
    Applies to: sale_order_transaction_rel, account_analytic_line_stock_move_rel
 3. **transient_tables** (1): 88 table(s) back transient models, scratch state the framework deletes on a timer, so they are not migrated: account_account_account_merge_wizard_rel, account_accrued_orders_wizard, account_automatic_entry_wizard, account_automatic_entry_wizard_account_move_line_rel, account_autopost_bills_wizard, account_financial_year_op, account_merge_wizard, account_merge_wizard_line, account_move_account_move_send_batch_wizard_rel, account_move_account_resequence_wizard_rel, account_move_reversal, account_move_reversal_move, account_move_reversal_new_move, account_move_send_batch_wizard, account_move_send_wizard, account_move_send_wizard_res_partner_rel, account_move_validate_account_move_rel, account_payment_register, account_payment_register_move_line_rel, account_resequence_wizard, account_secure_entries_wizard, account_setup_bank_manual_config, base_document_layout, bill_to_po_wizard, lot_label_layout, lot_label_layout_stock_lot_rel, lot_label_layout_stock_move_line_rel, mail_compose_message, mail_compose_message_ir_attachments_rel, mail_compose_message_res_partner_cc_rel, mail_compose_message_res_partner_rel, payment_link_wizard, picking_label_type, picking_label_type_stock_picking_rel, product_label_layout, product_label_layout_product_product_rel, product_label_layout_product_template_rel, product_label_layout_product_uom_rel, product_label_layout_stock_move_rel, product_replenish, product_supplierinfo_stock_replenishment_info_rel, res_config_settings, sale_advance_payment_inv, sale_advance_payment_inv_sale_order_rel, sale_mass_cancel_orders, sale_order_discount, sale_order_mass_cancel_wizard_rel, stock_add_to_wave, stock_add_to_wave_stock_move_line_rel, stock_add_to_wave_stock_picking_rel, stock_backorder_confirmation, stock_backorder_confirmation_line, stock_conflict_quant_rel, stock_inventory_adjustment_name, stock_inventory_adjustment_name_stock_quant_rel, stock_inventory_conflict, stock_inventory_conflict_stock_quant_rel, stock_inventory_warning, stock_inventory_warning_stock_quant_rel, stock_location_label_layout, stock_move_line_stock_package_destination_rel, stock_move_line_stock_put_in_pack_rel, stock_orderpoint_snooze, stock_orderpoint_snooze_stock_warehouse_orderpoint_rel, stock_orderpoint_suggest, stock_orderpoint_suggest_stock_warehouse_orderpoint_rel, stock_package_destination, stock_package_label_layout, stock_package_stock_put_in_pack_rel, stock_picking_backorder_rel, stock_picking_stock_zero_demand_confirmation_rel, stock_picking_to_batch, stock_picking_type_label_layout, stock_put_in_pack, stock_quant_relocate, stock_quant_stock_quant_relocate_rel, stock_quant_stock_request_count_rel, stock_replenishment_info, stock_replenishment_option, stock_request_count, stock_route_stock_rules_report_rel, stock_rules_report, stock_rules_report_stock_warehouse_rel, stock_traceability_report, stock_warn_insufficient_qty_scrap, stock_zero_demand_confirmation, update_product_attribute_value, validate_account_move; confirm none must survive cutover
-4. **extended_reference_candidate** (239): app reads account_account_tag with every account_account_account_tag: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference  
-   Applies to: account_account_account_tag, account_account_tax_default_rel, account_account, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_bank_statement, account_cash_rounding_account_payment_method_line_rel and 74 more
+4. **extended_reference_candidate** (240): app reads account_account_tag with every account_account_account_tag: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference  
+   Applies to: account_account_account_tag, account_account_tax_default_rel, account_account, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_bank_statement, account_cash_rounding_account_payment_method_line_rel and 75 more
 5. **source_index_not_exercised** (115): source index not exercised by any confirmed access pattern; keep or drop  
    Applies to: account_account, account_account_account_tag, account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_bank_statement, account_bank_statement_ir_attachment_rel and 71 more
-6. **cascade_into_embed** (40): account_account_tax_default_rel is embedded in account_account, but deleting a account_tax row cascades to its account_account_tax_default_rel: the app must pull them from every account_account document, or keep account_account_tax_default_rel separate  
-   Applies to: account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_cash_rounding_account_payment_method_line_rel, account_fiscal_position_account_tax_rel, account_journal_account_reconcile_model_rel, account_move__account_payment and 31 more
+6. **cascade_into_embed** (41): account_account_tax_default_rel is embedded in account_account, but deleting a account_tax row cascades to its account_account_tax_default_rel: the app must pull them from every account_account document, or keep account_account_tax_default_rel separate  
+   Applies to: account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_cash_rounding_account_payment_method_line_rel, account_fiscal_position_account_tax_rel, account_journal_account_reconcile_model_rel, account_move__account_payment and 32 more
 7. **lob** (13): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)  
    Applies to: account_account, account_journal, account_move, account_move_line, account_report_expression, purchase_order, purchase_order_line, sale_order and 5 more
 8. **single_valued_index_key** (13): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan  
@@ -56,9 +56,9 @@ accept ownership: <who said so, and why>  # 2 tables: account_analytic_line_stoc
 close many_to_many_junction: <who said so, and why>  # 56 questions
 close embed_unbounded: <who said so, and why>  # 2 questions
 close transient_tables: <who said so, and why>  # 1 questions
-close extended_reference_candidate: <who said so, and why>  # 239 questions
+close extended_reference_candidate: <who said so, and why>  # 240 questions
 close source_index_not_exercised: <who said so, and why>  # 115 questions
-close cascade_into_embed: <who said so, and why>  # 40 questions
+close cascade_into_embed: <who said so, and why>  # 41 questions
 close lob: <who said so, and why>  # 13 questions
 close single_valued_index_key: <who said so, and why>  # 13 questions
 close nullable_unique_key: <who said so, and why>  # 9 questions
@@ -555,6 +555,114 @@ Open questions (39):
 - **source_index_not_exercised** (account_move__account_payment): source index not exercised by any confirmed access pattern; keep or drop
 - **source_index_not_exercised** (account_move_purchase_order_rel): source index not exercised by any confirmed access pattern; keep or drop
 - **source_index_not_exercised** (adjusting_entries__account_move): source index not exercised by any confirmed access pattern; keep or drop
+
+## accountMoveLine
+
+From `account_move_line` with `account_move_line_account_tax_rel` embedded.
+
+```js
+{
+  _id: int,  // id
+  productId: int,  // product_id
+  moveId: int,  // move_id
+  journalId: int,  // journal_id
+  companyId: int,  // company_id
+  companyCurrencyId: int,  // company_currency_id
+  sequence: int,  // sequence
+  accountId: int,  // account_id
+  currencyId: int,  // currency_id
+  partnerId: int,  // partner_id
+  reconcileModelId: int,  // reconcile_model_id
+  paymentId: int,  // payment_id
+  statementLineId: int,  // statement_line_id
+  statementId: int,  // statement_id
+  groupTaxId: int,  // group_tax_id
+  taxLineId: int,  // tax_line_id
+  taxGroupId: int,  // tax_group_id
+  taxRepartitionLineId: int,  // tax_repartition_line_id
+  fullReconcileId: int,  // full_reconcile_id
+  productUomId: int,  // product_uom_id
+  cogsOriginId: int,  // cogs_origin_id
+  createUid: int,  // create_uid
+  writeUid: int,  // write_uid
+  moveName: string,  // move_name
+  parentState: string,  // parent_state
+  ref: string,  // ref
+  matchingNumber: string,  // matching_number
+  displayType: string,  // display_type
+  date: date,  // date
+  invoiceDate: date,  // invoice_date
+  dateMaturity: date,  // date_maturity
+  discountDate: date,  // discount_date
+  analyticDistribution: object,  // analytic_distribution
+  extraTaxData: object,  // extra_tax_data
+  name: string,  // name
+  debit: decimal,  // debit
+  credit: decimal,  // credit
+  balance: decimal,  // balance
+  amountCurrency: decimal,  // amount_currency
+  taxBaseAmount: decimal,  // tax_base_amount
+  amountResidual: decimal,  // amount_residual
+  amountResidualCurrency: decimal,  // amount_residual_currency
+  quantity: decimal,  // quantity
+  priceUnit: decimal,  // price_unit
+  priceSubtotal: decimal,  // price_subtotal
+  priceTotal: decimal,  // price_total
+  discount: decimal,  // discount
+  discountAmountCurrency: decimal,  // discount_amount_currency
+  discountBalance: decimal,  // discount_balance
+  isStorno: bool,  // is_storno
+  isImported: bool,  // is_imported
+  reconciled: bool,  // reconciled
+  collapseComposition: bool,  // collapse_composition
+  collapsePrices: bool,  // collapse_prices
+  noFollowup: bool,  // no_followup
+  createDate: date,  // create_date
+  writeDate: date,  // write_date
+  deductiblePercentage: double,  // deductible_percentage
+  purchaseLineId: int,  // purchase_line_id
+  isDownpayment: bool,  // is_downpayment
+  stockMoveId: int,  // stock_move_id
+  accountTaxRel: [{  // account_move_line_account_tax_rel, 1:N derived
+    accountTaxId: int,  // account_tax_id
+  }],
+}
+```
+
+Why:
+- account_move_line → account_account_tag_account_move_line_rel, sale_order_line_invoice_rel: **reference**, a link table, embedded on the other side (assumed)
+- account_account, account_full_reconcile, account_tax, account_journal, account_move, account_payment, uom_uom, purchase_order_line, account_reconcile_model, account_bank_statement, account_bank_statement_line, stock_move, account_tax_group, account_tax_repartition_line → account_move_line: **reference**, it is embedded under another parent; this one is referenced (derived)
+- account_move_line → account_move_line, account_partial_reconcile: **reference**, it is embedded under another parent; this one is referenced (derived)
+- product_product → account_move_line: **reference**, the app reads it on its own (derived)
+- account_move_line → account_move_line_account_tax_rel: **embed**, a link table, kept as an array on this side (derived)
+- account_tax → account_move_line_account_tax_rel: **reference**, too many children per parent (measured) (derived)
+- account_move_line → account_partial_reconcile: **reference**, the app reads it on its own (derived)
+
+Open questions (24):
+- **extended_reference_candidate** (account_move_line_account_tax_rel): app reads account_tax with every account_move_line_account_tax_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
+- **extended_reference_candidate** (account_move_line): app reads account_account with every account_move_line: copy up to 5 read fields of account_account into account_move_line documents (extended reference) or keep the $lookup
+- **extended_reference_candidate** (account_move_line): app reads account_move_line with every account_move_line: copy up to 5 read fields of account_move_line into account_move_line documents (extended reference) or keep the $lookup
+- **extended_reference_candidate** (account_move_line): app reads account_full_reconcile with every account_move_line: copy up to 5 read fields of account_full_reconcile into account_move_line documents (extended reference) or keep the $lookup
+- **extended_reference_candidate** (account_move_line): app reads account_tax with every account_move_line: copy up to 5 read fields of account_tax into account_move_line documents (extended reference) or keep the $lookup
+- **extended_reference_candidate** (account_move_line): app reads account_move with every account_move_line: copy up to 5 read fields of account_move into account_move_line documents (extended reference) or keep the $lookup
+- **extended_reference_candidate** (account_move_line): app reads account_payment with every account_move_line: copy up to 5 read fields of account_payment into account_move_line documents (extended reference) or keep the $lookup
+- **extended_reference_candidate** (account_move_line): app reads product_product with every account_move_line: copy up to 5 read fields of product_product into account_move_line documents (extended reference) or keep the $lookup
+- **extended_reference_candidate** (account_move_line): app reads uom_uom with every account_move_line: copy up to 5 read fields of uom_uom into account_move_line documents (extended reference) or keep the $lookup
+- **extended_reference_candidate** (account_move_line): copy the parent fields this read uses into the child (extended reference); parent has no hot/warm writer
+- **extended_reference_candidate** (account_move_line): app reads purchase_order_line with every account_move_line: copy up to 5 read fields of purchase_order_line into account_move_line documents (extended reference) or keep the $lookup
+- **extended_reference_candidate** (account_move_line): app reads account_reconcile_model with every account_move_line: copy up to 5 read fields of account_reconcile_model into account_move_line documents (extended reference) or keep the $lookup
+- **extended_reference_candidate** (account_move_line): app reads account_bank_statement_line with every account_move_line: copy up to 5 read fields of account_bank_statement_line into account_move_line documents (extended reference) or keep the $lookup
+- **extended_reference_candidate** (account_move_line): app reads stock_move with every account_move_line: copy up to 5 read fields of stock_move into account_move_line documents (extended reference) or keep the $lookup
+- **extended_reference_candidate** (account_move_line): app reads account_tax with every account_move_line: copy up to 5 read fields of account_tax into account_move_line documents (extended reference) or keep the $lookup
+- **extended_reference_candidate** (account_move_line): app reads account_tax_repartition_line with every account_move_line: copy up to 5 read fields of account_tax_repartition_line into account_move_line documents (extended reference) or keep the $lookup
+- **cascade_into_embed** (account_move_line_account_tax_rel): account_move_line_account_tax_rel is embedded in account_move_line, but deleting a account_tax row cascades to its account_move_line_account_tax_rel: the app must pull them from every account_move_line document, or keep account_move_line_account_tax_rel separate
+- **lob** (account_move_line): LOB column(s) name measured max 67 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
 
 ## accountPayment
 
@@ -2373,50 +2481,6 @@ Why:
 ## accountLockException
 
 From `account_lock_exception`.
-
-## accountMoveLine
-
-From `account_move_line`.
-
-Why:
-- account_move_line → account_account_tag_account_move_line_rel, sale_order_line_invoice_rel: **reference**, a link table, embedded on the other side (assumed)
-- account_account, account_full_reconcile, account_tax, account_journal, account_move, account_payment, uom_uom, purchase_order_line, account_reconcile_model, account_bank_statement, account_bank_statement_line, stock_move, account_tax_group, account_tax_repartition_line → account_move_line: **reference**, it is embedded under another parent; this one is referenced (derived)
-- account_move_line → account_move_line, account_partial_reconcile: **reference**, it is embedded under another parent; this one is referenced (derived)
-- product_product → account_move_line: **reference**, the app reads it on its own (derived)
-- account_move_line → account_move_line_account_tax_rel: **embed**, a link table, kept as an array on this side (derived)
-- account_move_line → account_partial_reconcile: **reference**, the app reads it on its own (derived)
-
-Open questions (22):
-- **extended_reference_candidate** (account_move_line): app reads account_account with every account_move_line: copy up to 5 read fields of account_account into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_move_line with every account_move_line: copy up to 5 read fields of account_move_line into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_full_reconcile with every account_move_line: copy up to 5 read fields of account_full_reconcile into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_tax with every account_move_line: copy up to 5 read fields of account_tax into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_move with every account_move_line: copy up to 5 read fields of account_move into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_payment with every account_move_line: copy up to 5 read fields of account_payment into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads product_product with every account_move_line: copy up to 5 read fields of product_product into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads uom_uom with every account_move_line: copy up to 5 read fields of uom_uom into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): copy the parent fields this read uses into the child (extended reference); parent has no hot/warm writer
-- **extended_reference_candidate** (account_move_line): app reads purchase_order_line with every account_move_line: copy up to 5 read fields of purchase_order_line into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_reconcile_model with every account_move_line: copy up to 5 read fields of account_reconcile_model into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_bank_statement_line with every account_move_line: copy up to 5 read fields of account_bank_statement_line into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads stock_move with every account_move_line: copy up to 5 read fields of stock_move into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_tax with every account_move_line: copy up to 5 read fields of account_tax into account_move_line documents (extended reference) or keep the $lookup
-- **extended_reference_candidate** (account_move_line): app reads account_tax_repartition_line with every account_move_line: copy up to 5 read fields of account_tax_repartition_line into account_move_line documents (extended reference) or keep the $lookup
-- **lob** (account_move_line): LOB column(s) name measured max 67 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
-
-## accountMoveLineAccountTaxRel
-
-From `account_move_line_account_tax_rel`.
-
-Why:
-- account_move_line → account_move_line_account_tax_rel: **embed**, a link table, kept as an array on this side (derived)
-- account_tax → account_move_line_account_tax_rel: **reference**, too many children per parent (measured) (derived)
 
 ## accountPartialReconcile
 

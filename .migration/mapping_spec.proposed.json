@@ -1,5 +1,5 @@
 {
-  "version": "map-draft-2",
+  "version": "map-draft-3",
   "source_family": "postgresql",
   "collections": [
     {
@@ -10365,7 +10365,89 @@
           ]
         }
       ],
-      "embeds": [],
+      "embeds": [
+        {
+          "array_path": "accountTaxRel",
+          "shape": "array",
+          "child_table": "account_move_line_account_tax_rel",
+          "child_key": [
+            "account_tax_id",
+            "account_move_line_id"
+          ],
+          "child_fields": [
+            {
+              "source": "account_tax_id",
+              "target": "accountTaxId",
+              "source_type": "INTEGER(32,0)",
+              "bson_type": "int",
+              "rules": []
+            }
+          ],
+          "parent_key_fields": [
+            {
+              "source": "account_move_line_id",
+              "target": "accountMoveLineId",
+              "source_type": "INTEGER(32,0)",
+              "bson_type": "int",
+              "rules": []
+            }
+          ],
+          "parent_key": [
+            "account_move_line_id"
+          ],
+          "parent_ref": [
+            "id"
+          ],
+          "key": {
+            "source": [
+              "account_tax_id"
+            ],
+            "target": "accountTaxId"
+          },
+          "fields": [],
+          "cardinality": "1:N",
+          "cardinality_basis": "derived",
+          "evidence": "junction_array: ap-4125f28dcc,ap-c706fda7da,ap-475de06500",
+          "child_references": [
+            {
+              "column": [
+                "account_tax_id"
+              ],
+              "to": "accountTax",
+              "to_columns": [
+                "id"
+              ],
+              "why": "parent is shared by several tables"
+            }
+          ],
+          "basis_sources": [
+            "ddl",
+            "access"
+          ],
+          "evidence_refs": [
+            {
+              "kind": "data_profile",
+              "ref": "fanout:account_move_line_account_tax_rel->account_move_line(account_move_line_id)"
+            },
+            {
+              "kind": "data_profile",
+              "ref": "embed_bytes:account_move_line_account_tax_rel->account_move_line(account_move_line_id)"
+            },
+            {
+              "kind": "access_pattern",
+              "ref": "ap-4125f28dcc"
+            },
+            {
+              "kind": "access_pattern",
+              "ref": "ap-c706fda7da"
+            },
+            {
+              "kind": "access_pattern",
+              "ref": "ap-475de06500"
+            }
+          ]
+        }
+      ],
       "decision": {
         "shape": "collection",
         "key_strategy": "natural primary key",
@@ -10628,6 +10710,26 @@
           }
         ],
         "open_questions": [
+          {
+            "kind": "extended_reference_candidate",
+            "child_table": "account_move_line_account_tax_rel",
+            "array_path": "accountTaxRel",
+            "lookup_table": "account_tax",
+            "join": {
+              "local": [
+                "account_tax_id"
+              ],
+              "remote": [
+                "id"
+              ]
+            },
+            "access_ids": [
+              "ap-88ec676b2a",
+              "ap-4125f28dcc",
+              "ap-c706fda7da"
+            ],
+            "proposal": "app reads account_tax with every account_move_line_account_tax_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference"
+          },
           {
             "kind": "extended_reference_candidate",
             "child_table": "account_move_line",
@@ -10915,6 +11017,13 @@
             "proposal": "app reads account_tax_repartition_line with every account_move_line: copy up to 5 read fields of account_tax_repartition_line into account_move_line documents (extended reference) or keep the $lookup"
           },
           {
+            "kind": "cascade_into_embed",
+            "child_table": "account_move_line_account_tax_rel",
+            "parent": "account_tax",
+            "holder": "account_move_line",
+            "proposal": "account_move_line_account_tax_rel is embedded in account_move_line, but deleting a account_tax row cascades to its account_move_line_account_tax_rel: the app must pull them from every account_move_line document, or keep account_move_line_account_tax_rel separate"
+          },
+          {
             "kind": "lob",
             "table": "account_move_line",
             "columns": [
@@ -11102,6 +11211,29 @@
             {
               "kind": "access_pattern",
               "ref": "ap-7a016c696d"
+            }
+          ]
+        },
+        {
+          "keys": [
+            [
+              "accountTaxRel.accountTaxId",
+              1
+            ]
+          ],
+          "origin": "access",
+          "evidence": [
+            {
+              "kind": "access_pattern",
+              "ref": "ap-88ec676b2a"
+            },
+            {
+              "kind": "access_pattern",
+              "ref": "ap-abad15d997"
+            },
+            {
+              "kind": "ddl",
+              "ref": "account_move_line_account_tax_account_move_line_id_account__idx"
             }
           ]
         },
@@ -11917,122 +12049,6 @@
             {
               "kind": "ddl",
               "ref": "account_move_line_unreconciled_index"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "collection": "accountMoveLineAccountTaxRel",
-      "root_table": "account_move_line_account_tax_rel",
-      "key": {
-        "source": [
-          "account_tax_id",
-          "account_move_line_id"
-        ],
-        "target": [
-          "accountTaxId",
-          "accountMoveLineId"
-        ]
-      },
-      "fields": [],
-      "embeds": [],
-      "decision": {
-        "shape": "collection",
-        "key_strategy": "natural primary key",
-        "key_fields": [
-          {
-            "source": "account_tax_id",
-            "target": "accountTaxId",
-            "source_type": "INTEGER(32,0)",
-            "bson_type": "int",
-            "rules": []
-          },
-          {
-            "source": "account_move_line_id",
-            "target": "accountMoveLineId",
-            "source_type": "INTEGER(32,0)",
-            "bson_type": "int",
-            "rules": []
-          }
-        ],
-        "natural_keys": [],
-        "references": [
-          {
-            "column": [
-              "account_move_line_id"
-            ],
-            "to": "accountMoveLine",
-            "to_columns": [
-              "id"
-            ],
-            "why": "parent is shared by several tables"
-          },
-          {
-            "column": [
-              "account_tax_id"
-            ],
-            "to": "accountTax",
-            "to_columns": [
-              "id"
-            ],
-            "why": "parent is shared by several tables"
-          }
-        ],
-        "open_questions": []
-      },
-      "indexes": [
-        {
-          "keys": [
-            [
-              "accountTaxId",
-              1
-            ]
-          ],
-          "origin": "reference_fk",
-          "evidence": [
-            {
-              "kind": "access_pattern",
-              "ref": "ap-4125f28dcc"
-            },
-            {
-              "kind": "access_pattern",
-              "ref": "ap-88ec676b2a"
-            },
-            {
-              "kind": "access_pattern",
-              "ref": "ap-abad15d997"
-            },
-            {
-              "kind": "access_pattern",
-              "ref": "ap-c706fda7da"
-            }
-          ]
-        },
-        {
-          "keys": [
-            [
-              "accountMoveLineId",
-              1
-            ],
-            [
-              "accountTaxId",
-              1
-            ]
-          ],
-          "origin": "source_index",
-          "evidence": [
-            {
-              "kind": "access_pattern",
-              "ref": "ap-4125f28dcc"
-            },
-            {
-              "kind": "access_pattern",
-              "ref": "ap-c706fda7da"
-            },
-            {
-              "kind": "ddl",
-              "ref": "account_move_line_account_tax_account_move_line_id_account__idx"
             }
           ]
         }
@@ -51598,7 +51614,7 @@
     }
   ],
   "canonicalization": {
-    "version": "map-draft-2-canon",
+    "version": "map-draft-3-canon",
     "rules": [
       {
         "rule": "decimal_round",
@@ -102924,12 +102940,12 @@
     },
     "data_profile": {
       "path": ".migration/data_profile.json",
-      "sha256": "dbb79a1adf9ef49a0cc8475e67a5bd639c7b9aa530a4c35b49a103a7b5cef4e6",
-      "as_of": "2026-10-22T13:38:38.038237+00:00"
+      "sha256": "59f56433ad724edb37884d412c072a9d90fea5109e08c789bc28fca2c7cebe2a",
+      "as_of": "2026-10-22T15:06:39.536934+00:00"
     },
     "access_patterns": {
       "path": ".migration/access_patterns.json",
-      "sha256": "e42f6afb3a79119b00fd5c222e6e59f4a35b54797ed8eabb4004d95186fcd827"
+      "sha256": "7e6248c457e57c6582863f30b0842671d6a3daf8f562a59671cba8003388a97c"
     },
     "application_evidence": {
       "confirmed_patterns": 2200,
@@ -103535,13 +103551,6 @@
         "columns": [
           "account_id",
           "parent_state"
-        ],
-        "reason": "left prefix of planned index"
-      },
-      {
-        "table": "account_move_line_account_tax_rel",
-        "columns": [
-          "account_move_line_id"
         ],
         "reason": "left prefix of planned index"
       },
