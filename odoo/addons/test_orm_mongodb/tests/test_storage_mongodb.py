@@ -294,6 +294,6 @@ class TestStorageMongodb(TransactionCase):
     @mute_logger('odoo.sql_db')
     def test_unsupported_operations_fail_closed(self):
         with self.assertRaises(NotImplementedError):
-            self.Lock._read_group([], ['company_id'], ['__count'])
+            self.Lock._read_group([], ['company_id.name'], ['__count'])
         with self.assertRaises(NotImplementedError):
             self.Lock.search([], order='display_name')
