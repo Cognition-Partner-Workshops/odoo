@@ -118,6 +118,16 @@ class TestMany2manyMongodb(TransactionCase):
         fob.unlink()
         self.assertEqual(self.junction()[1], sorted(before + [(exw.id, b.id)]))
 
+    def test_link_to_missing_record_fails(self):
+        exw, _fob = self.incoterms
+        tag = self.Tag.create({'name': 'red'})
+        missing = self.links[-1].id + 1000
+        for record, fname in ((tag, 'link_ids'), (exw, 'optional_link_ids')):
+            with self.subTest(fname=fname), self.assertRaises(psycopg2.errors.ForeignKeyViolation):
+                record[fname] = [Command.link(missing)]
+        self.assertFalse(self.doc(tag).get('productTemplateRel'))
+        self.assertNotIn(missing, [dest for _src, dest in self.junction()[1]])
+
     def test_savepoint_rollback_undoes_links(self):
         a, b, _c = self.links
         exw, _fob = self.incoterms

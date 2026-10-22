@@ -1628,9 +1628,13 @@ class Many2many(_RelationalMulti):
         layout = is_real and self.store and storage_mongodb.relation_layout(self, model.env)
         if layout:
             if add_pairs:
-                storage_mongodb.add_links(model.env, layout, [{self.column1: x, self.column2: y} for x, y in add_pairs])
+                links = [{self.column1: x, self.column2: y} for x, y in add_pairs]
+                storage_mongodb.lock_links(self, model.env, layout, links, check=True)
+                storage_mongodb.add_links(model.env, layout, links)
             if remove_pairs:
-                storage_mongodb.remove_links(model.env, layout, [{self.column1: x, self.column2: y} for x, y in remove_pairs])
+                links = [{self.column1: x, self.column2: y} for x, y in remove_pairs]
+                storage_mongodb.lock_links(self, model.env, layout, links, check=False)
+                storage_mongodb.remove_links(model.env, layout, links)
         elif is_real and self.store:
             if add_pairs:
                 cr.execute(SQL(
