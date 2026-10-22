@@ -434,3 +434,17 @@ the application's PostgreSQL (never `odoo_src`, never Atlas), each needing a pla
 ### Plugin findings
 
 None new from this ticket.
+
+## s3.4 accepted-empty (user decision d-accepted-empty: accept-all-7)
+
+`.migration/recon_tolerances.json` `accepted_empty` lists these 7 keys from the signed-off `mapping_spec.json` (map-draft-4). The pinned harness reads bare strings, so each reason is recorded here. It is the build's reason from `.migration/fixtures/expected_empty.txt`. All 7 tables hold 0 rows in `.migration/source_fingerprint.json`.
+
+| accepted_empty key | kind | source table | reason |
+|---|---|---|---|
+| `accountMove.adjustingEntriesAccountMove` | embed | `adjusting_entries__account_move` | links written only by the accrual/deferral adjusting-entry wizard (Enterprise deferrals), not reachable from Community flows |
+| `accountPayment.accountBankStatementLineRel` | embed | `account_payment_account_bank_statement_line_rel` | payments auto-created by the bank reconciliation widget, which is Odoo Enterprise only |
+| `purchaseOrderLine.accrualMoveRel` | embed | `purchase_order_line_accrual_move_rel` | accrued-expense entries from the account.accrued.orders.wizard reversal flow; needs period-end accrual run |
+| `saleOrder.transactionRel` | embed | `sale_order_transaction_rel` | online payment transactions linked to sale orders; needs a configured payment provider |
+| `saleOrderLineAccrualMoveRel` | root | `sale_order_line_accrual_move_rel` | accrued-revenue entries from the account.accrued.orders.wizard reversal flow; needs period-end accrual run |
+| `stockMove.accountAnalyticLineStockMoveRel` | embed | `account_analytic_line_stock_move_rel` | analytic lines from stock valuation of moves with an analytic distribution; only written by the mrp/project stock-analytic flows, which are not installed |
+| `stockMoveLine.consumeRel` | embed | `stock_move_line_consume_rel` | component-consumption traceability, written only by manufacturing (mrp is not installed) |
