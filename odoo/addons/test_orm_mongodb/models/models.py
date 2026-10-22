@@ -12,6 +12,7 @@ class Test_Orm_MongodbIncoterm(models.Model):
     code = fields.Char()
     name = fields.Char(translate=True)
     active = fields.Boolean(default=True)
+    optional_link_ids = fields.Many2many('test_orm_mongodb.pg_link', 'product_optional_rel', 'src_id', 'dest_id')
 
 
 class Test_Orm_MongodbLock_Exception(models.Model):
@@ -72,3 +73,21 @@ class Test_Orm_MongodbPg_Link(models.Model):
     name = fields.Char()
     incoterm_id = fields.Many2one('test_orm_mongodb.incoterm', ondelete='cascade')
     lock_exception_id = fields.Many2one('test_orm_mongodb.lock_exception', ondelete='set null')
+    tag_ids = fields.Many2many('test_orm_mongodb.tag', 'product_tag_product_template_rel',
+                               'product_template_id', 'product_tag_id')
+    optional_incoterm_ids = fields.Many2many('test_orm_mongodb.incoterm', 'product_optional_rel', 'dest_id', 'src_id')
+
+
+class Test_Orm_MongodbTag(models.Model):
+    _name = 'test_orm_mongodb.tag'
+    _description = 'Product tag stored in MongoDB, with junction arrays'
+    _table = 'product_tag'
+    _storage = 'mongodb'
+    _order = 'sequence, id'
+
+    name = fields.Char()
+    sequence = fields.Integer()
+    link_ids = fields.Many2many('test_orm_mongodb.pg_link', 'product_tag_product_template_rel',
+                                'product_tag_id', 'product_template_id')
+    incoterm_ids = fields.Many2many('test_orm_mongodb.incoterm', 'product_tag_product_product_rel',
+                                    'product_tag_id', 'product_product_id', ondelete='restrict')

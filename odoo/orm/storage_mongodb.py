@@ -26,6 +26,7 @@ import logging
 import os
 import re
 import typing
+from collections import defaultdict
 from pathlib import Path
 
 import psycopg2.errors
@@ -131,6 +132,7 @@ def unlink_dependents(records: BaseModel) -> None:
     """ Apply ``ondelete`` of the many2one fields of MongoDB models that
     reference ``records`` through the ORM, so documents follow. PostgreSQL
     foreign keys on shadow columns would only change the shadow rows. """
+    _unlink_links(records)
     for field in _references(records.pool).get(records._name, ()):
         dependents = records.env[field.model_name].sudo().with_context(active_test=False).search(
             [(field.name, 'in', records.ids)])
@@ -143,6 +145,183 @@ def unlink_dependents(records: BaseModel) -> None:
                 f"{records} is still referenced by {field} of {dependents}")
         else:
             dependents.write({field.name: False})
+
+
+# ---------------------------------------------------------------------------
+# many2many relations
+# ---------------------------------------------------------------------------
+
+@functools.cache
+def _spec_relations() -> dict[str, tuple[dict, dict | None]]:
+    """ Return the many2many relation tables of the signed spec, with their
+    collection and their junction array (None for a root junction collection). """
+    relations = {}
+    for coll in _spec_tables().values():
+        if isinstance(coll['key']['target'], list) and not coll['fields']:
+            relations[coll['root_table']] = (coll, None)
+        for embed in coll['embeds']:
+            if not embed['fields'] and len(embed['child_fields']) == 1 and len(embed['parent_key']) == 1:
+                relations[embed['child_table']] = (coll, embed)
+    return relations
+
+
+def relation_layout(field: Field, env) -> dict | None:
+    """ Return how the relation table of the many2many ``field`` is stored in
+    MongoDB, or None if it stays in PostgreSQL. Links are dicts mapping the
+    relation's two columns to record ids. """
+    model, comodel = env[field.model_name], env[field.comodel_name]
+    if 'mongodb' not in (model._storage, comodel._storage):
+        return None
+    if (entry := _spec_relations().get(field.relation)) is None:
+        return None
+    coll, embed = entry
+    columns = {field.column1, field.column2}
+    if embed is None:
+        targets = dict(zip(coll['key']['source'], coll['key']['target'], strict=True))
+        if set(targets) != columns:
+            raise StorageError(f"{field}: columns {sorted(columns)} are not the signed key of {field.relation!r}")
+        return {'collection': coll['collection'], 'targets': targets, 'indexes': coll['indexes']}
+    owner, other = embed['parent_key'][0], embed['child_fields'][0]['source']
+    if {owner, other} != columns:
+        raise StorageError(f"{field}: columns {sorted(columns)} are not the signed columns of {field.relation!r}")
+    owner_model = model if field.column1 == owner else comodel
+    if owner_model._table != coll['root_table']:
+        raise StorageError(f"{field}: {field.relation!r} is embedded in {coll['root_table']!r}, not {owner_model._table!r}")
+    if owner_model._storage != 'mongodb':
+        return None
+    return {
+        'collection': coll['collection'], 'owner': owner, 'other': other,
+        'array': embed['array_path'], 'element': embed['child_fields'][0]['target'],
+    }
+
+
+def _relation_collection(env, layout: dict):
+    return get_database().get_collection(collection_prefix(env.cr.dbname) + layout['collection'])
+
+
+def ensure_relation_indexes(env, layout: dict) -> None:
+    """ Create the indexes of a root junction collection; junction arrays are
+    indexed with their owner collection. """
+    if 'targets' in layout:
+        _create_indexes(_relation_collection(env, layout), layout['indexes'])
+
+
+def find_links(env, layout: dict, column: str, ids: typing.Iterable[int]) -> list[dict]:
+    """ Return the links whose ``column`` is in ``ids``. """
+    collection, ids = _relation_collection(env, layout), list(ids)
+    if 'targets' in layout:
+        targets = layout['targets']
+        projection = dict.fromkeys(targets.values(), 1)
+        return [
+            {col: doc[path] for col, path in targets.items()}
+            for doc in collection.find({targets[column]: {'$in': ids}}, projection)
+        ]
+    owner, array, element = layout['owner'], layout['array'], layout['element']
+    if column == owner:
+        query, wanted = {'_id': {'$in': ids}}, None
+    else:
+        query, wanted = {f'{array}.{element}': {'$in': ids}}, set(ids)
+    return [
+        {owner: doc['_id'], layout['other']: item[element]}
+        for doc in collection.find(query, {array: 1})
+        for item in doc.get(array, ())
+        if wanted is None or item[element] in wanted
+    ]
+
+
+def linked_ids(env, layout: dict, column: str, other: str, other_ids: typing.Iterable[int]) -> list[int]:
+    """ Return the distinct ids in ``column`` of the links whose ``other``
+    column is in ``other_ids``. """
+    collection = _relation_collection(env, layout)
+    if 'targets' in layout:
+        targets = layout['targets']
+        return collection.distinct(targets[column], {targets[other]: {'$in': list(other_ids)}})
+    if column == layout['owner']:
+        return collection.distinct('_id', {f"{layout['array']}.{layout['element']}": {'$in': list(other_ids)}})
+    return list({link[column] for link in find_links(env, layout, other, other_ids)})
+
+
+def _apply_to_arrays(collection, layout: dict, links: list[dict], add: bool) -> None:
+    import pymongo  # noqa: PLC0415
+    array, element = layout['array'], layout['element']
+    others = defaultdict(list)
+    for link in links:
+        others[link[layout['owner']]].append(link[layout['other']])
+    collection.bulk_write([
+        pymongo.UpdateOne({'_id': owner_id}, {'$addToSet': {array: {'$each': [{element: id_} for id_ in ids]}}}
+                          if add else {'$pull': {array: {element: {'$in': ids}}}})
+        for owner_id, ids in others.items()
+    ])
+
+
+def add_links(env, layout: dict, links: list[dict]) -> None:
+    """ Add new links, like the relation table's INSERT. """
+    import pymongo.errors  # noqa: PLC0415
+    from bson import ObjectId  # noqa: PLC0415
+    collection = _relation_collection(env, layout)
+    if 'owner' in layout:
+        env.cr.add_undo(lambda: _apply_to_arrays(collection, layout, links, add=False))
+        _apply_to_arrays(collection, layout, links, add=True)
+        return
+    docs = [{'_id': ObjectId()} | {path: link[col] for col, path in layout['targets'].items()} for link in links]
+    env.cr.add_undo(lambda: collection.delete_many({'_id': {'$in': [doc['_id'] for doc in docs]}}))
+    try:
+        collection.insert_many(docs, ordered=False)
+    except pymongo.errors.BulkWriteError as e:
+        # like ON CONFLICT DO NOTHING on the relation's primary key
+        if any(error['code'] != 11000 for error in e.details['writeErrors']):
+            raise
+
+
+def remove_links(env, layout: dict, links: list[dict]) -> None:
+    """ Remove links, like the relation table's DELETE. """
+    collection = _relation_collection(env, layout)
+    if 'owner' in layout:
+        env.cr.add_undo(lambda: _apply_to_arrays(collection, layout, links, add=True))
+        _apply_to_arrays(collection, layout, links, add=False)
+        return
+    targets = layout['targets']
+    priors = list(collection.find({'$or': [{path: link[col] for col, path in targets.items()} for link in links]}))
+    if priors:
+        env.cr.add_undo(lambda: collection.insert_many(priors))
+        collection.delete_many({'_id': {'$in': [doc['_id'] for doc in priors]}})
+
+
+def _relation_fields(registry) -> list[Field]:
+    """ Return the stored many2many fields whose relation is in the spec. """
+    fields = registry.__dict__.get('_mongodb_relation_fields')
+    if fields is None:
+        relations = _spec_relations()
+        fields = [
+            field
+            for model_cls in registry.models.values()
+            if not model_cls._abstract
+            for field in model_cls._fields.values()
+            if field.type == 'many2many' and field.store and field.relation in relations
+        ]
+        if registry.ready:
+            registry._mongodb_relation_fields = fields
+    return fields
+
+
+def _unlink_links(records: BaseModel) -> None:
+    """ Apply ``ondelete`` to the MongoDB links of ``records``, as the
+    foreign keys of a relation table would. """
+    sides = []
+    for field in _relation_fields(records.pool):
+        for column, model_name, ondelete in (
+            (field.column1, field.model_name, 'cascade'),
+            (field.column2, field.comodel_name, field.ondelete),
+        ):
+            if model_name == records._name and (layout := relation_layout(field, records.env)):
+                if column != layout.get('owner'):   # owner documents are deleted with records
+                    sides.append((ondelete != 'restrict', field, layout, column))
+    for cascade, field, layout, column in sorted(sides, key=lambda side: side[0]):
+        if not (links := find_links(records.env, layout, column, records.ids)):
+            continue
+        if not cascade:
+            raise psycopg2.errors.ForeignKeyViolation(f"{records} is still linked through {field}")
+        remove_links(records.env, layout, links)
 
 
 # ---------------------------------------------------------------------------
@@ -181,8 +360,11 @@ def auto_init(model: BaseModel) -> None:
 def ensure_indexes(model: BaseModel) -> None:
     """ Create the indexes of the signed spec. Unique indexes skip documents
     missing a key, like PostgreSQL unique constraints skip NULLs. """
-    collection = get_collection(model)
-    for index in _layout(model)['indexes']:
+    _create_indexes(get_collection(model), _layout(model)['indexes'])
+
+
+def _create_indexes(collection, indexes: list[dict]) -> None:
+    for index in indexes:
         keys = [(path, direction) for path, direction in index['keys']]
         if keys == [('_id', 1)]:
             continue
@@ -468,6 +650,8 @@ def _condition(model: BaseModel, cond: DomainCondition) -> dict:
     field = cond._field(model)
     model.check_field_access(field, 'read')
 
+    if field.type == 'many2many' and operator in ('any', 'not any', 'any!', 'not any!'):
+        return _many2many_condition(model, field, operator, value, unsupported)
     if operator in ('any', 'not any', 'any!', 'not any!'):
         inverse = None
         if field.name == 'id':
@@ -527,3 +711,28 @@ def _condition(model: BaseModel, cond: DomainCondition) -> dict:
         return {path: {'$not': regex}} if operator.startswith('not') else {path: regex}
 
     raise unsupported
+
+
+def _many2many_condition(model: BaseModel, field: Field, operator: str, value, unsupported) -> dict:
+    from .domains import Domain  # noqa: PLC0415
+    from .query import Query  # noqa: PLC0415
+    if (layout := relation_layout(field, model.env)) is None:
+        raise unsupported
+    comodel = model.env[field.comodel_name].with_context(**field.context)
+    if operator.endswith('!'):
+        comodel = comodel.sudo()
+    if isinstance(value, Query):
+        coids = value.get_result_ids()
+    elif isinstance(value, Domain):
+        owner_side = field.column1 == layout.get('owner')
+        coids = None if owner_side and value.is_true() else comodel._search(value).get_result_ids()
+    else:
+        raise unsupported
+    negate = operator.startswith('not')
+    if field.column1 == layout.get('owner'):
+        if coids is None:   # any link at all, like the relation table's foreign key
+            linked = {f"{layout['array']}.0": {'$exists': True}}
+            return {'$nor': [linked]} if negate else linked
+        return {f"{layout['array']}.{layout['element']}": {'$nin' if negate else '$in': list(coids)}}
+    ids = linked_ids(model.env, layout, field.column1, field.column2, coids)
+    return {'_id': {'$nin' if negate else '$in': ids}}
