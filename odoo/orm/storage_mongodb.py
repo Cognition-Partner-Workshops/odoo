@@ -19,8 +19,10 @@ Environment:
 from __future__ import annotations
 
 import datetime as dt
+import decimal
 import functools
 import hashlib
+import itertools
 import json
 import logging
 import os
@@ -848,7 +850,7 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
     for chunk in map(list, split_every(GROUP_CHUNK, ids)):
         stages = _virtual_stages(_layout(model), chunk) + [{'$group': {'_id': keys or None, **accumulators}}]
         with get_collection(model).aggregate(stages, allowDiskUse=True) as cursor:
-            for group in cursor:
+            for group in map(_native, cursor):
                 gkey = tuple(sorted((group['_id'] or {}).items()))
                 if (prior := groups.get(gkey)) is None:
                     groups[gkey] = group
@@ -882,37 +884,54 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
     return [tuple(row[spec] for spec in groupby + aggregates) for row in rows]
 
 
+def _native(group: dict) -> dict:
+    """ Turn the Decimal128 accumulators of ``group`` into ``decimal.Decimal``,
+    which Python arithmetic can merge across chunks. """
+    from bson.decimal128 import Decimal128  # noqa: PLC0415
+    return {key: value.to_decimal() if isinstance(value, Decimal128) else value for key, value in group.items()}
+
+
 def _regroup(model: BaseModel, groups: dict, dotted: dict[int, str], accumulators: dict) -> dict:
-    """ Replace the many2one ids of the dotted groupby specs by the raw value
-    of their comodel's groupby, like the SQL join would, and merge the groups
-    that end up with the same key. """
+    """ Replace the many2one ids of the dotted groupby specs by the raw values
+    of their comodel's groupby, like the SQL join would: a multi-valued path
+    puts the group in each of its values, then groups with the same key merge. """
     from .models import BaseModel, parse_read_group_spec  # noqa: PLC0415
     mapping = {}
     for i, spec in dotted.items():
         fname, chain, granularity = parse_read_group_spec(spec)
-        comodel = model.env[model._fields[fname].comodel_name].sudo().with_context(active_test=False)
+        field = model._fields[fname]
+        comodel = model.env[field.comodel_name].with_context(active_test=False)
+        if field.compute_sudo or field.delegate:    # Many2one.join skips the comodel's rules
+            comodel_hop = comodel
+            for name in chain.split('.'):
+                cofield = comodel_hop._fields[name]
+                comodel_hop.check_field_access(cofield, 'read')
+                if cofield.relational:
+                    comodel_hop = model.env[cofield.comodel_name]
+            comodel = comodel.sudo()
         ids = {dict(gkey).get(f'g{i}') for gkey in groups} - {None}
         cofield = comodel._fields[chain.split('.')[0]]
-        values = {}
+        values = defaultdict(list)
         for record, value in comodel._read_group([('id', 'in', list(ids))], ['id', f"{chain}:{granularity}" if granularity else chain]):
             if isinstance(value, BaseModel):
                 value = value.id or None
             elif value is False and cofield.type != 'boolean':
                 value = None
-            values[record.id] = value
+            values[record.id].append(value)
         mapping[i] = values
     merged = {}
     for gkey, group in groups.items():
         key = dict(gkey)
-        for i, values in mapping.items():
-            key[f'g{i}'] = values.get(key.get(f'g{i}'))
-        group['_id'] = key
-        if (prior := merged.get(new_key := tuple(sorted(key.items())))) is None:
-            merged[new_key] = group
-            continue
-        for name, accumulator in accumulators.items():
-            (op,) = accumulator
-            prior[name] = _MERGE[op](prior[name], group[name])
+        options = [[(f'g{i}', value) for value in values.get(key.get(f'g{i}')) or [None]]
+                   for i, values in mapping.items()]
+        for combination in itertools.product(*options):
+            new_key = key | dict(combination)
+            if (prior := merged.get(gkey := tuple(sorted(new_key.items())))) is None:
+                merged[gkey] = group | {'_id': new_key}
+                continue
+            for name, accumulator in accumulators.items():
+                (op,) = accumulator
+                prior[name] = _MERGE[op](prior[name], group[name])
     return merged
 
 
@@ -980,6 +999,8 @@ def _plain(field: Field, value):
     from bson.decimal128 import Decimal128  # noqa: PLC0415
     if isinstance(value, Decimal128):
         return float(value.to_decimal())
+    if isinstance(value, decimal.Decimal):
+        return float(value)
     if field.type == 'date' and isinstance(value, dt.datetime):
         return value.date()
     return value
