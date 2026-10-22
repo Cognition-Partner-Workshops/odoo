@@ -140,3 +140,18 @@ class Test_Orm_MongodbFiscalPositionAccount(models.Model):
     position_id = fields.Many2one('test_orm_mongodb.fiscal_position', required=True, ondelete='cascade')
     account_src_id = fields.Integer()
     account_dest_id = fields.Integer()
+
+
+class Test_Orm_MongodbCategory(models.Model):
+    _name = 'test_orm_mongodb.category'
+    _description = 'Category stored in MongoDB, with a parent path and company-dependent fields'
+    _table = 'product_category'
+    _storage = 'mongodb'
+    _parent_store = True
+
+    name = fields.Char(translate=True)
+    parent_id = fields.Many2one('test_orm_mongodb.category', index=True, ondelete='cascade')
+    parent_path = fields.Char(index=True)
+    property_cost_method = fields.Selection([('standard', 'Standard'), ('average', 'Average')], company_dependent=True)
+    property_stock_journal = fields.Many2one('res.partner', company_dependent=True, ondelete='set null')
+    property_account_income_categ_id = fields.Many2one('res.partner', company_dependent=True, ondelete='restrict')

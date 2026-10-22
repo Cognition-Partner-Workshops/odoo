@@ -3763,7 +3763,10 @@ class BaseModel(metaclass=MetaModel):
             for field in many2one_fields:
                 model = self.env[field.model_name]
                 if field.ondelete == 'restrict' and not self.env.context.get('force_delete'):
-                    if res := self.env.execute_query(SQL(
+                    if model._storage == 'mongodb':
+                        res = storage_mongodb.company_dependent_restrict(model, field, sub_ids)
+                    else:
+                        res = self.env.execute_query(SQL(
                         """
                         SELECT id, %(field)s
                         FROM %(table)s
@@ -3775,13 +3778,16 @@ class BaseModel(metaclass=MetaModel):
                         table=SQL.identifier(model._table),
                         field=SQL.identifier(field.name),
                         jsonpath=f"$.* ? ({' || '.join(f'@ == {id_}' for id_ in sub_ids)})",
-                    )):
+                    ))
+                    if res:
                         on_restrict_id, field_json = res[0]
                         to_delete_id = next(iter(id_ for id_ in field_json.values()))
                         on_restrict_record = model.browse(on_restrict_id)
                         to_delete_record = self.browse(to_delete_id)
                         raise UserError(_('You cannot delete %(to_delete_record)s, as it is used by %(on_restrict_record)s',
                                           to_delete_record=to_delete_record, on_restrict_record=on_restrict_record))
+                elif model._storage == 'mongodb':
+                    storage_mongodb.company_dependent_set_null(model, field, sub_ids)
                 else:
                     self.env.execute_query(SQL(
                         """
@@ -4503,7 +4509,7 @@ class BaseModel(metaclass=MetaModel):
         if not self._parent_store:
             return
 
-        updated = self.env.execute_query(SQL(
+        updated = storage_mongodb.parent_store_create(self) if self._storage == 'mongodb' else self.env.execute_query(SQL(
             """ UPDATE %(table)s node
                 SET parent_path=concat((
                         SELECT parent.parent_path
@@ -4539,6 +4545,9 @@ class BaseModel(metaclass=MetaModel):
             return self.browse()
 
         self.flush_recordset([self._parent_name])
+
+        if self._storage == 'mongodb':
+            return self.browse(storage_mongodb.parent_store_changed(self, parent_to_ids))
 
         # return the records for which the parent field will change
         sql_parent = SQL.identifier(self._parent_name)
@@ -4582,7 +4591,7 @@ class BaseModel(metaclass=MetaModel):
             # bounds and scans the table. The range below selects the same rows
             # from the index: parent_path ends with '/' and '0' is the next
             # character, so left(parent_path, -1) || '0' closes the range.
-            updated = dict(self.env.execute_query(SQL(
+            updated = storage_mongodb.parent_store_update(records, prefix) if self._storage == 'mongodb' else dict(self.env.execute_query(SQL(
                 """ UPDATE %(table)s child
                     SET parent_path = concat(%(prefix)s, substr(child.parent_path,
                             length(node.parent_path) - length(node.id || '/') + 1))

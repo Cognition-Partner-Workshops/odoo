@@ -152,7 +152,7 @@ def _references(registry) -> dict[str, list[Field]]:
         for model_cls in registry.models.values():
             if model_cls._storage == 'mongodb' and not model_cls._abstract:
                 for field in model_cls._fields.values():
-                    if field.type == 'many2one' and field.store:
+                    if field.type == 'many2one' and field.store and not field.company_dependent:
                         refs.setdefault(field.comodel_name, []).append(field)
         if registry.ready:
             registry._mongodb_references = refs
@@ -409,11 +409,8 @@ def auto_init(model: BaseModel) -> None:
     """ Create the PostgreSQL shadow table and the MongoDB indexes. """
     if not model._auto or model._abstract:
         raise StorageError(f"{model._name}: MongoDB storage requires a regular stored model")
-    if model._parent_store:
-        raise NotImplementedError(f"{model._name}: _parent_store is not supported on MongoDB storage yet")
-    for field in model._fields.values():
-        if field.store and field.company_dependent:
-            raise NotImplementedError(f"{field}: company-dependent fields are not supported on MongoDB storage yet")
+    if model._parent_store and _layout(model).get('embed'):
+        raise StorageError(f"{model._name}: _parent_store needs a root collection")
     shadow = [model._fields[fname] for fname in model._shadow_columns]
     for field in shadow:
         if not (field.store and field.column_type):
@@ -466,6 +463,8 @@ def _to_bson(bson_type: str, value):
         return Decimal128(str(value))
     if bson_type == 'double':
         return float(value)
+    if bson_type == 'object' and isinstance(value, dict):    # company ids as keys
+        return {str(key): val for key, val in value.items()}
     if bson_type == 'date':
         if not isinstance(value, dt.datetime):
             value = dt.datetime.combine(value, dt.time.min)
@@ -685,7 +684,7 @@ def update(model: BaseModel, ids: list[int], vals_list: list[dict]) -> None:
     priors = _fetch_docs(model, ids)
     if not embed:
         model.env.cr.add_undo(lambda: [collection.replace_one({'_id': doc['_id']}, doc) for doc in priors.values()])
-    ops, changes = [], []
+    ops, changes, fallbacks = [], [], {}
     for id_, vals in zip(ids, vals_list, strict=True):
         to_set, to_unset = {}, {}
         for fname, value in vals.items():
@@ -699,6 +698,14 @@ def update(model: BaseModel, ids: list[int], vals_list: list[dict]) -> None:
                     value = (old or {'en_US': next(iter(translations.values()))}) | translations
                 else:
                     value = translations
+            if field.company_dependent and value is not None:
+                if fname not in fallbacks:
+                    fallbacks[fname] = json.loads(model.env['ir.default']._get_field_column_fallbacks(model._name, fname))
+                old = (priors.get(id_) or {}).get(path) or {}
+                value = {
+                    key: val for key, val in (old | _to_bson('object', value)).items()
+                    if key in fallbacks[fname] and fallbacks[fname][key] != val
+                } or None
             value = _to_bson(layout['types'][fname], value)
             if value is None:
                 to_unset[path] = ''
@@ -737,6 +744,86 @@ def delete(model: BaseModel, ids: typing.Iterable[int]) -> None:
 
 
 # ---------------------------------------------------------------------------
+# parent paths and company-dependent many2ones
+# ---------------------------------------------------------------------------
+
+def parent_store_create(model: BaseModel) -> list[tuple[int, str]]:
+    """ Set the parent_path of new records from their parent's, like
+    ``_parent_store_create``, and return the new paths. """
+    layout = _layout(model)
+    parent, parent_path = layout['paths'][model._parent_name], layout['paths']['parent_path']
+    docs = _fetch_docs(model, list(model._ids), {parent: 1})
+    parents = _fetch_docs(model, list({doc.get(parent) for doc in docs.values()} - {None}), {parent_path: 1})
+    updated = [
+        (id_, (parents.get(doc.get(parent)) or {}).get(parent_path, '') + f'{id_}/')
+        for id_, doc in docs.items()
+    ]
+    if updated:
+        update(model, [id_ for id_, _path in updated], [{'parent_path': path} for _id, path in updated])
+    return updated
+
+
+def parent_store_changed(model: BaseModel, parent_to_ids: dict) -> list[int]:
+    """ Return the ids whose stored parent differs from the new one. """
+    parent = _layout(model)['paths'][model._parent_name]
+    changed = []
+    for parent_id, ids in parent_to_ids.items():
+        docs = _fetch_docs(model, ids, {parent: 1})
+        changed.extend(id_ for id_ in ids if id_ in docs and docs[id_].get(parent) != (parent_id or None))
+    return sorted(changed)
+
+
+def parent_store_update(records: BaseModel, prefix: str) -> dict[int, str]:
+    """ Move ``records`` and their descendants under ``prefix``, like
+    ``_parent_store_update``, and return the new paths. """
+    parent_path = _layout(records)['paths']['parent_path']
+    updated = {}
+    for id_, node in _fetch_docs(records, list(records._ids), {parent_path: 1}).items():
+        if not (old := node.get(parent_path)):
+            continue
+        start = len(old) - len(f'{id_}/')
+        query = {parent_path: {'$gte': old, '$lt': old[:-1] + '0'}}
+        for doc in get_collection(records).find(query, {parent_path: 1}):
+            updated[doc['_id']] = prefix + doc[parent_path][start:]
+    if updated:
+        update(records, list(updated), [{'parent_path': path} for path in updated.values()])
+    return updated
+
+
+def _company_match(model: BaseModel, field: Field, ids) -> dict:
+    path = _layout(model)['paths'][field.name]
+    return {'$expr': {'$anyElementTrue': [{'$map': {
+        'input': {'$objectToArray': {'$ifNull': [f'${path}', {}]}},
+        'in': {'$in': ['$$this.v', list(ids)]},
+    }}]}}
+
+
+def company_dependent_restrict(model: BaseModel, field: Field, ids) -> list[tuple[int, dict]]:
+    """ Return the first record whose company-dependent ``field`` holds one of ``ids``. """
+    path = _layout(model)['paths'][field.name]
+    for doc in get_collection(model).find(_company_match(model, field, ids), {path: 1}).sort('_id', 1):
+        if _alive(model, [doc['_id']]):
+            return [(doc['_id'], doc[path])]
+    return []
+
+
+def company_dependent_set_null(model: BaseModel, field: Field, ids) -> None:
+    """ Clear the company values of ``field`` that hold one of ``ids``. """
+    path, ids = _layout(model)['paths'][field.name], set(ids)
+    collection = get_collection(model)
+    matched = [doc['_id'] for doc in collection.find(_company_match(model, field, ids), {'_id': 1})]
+    if not matched:
+        return
+    model.env.cr.execute(SQL("SELECT id FROM %s WHERE id IN %s FOR UPDATE",
+                             SQL.identifier(model._table), tuple(matched)))
+    priors = list(collection.find({'_id': {'$in': matched}}))
+    model.env.cr.add_undo(lambda: [collection.replace_one({'_id': doc['_id']}, doc) for doc in priors])
+    for doc in priors:
+        values = {key: None if value in ids else value for key, value in (doc.get(path) or {}).items()}
+        collection.update_one({'_id': doc['_id']}, {'$set': {path: values}})
+
+
+# ---------------------------------------------------------------------------
 # reads
 # ---------------------------------------------------------------------------
 
@@ -756,7 +843,12 @@ def fetch(model: BaseModel, query: Query, fields: typing.Iterable[Field]) -> Bas
     fetched = model.browse([id_ for id_ in ids if id_ in docs])
     for field in fields:
         path = layout['paths'][field.name]
-        field._insert_cache(fetched, [_from_bson(field, docs[id_].get(path), model.env) for id_ in fetched._ids])
+        if field.company_dependent:
+            company, fallback = str(model.env.company.id), _company_fallback(model, field)
+            values = [(docs[id_].get(path) or {}).get(company, fallback) for id_ in fetched._ids]
+        else:
+            values = [_from_bson(field, docs[id_].get(path), model.env) for id_ in fetched._ids]
+        field._insert_cache(fetched, values)
     return fetched
 
 
@@ -936,7 +1028,7 @@ def _regroup(model: BaseModel, groups: dict, dotted: dict[int, str], accumulator
 
 
 def _field_expr(model: BaseModel, field: Field):
-    if field.translate is True:
+    if _multi_valued(field):
         return _translated_expr(model, field.name)
     return '$' + _layout(model)['paths'][field.name]
 
@@ -1124,18 +1216,33 @@ def _alive(model: BaseModel, ids: list[int]) -> set[int]:
 def _translated_fields(model, domain, sec_domain, order) -> list[str]:
     names = {cond.field_expr for dom in (domain, sec_domain) for cond in dom.iter_conditions()}
     names.update(part.split()[0] for part in (order or '').split(',') if part.strip())
-    return sorted(n for n in names if n in model._fields and model._fields[n].translate is True)
+    return sorted(n for n in names if n in model._fields and _multi_valued(model._fields[n]))
+
+
+def _multi_valued(field: Field) -> bool:
+    """ Whether the field stores one value per language or per company. """
+    return field.translate is True or field.company_dependent
+
+
+def _company_fallback(model: BaseModel, field: Field):
+    fallback = field.get_company_dependent_fallback(model)
+    return field.convert_to_column(field.convert_to_write(fallback, model), model)
 
 
 def _translated_expr(model: BaseModel, fname: str) -> dict:
+    """ Return the value of a translated field in the current language, or
+    of a company-dependent field in the current company. """
     from .fields_textual import StoredTranslations  # noqa: PLC0415
     field, path = model._fields[fname], _layout(model)['paths'][fname]
+    if field.company_dependent:     # like COALESCE(column->company, fallback)
+        value = f'${path}.{model.env.company.id}'
+        return {'$cond': [{'$eq': [{'$type': value}, 'missing']}, _company_fallback(model, field), value]}
     langs = StoredTranslations.fallback_langs(field.translation_lang(model.env))
     return {'$ifNull': [f'${path}.{lang}' for lang in langs] + [None]}
 
 
 def _path(model: BaseModel, field: Field) -> str:
-    if field.translate is True:
+    if _multi_valued(field):
         return TRANSLATED_PREFIX + field.name
     return _layout(model)['paths'][field.name]
 
@@ -1261,7 +1368,7 @@ def _condition(model: BaseModel, cond: DomainCondition) -> dict:
         condition = {path: {mongo_op: to_value(value)}}
         return {'$or': [condition, {path: None}]} if accept_null else condition
 
-    if operator.endswith('like') and (bson_type == 'string' or field.translate is True):
+    if operator.endswith('like') and (bson_type == 'string' or _multi_valued(field)):
         pattern = str(value) if '=' in operator else f'%{value}%'
         regex = _like_regex(pattern, operator.endswith('ilike'))
         return {path: {'$not': regex}} if operator.startswith('not') else {path: regex}
