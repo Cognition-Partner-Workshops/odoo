@@ -87,6 +87,13 @@ class TestStorageMongodb(TransactionCase):
         self.assertEqual(cr.fetchone()[0], other.id)
         self.assertEqual(self.doc(lock)['companyId'], other.id)
 
+    def test_layout_follows_model_setup(self):
+        # a later module adds fields to the same _fields mapping: the layout must follow
+        Category = self.env['test_orm_mongodb.category']
+        self.registry._mongodb_layouts[Category._name] = (Category._fields, {'paths': {}})
+        self.registry._setup_models__(self.env.cr, [Category._name])
+        self.assertIn('name', storage_mongodb._layout(Category)['paths'])
+
     def test_write_and_unset(self):
         lock = self.Lock.create({'company_id': self.company.id, 'reason': 'a', 'user_id': self.env.uid})
         lock.write({'reason': 'b', 'user_id': False})
