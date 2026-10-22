@@ -5,7 +5,7 @@
  "target_class": "local",
  "source_database": "odoo_src",
  "samples_file": ".migration/rehearsal_samples.json",
- "wall_time_seconds": 8.045,
+ "wall_time_seconds": 7.606,
  "collections": 71,
  "documents": 22647,
  "root_row_count_matches": 71,
@@ -641,7 +641,7 @@
    "max_doc_pct_of_limit": 0.0004,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada3c6800d20690bcef324c"
+    "$oid": "6ada481aa90bf24c40d77427"
    },
    "p50_doc_bytes": 73,
    "indexes_in_spec": 2,
@@ -903,7 +903,7 @@
    "max_doc_pct_of_limit": 0.0005,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada3c6900d20690bcef32de"
+    "$oid": "6ada481aa90bf24c40d774b9"
    },
    "p50_doc_bytes": 87,
    "indexes_in_spec": 2,
@@ -1022,7 +1022,7 @@
    "max_doc_pct_of_limit": 0.0003,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada3c6900d20690bcef3963"
+    "$oid": "6ada481aa90bf24c40d77b3e"
    },
    "p50_doc_bytes": 45,
    "indexes_in_spec": 2,
@@ -1215,7 +1215,7 @@
    "max_doc_pct_of_limit": 0.0006,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada3c6900d20690bcef41fa"
+    "$oid": "6ada481ba90bf24c40d783d5"
    },
    "p50_doc_bytes": 104,
    "indexes_in_spec": 2,
@@ -1262,7 +1262,7 @@
    "max_doc_pct_of_limit": 0.0005,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada3c6a00d20690bcef4395"
+    "$oid": "6ada481ba90bf24c40d78570"
    },
    "p50_doc_bytes": 84,
    "indexes_in_spec": 2,
@@ -1281,7 +1281,7 @@
    "max_doc_pct_of_limit": 0.0005,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada3c6a00d20690bcef4397"
+    "$oid": "6ada481ba90bf24c40d78572"
    },
    "p50_doc_bytes": 80,
    "indexes_in_spec": 2,
@@ -1300,7 +1300,7 @@
    "max_doc_pct_of_limit": 0.0004,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada3c6a00d20690bcef4398"
+    "$oid": "6ada481ba90bf24c40d78573"
    },
    "p50_doc_bytes": 59,
    "indexes_in_spec": 2,
@@ -1474,7 +1474,7 @@
    "max_doc_pct_of_limit": 0.0003,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada3c6a00d20690bcef4479"
+    "$oid": "6ada481ca90bf24c40d78654"
    },
    "p50_doc_bytes": 58,
    "indexes_in_spec": 2,
@@ -1493,7 +1493,7 @@
    "max_doc_pct_of_limit": 0.0004,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada3c6a00d20690bcef45f9"
+    "$oid": "6ada481ca90bf24c40d787d4"
    },
    "p50_doc_bytes": 61,
    "indexes_in_spec": 2,
@@ -2017,7 +2017,7 @@
    "max_doc_pct_of_limit": 0.0004,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada3c6c00d20690bcef4e5e"
+    "$oid": "6ada481da90bf24c40d79039"
    },
    "p50_doc_bytes": 64,
    "indexes_in_spec": 2,

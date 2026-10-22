@@ -15857,8 +15857,13 @@
             {
               "kind": "ddl",
               "ref": "account_reconcile_model_line__account_reconcile_model_line__idx"
+            },
+            {
+              "kind": "decision",
+              "ref": "odoo/orm/fields_relational.py:1381-1385: accountReconcileModelLineAccountTaxRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['accountTaxId', 'accountReconcileModelLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
-          ]
+          ],
+          "unique": true
         }
       ]
     },
@@ -20641,8 +20646,13 @@
             {
               "kind": "ddl",
               "ref": "product_attribute_value_produ_product_template_attribute_li_idx"
+            },
+            {
+              "kind": "decision",
+              "ref": "odoo/orm/fields_relational.py:1381-1385: productAttributeValueProductTemplateAttributeLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productAttributeValueId', 'productTemplateAttributeLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
-          ]
+          ],
+          "unique": true
         }
       ]
     },
@@ -22105,8 +22115,13 @@
             {
               "kind": "ddl",
               "ref": "product_optional_rel_dest_id_src_id_idx"
+            },
+            {
+              "kind": "decision",
+              "ref": "odoo/orm/fields_relational.py:1381-1385: productOptionalRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['srcId', 'destId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
-          ]
+          ],
+          "unique": true
         }
       ]
     },
@@ -26568,8 +26583,13 @@
             {
               "kind": "ddl",
               "ref": "product_template_attribute_ex_excluded_product_template_att_idx"
+            },
+            {
+              "kind": "decision",
+              "ref": "odoo/orm/fields_relational.py:1381-1385: productTemplateAttributeExcludedValueIdsRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateAttributeValueId', 'excludedProductTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
-          ]
+          ],
+          "unique": true
         }
       ]
     },
@@ -27468,8 +27488,13 @@
             {
               "kind": "ddl",
               "ref": "product_template_attribute_va_product_template_attribute_va_idx"
+            },
+            {
+              "kind": "decision",
+              "ref": "odoo/orm/fields_relational.py:1381-1385: productTemplateAttributeValuePurchaseOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['purchaseOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
-          ]
+          ],
+          "unique": true
         }
       ]
     },
@@ -27584,8 +27609,13 @@
             {
               "kind": "ddl",
               "ref": "product_template_attribute_va_product_template_attribute_v_idx1"
+            },
+            {
+              "kind": "decision",
+              "ref": "odoo/orm/fields_relational.py:1381-1385: productTemplateAttributeValueSaleOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
-          ]
+          ],
+          "unique": true
         }
       ]
     },
@@ -27684,8 +27714,13 @@
             {
               "kind": "ddl",
               "ref": "product_template_uom_uom_rel_uom_uom_id_product_template_id_idx"
+            },
+            {
+              "kind": "decision",
+              "ref": "odoo/orm/fields_relational.py:1381-1385: productTemplateUomUomRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateId', 'uomUomId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
-          ]
+          ],
+          "unique": true
         }
       ]
     },
@@ -34055,8 +34090,13 @@
             {
               "kind": "ddl",
               "ref": "sale_order_line_accrual_move_rel_move_id_order_line_id_idx"
+            },
+            {
+              "kind": "decision",
+              "ref": "odoo/orm/fields_relational.py:1381-1385: saleOrderLineAccrualMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['orderLineId', 'moveId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
-          ]
+          ],
+          "unique": true
         }
       ]
     },
@@ -34179,8 +34219,13 @@
             {
               "kind": "ddl",
               "ref": "sale_order_line_invoice_rel_order_line_id_invoice_line_id_idx"
+            },
+            {
+              "kind": "decision",
+              "ref": "odoo/orm/fields_relational.py:1381-1385: saleOrderLineInvoiceRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['invoiceLineId', 'orderLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
-          ]
+          ],
+          "unique": true
         }
       ]
     },
@@ -34287,8 +34332,13 @@
             {
               "kind": "ddl",
               "ref": "sale_order_line_stock_route_r_stock_route_id_sale_order_lin_idx"
+            },
+            {
+              "kind": "decision",
+              "ref": "odoo/orm/fields_relational.py:1381-1385: saleOrderLineStockRouteRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'stockRouteId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
-          ]
+          ],
+          "unique": true
         }
       ]
     },
@@ -50497,8 +50547,13 @@
             {
               "kind": "ddl",
               "ref": "template_attribute_value_stoc_template_attribute_value_id_m_idx"
+            },
+            {
+              "kind": "decision",
+              "ref": "odoo/orm/fields_relational.py:1381-1385: templateAttributeValueStockMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['moveId', 'templateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
-          ]
+          ],
+          "unique": true
         }
       ]
     },
@@ -51542,7 +51597,7 @@
             },
             {
               "kind": "decision",
-              "ref": "access_pattern ap-26e53d5b6c: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own (ap-26e53d5b6c, addons/account/models/product.py:278) and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
+              "ref": "access_pattern ap-1a59b72823: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own, by category (ap-1a59b72823, addons/product/models/product_category.py:57 ProductCategory._compute_product_count _read_group on product.template by categ_id), and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
             }
           ]
         },
@@ -51561,7 +51616,7 @@
             },
             {
               "kind": "decision",
-              "ref": "access_pattern ap-26e53d5b6c: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own (ap-26e53d5b6c, addons/account/models/product.py:278) and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
+              "ref": "access_pattern ap-1a59b72823: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own, by category (ap-1a59b72823, addons/product/models/product_category.py:57 ProductCategory._compute_product_count _read_group on product.template by categ_id), and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
             }
           ]
         },
@@ -51592,7 +51647,7 @@
             },
             {
               "kind": "decision",
-              "ref": "access_pattern ap-26e53d5b6c: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own (ap-26e53d5b6c, addons/account/models/product.py:278) and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
+              "ref": "access_pattern ap-1a59b72823: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own, by category (ap-1a59b72823, addons/product/models/product_category.py:57 ProductCategory._compute_product_count _read_group on product.template by categ_id), and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
             }
           ]
         },
@@ -51615,7 +51670,7 @@
             },
             {
               "kind": "decision",
-              "ref": "access_pattern ap-26e53d5b6c: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own (ap-26e53d5b6c, addons/account/models/product.py:278) and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
+              "ref": "access_pattern ap-1a59b72823: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own, by category (ap-1a59b72823, addons/product/models/product_category.py:57 ProductCategory._compute_product_count _read_group on product.template by categ_id), and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
             }
           ]
         },
@@ -51634,7 +51689,7 @@
             },
             {
               "kind": "decision",
-              "ref": "access_pattern ap-26e53d5b6c: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own (ap-26e53d5b6c, addons/account/models/product.py:278) and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
+              "ref": "access_pattern ap-1a59b72823: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own, by category (ap-1a59b72823, addons/product/models/product_category.py:57 ProductCategory._compute_product_count _read_group on product.template by categ_id), and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
             }
           ]
         },
@@ -51657,7 +51712,7 @@
             },
             {
               "kind": "decision",
-              "ref": "access_pattern ap-26e53d5b6c: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own (ap-26e53d5b6c, addons/account/models/product.py:278) and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
+              "ref": "access_pattern ap-1a59b72823: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own, by category (ap-1a59b72823, addons/product/models/product_category.py:57 ProductCategory._compute_product_count _read_group on product.template by categ_id), and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
             }
           ]
         },
@@ -51676,7 +51731,7 @@
             },
             {
               "kind": "decision",
-              "ref": "access_pattern ap-26e53d5b6c: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own (ap-26e53d5b6c, addons/account/models/product.py:278) and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
+              "ref": "access_pattern ap-1a59b72823: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own, by category (ap-1a59b72823, addons/product/models/product_category.py:57 ProductCategory._compute_product_count _read_group on product.template by categ_id), and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
             }
           ]
         },
@@ -51711,7 +51766,7 @@
             },
             {
               "kind": "decision",
-              "ref": "access_pattern ap-26e53d5b6c: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own (ap-26e53d5b6c, addons/account/models/product.py:278) and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
+              "ref": "access_pattern ap-1a59b72823: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own, by category (ap-1a59b72823, addons/product/models/product_category.py:57 ProductCategory._compute_product_count _read_group on product.template by categ_id), and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
             }
           ]
         },
@@ -51738,7 +51793,7 @@
             },
             {
               "kind": "decision",
-              "ref": "access_pattern ap-26e53d5b6c: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own (ap-26e53d5b6c, addons/account/models/product.py:278) and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
+              "ref": "access_pattern ap-1a59b72823: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own, by category (ap-1a59b72823, addons/product/models/product_category.py:57 ProductCategory._compute_product_count _read_group on product.template by categ_id), and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
             }
           ]
         },
@@ -51765,7 +51820,7 @@
             },
             {
               "kind": "decision",
-              "ref": "access_pattern ap-26e53d5b6c: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own (ap-26e53d5b6c, addons/account/models/product.py:278) and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
+              "ref": "access_pattern ap-1a59b72823: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own, by category (ap-1a59b72823, addons/product/models/product_category.py:57 ProductCategory._compute_product_count _read_group on product.template by categ_id), and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
             }
           ]
         },
@@ -51784,7 +51839,7 @@
             },
             {
               "kind": "decision",
-              "ref": "access_pattern ap-26e53d5b6c: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own (ap-26e53d5b6c, addons/account/models/product.py:278) and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
+              "ref": "access_pattern ap-1a59b72823: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own, by category (ap-1a59b72823, addons/product/models/product_category.py:57 ProductCategory._compute_product_count _read_group on product.template by categ_id), and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
             }
           ]
         }
@@ -70928,7 +70983,7 @@
           },
           {
             "kind": "decision",
-            "ref": "access_pattern ap-26e53d5b6c: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own (ap-26e53d5b6c, addons/account/models/product.py:278) and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
+            "ref": "access_pattern ap-1a59b72823: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own, by category (ap-1a59b72823, addons/product/models/product_category.py:57 ProductCategory._compute_product_count _read_group on product.template by categ_id), and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
           }
         ],
         "measurements": {
@@ -104553,10 +104608,10 @@
         "from": "uomUom",
         "evidence": {
           "kind": "access_pattern",
-          "ref": "ap-26e53d5b6c",
-          "note": "s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own (ap-26e53d5b6c, addons/account/models/product.py:278) and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
+          "ref": "ap-1a59b72823",
+          "note": "s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own, by category (ap-1a59b72823, addons/product/models/product_category.py:57 ProductCategory._compute_product_count _read_group on product.template by categ_id), and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element"
         },
-        "cited": "access_pattern ap-26e53d5b6c: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own (ap-26e53d5b6c, addons/account/models/product.py:278) and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element",
+        "cited": "access_pattern ap-1a59b72823: s3.1 decision on the ticket's product_template-under-uom_uom item: keep product_template as its own collection and reference it from uom_uom. The read_together rule embedded the product catalog under its unit of measure, but data_profile fanout:product_template->uom_uom(uom_id) shows 439 templates over 30 units with 27 units empty, so nearly the whole catalog lands in one 'Units' document (embed_bytes p99 134,823 bytes and it grows with every product); product_template is also read on its own, by category (ap-1a59b72823, addons/product/models/product_category.py:57 ProductCategory._compute_product_count _read_group on product.template by categ_id), and is the target of other tables' FKs (product_product.product_tmpl_id, sale_order_line, purchase_order_line), which cannot point into an array element",
         "status": "PROPOSED"
       },
       {
@@ -104756,6 +104811,248 @@
           "note": "addons/sale/models/sale_order_line.py:367 reads sale_order_line_accrual_move_rel by line id through the ORM; with sale_order_line embedded in saleOrder the link tables cannot nest as arrays (model_proposal.py nested_embed rule), so they keep their own collections"
         },
         "cited": "access_pattern ap-bd6f06c82f: addons/sale/models/sale_order_line.py:367 reads sale_order_line_accrual_move_rel by line id through the ORM; with sale_order_line embedded in saleOrder the link tables cannot nest as arrays (model_proposal.py nested_embed rule), so they keep their own collections",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "index",
+        "collection": "accountReconcileModelLineAccountTaxRel",
+        "keys": [
+          [
+            "accountReconcileModelLineId",
+            1
+          ],
+          [
+            "accountTaxId",
+            1
+          ]
+        ],
+        "unique": true,
+        "evidence": {
+          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+          "note": "accountReconcileModelLineAccountTaxRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['accountTaxId', 'accountReconcileModelLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+        },
+        "cited": "odoo/orm/fields_relational.py:1381-1385: accountReconcileModelLineAccountTaxRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['accountTaxId', 'accountReconcileModelLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "index",
+        "collection": "productAttributeValueProductTemplateAttributeLineRel",
+        "keys": [
+          [
+            "productTemplateAttributeLineId",
+            1
+          ],
+          [
+            "productAttributeValueId",
+            1
+          ]
+        ],
+        "unique": true,
+        "evidence": {
+          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+          "note": "productAttributeValueProductTemplateAttributeLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productAttributeValueId', 'productTemplateAttributeLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+        },
+        "cited": "odoo/orm/fields_relational.py:1381-1385: productAttributeValueProductTemplateAttributeLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productAttributeValueId', 'productTemplateAttributeLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "index",
+        "collection": "productOptionalRel",
+        "keys": [
+          [
+            "destId",
+            1
+          ],
+          [
+            "srcId",
+            1
+          ]
+        ],
+        "unique": true,
+        "evidence": {
+          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+          "note": "productOptionalRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['srcId', 'destId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+        },
+        "cited": "odoo/orm/fields_relational.py:1381-1385: productOptionalRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['srcId', 'destId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "index",
+        "collection": "productTemplateAttributeExcludedValueIdsRel",
+        "keys": [
+          [
+            "excludedProductTemplateAttributeValueId",
+            1
+          ],
+          [
+            "productTemplateAttributeValueId",
+            1
+          ]
+        ],
+        "unique": true,
+        "evidence": {
+          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+          "note": "productTemplateAttributeExcludedValueIdsRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateAttributeValueId', 'excludedProductTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+        },
+        "cited": "odoo/orm/fields_relational.py:1381-1385: productTemplateAttributeExcludedValueIdsRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateAttributeValueId', 'excludedProductTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "index",
+        "collection": "productTemplateAttributeValuePurchaseOrderLineRel",
+        "keys": [
+          [
+            "productTemplateAttributeValueId",
+            1
+          ],
+          [
+            "purchaseOrderLineId",
+            1
+          ]
+        ],
+        "unique": true,
+        "evidence": {
+          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+          "note": "productTemplateAttributeValuePurchaseOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['purchaseOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+        },
+        "cited": "odoo/orm/fields_relational.py:1381-1385: productTemplateAttributeValuePurchaseOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['purchaseOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "index",
+        "collection": "productTemplateAttributeValueSaleOrderLineRel",
+        "keys": [
+          [
+            "productTemplateAttributeValueId",
+            1
+          ],
+          [
+            "saleOrderLineId",
+            1
+          ]
+        ],
+        "unique": true,
+        "evidence": {
+          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+          "note": "productTemplateAttributeValueSaleOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+        },
+        "cited": "odoo/orm/fields_relational.py:1381-1385: productTemplateAttributeValueSaleOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "index",
+        "collection": "productTemplateUomUomRel",
+        "keys": [
+          [
+            "uomUomId",
+            1
+          ],
+          [
+            "productTemplateId",
+            1
+          ]
+        ],
+        "unique": true,
+        "evidence": {
+          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+          "note": "productTemplateUomUomRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateId', 'uomUomId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+        },
+        "cited": "odoo/orm/fields_relational.py:1381-1385: productTemplateUomUomRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateId', 'uomUomId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "index",
+        "collection": "saleOrderLineAccrualMoveRel",
+        "keys": [
+          [
+            "moveId",
+            1
+          ],
+          [
+            "orderLineId",
+            1
+          ]
+        ],
+        "unique": true,
+        "evidence": {
+          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+          "note": "saleOrderLineAccrualMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['orderLineId', 'moveId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+        },
+        "cited": "odoo/orm/fields_relational.py:1381-1385: saleOrderLineAccrualMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['orderLineId', 'moveId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "index",
+        "collection": "saleOrderLineInvoiceRel",
+        "keys": [
+          [
+            "orderLineId",
+            1
+          ],
+          [
+            "invoiceLineId",
+            1
+          ]
+        ],
+        "unique": true,
+        "evidence": {
+          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+          "note": "saleOrderLineInvoiceRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['invoiceLineId', 'orderLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+        },
+        "cited": "odoo/orm/fields_relational.py:1381-1385: saleOrderLineInvoiceRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['invoiceLineId', 'orderLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "index",
+        "collection": "saleOrderLineStockRouteRel",
+        "keys": [
+          [
+            "stockRouteId",
+            1
+          ],
+          [
+            "saleOrderLineId",
+            1
+          ]
+        ],
+        "unique": true,
+        "evidence": {
+          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+          "note": "saleOrderLineStockRouteRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'stockRouteId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+        },
+        "cited": "odoo/orm/fields_relational.py:1381-1385: saleOrderLineStockRouteRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'stockRouteId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "index",
+        "collection": "templateAttributeValueStockMoveRel",
+        "keys": [
+          [
+            "templateAttributeValueId",
+            1
+          ],
+          [
+            "moveId",
+            1
+          ]
+        ],
+        "unique": true,
+        "evidence": {
+          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+          "note": "templateAttributeValueStockMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['moveId', 'templateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+        },
+        "cited": "odoo/orm/fields_relational.py:1381-1385: templateAttributeValueStockMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['moveId', 'templateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
         "status": "PROPOSED"
       },
       {
