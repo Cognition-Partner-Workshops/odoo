@@ -161,6 +161,9 @@ def unlink_dependents(records: BaseModel) -> None:
     """ Apply ``ondelete`` of the many2one fields of MongoDB models that
     reference ``records`` through the ORM, so documents follow. PostgreSQL
     foreign keys on shadow columns would only change the shadow rows. """
+    if records._storage == 'mongodb' and _layout(records).get('embed'):
+        # lock the parents before the shadow rows are deleted, like child writes
+        _lock_parents(records, {prior[0] for prior in _elements(records, records.ids).values()}, check=False)
     _unlink_links(records)
     for field in _references(records.pool).get(records._name, ()):
         dependents = records.env[field.model_name].sudo().with_context(active_test=False).search(
