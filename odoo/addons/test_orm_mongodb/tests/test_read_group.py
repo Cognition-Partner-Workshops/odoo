@@ -60,8 +60,10 @@ class TestReadGroupMongodb(TransactionCase):
                          [(3, 1), (2, 1)])
         self.assertEqual(Value._read_group(self.domain, ['is_custom'], ['__count']), [(False, 2), (True, 2)])
         self.assertEqual([name for name, in Value._read_group(self.domain, ['name'])], ['Blue', 'Green', 'Large', 'Red'])
-        with self.assertRaises(NotImplementedError):
-            Value._read_group(self.domain, ['attribute_id.name'], ['__count'])
+        self.assertEqual(Value._read_group(self.domain, ['attribute_id.name'], ['__count']),
+                         [('Color', 3), ('Size', 1)])     # through the comodel, like a join
+        self.assertEqual(Value._read_group(self.domain, ['attribute_id.sequence'], ['__count'], order='__count'),
+                         [(1, 1), (2, 3)])
 
     def test_date_granularities(self):
         now = self.red.create_date

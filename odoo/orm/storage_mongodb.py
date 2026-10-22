@@ -835,6 +835,8 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
                 for name, accumulator in accumulators.items():
                     (op,) = accumulator
                     prior[name] = _MERGE[op](prior[name], group[name])
+    if dotted := {i: spec for i, spec in enumerate(groupby) if '.' in spec.split(':')[0]}:
+        groups = _regroup(model, groups, dotted, accumulators)
     rows = []
     for group in groups.values():
         key = group['_id'] or {}
@@ -859,6 +861,40 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
     return [tuple(row[spec] for spec in groupby + aggregates) for row in rows]
 
 
+def _regroup(model: BaseModel, groups: dict, dotted: dict[int, str], accumulators: dict) -> dict:
+    """ Replace the many2one ids of the dotted groupby specs by the raw value
+    of their comodel's groupby, like the SQL join would, and merge the groups
+    that end up with the same key. """
+    from .models import BaseModel, parse_read_group_spec  # noqa: PLC0415
+    mapping = {}
+    for i, spec in dotted.items():
+        fname, chain, granularity = parse_read_group_spec(spec)
+        comodel = model.env[model._fields[fname].comodel_name].sudo().with_context(active_test=False)
+        ids = {dict(gkey).get(f'g{i}') for gkey in groups} - {None}
+        cofield = comodel._fields[chain.split('.')[0]]
+        values = {}
+        for record, value in comodel._read_group([('id', 'in', list(ids))], ['id', f"{chain}:{granularity}" if granularity else chain]):
+            if isinstance(value, BaseModel):
+                value = value.id or None
+            elif value is False and cofield.type != 'boolean':
+                value = None
+            values[record.id] = value
+        mapping[i] = values
+    merged = {}
+    for gkey, group in groups.items():
+        key = dict(gkey)
+        for i, values in mapping.items():
+            key[f'g{i}'] = values.get(key.get(f'g{i}'))
+        group['_id'] = key
+        if (prior := merged.get(new_key := tuple(sorted(key.items())))) is None:
+            merged[new_key] = group
+            continue
+        for name, accumulator in accumulators.items():
+            (op,) = accumulator
+            prior[name] = _MERGE[op](prior[name], group[name])
+    return merged
+
+
 def _field_expr(model: BaseModel, field: Field):
     if field.translate is True:
         return _translated_expr(model, field.name)
@@ -872,9 +908,12 @@ def _groupby_expr(model: BaseModel, spec: str):
         raise ValueError(f"Invalid field {fname!r} on model {model._name!r}")
     field = model._fields[fname]
     model.check_field_access(field, 'read')
-    if chain or field.type in ('many2many', 'properties') or not (field.store and field.column_type):
+    if (chain and field.type != 'many2one') or field.type in ('many2many', 'properties') \
+            or not (field.store and field.column_type):
         raise NotImplementedError(f"{model._name}: cannot group by {spec!r} on MongoDB storage yet")
     expr = _field_expr(model, field)
+    if chain:   # grouped by the many2one, then regrouped by the comodel's value
+        return expr
     if field.type in ('date', 'datetime'):
         if not granularity:
             raise ValueError(f"Granularity not set on a date(time) field: {spec!r}")
@@ -928,7 +967,9 @@ def _plain(field: Field, value):
 def _group_value(model: BaseModel, spec: str, value):
     from .models import parse_read_group_spec  # noqa: PLC0415
     from .utils import READ_GROUP_NUMBER_GRANULARITY  # noqa: PLC0415
-    fname, _chain, granularity = parse_read_group_spec(spec)
+    fname, chain, granularity = parse_read_group_spec(spec)
+    if chain:   # already the comodel's raw value
+        return value
     if granularity in READ_GROUP_NUMBER_GRANULARITY:   # date_part() is a double
         return None if value is None else float(value)
     return _plain(model._fields[fname], value)
