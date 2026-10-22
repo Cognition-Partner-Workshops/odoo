@@ -131,7 +131,7 @@ class MockedPsycoConnection(_base_PsycoConnection):
         # queries in the query counts, profiler, etc. Those queries are tests
         # artefacts and should be invisible.
         obj = self._obj
-        self._savepoint = Savepoint(obj)
+        self._savepoint = Savepoint(obj, undo_cursor=self._cursor)
         if self.readonly:
             # this will simulate a readonly connection
             obj.execute('SET TRANSACTION READ ONLY')
