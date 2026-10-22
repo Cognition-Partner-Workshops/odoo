@@ -94,6 +94,8 @@ class Test_Orm_MongodbTag(models.Model):
                                 'product_tag_id', 'product_template_id')
     incoterm_ids = fields.Many2many('test_orm_mongodb.incoterm', 'product_tag_product_product_rel',
                                     'product_tag_id', 'product_product_id', ondelete='restrict')
+    # relation table outside the signed spec, so it stays in PostgreSQL
+    partner_ids = fields.Many2many('res.partner', 'test_orm_mongodb_tag_partner_rel', 'tag_id', 'partner_id')
 
 
 class Test_Orm_MongodbAttribute(models.Model):
