@@ -359,23 +359,27 @@ def search(model: BaseModel, domain, sec_domain, order: str | None, limit, offse
         }})
     pipeline.append({'$match': match})
     pipeline.extend(_sort_stages(model, order))
-    # stream ids in batches and drop documents without a shadow row (no
-    # committed record) before counting them toward offset and limit
-    cursor = get_collection(model).aggregate(pipeline + [{'$project': {'_id': 1}}], batchSize=IN_MAX)
-    skip, ids, orphans = offset or 0, [], []
-    for batch in split_every(IN_MAX, (doc['_id'] for doc in cursor)):
-        alive = _alive(model, batch)
-        orphans.extend(id_ for id_ in batch if id_ not in alive)
-        live = [id_ for id_ in batch if id_ in alive]
-        dropped = min(skip, len(live))
-        skip -= dropped
-        ids.extend(live[dropped:])
-        if limit and len(ids) >= limit:
-            ids = ids[:limit]
+    # read offset + limit ids (a bounded top-k sort), dropping documents
+    # without a shadow row (no committed record) before paging; read further
+    # only when such documents left the page short
+    bound = (offset or 0) + limit if limit else None
+    while True:
+        stages = pipeline + ([{'$limit': bound}] if bound else []) + [{'$project': {'_id': 1}}]
+        read, ids, orphans = 0, [], []
+        with get_collection(model).aggregate(stages, batchSize=IN_MAX) as cursor:
+            for batch in split_every(IN_MAX, (doc['_id'] for doc in cursor)):
+                read += len(batch)
+                alive = _alive(model, batch)
+                orphans.extend(id_ for id_ in batch if id_ not in alive)
+                ids.extend(id_ for id_ in batch if id_ in alive)
+        if not (bound and orphans and read == bound):
             break
-    cursor.close()
+        bound += len(orphans)
     if orphans:
         _logger.warning("%s: MongoDB documents without a shadow row: %s", model._name, orphans)
+    ids = ids[offset or 0:]
+    if limit:
+        ids = ids[:limit]
     return model.browse(ids)._as_query(ordered=bool(order))
 
 
