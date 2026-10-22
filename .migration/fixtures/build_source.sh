@@ -48,17 +48,6 @@ RO_PASSWORD="$("$PY" -c 'import json, os; print(json.loads(os.environ["ODOO_PG_R
 FAKER_VERSION="$("$PY" -c 'import faker; print(faker.VERSION)')" || die "$FAKER_PIN is not installed"
 [ "$FAKER_VERSION" = 22.0.0 ] || die "expected $FAKER_PIN, found faker==$FAKER_VERSION"
 [ -e "$FAKETIME_LIB" ] || die "$FAKETIME_LIB is missing (apt install faketime)"
-FIXTURE_PASSWORD_HASH="$("$PY" - <<'PY'
-from passlib.context import CryptContext
-
-context = CryptContext(
-    ["pbkdf2_sha512", "plaintext"],
-    deprecated=["auto"],
-    pbkdf2_sha512__rounds=600000,
-)
-print(context.hash("unt13-fixture-password", salt=b"UNT13FixtureSalt01"))
-PY
-)" || die "could not create the deterministic fixture password hash"
 
 sudo -n pg_ctlcluster 16 main status >/dev/null 2>&1 || sudo -n pg_ctlcluster 16 main start
 
@@ -242,7 +231,7 @@ done
   echo "normalization: pin create/write timestamps; round all other timestamp columns to nearest hour"
   local_start=$SECONDS
   sql -1 -d "$DB" -v instant="$FIXED_INSTANT" -v marker="$MARKER" \
-    -v version="$MARKER_VERSION" -v password_hash="$FIXTURE_PASSWORD_HASH" <<'SQL'
+    -v version="$MARKER_VERSION" <<'SQL'
 SET LOCAL TIME ZONE 'UTC';
 SET LOCAL app.fixed_instant = :'instant';
 DO $$
@@ -293,7 +282,7 @@ DELETE FROM bus_bus;
 UPDATE ir_config_parameter SET value = md5('odoo_src ' || key)::uuid::text
   WHERE key IN ('database.uuid', 'database.secret');
 UPDATE ir_config_parameter SET value = :'instant' WHERE key = 'database.create_date';
-UPDATE res_users SET password = :'password_hash' WHERE password IS NOT NULL;
+UPDATE res_users SET password = NULL;
 INSERT INTO ir_config_parameter (key, value, create_uid, create_date, write_uid, write_date)
 VALUES (:'marker', :'version', 1, :'instant', 1, :'instant');
 SQL

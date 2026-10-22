@@ -15,6 +15,7 @@ from odoo.tools import BinaryBytes, html_escape
 SEED = int(os.environ.get("POPULATE_SEED", "13013"))
 FIXED_INSTANT = datetime.datetime(2026, 10, 20, 0, 0)
 LOCK_DATE = datetime.date(2026, 10, 19)
+LOCK_EXCEPTION_DATE = datetime.date(2026, 9, 30)
 rng = random.Random(SEED)
 
 
@@ -764,7 +765,7 @@ mto.write({"active": True, "product_selectable": True, "product_categ_selectable
 desk = env["product.template"].create(
     {
         "name": "UNT13 Made-to-order Desk",
-        "categ_id": env["product.category"].search([], order="id", limit=1).id,
+        "categ_id": env["product.category"].create({"name": "UNT13 Made to order"}).id,
         "is_storable": True,
         "list_price": 640.0,
         "standard_price": 410.0,
@@ -855,10 +856,11 @@ env["account.lock_exception"].create(
         "user_id": env.uid,
         "reason": "UNT13 fixture late posting exception",
         "lock_date_field": "sale_lock_date",
-        "lock_date": LOCK_DATE,
+        "lock_date": LOCK_EXCEPTION_DATE,
         "end_datetime": FIXED_INSTANT + datetime.timedelta(days=7),
     }
 )
+assert company.with_user(env.user)._get_user_lock_date("sale_lock_date") == LOCK_EXCEPTION_DATE
 env.flush_all()
 print(
     "seeded mandatory rows:",
