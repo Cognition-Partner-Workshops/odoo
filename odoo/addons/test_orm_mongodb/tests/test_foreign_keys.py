@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import psycopg2.errors
 
 from odoo.orm import storage_mongodb
@@ -71,8 +73,9 @@ class TestReportColumnsMongodb(TransactionCase):
         category.with_context(lang='fr_FR').name = 'Bureau'
         category.with_company(other).property_cost_method = 'standard'
         self.env.flush_all()
-        self.env.cr.execute("ALTER TABLE product_category ADD COLUMN name jsonb, ADD COLUMN property_cost_method jsonb")
-        storage_mongodb.mirror_columns(Category, ['name', 'property_cost_method'])
+        # a report declares the columns it reads; auto_init adds and fills them
+        with patch.object(type(Category), '_shadow_columns', ('name', 'property_cost_method')):
+            storage_mongodb.auto_init(Category)
         self.env.cr.execute("SELECT name, property_cost_method FROM product_category WHERE id = %s", [category.id])
         self.assertEqual(self.env.cr.fetchone(), (
             {'en_US': 'Desk', 'fr_FR': 'Bureau'},
