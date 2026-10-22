@@ -787,6 +787,14 @@ _DATE_PARTS = {
     'day_of_year': '$dayOfYear', 'day_of_month': '$dayOfMonth',
     'hour_number': '$hour', 'minute_number': '$minute',
 }
+GROUP_CHUNK = 100_000      # ids per aggregation, far below the 16 MB command limit
+_MERGE = {
+    '$sum': lambda a, b: a + b,
+    '$min': lambda a, b: b if a is None else a if b is None else min(a, b),
+    '$max': lambda a, b: b if a is None else a if b is None else max(a, b),
+    '$push': lambda a, b: a + b,
+    '$addToSet': lambda a, b: a + [item for item in b if item not in a],
+}
 _WEEKDAYS = ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')
 
 
@@ -814,13 +822,24 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
         accumulators.update(accumulator)
 
     ids = list(model._search(domain).get_result_ids())
-    stages = _virtual_stages(_layout(model), ids) + [{'$group': {'_id': keys or None, **accumulators}}]
+    # aggregate the ids by chunks, and merge the partial groups
+    groups = {}
+    for chunk in map(list, split_every(GROUP_CHUNK, ids)):
+        stages = _virtual_stages(_layout(model), chunk) + [{'$group': {'_id': keys or None, **accumulators}}]
+        with get_collection(model).aggregate(stages, allowDiskUse=True) as cursor:
+            for group in cursor:
+                gkey = tuple(sorted((group['_id'] or {}).items()))
+                if (prior := groups.get(gkey)) is None:
+                    groups[gkey] = group
+                    continue
+                for name, accumulator in accumulators.items():
+                    (op,) = accumulator
+                    prior[name] = _MERGE[op](prior[name], group[name])
     rows = []
-    with get_collection(model).aggregate(stages, allowDiskUse=True) as cursor:
-        for group in cursor:
-            key = group['_id'] or {}
-            row = {spec: _group_value(model, spec, key.get(f'g{i}')) for i, spec in enumerate(groupby)}
-            rows.append(row | {spec: get(group) for spec, get in getters.items()})
+    for group in groups.values():
+        key = group['_id'] or {}
+        row = {spec: _group_value(model, spec, key.get(f'g{i}')) for i, spec in enumerate(groupby)}
+        rows.append(row | {spec: get(group) for spec, get in getters.items()})
     if not groupby:     # like SQL, an aggregate without groups returns one row
         if not ids:     # unpaged, like _read_group on an empty query
             return [(None,) * len(aggregates)]
@@ -938,9 +957,12 @@ def _aggregate(model: BaseModel, spec: str, key: str) -> tuple[dict, typing.Call
     value = {'$ifNull': [expr, None]}
     present = {'$sum': {'$cond': [{'$eq': [value, None]}, 0, 1]}}
     match func:
-        case 'sum' | 'avg' | 'max' | 'min':     # NULL when no value, like SQL
+        case 'sum' | 'max' | 'min':     # NULL when no value, like SQL
             return ({key: {f'${func}': expr}, f'{key}_n': present},
                     lambda group: _plain(field, group[key]) if group[f'{key}_n'] else None)
+        case 'avg':     # sum / count, so that partial groups merge
+            return ({key: {'$sum': expr}, f'{key}_n': present},
+                    lambda group: _plain(field, group[key]) / group[f'{key}_n'] if group[f'{key}_n'] else None)
         case 'bool_and' | 'bool_or':
             return {key: {'$min' if func == 'bool_and' else '$max': expr}}, lambda group: group[key]
         case 'count':

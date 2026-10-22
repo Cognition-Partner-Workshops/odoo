@@ -2,6 +2,8 @@ import datetime as dt
 
 import pytz
 
+from unittest.mock import patch
+
 from odoo import Command
 from odoo.tests import TransactionCase, tagged
 
@@ -79,3 +81,11 @@ class TestReadGroupMongodb(TransactionCase):
         rows = [{term: float(dow)} for dow in range(7)]     # date_part('dow'): 0 is Sunday
         rank = storage_mongodb._group_rank(self.Value, term, rows, traverse_many2one=False)
         self.assertEqual([row[term] for row in sorted(rows, key=rank)], [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 0.0])
+
+    def test_chunked_aggregation_merges_groups(self):
+        from odoo.orm import storage_mongodb  # noqa: PLC0415
+        specs = ['__count', 'sequence:sum', 'sequence:max', 'default_extra_price:avg', 'html_color:count_distinct',
+                 'id:recordset', 'sequence:array_agg', 'is_custom:bool_and']
+        expected = self.Value._read_group(self.domain, ['attribute_id'], specs)
+        with patch.object(storage_mongodb, 'GROUP_CHUNK', 1):
+            self.assertEqual(self.Value._read_group(self.domain, ['attribute_id'], specs), expected)
