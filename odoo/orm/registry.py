@@ -905,6 +905,7 @@ class Registry(Mapping[str, type["BaseModel"]]):
             if Model._auto and not Model._abstract
             for field in Model._fields.values()
             if field.column_type and field.store
+            if Model._storage != 'mongodb' or field.name in Model._shadow_columns
         ]
         if not expected:
             return
