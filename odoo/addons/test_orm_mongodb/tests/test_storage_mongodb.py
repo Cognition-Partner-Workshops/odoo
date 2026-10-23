@@ -8,9 +8,10 @@ import psycopg2.errors
 from bson.decimal128 import Decimal128
 
 from odoo import Command
+from odoo.fields import Domain
 from odoo.orm import storage_mongodb
 from odoo.tests import TransactionCase, tagged
-from odoo.tools import mute_logger, sql
+from odoo.tools import SQL, mute_logger, sql
 
 
 def setUpModule():
@@ -227,6 +228,13 @@ class TestStorageMongodb(TransactionCase):
         self.assertEqual(codes, ['FOB'])
 
     # -- PostgreSQL models joining MongoDB models -----------------------------
+
+    def test_custom_sql_domain(self):
+        Tag = self.env['test_orm_mongodb.tag']
+        tags = Tag.create([{'name': f'Custom {i}'} for i in range(4)])
+        even = Domain.custom(to_sql=lambda table: SQL("%s %% 2 = 0", table.id))
+        self.assertEqual(Tag.search(Domain('id', 'in', tags.ids) & even), tags.filtered(lambda t: t.id % 2 == 0))
+        self.assertEqual(Tag.search(Domain('id', 'in', tags.ids) & ~even), tags.filtered(lambda t: t.id % 2))
 
     def test_postgresql_model_joins_through_shadow_table(self):
         incoterm = self.Incoterm.create({'code': 'CIF'})
