@@ -144,6 +144,20 @@ class TestStorageMongodb(TransactionCase):
         self.assertFalse(capacity.exists(), "ondelete=cascade of a many2one stored in MongoDB")
         self.assertIsNone(self.doc(capacity))
 
+    def test_unlink_set_null_is_flushed(self):
+        Template = self.env['test_orm_mongodb.template']
+        Variant = self.env['test_orm_mongodb.variant']
+        template = Template.create({'name': 'Gone'})
+        variant = Variant.create({'product_tmpl_id': template.id, 'default_code': 'V'})
+        field = Variant._fields['product_tmpl_id']
+        self.patch(field, 'ondelete', 'set null')
+        self.patch(field, 'required', False)
+        template.unlink()
+        self.env.flush_all()
+        variant.invalidate_recordset()
+        self.assertFalse(variant.product_tmpl_id)
+        self.assertEqual(variant.default_code, 'V')
+
     def test_cascade_from_shadow_column_removes_documents(self):
         other = self.env['res.company'].create({'name': 'Doomed'})
         lock = self.Lock.create({'company_id': other.id})

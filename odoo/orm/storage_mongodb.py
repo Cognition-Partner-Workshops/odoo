@@ -179,6 +179,8 @@ def unlink_dependents(records: BaseModel) -> None:
                 f"{records} is still referenced by {field} of {dependents}")
         else:
             dependents.write({field.name: False})
+            # the cache, dirty values included, is invalidated after the delete
+            dependents.flush_recordset()
 
 
 # ---------------------------------------------------------------------------
