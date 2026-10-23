@@ -208,9 +208,12 @@ def unlink_dependents(records: BaseModel) -> None:
             raise psycopg2.errors.ForeignKeyViolation(
                 f"{records} is still referenced by {field} of {dependents}")
         else:
-            dependents.write({field.name: False})
-            # the cache, dirty values included, is invalidated after the delete
-            dependents.flush_recordset()
+            # like PostgreSQL's foreign key: no write() overrides, no access log
+            update(dependents, list(dependents._ids), [{field.name: None}] * len(dependents))
+            if field.name in dependents._shadow_columns:
+                records.env.cr.execute(SQL("UPDATE %s SET %s = NULL WHERE id IN %s", SQL.identifier(
+                    dependents._table), SQL.identifier(field.name), tuple(dependents._ids)))
+            dependents.invalidate_recordset([field.name], flush=False)
     for field in _pg_cascades(records.env).get(records._name, ()):
         # PostgreSQL deletes these through its foreign key, without the ORM
         if dependents := records.env[field.model_name].sudo().with_context(active_test=False).search(
