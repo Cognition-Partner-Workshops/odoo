@@ -1645,8 +1645,12 @@ def _condition(model: BaseModel, cond: DomainCondition) -> dict:
 
     if operator in ('in', 'not in'):
         values = [to_value(v) for v in value]
-        if None in values and (falsy := field.falsy_value) is not None:
-            values.append(to_value(falsy))
+        # like PostgreSQL: NULL and the field's falsy value match each other
+        if (falsy := field.falsy_value) is not None:
+            if None in values:
+                values.append(to_value(falsy))
+            elif to_value(falsy) in values:
+                values.append(None)
         if field.type == 'boolean' and False in values:
             values.append(None)     # a NULL boolean reads as False
         return {path: {'$in' if operator == 'in' else '$nin': values}}
