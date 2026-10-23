@@ -1063,6 +1063,14 @@ def company_dependent_restrict(model: BaseModel, field: Field, ids) -> list[tupl
     return []
 
 
+def company_dependent_holders(model: BaseModel, field: Field, value) -> list[int]:
+    """ Return the records storing ``value`` as their own value of ``field``
+    for the current company, ignoring the ``ir.default`` fallback. """
+    path = _layout(model)['paths'][field.name]
+    ids = [doc['_id'] for doc in get_collection(model).find({f'{path}.{model.env.company.id}': value}, {'_id': 1})]
+    return sorted(_alive(model, ids))
+
+
 def company_dependent_set_null(model: BaseModel, field: Field, ids) -> None:
     """ Clear the company values of ``field`` that hold one of ``ids``. """
     path, ids = _layout(model)['paths'][field.name], set(ids)

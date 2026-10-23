@@ -8,6 +8,7 @@ import psycopg2.errors
 from bson.decimal128 import Decimal128
 
 from odoo import Command
+from odoo.exceptions import UserError
 from odoo.fields import Domain
 from odoo.orm import storage_mongodb
 from odoo.tests import TransactionCase, tagged
@@ -210,6 +211,60 @@ class TestStorageMongodb(TransactionCase):
         other.unlink()
         self.assertIsNone(self.doc(lock))
         self.assertFalse(self.Lock.with_context(active_test=False).search([('id', '=', lock.id)]))
+
+    def test_selection_records_are_read_from_documents(self):
+        lock = self.Lock.create({'company_id': self.company.id, 'lock_date_field': 'tax_lock_date'})
+        selection = self.env['ir.model.fields.selection'].search([
+            ('field_id.model', '=', self.Lock._name), ('field_id.name', '=', 'lock_date_field'),
+            ('value', '=', 'tax_lock_date'),
+        ])
+        self.assertEqual(selection._get_records(), lock)
+
+    def test_selection_records_ignore_company_fallback(self):
+        Category = self.env['test_orm_mongodb.category']
+        explicit = Category.create({'name': 'Explicit', 'property_cost_method': 'average'})
+        self.env['ir.default'].set(Category._name, 'property_cost_method', 'average', company_id=self.env.company.id)
+        Category.create({'name': 'Fallback'})
+        selection = self.env['ir.model.fields.selection'].search([
+            ('field_id.model', '=', Category._name), ('field_id.name', '=', 'property_cost_method'),
+            ('value', '=', 'average'),
+        ])
+        self.assertEqual(selection._get_records(), explicit)
+
+    def test_selection_ondelete_bypasses_failing_write(self):
+        lock = self.Lock.create({'company_id': self.company.id, 'lock_date_field': 'tax_lock_date'})
+        selection = self.env['ir.model.fields.selection'].search([
+            ('field_id.model', '=', self.Lock._name), ('field_id.name', '=', 'lock_date_field'),
+            ('value', '=', 'tax_lock_date'),
+        ])
+        field = self.Lock._fields['lock_date_field']
+        with patch.object(field, 'ondelete', {'tax_lock_date': 'set null'}), \
+                patch.object(type(self.Lock), 'write', side_effect=UserError("write() refused")):
+            selection._process_ondelete()
+        lock.invalidate_recordset()
+        self.assertFalse(lock.lock_date_field)
+
+    def test_selection_ondelete_bypass_keeps_other_companies(self):
+        Category = self.env['test_orm_mongodb.category']
+        other = self.env['res.company'].create({'name': 'Other company'})
+        category = Category.create({'name': 'Both', 'property_cost_method': 'average'})
+        category.with_company(other).property_cost_method = 'standard'
+        selection = self.env['ir.model.fields.selection'].search([
+            ('field_id.model', '=', Category._name), ('field_id.name', '=', 'property_cost_method'),
+            ('value', '=', 'average'),
+        ])
+        field = Category._fields['property_cost_method']
+        # also mirrored in PostgreSQL, like a column a report reads
+        self.env.cr.execute(f'ALTER TABLE "{Category._table}" ADD COLUMN property_cost_method jsonb')
+        with patch.object(field, 'ondelete', {'average': 'set null'}), \
+                patch.object(type(Category), '_shadow_columns', ('property_cost_method',)), \
+                patch.object(type(Category), 'write', side_effect=UserError("write() refused")):
+            selection._process_ondelete()
+        category.invalidate_recordset()
+        self.assertFalse(category.property_cost_method)
+        self.assertEqual(category.with_company(other).property_cost_method, 'standard')
+        self.env.cr.execute(f'SELECT property_cost_method FROM "{Category._table}" WHERE id = %s', [category.id])
+        self.assertNotIn(str(self.env.company.id), self.env.cr.fetchone()[0] or {})
 
     def test_cascade_skips_unlink_overrides(self):
         template = self.env['test_orm_mongodb.template'].create({'name': 'Desk'})
