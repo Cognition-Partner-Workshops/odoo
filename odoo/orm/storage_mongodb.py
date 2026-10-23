@@ -1048,7 +1048,9 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
         if not (match := regex_order_part_read_group.fullmatch(part)):
             raise ValueError(f"Invalid order {order!r} for _read_group()")
         terms.append((match['term'], (match['direction'] or 'ASC').upper(), (match['nulls'] or '').upper()))
-    keys = {f'g{i}': _groupby_expr(model, spec) for i, spec in enumerate(groupby)}
+    paths = [_related_spec(model, spec) for spec in groupby]
+    sudo = {i for i, spec in enumerate(groupby) if paths[i] != spec and _spec_field(model, spec).compute_sudo}
+    keys = {f'g{i}': _groupby_expr(model.sudo() if i in sudo else model, path) for i, path in enumerate(paths)}
     extra = [term for term, _dir, _nulls in terms if term not in groupby] if groupby else []
     extra += [item[0] for item in having if isinstance(item, (list, tuple))] if groupby else []
     accumulators, getters = {}, {}
@@ -1070,12 +1072,12 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
                 for name, accumulator in accumulators.items():
                     (op,) = accumulator
                     prior[name] = _MERGE[op](prior[name], group[name])
-    if dotted := {i: spec for i, spec in enumerate(groupby) if '.' in spec.split(':')[0]}:
-        groups = _regroup(model, groups, dotted, accumulators)
+    if dotted := {i: path for i, path in enumerate(paths) if '.' in path.split(':')[0]}:
+        groups = _regroup(model, groups, dotted, accumulators, sudo)
     rows = []
     for group in groups.values():
         key = group['_id'] or {}
-        row = {spec: _group_value(model, spec, key.get(f'g{i}')) for i, spec in enumerate(groupby)}
+        row = {spec: _group_value(model, paths[i], key.get(f'g{i}')) for i, spec in enumerate(groupby)}
         rows.append(row | {spec: get(group) for spec, get in getters.items()})
     if not groupby:     # like SQL, an aggregate without groups returns one row
         if not ids:     # unpaged, like _read_group on an empty query
@@ -1110,17 +1112,39 @@ def _native(group: dict) -> dict:
     return group
 
 
-def _regroup(model: BaseModel, groups: dict, dotted: dict[int, str], accumulators: dict) -> dict:
+def _spec_field(model: BaseModel, spec: str) -> Field | None:
+    from .models import parse_read_group_spec  # noqa: PLC0415
+    return model._fields.get(parse_read_group_spec(spec)[0])
+
+
+def _related_spec(model: BaseModel, spec: str) -> str:
+    """ Return the groupby ``spec`` of a non-stored related field as the path
+    it follows, which is what its SQL expression joins. """
+    from .models import parse_read_group_spec  # noqa: PLC0415
+    fname, chain, granularity = parse_read_group_spec(spec)
+    field = model._fields.get(fname)
+    if not (field and field.related and not field.store):
+        return spec
+    model.check_field_access(field, 'read')
+    path = '.'.join(filter(None, [field.related, chain]))
+    return f"{path}:{granularity}" if granularity else path
+
+
+def _regroup(model: BaseModel, groups: dict, dotted: dict[int, str], accumulators: dict, sudo: set[int] = frozenset()) -> dict:
     """ Replace the many2one ids of the dotted groupby specs by the raw values
     of their comodel's groupby, like the SQL join would: a multi-valued path
-    puts the group in each of its values, then groups with the same key merge. """
+    puts the group in each of its values, then groups with the same key merge.
+    The specs at the indexes in ``sudo`` follow a related field read as
+    superuser. """
     from .models import BaseModel, parse_read_group_spec  # noqa: PLC0415
     mapping = {}
     for i, spec in dotted.items():
         fname, chain, granularity = parse_read_group_spec(spec)
         field = model._fields[fname]
         comodel = model.env[field.comodel_name].with_context(active_test=False)
-        if field.compute_sudo or field.delegate:    # Many2one.join skips the comodel's rules
+        if i in sudo:
+            comodel = comodel.sudo()
+        elif field.compute_sudo or field.delegate:    # Many2one.join skips the comodel's rules
             comodel_hop = comodel
             for name in chain.split('.'):
                 cofield = comodel_hop._fields[name]

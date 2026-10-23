@@ -115,6 +115,31 @@ class TestReadGroupMongodb(TransactionCase):
         self.assertEqual((rows[group_a], rows[group_b]), (2, 1))    # each user counts in every group
         self.assertEqual(rows[self.env['res.groups']], 1)          # no user: the outer join's null group
 
+    def test_groupby_related_field(self):
+        # a non-stored related field groups by the path it follows, as superuser
+        Category = self.env['test_orm_mongodb.storage_category']
+        Capacity = self.env['test_orm_mongodb.storage_capacity']
+        other = self.env['res.company'].create({'name': 'Other'})
+        here, there, nowhere = Category.create([
+            {'name': 'Here', 'company_id': self.env.company.id},
+            {'name': 'There', 'company_id': other.id},
+            {'name': 'Nowhere'},
+        ])
+        capacities = Capacity.create([
+            {'storage_category_id': category.id, 'quantity': quantity}
+            for category, quantity in [(here, 1), (here, 2), (there, 4), (nowhere, 8)]
+        ])
+        rows = Capacity._read_group([('id', 'in', capacities.ids)], ['company_id'], ['__count', 'quantity:sum'])
+        self.assertEqual(sorted(rows, key=lambda row: row[0].id or 0), [
+            (self.env['res.company'], 1, 8),
+            (self.env.company, 2, 3),
+            (other, 1, 4),
+        ])
+        user = new_test_user(self.env, 'capacity', groups='base.group_user')
+        self.patch(Category._fields['company_id'], 'groups', 'base.group_system')
+        rows = Capacity.with_user(user)._read_group([('id', 'in', capacities.ids)], ['company_id'], ['__count'])
+        self.assertEqual(dict(rows)[other], 1)
+
     def test_dotted_groupby_checks_field_access(self):
         Lock = self.env['test_orm_mongodb.lock_exception']
         user = new_test_user(self.env, 'basic', groups='base.group_user')
