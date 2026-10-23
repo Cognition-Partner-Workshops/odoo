@@ -326,9 +326,12 @@ def fill_relation_mirror(field: Field, env, layout: dict) -> None:
     """ Copy every MongoDB link of ``field`` into its PostgreSQL mirror, which
     writes keep current from then on. """
     table, col1, col2 = (SQL.identifier(name) for name in (field.relation, field.column1, field.column2))
+    pairs = _all_links(env, layout, field.column1, field.column2)
     env.cr.execute(SQL("DELETE FROM %s", table))
-    env.cr.execute(SQL("INSERT INTO %s (%s, %s) SELECT * FROM %s AS links",
-                       table, col1, col2, links_sql(env, layout, field.column1, field.column2)))
+    if pairs:
+        # two array parameters, whatever the number of links
+        env.cr.execute(SQL("INSERT INTO %s (%s, %s) SELECT * FROM UNNEST(%s::int4[], %s::int4[])",
+                           table, col1, col2, [a for a, _ in pairs], [b for _, b in pairs]))
 
 
 def relation_mirror_diff(field: Field, env) -> tuple[set, set]:
