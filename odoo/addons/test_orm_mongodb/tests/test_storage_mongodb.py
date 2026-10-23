@@ -244,6 +244,23 @@ class TestStorageMongodb(TransactionCase):
         lock.invalidate_recordset()
         self.assertFalse(lock.lock_date_field)
 
+    def test_selection_ondelete_bypass_keeps_other_companies(self):
+        Category = self.env['test_orm_mongodb.category']
+        other = self.env['res.company'].create({'name': 'Other company'})
+        category = Category.create({'name': 'Both', 'property_cost_method': 'average'})
+        category.with_company(other).property_cost_method = 'standard'
+        selection = self.env['ir.model.fields.selection'].search([
+            ('field_id.model', '=', Category._name), ('field_id.name', '=', 'property_cost_method'),
+            ('value', '=', 'average'),
+        ])
+        field = Category._fields['property_cost_method']
+        with patch.object(field, 'ondelete', {'average': 'set null'}), \
+                patch.object(type(Category), 'write', side_effect=UserError("write() refused")):
+            selection._process_ondelete()
+        category.invalidate_recordset()
+        self.assertFalse(category.property_cost_method)
+        self.assertEqual(category.with_company(other).property_cost_method, 'standard')
+
     def test_cascade_skips_unlink_overrides(self):
         template = self.env['test_orm_mongodb.template'].create({'name': 'Desk'})
         Variant = self.env['test_orm_mongodb.variant']

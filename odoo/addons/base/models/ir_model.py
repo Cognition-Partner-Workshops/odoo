@@ -1994,8 +1994,13 @@ class IrModelFieldsSelection(models.Model):
                 # if this fails then we're shit out of luck and there's nothing
                 # we can do except fix on a case-by-case basis
                 if records._storage == 'mongodb':
-                    # the shadow rows have no such column: write the documents
-                    records._write_multi([{fname: field.convert_to_column_insert(value, record)} for record in records])
+                    # the shadow rows have no such column: write the documents,
+                    # and only the current company's value of a company-dependent field
+                    def column(record):
+                        if field.company_dependent:
+                            return {str(record.env.company.id): field.convert_to_column(value, record)}
+                        return field.convert_to_column_insert(value, record)
+                    records._write_multi([{fname: column(record)} for record in records])
                 else:
                     self.env.execute_query(SQL(
                         "UPDATE %s SET %s=%s WHERE id IN %s",
