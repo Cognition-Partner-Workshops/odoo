@@ -1009,9 +1009,19 @@ def fetch(model: BaseModel, query: Query, fields: typing.Iterable[Field]) -> Bas
     return fetched
 
 
+def _search_fnames(model: BaseModel, order: str | None, *domains) -> set[str]:
+    """ Return the fields of ``model`` that ``domains`` and ``order`` read,
+    which a search flushes first, as PostgreSQL flushes those of its query. """
+    fnames = {cond.field_expr.split('.')[0] for domain in domains for cond in domain.iter_conditions()}
+    for term in (order or model._order or '').split(','):
+        if term := term.strip():
+            fnames.add(term.split()[0].split('.')[0].split(':')[0])
+    return {fname for fname in fnames if fname in model._fields}
+
+
 def search(model: BaseModel, domain, sec_domain, order: str | None, limit, offset) -> Query:
     """ Back end of ``_search`` once ``domain`` is fully optimized. """
-    model.flush_model()
+    model.flush_model(_search_fnames(model, order, domain, sec_domain))
     match = to_filter(model, domain)
     if not sec_domain.is_true():
         self_sudo = model.sudo().with_context(active_test=False)

@@ -145,6 +145,18 @@ class TestStorageMongodb(TransactionCase):
         self.assertFalse(capacity.exists(), "ondelete=cascade of a many2one stored in MongoDB")
         self.assertIsNone(self.doc(capacity))
 
+    def test_search_flushes_only_fields_it_reads(self):
+        Tag = self.env['test_orm_mongodb.tag']
+        tag = Tag.create({'name': 'Flushed', 'sequence': 1})
+        tag.flush_recordset()
+        tag.sequence = 2
+        # like PostgreSQL, a dirty field the search does not read stays dirty,
+        # even with its cached value invalidated
+        Tag._invalidate_cache(['sequence'])
+        self.assertEqual(Tag.search([('name', '=', 'Flushed')], order='id'), tag)
+        tag.sequence = 2
+        self.assertEqual(Tag.search([('sequence', '=', 2)], order='id'), tag)
+
     def test_unlink_set_null_is_flushed(self):
         Template = self.env['test_orm_mongodb.template']
         Variant = self.env['test_orm_mongodb.variant']
