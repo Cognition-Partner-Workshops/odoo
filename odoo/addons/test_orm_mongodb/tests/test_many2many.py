@@ -95,6 +95,18 @@ class TestMany2manyMongodb(TransactionCase):
         self.assertEqual(Tag.search(tags + [('partner_ids', 'not in', partner.ids)]), unlinked)
         self.assertEqual(Tag.search(tags + [('partner_ids.name', '=', 'Linked partner')]), linked)
 
+    def test_postgresql_cascade_follows_mongodb_references(self):
+        Incoterm = self.env['test_orm_mongodb.incoterm']
+        gone, kept = Incoterm.create([{'name': 'Gone', 'code': 'GON'}, {'name': 'Kept', 'code': 'KPT'}])
+        link = self.env['test_orm_mongodb.pg_link'].create({'name': 'Cascaded', 'incoterm_id': gone.id})
+        kept.optional_link_ids = link
+        warehouse = self.env['test_orm_mongodb.warehouse'].create({'name': 'WH', 'buy_pull_id': link.id})
+        gone.unlink()
+        self.assertFalse(link.exists())
+        self.env.invalidate_all()
+        self.assertFalse(warehouse.buy_pull_id)
+        self.assertFalse(kept.optional_link_ids)
+
     def test_unlink_follows_ondelete(self):
         a, b, _c = self.links
         exw, fob = self.incoterms

@@ -84,6 +84,16 @@ class Test_Orm_MongodbPg_Link(models.Model):
     optional_incoterm_ids = fields.Many2many('test_orm_mongodb.incoterm', 'product_optional_rel', 'dest_id', 'src_id')
 
 
+class Test_Orm_MongodbWarehouse(models.Model):
+    _name = 'test_orm_mongodb.warehouse'
+    _description = 'Warehouse stored in MongoDB, referencing a PostgreSQL model'
+    _table = 'stock_warehouse'
+    _storage = 'mongodb'
+
+    name = fields.Char()
+    buy_pull_id = fields.Many2one('test_orm_mongodb.pg_link')
+
+
 class Test_Orm_MongodbTag(models.Model):
     _name = 'test_orm_mongodb.tag'
     _description = 'Product tag stored in MongoDB, with junction arrays'
