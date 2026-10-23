@@ -302,6 +302,18 @@ class TestStorageMongodb(TransactionCase):
         self.assertFalse(Template.search(domain + [('description', 'ilike', 'missing')]))
         self.assertEqual(Template.search(domain + [('description', 'not ilike', 'missing')]), template)
 
+    def test_html_translated_field_falls_back_to_english(self):
+        self.env['res.lang']._activate_lang('fr_FR')
+        Template = self.env['test_orm_mongodb.template']
+        template = Template.create({'name': 'Html', 'description': '<p>English only</p>'})
+        self.env.flush_all()
+        template.invalidate_recordset()
+        # like PostgreSQL, a missing translation reads as the English value
+        self.assertEqual(
+            template.with_context(lang='fr_FR').description,
+            '<p>English only</p>',
+        )
+
     def test_postgresql_model_joins_through_shadow_table(self):
         incoterm = self.Incoterm.create({'code': 'CIF'})
         link = self.env['test_orm_mongodb.pg_link'].create({'name': 'l', 'incoterm_id': incoterm.id})
