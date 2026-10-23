@@ -1349,7 +1349,7 @@ def _translated_fields(model, domain, sec_domain, order) -> list[str]:
 
 def _multi_valued(field: Field) -> bool:
     """ Whether the field stores one value per language or per company. """
-    return field.translate is True or field.company_dependent
+    return bool(field.translate) or field.company_dependent
 
 
 def _company_fallback(model: BaseModel, field: Field):

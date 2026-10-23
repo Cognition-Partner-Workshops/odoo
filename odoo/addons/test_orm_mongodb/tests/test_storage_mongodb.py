@@ -228,6 +228,14 @@ class TestStorageMongodb(TransactionCase):
 
     # -- PostgreSQL models joining MongoDB models -----------------------------
 
+    def test_like_on_html_translated_field(self):
+        Template = self.env['test_orm_mongodb.template']
+        template = Template.create({'name': 'Html', 'description': '<p>Name search</p>'})
+        domain = [('id', '=', template.id)]
+        self.assertEqual(Template.search(domain + [('description', 'ilike', 'n%a%m%e')]), template)
+        self.assertFalse(Template.search(domain + [('description', 'ilike', 'missing')]))
+        self.assertEqual(Template.search(domain + [('description', 'not ilike', 'missing')]), template)
+
     def test_postgresql_model_joins_through_shadow_table(self):
         incoterm = self.Incoterm.create({'code': 'CIF'})
         link = self.env['test_orm_mongodb.pg_link'].create({'name': 'l', 'incoterm_id': incoterm.id})
