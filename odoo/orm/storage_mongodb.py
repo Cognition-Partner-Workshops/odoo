@@ -1009,6 +1009,7 @@ def parent_store_create(model: BaseModel) -> list[tuple[int, str]]:
     ]
     if updated:
         update(model, [id_ for id_, _path in updated], [{'parent_path': path} for _id, path in updated])
+        _write_shadow(model, 'parent_path', updated)
     return updated
 
 
@@ -1043,7 +1044,17 @@ def parent_store_update(records: BaseModel, prefix: str) -> dict[int, str]:
     updated = {doc['_id']: prefix + doc[parent_path][start:] for start, doc in descendants()}
     if updated:
         update(records, list(updated), [{'parent_path': path} for path in updated.values()])
+        _write_shadow(records, 'parent_path', updated.items())
     return updated
+
+
+def _write_shadow(model: BaseModel, fname: str, rows: typing.Iterable[tuple[int, typing.Any]]) -> None:
+    """ Copy ``(id, value)`` rows written without ``_write_multi`` into the
+    shadow column of ``fname``, if PostgreSQL keeps one. """
+    if fname in model._shadow_columns:
+        for id_, value in rows:
+            model.env.cr.execute(SQL("UPDATE %s SET %s = %s WHERE id = %s",
+                                     SQL.identifier(model._table), SQL.identifier(fname), value, id_))
 
 
 def _company_match(model: BaseModel, field: Field, ids) -> dict:
