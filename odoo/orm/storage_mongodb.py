@@ -430,10 +430,15 @@ def auto_init(model: BaseModel) -> None:
     for field in model._fields.values():
         if field.type == 'many2many' and field.store:   # relation tables outside the spec stay in PostgreSQL
             field.update_db(model, columns)
-    for field in new_fields:
-        _init_field_data(model, field)
+    queued = [(field, records) for field in new_fields if (records := _init_field_data(model, field))]
     if added:
+        # mirror without running the queued computes: they write their shadow
+        # columns when flushed, as other tables may not be set up yet
+        for field, records in queued:
+            model.env.remove_to_compute(field, records)
         mirror_columns(model, added)
+        for field, records in queued:
+            model.env.add_to_compute(field, records)
     if model._table_objects:
         _logger.warning("%s: SQL constraints and indexes are not applied on MongoDB storage: %s",
                         model._name, ", ".join(model._table_objects))
@@ -454,20 +459,21 @@ def _new_fields(model: BaseModel) -> list[Field]:
     ]
 
 
-def _init_field_data(model: BaseModel, field: Field) -> None:
+def _init_field_data(model: BaseModel, field: Field) -> BaseModel | None:
     """ Fill in the missing values of a new field in the existing documents,
     as ``Field._init_column_data`` does for a new PostgreSQL column. Method
     hooks (``init_storage`` given by name, and stored related fields) update the
-    column in SQL, which can't reach documents: the field is computed instead. """
+    column in SQL, which can't reach documents: the field is computed instead.
+    Return the records whose compute was queued. """
     from .fields import Field, determine  # noqa: PLC0415
     init = field.init_storage
     if not (init or field.default or field.compute) or field.company_dependent:
-        return
+        return None
     cr = model.env.cr
     cr.execute(SQL("SELECT id FROM %s ORDER BY id", SQL.identifier(model._table)))
     ids = [row[0] for row in cr.fetchall()]
     if not ids:
-        return
+        return None
     to_compute = 'default'
     if init and not isinstance(init, str) and getattr(init, '__func__', None) is not Field._init_column_related:
         to_compute = determine(init, model)   # e.g. an explicit opt-out
@@ -495,6 +501,8 @@ def _init_field_data(model: BaseModel, field: Field) -> None:
         records = model.browse(missing)
         field._init_column_notify_compute(records)
         model.env.add_to_compute(field, records)
+        return records
+    return None
 
 
 def mirror_columns(model: BaseModel, fnames: list[str]) -> None:
