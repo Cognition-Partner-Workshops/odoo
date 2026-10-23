@@ -17,6 +17,7 @@ from psycopg2.extras import Json
 from odoo import api, fields, models, tools
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.fields import Command, Domain
+from odoo.orm import storage_mongodb
 from odoo.tools import BinaryBytes, frozendict, reset_cached_properties, split_every, sql, unique, OrderedSet, SQL
 from odoo.tools.constants import IN_MAX
 from odoo.tools.safe_eval import expr_eval, safe_eval, datetime, dateutil, time
@@ -1992,13 +1993,17 @@ class IrModelFieldsSelection(models.Model):
                 )
                 # if this fails then we're shit out of luck and there's nothing
                 # we can do except fix on a case-by-case basis
-                self.env.execute_query(SQL(
-                    "UPDATE %s SET %s=%s WHERE id IN %s",
-                    SQL.identifier(records._table),
-                    SQL.identifier(fname),
-                    field.convert_to_column_insert(value, records),
-                    records._ids,
-                ))
+                if records._storage == 'mongodb':
+                    # the shadow rows have no such column: write the documents
+                    records._write_multi([{fname: field.convert_to_column_insert(value, record)} for record in records])
+                else:
+                    self.env.execute_query(SQL(
+                        "UPDATE %s SET %s=%s WHERE id IN %s",
+                        SQL.identifier(records._table),
+                        SQL.identifier(fname),
+                        field.convert_to_column_insert(value, records),
+                        records._ids,
+                    ))
                 records.invalidate_recordset([fname])
 
         for selection in self:
@@ -2057,6 +2062,9 @@ class IrModelFieldsSelection(models.Model):
         Model.flush_model([self.field_id.name])
         if Model._storage == 'mongodb':
             # the values are in the documents, not in the shadow rows
+            field = Model._fields[self.field_id.name]
+            if field.company_dependent:
+                return Model.browse(storage_mongodb.company_dependent_holders(Model, field, self.value))
             domain = [(self.field_id.name, '=', self.value)]
             return Model.browse(Model.sudo().with_context(active_test=False).search(domain).ids)
         if self.field_id.company_dependent:
