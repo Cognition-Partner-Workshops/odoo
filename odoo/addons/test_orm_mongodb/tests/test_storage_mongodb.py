@@ -155,6 +155,7 @@ class TestStorageMongodb(TransactionCase):
         Tag._invalidate_cache(['sequence'])
         self.assertEqual(Tag.search([('name', '=', 'Flushed')], order='id'), tag)
         self.assertEqual(Tag.search_count([('id', '=', tag.id)]), 1)
+        self.assertEqual(Tag._read_group([('id', '=', tag.id)], [], ['__count']), [(1,)])
         tag.sequence = 2
         self.assertEqual(Tag.search([('sequence', '=', 2)], order='id'), tag)
         tag.sequence = 3
