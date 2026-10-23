@@ -211,6 +211,16 @@ class TestStorageMongodb(TransactionCase):
         self.assertIsNone(self.doc(lock))
         self.assertFalse(self.Lock.with_context(active_test=False).search([('id', '=', lock.id)]))
 
+    def test_cascade_skips_unlink_overrides(self):
+        template = self.env['test_orm_mongodb.template'].create({'name': 'Desk'})
+        Variant = self.env['test_orm_mongodb.variant']
+        variant = Variant.create({'product_tmpl_id': template.id})
+        # like a PostgreSQL foreign key, the cascade runs no unlink() override
+        with patch.object(type(Variant), 'unlink', side_effect=AssertionError("unlink() called")):
+            template.unlink()
+        self.assertIsNone(self.doc(variant))
+        self.assertFalse(Variant.search([('id', '=', variant.id)]))
+
     def test_documents_without_shadow_row_are_ignored(self):
         lock = self.Lock.create({'company_id': self.company.id, 'reason': 'orphan'})
         self.env.flush_all()
