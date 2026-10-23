@@ -268,7 +268,8 @@ def relation_layout(field: Field, env) -> dict | None:
         targets = dict(zip(coll['key']['source'], coll['key']['target'], strict=True))
         if set(targets) != columns:
             raise StorageError(f"{field}: columns {sorted(columns)} are not the signed key of {field.relation!r}")
-        return {'collection': coll['collection'], 'targets': targets, 'indexes': coll['indexes']}
+        return {'collection': coll['collection'], 'targets': targets, 'indexes': coll['indexes'],
+                'mirror': _mirror_table(field, env)}
     owner, other = embed['parent_key'][0], embed['child_fields'][0]['source']
     if {owner, other} != columns:
         raise StorageError(f"{field}: columns {sorted(columns)} are not the signed columns of {field.relation!r}")
@@ -280,7 +281,70 @@ def relation_layout(field: Field, env) -> dict | None:
     return {
         'collection': coll['collection'], 'owner': owner, 'other': other,
         'array': embed['array_path'], 'element': embed['child_fields'][0]['target'],
+        'mirror': _mirror_table(field, env),
     }
+
+
+def _mirrored_relations(registry) -> set[str]:
+    """ Return the relation tables declared in ``_shadow_relations``: addon raw
+    SQL reads them, so their links are also kept in PostgreSQL. """
+    mirrored = registry.__dict__.get('_mongodb_mirrored_relations')
+    if mirrored is None:
+        mirrored = set()
+        for model_cls in registry.models.values():
+            for fname in model_cls._shadow_relations:
+                field = model_cls._fields.get(fname)
+                if field is None or field.type != 'many2many' or not field.store:
+                    raise StorageError(f"{model_cls._name}: _shadow_relations entry {fname!r} is not a stored many2many")
+                mirrored.add(field.relation)
+        if registry.ready:
+            registry._mongodb_mirrored_relations = mirrored
+    return mirrored
+
+
+def _mirror_table(field: Field, env) -> str | None:
+    return field.relation if field.relation in _mirrored_relations(env.registry) else None
+
+
+def _mirror_links(env, layout: dict, links: list[dict], add: bool) -> None:
+    """ Apply ``links`` to the PostgreSQL mirror of the relation table; the
+    transaction and its savepoints roll it back with the rest. """
+    if not (table := layout['mirror']) or not links:
+        return
+    col1, col2 = sorted(links[0])
+    pairs = SQL("SELECT * FROM UNNEST(%s::int4[], %s::int4[])", [link[col1] for link in links], [link[col2] for link in links])
+    if add:
+        query = SQL("INSERT INTO %s (%s, %s) %s ON CONFLICT DO NOTHING",
+                    SQL.identifier(table), SQL.identifier(col1), SQL.identifier(col2), pairs)
+    else:
+        query = SQL("DELETE FROM %s WHERE (%s, %s) IN (%s)",
+                    SQL.identifier(table), SQL.identifier(col1), SQL.identifier(col2), pairs)
+    env.cr.execute(query)
+
+
+def fill_relation_mirror(field: Field, env, layout: dict) -> None:
+    """ Copy every MongoDB link of ``field`` into its PostgreSQL mirror, which
+    writes keep current from then on. """
+    table, col1, col2 = (SQL.identifier(name) for name in (field.relation, field.column1, field.column2))
+    pairs = _all_links(env, layout, field.column1, field.column2)
+    env.cr.execute(SQL("DELETE FROM %s", table))
+    if pairs:
+        # two array parameters, whatever the number of links
+        env.cr.execute(SQL("INSERT INTO %s (%s, %s) SELECT * FROM UNNEST(%s::int4[], %s::int4[])",
+                           table, col1, col2, [a for a, _ in pairs], [b for _, b in pairs]))
+
+
+def relation_mirror_diff(field: Field, env) -> tuple[set, set]:
+    """ Return the (column1, column2) links of ``field`` missing from its
+    PostgreSQL mirror, and the mirror rows that MongoDB does not have. """
+    layout = relation_layout(field, env)
+    if not layout or not layout['mirror']:
+        raise StorageError(f"{field}: {field.relation!r} has no PostgreSQL mirror")
+    links = set(_all_links(env, layout, field.column1, field.column2))
+    env.cr.execute(SQL("SELECT %s, %s FROM %s", SQL.identifier(field.column1), SQL.identifier(field.column2),
+                       SQL.identifier(field.relation)))
+    rows = set(env.cr.fetchall())
+    return links - rows, rows - links
 
 
 def _relation_collection(env, layout: dict):
@@ -329,21 +393,25 @@ def linked_ids(env, layout: dict, column: str, other: str, other_ids: typing.Ite
     return list({link[column] for link in find_links(env, layout, other, other_ids)})
 
 
-def links_sql(env, layout: dict, column1: str, column2: str) -> SQL:
-    """ Return a SELECT of every link of the relation, with the relation
-    table's columns, for PostgreSQL queries that join through it. """
+def _all_links(env, layout: dict, column1: str, column2: str) -> list[tuple[int, int]]:
+    """ Return every link of the relation as (column1, column2) pairs. """
     collection = _relation_collection(env, layout)
     if 'targets' in layout:
         targets = layout['targets']
         docs = collection.find({}, dict.fromkeys(targets.values(), 1))
-        pairs = [(doc[targets[column1]], doc[targets[column2]]) for doc in docs]
-    else:
-        owner, array, element = layout['owner'], layout['array'], layout['element']
-        pairs = [
-            (doc['_id'], item[element]) if column1 == owner else (item[element], doc['_id'])
-            for doc in collection.find({f'{array}.0': {'$exists': True}}, {array: 1})
-            for item in doc[array]
-        ]
+        return [(doc[targets[column1]], doc[targets[column2]]) for doc in docs]
+    owner, array, element = layout['owner'], layout['array'], layout['element']
+    return [
+        (doc['_id'], item[element]) if column1 == owner else (item[element], doc['_id'])
+        for doc in collection.find({f'{array}.0': {'$exists': True}}, {array: 1})
+        for item in doc[array]
+    ]
+
+
+def links_sql(env, layout: dict, column1: str, column2: str) -> SQL:
+    """ Return a SELECT of every link of the relation, with the relation
+    table's columns, for PostgreSQL queries that join through it. """
+    pairs = _all_links(env, layout, column1, column2)
     if not pairs:
         return SQL("(SELECT NULL::int4 AS %s, NULL::int4 AS %s WHERE FALSE)", SQL.identifier(column1), SQL.identifier(column2))
     return SQL("(SELECT * FROM (VALUES %s) AS links(%s, %s))", SQL(", ").join(SQL("(%s, %s)", a, b) for a, b in pairs),
@@ -390,6 +458,7 @@ def add_links(env, layout: dict, links: list[dict]) -> None:
     import pymongo.errors  # noqa: PLC0415
     from bson import ObjectId  # noqa: PLC0415
     collection = _relation_collection(env, layout)
+    _mirror_links(env, layout, links, add=True)
     if 'owner' in layout:
         env.cr.add_undo(lambda: _apply_to_arrays(collection, layout, links, add=False))
         _apply_to_arrays(collection, layout, links, add=True)
@@ -407,6 +476,7 @@ def add_links(env, layout: dict, links: list[dict]) -> None:
 def remove_links(env, layout: dict, links: list[dict]) -> None:
     """ Remove links, like the relation table's DELETE. """
     collection = _relation_collection(env, layout)
+    _mirror_links(env, layout, links, add=False)
     if 'owner' in layout:
         env.cr.add_undo(lambda: _apply_to_arrays(collection, layout, links, add=True))
         _apply_to_arrays(collection, layout, links, add=False)

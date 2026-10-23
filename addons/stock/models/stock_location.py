@@ -512,6 +512,7 @@ class StockLocation(models.Model):
 
 class StockRoute(models.Model):
     _name = 'stock.route'
+    _shadow_relations = ('product_ids', 'warehouse_ids')  # read by raw SQL
     _description = "Inventory Route"
     _order = 'sequence'
     _check_company_auto = True

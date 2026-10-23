@@ -100,6 +100,7 @@ class Test_Orm_MongodbTag(models.Model):
     _table = 'product_tag'
     _storage = 'mongodb'
     _order = 'sequence, id'
+    _shadow_relations = ('incoterm_ids',)
 
     name = fields.Char()
     sequence = fields.Integer()

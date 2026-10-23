@@ -1,9 +1,11 @@
+from unittest.mock import patch
+
 import psycopg2.errors
 
 from odoo import Command
 from odoo.orm import storage_mongodb
 from odoo.tests import TransactionCase, tagged
-from odoo.tools import sql
+from odoo.tools import SQL, sql
 
 
 @tagged('at_install', '-post_install')
@@ -166,3 +168,61 @@ class TestMany2manyMongodb(TransactionCase):
             1 / 0
         self.assertEqual(self.array(tag, 'productTemplateRel', 'productTemplateId'), [a.id])
         self.assertEqual(self.junction()[1], before)
+
+    def mirror(self, table, column, ids):
+        self.env.cr.execute(SQL("SELECT * FROM %s WHERE %s IN %s", SQL.identifier(table), SQL.identifier(column), tuple(ids)))
+        return sorted(self.env.cr.fetchall())
+
+    def test_relation_mirror(self):
+        field = self.Tag._fields['incoterm_ids']
+        exw, fob = self.incoterms
+        red = self.Tag.create({'name': 'red', 'incoterm_ids': [Command.set([exw.id, fob.id])]})
+        self.assertEqual(self.array(red, 'productProductRel', 'productProductId'), sorted([exw.id, fob.id]))
+        rows = lambda: self.mirror('product_tag_product_product_rel', 'product_tag_id', red.ids)  # noqa: E731
+        self.assertEqual(rows(), sorted([(red.id, exw.id), (red.id, fob.id)]))
+
+        red.incoterm_ids = [Command.unlink(fob.id)]
+        self.assertEqual(rows(), [(red.id, exw.id)])
+        with self.assertRaises(ZeroDivisionError), self.env.cr.savepoint():
+            red.incoterm_ids = [Command.set([fob.id])]
+            self.assertEqual(rows(), [(red.id, fob.id)])
+            1 / 0
+        self.assertEqual(rows(), [(red.id, exw.id)])
+        self.assertEqual(self.array(red, 'productProductRel', 'productProductId'), [exw.id])
+        self.assertEqual(storage_mongodb.relation_mirror_diff(field, self.env), (set(), set()))
+        red.unlink()
+        self.assertEqual(rows(), [])
+
+    def test_relation_mirror_check_detects_drift(self):
+        field = self.Tag._fields['incoterm_ids']
+        exw, fob = self.incoterms
+        red = self.Tag.create({'name': 'red', 'incoterm_ids': [Command.set([exw.id])]})
+        self.assertEqual(storage_mongodb.relation_mirror_diff(field, self.env), (set(), set()))
+        self.env.cr.execute(SQL(
+            "UPDATE product_tag_product_product_rel SET product_product_id = %s WHERE product_tag_id = %s", fob.id, red.id))
+        self.assertEqual(storage_mongodb.relation_mirror_diff(field, self.env),
+                         ({(red.id, exw.id)}, {(red.id, fob.id)}))
+
+    def test_root_junction_mirror(self):
+        a, b, c = self.links
+        exw, fob = self.incoterms
+        field = self.Incoterm._fields['optional_link_ids']
+        exw.optional_link_ids = [Command.set([a.id, b.id])]  # before the mirror exists
+        self.patch(type(self.Incoterm), '_shadow_relations', ('optional_link_ids',))
+        caches = self.env.registry.__dict__
+        caches.pop('_mongodb_mirrored_relations', None)
+        self.addCleanup(caches.pop, '_mongodb_mirrored_relations', None)
+        with patch.object(self.env.registry, 'post_init', lambda *args: None):
+            field.update_db(self.Incoterm, {})
+        self.assertEqual(storage_mongodb.relation_mirror_diff(field, self.env), (set(), set()), "filled from MongoDB")
+        rows = lambda: self.mirror('product_optional_rel', 'src_id', self.incoterms.ids)  # noqa: E731
+        self.assertEqual(rows(), sorted([(exw.id, a.id), (exw.id, b.id)]))
+
+        c.optional_incoterm_ids = [Command.link(fob.id)]
+        exw.optional_link_ids = [Command.unlink(a.id)]
+        self.assertEqual(rows(), sorted([(exw.id, b.id), (fob.id, c.id)]))
+        with self.assertRaises(ZeroDivisionError), self.env.cr.savepoint():
+            exw.optional_link_ids = [Command.clear()]
+            1 / 0
+        self.assertEqual(rows(), sorted([(exw.id, b.id), (fob.id, c.id)]))
+        self.assertEqual(storage_mongodb.relation_mirror_diff(field, self.env), (set(), set()))

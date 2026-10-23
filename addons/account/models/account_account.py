@@ -24,6 +24,7 @@ ACCOUNT_TYPE_TO_JOURNAL_TYPE = {
 
 class AccountAccount(models.Model):
     _name = 'account.account'
+    _shadow_relations = ('company_ids',)  # read by raw SQL
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = "Account"
     _order = "code_path, account_type, name_path"

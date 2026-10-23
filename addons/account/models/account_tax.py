@@ -53,6 +53,7 @@ class AccountTaxGroup(models.Model):
 
 class AccountTax(models.Model):
     _name = 'account.tax'
+    _shadow_relations = ('children_tax_ids', 'replacing_tax_ids')  # read by raw SQL
     _inherit = ['mail.thread']
     _description = 'Tax'
     _order = 'sequence,id'

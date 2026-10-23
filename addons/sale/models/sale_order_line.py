@@ -11,6 +11,7 @@ from odoo.tools import float_compare, float_is_zero, format_date, groupby
 
 class SaleOrderLine(models.Model):
     _name = "sale.order.line"
+    _shadow_relations = ('invoice_lines',)  # read by raw SQL
     _inherit = [
         "analytic.mixin",
         "res.currency.rate.consolidation.mixin",

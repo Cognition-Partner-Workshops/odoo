@@ -44,6 +44,7 @@ LOT_LABEL_FORMATS = [
 
 class StockPickingType(models.Model):
     _name = 'stock.picking.type'
+    _shadow_relations = ('favorite_user_ids',)  # read by raw SQL
     _description = "Picking Type"
     _explanation = "Defines the type of stock operation (e.g., Receipts, Deliveries, Internal Transfers) and contains configuration for how these operations should behave in the warehouse."
     _order = 'is_favorite desc, sequence, id'

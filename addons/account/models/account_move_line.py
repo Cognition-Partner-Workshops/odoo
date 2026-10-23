@@ -22,6 +22,7 @@ _ignore_tax_lock_date = object()
 
 class AccountMoveLine(models.Model):
     _name = 'account.move.line'
+    _shadow_relations = ('tax_ids',)  # read by raw SQL
     _inherit = [
         "analytic.mixin",
         "mail.track.mixin",
