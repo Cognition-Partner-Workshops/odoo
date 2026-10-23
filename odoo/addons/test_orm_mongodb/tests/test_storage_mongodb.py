@@ -72,6 +72,17 @@ class TestStorageMongodb(TransactionCase):
         self.assertEqual(capacity.quantity, 2.5)
         self.assertEqual(category.capacity_ids, capacity)
 
+    def test_in_falsy_value_matches_unset(self):
+        category = self.Category.create({'name': 'Shelf'})
+        unset = self.Capacity.create({'storage_category_id': category.id})
+        zero = self.Capacity.create({'storage_category_id': category.id, 'quantity': 0})
+        some = self.Capacity.create({'storage_category_id': category.id, 'quantity': 2.5})
+        domain = [('storage_category_id', '=', category.id)]
+        # like PostgreSQL, 0 also matches NULL, whose value reads as 0
+        self.assertEqual(self.Capacity.search(domain + [('quantity', 'in', [0])], order='id'), unset + zero)
+        self.assertEqual(self.Capacity.search(domain + [('quantity', 'not in', [0])], order='id'), some)
+        self.assertEqual(self.Capacity.search(domain + [('quantity', 'in', [0, 2.5])], order='id'), unset + zero + some)
+
     def test_new_field_gets_default(self):
         # a module adding a field to existing documents fills in its default
         incoterm = self.Incoterm.create({'code': 'FCA', 'name': 'Free Carrier'})
