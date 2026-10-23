@@ -12,6 +12,7 @@ from odoo.fields import Domain
 from odoo.orm import storage_mongodb
 from odoo.tests import TransactionCase, tagged
 from odoo.tools import SQL, mute_logger, sql
+from odoo.tools.translate import TranslationImporter
 
 
 def setUpModule():
@@ -313,6 +314,24 @@ class TestStorageMongodb(TransactionCase):
             template.with_context(lang='fr_FR').description,
             '<p>English only</p>',
         )
+
+    def test_translation_import_updates_documents(self):
+        self.env['res.lang']._activate_lang('fr_FR')
+        Template = self.env['test_orm_mongodb.template']
+        template = Template.create({'name': 'Chair', 'description': '<p>Chair</p>'})
+        self.env['ir.model.data'].create({
+            'module': 'test_orm_mongodb', 'name': 'template_chair',
+            'model': Template._name, 'res_id': template.id,
+        })
+        xmlid = 'test_orm_mongodb.template_chair'
+        importer = TranslationImporter(self.env.cr, verbose=False)
+        importer.model_translations[Template._name]['name'][xmlid]['fr_FR'] = 'Chaise'
+        importer.model_terms_translations[Template._name]['description'][xmlid]['Chair']['fr_FR'] = 'Chaise'
+        importer.save()
+        self.assertEqual(self.doc(template)['name'], {'en_US': 'Chair', 'fr_FR': 'Chaise'})
+        template_fr = template.with_context(lang='fr_FR')
+        self.assertEqual(template_fr.name, 'Chaise')
+        self.assertEqual(template_fr.description, '<p>Chaise</p>')
 
     def test_postgresql_model_joins_through_shadow_table(self):
         incoterm = self.Incoterm.create({'code': 'CIF'})
