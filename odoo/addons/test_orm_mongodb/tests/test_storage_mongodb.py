@@ -71,6 +71,16 @@ class TestStorageMongodb(TransactionCase):
         self.assertEqual(capacity.quantity, 2.5)
         self.assertEqual(category.capacity_ids, capacity)
 
+    def test_new_field_gets_default(self):
+        # a module adding a field to existing documents fills in its default
+        incoterm = self.Incoterm.create({'code': 'FCA', 'name': 'Free Carrier'})
+        storage_mongodb.update(self.Incoterm, incoterm.ids, [{'active': None}])
+        self.assertNotIn('active', self.doc(incoterm))
+        self.assertEqual(storage_mongodb._new_fields(self.Incoterm), [])
+        self.patch(storage_mongodb, '_new_fields', lambda model: [model._fields['active']])
+        storage_mongodb.auto_init(self.Incoterm)
+        self.assertIs(self.doc(incoterm)['active'], True)
+
     def test_group_by_decimal(self):
         categories = self.Category.create([
             {'name': 'Crate', 'max_weight': 2.5},
