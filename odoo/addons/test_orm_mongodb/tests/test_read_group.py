@@ -55,6 +55,8 @@ class TestReadGroupMongodb(TransactionCase):
         aggregates = ['double_sequence:sum', 'double_sequence:avg', 'double_sequence:max', 'is_even:bool_and']
         self.assertEqual(Tag._read_group([('id', 'in', tags.ids)], aggregates=aggregates), [(20, 5.0, 8, False)])
         self.assertEqual(Tag._read_group([('id', 'in', tags[1].ids)], aggregates=aggregates), [(4, 4.0, 4, True)])
+        with self.assertRaises(ValueError):
+            Tag._read_group([('id', 'in', tags.ids)], aggregates=['double_sequence:recordset'])
 
     def test_groups_order_having_paging(self):
         Value = self.Value

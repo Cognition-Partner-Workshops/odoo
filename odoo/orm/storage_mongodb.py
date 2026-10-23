@@ -1307,6 +1307,8 @@ def _aggregate(model: BaseModel, spec: str, key: str) -> tuple[dict, typing.Call
     model.check_field_access(field, 'read')
     if func != 'sum_currency' and func not in READ_GROUP_AGGREGATE:
         raise ValueError(f"Invalid aggregate method {func!r} for {spec!r}.")
+    if func == 'recordset' and not (field.relational or fname == 'id'):
+        raise ValueError(f"Aggregate method {func!r} can be only used on relational field (or id) (for {spec!r}).")
     if func != 'sum_currency' and not field.store and field.compute and field.type in _COMPUTED_AGGREGABLE:
         return {key: {'$push': '$_id'}}, functools.partial(_computed_aggregate, model, field, func, key)
     if func == 'sum_currency' or field.type == 'many2many' or not (field.store and field.column_type):
