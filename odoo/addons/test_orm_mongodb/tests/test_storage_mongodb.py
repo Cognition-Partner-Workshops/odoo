@@ -71,6 +71,15 @@ class TestStorageMongodb(TransactionCase):
         self.assertEqual(capacity.quantity, 2.5)
         self.assertEqual(category.capacity_ids, capacity)
 
+    def test_group_by_decimal(self):
+        categories = self.Category.create([
+            {'name': 'Crate', 'max_weight': 2.5},
+            {'name': 'Bin', 'max_weight': 2.5},
+            {'name': 'Rack', 'max_weight': 7.25},
+        ])
+        groups = self.Category._read_group([('id', 'in', categories.ids)], ['max_weight'], ['__count'])
+        self.assertEqual(groups, [(2.5, 2), (7.25, 1)])
+
     def test_shadow_table(self):
         cr = self.env.cr
         self.assertEqual(set(sql.table_columns(cr, 'account_lock_exception')), {'id', 'company_id'})
