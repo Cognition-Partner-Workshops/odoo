@@ -418,6 +418,7 @@ def auto_init(model: BaseModel) -> None:
     _layout(model)  # fail before touching PostgreSQL
 
     cr = model.env.cr
+    new_fields = _new_fields(model)
     if not sql.table_exists(cr, model._table):
         sql.create_model_table(cr, model._table, model._description, [
             (field.name, field.stored_sql_column_type, field.string) for field in shadow
@@ -429,12 +430,66 @@ def auto_init(model: BaseModel) -> None:
     for field in model._fields.values():
         if field.type == 'many2many' and field.store:   # relation tables outside the spec stay in PostgreSQL
             field.update_db(model, columns)
+    for field in new_fields:
+        _init_field_data(model, field)
     if added:
         mirror_columns(model, added)
     if model._table_objects:
         _logger.warning("%s: SQL constraints and indexes are not applied on MongoDB storage: %s",
                         model._name, ", ".join(model._table_objects))
     ensure_indexes(model)
+
+
+def _new_fields(model: BaseModel) -> list[Field]:
+    """ Return the stored fields of ``model`` that are not reflected yet: like
+    a new column in PostgreSQL, their existing documents must be initialized. """
+    cr = model.env.cr
+    if not sql.table_exists(cr, 'ir_model_fields'):
+        return []
+    cr.execute(SQL("SELECT name FROM ir_model_fields WHERE model = %s", model._name))
+    known = {row[0] for row in cr.fetchall()}
+    return [
+        field for field in model._fields.values()
+        if field.store and field.column_type and field.name != 'id' and field.name not in known
+    ]
+
+
+def _init_field_data(model: BaseModel, field: Field) -> None:
+    """ Fill in the missing values of a new field in the existing documents,
+    as ``Field._init_column_data`` does for a new PostgreSQL column. A custom
+    ``init_storage`` runs SQL on the column, so the field is computed instead. """
+    if not (field.default or field.compute) or field.company_dependent:
+        return
+    cr = model.env.cr
+    cr.execute(SQL("SELECT id FROM %s ORDER BY id", SQL.identifier(model._table)))
+    ids = [row[0] for row in cr.fetchall()]
+    if not ids:
+        return
+    to_compute = 'default'
+    value = None
+    if field.default:
+        value = field.default(model)
+        if value is not None:
+            to_compute = False
+        value = field.convert_to_column_insert(field.convert_to_write(value, model), model)
+        if hasattr(value, 'adapted'):
+            value = value.adapted
+        if field.translate is True and value is not None:
+            value = (False, value)
+    if value is False and field.type == 'boolean' and not field.required:
+        value = None
+    path = _layout(model)['paths'][field.name]
+    missing = []
+    for chunk in split_every(GROUP_CHUNK, ids):
+        docs = _fetch_docs(model, list(chunk), {path: 1})
+        missing += [id_ for id_ in chunk if docs.get(id_, {}).get(path) is None]
+    if value is not None and missing:
+        _logger.debug("%s: setting default value of new field %s to %r", model._name, field.name, value)
+        update(model, missing, [{field.name: value}] * len(missing))
+    if to_compute and field.compute and missing:
+        records = model.browse(missing)
+        field._init_column_notify_compute(records)
+        model.env.add_to_compute(field, records)
 
 
 def mirror_columns(model: BaseModel, fnames: list[str]) -> None:
