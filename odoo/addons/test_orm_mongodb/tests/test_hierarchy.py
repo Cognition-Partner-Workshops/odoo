@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from odoo.exceptions import UserError
 from odoo.tests import TransactionCase, tagged
 
@@ -29,6 +31,20 @@ class TestParentStoreMongodb(TransactionCase):
         self.assertEqual(c.parent_path, f'{b.id}/{c.id}/')
         with self.assertRaises(UserError):
             b.parent_id = c
+
+    def test_parent_path_shadow_column(self):
+        # SQL like account's code_path reads parent_path from the PostgreSQL rows
+        self.env.cr.execute(f'ALTER TABLE "{self.Category._table}" ADD COLUMN parent_path varchar')
+        with patch.object(type(self.Category), '_shadow_columns', ('parent_path',)):
+            a, d = self.Category.create([{'name': 'a'}, {'name': 'd'}])
+            b = self.Category.create({'name': 'b', 'parent_id': a.id})
+            c = self.Category.create({'name': 'c', 'parent_id': b.id})
+            b.parent_id = d
+            self.env.flush_all()
+        self.env.cr.execute(f'SELECT id, parent_path FROM "{self.Category._table}" WHERE id IN %s', [(a + b + c + d)._ids])
+        self.assertEqual(dict(self.env.cr.fetchall()), {
+            a.id: f'{a.id}/', d.id: f'{d.id}/', b.id: f'{d.id}/{b.id}/', c.id: f'{d.id}/{b.id}/{c.id}/',
+        })
 
     def test_company_dependent(self):
         from odoo.orm import storage_mongodb  # noqa: PLC0415
