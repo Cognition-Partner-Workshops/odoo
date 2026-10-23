@@ -189,6 +189,20 @@ def _pg_cascades(env) -> dict[str, list[Field]]:
     return cascades
 
 
+def _cascade_delete(records: BaseModel) -> None:
+    """ Delete ``records`` like PostgreSQL's ``ON DELETE CASCADE``: their own
+    dependents follow, but no ``unlink`` override or ``ondelete`` check runs. """
+    for field in records._fields.values():
+        records.env.remove_to_compute(field, records)
+    records.flush_recordset()
+    unlink_dependents(records)
+    for sub_ids in split_every(IN_MAX, records.ids):
+        records.env.cr.execute(SQL("DELETE FROM %s WHERE id IN %s", SQL.identifier(records._table), sub_ids))
+        if records._storage == 'mongodb':
+            delete(records, sub_ids)
+    records.invalidate_recordset(flush=False)
+
+
 def unlink_dependents(records: BaseModel) -> None:
     """ Apply ``ondelete`` of the many2one fields of MongoDB models that
     reference ``records`` through the ORM, so documents follow. PostgreSQL
@@ -203,7 +217,7 @@ def unlink_dependents(records: BaseModel) -> None:
         if not dependents:
             continue
         if field.ondelete == 'cascade':
-            dependents.unlink()
+            _cascade_delete(dependents)
         elif field.ondelete == 'restrict':
             raise psycopg2.errors.ForeignKeyViolation(
                 f"{records} is still referenced by {field} of {dependents}")
