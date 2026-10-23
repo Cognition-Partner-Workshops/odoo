@@ -463,8 +463,8 @@ def _init_field_data(model: BaseModel, field: Field) -> BaseModel | None:
     """ Fill in the missing values of a new field in the existing documents,
     as ``Field._init_column_data`` does for a new PostgreSQL column. Method
     hooks (``init_storage`` given by name, and stored related fields) update the
-    column in SQL, which can't reach documents: the field is computed instead.
-    Return the records whose compute was queued. """
+    column in SQL: a shadow column gets their result from PostgreSQL, and other
+    fields are computed instead. Return the records whose compute was queued. """
     from .fields import Field, determine  # noqa: PLC0415
     init = field.init_storage
     if not (init or field.default or field.compute) or field.company_dependent:
@@ -474,8 +474,22 @@ def _init_field_data(model: BaseModel, field: Field) -> BaseModel | None:
     ids = [row[0] for row in cr.fetchall()]
     if not ids:
         return None
+    path = _layout(model)['paths'][field.name]
+    missing = []
+    for chunk in split_every(GROUP_CHUNK, ids):
+        docs = _fetch_docs(model, list(chunk), {path: 1})
+        missing += [id_ for id_ in chunk if docs.get(id_, {}).get(path) is None]
+    method_hook = isinstance(init, str) or getattr(init, '__func__', None) is Field._init_column_related
+    if method_hook and field.name in model._shadow_columns:
+        # Field.update_db ran the hook on the shadow column, and queued its compute
+        column = SQL.identifier(field.name)
+        cr.execute(SQL("SELECT id, %s FROM %s WHERE id = ANY(%s) AND %s IS NOT NULL",
+                       column, SQL.identifier(model._table), missing, column))
+        if rows := cr.fetchall():
+            update(model, [row[0] for row in rows], [{field.name: row[1]} for row in rows])
+        return None
     to_compute = 'default'
-    if init and not isinstance(init, str) and getattr(init, '__func__', None) is not Field._init_column_related:
+    if init and not method_hook:
         to_compute = determine(init, model)   # e.g. an explicit opt-out
     value = None
     if field.default:
@@ -489,11 +503,6 @@ def _init_field_data(model: BaseModel, field: Field) -> BaseModel | None:
             value = (False, value)
     if value is False and field.type == 'boolean' and not field.required:
         value = None
-    path = _layout(model)['paths'][field.name]
-    missing = []
-    for chunk in split_every(GROUP_CHUNK, ids):
-        docs = _fetch_docs(model, list(chunk), {path: 1})
-        missing += [id_ for id_ in chunk if docs.get(id_, {}).get(path) is None]
     if value is not None and missing:
         _logger.debug("%s: setting default value of new field %s to %r", model._name, field.name, value)
         update(model, missing, [{field.name: value}] * len(missing))
