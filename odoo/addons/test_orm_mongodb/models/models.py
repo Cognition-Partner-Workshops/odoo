@@ -100,6 +100,7 @@ class Test_Orm_MongodbTag(models.Model):
     # relation table outside the signed spec, so it stays in PostgreSQL
     partner_ids = fields.Many2many('res.partner', 'test_orm_mongodb_tag_partner_rel', 'tag_id', 'partner_id')
     is_even = fields.Boolean(compute='_compute_is_even', compute_sql='_compute_sql_is_even')
+    double_sequence = fields.Integer(compute='_compute_double_sequence')
 
     def _compute_is_even(self):
         for tag in self:
@@ -107,6 +108,10 @@ class Test_Orm_MongodbTag(models.Model):
 
     def _compute_sql_is_even(self, table):
         return SQL("%s %% 2 = 0", table.id)
+
+    def _compute_double_sequence(self):
+        for tag in self:
+            tag.double_sequence = 2 * tag.sequence
 
 
 class Test_Orm_MongodbAttribute(models.Model):

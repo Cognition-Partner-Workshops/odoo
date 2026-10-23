@@ -49,6 +49,13 @@ class TestReadGroupMongodb(TransactionCase):
         self.assertEqual(self.Attribute._read_group([('id', 'in', (self.color + self.size).ids)], ['sequence'], ['__count']),
                          [(1, 1), (2, 1)])
 
+    def test_aggregate_computed_fields(self):
+        Tag = self.env['test_orm_mongodb.tag']
+        tags = Tag.create([{'name': f'Computed {i}', 'sequence': i} for i in range(1, 5)])
+        aggregates = ['double_sequence:sum', 'double_sequence:avg', 'double_sequence:max', 'is_even:bool_and']
+        self.assertEqual(Tag._read_group([('id', 'in', tags.ids)], aggregates=aggregates), [(20, 5.0, 8, False)])
+        self.assertEqual(Tag._read_group([('id', 'in', tags[1].ids)], aggregates=aggregates), [(4, 4.0, 4, True)])
+
     def test_groups_order_having_paging(self):
         Value = self.Value
         self.assertEqual(Value._read_group(self.domain, ['attribute_id'], ['__count'], order='attribute_id'),
