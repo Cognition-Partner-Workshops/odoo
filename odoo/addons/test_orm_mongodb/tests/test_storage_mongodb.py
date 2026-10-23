@@ -254,12 +254,17 @@ class TestStorageMongodb(TransactionCase):
             ('value', '=', 'average'),
         ])
         field = Category._fields['property_cost_method']
+        # also mirrored in PostgreSQL, like a column a report reads
+        self.env.cr.execute(f'ALTER TABLE "{Category._table}" ADD COLUMN property_cost_method jsonb')
         with patch.object(field, 'ondelete', {'average': 'set null'}), \
+                patch.object(type(Category), '_shadow_columns', ('property_cost_method',)), \
                 patch.object(type(Category), 'write', side_effect=UserError("write() refused")):
             selection._process_ondelete()
         category.invalidate_recordset()
         self.assertFalse(category.property_cost_method)
         self.assertEqual(category.with_company(other).property_cost_method, 'standard')
+        self.env.cr.execute(f'SELECT property_cost_method FROM "{Category._table}" WHERE id = %s', [category.id])
+        self.assertNotIn(str(self.env.company.id), self.env.cr.fetchone()[0] or {})
 
     def test_cascade_skips_unlink_overrides(self):
         template = self.env['test_orm_mongodb.template'].create({'name': 'Desk'})
