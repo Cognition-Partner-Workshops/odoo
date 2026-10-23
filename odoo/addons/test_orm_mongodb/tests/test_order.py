@@ -27,6 +27,12 @@ class TestOrderOutsideDocument(TransactionCase):
         tags[0].sequence = 2
         expected = sorted(tags.ids, key=lambda id_: (id_ == tags[0].id, id_ % 2, id_))
         self.assertEqual(Tag.search([('id', 'in', tags.ids)], order='sequence, is_even desc, id').ids, expected)
+        # ties of an outside term are broken by the next terms
+        # (stock.picking.type orders by 'is_favorite desc, sequence, id')
+        tags.write({'sequence': 1})
+        tags[:2].write({'sequence': 2})
+        expected = sorted(tags.ids, key=lambda id_: (id_ % 2, id_ in tags[:2].ids, id_))
+        self.assertEqual(Tag.search([('id', 'in', tags.ids)], order='is_even desc, sequence, id').ids, expected)
 
     def test_order_many2one_cycle(self):
         # product.category orders by its own parent_id: the inner parent_id adds no term
