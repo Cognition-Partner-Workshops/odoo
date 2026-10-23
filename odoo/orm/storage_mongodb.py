@@ -1009,9 +1009,32 @@ def fetch(model: BaseModel, query: Query, fields: typing.Iterable[Field]) -> Bas
     return fetched
 
 
+def _search_fnames(model: BaseModel, order: str | None, *domains) -> set[str]:
+    """ Return the fields of ``model`` that ``domains`` and ``order`` read,
+    which a search flushes first, as PostgreSQL flushes those of its query. """
+    fnames = {cond.field_expr.split('.')[0] for domain in domains for cond in domain.iter_conditions()}
+    for term in (order or '').split(','):
+        if term := term.strip():
+            fnames.add(term.split()[0].split('.')[0].split(':')[0])
+    return {fname for fname in fnames if fname in model._fields}
+
+
+def _read_group_fnames(model: BaseModel, groupby, aggregates, having, order) -> set[str]:
+    """ Return the fields of ``model`` that the aggregation of a grouped read
+    reads, which it flushes first, as PostgreSQL flushes those of its query. """
+    specs = [*groupby, *aggregates, *(leaf[0] for leaf in having if isinstance(leaf, (list, tuple)))]
+    specs += [part.split()[0] for part in (order or '').split(',') if part.strip()]
+    fnames = set()
+    for spec in specs:
+        fname = spec.split(':')[0].split('.')[0]
+        if field := model._fields.get(fname):
+            fnames.add(field.related.split('.')[0] if field.related and not field.store else fname)
+    return fnames
+
+
 def search(model: BaseModel, domain, sec_domain, order: str | None, limit, offset) -> Query:
     """ Back end of ``_search`` once ``domain`` is fully optimized. """
-    model.flush_model()
+    model.flush_model(_search_fnames(model, order, domain, sec_domain))
     match = to_filter(model, domain)
     if not sec_domain.is_true():
         self_sudo = model.sudo().with_context(active_test=False)
@@ -1078,6 +1101,8 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
     groupby, aggregates, having = list(groupby), list(aggregates), list(having or ())
     if not (groupby or aggregates):
         raise ValueError(model.env._("Need groupby or aggregates."))
+    # the aggregation reads groupby and aggregated fields from the documents
+    model.flush_model(_read_group_fnames(model, groupby, aggregates, having, order))
     terms = []
     for part in (order or ','.join(groupby)).split(','):
         if not part.strip():
