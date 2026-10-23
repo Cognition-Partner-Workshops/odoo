@@ -902,9 +902,12 @@ def _translation_targets(model: BaseModel, xmlids: list[str]) -> dict[str, tuple
 def _lock_translation_rows(model: BaseModel, ids: list[int]) -> None:
     """ Lock the shadow rows of ``ids`` in id order before their translations
     are read, so concurrent imports merge into each other's languages. """
-    if ids:
-        model.env.cr.execute(SQL("SELECT id FROM %s WHERE id IN %s ORDER BY id FOR UPDATE",
-                                 SQL.identifier(model._table), tuple(ids)))
+    if not ids:
+        return
+    if _layout(model).get('embed'):   # parents first, like ``update``
+        _lock_parents(model, {prior[0] for prior in _elements(model, ids).values()}, check=False)
+    model.env.cr.execute(SQL("SELECT id FROM %s WHERE id IN %s ORDER BY id FOR UPDATE",
+                             SQL.identifier(model._table), tuple(ids)))
 
 
 def translation_rows(model: BaseModel, fname: str, xmlids: list[str]) -> list[tuple]:
