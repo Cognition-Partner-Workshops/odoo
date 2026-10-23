@@ -1200,6 +1200,21 @@ _MERGE = {
 _WEEKDAYS = ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')
 
 
+class SpecProbe:
+    """ Table given to ``_read_group_select`` to learn how a model aggregates a
+    spec: the base method returns the spec unchanged, so an override that
+    rewrites it (like ``value:sum`` into ``id:recordset``) reveals the rewrite. """
+    def __init__(self, model: BaseModel):
+        self._alias = model._table
+
+
+def aggregate_spec(model: BaseModel, spec: str) -> str:
+    """ Return the spec the model's ``_read_group_select`` aggregates ``spec``
+    as, or ``spec`` itself when an override answers with SQL instead. """
+    rewritten = model._read_group_select(SpecProbe(model), spec)
+    return rewritten if isinstance(rewritten, str) else spec
+
+
 def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, limit, order) -> list[tuple]:
     """ Back end of ``_read_group``: return the rows PostgreSQL would return
     (raw groupby values then aggregate values), grouped by an aggregation over

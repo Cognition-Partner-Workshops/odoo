@@ -58,6 +58,26 @@ class TestReadGroupMongodb(TransactionCase):
         with self.assertRaises(ValueError):
             Tag._read_group([('id', 'in', tags.ids)], aggregates=['double_sequence:recordset'])
 
+    def test_aggregate_spec_rewritten_by_override(self):
+        # like stock quants, an override aggregates 'double_sequence:sum' from the records of each group
+        Tag = self.env['test_orm_mongodb.tag']
+        tags = Tag.create([{'name': f'Rewritten {i}', 'sequence': i} for i in range(1, 4)])
+        Model = type(Tag)
+
+        def select(model, table, spec):
+            return super(Model, model)._read_group_select(table, 'id:recordset' if spec == 'double_sequence:sum' else spec)
+
+        def postprocess(model, spec, raw_values):
+            if spec == 'double_sequence:sum':
+                column = super(Model, model)._read_group_postprocess_aggregate('id:recordset', raw_values)
+                return (100 * len(records) for records in column)
+            return super(Model, model)._read_group_postprocess_aggregate(spec, raw_values)
+
+        with patch.object(Model, '_read_group_select', select), \
+                patch.object(Model, '_read_group_postprocess_aggregate', postprocess):
+            self.assertEqual(Tag._read_group([('id', 'in', tags.ids)], aggregates=['double_sequence:sum', 'sequence:sum']),
+                             [(300, 6)])
+
     def test_groups_order_having_paging(self):
         Value = self.Value
         self.assertEqual(Value._read_group(self.domain, ['attribute_id'], ['__count'], order='attribute_id'),

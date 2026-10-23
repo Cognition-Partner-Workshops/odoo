@@ -2037,7 +2037,8 @@ class BaseModel(metaclass=MetaModel):
         :raise AccessError: if user is not allowed to access requested information
         """
         if self._storage == 'mongodb':
-            row_values = storage_mongodb.read_group(self, domain, groupby, aggregates, having, offset, limit, order)
+            specs = [storage_mongodb.aggregate_spec(self, spec) for spec in aggregates]
+            row_values = storage_mongodb.read_group(self, domain, groupby, specs, having, offset, limit, order)
             return self._read_group_postprocess_rows(groupby, aggregates, row_values)
         query = self._search(domain)
         if query.is_empty():
@@ -2098,6 +2099,8 @@ class BaseModel(metaclass=MetaModel):
         The method also checks whether the fields used in the aggregate are
         accessible for reading.
         """
+        if isinstance(table, storage_mongodb.SpecProbe):
+            return aggregate_spec
         if aggregate_spec == '__count':
             return SQL("COUNT(*)")
 
