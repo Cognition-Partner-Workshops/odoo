@@ -1626,19 +1626,22 @@ def _path(model: BaseModel, field: Field) -> str:
     return _layout(model)['paths'][field.name]
 
 
-def _outside_order(model: BaseModel, field: Field, part: str) -> tuple[str, list[int]]:
+def _outside_order(model: BaseModel, field: Field, part: str) -> tuple[str, list[int], list[int]]:
     """ Rank an order term on a field the document doesn't hold: the parent
     model orders an inherited field, PostgreSQL orders the others over the
-    shadow rows (computed SQL). """
+    shadow rows (computed SQL). Return the path, the ids and their ranks. """
     from .query import Query  # noqa: PLC0415
     records = model.sudo().with_context(active_test=False)
     if field.inherited:
         parent_field = model._fields[field.related.split('.')[0]]
         parent_ids = records.env[parent_field.comodel_name].search([], order=part)._ids
-        return '$' + _path(model, parent_field), list(parent_ids)
+        return '$' + _path(model, parent_field), list(parent_ids), list(range(len(parent_ids)))
+    # equal values share a rank, so that the next order terms break the ties
     query = Query(records)
-    query.order = records._order_to_sql(query.table, part)
-    return '$_id', list(query.get_result_ids())
+    rows = records.env.execute_query(query.select(
+        query.table.id, SQL("DENSE_RANK() OVER (ORDER BY %s)", records._order_to_sql(query.table, part)),
+    ))
+    return '$_id', [id_ for id_, _rank in rows], [rank for _id, rank in rows]
 
 
 def _sort_stages(model: BaseModel, order: str | None) -> list[dict]:
@@ -1658,8 +1661,10 @@ def _sort_stages(model: BaseModel, order: str | None) -> list[dict]:
         if field.name != 'id' and field.name not in _layout(model)['paths']:
             if not (field.inherited or field.compute_sql):
                 raise NotImplementedError(f"{model._name}: cannot order by {part.strip()!r} on MongoDB storage")
-            path, ids = _outside_order(model, field, part.strip())
-            ranks[f'__rank{i}'] = {'$indexOfArray': [ids, path]}
+            path, ids, positions = _outside_order(model, field, part.strip())
+            ranks[f'__rank{i}'] = {'$let': {'vars': {'at': {'$indexOfArray': [ids, path]}},
+                                            'in': {'$cond': [{'$gte': ['$$at', 0]},
+                                                             {'$arrayElemAt': [positions, '$$at']}, -1]}}}
             sort[f'__rank{i}'] = 1
             continue
         path = _path(model, field)
