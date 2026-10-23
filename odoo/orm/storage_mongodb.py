@@ -1262,6 +1262,34 @@ def _group_value(model: BaseModel, spec: str, value):
     return _plain(model._fields[fname], value)
 
 
+_COMPUTED_AGGREGABLE = ('integer', 'float', 'monetary', 'boolean', 'date', 'datetime')
+
+
+def _computed_aggregate(model: BaseModel, field: Field, func: str, key: str, group: dict):
+    """ Aggregate the non-stored computed ``field`` over the records of
+    ``group``, from the values its compute method gives them. """
+    records = model.browse(sorted(group[key]))
+    values = [None if value is False and field.type != 'boolean' else value for value in records.mapped(field.name)]
+    present = [value for value in values if value is not None]
+    match func:
+        case 'sum':
+            return sum(present) if present else None
+        case 'avg':
+            return sum(present) / len(present) if present else None
+        case 'max' | 'min':
+            return (max if func == 'max' else min)(present) if present else None
+        case 'bool_and' | 'bool_or':
+            return (all if func == 'bool_and' else any)(present) if present else None
+        case 'count':
+            return len(present)
+        case 'count_distinct':
+            return len(set(present))
+        case 'array_agg_distinct':
+            return sorted(set(values), key=lambda item: (item is None, item))
+        case _:     # array_agg and recordset, ordered by id
+            return values
+
+
 def _aggregate(model: BaseModel, spec: str, key: str) -> tuple[dict, typing.Callable]:
     """ Return the ``$group`` accumulators of the aggregate ``spec`` and the
     function turning their result into the value PostgreSQL returns. """
@@ -1279,6 +1307,10 @@ def _aggregate(model: BaseModel, spec: str, key: str) -> tuple[dict, typing.Call
     model.check_field_access(field, 'read')
     if func != 'sum_currency' and func not in READ_GROUP_AGGREGATE:
         raise ValueError(f"Invalid aggregate method {func!r} for {spec!r}.")
+    if func == 'recordset' and not (field.relational or fname == 'id'):
+        raise ValueError(f"Aggregate method {func!r} can be only used on relational field (or id) (for {spec!r}).")
+    if func != 'sum_currency' and not field.store and field.compute and field.type in _COMPUTED_AGGREGABLE:
+        return {key: {'$push': '$_id'}}, functools.partial(_computed_aggregate, model, field, func, key)
     if func == 'sum_currency' or field.type == 'many2many' or not (field.store and field.column_type):
         raise NotImplementedError(f"{model._name}: cannot aggregate {spec!r} on MongoDB storage yet")
     expr = _field_expr(model, field)
