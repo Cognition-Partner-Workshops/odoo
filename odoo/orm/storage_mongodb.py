@@ -36,7 +36,7 @@ import psycopg2.errors
 from odoo.tools import SQL, date_utils, split_every, sql
 from odoo.tools.constants import IN_MAX
 
-from .domains import DomainAnd, DomainBool, DomainCondition, DomainNot, DomainOr
+from .domains import DomainAnd, DomainBool, DomainCondition, DomainCustom, DomainNot, DomainOr
 
 if typing.TYPE_CHECKING:
     from .fields import Field
@@ -1481,6 +1481,12 @@ def to_filter(model: BaseModel, domain) -> dict:
         return {'$or': [to_filter(model, child) for child in domain.children]}
     if isinstance(domain, DomainCondition):
         return _condition(model, domain)
+    if isinstance(domain, DomainCustom):
+        # raw SQL: PostgreSQL evaluates it over the shadow rows
+        from .query import Query  # noqa: PLC0415
+        query = Query(model)
+        query.add_where(domain._to_sql(query.table))
+        return {'_id': {'$in': list(query.get_result_ids())}}
     raise NotImplementedError(f"{model._name}: domain {domain} cannot run on MongoDB storage")
 
 
