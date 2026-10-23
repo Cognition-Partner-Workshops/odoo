@@ -456,9 +456,12 @@ def _new_fields(model: BaseModel) -> list[Field]:
 
 def _init_field_data(model: BaseModel, field: Field) -> None:
     """ Fill in the missing values of a new field in the existing documents,
-    as ``Field._init_column_data`` does for a new PostgreSQL column. A custom
-    ``init_storage`` runs SQL on the column, so the field is computed instead. """
-    if not (field.default or field.compute) or field.company_dependent:
+    as ``Field._init_column_data`` does for a new PostgreSQL column. Method
+    hooks (``init_storage`` given by name, and stored related fields) update the
+    column in SQL, which can't reach documents: the field is computed instead. """
+    from .fields import Field, determine  # noqa: PLC0415
+    init = field.init_storage
+    if not (init or field.default or field.compute) or field.company_dependent:
         return
     cr = model.env.cr
     cr.execute(SQL("SELECT id FROM %s ORDER BY id", SQL.identifier(model._table)))
@@ -466,10 +469,12 @@ def _init_field_data(model: BaseModel, field: Field) -> None:
     if not ids:
         return
     to_compute = 'default'
+    if init and not isinstance(init, str) and getattr(init, '__func__', None) is not Field._init_column_related:
+        to_compute = determine(init, model)   # e.g. an explicit opt-out
     value = None
     if field.default:
         value = field.default(model)
-        if value is not None:
+        if value is not None and to_compute == 'default':
             to_compute = False
         value = field.convert_to_column_insert(field.convert_to_write(value, model), model)
         if hasattr(value, 'adapted'):
