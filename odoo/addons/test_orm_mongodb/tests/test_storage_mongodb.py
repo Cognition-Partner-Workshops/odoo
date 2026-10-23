@@ -5,6 +5,7 @@ from decimal import Decimal
 from unittest.mock import patch
 
 import psycopg2.errors
+import pymongo.errors
 from bson.decimal128 import Decimal128
 
 from odoo import Command
@@ -445,6 +446,12 @@ class TestStorageMongodb(TransactionCase):
                 self.Expression.create([{'report_line_id': 1, 'formula': 'posted'}] * 2)
                 with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
                     self.Expression.create(vals | {'formula': 'posted'})
+                # a filter the documents violate fails without dropping the current index
+                with self.assertRaises(pymongo.errors.DuplicateKeyError):
+                    storage_mongodb._create_indexes(collection, spec_indexes)
+                self.assertEqual([info['partialFilterExpression'] for info in collection.index_information().values()
+                                  if info.get('unique')], [{'$and': [{'reportLineId': {'$exists': True}, 'label': {'$exists': True}},
+                                                                    {'formula': 'posted'}]}])
                 1 / 0
         finally:
             storage_mongodb._create_indexes(collection, spec_indexes)

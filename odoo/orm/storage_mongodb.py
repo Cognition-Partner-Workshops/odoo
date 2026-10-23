@@ -606,10 +606,12 @@ def ensure_indexes(model: BaseModel) -> None:
 
 def _create_indexes(collection, indexes: list[dict]) -> None:
     existing = collection.index_information()
+    wanted = {}
     for index in indexes:
         keys = [(path, direction) for path, direction in index['keys']]
         if keys == [('_id', 1)]:
             continue
+        name = '_'.join(f'{path}_{direction}' for path, direction in keys)
         options = {}
         if index.get('unique'):
             options['unique'] = True
@@ -617,16 +619,18 @@ def _create_indexes(collection, indexes: list[dict]) -> None:
             exists = {path: {'$exists': True} for path, _ in keys}
             spec_filter = index.get('partialFilterExpression')
             options['partialFilterExpression'] = {'$and': [exists, spec_filter]} if spec_filter else exists
-        # an index of the same keys with other options, e.g. the filter of a
-        # previous spec version, is replaced rather than refused
-        name = '_'.join(f'{path}_{direction}' for path, direction in keys)
-        if (current := existing.get(name)) and (
-            bool(current.get('unique')) != bool(options.get('unique'))
-            or current.get('partialFilterExpression') != options.get('partialFilterExpression')
-        ):
+            # named after its filter, so a new filter builds next to the
+            # current index, which is only dropped once the new one exists
+            digest = hashlib.sha256(json.dumps(options['partialFilterExpression'], sort_keys=True, default=str).encode())
+            name = f'{name}_unique_{digest.hexdigest()[:8]}'
+        elif existing.get(name, {}).get('unique'):
+            # the spec no longer wants this index unique
             collection.drop_index(name)
         collection.create_index(keys, name=name, **options)
-
+        wanted[name] = keys
+    for name, info in existing.items():
+        if name not in wanted and list(map(tuple, info['key'])) in wanted.values():
+            collection.drop_index(name)
 
 # ---------------------------------------------------------------------------
 # value conversion
