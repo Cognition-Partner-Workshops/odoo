@@ -633,7 +633,7 @@ def _from_bson(field: Field, value, env):
         return float(value.to_decimal())
     if field.type == 'date' and isinstance(value, dt.datetime):
         return value.date()
-    if field.translate is True and not env.context.get('prefetch_langs'):
+    if field.translate and not env.context.get('prefetch_langs'):
         from .fields_textual import StoredTranslations  # noqa: PLC0415
         for lang in StoredTranslations.fallback_langs(field.translation_lang(env)):
             if value.get(lang) is not None:
