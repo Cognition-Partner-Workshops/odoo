@@ -561,7 +561,8 @@ class Registry(Mapping[str, type["BaseModel"]]):
 
         self.many2one_company_dependents.clear()
         # fields are set up again in place
-        for cache in ('_mongodb_layouts', '_mongodb_references', '_mongodb_pg_cascades', '_mongodb_relation_fields'):
+        for cache in ('_mongodb_layouts', '_mongodb_references', '_mongodb_pg_cascades', '_mongodb_relation_fields',
+                      '_mongodb_mirrored_relations'):
             self.__dict__.pop(cache, None)
 
         model_classes.setup_model_classes(env)

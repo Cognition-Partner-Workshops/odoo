@@ -465,6 +465,7 @@ class BaseModel(metaclass=MetaModel):
     _table: str = ''                 #: SQL table name used by model if :attr:`_auto`
     _storage: str | None = None      #: 'mongodb' stores the columns in MongoDB (see storage_mongodb)
     _shadow_columns: tuple[str, ...] = ()  #: fields also kept in the PostgreSQL table of a MongoDB model
+    _shadow_relations: tuple[str, ...] = ()  #: many2many fields whose MongoDB links are also kept in their PostgreSQL relation table
     _table_objects: dict[str, TableObject] = frozendict()  #: SQL/Table objects
     _inherit_children: OrderedSet[str]
 

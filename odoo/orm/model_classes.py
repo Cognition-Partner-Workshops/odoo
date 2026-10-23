@@ -289,6 +289,7 @@ def _init_model_class_attributes(model_cls: type[BaseModel]):
     depends = {}
     model_cls._storage = None
     model_cls._shadow_columns = ()
+    model_cls._shadow_relations = ()
 
     for base in reversed(model_cls._base_classes__):
         if is_model_definition(base):
@@ -298,6 +299,8 @@ def _init_model_class_attributes(model_cls: type[BaseModel]):
                 model_cls._storage = base._storage
             if '_shadow_columns' in base.__dict__:
                 model_cls._shadow_columns = tuple(dict.fromkeys(model_cls._shadow_columns + tuple(base._shadow_columns)))
+            if '_shadow_relations' in base.__dict__:
+                model_cls._shadow_relations = tuple(dict.fromkeys(model_cls._shadow_relations + tuple(base._shadow_relations)))
             # the following attributes are not taken from registry classes
             if model_cls._name not in base._inherit and not base._description:
                 _logger.warning("The model %s has no _description", model_cls._name)

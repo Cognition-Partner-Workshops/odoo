@@ -1372,7 +1372,8 @@ class Many2many(_RelationalMulti):
         cr = model.env.cr
         if layout := storage_mongodb.relation_layout(self, model.env):
             storage_mongodb.ensure_relation_indexes(model.env, layout)
-            return
+            if not layout['mirror']:
+                return
         # Do not reflect relations for custom fields, as they do not belong to a
         # module. They are automatically removed when dropping the corresponding
         # 'ir.model.field'.
@@ -1402,7 +1403,7 @@ class Many2many(_RelationalMulti):
             else:
                 to_compute = True
             # Mark computed fields to recompute
-            if to_compute and self.compute:
+            if to_compute and self.compute and not layout:
                 _logger.info("Prepare computation of %s", self)
                 cr.execute(SQL(
                     "SELECT id FROM %(table)s WHERE id NOT IN (SELECT %(id1)s FROM %(rel)s)",
@@ -1413,6 +1414,8 @@ class Many2many(_RelationalMulti):
                 records = model.browse(row[0] for row in cr.fetchall())
                 model.env.add_to_compute(self, records)
 
+        if layout:
+            storage_mongodb.fill_relation_mirror(self, model.env, layout)
         model.pool.post_init(self.update_db_foreign_keys, model)
 
     def update_db_foreign_keys(self, model):
