@@ -159,6 +159,36 @@ def _references(registry) -> dict[str, list[Field]]:
     return refs
 
 
+def _pg_cascades(env) -> dict[str, list[Field]]:
+    """ Return the ``ondelete='cascade'`` many2one fields of PostgreSQL models,
+    by comodel name, whose cascaded records MongoDB documents may reference. """
+    registry = env.registry
+    cascades = registry.__dict__.get('_mongodb_pg_cascades')
+    if cascades is None:
+        refs = _references(registry)
+        fields_ = [
+            field
+            for model_cls in registry.models.values()
+            if model_cls._storage != 'mongodb' and not model_cls._abstract
+            for field in model_cls._fields.values()
+            if field.type == 'many2one' and field.store and field.ondelete == 'cascade'
+        ]
+        followed = {
+            model_name for model_name, model_cls in registry.models.items()
+            if refs.get(model_name) or any(
+                field.type == 'many2many' and field.store and relation_layout(field, env)
+                for field in model_cls._fields.values())
+        }
+        cascades = {}
+        while todo := [f for f in fields_ if f.model_name in followed and f not in cascades.get(f.comodel_name, ())]:
+            for field in todo:
+                cascades.setdefault(field.comodel_name, []).append(field)
+                followed.add(field.comodel_name)
+        if registry.ready:
+            registry._mongodb_pg_cascades = cascades
+    return cascades
+
+
 def unlink_dependents(records: BaseModel) -> None:
     """ Apply ``ondelete`` of the many2one fields of MongoDB models that
     reference ``records`` through the ORM, so documents follow. PostgreSQL
@@ -181,6 +211,11 @@ def unlink_dependents(records: BaseModel) -> None:
             dependents.write({field.name: False})
             # the cache, dirty values included, is invalidated after the delete
             dependents.flush_recordset()
+    for field in _pg_cascades(records.env).get(records._name, ()):
+        # PostgreSQL deletes these through its foreign key, without the ORM
+        if dependents := records.env[field.model_name].sudo().with_context(active_test=False).search(
+                [(field.name, 'in', records.ids)]):
+            unlink_dependents(dependents)
 
 
 # ---------------------------------------------------------------------------

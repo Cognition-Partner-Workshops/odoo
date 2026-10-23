@@ -560,7 +560,9 @@ class Registry(Mapping[str, type["BaseModel"]]):
                 todo.extend(self.field_setup_dependents.pop(field, ()))
 
         self.many2one_company_dependents.clear()
-        self.__dict__.pop('_mongodb_layouts', None)   # fields are set up again in place
+        # fields are set up again in place
+        for cache in ('_mongodb_layouts', '_mongodb_references', '_mongodb_pg_cascades', '_mongodb_relation_fields'):
+            self.__dict__.pop(cache, None)
 
         model_classes.setup_model_classes(env)
 
