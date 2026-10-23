@@ -628,8 +628,12 @@ def _create_indexes(collection, indexes: list[dict]) -> None:
             collection.drop_index(name)
         collection.create_index(keys, name=name, **options)
         wanted[name] = keys
+    # drop only the indexes this function named: the default name of the
+    # keys, or a filter name, never an index made by someone else
     for name, info in existing.items():
-        if name not in wanted and list(map(tuple, info['key'])) in wanted.values():
+        keys = list(map(tuple, info['key']))
+        default = '_'.join(f'{path}_{direction}' for path, direction in keys)
+        if name not in wanted and keys in wanted.values() and re.fullmatch(rf'{re.escape(default)}(_unique_[0-9a-f]{{8}})?', name):
             collection.drop_index(name)
 
 # ---------------------------------------------------------------------------

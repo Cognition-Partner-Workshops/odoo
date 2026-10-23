@@ -433,8 +433,12 @@ class TestStorageMongodb(TransactionCase):
             dict(index, partialFilterExpression={'formula': 'posted'}) if index.get('unique') else index
             for index in spec_indexes
         ]
+        # an index someone else made on the same keys is left alone
+        collection.create_index([('reportLineId', 1), ('label', 1)], name='external')
+        self.addCleanup(collection.drop_index, 'external')
         storage_mongodb._create_indexes(collection, partial)
         try:
+            self.assertIn('external', collection.index_information())
             unique = [info for info in collection.index_information().values() if info.get('unique')]
             self.assertEqual(len(unique), 1, "the index of the previous filter is replaced")
             # the savepoint removes the documents before the spec index is restored
