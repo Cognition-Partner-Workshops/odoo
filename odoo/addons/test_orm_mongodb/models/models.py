@@ -2,6 +2,7 @@
 # (.migration/mapping_spec.json) so the real document layout is exercised.
 from odoo import fields, models
 from odoo.tools import SQL
+from odoo.tools.translate import html_translate
 
 
 class Test_Orm_MongodbIncoterm(models.Model):
@@ -187,6 +188,7 @@ class Test_Orm_MongodbTemplate(models.Model):
     _order = 'name, id'
 
     name = fields.Char(translate=True, required=True)
+    description = fields.Html(translate=html_translate)
 
 
 class Test_Orm_MongodbVariant(models.Model):
