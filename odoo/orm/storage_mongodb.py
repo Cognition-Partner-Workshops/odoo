@@ -1074,10 +1074,17 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
 
 
 def _native(group: dict) -> dict:
-    """ Turn the Decimal128 accumulators of ``group`` into ``decimal.Decimal``,
-    which Python arithmetic can merge across chunks. """
+    """ Turn the Decimal128 values of ``group`` into ``decimal.Decimal``,
+    which Python can hash (group keys) and merge across chunks. """
     from bson.decimal128 import Decimal128  # noqa: PLC0415
-    return {key: value.to_decimal() if isinstance(value, Decimal128) else value for key, value in group.items()}
+
+    def native(value):
+        return value.to_decimal() if isinstance(value, Decimal128) else value
+
+    group = {key: native(value) for key, value in group.items()}
+    if isinstance(group['_id'], dict):
+        group['_id'] = {key: native(value) for key, value in group['_id'].items()}
+    return group
 
 
 def _regroup(model: BaseModel, groups: dict, dotted: dict[int, str], accumulators: dict) -> dict:
