@@ -55,6 +55,7 @@ class Test_Orm_MongodbStorage_Capacity(models.Model):
 
     storage_category_id = fields.Many2one('test_orm_mongodb.storage_category', ondelete='cascade')
     quantity = fields.Float()
+    company_id = fields.Many2one(related='storage_category_id.company_id')
 
 
 class Test_Orm_MongodbReport_Expression(models.Model):
