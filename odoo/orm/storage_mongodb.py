@@ -1013,7 +1013,7 @@ def _search_fnames(model: BaseModel, order: str | None, *domains) -> set[str]:
     """ Return the fields of ``model`` that ``domains`` and ``order`` read,
     which a search flushes first, as PostgreSQL flushes those of its query. """
     fnames = {cond.field_expr.split('.')[0] for domain in domains for cond in domain.iter_conditions()}
-    for term in (order or model._order or '').split(','):
+    for term in (order or '').split(','):
         if term := term.strip():
             fnames.add(term.split()[0].split('.')[0].split(':')[0])
     return {fname for fname in fnames if fname in model._fields}
@@ -1088,6 +1088,8 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
     groupby, aggregates, having = list(groupby), list(aggregates), list(having or ())
     if not (groupby or aggregates):
         raise ValueError(model.env._("Need groupby or aggregates."))
+    # the aggregation reads groupby and aggregated fields from the documents
+    model.flush_model()
     terms = []
     for part in (order or ','.join(groupby)).split(','):
         if not part.strip():

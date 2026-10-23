@@ -154,8 +154,11 @@ class TestStorageMongodb(TransactionCase):
         # even with its cached value invalidated
         Tag._invalidate_cache(['sequence'])
         self.assertEqual(Tag.search([('name', '=', 'Flushed')], order='id'), tag)
+        self.assertEqual(Tag.search_count([('id', '=', tag.id)]), 1)
         tag.sequence = 2
         self.assertEqual(Tag.search([('sequence', '=', 2)], order='id'), tag)
+        tag.sequence = 3
+        self.assertEqual(Tag._read_group([('id', '=', tag.id)], ['sequence'], ['__count']), [(3, 1)])
 
     def test_unlink_set_null_is_flushed(self):
         Template = self.env['test_orm_mongodb.template']
