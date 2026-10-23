@@ -899,10 +899,19 @@ def _translation_targets(model: BaseModel, xmlids: list[str]) -> dict[str, tuple
     return {xmlid: (res_id, noupdate) for xmlid, res_id, noupdate in rows}
 
 
+def _lock_translation_rows(model: BaseModel, ids: list[int]) -> None:
+    """ Lock the shadow rows of ``ids`` in id order before their translations
+    are read, so concurrent imports merge into each other's languages. """
+    if ids:
+        model.env.cr.execute(SQL("SELECT id FROM %s WHERE id IN %s ORDER BY id FOR UPDATE",
+                                 SQL.identifier(model._table), tuple(ids)))
+
+
 def translation_rows(model: BaseModel, fname: str, xmlids: list[str]) -> list[tuple]:
     """ The ``(id, xmlid, translations, noupdate)`` rows that
     ``TranslationImporter.save`` reads from the table, from the documents. """
     targets = _translation_targets(model, xmlids)
+    _lock_translation_rows(model, [res_id for res_id, _noupdate in targets.values()])
     path = _layout(model)['paths'][fname]
     docs = _fetch_docs(model, [res_id for res_id, _noupdate in targets.values()], {path: 1})
     return [
@@ -921,6 +930,7 @@ def import_translations(model: BaseModel, fname: str, translations: dict[str, di
         if xmlid in targets:
             res_id, noupdate = targets[xmlid]
             merged.setdefault(res_id, ({}, {}))[0 if noupdate else 1].update(values)
+    _lock_translation_rows(model, list(merged))
     path = _layout(model)['paths'][fname]
     docs = _fetch_docs(model, list(merged), {path: 1})
     rows = []
