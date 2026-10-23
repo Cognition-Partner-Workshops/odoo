@@ -2209,6 +2209,7 @@ class TranslationImporter:
         if not self.model_translations and not self.model_terms_translations:
             return
 
+        from odoo.orm import storage_mongodb  # noqa: PLC0415
         env = self.env
         env.flush_all()
 
@@ -2222,15 +2223,18 @@ class TranslationImporter:
                 for sub_xmlids in split_every(IN_MAX, field_dictionary.keys()):
                     # [module_name, imd_name, module_name, imd_name, ...]
                     params = [xmlid.split('.', maxsplit=1) for xmlid in sub_xmlids]
-                    rows = env.execute_query(SQL("""
-                        SELECT m.id, imd.module || '.' || imd.name, m.%s, imd.noupdate
-                        FROM %s m, "ir_model_data" imd
-                        WHERE m.id = imd.res_id
-                        AND (%s)
-                    """, SQL.identifier(field_name), SQL.identifier(model_table), SQL(" OR ").join(
-                        SQL("(imd.module = %s AND imd.name = %s)", *param)
-                        for param in params
-                    )))
+                    if Model._storage == 'mongodb':
+                        rows = storage_mongodb.translation_rows(Model, field_name, sub_xmlids)
+                    else:
+                        rows = env.execute_query(SQL("""
+                            SELECT m.id, imd.module || '.' || imd.name, m.%s, imd.noupdate
+                            FROM %s m, "ir_model_data" imd
+                            WHERE m.id = imd.res_id
+                            AND (%s)
+                        """, SQL.identifier(field_name), SQL.identifier(model_table), SQL(" OR ").join(
+                            SQL("(imd.module = %s AND imd.name = %s)", *param)
+                            for param in params
+                        )))
 
                     # [id, translations, id, translations, ...]
                     params = []
@@ -2261,7 +2265,17 @@ class TranslationImporter:
                                 changed_values[f'_{lang}'] = None
                         if changed_values:
                             params.append((id_, Json(changed_values)))
-                    if params:
+                    if params and Model._storage == 'mongodb':
+                        old_values = {row[0]: row[2] for row in rows}
+                        storage_mongodb.write_translations(Model, field_name, [
+                            (id_, {
+                                lang: value
+                                for lang, value in (old_values[id_] | changed.adapted).items()
+                                if value is not None
+                            })
+                            for id_, changed in params
+                        ])
+                    elif params:
                         env.execute_query(SQL("""
                             UPDATE %(table)s AS m
                             SET %(field_name)s = jsonb_strip_nulls(%(field_name)s || t.value)
@@ -2281,6 +2295,10 @@ class TranslationImporter:
             model_table = Model._table
             for field_name, field_dictionary in model_dictionary.items():
                 for sub_field_dictionary in split_every(IN_MAX, field_dictionary.items()):
+                    if Model._storage == 'mongodb':
+                        mode = 'force' if force_overwrite else 'overwrite' if overwrite else 'keep'
+                        storage_mongodb.import_translations(Model, field_name, dict(sub_field_dictionary), mode)
+                        continue
                     # Parallel arrays + ORDINALITY preserve sub_field_dictionary order
                     # so colliding xmlids merge deterministically in SQL.
                     imd_modules, imd_names, values = [], [], []

@@ -884,6 +884,75 @@ def update(model: BaseModel, ids: list[int], vals_list: list[dict]) -> None:
             _raise_unique_violation(model, e)
 
 
+
+# ---------------------------------------------------------------------------
+# translation imports (the raw SQL of TranslationImporter.save)
+# ---------------------------------------------------------------------------
+
+def _translation_targets(model: BaseModel, xmlids: list[str]) -> dict[str, tuple[int, bool]]:
+    """ ``{xmlid: (res_id, noupdate)}`` of the ``xmlids`` naming records of ``model``. """
+    rows = model.env.execute_query(SQL(
+        "SELECT module || '.' || name, res_id, noupdate FROM ir_model_data"
+        " WHERE model = %s AND (module, name) IN %s",
+        model._name, tuple(tuple(xmlid.split('.', 1)) for xmlid in xmlids),
+    ))
+    return {xmlid: (res_id, noupdate) for xmlid, res_id, noupdate in rows}
+
+
+def translation_rows(model: BaseModel, fname: str, xmlids: list[str]) -> list[tuple]:
+    """ The ``(id, xmlid, translations, noupdate)`` rows that
+    ``TranslationImporter.save`` reads from the table, from the documents. """
+    targets = _translation_targets(model, xmlids)
+    path = _layout(model)['paths'][fname]
+    docs = _fetch_docs(model, [res_id for res_id, _noupdate in targets.values()], {path: 1})
+    return [
+        (res_id, xmlid, docs[res_id].get(path), noupdate)
+        for xmlid, (res_id, noupdate) in targets.items()
+        if res_id in docs
+    ]
+
+
+def import_translations(model: BaseModel, fname: str, translations: dict[str, dict], mode: str) -> None:
+    """ Merge ``{xmlid: {lang: value}}`` into ``fname`` like the SQL of
+    ``TranslationImporter.save``; ``mode`` is 'force', 'overwrite' or 'keep'. """
+    targets = _translation_targets(model, list(translations))
+    merged = {}
+    for xmlid, values in translations.items():
+        if xmlid in targets:
+            res_id, noupdate = targets[xmlid]
+            merged.setdefault(res_id, ({}, {}))[0 if noupdate else 1].update(values)
+    path = _layout(model)['paths'][fname]
+    docs = _fetch_docs(model, list(merged), {path: 1})
+    rows = []
+    for res_id, (noupdate_values, update_values) in merged.items():
+        old = docs.get(res_id, {}).get(path)
+        if old is None:     # like NULL || jsonb in PostgreSQL
+            continue
+        parts = {
+            'force': (old, noupdate_values, update_values),
+            'overwrite': (noupdate_values, old, update_values),
+            'keep': (noupdate_values, update_values, old),
+        }[mode]
+        rows.append((res_id, {key: val for part in parts for key, val in part.items()}))
+    write_translations(model, fname, rows)
+
+
+def write_translations(model: BaseModel, fname: str, rows: list[tuple[int, dict]]) -> None:
+    """ Store the whole translation maps of ``rows`` (``(id, {lang: value})``) in ``fname``. """
+    if not rows:
+        return
+    field = model._fields[fname]
+    update(model, [id_ for id_, _value in rows], [
+        {fname: (False, value) if field.translate is True else value}
+        for _id, value in rows
+    ])
+    if fname in model._shadow_columns:
+        for id_, value in rows:
+            model.env.cr.execute(SQL(
+                "UPDATE %s SET %s = %s::jsonb WHERE id = %s",
+                SQL.identifier(model._table), SQL.identifier(fname), json.dumps(value), id_,
+            ))
+
 def delete(model: BaseModel, ids: typing.Iterable[int]) -> None:
     """ Delete documents; run right after the shadow rows are deleted. """
     collection = get_collection(model)
