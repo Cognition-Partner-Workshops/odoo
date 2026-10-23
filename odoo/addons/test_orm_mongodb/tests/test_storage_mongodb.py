@@ -425,6 +425,33 @@ class TestStorageMongodb(TransactionCase):
         with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
             self.Expression.create({'report_line_id': 1, 'label': 'balance'})
 
+    def test_partial_unique_index(self):
+        collection = storage_mongodb.get_collection(self.Expression)
+        spec_indexes = storage_mongodb._layout(self.Expression)['indexes']
+        partial = [
+            dict(index, partialFilterExpression={'formula': 'posted'}) if index.get('unique') else index
+            for index in spec_indexes
+        ]
+        storage_mongodb._create_indexes(collection, partial)
+        try:
+            unique = [info for info in collection.index_information().values() if info.get('unique')]
+            self.assertEqual(len(unique), 1, "the index of the previous filter is replaced")
+            # the savepoint removes the documents before the spec index is restored
+            with self.assertRaises(ZeroDivisionError), self.env.cr.savepoint():
+                vals = {'report_line_id': 1, 'label': 'balance'}
+                self.Expression.create([vals | {'formula': 'draft'}, vals | {'formula': 'draft'}, vals])
+                self.Expression.create(vals | {'formula': 'posted'})
+                # a missing key still never collides inside the filter
+                self.Expression.create([{'report_line_id': 1, 'formula': 'posted'}] * 2)
+                with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
+                    self.Expression.create(vals | {'formula': 'posted'})
+                1 / 0
+        finally:
+            storage_mongodb._create_indexes(collection, spec_indexes)
+        restored = [info for info in collection.index_information().values() if info.get('unique')]
+        self.assertEqual([info['partialFilterExpression'] for info in restored],
+                         [{'reportLineId': {'$exists': True}, 'label': {'$exists': True}}])
+
     # -- transactions -------------------------------------------------------------
 
     def test_savepoint_rollback_undoes_documents(self):

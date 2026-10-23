@@ -605,6 +605,7 @@ def ensure_indexes(model: BaseModel) -> None:
 
 
 def _create_indexes(collection, indexes: list[dict]) -> None:
+    existing = collection.index_information()
     for index in indexes:
         keys = [(path, direction) for path, direction in index['keys']]
         if keys == [('_id', 1)]:
@@ -612,8 +613,19 @@ def _create_indexes(collection, indexes: list[dict]) -> None:
         options = {}
         if index.get('unique'):
             options['unique'] = True
-            options['partialFilterExpression'] = {path: {'$exists': True} for path, _ in keys}
-        collection.create_index(keys, **options)
+            # missing keys never collide, like NULLs in a PostgreSQL unique index
+            exists = {path: {'$exists': True} for path, _ in keys}
+            spec_filter = index.get('partialFilterExpression')
+            options['partialFilterExpression'] = {'$and': [exists, spec_filter]} if spec_filter else exists
+        # an index of the same keys with other options, e.g. the filter of a
+        # previous spec version, is replaced rather than refused
+        name = '_'.join(f'{path}_{direction}' for path, direction in keys)
+        if (current := existing.get(name)) and (
+            bool(current.get('unique')) != bool(options.get('unique'))
+            or current.get('partialFilterExpression') != options.get('partialFilterExpression')
+        ):
+            collection.drop_index(name)
+        collection.create_index(keys, name=name, **options)
 
 
 # ---------------------------------------------------------------------------
