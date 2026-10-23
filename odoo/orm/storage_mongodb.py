@@ -192,6 +192,8 @@ def _pg_cascades(env) -> dict[str, list[Field]]:
 def _cascade_delete(records: BaseModel) -> None:
     """ Delete ``records`` like PostgreSQL's ``ON DELETE CASCADE``: their own
     dependents follow, but no ``unlink`` override or ``ondelete`` check runs. """
+    for field in records._fields.values():
+        records.env.remove_to_compute(field, records)
     records.flush_recordset()
     unlink_dependents(records)
     for sub_ids in split_every(IN_MAX, records.ids):
