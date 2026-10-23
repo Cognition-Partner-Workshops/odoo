@@ -211,6 +211,14 @@ class TestStorageMongodb(TransactionCase):
         self.assertIsNone(self.doc(lock))
         self.assertFalse(self.Lock.with_context(active_test=False).search([('id', '=', lock.id)]))
 
+    def test_selection_records_are_read_from_documents(self):
+        lock = self.Lock.create({'company_id': self.company.id, 'lock_date_field': 'tax_lock_date'})
+        selection = self.env['ir.model.fields.selection'].search([
+            ('field_id.model', '=', self.Lock._name), ('field_id.name', '=', 'lock_date_field'),
+            ('value', '=', 'tax_lock_date'),
+        ])
+        self.assertEqual(selection._get_records(), lock)
+
     def test_documents_without_shadow_row_are_ignored(self):
         lock = self.Lock.create({'company_id': self.company.id, 'reason': 'orphan'})
         self.env.flush_all()

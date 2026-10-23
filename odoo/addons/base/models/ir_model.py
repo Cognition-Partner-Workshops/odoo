@@ -2055,6 +2055,10 @@ class IrModelFieldsSelection(models.Model):
         self.ensure_one()
         Model = self.env[self.field_id.model]
         Model.flush_model([self.field_id.name])
+        if Model._storage == 'mongodb':
+            # the values are in the documents, not in the shadow rows
+            domain = [(self.field_id.name, '=', self.value)]
+            return Model.browse(Model.sudo().with_context(active_test=False).search(domain).ids)
         if self.field_id.company_dependent:
             # company-dependent fields are stored as jsonb (e.g; {company_id: value})
             query = SQL(
