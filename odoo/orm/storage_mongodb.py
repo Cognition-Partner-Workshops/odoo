@@ -605,16 +605,36 @@ def ensure_indexes(model: BaseModel) -> None:
 
 
 def _create_indexes(collection, indexes: list[dict]) -> None:
+    existing = collection.index_information()
+    wanted = {}
     for index in indexes:
         keys = [(path, direction) for path, direction in index['keys']]
         if keys == [('_id', 1)]:
             continue
+        name = '_'.join(f'{path}_{direction}' for path, direction in keys)
         options = {}
         if index.get('unique'):
             options['unique'] = True
-            options['partialFilterExpression'] = {path: {'$exists': True} for path, _ in keys}
-        collection.create_index(keys, **options)
-
+            # missing keys never collide, like NULLs in a PostgreSQL unique index
+            exists = {path: {'$exists': True} for path, _ in keys}
+            spec_filter = index.get('partialFilterExpression')
+            options['partialFilterExpression'] = {'$and': [exists, spec_filter]} if spec_filter else exists
+            # named after its filter, so a new filter builds next to the
+            # current index, which is only dropped once the new one exists
+            digest = hashlib.sha256(json.dumps(options['partialFilterExpression'], sort_keys=True, default=str).encode())
+            name = f'{name}_unique_{digest.hexdigest()[:8]}'
+        elif existing.get(name, {}).get('unique'):
+            # the spec no longer wants this index unique
+            collection.drop_index(name)
+        collection.create_index(keys, name=name, **options)
+        wanted[name] = keys
+    # drop only the indexes this function named: the default name of the
+    # keys, or a filter name, never an index made by someone else
+    for name, info in existing.items():
+        keys = list(map(tuple, info['key']))
+        default = '_'.join(f'{path}_{direction}' for path, direction in keys)
+        if name not in wanted and keys in wanted.values() and re.fullmatch(rf'{re.escape(default)}(_unique_[0-9a-f]{{8}})?', name):
+            collection.drop_index(name)
 
 # ---------------------------------------------------------------------------
 # value conversion

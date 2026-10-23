@@ -5,6 +5,7 @@ from decimal import Decimal
 from unittest.mock import patch
 
 import psycopg2.errors
+import pymongo.errors
 from bson.decimal128 import Decimal128
 
 from odoo import Command
@@ -424,6 +425,43 @@ class TestStorageMongodb(TransactionCase):
         self.Expression.create([{'report_line_id': 1}, {'report_line_id': 1}])
         with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
             self.Expression.create({'report_line_id': 1, 'label': 'balance'})
+
+    def test_partial_unique_index(self):
+        collection = storage_mongodb.get_collection(self.Expression)
+        spec_indexes = storage_mongodb._layout(self.Expression)['indexes']
+        partial = [
+            dict(index, partialFilterExpression={'formula': 'posted'}) if index.get('unique') else index
+            for index in spec_indexes
+        ]
+        # an index someone else made on the same keys is left alone
+        collection.create_index([('reportLineId', 1), ('label', 1)], name='external')
+        self.addCleanup(collection.drop_index, 'external')
+        storage_mongodb._create_indexes(collection, partial)
+        try:
+            self.assertIn('external', collection.index_information())
+            unique = [info for info in collection.index_information().values() if info.get('unique')]
+            self.assertEqual(len(unique), 1, "the index of the previous filter is replaced")
+            # the savepoint removes the documents before the spec index is restored
+            with self.assertRaises(ZeroDivisionError), self.env.cr.savepoint():
+                vals = {'report_line_id': 1, 'label': 'balance'}
+                self.Expression.create([vals | {'formula': 'draft'}, vals | {'formula': 'draft'}, vals])
+                self.Expression.create(vals | {'formula': 'posted'})
+                # a missing key still never collides inside the filter
+                self.Expression.create([{'report_line_id': 1, 'formula': 'posted'}] * 2)
+                with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
+                    self.Expression.create(vals | {'formula': 'posted'})
+                # a filter the documents violate fails without dropping the current index
+                with self.assertRaises(pymongo.errors.DuplicateKeyError):
+                    storage_mongodb._create_indexes(collection, spec_indexes)
+                self.assertEqual([info['partialFilterExpression'] for info in collection.index_information().values()
+                                  if info.get('unique')], [{'$and': [{'reportLineId': {'$exists': True}, 'label': {'$exists': True}},
+                                                                    {'formula': 'posted'}]}])
+                1 / 0
+        finally:
+            storage_mongodb._create_indexes(collection, spec_indexes)
+        restored = [info for info in collection.index_information().values() if info.get('unique')]
+        self.assertEqual([info['partialFilterExpression'] for info in restored],
+                         [{'reportLineId': {'$exists': True}, 'label': {'$exists': True}}])
 
     # -- transactions -------------------------------------------------------------
 
