@@ -1,3 +1,4 @@
+from odoo.orm import storage_mongodb
 from odoo.tests import TransactionCase, tagged
 
 
@@ -16,6 +17,20 @@ class TestOrderOutsideDocument(TransactionCase):
         self.assertEqual(Variant.search(domain, order='name desc').ids, [c.id, b.id, a.id])
         self.assertEqual(Variant.search(domain, order='name', limit=1), a)
         self.assertEqual(Variant.search(domain + [('name', '=', 'Bravo')]), b)
+
+    def test_order_boolean_unset_is_false(self):
+        # like PostgreSQL's COALESCE(field, FALSE): an unset boolean sorts as False, not as NULL
+        Incoterm = self.env['test_orm_mongodb.incoterm'].with_context(active_test=False)
+        unset, active, inactive = Incoterm.create([
+            {'code': 'U', 'name': 'Unset'},
+            {'code': 'A', 'name': 'Active', 'active': True},
+            {'code': 'I', 'name': 'Inactive', 'active': False},
+        ])
+        storage_mongodb.update(Incoterm, unset.ids, [{'active': None}])
+        self.assertNotIn('active', storage_mongodb.get_collection(Incoterm).find_one({'_id': unset.id}))
+        domain = [('id', 'in', (unset + active + inactive).ids)]
+        self.assertEqual(Incoterm.search(domain, order='active desc, id').ids, (active + unset + inactive).ids)
+        self.assertEqual(Incoterm.search(domain, order='active, id').ids, (unset + inactive + active).ids)
 
     def test_order_compute_sql_field(self):
         Tag = self.env['test_orm_mongodb.tag']
