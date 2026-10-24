@@ -212,11 +212,18 @@ def repoint_references(records: BaseModel, target: BaseModel) -> None:
             [(field.name, 'in', records.ids)])
         if not dependents:
             continue
-        update(dependents, list(dependents._ids), [{field.name: target.id}] * len(dependents))
-        if field.name in dependents._shadow_columns:
-            records.env.cr.execute(SQL("UPDATE %s SET %s = %s WHERE id IN %s", SQL.identifier(
-                dependents._table), SQL.identifier(field.name), target.id, tuple(dependents._ids)))
-        dependents.invalidate_recordset([field.name], flush=False)
+        try:
+            with records.env.cr.savepoint():
+                update(dependents, list(dependents._ids), [{field.name: target.id}] * len(dependents))
+                if field.name in dependents._shadow_columns:
+                    records.env.cr.execute(SQL("UPDATE %s SET %s = %s WHERE id IN %s", SQL.identifier(
+                        dependents._table), SQL.identifier(field.name), target.id, tuple(dependents._ids)))
+        except psycopg2.errors.UniqueViolation:
+            # like the merge's SQL: the records a unique key keeps from following are deleted
+            _cascade_delete(dependents)
+            continue
+        finally:
+            dependents.invalidate_recordset([field.name], flush=False)
 
 
 def unlink_dependents(records: BaseModel) -> None:
