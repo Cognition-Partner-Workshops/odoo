@@ -1829,6 +1829,9 @@ def _sort_stages(model: BaseModel, order: str | None) -> list[dict]:
             ranks[f'__rank{i}'] = {'$let': {'vars': {'rank': {'$indexOfArray': [coids, f'${path}']}},
                                             'in': {'$cond': [{'$gte': ['$$rank', 0]}, '$$rank', None]}}}
             path = f'__rank{i}'
+        elif field.type == 'boolean' and field not in model.env.registry.not_null_fields:
+            ranks[f'__rank{i}'] = {'$ifNull': [f'${path}', False]}  # COALESCE(field, FALSE)
+            path = f'__rank{i}'
         step = 1 if direction == 'ASC' else -1
         # PostgreSQL puts NULLs last ascending and first descending
         nulls_last = nulls == 'NULLS LAST' if nulls else step == 1

@@ -1,3 +1,4 @@
+from odoo.orm import storage_mongodb
 from odoo.tests import TransactionCase, tagged
 
 
@@ -16,6 +17,20 @@ class TestOrderOutsideDocument(TransactionCase):
         self.assertEqual(Variant.search(domain, order='name desc').ids, [c.id, b.id, a.id])
         self.assertEqual(Variant.search(domain, order='name', limit=1), a)
         self.assertEqual(Variant.search(domain + [('name', '=', 'Bravo')]), b)
+
+    def test_order_boolean_unset_is_false(self):
+        # like PostgreSQL's COALESCE(field, FALSE): an unset boolean sorts as False, not as NULL
+        Value = self.env['test_orm_mongodb.attribute_value']
+        attribute = self.env['test_orm_mongodb.attribute'].create({'name': 'Finish'})
+        unset, custom, plain = Value.create([
+            {'attribute_id': attribute.id, 'name': 'Unset'},
+            {'attribute_id': attribute.id, 'name': 'Custom', 'is_custom': True},
+            {'attribute_id': attribute.id, 'name': 'Plain', 'is_custom': False},
+        ])
+        storage_mongodb.update(Value, unset.ids, [{'is_custom': None}])
+        domain = [('id', 'in', (unset + custom + plain).ids)]
+        self.assertEqual(Value.search(domain, order='is_custom desc, id'), custom + unset + plain)
+        self.assertEqual(Value.search(domain, order='is_custom, id'), unset + plain + custom)
 
     def test_order_compute_sql_field(self):
         Tag = self.env['test_orm_mongodb.tag']
