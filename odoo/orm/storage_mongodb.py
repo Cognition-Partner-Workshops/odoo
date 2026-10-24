@@ -36,7 +36,7 @@ import psycopg2.errors
 from odoo.tools import SQL, date_utils, split_every, sql
 from odoo.tools.constants import IN_MAX
 
-from .domains import DomainAnd, DomainBool, DomainCondition, DomainCustom, DomainNot, DomainOr
+from .domains import Domain, DomainAnd, DomainBool, DomainCondition, DomainCustom, DomainNot, DomainOr
 
 if typing.TYPE_CHECKING:
     from .fields import Field
@@ -1418,6 +1418,10 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
                 for name, accumulator in accumulators.items():
                     (op,) = accumulator
                     prior[name] = _MERGE[op](prior[name], group[name])
+    if many2many := {i: model._fields[path] for i, path in enumerate(paths)
+                     if path in model._fields and model._fields[path].type == 'many2many'}:
+        groups = _expand(groups, {i: _many2many_ids(model, field, ids) for i, field in many2many.items()},
+                         accumulators)
     if dotted := {i: path for i, path in enumerate(paths) if '.' in path.split(':')[0]}:
         groups = _regroup(model, groups, dotted, accumulators, sudo)
     rows = []
@@ -1508,6 +1512,13 @@ def _regroup(model: BaseModel, groups: dict, dotted: dict[int, str], accumulator
                 value = None
             values[record.id].append(value)
         mapping[i] = values
+    return _expand(groups, mapping, accumulators)
+
+
+def _expand(groups: dict, mapping: dict[int, dict], accumulators: dict) -> dict:
+    """ Replace the value of each groupby key ``g<i>`` by the values that
+    ``mapping[i]`` gives it, or None without any: the group goes in each of
+    them, then groups with the same key merge. """
     merged = {}
     for gkey, group in groups.items():
         key = dict(gkey)
@@ -1524,6 +1535,32 @@ def _regroup(model: BaseModel, groups: dict, dotted: dict[int, str], accumulator
     return merged
 
 
+def _many2many_ids(model: BaseModel, field: Field, ids: list[int]) -> dict[int, list[int]]:
+    """ Return the linked ids of ``field`` per record id, from the
+    relation's links that the comodel search returns, like the SQL join. """
+    values = defaultdict(list)
+    layout = relation_layout(field, model.env)
+    for sub_ids in split_every(IN_MAX, ids):
+        if layout:
+            for link in find_links(model.env, layout, field.column1, sub_ids):
+                values[link[field.column1]].append(link[field.column2])
+            continue
+        model.env.cr.execute(SQL(
+            "SELECT %s, %s FROM %s WHERE %s IN %s", SQL.identifier(field.column1), SQL.identifier(field.column2),
+            SQL.identifier(field.relation), SQL.identifier(field.column1), tuple(sub_ids),
+        ))
+        for id_, coid in model.env.cr.fetchall():
+            values[id_].append(coid)
+    comodel = model.env[field.comodel_name].with_context(**field.context)
+    codomain = Domain(field.get_comodel_domain(model))
+    coids = {coid for coids in values.values() for coid in coids}
+    allowed = set()
+    for sub_ids in split_every(IN_MAX, coids):
+        allowed.update(comodel._search(codomain & Domain('id', 'in', sub_ids),
+                                       bypass_access=field.bypass_search_access))
+    return {id_: [coid for coid in coids if coid in allowed] for id_, coids in values.items()}
+
+
 def _field_expr(model: BaseModel, field: Field):
     if _multi_valued(field):
         return _translated_expr(model, field.name)
@@ -1537,6 +1574,8 @@ def _groupby_expr(model: BaseModel, spec: str):
         raise ValueError(f"Invalid field {fname!r} on model {model._name!r}")
     field = model._fields[fname]
     model.check_field_access(field, 'read')
+    if field.type == 'many2many' and field.store and not (chain or granularity):
+        return '$_id'   # grouped by record, then expanded to its linked ids
     if (chain and field.type != 'many2one') or field.type in ('many2many', 'properties') \
             or not (field.store and field.column_type):
         raise NotImplementedError(f"{model._name}: cannot group by {spec!r} on MongoDB storage yet")
