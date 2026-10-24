@@ -1,17 +1,17 @@
 {
- "spec_version": "map-draft-4",
+ "spec_version": "map-draft-5",
  "spec_file": ".migration/mapping_spec.json",
  "target_db": "odoo_unt13",
  "target_class": "local",
  "source_database": "odoo_src",
  "samples_file": ".migration/rehearsal_samples.json",
- "wall_time_seconds": 7.606,
+ "wall_time_seconds": 7.092,
  "collections": 71,
  "documents": 22647,
  "root_row_count_matches": 71,
  "root_row_count_mismatches": [],
- "indexes_in_spec": 612,
- "indexes_created": 612,
+ "indexes_in_spec": 614,
+ "indexes_created": 614,
  "indexes_failed": 0,
  "largest_document": {
   "collection": "accountTax",
@@ -417,8 +417,8 @@
    "max_doc_within_16mb": true,
    "largest_document_id": 1690,
    "p50_doc_bytes": 1827,
-   "indexes_in_spec": 61,
-   "indexes_created": 61,
+   "indexes_in_spec": 62,
+   "indexes_created": 62,
    "indexes_failed": [],
    "embeds": [
     {
@@ -641,7 +641,7 @@
    "max_doc_pct_of_limit": 0.0004,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada481aa90bf24c40d77427"
+    "$oid": "6adcd78be029a6a87eba8d0c"
    },
    "p50_doc_bytes": 73,
    "indexes_in_spec": 2,
@@ -903,7 +903,7 @@
    "max_doc_pct_of_limit": 0.0005,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada481aa90bf24c40d774b9"
+    "$oid": "6adcd78be029a6a87eba8d9e"
    },
    "p50_doc_bytes": 87,
    "indexes_in_spec": 2,
@@ -1022,7 +1022,7 @@
    "max_doc_pct_of_limit": 0.0003,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada481aa90bf24c40d77b3e"
+    "$oid": "6adcd78be029a6a87eba9423"
    },
    "p50_doc_bytes": 45,
    "indexes_in_spec": 2,
@@ -1076,8 +1076,8 @@
    "max_doc_within_16mb": true,
    "largest_document_id": 1279,
    "p50_doc_bytes": 648,
-   "indexes_in_spec": 20,
-   "indexes_created": 20,
+   "indexes_in_spec": 21,
+   "indexes_created": 21,
    "indexes_failed": [],
    "embeds": [
     {
@@ -1215,7 +1215,7 @@
    "max_doc_pct_of_limit": 0.0006,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada481ba90bf24c40d783d5"
+    "$oid": "6adcd78ce029a6a87eba9cba"
    },
    "p50_doc_bytes": 104,
    "indexes_in_spec": 2,
@@ -1262,7 +1262,7 @@
    "max_doc_pct_of_limit": 0.0005,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada481ba90bf24c40d78570"
+    "$oid": "6adcd78ce029a6a87eba9e55"
    },
    "p50_doc_bytes": 84,
    "indexes_in_spec": 2,
@@ -1281,7 +1281,7 @@
    "max_doc_pct_of_limit": 0.0005,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada481ba90bf24c40d78572"
+    "$oid": "6adcd78ce029a6a87eba9e57"
    },
    "p50_doc_bytes": 80,
    "indexes_in_spec": 2,
@@ -1300,7 +1300,7 @@
    "max_doc_pct_of_limit": 0.0004,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada481ba90bf24c40d78573"
+    "$oid": "6adcd78ce029a6a87eba9e58"
    },
    "p50_doc_bytes": 59,
    "indexes_in_spec": 2,
@@ -1474,7 +1474,7 @@
    "max_doc_pct_of_limit": 0.0003,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada481ca90bf24c40d78654"
+    "$oid": "6adcd78ce029a6a87eba9f39"
    },
    "p50_doc_bytes": 58,
    "indexes_in_spec": 2,
@@ -1493,7 +1493,7 @@
    "max_doc_pct_of_limit": 0.0004,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada481ca90bf24c40d787d4"
+    "$oid": "6adcd78ce029a6a87ebaa0b9"
    },
    "p50_doc_bytes": 61,
    "indexes_in_spec": 2,
@@ -2017,7 +2017,7 @@
    "max_doc_pct_of_limit": 0.0004,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ada481da90bf24c40d79039"
+    "$oid": "6adcd78ee029a6a87ebaa91e"
    },
    "p50_doc_bytes": 64,
    "indexes_in_spec": 2,
