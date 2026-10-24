@@ -1,6 +1,8 @@
+from unittest.mock import patch
+
 import psycopg2.errors
 
-from odoo import Command
+from odoo import Command, models
 from odoo.orm import storage_mongodb
 from odoo.tests import TransactionCase, tagged
 
@@ -118,8 +120,16 @@ class TestEmbeddedChildrenMongodb(TransactionCase):
         before = [collection.find_one({'_id': position.id})['account'] for position in (domestic, export)]
         with self.assertRaises(psycopg2.errors.UniqueViolation) as caught, self.env.cr.savepoint():
             Mapping.create({'position_id': domestic.id, 'account_src_id': 1, 'account_dest_id': 2})
-        self.assertIn(') already exists.', caught.exception.diag.message_detail)
+        self.assertEqual(caught.exception.diag.message_detail,
+                         f'Key (position_id, account_src_id, account_dest_id)=({domestic.id}, 1, 2) already exists.')
         self.assertEqual(caught.exception.diag.table_name, 'account_fiscal_position_account')
+        # the model's constraint on the parent and the key names the error, with its message
+        constraint = models.Constraint('unique (position_id,account_src_id,account_dest_id)', 'Defined only once per position.')
+        with patch.object(type(Mapping), '_table_objects', {'account_fiscal_position_account_account_src_dest_uniq': constraint}):
+            with self.assertRaises(psycopg2.errors.UniqueViolation) as caught, self.env.cr.savepoint():
+                Mapping.create({'position_id': domestic.id, 'account_src_id': 1, 'account_dest_id': 2})
+            self.assertEqual(caught.exception.diag.constraint_name, 'account_fiscal_position_account_account_src_dest_uniq')
+            self.assertEqual(Mapping._sql_error_to_message(caught.exception), 'Defined only once per position.')
         with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
             export.account_ids.position_id = domestic
             self.env.flush_all()

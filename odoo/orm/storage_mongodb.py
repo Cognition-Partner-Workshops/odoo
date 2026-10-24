@@ -841,7 +841,8 @@ def _check_key(model: BaseModel, parent_ids: typing.Iterable[int]) -> None:
             if None in key:
                 continue
             if key in seen:
-                raise UniqueViolation(model, dict(zip(key_paths, key)))
+                # unique within the parent, like a PostgreSQL constraint on the parent and the key
+                raise UniqueViolation(model, {embed['parent_path']: doc['_id'], **dict(zip(key_paths, key))})
             seen.add(key)
 
 
