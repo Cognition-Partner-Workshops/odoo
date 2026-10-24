@@ -230,8 +230,8 @@ Entry points scanned in every non-test .py file of the 70 installed modules and 
 | 183 | C | upgrade_script | `addons/analytic/migrations/1.2/pre-migrate.py:31` | `-.migrate` |  | upgrade script: runs only on -u from an older module version |
 | 184 | A | helper | `addons/analytic/models/analytic_mixin.py:35` | `analytic.mixin.init` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
 | 185 | A | fragment | `addons/analytic/models/analytic_mixin.py:44` | `analytic.mixin._query_analytic_accounts` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
-| 186 | A | fragment | `addons/analytic/models/analytic_mixin.py:132` | `analytic.mixin._read_group_groupby` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
-| 187 | A | fragment | `addons/analytic/models/analytic_mixin.py:143` | `analytic.mixin._read_group_groupby` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
+| 186 | B | fragment | `addons/analytic/models/analytic_mixin.py:132` | `analytic.mixin._read_group_groupby` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables); B since UNT14-36: unit-owned (storage worker reclassification) |
+| 187 | B | fragment | `addons/analytic/models/analytic_mixin.py:143` | `analytic.mixin._read_group_groupby` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables); B since UNT14-36: unit-owned (storage worker reclassification) |
 | 188 | A | fragment | `addons/analytic/models/analytic_mixin.py:155` | `analytic.mixin._get_count_id` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
 | 189 | A | fragment | `addons/analytic/models/analytic_mixin.py:157` | `analytic.mixin._get_count_id` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
 | 190 | A | fragment | `addons/analytic/models/analytic_mixin.py:159` | `analytic.mixin._get_count_id` | account_move_line, account_reconcile_model_line, purchase_order_line, sale_order_line | generic code; table resolved per model (4 in-scope tables) |
@@ -410,7 +410,7 @@ In-scope -> PostgreSQL by `ondelete`: cascade 20, set null 352, restrict 43.
 | cron | read | 0 | 0 | 1 |
 | cron | write | 7 | 3 | 0 |
 | foreign_key | write | 933 | 0 | 0 |
-| fragment | read | 10 | 144 | 0 |
+| fragment | read | 8 | 146 | 0 |
 | helper | read | 2 | 1 | 0 |
 | report | read | 0 | 8 | 7 |
 | sql | read | 6 | 79 | 0 |
