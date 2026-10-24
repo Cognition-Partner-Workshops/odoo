@@ -1,5 +1,5 @@
 {
-  "version": "map-draft-4",
+  "version": "map-draft-5",
   "source_family": "postgresql",
   "collections": [
     {
@@ -9810,6 +9810,41 @@
               "ref": "adjusting_entries__account_mo_adjusting_entry_move_id_move__idx"
             }
           ]
+        },
+        {
+          "keys": [
+            [
+              "name",
+              1
+            ],
+            [
+              "journalId",
+              1
+            ]
+          ],
+          "origin": "decision",
+          "evidence": [
+            {
+              "kind": "decision",
+              "ref": "addons/account/models/account_move.py:825-828: s3.1b d-partial-unique=add-indexes: Odoo declares account_move_unique_name as a partial unique index (odoo_src pg_get_indexdef: UNIQUE (name, journal_id) WHERE state = 'posted' AND name <> '/'); the census keeps no WHERE condition and the proposer skipped it, so the signed spec had no journal entry name uniqueness. MongoDB partial filters have no $ne, so name <> '/' is written as name < '/' OR name > '/': identical for string names; a null or non-string name matches neither, as NULL <> '/' is not true in PostgreSQL either. odoo_src: 2,072 of 2,389 moves fall under the filter, 0 duplicate (name, journal_id) pairs among them"
+            }
+          ],
+          "unique": true,
+          "partialFilterExpression": {
+            "state": "posted",
+            "$or": [
+              {
+                "name": {
+                  "$lt": "/"
+                }
+              },
+              {
+                "name": {
+                  "$gt": "/"
+                }
+              }
+            ]
+          }
         }
       ]
     },
@@ -15860,7 +15895,7 @@
             },
             {
               "kind": "decision",
-              "ref": "odoo/orm/fields_relational.py:1381-1385: accountReconcileModelLineAccountTaxRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['accountTaxId', 'accountReconcileModelLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+              "ref": "odoo/orm/fields_relational.py:1386-1390: accountReconcileModelLineAccountTaxRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['accountTaxId', 'accountReconcileModelLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
           ],
           "unique": true
@@ -20649,7 +20684,7 @@
             },
             {
               "kind": "decision",
-              "ref": "odoo/orm/fields_relational.py:1381-1385: productAttributeValueProductTemplateAttributeLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productAttributeValueId', 'productTemplateAttributeLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+              "ref": "odoo/orm/fields_relational.py:1386-1390: productAttributeValueProductTemplateAttributeLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productAttributeValueId', 'productTemplateAttributeLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
           ],
           "unique": true
@@ -22118,7 +22153,7 @@
             },
             {
               "kind": "decision",
-              "ref": "odoo/orm/fields_relational.py:1381-1385: productOptionalRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['srcId', 'destId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+              "ref": "odoo/orm/fields_relational.py:1386-1390: productOptionalRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['srcId', 'destId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
           ],
           "unique": true
@@ -25457,6 +25492,29 @@
               "ref": "stock_warehouse_orderpoint__company_id_index"
             }
           ]
+        },
+        {
+          "keys": [
+            [
+              "productTmplId",
+              1
+            ],
+            [
+              "combinationIndices",
+              1
+            ]
+          ],
+          "origin": "decision",
+          "evidence": [
+            {
+              "kind": "decision",
+              "ref": "addons/product/models/product_product.py:154: s3.1b d-partial-unique=add-indexes: Odoo declares product_product_combination_unique as a partial unique index (odoo_src pg_get_indexdef: UNIQUE (product_tmpl_id, combination_indices) WHERE active IS TRUE), at most one active variant per combination; the census keeps no WHERE condition and the proposer skipped it. The MongoDB filter {active: true} is exact. odoo_src: 842 of 1,393 variants active, 0 duplicate (product_tmpl_id, combination_indices) pairs among them"
+            }
+          ],
+          "unique": true,
+          "partialFilterExpression": {
+            "active": true
+          }
         }
       ]
     },
@@ -26586,7 +26644,7 @@
             },
             {
               "kind": "decision",
-              "ref": "odoo/orm/fields_relational.py:1381-1385: productTemplateAttributeExcludedValueIdsRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateAttributeValueId', 'excludedProductTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+              "ref": "odoo/orm/fields_relational.py:1386-1390: productTemplateAttributeExcludedValueIdsRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateAttributeValueId', 'excludedProductTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
           ],
           "unique": true
@@ -27491,7 +27549,7 @@
             },
             {
               "kind": "decision",
-              "ref": "odoo/orm/fields_relational.py:1381-1385: productTemplateAttributeValuePurchaseOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['purchaseOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+              "ref": "odoo/orm/fields_relational.py:1386-1390: productTemplateAttributeValuePurchaseOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['purchaseOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
           ],
           "unique": true
@@ -27612,7 +27670,7 @@
             },
             {
               "kind": "decision",
-              "ref": "odoo/orm/fields_relational.py:1381-1385: productTemplateAttributeValueSaleOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+              "ref": "odoo/orm/fields_relational.py:1386-1390: productTemplateAttributeValueSaleOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
           ],
           "unique": true
@@ -27717,7 +27775,7 @@
             },
             {
               "kind": "decision",
-              "ref": "odoo/orm/fields_relational.py:1381-1385: productTemplateUomUomRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateId', 'uomUomId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+              "ref": "odoo/orm/fields_relational.py:1386-1390: productTemplateUomUomRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateId', 'uomUomId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
           ],
           "unique": true
@@ -34093,7 +34151,7 @@
             },
             {
               "kind": "decision",
-              "ref": "odoo/orm/fields_relational.py:1381-1385: saleOrderLineAccrualMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['orderLineId', 'moveId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+              "ref": "odoo/orm/fields_relational.py:1386-1390: saleOrderLineAccrualMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['orderLineId', 'moveId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
           ],
           "unique": true
@@ -34222,7 +34280,7 @@
             },
             {
               "kind": "decision",
-              "ref": "odoo/orm/fields_relational.py:1381-1385: saleOrderLineInvoiceRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['invoiceLineId', 'orderLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+              "ref": "odoo/orm/fields_relational.py:1386-1390: saleOrderLineInvoiceRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['invoiceLineId', 'orderLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
           ],
           "unique": true
@@ -34335,7 +34393,7 @@
             },
             {
               "kind": "decision",
-              "ref": "odoo/orm/fields_relational.py:1381-1385: saleOrderLineStockRouteRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'stockRouteId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+              "ref": "odoo/orm/fields_relational.py:1386-1390: saleOrderLineStockRouteRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'stockRouteId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
           ],
           "unique": true
@@ -50550,7 +50608,7 @@
             },
             {
               "kind": "decision",
-              "ref": "odoo/orm/fields_relational.py:1381-1385: templateAttributeValueStockMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['moveId', 'templateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
+              "ref": "odoo/orm/fields_relational.py:1386-1390: templateAttributeValueStockMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['moveId', 'templateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
             }
           ],
           "unique": true
@@ -51847,7 +51905,7 @@
     }
   ],
   "canonicalization": {
-    "version": "map-draft-4-canon",
+    "version": "map-draft-5-canon",
     "rules": [
       {
         "rule": "decimal_round",
@@ -104828,11 +104886,11 @@
         ],
         "unique": true,
         "evidence": {
-          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "file": "odoo/orm/fields_relational.py:1386-1390",
           "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
           "note": "accountReconcileModelLineAccountTaxRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['accountTaxId', 'accountReconcileModelLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
         },
-        "cited": "odoo/orm/fields_relational.py:1381-1385: accountReconcileModelLineAccountTaxRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['accountTaxId', 'accountReconcileModelLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "cited": "odoo/orm/fields_relational.py:1386-1390: accountReconcileModelLineAccountTaxRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['accountTaxId', 'accountReconcileModelLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
         "status": "PROPOSED"
       },
       {
@@ -104850,11 +104908,11 @@
         ],
         "unique": true,
         "evidence": {
-          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "file": "odoo/orm/fields_relational.py:1386-1390",
           "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
           "note": "productAttributeValueProductTemplateAttributeLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productAttributeValueId', 'productTemplateAttributeLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
         },
-        "cited": "odoo/orm/fields_relational.py:1381-1385: productAttributeValueProductTemplateAttributeLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productAttributeValueId', 'productTemplateAttributeLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "cited": "odoo/orm/fields_relational.py:1386-1390: productAttributeValueProductTemplateAttributeLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productAttributeValueId', 'productTemplateAttributeLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
         "status": "PROPOSED"
       },
       {
@@ -104872,11 +104930,11 @@
         ],
         "unique": true,
         "evidence": {
-          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "file": "odoo/orm/fields_relational.py:1386-1390",
           "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
           "note": "productOptionalRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['srcId', 'destId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
         },
-        "cited": "odoo/orm/fields_relational.py:1381-1385: productOptionalRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['srcId', 'destId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "cited": "odoo/orm/fields_relational.py:1386-1390: productOptionalRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['srcId', 'destId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
         "status": "PROPOSED"
       },
       {
@@ -104894,11 +104952,11 @@
         ],
         "unique": true,
         "evidence": {
-          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "file": "odoo/orm/fields_relational.py:1386-1390",
           "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
           "note": "productTemplateAttributeExcludedValueIdsRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateAttributeValueId', 'excludedProductTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
         },
-        "cited": "odoo/orm/fields_relational.py:1381-1385: productTemplateAttributeExcludedValueIdsRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateAttributeValueId', 'excludedProductTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "cited": "odoo/orm/fields_relational.py:1386-1390: productTemplateAttributeExcludedValueIdsRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateAttributeValueId', 'excludedProductTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
         "status": "PROPOSED"
       },
       {
@@ -104916,11 +104974,11 @@
         ],
         "unique": true,
         "evidence": {
-          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "file": "odoo/orm/fields_relational.py:1386-1390",
           "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
           "note": "productTemplateAttributeValuePurchaseOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['purchaseOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
         },
-        "cited": "odoo/orm/fields_relational.py:1381-1385: productTemplateAttributeValuePurchaseOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['purchaseOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "cited": "odoo/orm/fields_relational.py:1386-1390: productTemplateAttributeValuePurchaseOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['purchaseOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
         "status": "PROPOSED"
       },
       {
@@ -104938,11 +104996,11 @@
         ],
         "unique": true,
         "evidence": {
-          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "file": "odoo/orm/fields_relational.py:1386-1390",
           "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
           "note": "productTemplateAttributeValueSaleOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
         },
-        "cited": "odoo/orm/fields_relational.py:1381-1385: productTemplateAttributeValueSaleOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "cited": "odoo/orm/fields_relational.py:1386-1390: productTemplateAttributeValueSaleOrderLineRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'productTemplateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
         "status": "PROPOSED"
       },
       {
@@ -104960,11 +105018,11 @@
         ],
         "unique": true,
         "evidence": {
-          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "file": "odoo/orm/fields_relational.py:1386-1390",
           "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
           "note": "productTemplateUomUomRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateId', 'uomUomId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
         },
-        "cited": "odoo/orm/fields_relational.py:1381-1385: productTemplateUomUomRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateId', 'uomUomId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "cited": "odoo/orm/fields_relational.py:1386-1390: productTemplateUomUomRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['productTemplateId', 'uomUomId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
         "status": "PROPOSED"
       },
       {
@@ -104982,11 +105040,11 @@
         ],
         "unique": true,
         "evidence": {
-          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "file": "odoo/orm/fields_relational.py:1386-1390",
           "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
           "note": "saleOrderLineAccrualMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['orderLineId', 'moveId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
         },
-        "cited": "odoo/orm/fields_relational.py:1381-1385: saleOrderLineAccrualMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['orderLineId', 'moveId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "cited": "odoo/orm/fields_relational.py:1386-1390: saleOrderLineAccrualMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['orderLineId', 'moveId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
         "status": "PROPOSED"
       },
       {
@@ -105004,11 +105062,11 @@
         ],
         "unique": true,
         "evidence": {
-          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "file": "odoo/orm/fields_relational.py:1386-1390",
           "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
           "note": "saleOrderLineInvoiceRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['invoiceLineId', 'orderLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
         },
-        "cited": "odoo/orm/fields_relational.py:1381-1385: saleOrderLineInvoiceRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['invoiceLineId', 'orderLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "cited": "odoo/orm/fields_relational.py:1386-1390: saleOrderLineInvoiceRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['invoiceLineId', 'orderLineId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
         "status": "PROPOSED"
       },
       {
@@ -105026,11 +105084,11 @@
         ],
         "unique": true,
         "evidence": {
-          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "file": "odoo/orm/fields_relational.py:1386-1390",
           "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
           "note": "saleOrderLineStockRouteRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'stockRouteId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
         },
-        "cited": "odoo/orm/fields_relational.py:1381-1385: saleOrderLineStockRouteRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'stockRouteId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "cited": "odoo/orm/fields_relational.py:1386-1390: saleOrderLineStockRouteRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['saleOrderLineId', 'stockRouteId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
         "status": "PROPOSED"
       },
       {
@@ -105048,11 +105106,73 @@
         ],
         "unique": true,
         "evidence": {
-          "file": "odoo/orm/fields_relational.py:1381-1385",
+          "file": "odoo/orm/fields_relational.py:1386-1390",
           "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
           "note": "templateAttributeValueStockMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['moveId', 'templateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged"
         },
-        "cited": "odoo/orm/fields_relational.py:1381-1385: templateAttributeValueStockMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['moveId', 'templateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "cited": "odoo/orm/fields_relational.py:1386-1390: templateAttributeValueStockMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair (census primary_key, mapping key.target ['moveId', 'templateAttributeValueId']), so one link per pair. The key lives outside _id, so make the existing (id2, id1) compound index unique to keep that guarantee on MongoDB (Devin Review finding on the s3.1 PR); index count unchanged",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "index",
+        "collection": "accountMove",
+        "keys": [
+          [
+            "name",
+            1
+          ],
+          [
+            "journalId",
+            1
+          ]
+        ],
+        "unique": true,
+        "partial_filter": {
+          "state": "posted",
+          "$or": [
+            {
+              "name": {
+                "$lt": "/"
+              }
+            },
+            {
+              "name": {
+                "$gt": "/"
+              }
+            }
+          ]
+        },
+        "evidence": {
+          "file": "addons/account/models/account_move.py:825-828",
+          "quote": "\"(name, journal_id) WHERE (state = 'posted'AND name != '/')\",",
+          "note": "s3.1b d-partial-unique=add-indexes: Odoo declares account_move_unique_name as a partial unique index (odoo_src pg_get_indexdef: UNIQUE (name, journal_id) WHERE state = 'posted' AND name <> '/'); the census keeps no WHERE condition and the proposer skipped it, so the signed spec had no journal entry name uniqueness. MongoDB partial filters have no $ne, so name <> '/' is written as name < '/' OR name > '/': identical for string names; a null or non-string name matches neither, as NULL <> '/' is not true in PostgreSQL either. odoo_src: 2,072 of 2,389 moves fall under the filter, 0 duplicate (name, journal_id) pairs among them"
+        },
+        "cited": "addons/account/models/account_move.py:825-828: s3.1b d-partial-unique=add-indexes: Odoo declares account_move_unique_name as a partial unique index (odoo_src pg_get_indexdef: UNIQUE (name, journal_id) WHERE state = 'posted' AND name <> '/'); the census keeps no WHERE condition and the proposer skipped it, so the signed spec had no journal entry name uniqueness. MongoDB partial filters have no $ne, so name <> '/' is written as name < '/' OR name > '/': identical for string names; a null or non-string name matches neither, as NULL <> '/' is not true in PostgreSQL either. odoo_src: 2,072 of 2,389 moves fall under the filter, 0 duplicate (name, journal_id) pairs among them",
+        "status": "PROPOSED"
+      },
+      {
+        "op": "index",
+        "collection": "productProduct",
+        "keys": [
+          [
+            "productTmplId",
+            1
+          ],
+          [
+            "combinationIndices",
+            1
+          ]
+        ],
+        "unique": true,
+        "partial_filter": {
+          "active": true
+        },
+        "evidence": {
+          "file": "addons/product/models/product_product.py:154",
+          "quote": "_combination_unique = models.UniqueIndex(\"(product_tmpl_id, combination_indices) WHERE active IS TRUE\")",
+          "note": "s3.1b d-partial-unique=add-indexes: Odoo declares product_product_combination_unique as a partial unique index (odoo_src pg_get_indexdef: UNIQUE (product_tmpl_id, combination_indices) WHERE active IS TRUE), at most one active variant per combination; the census keeps no WHERE condition and the proposer skipped it. The MongoDB filter {active: true} is exact. odoo_src: 842 of 1,393 variants active, 0 duplicate (product_tmpl_id, combination_indices) pairs among them"
+        },
+        "cited": "addons/product/models/product_product.py:154: s3.1b d-partial-unique=add-indexes: Odoo declares product_product_combination_unique as a partial unique index (odoo_src pg_get_indexdef: UNIQUE (product_tmpl_id, combination_indices) WHERE active IS TRUE), at most one active variant per combination; the census keeps no WHERE condition and the proposer skipped it. The MongoDB filter {active: true} is exact. odoo_src: 842 of 1,393 variants active, 0 duplicate (product_tmpl_id, combination_indices) pairs among them",
         "status": "PROPOSED"
       },
       {

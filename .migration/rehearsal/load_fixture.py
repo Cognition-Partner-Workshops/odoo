@@ -182,7 +182,10 @@ def load_collection(cur, db, coll, report):
             if spec == [("_id", 1)]:
                 continue
             try:
-                target.create_index(spec, unique=bool(ix.get("unique")))
+                options = {"unique": bool(ix.get("unique"))}
+                if "partialFilterExpression" in ix:
+                    options["partialFilterExpression"] = ix["partialFilterExpression"]
+                target.create_index(spec, **options)
                 created += 1
             except OperationFailure as exc:  # e.g. code 67: more than 64 indexes
                 failed.append({"keys": spec, "code": exc.code,
