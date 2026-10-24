@@ -96,6 +96,22 @@ class TestStorageMongodb(TransactionCase):
         storage_mongodb.auto_init(self.Incoterm)
         self.assertIs(self.doc(incoterm)['active'], True)
 
+    def test_shadow_column_of_unloaded_field_is_nullable(self):
+        # a later module's required column must not block creates while it is not loaded
+        cr = self.env.cr
+        cr.execute("ALTER TABLE account_incoterms ADD COLUMN later_policy varchar NOT NULL DEFAULT 'x'")
+        cr.execute("ALTER TABLE account_incoterms ALTER COLUMN later_policy DROP DEFAULT")
+        storage_mongodb.auto_init(self.Incoterm)
+        cr.execute(SQL(
+            "SELECT attnotnull FROM pg_attribute WHERE attrelid = %s::regclass AND attname = %s",
+            'account_incoterms', 'later_policy',
+        ))
+        self.assertIs(cr.fetchone()[0], False)
+        incoterm = self.Incoterm.create({'code': 'CPT', 'name': 'Carriage Paid To'})
+        self.env.flush_all()
+        cr.execute("SELECT later_policy FROM account_incoterms WHERE id = %s", [incoterm.id])
+        self.assertIsNone(cr.fetchone()[0])
+
     def test_group_by_decimal(self):
         categories = self.Category.create([
             {'name': 'Crate', 'max_weight': 2.5},

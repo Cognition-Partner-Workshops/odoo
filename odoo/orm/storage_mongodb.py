@@ -547,6 +547,8 @@ def auto_init(model: BaseModel) -> None:
         sql.create_model_table(cr, model._table, model._description, [
             (field.name, field.stored_sql_column_type, field.string) for field in shadow
         ])
+    else:   # drop NOT NULL on the columns of fields removed or not loaded yet
+        model._check_removed_columns(log=False)
     columns = sql.table_columns(cr, model._table)
     added = [field.name for field in shadow if field.name not in columns]
     for field in shadow:
