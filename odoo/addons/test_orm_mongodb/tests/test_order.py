@@ -20,17 +20,17 @@ class TestOrderOutsideDocument(TransactionCase):
 
     def test_order_boolean_unset_is_false(self):
         # like PostgreSQL's COALESCE(field, FALSE): an unset boolean sorts as False, not as NULL
-        Value = self.env['test_orm_mongodb.attribute_value']
-        attribute = self.env['test_orm_mongodb.attribute'].create({'name': 'Finish'})
-        unset, custom, plain = Value.create([
-            {'attribute_id': attribute.id, 'name': 'Unset'},
-            {'attribute_id': attribute.id, 'name': 'Custom', 'is_custom': True},
-            {'attribute_id': attribute.id, 'name': 'Plain', 'is_custom': False},
+        Incoterm = self.env['test_orm_mongodb.incoterm'].with_context(active_test=False)
+        unset, active, inactive = Incoterm.create([
+            {'code': 'U', 'name': 'Unset'},
+            {'code': 'A', 'name': 'Active', 'active': True},
+            {'code': 'I', 'name': 'Inactive', 'active': False},
         ])
-        storage_mongodb.update(Value, unset.ids, [{'is_custom': None}])
-        domain = [('id', 'in', (unset + custom + plain).ids)]
-        self.assertEqual(Value.search(domain, order='is_custom desc, id'), custom + unset + plain)
-        self.assertEqual(Value.search(domain, order='is_custom, id'), unset + plain + custom)
+        storage_mongodb.update(Incoterm, unset.ids, [{'active': None}])
+        self.assertNotIn('active', storage_mongodb.get_collection(Incoterm).find_one({'_id': unset.id}))
+        domain = [('id', 'in', (unset + active + inactive).ids)]
+        self.assertEqual(Incoterm.search(domain, order='active desc, id').ids, (active + unset + inactive).ids)
+        self.assertEqual(Incoterm.search(domain, order='active, id').ids, (unset + inactive + active).ids)
 
     def test_order_compute_sql_field(self):
         Tag = self.env['test_orm_mongodb.tag']
