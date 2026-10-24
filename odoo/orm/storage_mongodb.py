@@ -203,6 +203,22 @@ def _cascade_delete(records: BaseModel) -> None:
     records.invalidate_recordset(flush=False)
 
 
+def repoint_references(records: BaseModel, target: BaseModel) -> None:
+    """ Point the many2one fields of MongoDB models that reference ``records``
+    to ``target``, like a raw SQL ``UPDATE`` of their foreign keys (partner
+    merge): no ``write()`` overrides run. """
+    for field in _references(records.pool).get(records._name, ()):
+        dependents = records.env[field.model_name].sudo().with_context(active_test=False).search(
+            [(field.name, 'in', records.ids)])
+        if not dependents:
+            continue
+        update(dependents, list(dependents._ids), [{field.name: target.id}] * len(dependents))
+        if field.name in dependents._shadow_columns:
+            records.env.cr.execute(SQL("UPDATE %s SET %s = %s WHERE id IN %s", SQL.identifier(
+                dependents._table), SQL.identifier(field.name), target.id, tuple(dependents._ids)))
+        dependents.invalidate_recordset([field.name], flush=False)
+
+
 def unlink_dependents(records: BaseModel) -> None:
     """ Apply ``ondelete`` of the many2one fields of MongoDB models that
     reference ``records`` through the ORM, so documents follow. PostgreSQL
