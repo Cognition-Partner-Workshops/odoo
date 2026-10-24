@@ -80,6 +80,9 @@ class TestReadGroupMongodb(TransactionCase):
                 ])
                 self.assertEqual(Tag._read_group(domain, ['link_ids'], ['__count'], having=[('__count', '>', 1)]),
                                  [(a, 2)])
+        # like the join on the comodel search: an archived partner has no group
+        p2.active = False
+        self.assertEqual(Tag._read_group(domain, ['partner_ids'], ['__count']), [(p1, 2), (Partner, 1)])
 
     def test_aggregate_computed_fields(self):
         Tag = self.env['test_orm_mongodb.tag']

@@ -36,7 +36,7 @@ import psycopg2.errors
 from odoo.tools import SQL, date_utils, split_every, sql
 from odoo.tools.constants import IN_MAX
 
-from .domains import DomainAnd, DomainBool, DomainCondition, DomainCustom, DomainNot, DomainOr
+from .domains import Domain, DomainAnd, DomainBool, DomainCondition, DomainCustom, DomainNot, DomainOr
 
 if typing.TYPE_CHECKING:
     from .fields import Field
@@ -1535,20 +1535,28 @@ def _expand(groups: dict, mapping: dict[int, dict], accumulators: dict) -> dict:
 
 def _many2many_ids(model: BaseModel, field: Field, ids: list[int]) -> dict[int, list[int]]:
     """ Return the linked ids of ``field`` per record id, from the
-    relation's links like the SQL join would, whatever the comodel's rules. """
+    relation's links that the comodel search returns, like the SQL join. """
     values = defaultdict(list)
-    if layout := relation_layout(field, model.env):
-        for link in find_links(model.env, layout, field.column1, ids):
-            values[link[field.column1]].append(link[field.column2])
-        return values
+    layout = relation_layout(field, model.env)
     for sub_ids in split_every(IN_MAX, ids):
+        if layout:
+            for link in find_links(model.env, layout, field.column1, sub_ids):
+                values[link[field.column1]].append(link[field.column2])
+            continue
         model.env.cr.execute(SQL(
             "SELECT %s, %s FROM %s WHERE %s IN %s", SQL.identifier(field.column1), SQL.identifier(field.column2),
             SQL.identifier(field.relation), SQL.identifier(field.column1), tuple(sub_ids),
         ))
         for id_, coid in model.env.cr.fetchall():
             values[id_].append(coid)
-    return values
+    comodel = model.env[field.comodel_name].with_context(**field.context)
+    codomain = Domain(field.get_comodel_domain(model))
+    coids = {coid for coids in values.values() for coid in coids}
+    allowed = set()
+    for sub_ids in split_every(IN_MAX, coids):
+        allowed.update(comodel._search(codomain & Domain('id', 'in', sub_ids),
+                                       bypass_access=field.bypass_search_access))
+    return {id_: [coid for coid in coids if coid in allowed] for id_, coids in values.items()}
 
 
 def _field_expr(model: BaseModel, field: Field):
