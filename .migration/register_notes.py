@@ -368,6 +368,10 @@ def main():
                 "odoo/addons/base/wizard/base_partner_merge.py",
                 "_update_reference_fields_generic"):
             return "A", "generic core merge update"
+        if (s["file"], s["function"]) == (
+                "addons/analytic/models/analytic_mixin.py", "_read_group_groupby"):
+            return "B", ("generic code; table resolved per model (%d in-scope tables); B since "
+                         "UNT14-36: unit-owned (storage worker reclassification)" % len(s["in_scope"]))
         if s["module"] in scope_mods:
             return "B", ""
         if s["dynamic"] or s["unresolved"] or s["orm_query"]:
