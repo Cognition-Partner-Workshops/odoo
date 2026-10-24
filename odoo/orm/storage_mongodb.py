@@ -47,7 +47,7 @@ _logger = logging.getLogger(__name__)
 
 DATABASE = 'odoo_unt13'     # the only target in .migration/allowed_targets.json
 SPEC_PATH = Path(__file__).resolve().parents[2] / '.migration' / 'mapping_spec.json'
-SPEC_SHA256 = 'f372de32464a1b029016d82939230bb64c6b35f84777c1bf5edca30bfe565c50'
+SPEC_SHA256 = 'c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7'
 DEFAULT_URI = 'mongodb://localhost:27017'
 
 TRANSLATED_PREFIX = '__lang_'
