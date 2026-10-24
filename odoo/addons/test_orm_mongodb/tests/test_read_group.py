@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from odoo import Command
 from odoo.exceptions import AccessError
+from odoo.orm import storage_mongodb
 from odoo.tests import TransactionCase, new_test_user, tagged
 
 
@@ -48,6 +49,22 @@ class TestReadGroupMongodb(TransactionCase):
         self.assertEqual(self.Value._read_group(self.domain, ['sequence'], ['__count'], limit=0), [])
         self.assertEqual(self.Attribute._read_group([('id', 'in', (self.color + self.size).ids)], ['sequence'], ['__count']),
                          [(1, 1), (2, 1)])
+
+    def test_group_by_json(self):
+        # like jsonb: equal objects group together whatever their key order, ordered by size
+        Category = self.env['test_orm_mongodb.category']
+        a, b, c, d = Category.create([
+            {'name': 'A', 'product_properties_definition': {'x': 100, 'y': 50}},
+            {'name': 'B', 'product_properties_definition': {'y': 50, 'x': 100}},
+            {'name': 'C', 'product_properties_definition': {'x': 100}},
+            {'name': 'D'},
+        ])
+        domain = [('id', 'in', (a + b + c + d).ids)]
+        for chunk in (storage_mongodb.GROUP_CHUNK, 1):    # partial groups merge across chunks
+            with patch.object(storage_mongodb, 'GROUP_CHUNK', chunk):
+                rows = Category._read_group(domain, ['product_properties_definition'], ['__count', 'id:recordset'])
+                self.assertEqual(rows[:2], [({'x': 100}, 1, c), ({'x': 100, 'y': 50}, 2, a + b)])
+                self.assertEqual([(bool(value), count, records) for value, count, records in rows[2:]], [(False, 1, d)])
 
     def test_aggregate_computed_fields(self):
         Tag = self.env['test_orm_mongodb.tag']

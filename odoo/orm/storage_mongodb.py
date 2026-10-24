@@ -1409,7 +1409,7 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
         stages = _virtual_stages(_layout(model), chunk) + [{'$group': {'_id': keys or None, **accumulators}}]
         with get_collection(model).aggregate(stages, allowDiskUse=True) as cursor:
             for group in map(_native, cursor):
-                gkey = tuple(sorted((group['_id'] or {}).items()))
+                gkey = _group_key(group['_id'] or {})
                 if (prior := groups.get(gkey)) is None:
                     groups[gkey] = group
                     continue
@@ -1496,7 +1496,7 @@ def _regroup(model: BaseModel, groups: dict, dotted: dict[int, str], accumulator
                 if cofield.relational:
                     comodel_hop = model.env[cofield.comodel_name]
             comodel = comodel.sudo()
-        ids = {dict(gkey).get(f'g{i}') for gkey in groups} - {None}
+        ids = {(group['_id'] or {}).get(f'g{i}') for group in groups.values()} - {None}
         cofield = comodel._fields[chain.split('.')[0]]
         values = defaultdict(list)
         for record, value in comodel._read_group([('id', 'in', list(ids))], ['id', f"{chain}:{granularity}" if granularity else chain]):
@@ -1508,18 +1508,48 @@ def _regroup(model: BaseModel, groups: dict, dotted: dict[int, str], accumulator
         mapping[i] = values
     merged = {}
     for gkey, group in groups.items():
-        key = dict(gkey)
+        key = dict(group['_id'] or {})
         options = [[(f'g{i}', value) for value in values.get(key.get(f'g{i}')) or [None]]
                    for i, values in mapping.items()]
         for combination in itertools.product(*options):
             new_key = key | dict(combination)
-            if (prior := merged.get(gkey := tuple(sorted(new_key.items())))) is None:
+            if (prior := merged.get(gkey := _group_key(new_key))) is None:
                 merged[gkey] = group | {'_id': new_key}
                 continue
             for name, accumulator in accumulators.items():
                 (op,) = accumulator
                 prior[name] = _MERGE[op](prior[name], group[name])
     return merged
+
+
+def _group_key(key: dict) -> tuple:
+    """ Return a hashable form of the groupby values ``key``, where equal
+    JSON values are equal whatever the order of their object keys. """
+    def freeze(value):
+        if isinstance(value, dict):
+            return (dict, tuple(sorted((name, freeze(item)) for name, item in value.items())))
+        if isinstance(value, list):
+            return (list, tuple(map(freeze, value)))
+        return value
+    return tuple(sorted((name, freeze(value)) for name, value in key.items()))
+
+
+def _jsonb_rank(value):
+    """ Return the sort key of a JSON value in PostgreSQL's jsonb order:
+    object > array > boolean > number > string > null, then objects and
+    arrays by size, objects by keys (shorter first) then values. """
+    if value is None:
+        return (0,)
+    if isinstance(value, str):
+        return (1, value)
+    if isinstance(value, bool):
+        return (3, value)
+    if isinstance(value, (int, float, decimal.Decimal)):
+        return (2, value)
+    if isinstance(value, list):
+        return (4, len(value), tuple(map(_jsonb_rank, value)))
+    names = sorted(value, key=lambda name: (len(name.encode()), name.encode()))
+    return (5, len(value), tuple((name.encode(), _jsonb_rank(value[name])) for name in names))
 
 
 def _field_expr(model: BaseModel, field: Field):
@@ -1723,6 +1753,8 @@ def _group_rank(model: BaseModel, term: str, rows: list[dict], traverse_many2one
             ordered = comodel.sudo().with_context(active_test=False).search([('id', 'in', list(ids))], order=comodel._order)
             ranks = {id_: index for index, id_ in enumerate(ordered._ids)}
             return lambda row: ranks.get(row[term], len(ranks)) if row[term] is not None else None
+    if field and field.type == 'json':
+        return lambda row: None if row[term] is None else _jsonb_rank(row[term])
     if field and field.type == 'selection':
         keys = list(field.get_values(model.env))
         return lambda row: keys.index(row[term]) if row[term] in keys else None
