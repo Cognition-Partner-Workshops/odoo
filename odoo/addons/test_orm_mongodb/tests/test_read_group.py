@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from odoo import Command
 from odoo.exceptions import AccessError
+from odoo.orm import storage_mongodb
 from odoo.tests import TransactionCase, new_test_user, tagged
 
 
@@ -48,6 +49,37 @@ class TestReadGroupMongodb(TransactionCase):
         self.assertEqual(self.Value._read_group(self.domain, ['sequence'], ['__count'], limit=0), [])
         self.assertEqual(self.Attribute._read_group([('id', 'in', (self.color + self.size).ids)], ['sequence'], ['__count']),
                          [(1, 1), (2, 1)])
+
+    def test_group_by_many2many(self):
+        # like the SQL join: one group per linked record, and one for records without links
+        Tag, Link, Partner = self.env['test_orm_mongodb.tag'], self.env['test_orm_mongodb.pg_link'], self.env['res.partner']
+        Incoterm = self.env['test_orm_mongodb.incoterm']
+        a, b = Link.create([{'name': 'a'}, {'name': 'b'}])
+        p1, p2 = Partner.create([{'name': 'P1'}, {'name': 'P2'}])
+        red, blue, bare = Tag.create([
+            {'name': 'red', 'sequence': 1, 'link_ids': [Command.set([a.id, b.id])],
+             'partner_ids': [Command.set([p1.id, p2.id])]},
+            {'name': 'blue', 'sequence': 2, 'link_ids': [Command.set([a.id])], 'partner_ids': [Command.set([p1.id])]},
+            {'name': 'bare', 'sequence': 4},
+        ])
+        fob, exw = Incoterm.create([
+            {'code': 'FOB', 'name': 'FOB', 'optional_link_ids': [Command.set([b.id])]},
+            {'code': 'EXW', 'name': 'EXW'},
+        ])
+        domain = [('id', 'in', (red + blue + bare).ids)]
+        for chunk in (storage_mongodb.GROUP_CHUNK, 1):    # partial groups merge across chunks
+            with patch.object(storage_mongodb, 'GROUP_CHUNK', chunk):
+                # junction array, PostgreSQL relation table, junction collection
+                self.assertEqual(Tag._read_group(domain, ['link_ids'], ['__count', 'sequence:sum']),
+                                 [(a, 2, 3), (b, 1, 1), (Link, 1, 4)])
+                self.assertEqual(Tag._read_group(domain, ['partner_ids'], ['__count']), [(p1, 2), (p2, 1), (Partner, 1)])
+                self.assertEqual(Incoterm._read_group([('id', 'in', (fob + exw).ids)], ['optional_link_ids'], ['__count']),
+                                 [(b, 1), (Link, 1)])
+                self.assertEqual(Tag._read_group(domain, ['link_ids', 'partner_ids'], ['__count']), [
+                    (a, p1, 2), (a, p2, 1), (b, p1, 1), (b, p2, 1), (Link, Partner, 1),
+                ])
+                self.assertEqual(Tag._read_group(domain, ['link_ids'], ['__count'], having=[('__count', '>', 1)]),
+                                 [(a, 2)])
 
     def test_aggregate_computed_fields(self):
         Tag = self.env['test_orm_mongodb.tag']
