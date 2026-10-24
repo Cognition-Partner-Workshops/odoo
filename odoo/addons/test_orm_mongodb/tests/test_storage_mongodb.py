@@ -64,6 +64,15 @@ class TestStorageMongodb(TransactionCase):
         self.assertEqual(lock.reason, 'audit')
         self.assertFalse(lock.user_id)
 
+    def test_partner_merge_repoints_documents(self):
+        # the merge wizard rewrites foreign keys with raw SQL: the documents must follow
+        Users = self.env['res.users'].with_context(no_reset_password=True)
+        src, dst = Users.create([{'name': 'Src', 'login': 'merge_src'}, {'name': 'Dst', 'login': 'merge_dst'}])
+        lock = self.Lock.create({'company_id': self.company.id, 'user_id': src.id})
+        self.env['base.partner.merge.automatic.wizard']._update_foreign_keys_generic('res.users', src, dst)
+        self.assertEqual(self.doc(lock)['userId'], dst.id)
+        self.assertEqual(lock.user_id, dst)
+
     def test_decimal_and_double(self):
         category = self.Category.create({'name': 'Pallet', 'max_weight': 1250.125})
         capacity = self.Capacity.create({'storage_category_id': category.id, 'quantity': 2.5})

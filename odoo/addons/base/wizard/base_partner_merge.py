@@ -10,6 +10,7 @@ import datetime
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError, UserError
 from odoo.fields import Command
+from odoo.orm import storage_mongodb
 from odoo.tools import mute_logger, SQL
 from odoo.tools.sql import table_columns
 
@@ -128,6 +129,9 @@ class BasePartnerMergeAutomaticWizard(models.TransientModel):
 
         # this guarantees cache consistency
         self.env.invalidate_all()
+
+        # MongoDB documents are not in the tables below
+        storage_mongodb.repoint_references(src_records, dst_record)
 
         for table, column in relations:
             if 'base_partner_merge_' in table:  # ignore two tables

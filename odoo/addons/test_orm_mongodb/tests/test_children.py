@@ -134,3 +134,17 @@ class TestEmbeddedChildrenMongodb(TransactionCase):
             export.account_ids.position_id = domestic
             self.env.flush_all()
         self.assertEqual([collection.find_one({'_id': position.id})['account'] for position in (domestic, export)], before)
+
+    def test_merge_deletes_children_a_unique_key_keeps(self):
+        # like the merge wizard's SQL: a child whose key exists on the target is deleted
+        Position = self.env['test_orm_mongodb.fiscal_position']
+        src, dst = Position.create([
+            {'name': 'Src', 'account_ids': [Command.create({'account_src_id': 1, 'account_dest_id': 2})]},
+            {'name': 'Dst', 'account_ids': [Command.create({'account_src_id': 1, 'account_dest_id': 2})]},
+        ])
+        kept = dst.account_ids
+        self.env['base.partner.merge.automatic.wizard']._update_foreign_keys_generic(
+            'test_orm_mongodb.fiscal_position', src, dst)
+        self.assertFalse(src.account_ids)
+        self.assertEqual(dst.account_ids, kept)
+        self.assertEqual(len(storage_mongodb.get_collection(dst).find_one({'_id': dst.id})['account']), 1)
