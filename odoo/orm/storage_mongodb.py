@@ -841,7 +841,7 @@ def _check_key(model: BaseModel, parent_ids: typing.Iterable[int]) -> None:
             if None in key:
                 continue
             if key in seen:
-                raise psycopg2.errors.UniqueViolation(f"{model._name}: duplicate key {dict(zip(key_paths, key))!r}")
+                raise UniqueViolation(model, dict(zip(key_paths, key)))
             seen.add(key)
 
 
@@ -904,11 +904,69 @@ def _delete_children(model: BaseModel, ids: list[int]) -> None:
 # writes
 # ---------------------------------------------------------------------------
 
+class _Diagnostics:
+    """ The ``diag`` of a PostgreSQL error; unset fields are ``None``. """
+
+    def __init__(self, **values):
+        self.__dict__.update(values)
+
+    def __getattr__(self, name):
+        return None
+
+
+class UniqueViolation(psycopg2.errors.UniqueViolation):
+    """ A duplicate ``key`` (document path -> value) in MongoDB, worded and
+    diagnosed like PostgreSQL's unique violation, so Odoo maps it the same. """
+
+    def __init__(self, model: BaseModel, key: dict):
+        fields = {path: fname for fname, path in _layout(model)['paths'].items()}
+        values = {fields.get(path, path): value for path, value in key.items()}
+        constraint, columns = _unique_constraint(model, list(values))
+        primary = f'duplicate key value violates unique constraint "{constraint}"'
+        detail = "Key ({})=({}) already exists.".format(
+            ', '.join(columns), ', '.join(_pg_text(values[column]) for column in columns))
+        super().__init__(f"{primary}\nDETAIL:  {detail}\n")
+        self._diag = _Diagnostics(
+            sqlstate=self.pgcode, severity='ERROR', severity_nonlocalized='ERROR',
+            message_primary=primary, message_detail=detail,
+            schema_name='public', table_name=model._table, constraint_name=constraint,
+        )
+
+    diag = property(lambda self: self._diag)
+    pgcode = property(lambda self: '23505')
+    pgerror = property(lambda self: self.args[0])
+
+
+def _unique_constraint(model: BaseModel, columns: list[str]) -> tuple[str, list[str]]:
+    """ Return the name and the column order of the model's unique constraint
+    or index on ``columns``, or PostgreSQL's default name for one. """
+    for name, obj in model._table_objects.items():
+        definition = obj.get_definition(model.pool)
+        if match := re.match(r'UNIQUE\s*(?:INDEX\s*)?(?:USING\s+\w+\s*)?\(([^()]*)\)', definition, re.IGNORECASE):
+            names = [column.strip().strip('"') for column in match[1].split(',')]
+            if sorted(names) == sorted(columns):
+                return name, names
+    return f"{model._table}_{'_'.join(columns)}_key", columns
+
+
+def _pg_text(value) -> str:
+    """ Render a key value like PostgreSQL does in an error detail. """
+    from bson.decimal128 import Decimal128  # noqa: PLC0415
+    if isinstance(value, bool):
+        return 't' if value else 'f'
+    if isinstance(value, Decimal128):
+        return str(value.to_decimal())
+    if isinstance(value, dt.datetime):
+        return value.isoformat(' ')
+    if isinstance(value, dict):
+        return json.dumps(value)
+    return str(value)
+
+
 def _raise_unique_violation(model: BaseModel, error) -> typing.NoReturn:
     write_errors = error.details.get('writeErrors') or [{}]
     if write_errors[0].get('code') == 11000:
-        raise psycopg2.errors.UniqueViolation(
-            f"{model._name}: duplicate key {write_errors[0].get('keyValue')!r}") from error
+        raise UniqueViolation(model, write_errors[0].get('keyValue') or {}) from error
     raise error
 
 

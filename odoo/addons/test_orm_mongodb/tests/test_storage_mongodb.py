@@ -8,7 +8,7 @@ import psycopg2.errors
 import pymongo.errors
 from bson.decimal128 import Decimal128
 
-from odoo import Command
+from odoo import Command, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
 from odoo.orm import storage_mongodb
@@ -425,6 +425,32 @@ class TestStorageMongodb(TransactionCase):
         self.Expression.create([{'report_line_id': 1}, {'report_line_id': 1}])
         with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
             self.Expression.create({'report_line_id': 1, 'label': 'balance'})
+
+    def test_unique_violation_like_postgresql(self):
+        self.Expression.create({'report_line_id': 1, 'label': 'balance'})
+        with self.assertRaises(psycopg2.errors.UniqueViolation) as caught, self.env.cr.savepoint():
+            self.Expression.create({'report_line_id': 1, 'label': 'balance'})
+        # the same table and constraint in PostgreSQL raise the error to match
+        name = 'account_report_expression_report_line_id_label_key'
+        self.env.cr.execute(SQL(
+            "CREATE TEMPORARY TABLE unique_check (report_line_id int, label varchar, CONSTRAINT %s UNIQUE (report_line_id, label))",
+            SQL.identifier(name)))
+        with self.assertRaises(psycopg2.errors.UniqueViolation) as expected, self.env.cr.savepoint(), mute_logger('odoo.sql_db'):
+            self.env.cr.execute("INSERT INTO unique_check VALUES (1, 'balance'), (1, 'balance')")
+        error, pg_error = caught.exception, expected.exception
+        self.assertEqual(str(error), str(pg_error))
+        self.assertEqual(error.pgcode, pg_error.pgcode)
+        for attr in ('sqlstate', 'message_primary', 'message_detail', 'constraint_name', 'column_name'):
+            self.assertEqual(getattr(error.diag, attr), getattr(pg_error.diag, attr), attr)
+        self.assertEqual(error.diag.table_name, 'account_report_expression')
+        self.assertIn('Key (report_line_id, label)=(1, balance) already exists.', self.Expression._sql_error_to_message(error))
+        # a unique constraint of the model names the error and orders its key
+        constraint = models.Constraint('UNIQUE (label, report_line_id)')
+        with patch.object(type(self.Expression), '_table_objects', {'account_report_expression_label_uniq': constraint}), \
+                self.assertRaises(psycopg2.errors.UniqueViolation) as caught, self.env.cr.savepoint():
+            self.Expression.create({'report_line_id': 1, 'label': 'balance'})
+        self.assertEqual(caught.exception.diag.constraint_name, 'account_report_expression_label_uniq')
+        self.assertEqual(caught.exception.diag.message_detail, 'Key (label, report_line_id)=(balance, 1) already exists.')
 
     def test_partial_unique_index(self):
         collection = storage_mongodb.get_collection(self.Expression)

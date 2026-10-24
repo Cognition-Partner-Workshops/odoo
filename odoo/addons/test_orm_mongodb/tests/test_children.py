@@ -116,8 +116,10 @@ class TestEmbeddedChildrenMongodb(TransactionCase):
         self.env.flush_all()
         collection = storage_mongodb.get_collection(domestic)
         before = [collection.find_one({'_id': position.id})['account'] for position in (domestic, export)]
-        with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
+        with self.assertRaises(psycopg2.errors.UniqueViolation) as caught, self.env.cr.savepoint():
             Mapping.create({'position_id': domestic.id, 'account_src_id': 1, 'account_dest_id': 2})
+        self.assertIn(') already exists.', caught.exception.diag.message_detail)
+        self.assertEqual(caught.exception.diag.table_name, 'account_fiscal_position_account')
         with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
             export.account_ids.position_id = domestic
             self.env.flush_all()
