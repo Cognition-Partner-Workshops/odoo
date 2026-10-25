@@ -10,11 +10,11 @@ Local evidence, not merge evidence. This replaces the previous sweep (base 1a746
 
 - PostgreSQL: 3,383 tests, 36 fail or error (17 fail, 19 error).
 - MongoDB: 3,377 tests run, 118 fail or error (86 fail, 32 error). Classified: (a) also fails on PostgreSQL 36,
-  (b) accepted Studio field 4, (c) unit-owned addon raw SQL 71, (d) environment load 5, (e) storage-path gap 1,
-  pending decision d-perf-query-count 1.
-- (e): E8 only, MongoDB keeps datetimes to the millisecond. It goes back to the storage worker; not fixed here.
-- The previous gaps E1, E2, E6 and E7 no longer occur. E3, E5 and C2 are now (c) as the storage worker reclassified them.
-  E4 is listed on its own as pending decision d-perf-query-count.
+  (b) accepted expected failure 6, (c) unit-owned addon raw SQL 71, (d) environment load 5, (e) storage-path gap 0.
+- (b) holds the 4 Studio-field tests and the two tests the user accepted: d-perf-query-count and d-datetime-precision
+  (both accept-1, mapping unchanged, no code changed, so no re-run).
+- The previous gaps E1, E2, E6, E7 and E8 are closed (E8 by decision d-datetime-precision). E3, E5 and C2 are now (c) as the storage worker reclassified them.
+  E4 is accepted by decision d-perf-query-count.
 - The strict layout (PostgreSQL keeps only the declared shadow columns) still cannot load the scope: U1, class (c).
 
 ## How it ran
@@ -38,9 +38,9 @@ Local evidence, not merge evidence. This replaces the previous sweep (base 1a746
 |---|---|---|---|
 | uom | FAIL 0 run, 0 fail, 1 err | FAIL 0 run, 0 fail, 1 err | (a) 1 |
 | product | FAIL 155 run, 1 fail, 0 err | FAIL 155 run, 1 fail, 0 err | (a) 1 |
-| account | FAIL 1154 run, 2 fail, 5 err | FAIL 1154 run, 68 fail, 9 err | (a) 7, C1 65, C2 1, C3 1, C4 1, C6 1, P 1 |
+| account | FAIL 1154 run, 2 fail, 5 err | FAIL 1154 run, 68 fail, 9 err | (a) 7, C1 65, C2 1, C3 1, C4 1, C6 1, B 1 |
 | purchase | FAIL 124 run, 1 fail, 0 err | FAIL 124 run, 1 fail, 0 err | (a) 1 |
-| stock | FAIL 703 run, 8 fail, 6 err | FAIL 703 run, 10 fail, 6 err | (a) 14, C5 1, E8 1 |
+| stock | FAIL 703 run, 8 fail, 6 err | FAIL 703 run, 10 fail, 6 err | (a) 14, B 1, C5 1 |
 | sale | FAIL 293 run, 1 fail, 0 err | FAIL 290 run, 1 fail, 1 err | (a) 1, D 1 |
 | stock_account | pass 240 run, 0 fail, 0 err | FAIL 238 run, 0 fail, 2 err | D 2 |
 | purchase_stock | FAIL 231 run, 1 fail, 2 err | FAIL 231 run, 2 fail, 2 err | (a) 3, C7 1 |
@@ -59,17 +59,9 @@ Local evidence, not merge evidence. This replaces the previous sweep (base 1a746
 Totals: PostgreSQL 3,383 run, 17 fail, 19 error. MongoDB 3,377 run, 86 fail, 32 error.
 All 36 PostgreSQL failures also fail on MongoDB and are the 36 in (a).
 
-## (e) Storage-path gaps (1, for the storage worker)
+## (e) Storage-path gaps (0)
 
-| Gap | Count | Where it breaks | Example test | Minimal repro |
-|---|---|---|---|---|
-| E8 | 1 | Datetime fields lose their microseconds on MongoDB: BSON dates keep milliseconds, PostgreSQL `timestamp` keeps microseconds. The test compares `forecast_expected_date` with a `datetime.now()` value: `22:06:08.074000 != 22:06:08.074311`. Fails alone too. | `stock: TestReports.test_report_forecast_10_report_line_corresponding_to_picking_highlighted` | set `stock.move.date_deadline = datetime(2026, 10, 27, 22, 6, 8, 74311)`, flush, invalidate, read: PostgreSQL `...08.074311` (equal), MongoDB `...08.074000` (not equal) |
-
-## Pending decision d-perf-query-count (1, not a storage gap)
-
-`account: TestAccountMoveReconcile.test_perf_reconciled_lines_ids`: reading `reconciled_lines_ids` returns the right
-lines (the inner `assertEqual` passes) but sends three `SELECT id FROM ... WHERE id IN %s` shadow lookups instead of
-the four PostgreSQL reads the test pins, so `assertQueries` fails. Waiting on the user's decision.
+None open. The former E8 is accepted under (b) by decision d-datetime-precision.
 
 ## (d) Environment load (5, each passed when re-run alone)
 
@@ -86,7 +78,7 @@ the full run (for example `storage_mongodb.py:487` `add_links`); the fifth raise
 | `stock_account: setUpClass (TestAngloSaxonAccounting)` | `0 failed, 0 error(s) of 2 tests` |
 | `account_edi_ubl_cii: TestCiiImportFacturXFRCashRounding.test_import_cash_rounding_add_invoice_line` | `0 failed, 0 error(s) of 1 tests` |
 
-The sixth re-run (E8) still failed alone.
+The sixth re-run (the former E8, now (b)) still failed alone.
 
 ## (c) Unit-owned addon raw SQL (71, for the unit tickets)
 
@@ -116,9 +108,112 @@ Tests per family:
 - C6: account: `TestAccountAnalyticAccount.test_cross_analytics_computing`
 - C7: purchase_stock: `TestUninstallPurchaseStock.test_qty_received_method`
 
-## (b) Accepted by the user (4)
+### Per-unit acceptance list (71)
 
-`StorageError: account.move: column 'x_studio_peppol_tax_point_date' is not in the signed mapping of 'account_move'`
+Every unit-owned raw-SQL failure, by owning unit. Each test id must pass on MongoDB storage once the unit replaces that SQL.
+
+#### account (68)
+
+| # | Test id | Raw SQL (file:line) | Register row | Family |
+|---|---|---|---|---|
+| 1 | account: `TestAccountMoveOutInvoiceOnchanges.test_date_reversal_exchange_move (format_incrementor='month', expected_date='2017-01-31')` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 2 | account: `TestAccountMoveOutInvoiceOnchanges.test_date_reversal_exchange_move (format_incrementor='year', expected_date='2017-12-31')` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 3 | account: `TestAccountMovePaymentsWidget.test_payments_with_exchange_difference_invoice_with_caba` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 4 | account: `TestAccountMovePaymentsWidget.test_payments_with_exchange_difference_payment_with_caba` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 5 | account: `TestAccountMoveReconcile.test_caba_dest_acc_reconciliation_partial_pmt` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 6 | account: `TestAccountMoveReconcile.test_caba_mix_reconciliation` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 7 | account: `TestAccountMoveReconcile.test_caba_undo_reconciliation` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 8 | account: `TestAccountMoveReconcile.test_full_reconcile_bunch_lines (sub_test_name='All batches', login='simple_accountman')` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 9 | account: `TestAccountMoveReconcile.test_full_reconcile_bunch_lines (sub_test_name='Batch in company currency', login='simple_accountman')` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 10 | account: `TestAccountMoveReconcile.test_full_reconcile_bunch_lines (sub_test_name='Batch in foreign currency', login='simple_accountman')` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 11 | account: `TestAccountMoveReconcile.test_full_reconcile_bunch_lines (sub_test_name='Batch with multiple currencies', login='simple_accountman')` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 12 | account: `TestAccountMoveReconcile.test_full_reconcile_foreign_currency_rounding_difference_credit_larger` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 13 | account: `TestAccountMoveReconcile.test_full_reconcile_foreign_currency_rounding_difference_debit_larger` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 14 | account: `TestAccountMoveReconcile.test_full_reconcile_unlink_clears_matching_number` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 15 | account: `TestAccountMoveReconcile.test_matching_loop` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 16 | account: `TestAccountMoveReconcile.test_matching_number_full_reconcile` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 17 | account: `TestAccountMoveReconcile.test_matching_number_partial_multi_reconcile` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 18 | account: `TestAccountMoveReconcile.test_matching_number_partial_multi_separate_reconcile` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 19 | account: `TestAccountMoveReconcile.test_matching_number_partial_single_reconcile` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 20 | account: `TestAccountMoveReconcile.test_matching_number_unreconcile_multi` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 21 | account: `TestAccountMoveReconcile.test_modify_all_reconciled_lines` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 22 | account: `TestAccountMoveReconcile.test_partial_reconcile_amounts_of_several_matching_lines` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 23 | account: `TestAccountMoveReconcile.test_reconcile_cash_basis_exchange_difference_transfer_account_check_entries_1` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 24 | account: `TestAccountMoveReconcile.test_reconcile_cash_basis_exchange_difference_transfer_account_check_entries_2` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 25 | account: `TestAccountMoveReconcile.test_reconcile_cash_basis_exchange_difference_transfer_account_check_entries_3` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 26 | account: `TestAccountMoveReconcile.test_reconcile_cash_basis_revert` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 27 | account: `TestAccountMoveReconcile.test_reconcile_cash_basis_tax_grid_multi_taxes` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 28 | account: `TestAccountMoveReconcile.test_reconcile_cash_basis_workflow_multi_currency` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 29 | account: `TestAccountMoveReconcile.test_reconcile_cash_basis_workflow_single_currency` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 30 | account: `TestAccountMoveReconcile.test_reconcile_draft_cash_basis_surprise_use_case` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 31 | account: `TestAccountMoveReconcile.test_reconcile_draft_cash_basis_use_case` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 32 | account: `TestAccountMoveReconcile.test_reconcile_exchange_difference_on_partial_one_credit_foreign_currency_credit_expense_full_payment` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 33 | account: `TestAccountMoveReconcile.test_reconcile_exchange_difference_on_partial_one_credit_foreign_currency_credit_income_full_payment` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 34 | account: `TestAccountMoveReconcile.test_reconcile_exchange_difference_on_partial_one_credit_foreign_currency_debit_expense_full_payment` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 35 | account: `TestAccountMoveReconcile.test_reconcile_exchange_difference_on_partial_one_credit_foreign_currency_debit_income_full_payment` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 36 | account: `TestAccountMoveReconcile.test_reconcile_exchange_difference_on_partial_one_debit_foreign_currency_credit_expense_full_payment` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 37 | account: `TestAccountMoveReconcile.test_reconcile_exchange_difference_on_partial_one_debit_foreign_currency_credit_income_full_payment` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 38 | account: `TestAccountMoveReconcile.test_reconcile_exchange_difference_on_partial_one_debit_foreign_currency_debit_expense_full_payment` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 39 | account: `TestAccountMoveReconcile.test_reconcile_exchange_difference_on_partial_one_debit_foreign_currency_debit_income_full_payment` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 40 | account: `TestAccountMoveReconcile.test_reconcile_exchange_difference_on_partial_same_foreign_currency_credit_expense_full_payment` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 41 | account: `TestAccountMoveReconcile.test_reconcile_exchange_difference_on_partial_same_foreign_currency_credit_income_full_payment` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 42 | account: `TestAccountMoveReconcile.test_reconcile_exchange_difference_on_partial_same_foreign_currency_debit_expense_full_payment` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 43 | account: `TestAccountMoveReconcile.test_reconcile_exchange_difference_on_partial_same_foreign_currency_debit_income_full_payment` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 44 | account: `TestAccountMoveReconcile.test_reconcile_foreign_currency_rounding_issue (sub_test_name='sign: -1, reco_account: Accounts Receivable (copy)')` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 45 | account: `TestAccountMoveReconcile.test_reconcile_foreign_currency_rounding_issue (sub_test_name='sign: -1, reco_account: Product Sales (copy)')` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 46 | account: `TestAccountMoveReconcile.test_reconcile_foreign_currency_rounding_issue (sub_test_name='sign: 1, reco_account: Accounts Receivable (copy)')` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 47 | account: `TestAccountMoveReconcile.test_reconcile_foreign_currency_rounding_issue (sub_test_name='sign: 1, reco_account: Product Sales (copy)')` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 48 | account: `TestAccountMoveReconcile.test_reconcile_import_same_matching_different_account` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 49 | account: `TestAccountMoveReconcile.test_reconcile_import` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 50 | account: `TestAccountMoveReconcile.test_reconcile_lines_corner_case_1_zero_balance_same_foreign_currency` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 51 | account: `TestAccountMoveReconcile.test_reconcile_lines_corner_case_2_zero_amount_currency_same_foreign_currency` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 52 | account: `TestAccountMoveReconcile.test_reconcile_lines_corner_case_3_zero_balance_one_foreign_currency` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 53 | account: `TestAccountMoveReconcile.test_reconcile_lines_multiple_in_foreign_currency (rate1=0.3333333333333333, rate2=0.3333333333333333, rate3=0.3333333333333333)` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 54 | account: `TestAccountMoveReconcile.test_reconcile_lines_multiple_in_foreign_currency (rate1=0.3333333333333333, rate2=0.3333333333333333, rate3=0.5)` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 55 | account: `TestAccountMoveReconcile.test_reconcile_lines_multiple_in_foreign_currency (rate1=0.3333333333333333, rate2=0.5, rate3=0.3333333333333333)` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 56 | account: `TestAccountMoveReconcile.test_reconcile_lines_multiple_in_foreign_currency (rate1=0.3333333333333333, rate2=0.5, rate3=0.5)` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 57 | account: `TestAccountMoveReconcile.test_reconcile_lines_multiple_in_foreign_currency (rate1=0.5, rate2=0.3333333333333333, rate3=0.3333333333333333)` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 58 | account: `TestAccountMoveReconcile.test_reconcile_lines_multiple_in_foreign_currency (rate1=0.5, rate2=0.3333333333333333, rate3=0.5)` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 59 | account: `TestAccountMoveReconcile.test_reconcile_lines_multiple_in_foreign_currency (rate1=0.5, rate2=0.5, rate3=0.3333333333333333)` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 60 | account: `TestAccountMoveReconcile.test_reconcile_lines_multiple_in_foreign_currency (rate1=0.5, rate2=0.5, rate3=0.5)` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 61 | account: `TestAccountMoveReconcile.test_reconcile_partial_reconciliations` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 62 | account: `TestAccountMoveReconcile.test_reconcile_special_mexican_workflow_1` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 63 | account: `TestAccountMoveReconcile.test_reconcile_special_mexican_workflow_2` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 64 | account: `TestAccountMoveReconcile.test_reverse_with_multiple_lines` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 65 | account: `TestTransferWizard.test_change_period_reconcile_pair_by_pair_customer_invoices` | `addons/account/models/account_full_reconcile.py:30`, `:39`; `addons/account/models/account_partial_reconcile.py:226` | sql 7, 8, 9 | C1 |
+| 66 | account: `TestAccountMoveOutInvoiceOnchanges.test_quick_edit_total_amount` | `addons/account/models/account_move.py:4546-4570` | sql 106 | C2 |
+| 67 | account: `TestAccountAccount.test_unmerge` | `addons/account/models/account_account.py:1341`, `:1362`, `:1441`, `:1472` | sql 2-5 | C3 |
+| 68 | account: `TestAccountMergeWizard.test_merge` | `addons/account/wizard/account_merge_wizard.py:185`, `:197`, `:209` | sql 12-14 | C4 |
+
+#### analytic (1)
+
+| # | Test id | Raw SQL (file:line) | Register row | Family |
+|---|---|---|---|---|
+| 1 | account: `TestAccountAnalyticAccount.test_cross_analytics_computing` | `addons/analytic/models/analytic_mixin.py:126-145` | fragment 186, 187 | C6 |
+
+#### purchase_stock (1)
+
+| # | Test id | Raw SQL (file:line) | Register row | Family |
+|---|---|---|---|---|
+| 1 | purchase_stock: `TestUninstallPurchaseStock.test_qty_received_method` | `addons/purchase_stock/models/purchase_order_line.py:15-25` | sql 17 | C7 |
+
+#### stock (1)
+
+| # | Test id | Raw SQL (file:line) | Register row | Family |
+|---|---|---|---|---|
+| 1 | stock: `TestInventory.test_inventory_7` | `addons/stock/models/stock_quant.py:1251` | sql 20 | C5 |
+
+## (b) Accepted expected failures (6)
+
+Accepted by the user; they stay expected failures on MongoDB storage.
+
+| Decision | Test | Why it fails |
+|---|---|---|
+| Studio field (4 tests) | listed below | column `x_studio_peppol_tax_point_date` is not in the signed mapping |
+| d-perf-query-count (accept-1) | `account: TestAccountMoveReconcile.test_perf_reconciled_lines_ids` | right lines returned, but three `SELECT id FROM ... WHERE id IN %s` shadow lookups instead of the four reads the test pins (`assertQueries`) |
+| d-datetime-precision (accept-1) | `stock: TestReports.test_report_forecast_10_report_line_corresponding_to_picking_highlighted` | MongoDB dates keep milliseconds, PostgreSQL keeps microseconds: `22:06:08.074000 != 22:06:08.074311` |
+
+Studio-field tests: `StorageError: account.move: column 'x_studio_peppol_tax_point_date' is not in the signed mapping of 'account_move'`
 (`storage_mongodb.py:115` `_layout`): account_edi_ubl_cii: `TestAccountEdiUblCii.test_credit_note_optional_fields`; account_edi_ubl_cii: `TestAccountEdiUblCii.test_invoice_optional_fields`; account_edi_ubl_cii: `TestUblImportBis3InvoiceBEOptionalFields.test_import_credit_note_with_optional_fields`; account_edi_ubl_cii: `TestUblImportBis3InvoiceBEOptionalFields.test_import_invoice_optional_fields`
 
 ## (a) Also fail on PostgreSQL (36)
