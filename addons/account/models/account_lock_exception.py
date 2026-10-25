@@ -11,6 +11,7 @@ from datetime import date
 class AccountLock_Exception(models.Model):
     _name = 'account.lock_exception'
     _description = "Account Lock Exception"
+    _storage = 'mongodb'      # UNT14 wave 1 canary: documents in odoo_unt13.accountLockException (signed spec map-draft-5)
 
     active = fields.Boolean(
         string='Active',
