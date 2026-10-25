@@ -2294,7 +2294,24 @@
       "site": "addons/account/models/account_account.py:1341",
       "function": "account.account._action_unmerge",
       "tables": [
-       "account_account"
+       "account_account",
+       "account_account_account_merge_wizard_rel",
+       "account_account_account_tag",
+       "account_account_res_company_rel",
+       "account_account_tax_default_rel",
+       "account_accrued_orders_wizard",
+       "account_automatic_entry_wizard",
+       "account_fiscal_position_account",
+       "account_journal",
+       "account_merge_wizard_line",
+       "account_move_line",
+       "account_payment",
+       "account_payment_method_line",
+       "account_payment_register",
+       "account_reconcile_model_line",
+       "account_tax",
+       "account_tax_repartition_line",
+       "stock_location"
       ]
      },
      {
@@ -2789,6 +2806,15 @@
       ]
      }
     ],
+    "register_rows_recheck": [
+     {
+      "row": "write sql 2",
+      "owner": "accountAccount",
+      "tests": [
+       "account: `TestAccountAccount.test_unmerge`"
+      ]
+     }
+    ],
     "crons_to_pause": [
      {
       "cron": 1,
@@ -2891,6 +2917,15 @@
     }
    ],
    "acceptance": {
+    "register_rows_recheck": [
+     {
+      "row": "write sql 2",
+      "owner": "accountAccount",
+      "tests": [
+       "account: `TestAccountAccount.test_unmerge`"
+      ]
+     }
+    ],
     "crons_to_pause": [
      {
       "cron": 1,
@@ -3011,6 +3046,15 @@
     }
    ],
    "acceptance": {
+    "register_rows_recheck": [
+     {
+      "row": "write sql 2",
+      "owner": "accountAccount",
+      "tests": [
+       "account: `TestAccountAccount.test_unmerge`"
+      ]
+     }
+    ],
     "crons_to_pause": [
      {
       "cron": 1,
@@ -3186,6 +3230,15 @@
     }
    ],
    "acceptance": {
+    "register_rows_recheck": [
+     {
+      "row": "write sql 2",
+      "owner": "accountAccount",
+      "tests": [
+       "account: `TestAccountAccount.test_unmerge`"
+      ]
+     }
+    ],
     "sql_view_reports": [
      {
       "report": 7,
@@ -3620,6 +3673,15 @@
     }
    ],
    "acceptance": {
+    "register_rows_recheck": [
+     {
+      "row": "write sql 2",
+      "owner": "accountAccount",
+      "tests": [
+       "account: `TestAccountAccount.test_unmerge`"
+      ]
+     }
+    ],
     "mirrored_link_tables": [
      {
       "relation": "account_tax_filiation_rel",
@@ -3955,6 +4017,15 @@
    "forward_refs": [],
    "tours": [],
    "acceptance": {
+    "register_rows_recheck": [
+     {
+      "row": "write sql 2",
+      "owner": "accountAccount",
+      "tests": [
+       "account: `TestAccountAccount.test_unmerge`"
+      ]
+     }
+    ],
     "crons_to_pause": [
      {
       "cron": 1,
@@ -7056,6 +7127,13 @@
     ],
     "register_rows_recheck": [
      {
+      "row": "write sql 2",
+      "owner": "accountAccount",
+      "tests": [
+       "account: `TestAccountAccount.test_unmerge`"
+      ]
+     },
+     {
       "row": "read fragment 186",
       "owner": "accountReconcileModel",
       "tests": [
@@ -7867,6 +7945,62 @@
    "disp": "A",
    "active": true,
    "possible_reach": "47: account_account, account_account_tag, account_accrued_orders_wizard, account_bank_statement, account_bank_statement_line, account_cash_rounding, ..."
+  },
+  {
+   "cron": 18,
+   "xmlid": "payment.post_processing_cron",
+   "disp": "A",
+   "active": false,
+   "possible_reach": "24: account_account, account_cash_rounding, account_fiscal_position, account_incoterms, account_journal_group, account_move_send_batch_wizard, ..."
+  },
+  {
+   "cron": 19,
+   "xmlid": "account.ir_cron_auto_post_draft_entry",
+   "disp": "B",
+   "active": true,
+   "possible_reach": "66: account_accrued_orders_wizard, account_autopost_bills_wizard, account_bank_statement, account_cash_rounding, account_fiscal_position_account, account_incoterms, ..."
+  },
+  {
+   "cron": 20,
+   "xmlid": "account.ir_cron_account_move_send",
+   "disp": "A",
+   "active": true,
+   "possible_reach": "78: account_account, account_account_tag, account_accrued_orders_wizard, account_autopost_bills_wizard, account_bank_statement, account_bank_statement_line, ..."
+  },
+  {
+   "cron": 21,
+   "xmlid": "account.ir_cron_post_stock_valuation",
+   "disp": "B",
+   "active": true,
+   "possible_reach": "68: account_account_tag, account_autopost_bills_wizard, account_bank_statement, account_cash_rounding, account_financial_year_op, account_fiscal_position_account, ..."
+  },
+  {
+   "cron": 22,
+   "xmlid": "stock.ir_cron_scheduler_action",
+   "disp": "B",
+   "active": true,
+   "possible_reach": "37: account_account, account_account_tag, account_accrued_orders_wizard, account_bank_statement_line, account_cash_rounding, account_fiscal_position, ..."
+  },
+  {
+   "cron": 23,
+   "xmlid": "purchase.purchase_send_reminder_mail",
+   "disp": "A",
+   "active": true,
+   "possible_reach": "80: account_account, account_account_tag, account_accrued_orders_wizard, account_autopost_bills_wizard, account_bank_statement, account_bank_statement_line, ..."
+  },
+  {
+   "cron": 24,
+   "xmlid": "sale.send_invoice_cron",
+   "disp": "A",
+   "active": false,
+   "possible_reach": "38: account_account, account_autopost_bills_wizard, account_bank_statement, account_bank_statement_line, account_cash_rounding, account_fiscal_position, ..."
+  },
+  {
+   "cron": 25,
+   "xmlid": "sale.send_pending_emails_cron",
+   "disp": "A",
+   "active": false,
+   "possible_reach": "75: account_account, account_account_tag, account_accrued_orders_wizard, account_autopost_bills_wizard, account_bank_statement, account_bank_statement_line, ..."
   }
  ],
  "plugin_findings": [

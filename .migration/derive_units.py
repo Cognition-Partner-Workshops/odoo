@@ -271,16 +271,21 @@ def derive():
         return us
 
     notes = (MIG / 'NOTES.md').read_text()
+    in_scope = {t: v['bucket'] == 'in_scope' for t, v in load('table_buckets.json')['tables'].items()}
     reg = {}
     for heading, section in (('### Raw SQL writes into in-scope tables (26)', 'write'),
                              ('### Raw SQL reads of in-scope tables (247)', 'read')):
         for cells in md_tables(notes, heading):
-            num, disp, kind, site, func, tcell = cells[:6]
+            num, disp, kind, site, func, tcell, note = cells[:7]
             ts = table_names(tcell)
-            if re.fullmatch(r'\d+ tables \(\d+ written\)', tcell.strip()):
-                # dynamic fan-out lists only a count: a unit-owned (B) row resolves to the function's model
-                ts = [func.strip('`').rsplit('.', 1)[0].replace('.', '_')] if disp == 'B' else []
-                assert all(t in tables for t in ts), ts
+            count = re.fullmatch(r'(\d+) tables \(\d+ written\)', tcell.strip())
+            if count:
+                # the register abbreviates a catalog FK fan-out to a count: expand it from census.json
+                fan = re.findall(r'FK fan-out of (\w+): (\d+) in-scope tables', note)
+                ts = sorted({r['child'] for target, _ in fan for r in census['relationships']
+                             if r['parent'] == target and in_scope.get(r['child'])})
+                if len(ts) != int(count.group(1)) and disp == 'B':
+                    sys.exit(f'register {section} {kind} {num}: cannot expand {tcell!r} from the catalog')
             reg.setdefault((kind, int(num)), []).append(
                 {'section': section, 'num': int(num), 'disp': disp, 'kind': kind,
                  'site': site.strip('`'), 'function': func.strip('`'), 'tables': ts})
@@ -370,7 +375,7 @@ def derive():
                 acceptance[u]['crons_to_pause'].append(
                     {**item, 'why': 'writes its tables directly' + (' (unit owns the rewrite)' if disp == 'B' and u == us[0] else ''),
                      'tables': sorted(t for t in direct_ts if unit_of_table.get(t) == u)})
-        elif not possible.startswith('0:'):
+        if not possible.startswith('0:'):
             review_crons.append({**item, 'possible_reach': possible})
     acceptance[unit_of_table[U1['table']]]['storage_items'].append(U1)
 
