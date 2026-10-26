@@ -1,9 +1,9 @@
 [
   {
-    "name": "active_documents_by_sequence",
+    "name": "active_documents_keyed",
     "collection": "productDocument",
-    "note": "ProductTemplate._compute_product_document_count / action_open_documents (addons/product/models/product_template.py:278,1008): active documents in _order 'sequence, name'; name is inherited from ir.attachment (PostgreSQL), so the replay orders by sequence then id over the document columns only",
-    "source_sql": "SELECT id, ir_attachment_id, sequence, active, attached_on_sale FROM product_document WHERE active = true ORDER BY sequence, id",
+    "note": "ProductTemplate._compute_product_document_count / action_open_documents (addons/product/models/product_template.py:278,1008): the active documents the ORM returns, keyed by id. The model's _order 'sequence, name' tie-breaks on name, which is inherited from ir.attachment and stays on PostgreSQL; on MongoDB storage the ORM ranks that part through _outside_order (odoo/orm/storage_mongodb.py:1846), so the order is not a property of the collection and is not asserted here. Both sides are read in id order; the document-side order key (sequence) is compared per document.",
+    "source_sql": "SELECT id, ir_attachment_id, sequence, active, attached_on_sale FROM product_document WHERE active = true ORDER BY id",
     "target_pipeline": [
       {
         "$match": {
@@ -12,7 +12,6 @@
       },
       {
         "$sort": {
-          "sequence": 1,
           "_id": 1
         }
       },
