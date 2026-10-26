@@ -9,6 +9,7 @@ from dateutil.relativedelta import relativedelta
 class AccountPaymentTerm(models.Model):
     _name = 'account.payment.term'
     _description = "Payment Terms"
+    _storage = 'mongodb'      # UNT14 wave 2 (w2-b03): documents in odoo_unt13.accountPaymentTerm (signed spec map-draft-5)
     _order = "sequence, id"
     _check_company_domain = models.check_company_domain_parent_of
 
@@ -274,6 +275,7 @@ class AccountPaymentTerm(models.Model):
 class AccountPaymentTermLine(models.Model):
     _name = 'account.payment.term.line'
     _description = "Payment Terms Line"
+    _storage = 'mongodb'      # UNT14 wave 2 (w2-b03): documents in odoo_unt13.accountPaymentTerm (embedded line[]) (signed spec map-draft-5)
     _order = "id"
 
     value = fields.Selection([

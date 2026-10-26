@@ -1,4 +1,5 @@
-from odoo import fields, models, tools
+from odoo import api, fields, models, tools
+from odoo.fields import Domain
 from odoo.tools import float_is_zero
 
 
@@ -57,19 +58,12 @@ LEFT JOIN
 LEFT JOIN
     product_template pt ON pp.product_tmpl_id = pt.id
 LEFT JOIN
-    product_category pc ON pt.categ_id = pc.id
-LEFT JOIN
-    ir_default cost_method_default ON cost_method_default.company_id = sm.company_id
-                                  AND cost_method_default.field_id = (SELECT id FROM ir_model_fields WHERE name = 'property_cost_method' AND model = 'product.category')
-LEFT JOIN
     uom_uom um ON um.id = sm.uom_id
 LEFT JOIN
     uom_uom up ON up.id = pt.uom_id
 WHERE
     sm.state = 'done'
     AND (sm.is_in = TRUE OR sm.is_out = TRUE)
-    -- Ignore moves for standard cost method. Only display the list of cost updates
-    AND COALESCE(pc.property_cost_method ->> sm.company_id::text, cost_method_default.json_value::jsonb #>> '{}') IN ('fifo', 'average')
 UNION ALL
 SELECT
     -pv.id,
@@ -89,6 +83,24 @@ WHERE
 );
 """
         self.env.cr.execute(query)
+
+    @api.model
+    def _search(self, domain, offset=0, limit=None, order=None, *, active_test=True, bypass_access=False):
+        # Ignore moves for standard cost method. Only display the list of cost updates.
+        # product.category is stored in MongoDB, so the per-company cost method is read
+        # through the ORM instead of the view's product_category / ir_default join.
+        domain = Domain(domain) & self._valued_cost_method_domain()
+        return super()._search(domain, offset, limit, order, active_test=active_test, bypass_access=bypass_access)
+
+    @api.model
+    def _valued_cost_method_domain(self):
+        categories = self.env['product.category'].sudo().with_context(active_test=False)
+        valued = Domain('res_model_name', '=', 'product.value')
+        for company in self.env['res.company'].sudo().with_context(active_test=False).search([]):
+            categ_ids = categories.with_company(company).search(
+                [('property_cost_method', 'in', ('fifo', 'average'))]).ids
+            valued |= Domain('company_id', '=', company.id) & Domain('product_id.categ_id', 'in', categ_ids)
+        return valued
 
     def _compute_cumulative_fields(self):
         total_records_grouped = self.env['stock.avco.report'].search(

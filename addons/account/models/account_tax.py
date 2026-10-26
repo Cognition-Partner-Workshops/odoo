@@ -23,6 +23,7 @@ TYPE_TAX_USE = [
 class AccountTaxGroup(models.Model):
     _name = 'account.tax.group'
     _description = 'Tax Group'
+    _storage = 'mongodb'      # UNT14 wave 2 (w2-b03): documents in odoo_unt13.accountTaxGroup (signed spec map-draft-5)
     _order = 'sequence asc, id'
     _check_company_auto = True
     _check_company_domain = models.check_company_domain_parent_of

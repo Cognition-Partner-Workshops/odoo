@@ -1,0 +1,81 @@
+[
+  {
+    "name": "report_tree_by_sequence",
+    "collection": "accountReport",
+    "note": "AccountReport._order 'sequence, id' and root_report_id/country_id variants (addons/account/models/account_report.py): every report with its root and country, in display order",
+    "source_sql": "SELECT id, root_report_id, country_id, sequence FROM account_report ORDER BY sequence, id",
+    "target_pipeline": [
+      {
+        "$sort": {
+          "sequence": 1,
+          "_id": 1
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "root_report_id": {
+            "$ifNull": [
+              "$rootReportId",
+              null
+            ]
+          },
+          "country_id": {
+            "$ifNull": [
+              "$countryId",
+              null
+            ]
+          },
+          "sequence": {
+            "$ifNull": [
+              "$sequence",
+              null
+            ]
+          }
+        }
+      }
+    ],
+    "rules": [
+      "null_missing_equiv"
+    ]
+  },
+  {
+    "name": "columns_and_sections_per_report",
+    "collection": "accountReport",
+    "note": "AccountReport.column_ids and section_report_ids (embedded column[] and sectionRel[]): column count and sub-report count per report",
+    "source_sql": "SELECT r.id AS report_id, (SELECT count(*) FROM account_report_column c WHERE c.report_id = r.id) AS columns, (SELECT count(*) FROM account_report_section_rel s WHERE s.main_report_id = r.id) AS sections FROM account_report r ORDER BY r.id",
+    "target_pipeline": [
+      {
+        "$sort": {
+          "_id": 1
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "report_id": "$_id",
+          "columns": {
+            "$size": {
+              "$ifNull": [
+                "$column",
+                []
+              ]
+            }
+          },
+          "sections": {
+            "$size": {
+              "$ifNull": [
+                "$sectionRel",
+                []
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "rules": [
+      "null_missing_equiv"
+    ]
+  }
+]
