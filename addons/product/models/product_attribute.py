@@ -1,12 +1,13 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class ProductAttribute(models.Model):
     _name = 'product.attribute'
     _description = "Product Attribute"
+    _storage = 'mongodb'      # UNT14 wave 2 w2-b05: documents in odoo_unt13.productAttribute (signed spec map-draft-5)
     # if you change this _order, keep it in sync with the method
     # `_sort_key_attribute_value` in `product.template`
     _order = 'sequence, id'
@@ -102,6 +103,16 @@ class ProductAttribute(models.Model):
     def _onchange_display_type(self):
         if self.display_type == 'multi' and self.number_related_products == 0:
             self.create_variant = 'no_variant'
+
+    # === CONSTRAINT METHODS === #
+
+    @api.constrains('display_type', 'create_variant')
+    def _check_multi_checkbox_no_variant_documents(self):
+        """ `_check_multi_checkbox_no_variant` is a SQL CHECK; on MongoDB storage the
+        document fields are not covered by it, so the same rule is enforced here. """
+        for attribute in self:
+            if attribute.display_type == 'multi' and attribute.create_variant != 'no_variant':
+                raise ValidationError(_("Multi-checkbox display type is not compatible with the creation of variants"))
 
     # === CRUD METHODS === #
 

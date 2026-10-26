@@ -7,6 +7,7 @@ from odoo.fields import Domain
 class ProductTag(models.Model):
     _name = 'product.tag'
     _description = 'Product Tag'
+    _storage = 'mongodb'      # UNT14 wave 2 w2-b05: documents in odoo_unt13.productTag (signed spec map-draft-5)
     _order = 'sequence, id'
 
     def _get_default_template_id(self):

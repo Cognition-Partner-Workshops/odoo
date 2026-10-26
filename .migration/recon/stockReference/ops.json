@@ -1,0 +1,67 @@
+[
+  {
+    "name": "references_by_id",
+    "collection": "stockReference",
+    "note": "stock.reference name lookup (addons/stock/models/stock_reference.py): every reference with its name, by id; read-only replay over the whole population",
+    "source_sql": "SELECT id, name FROM stock_reference ORDER BY id",
+    "target_pipeline": [
+      {
+        "$sort": {
+          "_id": 1
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "name": "$name"
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "documents_per_reference",
+    "collection": "stockReference",
+    "note": "stock.reference move/sale/purchase many2many links (stock_reference_move_rel, stock_reference_sale_rel, stock_reference_purchase_rel, addons/stock/models/stock_reference.py), embedded as moveRel/saleRel/purchaseRel: linked documents per reference",
+    "source_sql": "SELECT r.id, (SELECT count(*) FROM stock_reference_move_rel m WHERE m.reference_id = r.id) AS moves, (SELECT count(*) FROM stock_reference_sale_rel s WHERE s.reference_id = r.id) AS sales, (SELECT count(*) FROM stock_reference_purchase_rel p WHERE p.reference_id = r.id) AS purchases FROM stock_reference r ORDER BY r.id",
+    "target_pipeline": [
+      {
+        "$sort": {
+          "_id": 1
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "moves": {
+            "$size": {
+              "$ifNull": [
+                "$moveRel",
+                []
+              ]
+            }
+          },
+          "sales": {
+            "$size": {
+              "$ifNull": [
+                "$saleRel",
+                []
+              ]
+            }
+          },
+          "purchases": {
+            "$size": {
+              "$ifNull": [
+                "$purchaseRel",
+                []
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "rules": []
+  }
+]
