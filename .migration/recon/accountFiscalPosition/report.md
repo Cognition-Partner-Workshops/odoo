@@ -5,10 +5,10 @@
 - Merge eligible: yes (fixture/continuous evidence never merges)
 - Mapping version: `map-draft-5` (sha256 `c0b93dad9526`)
 - Tolerance version: `1` (sha256 `8c9b9e4cf438`)
-- Evidence: git `3eb5cde3c663` | source db `odoo_src` | source server `hmac-sha256:545efbd0aca82e45` | ops sha256 `1ce5ae8dad8f`
+- Evidence: git `743e75613640` | source db `odoo_src` | source server `hmac-sha256:545efbd0aca82e45` | ops sha256 `1ce5ae8dad8f`
 - Collections: `accountFiscalPosition`
 - Seed: `0`
-- Generated: 2026-10-26T05:50:52.191285+00:00
+- Generated: 2026-10-26T06:03:47.487439+00:00
 - 16 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 5 string fields: min/max/distinct deferred to Tier 3
 
