@@ -1,0 +1,77 @@
+[
+  {
+    "name": "tags_by_applicability",
+    "collection": "accountAccountTag",
+    "note": "AccountAccountTag._get_tax_tags and the tag_ids domains on accounts, taxes and products (addons/account/models/account_account_tag.py:76-90): every tag with its applicability, country, colour and active flag (active_test off)",
+    "source_sql": "SELECT id, applicability, country_id, color, active FROM account_account_tag ORDER BY id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "applicability": "$applicability",
+          "country_id": {
+            "$ifNull": [
+              "$countryId",
+              null
+            ]
+          },
+          "color": {
+            "$ifNull": [
+              "$color",
+              null
+            ]
+          },
+          "active": {
+            "$ifNull": [
+              "$active",
+              null
+            ]
+          }
+        }
+      }
+    ],
+    "rules": [
+      "null_missing_equiv"
+    ]
+  },
+  {
+    "name": "tag_usage",
+    "collection": "accountAccountTag",
+    "note": "account.move.line.tax_tag_ids / account.tax.repartition.line.tag_ids / product.template.account_tag_ids reverse reads: how many journal items, repartition lines and product templates each tag is linked to (the embedded relation arrays)",
+    "source_sql": "SELECT t.id, (SELECT count(*) FROM account_account_tag_account_move_line_rel r WHERE r.account_account_tag_id = t.id) AS move_lines, (SELECT count(*) FROM account_account_tag_account_tax_repartition_line_rel r WHERE r.account_account_tag_id = t.id) AS repartition_lines, (SELECT count(*) FROM account_account_tag_product_template_rel r WHERE r.account_account_tag_id = t.id) AS product_templates FROM account_account_tag t ORDER BY t.id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "move_lines": {
+            "$size": {
+              "$ifNull": [
+                "$accountMoveLineRel",
+                []
+              ]
+            }
+          },
+          "repartition_lines": {
+            "$size": {
+              "$ifNull": [
+                "$accountTaxRepartitionLineRel",
+                []
+              ]
+            }
+          },
+          "product_templates": {
+            "$size": {
+              "$ifNull": [
+                "$productTemplateRel",
+                []
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "rules": []
+  }
+]

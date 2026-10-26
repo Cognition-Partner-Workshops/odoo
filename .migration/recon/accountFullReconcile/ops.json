@@ -1,0 +1,62 @@
+[
+  {
+    "name": "full_reconciles",
+    "collection": "accountFullReconcile",
+    "note": "AccountFullReconcile.create and account.move.line.full_reconcile_id (addons/account/models/account_full_reconcile.py:14-45): every full reconcile with its audit users; read-only replay over the whole population",
+    "source_sql": "SELECT id, create_uid, write_uid FROM account_full_reconcile ORDER BY id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "create_uid": {
+            "$ifNull": [
+              "$createUid",
+              null
+            ]
+          },
+          "write_uid": {
+            "$ifNull": [
+              "$writeUid",
+              null
+            ]
+          }
+        }
+      }
+    ],
+    "rules": [
+      "null_missing_equiv"
+    ]
+  },
+  {
+    "name": "full_reconciles_per_user",
+    "collection": "accountFullReconcile",
+    "note": "reconciliation activity per user (reconciliation report grouping): full reconciles counted by create_uid",
+    "source_sql": "SELECT create_uid, count(*) AS reconciles FROM account_full_reconcile GROUP BY create_uid ORDER BY create_uid",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": {
+            "$ifNull": [
+              "$createUid",
+              null
+            ]
+          },
+          "reconciles": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "create_uid": "$_id",
+          "reconciles": 1
+        }
+      }
+    ],
+    "rules": [
+      "null_missing_equiv"
+    ]
+  }
+]
