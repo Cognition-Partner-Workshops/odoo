@@ -23,13 +23,13 @@ class PurchaseOrder(models.Model):
     _inherit = ['portal.mixin', 'product.catalog.mixin', 'mail.thread', 'mail.activity.mixin', 'account.document.import.mixin']
     _description = "Purchase Order"
     _storage = 'mongodb'      # UNT14 wave 4 w4-b02: documents in odoo_unt13.purchaseOrder (signed spec map-draft-5)
-    # columns the raw SQL of the installed modules reads from purchase_order: the purchase
-    # analysis report (purchase/report/purchase_report.py and purchase_stock's extension),
-    # purchase.bill.union, purchase.bill.line.match and account.move's auto-complete subquery
+    # columns the raw SQL of this module reads from purchase_order: the purchase analysis
+    # report (report/purchase_report.py), purchase.bill.union, purchase.bill.line.match and
+    # account.move's auto-complete subquery; purchase_stock extends the tuple with its own
     _shadow_columns = (
         'name', 'partner_ref', 'partner_id', 'dest_address_id', 'user_id', 'company_id', 'currency_id',
-        'currency_rate', 'fiscal_position_id', 'picking_type_id', 'state', 'invoice_status',
-        'date_order', 'date_approve', 'effective_date', 'amount_untaxed',
+        'currency_rate', 'fiscal_position_id', 'state', 'invoice_status', 'date_order', 'date_approve',
+        'amount_untaxed',
     )
     _rec_names_search = ('name', 'partner_ref')
     _order = 'priority desc, id desc'
