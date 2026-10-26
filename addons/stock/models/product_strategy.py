@@ -8,6 +8,7 @@ from odoo.exceptions import UserError
 class ProductRemoval(models.Model):
     _name = 'product.removal'
     _description = 'Removal Strategy'
+    _storage = 'mongodb'      # UNT14 wave 2 w2-b01: documents in odoo_unt13.productRemoval (signed spec map-draft-5)
 
     name = fields.Char('Name', required=True, translate=True)
     method = fields.Char("Method", required=True, translate=True, help="FIFO, LIFO...")

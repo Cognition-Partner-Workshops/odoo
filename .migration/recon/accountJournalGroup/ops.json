@@ -1,0 +1,54 @@
+[
+  {
+    "name": "ledger_groups_in_id_order",
+    "collection": "accountJournalGroup",
+    "note": "AccountMoveLine._get_journal_group filter (addons/account/models/account_move_line.py:592): env['account.journal.group'].search([]) in default order (id) with name and sequence; read-only replay over the whole population",
+    "source_sql": "SELECT id, name->>'en_US' AS name, sequence FROM account_journal_group ORDER BY id",
+    "target_pipeline": [
+      {
+        "$sort": {
+          "_id": 1
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "name": "$name.en_US",
+          "sequence": {
+            "$ifNull": [
+              "$sequence",
+              null
+            ]
+          }
+        }
+      }
+    ],
+    "rules": [
+      "null_missing_equiv"
+    ]
+  },
+  {
+    "name": "has_ledger_count",
+    "collection": "accountJournalGroup",
+    "note": "ResCompany._compute_has_ledger (addons/account/models/company.py:593): search_count over all ledger groups",
+    "source_sql": "SELECT count(*) AS groups FROM account_journal_group",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": null,
+          "groups": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "groups": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]

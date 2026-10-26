@@ -1,0 +1,73 @@
+[
+  {
+    "name": "active_documents_by_sequence",
+    "collection": "productDocument",
+    "note": "ProductTemplate._compute_product_document_count / action_open_documents (addons/product/models/product_template.py:278,1008): active documents in _order 'sequence, name'; name is inherited from ir.attachment (PostgreSQL), so the replay orders by sequence then id over the document columns only",
+    "source_sql": "SELECT id, ir_attachment_id, sequence, active, attached_on_sale FROM product_document WHERE active = true ORDER BY sequence, id",
+    "target_pipeline": [
+      {
+        "$match": {
+          "active": true
+        }
+      },
+      {
+        "$sort": {
+          "sequence": 1,
+          "_id": 1
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "ir_attachment_id": "$irAttachmentId",
+          "sequence": {
+            "$ifNull": [
+              "$sequence",
+              null
+            ]
+          },
+          "active": "$active",
+          "attached_on_sale": {
+            "$ifNull": [
+              "$attachedOnSale",
+              null
+            ]
+          }
+        }
+      }
+    ],
+    "rules": [
+      "null_missing_equiv"
+    ]
+  },
+  {
+    "name": "documents_per_attachment",
+    "collection": "productDocument",
+    "note": "product_document__ir_attachment_id_index / ProductDocument._inherits delegation (addons/product/models/product_document.py:11-20): one document per attachment, counted per ir_attachment_id",
+    "source_sql": "SELECT ir_attachment_id, count(*) AS documents FROM product_document GROUP BY ir_attachment_id ORDER BY ir_attachment_id",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": "$irAttachmentId",
+          "documents": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$sort": {
+          "_id": 1
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "ir_attachment_id": "$_id",
+          "documents": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]
