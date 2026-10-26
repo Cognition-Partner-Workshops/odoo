@@ -1,0 +1,146 @@
+{
+ "label": "after",
+ "taken_at": "2026-10-26T02:16:43.754644+00:00",
+ "collection": "odoo_unt13.accountLockException",
+ "count": 1,
+ "source_rows": 1,
+ "raw_bson_sha256": "aa510072f6841367c00bbee0cb201b98d535f122de72a83b172e54cbfbadc028",
+ "max_writeDate": "2026-10-20T00:00:00",
+ "indexes": [
+  [
+   [
+    "_id",
+    1
+   ]
+  ],
+  [
+   [
+    "userId",
+    1
+   ],
+   [
+    "companyId",
+    1
+   ],
+   [
+    "lockDate",
+    1
+   ]
+  ],
+  [
+   [
+    "createUid",
+    1
+   ]
+  ],
+  [
+   [
+    "writeUid",
+    1
+   ]
+  ],
+  [
+   [
+    "companyId",
+    1
+   ],
+   [
+    "userId",
+    1
+   ],
+   [
+    "endDatetime",
+    1
+   ]
+  ]
+ ],
+ "spec_indexes_missing": [],
+ "extra_indexes": [],
+ "fields": {
+  "companyId": {
+   "missing": 0,
+   "null": 0,
+   "bad_type": 0
+  },
+  "userId": {
+   "missing": 0,
+   "null": 0,
+   "bad_type": 0
+  },
+  "createUid": {
+   "missing": 0,
+   "null": 0,
+   "bad_type": 0
+  },
+  "writeUid": {
+   "missing": 0,
+   "null": 0,
+   "bad_type": 0
+  },
+  "reason": {
+   "missing": 0,
+   "null": 0,
+   "bad_type": 0
+  },
+  "lockDateField": {
+   "missing": 0,
+   "null": 0,
+   "bad_type": 0
+  },
+  "lockDate": {
+   "missing": 0,
+   "null": 0,
+   "bad_type": 0
+  },
+  "companyLockDate": {
+   "missing": 0,
+   "null": 0,
+   "bad_type": 0
+  },
+  "active": {
+   "missing": 0,
+   "null": 0,
+   "bad_type": 0
+  },
+  "endDatetime": {
+   "missing": 0,
+   "null": 0,
+   "bad_type": 0
+  },
+  "createDate": {
+   "missing": 0,
+   "null": 0,
+   "bad_type": 0
+  },
+  "writeDate": {
+   "missing": 0,
+   "null": 0,
+   "bad_type": 0
+  }
+ },
+ "extra_keys": [],
+ "value_mismatches": 0,
+ "references": {
+  "companyId->resCompany": {
+   "checked": 1,
+   "dangling": [],
+   "resolved_in": "PostgreSQL odoo_src"
+  },
+  "createUid->resUsers": {
+   "checked": 1,
+   "dangling": [],
+   "resolved_in": "PostgreSQL odoo_src"
+  },
+  "userId->resUsers": {
+   "checked": 1,
+   "dangling": [],
+   "resolved_in": "PostgreSQL odoo_src"
+  },
+  "writeUid->resUsers": {
+   "checked": 1,
+   "dangling": [],
+   "resolved_in": "PostgreSQL odoo_src"
+  }
+ },
+ "problems": []
+}

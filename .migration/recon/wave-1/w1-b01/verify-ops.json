@@ -1,0 +1,24 @@
+[
+  {
+    "name": "verify_lock_scope_by_company_field",
+    "collection": "accountLockException",
+    "note": "Verifier op (UNT14-39). ResCompany._get_user_lock_date / _get_violated_lock_dates (addons/account/models/company.py) filter exceptions by company, lock date field and user_id in (uid, False): per company and lock date field, global vs user-bound exceptions and the min/max exception lock date, all rows",
+    "source_sql": "SELECT company_id, lock_date_field, (user_id IS NULL) AS global_scope, count(*) AS n, min(lock_date) AS min_lock_date, max(lock_date) AS max_lock_date, min(company_lock_date) AS min_company_lock_date FROM account_lock_exception GROUP BY company_id, lock_date_field, (user_id IS NULL)",
+    "target_pipeline": [
+      {"$group": {"_id": {"company_id": "$companyId", "lock_date_field": "$lockDateField", "global_scope": {"$eq": [{"$ifNull": ["$userId", null]}, null]}}, "n": {"$sum": 1}, "min_lock_date": {"$min": "$lockDate"}, "max_lock_date": {"$max": "$lockDate"}, "min_company_lock_date": {"$min": "$companyLockDate"}}},
+      {"$project": {"_id": 0, "company_id": "$_id.company_id", "lock_date_field": "$_id.lock_date_field", "global_scope": "$_id.global_scope", "n": 1, "min_lock_date": {"$ifNull": ["$min_lock_date", null]}, "max_lock_date": {"$ifNull": ["$max_lock_date", null]}, "min_company_lock_date": {"$ifNull": ["$min_company_lock_date", null]}}}
+    ],
+    "rules": ["datetime_utc_truncate_ms", "null_missing_equiv"]
+  },
+  {
+    "name": "verify_audit_columns_by_id",
+    "collection": "accountLockException",
+    "note": "Verifier op (UNT14-39). Form/list read of account.lock_exception (reason, audit uid/dates): every row keyed by id, fields the batch ops do not project",
+    "source_sql": "SELECT id, reason, create_uid, write_uid, create_date, write_date FROM account_lock_exception ORDER BY id",
+    "target_pipeline": [
+      {"$sort": {"_id": 1}},
+      {"$project": {"_id": 0, "id": "$_id", "reason": {"$ifNull": ["$reason", null]}, "create_uid": {"$ifNull": ["$createUid", null]}, "write_uid": {"$ifNull": ["$writeUid", null]}, "create_date": {"$ifNull": ["$createDate", null]}, "write_date": {"$ifNull": ["$writeDate", null]}}}
+    ],
+    "rules": ["datetime_utc_truncate_ms", "rstrip_spaces", "null_missing_equiv"]
+  }
+]
