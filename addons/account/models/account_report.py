@@ -47,6 +47,7 @@ class AccountReport(models.Model):
     _name = 'account.report'
     _description = "Accounting Report"
     _storage = 'mongodb'      # UNT14 wave 2 (w2-b03): documents in odoo_unt13.accountReport (signed spec map-draft-5)
+    _shadow_columns = ('active_selection', 'active_fallback')   # read by _compute_sql_active over the shadow rows
     _order = 'sequence, id'
 
     #  CORE ==========================================================================================================================================
