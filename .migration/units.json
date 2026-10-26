@@ -18,8 +18,8 @@
   "A reference held by a pure link table (two NOT NULL foreign-key columns) is a junction reference: a plain id, it orders nothing.",
   "A never-filled reference whose target is not already in an earlier wave is a forward reference and must be cited in NO_WRITE_PATH_SETTER; an uncited one stops the derivation.",
   "Collections that reference each other in a cycle form one unit (strongly connected component); a unit's depth is its longest ordering path to a unit with no dependencies.",
-  "Wave 1 is the canary alone: the smallest depth-0 non-junction unit by rows with at least one row; it lands the run's one shared loader. Wave 2 holds the other depth-0 non-junction units, wave d+2 depth d. Within a wave, non-junction units go smallest first (rows, then id); batches take up to 5 of them in order.",
-  "A root junction unit (its root table is a pure link table) is placed with the later of its endpoint units in migration order (the many2many owner and comodel, cited in JUNCTION_OWNERS): it joins that unit's batch right after it and takes its wave and depth, because storage_mongodb.relation_layout (odoo/orm/storage_mongodb.py:284) routes a relation to MongoDB only once the model or the comodel is on MongoDB. A junction unit is never the canary, and a batch it would push past 5 units stops the derivation."
+  "Wave 1 is the canary alone: the smallest depth-0 non-junction unit by rows with at least one row; it lands the run's one shared loader. Wave 2 holds the other depth-0 non-junction units, wave d+2 depth d. Within a wave, non-junction units go smallest first (rows, then id); in that order, each unit and its junctions (sorted by rows, then id) form an indivisible group, and batches greedily pack whole groups up to 5 units.",
+  "A root junction unit (its root table is a pure link table) is placed with the earlier of its endpoint units in migration order (the first one to opt into MongoDB; the many2many owner and comodel are cited in JUNCTION_OWNERS): it joins that unit's batch right after it and takes its wave and depth, because storage_mongodb.relation_layout (odoo/orm/storage_mongodb.py:284) routes a relation to MongoDB once the model or the comodel is on MongoDB. A junction unit is never the canary, and a group larger than 5 units stops the derivation."
  ],
  "write_path_setters": [
   {
@@ -73,7 +73,7 @@
   "collections": 71,
   "units": 64,
   "waves": 10,
-  "batches": 17,
+  "batches": 19,
   "rows": 39536,
   "raw_sql_failures": 71,
   "junction_refs": 60,
@@ -124,12 +124,14 @@
     "accountTaxGroup",
     "accountPaymentTerm",
     "uomUom",
+    "productTemplateUomUomRel",
     "accountFullReconcile",
     "accountAccountTag",
     "accountAccount",
     "productTag",
     "stockReference",
-    "productAttribute"
+    "productAttribute",
+    "productAttributeValueProductTemplateAttributeLineRel"
    ],
    "batches": [
     {
@@ -205,16 +207,16 @@
      "id": "w2-b04",
      "units": [
       "uomUom",
+      "productTemplateUomUomRel",
       "accountFullReconcile",
       "accountAccountTag",
-      "accountAccount",
-      "productTag"
+      "accountAccount"
      ],
      "write_targets": [
       "odoo_unt13.accountAccount",
       "odoo_unt13.accountAccountTag",
       "odoo_unt13.accountFullReconcile",
-      "odoo_unt13.productTag",
+      "odoo_unt13.productTemplateUomUomRel",
       "odoo_unt13.uomUom"
      ],
      "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
@@ -229,11 +231,15 @@
     {
      "id": "w2-b05",
      "units": [
+      "productTag",
       "stockReference",
-      "productAttribute"
+      "productAttribute",
+      "productAttributeValueProductTemplateAttributeLineRel"
      ],
      "write_targets": [
       "odoo_unt13.productAttribute",
+      "odoo_unt13.productAttributeValueProductTemplateAttributeLineRel",
+      "odoo_unt13.productTag",
       "odoo_unt13.stockReference"
      ],
      "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
@@ -250,14 +256,14 @@
    "units": [
     "accountReportLine",
     "accountReconcileModel",
+    "accountReconcileModelLineAccountTaxRel",
     "accountJournal",
     "accountFiscalPosition",
     "stockLocation",
+    "saleOrderLineStockRouteRel",
     "productTemplate",
-    "productTemplateUomUomRel",
     "productOptionalRel",
-    "accountTax",
-    "accountReconcileModelLineAccountTaxRel"
+    "accountTax"
    ],
    "batches": [
     {
@@ -265,19 +271,16 @@
      "units": [
       "accountReportLine",
       "accountReconcileModel",
+      "accountReconcileModelLineAccountTaxRel",
       "accountJournal",
-      "accountFiscalPosition",
-      "stockLocation"
+      "accountFiscalPosition"
      ],
      "write_targets": [
       "odoo_unt13.accountFiscalPosition",
       "odoo_unt13.accountJournal",
       "odoo_unt13.accountReconcileModel",
-      "odoo_unt13.accountReportLine",
-      "odoo_unt13.stockLocation",
-      "odoo_unt13.stockPickingType",
-      "odoo_unt13.stockRoute",
-      "odoo_unt13.stockWarehouse"
+      "odoo_unt13.accountReconcileModelLineAccountTaxRel",
+      "odoo_unt13.accountReportLine"
      ],
      "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
      "recon_tolerances_version": "1",
@@ -288,18 +291,21 @@
     {
      "id": "w3-b02",
      "units": [
+      "stockLocation",
+      "saleOrderLineStockRouteRel",
       "productTemplate",
-      "productTemplateUomUomRel",
       "productOptionalRel",
-      "accountTax",
-      "accountReconcileModelLineAccountTaxRel"
+      "accountTax"
      ],
      "write_targets": [
-      "odoo_unt13.accountReconcileModelLineAccountTaxRel",
       "odoo_unt13.accountTax",
       "odoo_unt13.productOptionalRel",
       "odoo_unt13.productTemplate",
-      "odoo_unt13.productTemplateUomUomRel"
+      "odoo_unt13.saleOrderLineStockRouteRel",
+      "odoo_unt13.stockLocation",
+      "odoo_unt13.stockPickingType",
+      "odoo_unt13.stockRoute",
+      "odoo_unt13.stockWarehouse"
      ],
      "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
      "recon_tolerances_version": "1",
@@ -321,7 +327,9 @@
     "purchaseOrder",
     "productTemplateAttributeLine",
     "productTemplateAttributeExcludedValueIdsRel",
-    "productAttributeValueProductTemplateAttributeLineRel",
+    "productTemplateAttributeValueSaleOrderLineRel",
+    "productTemplateAttributeValuePurchaseOrderLineRel",
+    "templateAttributeValueStockMoveRel",
     "productProduct"
    ],
    "batches": [
@@ -350,19 +358,47 @@
     {
      "id": "w4-b02",
      "units": [
-      "purchaseOrder",
+      "purchaseOrder"
+     ],
+     "write_targets": [
+      "odoo_unt13.purchaseOrder"
+     ],
+     "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+     "recon_tolerances_version": "1",
+     "mapping_version": "map-draft-5",
+     "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
+     "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416"
+    },
+    {
+     "id": "w4-b03",
+     "units": [
       "productTemplateAttributeLine",
       "productTemplateAttributeExcludedValueIdsRel",
-      "productAttributeValueProductTemplateAttributeLineRel",
+      "productTemplateAttributeValueSaleOrderLineRel",
+      "productTemplateAttributeValuePurchaseOrderLineRel",
+      "templateAttributeValueStockMoveRel"
+     ],
+     "write_targets": [
+      "odoo_unt13.productTemplateAttributeExcludedValueIdsRel",
+      "odoo_unt13.productTemplateAttributeLine",
+      "odoo_unt13.productTemplateAttributeValuePurchaseOrderLineRel",
+      "odoo_unt13.productTemplateAttributeValueSaleOrderLineRel",
+      "odoo_unt13.templateAttributeValueStockMoveRel"
+     ],
+     "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
+     "recon_tolerances_version": "1",
+     "mapping_version": "map-draft-5",
+     "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
+     "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416"
+    },
+    {
+     "id": "w4-b04",
+     "units": [
       "productProduct"
      ],
      "write_targets": [
-      "odoo_unt13.productAttributeValueProductTemplateAttributeLineRel",
       "odoo_unt13.productProduct",
-      "odoo_unt13.productSupplierinfo",
-      "odoo_unt13.productTemplateAttributeExcludedValueIdsRel",
-      "odoo_unt13.productTemplateAttributeLine",
-      "odoo_unt13.purchaseOrder"
+      "odoo_unt13.productSupplierinfo"
      ],
      "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
      "recon_tolerances_version": "1",
@@ -428,8 +464,8 @@
    "units": [
     "stockQuant",
     "saleOrder",
-    "productTemplateAttributeValueSaleOrderLineRel",
-    "saleOrderLineStockRouteRel"
+    "saleOrderLineAccrualMoveRel",
+    "saleOrderLineInvoiceRel"
    ],
    "batches": [
     {
@@ -437,13 +473,13 @@
      "units": [
       "stockQuant",
       "saleOrder",
-      "productTemplateAttributeValueSaleOrderLineRel",
-      "saleOrderLineStockRouteRel"
+      "saleOrderLineAccrualMoveRel",
+      "saleOrderLineInvoiceRel"
      ],
      "write_targets": [
-      "odoo_unt13.productTemplateAttributeValueSaleOrderLineRel",
       "odoo_unt13.saleOrder",
-      "odoo_unt13.saleOrderLineStockRouteRel",
+      "odoo_unt13.saleOrderLineAccrualMoveRel",
+      "odoo_unt13.saleOrderLineInvoiceRel",
       "odoo_unt13.stockQuant"
      ],
      "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
@@ -460,7 +496,6 @@
    "units": [
     "productAttributeCustomValue",
     "purchaseOrderLine",
-    "productTemplateAttributeValuePurchaseOrderLineRel",
     "stockPicking"
    ],
    "batches": [
@@ -469,12 +504,10 @@
      "units": [
       "productAttributeCustomValue",
       "purchaseOrderLine",
-      "productTemplateAttributeValuePurchaseOrderLineRel",
       "stockPicking"
      ],
      "write_targets": [
       "odoo_unt13.productAttributeCustomValue",
-      "odoo_unt13.productTemplateAttributeValuePurchaseOrderLineRel",
       "odoo_unt13.purchaseOrderLine",
       "odoo_unt13.stockPicking"
      ],
@@ -490,25 +523,19 @@
    "wave": 8,
    "depth": 6,
    "units": [
-    "accountMoveLine",
-    "saleOrderLineAccrualMoveRel",
-    "saleOrderLineInvoiceRel"
+    "accountMoveLine"
    ],
    "batches": [
     {
      "id": "w8-b01",
      "units": [
-      "accountMoveLine",
-      "saleOrderLineAccrualMoveRel",
-      "saleOrderLineInvoiceRel"
+      "accountMoveLine"
      ],
      "write_targets": [
       "odoo_unt13.accountMove",
       "odoo_unt13.accountMoveLine",
       "odoo_unt13.accountPartialReconcile",
-      "odoo_unt13.accountPayment",
-      "odoo_unt13.saleOrderLineAccrualMoveRel",
-      "odoo_unt13.saleOrderLineInvoiceRel"
+      "odoo_unt13.accountPayment"
      ],
      "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
      "recon_tolerances_version": "1",
@@ -525,19 +552,16 @@
    "wave": 9,
    "depth": 7,
    "units": [
-    "stockMove",
-    "templateAttributeValueStockMoveRel"
+    "stockMove"
    ],
    "batches": [
     {
      "id": "w9-b01",
      "units": [
-      "stockMove",
-      "templateAttributeValueStockMoveRel"
+      "stockMove"
      ],
      "write_targets": [
-      "odoo_unt13.stockMove",
-      "odoo_unt13.templateAttributeValueStockMoveRel"
+      "odoo_unt13.stockMove"
      ],
      "fixture_manifest": ".migration/fixtures/odoo_fixture.json",
      "recon_tolerances_version": "1",
@@ -1474,10 +1498,80 @@
    }
   },
   {
-   "id": "accountFullReconcile",
+   "id": "productTemplateUomUomRel",
    "wave": 2,
    "batch": "w2-b04",
    "order": 18,
+   "depth": 0,
+   "rows": 2,
+   "collections": [
+    {
+     "collection": "productTemplateUomUomRel",
+     "root_table": "product_template_uom_uom_rel",
+     "embedded_tables": [],
+     "rows": {
+      "product_template_uom_uom_rel": 2
+     }
+    }
+   ],
+   "write_targets": [
+    "odoo_unt13.productTemplateUomUomRel"
+   ],
+   "depends_on": [],
+   "forward_refs": [
+    {
+     "collection": "productTemplateUomUomRel",
+     "table": "product_template_uom_uom_rel",
+     "column": "product_template_id",
+     "to": "productTemplate",
+     "stat": "fk_integrity:product_template_uom_uom_rel->product_template(product_template_id)",
+     "to_unit": "productTemplate",
+     "kind": "junction",
+     "why": "link-table id: resolves once the target unit merges"
+    },
+    {
+     "collection": "productTemplateUomUomRel",
+     "table": "product_template_uom_uom_rel",
+     "column": "uom_uom_id",
+     "to": "uomUom",
+     "stat": "fk_integrity:product_template_uom_uom_rel->uom_uom(uom_uom_id)",
+     "to_unit": "uomUom",
+     "kind": "junction",
+     "why": "link-table id: resolves once the target unit merges"
+    }
+   ],
+   "tours": [],
+   "acceptance": {
+    "crons_to_pause": [
+     {
+      "cron": 1,
+      "xmlid": "base.autovacuum_job",
+      "disp": "A",
+      "active": true,
+      "why": "vacuums every in-scope model"
+     }
+    ]
+   },
+   "junction": {
+    "relation": "product_template_uom_uom_rel",
+    "owner": {
+     "model": "product.template",
+     "field": "uom_ids",
+     "declared_at": "addons/product/models/product_template.py:160"
+    },
+    "also_declared": [],
+    "endpoints": [
+     "uomUom",
+     "productTemplate"
+    ],
+    "placed_with": "uomUom"
+   }
+  },
+  {
+   "id": "accountFullReconcile",
+   "wave": 2,
+   "batch": "w2-b04",
+   "order": 19,
    "depth": 0,
    "rows": 42,
    "collections": [
@@ -1532,7 +1626,7 @@
    "id": "accountAccountTag",
    "wave": 2,
    "batch": "w2-b04",
-   "order": 19,
+   "order": 20,
    "depth": 0,
    "rows": 68,
    "collections": [
@@ -1615,7 +1709,7 @@
    "id": "accountAccount",
    "wave": 2,
    "batch": "w2-b04",
-   "order": 20,
+   "order": 21,
    "depth": 0,
    "rows": 461,
    "collections": [
@@ -1809,8 +1903,8 @@
   {
    "id": "productTag",
    "wave": 2,
-   "batch": "w2-b04",
-   "order": 21,
+   "batch": "w2-b05",
+   "order": 22,
    "depth": 0,
    "rows": 487,
    "collections": [
@@ -1871,7 +1965,7 @@
    "id": "stockReference",
    "wave": 2,
    "batch": "w2-b05",
-   "order": 22,
+   "order": 23,
    "depth": 0,
    "rows": 524,
    "collections": [
@@ -1954,7 +2048,7 @@
    "id": "productAttribute",
    "wave": 2,
    "batch": "w2-b05",
-   "order": 23,
+   "order": 24,
    "depth": 0,
    "rows": 853,
    "collections": [
@@ -2035,10 +2129,86 @@
    }
   },
   {
+   "id": "productAttributeValueProductTemplateAttributeLineRel",
+   "wave": 2,
+   "batch": "w2-b05",
+   "order": 25,
+   "depth": 0,
+   "rows": 1642,
+   "collections": [
+    {
+     "collection": "productAttributeValueProductTemplateAttributeLineRel",
+     "root_table": "product_attribute_value_product_template_attribute_line_rel",
+     "embedded_tables": [],
+     "rows": {
+      "product_attribute_value_product_template_attribute_line_rel": 1642
+     }
+    }
+   ],
+   "write_targets": [
+    "odoo_unt13.productAttributeValueProductTemplateAttributeLineRel"
+   ],
+   "depends_on": [],
+   "forward_refs": [
+    {
+     "collection": "productAttributeValueProductTemplateAttributeLineRel",
+     "table": "product_attribute_value_product_template_attribute_line_rel",
+     "column": "product_attribute_value_id",
+     "to": "productAttribute",
+     "stat": "fk_integrity:product_attribute_value_product_template_attribute_line_rel->product_attribute_value(product_attribute_value_id)",
+     "to_unit": "productAttribute",
+     "kind": "junction",
+     "why": "link-table id: resolves once the target unit merges"
+    },
+    {
+     "collection": "productAttributeValueProductTemplateAttributeLineRel",
+     "table": "product_attribute_value_product_template_attribute_line_rel",
+     "column": "product_template_attribute_line_id",
+     "to": "productTemplateAttributeLine",
+     "stat": "fk_integrity:product_attribute_value_product_template_attribute_line_rel->product_template_attribute_line(product_template_attribute_line_id)",
+     "to_unit": "productTemplateAttributeLine",
+     "kind": "junction",
+     "why": "link-table id: resolves once the target unit merges"
+    }
+   ],
+   "tours": [],
+   "acceptance": {
+    "crons_to_pause": [
+     {
+      "cron": 1,
+      "xmlid": "base.autovacuum_job",
+      "disp": "A",
+      "active": true,
+      "why": "vacuums every in-scope model"
+     }
+    ]
+   },
+   "junction": {
+    "relation": "product_attribute_value_product_template_attribute_line_rel",
+    "owner": {
+     "model": "product.template.attribute.line",
+     "field": "value_ids",
+     "declared_at": "addons/product/models/product_template_attribute_line.py:32"
+    },
+    "also_declared": [
+     {
+      "model": "product.attribute.value",
+      "field": "pav_attribute_line_ids",
+      "declared_at": "addons/product/models/product_attribute_value.py:29"
+     }
+    ],
+    "endpoints": [
+     "productAttribute",
+     "productTemplateAttributeLine"
+    ],
+    "placed_with": "productAttribute"
+   }
+  },
+  {
    "id": "accountReportLine",
    "wave": 3,
    "batch": "w3-b01",
-   "order": 24,
+   "order": 26,
    "depth": 1,
    "rows": 2,
    "collections": [
@@ -2086,7 +2256,7 @@
    "id": "accountReconcileModel",
    "wave": 3,
    "batch": "w3-b01",
-   "order": 25,
+   "order": 27,
    "depth": 1,
    "rows": 20,
    "collections": [
@@ -2183,10 +2353,86 @@
    }
   },
   {
+   "id": "accountReconcileModelLineAccountTaxRel",
+   "wave": 3,
+   "batch": "w3-b01",
+   "order": 28,
+   "depth": 1,
+   "rows": 1,
+   "collections": [
+    {
+     "collection": "accountReconcileModelLineAccountTaxRel",
+     "root_table": "account_reconcile_model_line_account_tax_rel",
+     "embedded_tables": [],
+     "rows": {
+      "account_reconcile_model_line_account_tax_rel": 1
+     }
+    }
+   ],
+   "write_targets": [
+    "odoo_unt13.accountReconcileModelLineAccountTaxRel"
+   ],
+   "depends_on": [],
+   "forward_refs": [
+    {
+     "collection": "accountReconcileModelLineAccountTaxRel",
+     "table": "account_reconcile_model_line_account_tax_rel",
+     "column": "account_reconcile_model_line_id",
+     "to": "accountReconcileModel",
+     "stat": "fk_integrity:account_reconcile_model_line_account_tax_rel->account_reconcile_model_line(account_reconcile_model_line_id)",
+     "to_unit": "accountReconcileModel",
+     "kind": "junction",
+     "why": "link-table id: resolves once the target unit merges"
+    },
+    {
+     "collection": "accountReconcileModelLineAccountTaxRel",
+     "table": "account_reconcile_model_line_account_tax_rel",
+     "column": "account_tax_id",
+     "to": "accountTax",
+     "stat": "fk_integrity:account_reconcile_model_line_account_tax_rel->account_tax(account_tax_id)",
+     "to_unit": "accountTax",
+     "kind": "junction",
+     "why": "link-table id: resolves once the target unit merges"
+    }
+   ],
+   "tours": [],
+   "acceptance": {
+    "crons_to_pause": [
+     {
+      "cron": 1,
+      "xmlid": "base.autovacuum_job",
+      "disp": "A",
+      "active": true,
+      "why": "vacuums every in-scope model"
+     }
+    ]
+   },
+   "junction": {
+    "relation": "account_reconcile_model_line_account_tax_rel",
+    "owner": {
+     "model": "account.reconcile.model.line",
+     "field": "tax_ids",
+     "declared_at": "addons/account/models/account_reconcile_model.py:51"
+    },
+    "also_declared": [
+     {
+      "model": "account.tax",
+      "field": "account_reconcile_model_line_ids",
+      "declared_at": "addons/account/models/account_tax.py:208"
+     }
+    ],
+    "endpoints": [
+     "accountReconcileModel",
+     "accountTax"
+    ],
+    "placed_with": "accountReconcileModel"
+   }
+  },
+  {
    "id": "accountJournal",
    "wave": 3,
    "batch": "w3-b01",
-   "order": 26,
+   "order": 29,
    "depth": 1,
    "rows": 26,
    "collections": [
@@ -2337,7 +2583,7 @@
    "id": "accountFiscalPosition",
    "wave": 3,
    "batch": "w3-b01",
-   "order": 27,
+   "order": 30,
    "depth": 1,
    "rows": 57,
    "collections": [
@@ -2445,8 +2691,8 @@
   {
    "id": "stockLocation",
    "wave": 3,
-   "batch": "w3-b01",
-   "order": 28,
+   "batch": "w3-b02",
+   "order": 31,
    "depth": 1,
    "rows": 164,
    "collections": [
@@ -2694,10 +2940,80 @@
    }
   },
   {
+   "id": "saleOrderLineStockRouteRel",
+   "wave": 3,
+   "batch": "w3-b02",
+   "order": 32,
+   "depth": 1,
+   "rows": 1,
+   "collections": [
+    {
+     "collection": "saleOrderLineStockRouteRel",
+     "root_table": "sale_order_line_stock_route_rel",
+     "embedded_tables": [],
+     "rows": {
+      "sale_order_line_stock_route_rel": 1
+     }
+    }
+   ],
+   "write_targets": [
+    "odoo_unt13.saleOrderLineStockRouteRel"
+   ],
+   "depends_on": [],
+   "forward_refs": [
+    {
+     "collection": "saleOrderLineStockRouteRel",
+     "table": "sale_order_line_stock_route_rel",
+     "column": "sale_order_line_id",
+     "to": "saleOrder",
+     "stat": "fk_integrity:sale_order_line_stock_route_rel->sale_order_line(sale_order_line_id)",
+     "to_unit": "saleOrder",
+     "kind": "junction",
+     "why": "link-table id: resolves once the target unit merges"
+    },
+    {
+     "collection": "saleOrderLineStockRouteRel",
+     "table": "sale_order_line_stock_route_rel",
+     "column": "stock_route_id",
+     "to": "stockRoute",
+     "stat": "fk_integrity:sale_order_line_stock_route_rel->stock_route(stock_route_id)",
+     "to_unit": "stockLocation",
+     "kind": "junction",
+     "why": "link-table id: resolves once the target unit merges"
+    }
+   ],
+   "tours": [],
+   "acceptance": {
+    "crons_to_pause": [
+     {
+      "cron": 1,
+      "xmlid": "base.autovacuum_job",
+      "disp": "A",
+      "active": true,
+      "why": "vacuums every in-scope model"
+     }
+    ]
+   },
+   "junction": {
+    "relation": "sale_order_line_stock_route_rel",
+    "owner": {
+     "model": "sale.order.line",
+     "field": "route_ids",
+     "declared_at": "addons/sale_stock/models/sale_order_line.py:16"
+    },
+    "also_declared": [],
+    "endpoints": [
+     "stockLocation",
+     "saleOrder"
+    ],
+    "placed_with": "stockLocation"
+   }
+  },
+  {
    "id": "productTemplate",
    "wave": 3,
    "batch": "w3-b02",
-   "order": 29,
+   "order": 33,
    "depth": 1,
    "rows": 439,
    "collections": [
@@ -2912,70 +3228,10 @@
    }
   },
   {
-   "id": "productTemplateUomUomRel",
-   "wave": 3,
-   "batch": "w3-b02",
-   "order": 30,
-   "depth": 1,
-   "rows": 2,
-   "collections": [
-    {
-     "collection": "productTemplateUomUomRel",
-     "root_table": "product_template_uom_uom_rel",
-     "embedded_tables": [],
-     "rows": {
-      "product_template_uom_uom_rel": 2
-     }
-    }
-   ],
-   "write_targets": [
-    "odoo_unt13.productTemplateUomUomRel"
-   ],
-   "depends_on": [],
-   "forward_refs": [
-    {
-     "collection": "productTemplateUomUomRel",
-     "table": "product_template_uom_uom_rel",
-     "column": "product_template_id",
-     "to": "productTemplate",
-     "stat": "fk_integrity:product_template_uom_uom_rel->product_template(product_template_id)",
-     "to_unit": "productTemplate",
-     "kind": "junction",
-     "why": "link-table id: resolves once the target unit merges"
-    }
-   ],
-   "tours": [],
-   "acceptance": {
-    "crons_to_pause": [
-     {
-      "cron": 1,
-      "xmlid": "base.autovacuum_job",
-      "disp": "A",
-      "active": true,
-      "why": "vacuums every in-scope model"
-     }
-    ]
-   },
-   "junction": {
-    "relation": "product_template_uom_uom_rel",
-    "owner": {
-     "model": "product.template",
-     "field": "uom_ids",
-     "declared_at": "addons/product/models/product_template.py:160"
-    },
-    "also_declared": [],
-    "endpoints": [
-     "uomUom",
-     "productTemplate"
-    ],
-    "placed_with": "productTemplate"
-   }
-  },
-  {
    "id": "productOptionalRel",
    "wave": 3,
    "batch": "w3-b02",
-   "order": 31,
+   "order": 34,
    "depth": 1,
    "rows": 3,
    "collections": [
@@ -3044,7 +3300,7 @@
    "id": "accountTax",
    "wave": 3,
    "batch": "w3-b02",
-   "order": 32,
+   "order": 35,
    "depth": 1,
    "rows": 2574,
    "collections": [
@@ -3203,86 +3459,10 @@
    }
   },
   {
-   "id": "accountReconcileModelLineAccountTaxRel",
-   "wave": 3,
-   "batch": "w3-b02",
-   "order": 33,
-   "depth": 1,
-   "rows": 1,
-   "collections": [
-    {
-     "collection": "accountReconcileModelLineAccountTaxRel",
-     "root_table": "account_reconcile_model_line_account_tax_rel",
-     "embedded_tables": [],
-     "rows": {
-      "account_reconcile_model_line_account_tax_rel": 1
-     }
-    }
-   ],
-   "write_targets": [
-    "odoo_unt13.accountReconcileModelLineAccountTaxRel"
-   ],
-   "depends_on": [],
-   "forward_refs": [
-    {
-     "collection": "accountReconcileModelLineAccountTaxRel",
-     "table": "account_reconcile_model_line_account_tax_rel",
-     "column": "account_reconcile_model_line_id",
-     "to": "accountReconcileModel",
-     "stat": "fk_integrity:account_reconcile_model_line_account_tax_rel->account_reconcile_model_line(account_reconcile_model_line_id)",
-     "to_unit": "accountReconcileModel",
-     "kind": "junction",
-     "why": "link-table id: resolves once the target unit merges"
-    },
-    {
-     "collection": "accountReconcileModelLineAccountTaxRel",
-     "table": "account_reconcile_model_line_account_tax_rel",
-     "column": "account_tax_id",
-     "to": "accountTax",
-     "stat": "fk_integrity:account_reconcile_model_line_account_tax_rel->account_tax(account_tax_id)",
-     "to_unit": "accountTax",
-     "kind": "junction",
-     "why": "link-table id: resolves once the target unit merges"
-    }
-   ],
-   "tours": [],
-   "acceptance": {
-    "crons_to_pause": [
-     {
-      "cron": 1,
-      "xmlid": "base.autovacuum_job",
-      "disp": "A",
-      "active": true,
-      "why": "vacuums every in-scope model"
-     }
-    ]
-   },
-   "junction": {
-    "relation": "account_reconcile_model_line_account_tax_rel",
-    "owner": {
-     "model": "account.reconcile.model.line",
-     "field": "tax_ids",
-     "declared_at": "addons/account/models/account_reconcile_model.py:51"
-    },
-    "also_declared": [
-     {
-      "model": "account.tax",
-      "field": "account_reconcile_model_line_ids",
-      "declared_at": "addons/account/models/account_tax.py:208"
-     }
-    ],
-    "endpoints": [
-     "accountReconcileModel",
-     "accountTax"
-    ],
-    "placed_with": "accountTax"
-   }
-  },
-  {
    "id": "stockPickingBatch",
    "wave": 4,
    "batch": "w4-b01",
-   "order": 34,
+   "order": 36,
    "depth": 2,
    "rows": 2,
    "collections": [
@@ -3347,7 +3527,7 @@
    "id": "stockPackage",
    "wave": 4,
    "batch": "w4-b01",
-   "order": 35,
+   "order": 37,
    "depth": 2,
    "rows": 3,
    "collections": [
@@ -3430,7 +3610,7 @@
    "id": "accountBankStatement",
    "wave": 4,
    "batch": "w4-b01",
-   "order": 36,
+   "order": 38,
    "depth": 2,
    "rows": 4,
    "collections": [
@@ -3491,7 +3671,7 @@
    "id": "accountReportExpression",
    "wave": 4,
    "batch": "w4-b01",
-   "order": 37,
+   "order": 39,
    "depth": 2,
    "rows": 4,
    "collections": [
@@ -3542,7 +3722,7 @@
    "id": "accountPaymentMethod",
    "wave": 4,
    "batch": "w4-b01",
-   "order": 38,
+   "order": 40,
    "depth": 2,
    "rows": 16,
    "collections": [
@@ -3602,7 +3782,7 @@
    "id": "purchaseOrder",
    "wave": 4,
    "batch": "w4-b02",
-   "order": 39,
+   "order": 41,
    "depth": 2,
    "rows": 27,
    "collections": [
@@ -3758,8 +3938,8 @@
   {
    "id": "productTemplateAttributeLine",
    "wave": 4,
-   "batch": "w4-b02",
-   "order": 40,
+   "batch": "w4-b03",
+   "order": 42,
    "depth": 2,
    "rows": 2052,
    "collections": [
@@ -3842,8 +4022,8 @@
   {
    "id": "productTemplateAttributeExcludedValueIdsRel",
    "wave": 4,
-   "batch": "w4-b02",
-   "order": 41,
+   "batch": "w4-b03",
+   "order": 43,
    "depth": 2,
    "rows": 1,
    "collections": [
@@ -3909,34 +4089,44 @@
    }
   },
   {
-   "id": "productAttributeValueProductTemplateAttributeLineRel",
+   "id": "productTemplateAttributeValueSaleOrderLineRel",
    "wave": 4,
-   "batch": "w4-b02",
-   "order": 42,
+   "batch": "w4-b03",
+   "order": 44,
    "depth": 2,
-   "rows": 1642,
+   "rows": 1,
    "collections": [
     {
-     "collection": "productAttributeValueProductTemplateAttributeLineRel",
-     "root_table": "product_attribute_value_product_template_attribute_line_rel",
+     "collection": "productTemplateAttributeValueSaleOrderLineRel",
+     "root_table": "product_template_attribute_value_sale_order_line_rel",
      "embedded_tables": [],
      "rows": {
-      "product_attribute_value_product_template_attribute_line_rel": 1642
+      "product_template_attribute_value_sale_order_line_rel": 1
      }
     }
    ],
    "write_targets": [
-    "odoo_unt13.productAttributeValueProductTemplateAttributeLineRel"
+    "odoo_unt13.productTemplateAttributeValueSaleOrderLineRel"
    ],
    "depends_on": [],
    "forward_refs": [
     {
-     "collection": "productAttributeValueProductTemplateAttributeLineRel",
-     "table": "product_attribute_value_product_template_attribute_line_rel",
-     "column": "product_template_attribute_line_id",
+     "collection": "productTemplateAttributeValueSaleOrderLineRel",
+     "table": "product_template_attribute_value_sale_order_line_rel",
+     "column": "product_template_attribute_value_id",
      "to": "productTemplateAttributeLine",
-     "stat": "fk_integrity:product_attribute_value_product_template_attribute_line_rel->product_template_attribute_line(product_template_attribute_line_id)",
+     "stat": "fk_integrity:product_template_attribute_value_sale_order_line_rel->product_template_attribute_value(product_template_attribute_value_id)",
      "to_unit": "productTemplateAttributeLine",
+     "kind": "junction",
+     "why": "link-table id: resolves once the target unit merges"
+    },
+    {
+     "collection": "productTemplateAttributeValueSaleOrderLineRel",
+     "table": "product_template_attribute_value_sale_order_line_rel",
+     "column": "sale_order_line_id",
+     "to": "saleOrder",
+     "stat": "fk_integrity:product_template_attribute_value_sale_order_line_rel->sale_order_line(sale_order_line_id)",
+     "to_unit": "saleOrder",
      "kind": "junction",
      "why": "link-table id: resolves once the target unit merges"
     }
@@ -3954,22 +4144,156 @@
     ]
    },
    "junction": {
-    "relation": "product_attribute_value_product_template_attribute_line_rel",
+    "relation": "product_template_attribute_value_sale_order_line_rel",
     "owner": {
-     "model": "product.template.attribute.line",
-     "field": "value_ids",
-     "declared_at": "addons/product/models/product_template_attribute_line.py:32"
+     "model": "sale.order.line",
+     "field": "product_no_variant_attribute_value_ids",
+     "declared_at": "addons/sale/models/sale_order_line.py:138"
     },
-    "also_declared": [
-     {
-      "model": "product.attribute.value",
-      "field": "pav_attribute_line_ids",
-      "declared_at": "addons/product/models/product_attribute_value.py:29"
-     }
-    ],
+    "also_declared": [],
     "endpoints": [
-     "productAttribute",
-     "productTemplateAttributeLine"
+     "productTemplateAttributeLine",
+     "saleOrder"
+    ],
+    "placed_with": "productTemplateAttributeLine"
+   }
+  },
+  {
+   "id": "productTemplateAttributeValuePurchaseOrderLineRel",
+   "wave": 4,
+   "batch": "w4-b03",
+   "order": 45,
+   "depth": 2,
+   "rows": 2,
+   "collections": [
+    {
+     "collection": "productTemplateAttributeValuePurchaseOrderLineRel",
+     "root_table": "product_template_attribute_value_purchase_order_line_rel",
+     "embedded_tables": [],
+     "rows": {
+      "product_template_attribute_value_purchase_order_line_rel": 2
+     }
+    }
+   ],
+   "write_targets": [
+    "odoo_unt13.productTemplateAttributeValuePurchaseOrderLineRel"
+   ],
+   "depends_on": [],
+   "forward_refs": [
+    {
+     "collection": "productTemplateAttributeValuePurchaseOrderLineRel",
+     "table": "product_template_attribute_value_purchase_order_line_rel",
+     "column": "product_template_attribute_value_id",
+     "to": "productTemplateAttributeLine",
+     "stat": "fk_integrity:product_template_attribute_value_purchase_order_line_rel->product_template_attribute_value(product_template_attribute_value_id)",
+     "to_unit": "productTemplateAttributeLine",
+     "kind": "junction",
+     "why": "link-table id: resolves once the target unit merges"
+    },
+    {
+     "collection": "productTemplateAttributeValuePurchaseOrderLineRel",
+     "table": "product_template_attribute_value_purchase_order_line_rel",
+     "column": "purchase_order_line_id",
+     "to": "purchaseOrderLine",
+     "stat": "fk_integrity:product_template_attribute_value_purchase_order_line_rel->purchase_order_line(purchase_order_line_id)",
+     "to_unit": "purchaseOrderLine",
+     "kind": "junction",
+     "why": "link-table id: resolves once the target unit merges"
+    }
+   ],
+   "tours": [],
+   "acceptance": {
+    "crons_to_pause": [
+     {
+      "cron": 1,
+      "xmlid": "base.autovacuum_job",
+      "disp": "A",
+      "active": true,
+      "why": "vacuums every in-scope model"
+     }
+    ]
+   },
+   "junction": {
+    "relation": "product_template_attribute_value_purchase_order_line_rel",
+    "owner": {
+     "model": "purchase.order.line",
+     "field": "product_no_variant_attribute_value_ids",
+     "declared_at": "addons/purchase/models/purchase_order_line.py:141"
+    },
+    "also_declared": [],
+    "endpoints": [
+     "productTemplateAttributeLine",
+     "purchaseOrderLine"
+    ],
+    "placed_with": "productTemplateAttributeLine"
+   }
+  },
+  {
+   "id": "templateAttributeValueStockMoveRel",
+   "wave": 4,
+   "batch": "w4-b03",
+   "order": 46,
+   "depth": 2,
+   "rows": 2,
+   "collections": [
+    {
+     "collection": "templateAttributeValueStockMoveRel",
+     "root_table": "template_attribute_value_stock_move_rel",
+     "embedded_tables": [],
+     "rows": {
+      "template_attribute_value_stock_move_rel": 2
+     }
+    }
+   ],
+   "write_targets": [
+    "odoo_unt13.templateAttributeValueStockMoveRel"
+   ],
+   "depends_on": [],
+   "forward_refs": [
+    {
+     "collection": "templateAttributeValueStockMoveRel",
+     "table": "template_attribute_value_stock_move_rel",
+     "column": "template_attribute_value_id",
+     "to": "productTemplateAttributeLine",
+     "stat": "fk_integrity:template_attribute_value_stock_move_rel->product_template_attribute_value(template_attribute_value_id)",
+     "to_unit": "productTemplateAttributeLine",
+     "kind": "junction",
+     "why": "link-table id: resolves once the target unit merges"
+    },
+    {
+     "collection": "templateAttributeValueStockMoveRel",
+     "table": "template_attribute_value_stock_move_rel",
+     "column": "move_id",
+     "to": "stockMove",
+     "stat": "fk_integrity:template_attribute_value_stock_move_rel->stock_move(move_id)",
+     "to_unit": "stockMove",
+     "kind": "junction",
+     "why": "link-table id: resolves once the target unit merges"
+    }
+   ],
+   "tours": [],
+   "acceptance": {
+    "crons_to_pause": [
+     {
+      "cron": 1,
+      "xmlid": "base.autovacuum_job",
+      "disp": "A",
+      "active": true,
+      "why": "vacuums every in-scope model"
+     }
+    ]
+   },
+   "junction": {
+    "relation": "template_attribute_value_stock_move_rel",
+    "owner": {
+     "model": "stock.move",
+     "field": "never_product_template_attribute_value_ids",
+     "declared_at": "addons/stock/models/stock_move.py:47"
+    },
+    "also_declared": [],
+    "endpoints": [
+     "productTemplateAttributeLine",
+     "stockMove"
     ],
     "placed_with": "productTemplateAttributeLine"
    }
@@ -3977,8 +4301,8 @@
   {
    "id": "productProduct",
    "wave": 4,
-   "batch": "w4-b02",
-   "order": 43,
+   "batch": "w4-b04",
+   "order": 47,
    "depth": 2,
    "rows": 5064,
    "collections": [
@@ -4315,7 +4639,7 @@
    "id": "stockPutawayRule",
    "wave": 5,
    "batch": "w5-b01",
-   "order": 44,
+   "order": 48,
    "depth": 3,
    "rows": 1,
    "collections": [
@@ -4392,7 +4716,7 @@
    "id": "stockPackageHistory",
    "wave": 5,
    "batch": "w5-b01",
-   "order": 45,
+   "order": 49,
    "depth": 3,
    "rows": 2,
    "collections": [
@@ -4473,7 +4797,7 @@
    "id": "stockStorageCategoryCapacity",
    "wave": 5,
    "batch": "w5-b01",
-   "order": 46,
+   "order": 50,
    "depth": 3,
    "rows": 2,
    "collections": [
@@ -4545,7 +4869,7 @@
    "id": "productCombo",
    "wave": 5,
    "batch": "w5-b01",
-   "order": 47,
+   "order": 51,
    "depth": 3,
    "rows": 14,
    "collections": [
@@ -4605,7 +4929,7 @@
    "id": "productPricelistItem",
    "wave": 5,
    "batch": "w5-b01",
-   "order": 48,
+   "order": 52,
    "depth": 3,
    "rows": 251,
    "collections": [
@@ -4689,7 +5013,7 @@
    "id": "stockLot",
    "wave": 5,
    "batch": "w5-b02",
-   "order": 49,
+   "order": 53,
    "depth": 3,
    "rows": 254,
    "collections": [
@@ -4772,7 +5096,7 @@
    "id": "stockQuant",
    "wave": 6,
    "batch": "w6-b01",
-   "order": 50,
+   "order": 54,
    "depth": 4,
    "rows": 247,
    "collections": [
@@ -4932,7 +5256,7 @@
    "id": "saleOrder",
    "wave": 6,
    "batch": "w6-b01",
-   "order": 51,
+   "order": 55,
    "depth": 4,
    "rows": 592,
    "collections": [
@@ -5173,33 +5497,43 @@
    }
   },
   {
-   "id": "productTemplateAttributeValueSaleOrderLineRel",
+   "id": "saleOrderLineAccrualMoveRel",
    "wave": 6,
    "batch": "w6-b01",
-   "order": 52,
+   "order": 56,
    "depth": 4,
-   "rows": 1,
+   "rows": 0,
    "collections": [
     {
-     "collection": "productTemplateAttributeValueSaleOrderLineRel",
-     "root_table": "product_template_attribute_value_sale_order_line_rel",
+     "collection": "saleOrderLineAccrualMoveRel",
+     "root_table": "sale_order_line_accrual_move_rel",
      "embedded_tables": [],
      "rows": {
-      "product_template_attribute_value_sale_order_line_rel": 1
+      "sale_order_line_accrual_move_rel": 0
      }
     }
    ],
    "write_targets": [
-    "odoo_unt13.productTemplateAttributeValueSaleOrderLineRel"
+    "odoo_unt13.saleOrderLineAccrualMoveRel"
    ],
    "depends_on": [],
    "forward_refs": [
     {
-     "collection": "productTemplateAttributeValueSaleOrderLineRel",
-     "table": "product_template_attribute_value_sale_order_line_rel",
-     "column": "sale_order_line_id",
+     "collection": "saleOrderLineAccrualMoveRel",
+     "table": "sale_order_line_accrual_move_rel",
+     "column": "move_id",
+     "to": "accountMove",
+     "stat": "fk_integrity:sale_order_line_accrual_move_rel->account_move(move_id)",
+     "to_unit": "accountMoveLine",
+     "kind": "junction",
+     "why": "link-table id: resolves once the target unit merges"
+    },
+    {
+     "collection": "saleOrderLineAccrualMoveRel",
+     "table": "sale_order_line_accrual_move_rel",
+     "column": "order_line_id",
      "to": "saleOrder",
-     "stat": "fk_integrity:product_template_attribute_value_sale_order_line_rel->sale_order_line(sale_order_line_id)",
+     "stat": "fk_integrity:sale_order_line_accrual_move_rel->sale_order_line(order_line_id)",
      "to_unit": "saleOrder",
      "kind": "junction",
      "why": "link-table id: resolves once the target unit merges"
@@ -5218,48 +5552,58 @@
     ]
    },
    "junction": {
-    "relation": "product_template_attribute_value_sale_order_line_rel",
+    "relation": "sale_order_line_accrual_move_rel",
     "owner": {
      "model": "sale.order.line",
-     "field": "product_no_variant_attribute_value_ids",
-     "declared_at": "addons/sale/models/sale_order_line.py:138"
+     "field": "accrual_move_ids",
+     "declared_at": "addons/sale/models/sale_order_line.py:368"
     },
     "also_declared": [],
     "endpoints": [
-     "productTemplateAttributeLine",
-     "saleOrder"
+     "saleOrder",
+     "accountMoveLine"
     ],
     "placed_with": "saleOrder"
    }
   },
   {
-   "id": "saleOrderLineStockRouteRel",
+   "id": "saleOrderLineInvoiceRel",
    "wave": 6,
    "batch": "w6-b01",
-   "order": 53,
+   "order": 57,
    "depth": 4,
-   "rows": 1,
+   "rows": 384,
    "collections": [
     {
-     "collection": "saleOrderLineStockRouteRel",
-     "root_table": "sale_order_line_stock_route_rel",
+     "collection": "saleOrderLineInvoiceRel",
+     "root_table": "sale_order_line_invoice_rel",
      "embedded_tables": [],
      "rows": {
-      "sale_order_line_stock_route_rel": 1
+      "sale_order_line_invoice_rel": 384
      }
     }
    ],
    "write_targets": [
-    "odoo_unt13.saleOrderLineStockRouteRel"
+    "odoo_unt13.saleOrderLineInvoiceRel"
    ],
    "depends_on": [],
    "forward_refs": [
     {
-     "collection": "saleOrderLineStockRouteRel",
-     "table": "sale_order_line_stock_route_rel",
-     "column": "sale_order_line_id",
+     "collection": "saleOrderLineInvoiceRel",
+     "table": "sale_order_line_invoice_rel",
+     "column": "invoice_line_id",
+     "to": "accountMoveLine",
+     "stat": "fk_integrity:sale_order_line_invoice_rel->account_move_line(invoice_line_id)",
+     "to_unit": "accountMoveLine",
+     "kind": "junction",
+     "why": "link-table id: resolves once the target unit merges"
+    },
+    {
+     "collection": "saleOrderLineInvoiceRel",
+     "table": "sale_order_line_invoice_rel",
+     "column": "order_line_id",
      "to": "saleOrder",
-     "stat": "fk_integrity:sale_order_line_stock_route_rel->sale_order_line(sale_order_line_id)",
+     "stat": "fk_integrity:sale_order_line_invoice_rel->sale_order_line(order_line_id)",
      "to_unit": "saleOrder",
      "kind": "junction",
      "why": "link-table id: resolves once the target unit merges"
@@ -5267,6 +5611,14 @@
    ],
    "tours": [],
    "acceptance": {
+    "mirrored_link_tables": [
+     {
+      "relation": "sale_order_line_invoice_rel",
+      "model": "sale.order.line",
+      "field": "invoice_lines",
+      "declared_in": "addons/sale/models/sale_order_line.py"
+     }
+    ],
     "crons_to_pause": [
      {
       "cron": 1,
@@ -5278,16 +5630,22 @@
     ]
    },
    "junction": {
-    "relation": "sale_order_line_stock_route_rel",
+    "relation": "sale_order_line_invoice_rel",
     "owner": {
      "model": "sale.order.line",
-     "field": "route_ids",
-     "declared_at": "addons/sale_stock/models/sale_order_line.py:16"
+     "field": "invoice_lines",
+     "declared_at": "addons/sale/models/sale_order_line.py:329"
     },
-    "also_declared": [],
+    "also_declared": [
+     {
+      "model": "account.move.line",
+      "field": "sale_line_ids",
+      "declared_at": "addons/sale/models/account_move_line.py:12"
+     }
+    ],
     "endpoints": [
-     "stockLocation",
-     "saleOrder"
+     "saleOrder",
+     "accountMoveLine"
     ],
     "placed_with": "saleOrder"
    }
@@ -5296,7 +5654,7 @@
    "id": "productAttributeCustomValue",
    "wave": 7,
    "batch": "w7-b01",
-   "order": 54,
+   "order": 58,
    "depth": 5,
    "rows": 1,
    "collections": [
@@ -5356,7 +5714,7 @@
    "id": "purchaseOrderLine",
    "wave": 7,
    "batch": "w7-b01",
-   "order": 55,
+   "order": 59,
    "depth": 5,
    "rows": 35,
    "collections": [
@@ -5578,70 +5936,10 @@
    }
   },
   {
-   "id": "productTemplateAttributeValuePurchaseOrderLineRel",
-   "wave": 7,
-   "batch": "w7-b01",
-   "order": 56,
-   "depth": 5,
-   "rows": 2,
-   "collections": [
-    {
-     "collection": "productTemplateAttributeValuePurchaseOrderLineRel",
-     "root_table": "product_template_attribute_value_purchase_order_line_rel",
-     "embedded_tables": [],
-     "rows": {
-      "product_template_attribute_value_purchase_order_line_rel": 2
-     }
-    }
-   ],
-   "write_targets": [
-    "odoo_unt13.productTemplateAttributeValuePurchaseOrderLineRel"
-   ],
-   "depends_on": [],
-   "forward_refs": [
-    {
-     "collection": "productTemplateAttributeValuePurchaseOrderLineRel",
-     "table": "product_template_attribute_value_purchase_order_line_rel",
-     "column": "purchase_order_line_id",
-     "to": "purchaseOrderLine",
-     "stat": "fk_integrity:product_template_attribute_value_purchase_order_line_rel->purchase_order_line(purchase_order_line_id)",
-     "to_unit": "purchaseOrderLine",
-     "kind": "junction",
-     "why": "link-table id: resolves once the target unit merges"
-    }
-   ],
-   "tours": [],
-   "acceptance": {
-    "crons_to_pause": [
-     {
-      "cron": 1,
-      "xmlid": "base.autovacuum_job",
-      "disp": "A",
-      "active": true,
-      "why": "vacuums every in-scope model"
-     }
-    ]
-   },
-   "junction": {
-    "relation": "product_template_attribute_value_purchase_order_line_rel",
-    "owner": {
-     "model": "purchase.order.line",
-     "field": "product_no_variant_attribute_value_ids",
-     "declared_at": "addons/purchase/models/purchase_order_line.py:141"
-    },
-    "also_declared": [],
-    "endpoints": [
-     "productTemplateAttributeLine",
-     "purchaseOrderLine"
-    ],
-    "placed_with": "purchaseOrderLine"
-   }
-  },
-  {
    "id": "stockPicking",
    "wave": 7,
    "batch": "w7-b01",
-   "order": 57,
+   "order": 60,
    "depth": 5,
    "rows": 306,
    "collections": [
@@ -5808,7 +6106,7 @@
    "id": "accountMoveLine",
    "wave": 8,
    "batch": "w8-b01",
-   "order": 58,
+   "order": 61,
    "depth": 6,
    "rows": 21602,
    "collections": [
@@ -7168,144 +7466,10 @@
    }
   },
   {
-   "id": "saleOrderLineAccrualMoveRel",
-   "wave": 8,
-   "batch": "w8-b01",
-   "order": 59,
-   "depth": 6,
-   "rows": 0,
-   "collections": [
-    {
-     "collection": "saleOrderLineAccrualMoveRel",
-     "root_table": "sale_order_line_accrual_move_rel",
-     "embedded_tables": [],
-     "rows": {
-      "sale_order_line_accrual_move_rel": 0
-     }
-    }
-   ],
-   "write_targets": [
-    "odoo_unt13.saleOrderLineAccrualMoveRel"
-   ],
-   "depends_on": [],
-   "forward_refs": [
-    {
-     "collection": "saleOrderLineAccrualMoveRel",
-     "table": "sale_order_line_accrual_move_rel",
-     "column": "move_id",
-     "to": "accountMove",
-     "stat": "fk_integrity:sale_order_line_accrual_move_rel->account_move(move_id)",
-     "to_unit": "accountMoveLine",
-     "kind": "junction",
-     "why": "link-table id: resolves once the target unit merges"
-    }
-   ],
-   "tours": [],
-   "acceptance": {
-    "crons_to_pause": [
-     {
-      "cron": 1,
-      "xmlid": "base.autovacuum_job",
-      "disp": "A",
-      "active": true,
-      "why": "vacuums every in-scope model"
-     }
-    ]
-   },
-   "junction": {
-    "relation": "sale_order_line_accrual_move_rel",
-    "owner": {
-     "model": "sale.order.line",
-     "field": "accrual_move_ids",
-     "declared_at": "addons/sale/models/sale_order_line.py:368"
-    },
-    "also_declared": [],
-    "endpoints": [
-     "saleOrder",
-     "accountMoveLine"
-    ],
-    "placed_with": "accountMoveLine"
-   }
-  },
-  {
-   "id": "saleOrderLineInvoiceRel",
-   "wave": 8,
-   "batch": "w8-b01",
-   "order": 60,
-   "depth": 6,
-   "rows": 384,
-   "collections": [
-    {
-     "collection": "saleOrderLineInvoiceRel",
-     "root_table": "sale_order_line_invoice_rel",
-     "embedded_tables": [],
-     "rows": {
-      "sale_order_line_invoice_rel": 384
-     }
-    }
-   ],
-   "write_targets": [
-    "odoo_unt13.saleOrderLineInvoiceRel"
-   ],
-   "depends_on": [],
-   "forward_refs": [
-    {
-     "collection": "saleOrderLineInvoiceRel",
-     "table": "sale_order_line_invoice_rel",
-     "column": "invoice_line_id",
-     "to": "accountMoveLine",
-     "stat": "fk_integrity:sale_order_line_invoice_rel->account_move_line(invoice_line_id)",
-     "to_unit": "accountMoveLine",
-     "kind": "junction",
-     "why": "link-table id: resolves once the target unit merges"
-    }
-   ],
-   "tours": [],
-   "acceptance": {
-    "mirrored_link_tables": [
-     {
-      "relation": "sale_order_line_invoice_rel",
-      "model": "sale.order.line",
-      "field": "invoice_lines",
-      "declared_in": "addons/sale/models/sale_order_line.py"
-     }
-    ],
-    "crons_to_pause": [
-     {
-      "cron": 1,
-      "xmlid": "base.autovacuum_job",
-      "disp": "A",
-      "active": true,
-      "why": "vacuums every in-scope model"
-     }
-    ]
-   },
-   "junction": {
-    "relation": "sale_order_line_invoice_rel",
-    "owner": {
-     "model": "sale.order.line",
-     "field": "invoice_lines",
-     "declared_at": "addons/sale/models/sale_order_line.py:329"
-    },
-    "also_declared": [
-     {
-      "model": "account.move.line",
-      "field": "sale_line_ids",
-      "declared_at": "addons/sale/models/account_move_line.py:12"
-     }
-    ],
-    "endpoints": [
-     "saleOrder",
-     "accountMoveLine"
-    ],
-    "placed_with": "accountMoveLine"
-   }
-  },
-  {
    "id": "stockMove",
    "wave": 9,
    "batch": "w9-b01",
-   "order": 61,
+   "order": 62,
    "depth": 7,
    "rows": 751,
    "collections": [
@@ -7587,66 +7751,6 @@
       ]
      }
     ]
-   }
-  },
-  {
-   "id": "templateAttributeValueStockMoveRel",
-   "wave": 9,
-   "batch": "w9-b01",
-   "order": 62,
-   "depth": 7,
-   "rows": 2,
-   "collections": [
-    {
-     "collection": "templateAttributeValueStockMoveRel",
-     "root_table": "template_attribute_value_stock_move_rel",
-     "embedded_tables": [],
-     "rows": {
-      "template_attribute_value_stock_move_rel": 2
-     }
-    }
-   ],
-   "write_targets": [
-    "odoo_unt13.templateAttributeValueStockMoveRel"
-   ],
-   "depends_on": [],
-   "forward_refs": [
-    {
-     "collection": "templateAttributeValueStockMoveRel",
-     "table": "template_attribute_value_stock_move_rel",
-     "column": "move_id",
-     "to": "stockMove",
-     "stat": "fk_integrity:template_attribute_value_stock_move_rel->stock_move(move_id)",
-     "to_unit": "stockMove",
-     "kind": "junction",
-     "why": "link-table id: resolves once the target unit merges"
-    }
-   ],
-   "tours": [],
-   "acceptance": {
-    "crons_to_pause": [
-     {
-      "cron": 1,
-      "xmlid": "base.autovacuum_job",
-      "disp": "A",
-      "active": true,
-      "why": "vacuums every in-scope model"
-     }
-    ]
-   },
-   "junction": {
-    "relation": "template_attribute_value_stock_move_rel",
-    "owner": {
-     "model": "stock.move",
-     "field": "never_product_template_attribute_value_ids",
-     "declared_at": "addons/stock/models/stock_move.py:47"
-    },
-    "also_declared": [],
-    "endpoints": [
-     "productTemplateAttributeLine",
-     "stockMove"
-    ],
-    "placed_with": "stockMove"
    }
   },
   {

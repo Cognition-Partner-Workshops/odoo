@@ -18,14 +18,15 @@ Rules (migration-planning SKILL, s3.3-unit-derivation, at the pinned plugin):
   component); a unit's depth is its longest ordering path to a unit with no dependencies.
 - Wave 1 is the canary alone: the smallest depth-0 non-junction unit by rows with at least one
   row; it lands the run's one shared loader. Wave 2 holds the other depth-0 non-junction units,
-  wave d+2 depth d. Within a wave, non-junction units go smallest first (rows, then id); batches
-  take up to 5 of them in order.
-- A root junction unit (its root table is a pure link table) is placed with the later of its
-  endpoint units in migration order (the many2many owner and comodel, cited in JUNCTION_OWNERS):
-  it joins that unit's batch right after it and takes its wave and depth, because
-  storage_mongodb.relation_layout (odoo/orm/storage_mongodb.py:284) routes a relation to MongoDB
-  only once the model or the comodel is on MongoDB. A junction unit is never the canary, and a
-  batch it would push past 5 units stops the derivation.
+  wave d+2 depth d. Within a wave, non-junction units go smallest first (rows, then id); in that
+  order, each unit and its junctions (sorted by rows, then id) form an indivisible group, and
+  batches greedily pack whole groups up to 5 units.
+- A root junction unit (its root table is a pure link table) is placed with the earlier of its
+  endpoint units in migration order (the first one to opt into MongoDB; the many2many owner and
+  comodel are cited in JUNCTION_OWNERS): it joins that unit's batch right after it and takes its
+  wave and depth, because storage_mongodb.relation_layout (odoo/orm/storage_mongodb.py:284) routes
+  a relation to MongoDB once the model or the comodel is on MongoDB. A junction unit is never the
+  canary, and a group larger than 5 units stops the derivation.
 """
 import argparse
 import ast
@@ -407,7 +408,7 @@ def derive():
     for u, endpoints in junction_endpoints.items():
         if any(endpoint not in base_position for endpoint in endpoints):
             sys.exit(f'{root_junctions[u]}: endpoint is not a non-junction unit')
-        anchor = max(endpoints, key=base_position.get)
+        anchor = min(endpoints, key=base_position.get)
         if anchor == canary:
             sys.exit(f'{root_junctions[u]}: junction anchor cannot be the canary')
         junction_anchor[u] = anchor
@@ -422,20 +423,25 @@ def derive():
     batch_members_by_wave, batch_of, ordered = {}, {}, []
     for w in sorted(set(base_wave_of.values())):
         members = [u for u in base_ordered if base_wave_of[u] == w]
-        base_chunks = [members[i:i + BATCH_MAX_UNITS]
-                       for i in range(0, len(members), BATCH_MAX_UNITS)]
+        groups = []
+        for u in members:
+            group = [u, *junctions_by_anchor[u]]
+            if len(group) > BATCH_MAX_UNITS:
+                sys.exit(f'{u}: junction group exceeds {BATCH_MAX_UNITS} units')
+            groups.append(group)
         wave_chunks = []
-        for i, base_chunk in enumerate(base_chunks):
+        chunk = []
+        for group in groups:
+            if chunk and len(chunk) + len(group) > BATCH_MAX_UNITS:
+                wave_chunks.append(chunk)
+                chunk = []
+            chunk.extend(group)
+        if chunk:
+            wave_chunks.append(chunk)
+        for i, chunk in enumerate(wave_chunks):
             bid = f'w{w}-b{i + 1:02d}'
-            chunk = []
-            for u in base_chunk:
-                chunk.append(u)
-                chunk.extend(junctions_by_anchor[u])
-            if len(chunk) > BATCH_MAX_UNITS:
-                sys.exit(f'{bid}: placing junctions would exceed {BATCH_MAX_UNITS} units')
             for u in chunk:
                 batch_of[u] = bid
-            wave_chunks.append(chunk)
             ordered.extend(chunk)
         batch_members_by_wave[w] = wave_chunks
     position = {u: i + 1 for i, u in enumerate(ordered)}
