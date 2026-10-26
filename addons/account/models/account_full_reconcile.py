@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from psycopg2 import sql
-
 from odoo import api, fields, models, Command
 
 
@@ -28,24 +26,27 @@ class AccountFullReconcile(models.Model):
 
         self.env['account.move.line'].invalidate_model(['full_reconcile_id'])
         fulls.invalidate_recordset(['reconciled_line_ids'], flush=False)
-        self.env.cr.execute_values(sql.SQL("""
-            UPDATE account_move_line line
-               SET full_reconcile_id = source.full_id
-              FROM (VALUES %s) AS source(full_id, line_ids)
-             WHERE line.id = ANY(source.line_ids)
-        """), [(full.id, line_ids) for full, line_ids in zip(fulls, move_line_ids)], page_size=1000)
+        self._link_records(self.env['account.move.line'], fulls, move_line_ids)
 
         self.env['account.partial.reconcile'].invalidate_model(['full_reconcile_id'])
         fulls.invalidate_recordset(['partial_reconcile_ids'], flush=False)
-        self.env.cr.execute_values(sql.SQL("""
-            UPDATE account_partial_reconcile partial
-               SET full_reconcile_id = source.full_id
-              FROM (VALUES %s) AS source(full_id, partial_ids)
-             WHERE partial.id = ANY(source.partial_ids)
-        """), [(full.id, line_ids) for full, line_ids in zip(fulls, partial_ids)], page_size=1000)
+        self._link_records(self.env['account.partial.reconcile'], fulls, partial_ids)
 
         self.env['account.partial.reconcile']._update_matching_number(fulls.reconciled_line_ids)
         return fulls
+
+    @api.model
+    def _link_records(self, model, fulls, ids_list):
+        """ Set ``full_reconcile_id`` on the records of ``model`` listed per
+        full reconcile, through the low-level ORM write: one column update
+        per storage, no recompute and no ``modified()``, like the plain SQL
+        UPDATE it replaces. The caller invalidates the cache beforehand.
+        """
+        ids, vals_list = [], []
+        for full, record_ids in zip(fulls, ids_list):
+            ids.extend(record_ids)
+            vals_list.extend([{'full_reconcile_id': full.id}] * len(record_ids))
+        model.browse(ids)._write_multi(vals_list)
 
     def unlink(self):
         # The default `ondelete='set null'` on `account_move_line.full_reconcile_id`
