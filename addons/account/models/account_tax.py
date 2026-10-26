@@ -54,6 +54,7 @@ class AccountTaxGroup(models.Model):
 
 class AccountTax(models.Model):
     _name = 'account.tax'
+    _storage = 'mongodb'      # UNT14 wave 3 w3-b02: documents in odoo_unt13.accountTax (signed spec map-draft-5)
     _shadow_relations = ('children_tax_ids', 'replacing_tax_ids')  # read by raw SQL
     _inherit = ['mail.thread']
     _description = 'Tax'
@@ -5188,6 +5189,7 @@ class AccountTax(models.Model):
 class AccountTaxRepartitionLine(models.Model):
     _name = 'account.tax.repartition.line'
     _description = "Tax Repartition Line"
+    _storage = 'mongodb'      # UNT14 wave 3 w3-b02: embedded as odoo_unt13.accountTax.repartitionLine (signed spec map-draft-5)
     _order = 'document_type, repartition_type, sequence, id'
     _check_company_auto = True
     _check_company_domain = models.check_company_domain_parent_of

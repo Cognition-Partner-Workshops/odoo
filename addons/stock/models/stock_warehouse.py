@@ -23,6 +23,7 @@ ROUTE_NAMES = {
 class StockWarehouse(models.Model):
     _name = 'stock.warehouse'
     _description = "Warehouse"
+    _storage = 'mongodb'      # UNT14 wave 3 w3-b02: documents in odoo_unt13.stockWarehouse (signed spec map-draft-5)
     _order = 'sequence,id'
     _check_company_auto = True
     # namedtuple used in helper methods generating values for routes

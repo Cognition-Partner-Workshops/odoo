@@ -1,0 +1,68 @@
+[
+ {
+  "name": "optional_per_template",
+  "collection": "productOptionalRel",
+  "note": "product.template.optional_product_ids many2many owner (addons/sale/models/product_template.py:55): optional products per template with the lowest optional template id, as the configurator reads them",
+  "source_sql": "SELECT src_id, count(*) AS optional_products, min(dest_id) AS first_optional FROM product_optional_rel GROUP BY src_id ORDER BY src_id",
+  "target_pipeline": [
+   {
+    "$group": {
+     "_id": "$srcId",
+     "optional_products": {
+      "$sum": 1
+     },
+     "first_optional": {
+      "$min": "$destId"
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "src_id": "$_id",
+     "optional_products": 1,
+     "first_optional": 1
+    }
+   },
+   {
+    "$sort": {
+     "src_id": 1
+    }
+   }
+  ],
+  "rules": []
+ },
+ {
+  "name": "templates_per_optional",
+  "collection": "productOptionalRel",
+  "note": "the inverse side: templates offering each optional product with the lowest owner id",
+  "source_sql": "SELECT dest_id, count(*) AS templates, min(src_id) AS first_template FROM product_optional_rel GROUP BY dest_id ORDER BY dest_id",
+  "target_pipeline": [
+   {
+    "$group": {
+     "_id": "$destId",
+     "templates": {
+      "$sum": 1
+     },
+     "first_template": {
+      "$min": "$srcId"
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "dest_id": "$_id",
+     "templates": 1,
+     "first_template": 1
+    }
+   },
+   {
+    "$sort": {
+     "dest_id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]
