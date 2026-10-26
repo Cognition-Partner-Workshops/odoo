@@ -321,6 +321,49 @@ class TestAccountMoveReconcile(AccountTestInvoicingCommon):
                 "full), not a decimal pointing to the deleted full (got %r)" % line.matching_number,
             )
 
+    def test_reconcile_links_through_orm(self):
+        """ The links a reconciliation leaves on the move lines and the partials
+        (`full_reconcile_id`, `matching_number`) go through the ORM, so they hold
+        whichever storage keeps each model and are stored, not only cached.
+        """
+        comp_curr = self.company_data['currency']
+        line_1 = self.create_line_for_reconciliation(1000.0, 1000.0, comp_curr, '2016-01-01')
+        line_2 = self.create_line_for_reconciliation(-600.0, -600.0, comp_curr, '2016-01-01')
+        line_3 = self.create_line_for_reconciliation(-400.0, -400.0, comp_curr, '2016-01-01')
+        lines = line_1 + line_2 + line_3
+
+        (line_1 + line_2).reconcile()
+        partial = line_1.matched_credit_ids
+        self.assertEqual(len(partial), 1)
+        self.assertFalse(lines.full_reconcile_id)
+        self.assertEqual(lines.mapped('matching_number'), ['P%s' % partial.id, 'P%s' % partial.id, False])
+        lines.invalidate_recordset(['matching_number'])
+        self.assertEqual(
+            self.env['account.move.line'].search([('matching_number', '=', 'P%s' % partial.id)]),
+            line_1 + line_2,
+        )
+
+        (line_1 + line_3).reconcile()
+        full = line_1.full_reconcile_id
+        self.assertTrue(full)
+        partials = line_1.matched_credit_ids
+        self.assertEqual(len(partials), 2)
+        self.assertEqual(lines.full_reconcile_id, full)
+        self.assertEqual(partials.full_reconcile_id, full)
+        self.assertEqual(full.reconciled_line_ids, lines)
+        self.assertEqual(full.partial_reconcile_ids, partials)
+        self.assertEqual(lines.mapped('matching_number'), [str(full.id)] * 3)
+
+        lines.invalidate_recordset(['full_reconcile_id', 'matching_number'])
+        partials.invalidate_recordset(['full_reconcile_id'])
+        self.assertEqual(self.env['account.move.line'].search([('full_reconcile_id', '=', full.id)]), lines)
+        self.assertEqual(self.env['account.move.line'].search([('matching_number', '=', str(full.id))]), lines)
+        self.assertEqual(self.env['account.partial.reconcile'].search([('full_reconcile_id', '=', full.id)]), partials)
+
+        lines.remove_move_reconcile()
+        self.assertFalse(lines.full_reconcile_id)
+        self.assertEqual(lines.mapped('matching_number'), [False] * 3)
+
     def test_reconcile_lines_multiple_in_foreign_currency(self):
         currency = self.other_currency
 

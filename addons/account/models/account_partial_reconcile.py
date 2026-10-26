@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from psycopg2 import sql
-
 from odoo import api, fields, models, _, Command
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import frozendict
@@ -223,16 +221,13 @@ class AccountPartialReconcile(models.Model):
                 line2number[partial.credit_move_id.id] = partial.id
 
         amls.flush_recordset(['full_reconcile_id'])
-        self.env.cr.execute_values(sql.SQL("""
-            UPDATE account_move_line l
-               SET matching_number = CASE
-                       WHEN l.full_reconcile_id IS NOT NULL THEN l.full_reconcile_id::text
-                       ELSE 'P' || source.number
-                   END
-              FROM (VALUES %s) AS source(number, ids)
-             WHERE l.id = ANY(source.ids)
-        """), list(number2lines.items()), page_size=1000)
         processed_amls = self.env['account.move.line'].browse([_id for ids in number2lines.values() for _id in ids])
+        # one low-level column write per storage, no recompute: the number is the
+        # full reconcile's id once the line is fully reconciled, else 'P<number>'
+        # of its partial graph
+        processed_amls._write_multi([{
+            'matching_number': str(line.full_reconcile_id.id) if line.full_reconcile_id else f'P{line2number[line.id]}',
+        } for line in processed_amls])
         processed_amls.invalidate_recordset(['matching_number'])
         (amls - processed_amls).matching_number = False
 
