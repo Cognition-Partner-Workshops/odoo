@@ -137,10 +137,94 @@ def get_db_name():
 standalone_tests = defaultdict(list)
 
 
-class RegistryRLock(threading._RLock):
+class RegistryRLock:
+    """ A re-entrant lock handed to its waiters in the order they asked for
+    it, so the concurrent requests of an ``HttpCase`` are served in arrival
+    order whatever the thread scheduling. A thread that releases the lock
+    keeps its turn for a moment (``TURN_GRACE``): a request switching from
+    its read-only cursor to a read/write one does not fall behind a request
+    that arrived after it (a plain lock may wake any waiter first: the
+    browser's read right after an action would then see the state before
+    the action). """
+    TURN_GRACE = 0.05   # seconds
+
+    def __init__(self):
+        self._cond = threading.Condition()
+        self._owner = None
+        self._count = 0
+        self._waiters = deque()
+        self._turn_owner = None     # the last owner, keeping its turn until ``_turn_until``
+        self._turn_until = 0.0
+
     @property
     def count(self):
-        return self._count  # Expose private attribute
+        return self._count
+
+    @staticmethod
+    def _now():
+        return time.clock_gettime(time.CLOCK_MONOTONIC)   # not frozen by freezegun
+
+    def _is_owned(self):
+        return self._owner == threading.get_ident()
+
+    def _turn_of_other(self, me):
+        """ Return how long another thread still keeps its turn, 0 if none does. """
+        if self._turn_owner in (None, me):
+            return 0.0
+        return max(self._turn_until - self._now(), 0.0)
+
+    def acquire(self, blocking=True, timeout=-1):
+        me = threading.get_ident()
+        with self._cond:
+            if self._owner == me:
+                self._count += 1
+                return True
+            free = self._owner is None and not self._turn_of_other(me)
+            if free and (not self._waiters or self._turn_owner == me):
+                return self._take(me)
+            if not blocking:
+                return False
+            deadline = None if timeout is None or timeout < 0 else self._now() + timeout
+            ticket = object()
+            self._waiters.append(ticket)
+            try:
+                while True:
+                    wait = None
+                    if self._owner is None and self._waiters[0] is ticket:
+                        wait = self._turn_of_other(me)
+                        if not wait:
+                            return self._take(me)
+                    if deadline is not None:
+                        remaining = deadline - self._now()
+                        if remaining <= 0:
+                            return False
+                        wait = remaining if wait is None else min(wait, remaining)
+                    self._cond.wait(wait)
+            finally:
+                self._waiters.remove(ticket)
+                self._cond.notify_all()
+
+    def _take(self, me):
+        self._owner = me
+        self._count = 1
+        self._turn_owner = None
+        return True
+
+    def release(self):
+        with self._cond:
+            if self._owner != threading.get_ident():
+                raise RuntimeError("cannot release un-acquired lock")
+            self._count -= 1
+            if not self._count:
+                self._turn_owner = self._owner
+                self._turn_until = self._now() + self.TURN_GRACE
+                self._owner = None
+                self._cond.notify_all()
+
+    __enter__ = acquire
+
+    def __exit__(self, *args):
+        self.release()
 
 
 # The lock should only be released when new test cursors are meant to be opened.
