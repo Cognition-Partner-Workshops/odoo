@@ -416,9 +416,14 @@ class ProductProduct(models.Model):
         elif locations:
             # stock.location is on MongoDB storage: its parent links are document
             # fields, so the descendants come from the ORM (parent_path), not raw SQL
-            descendants_query = locations.with_context(active_test=False)._search(
-                Domain('id', 'child_of', locations.ids)
-            )
+            descendants = self.env.cr.cache.get('stock.location.descendants', {})
+            if all(location_id in descendants for location_id in locations.ids):
+                # read in one batch by stock.location._prefetch_descendants
+                descendants_query = sorted({child_id for location_id in locations.ids for child_id in descendants[location_id]})
+            else:
+                descendants_query = locations.with_context(active_test=False)._search(
+                    Domain('id', 'child_of', locations.ids)
+                )
             loc_domain = Domain('location_id', 'in', descendants_query)
             # The condition should be split for done and not-done moves as the final_dest_id only make sense
             # for the part of the move chain that is not done yet.

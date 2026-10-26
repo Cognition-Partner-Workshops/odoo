@@ -222,6 +222,8 @@ class StockWarehouseOrderpoint(models.Model):
         # This reduces calls to _get_rules_from_location for products without routes and products with the same routes.
         rules_cache = {}
         routes_cache = {}
+        # One read of the rules of all the orderpoints' locations: _get_rule then groups them in Python.
+        rule_context = self.env['stock.rule']._prefetch_rules_for_locations(orderpoints_to_compute.location_id)
         for orderpoint in orderpoints_to_compute:
             # Get routes from cache
             actions = orderpoint.product_id.get_routes_actions()
@@ -233,7 +235,7 @@ class StockWarehouseOrderpoint(models.Model):
 
             all_product_routes = orderpoint.product_id.route_ids | orderpoint.product_id.categ_id.total_route_ids | total_routes
             cache_key = (orderpoint.location_id, orderpoint.route_id, all_product_routes)
-            rule_ids = rules_cache.get(cache_key) or orderpoint.product_id._get_rules_from_location(
+            rule_ids = rules_cache.get(cache_key) or orderpoint.product_id.with_context(**rule_context)._get_rules_from_location(
                 orderpoint.location_id, route_ids=orderpoint.route_id
             )
             orderpoint.rule_ids = rule_ids
@@ -418,8 +420,11 @@ class StockWarehouseOrderpoint(models.Model):
             orderpoint_context = orderpoint._get_product_context()
             product_context = frozendict({**orderpoint_context})
             orderpoints_contexts[product_context] |= orderpoint
+        orderpoints = self.browse().union(orderpoints_contexts.values())
         # the quantities in progress do not depend on the product context: one lookup for all
-        products_qty_in_progress = self.browse().union(orderpoints_contexts.values())._quantity_in_progress()
+        products_qty_in_progress = orderpoints._quantity_in_progress()
+        # one read of the locations' descendants for the product reads of all the contexts
+        orderpoints.location_id._prefetch_descendants()
         for orderpoint_context, orderpoints_by_context in orderpoints_contexts.items():
             products_qty = {
                 p['id']: p for p in orderpoints_by_context.product_id.with_context(orderpoint_context).read(['qty_available', 'virtual_available'])
@@ -553,6 +558,8 @@ class StockWarehouseOrderpoint(models.Model):
 
         Move = self.env['stock.move'].with_context(active_test=False)
         Quant = self.env['stock.quant'].with_context(active_test=False)
+        all_replenish_location_ids._prefetch_descendants()
+        rule_context = self.env['stock.rule']._prefetch_rules_for_locations(all_replenish_location_ids)
         domain_quant, domain_move_in_loc, domain_move_out_loc, __, __ = all_product_ids._get_domain_locations_new(all_replenish_location_ids.ids)
         domain_state = Domain('state', 'in', ('waiting', 'confirmed', 'assigned', 'partially_available'))
         domain_product = Domain('product_id', 'in', all_product_ids.ids)
@@ -604,7 +611,7 @@ class StockWarehouseOrderpoint(models.Model):
                 if product.uom_id.compare(qty_per_product[product.id], 0) < 0:
                     # group product by lead_days and location in order to read virtual_available
                     # in batch
-                    rules = product._get_rules_from_location(loc)
+                    rules = product.with_context(**rule_context)._get_rules_from_location(loc)
                     lead_days = rules._get_lead_days(product, bypass_delay_description=True)[0]
                     ploc_per_day[lead_days['total_delay'] + lead_days['horizon_time'], loc].add(product.id)
 

@@ -245,6 +245,7 @@ class StockLocation(models.Model):
         return [('id', 'not in', location_ids)]
 
     def write(self, vals):
+        self.env.cr.cache.pop('stock.location.descendants', None)
         values = vals
         if 'company_id' in values:
             for location in self:
@@ -290,6 +291,7 @@ class StockLocation(models.Model):
         return res
 
     def unlink(self):
+        self.env.cr.cache.pop('stock.location.descendants', None)
         return super(StockLocation, self.search([('id', 'child_of', self.ids)])).unlink()
 
     @api.model
@@ -308,9 +310,27 @@ class StockLocation(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        self.env.cr.cache.pop('stock.location.descendants', None)
         res = super().create(vals_list)
         self.invalidate_model(['warehouse_id'])
         return res
+
+    def _prefetch_descendants(self):
+        """ Read the descendants of ``self`` in one query, kept for the
+        transaction (``cr.cache``) for ``product._get_domain_locations_new``,
+        which otherwise searches them once per distinct location. """
+        cache = self.env.cr.cache.setdefault('stock.location.descendants', {})
+        missing = self.filtered(lambda location: location.id not in cache)
+        if not missing:
+            return
+        descendants = self.with_context(active_test=False).search_fetch(
+            Domain('id', 'child_of', missing.ids), ['parent_path'],
+        )
+        for location in missing:
+            cache[location.id] = tuple(
+                descendant.id for descendant in descendants
+                if descendant.parent_path.startswith(location.parent_path)
+            )
 
     def _get_putaway_strategy(self, product, quantity=0, package=None, packaging=None, additional_qty=None):
         """Returns the location where the product has to be put, if any compliant

@@ -496,12 +496,7 @@ class StockRule(models.Model):
             valid_route_ids |= set(warehouse_ids.route_ids.filtered(filter_function).ids)
         if valid_route_ids:
             domain &= Domain('route_id', 'in', list(valid_route_ids))
-        res = self.env["stock.rule"].sudo()._read_group(  # sudo() needed for cross company warehouse usage
-            domain,
-            groupby=["location_dest_id", "warehouse_id", "route_id"],
-            aggregates=["id:recordset"],
-            order="route_sequence:min, sequence:min",
-        )
+        res = self._get_rule_groups(domain)
         rule_dict = defaultdict(OrderedDict)
         for group in res:
             rules = group[3]
@@ -510,6 +505,55 @@ class StockRule(models.Model):
 
             rule_dict[group[0].id, group[2].id][group[1].id] = rules.sorted(lambda rule: (rule.route_sequence, rule.sequence))[0]
         return rule_dict
+
+    @api.model
+    def _get_rule_groups(self, domain):
+        """ The rules matching ``domain`` grouped by (location_dest_id,
+        warehouse_id, route_id), the groups ordered by their lowest
+        route_sequence then sequence. With the rules of the locations read once
+        by ``_prefetch_rules_for_locations`` in the context, the groups are
+        built from them in Python instead of one read_group per call. """
+        Rule = self.env['stock.rule'].sudo()  # sudo() needed for cross company warehouse usage
+        prefetched = self.env.context.get('stock_rule_prefetch')
+        if prefetched is None:
+            return Rule._read_group(
+                domain,
+                groupby=["location_dest_id", "warehouse_id", "route_id"],
+                aggregates=["id:recordset"],
+                order="route_sequence:min, sequence:min",
+            )
+        rules = Rule.browse(prefetched).filtered_domain(domain)
+        if self.env.context.get('active_test', True):
+            rules = rules.filtered('active')
+        groups = defaultdict(lambda: Rule)
+        for rule in rules:
+            groups[rule.location_dest_id, rule.warehouse_id, rule.route_id] |= rule
+        return sorted(
+            ((location, warehouse, route, group_rules) for (location, warehouse, route), group_rules in groups.items()),
+            key=lambda group: (min(group[3].mapped('route_sequence')), min(group[3].mapped('sequence'))),
+        )
+
+    @api.model
+    def _prefetch_rules_for_locations(self, locations):
+        """ Read in one query the non-push rules of ``locations`` and of their
+        ancestors, for the ``_get_rule`` calls on these locations to build
+        their rule groups in Python: returns the context to run them with.
+        A ``_get_rule`` on a location out of this set reads its rules itself. """
+        if not locations:
+            return {}
+        all_locations = locations
+        parents = locations.location_id
+        while parents - all_locations:
+            all_locations |= parents
+            parents = parents.location_id
+        location_ids = all_locations.ids
+        if self._check_intercomp_location(all_locations):
+            location_ids.append(self.env.ref('stock.stock_location_customers').id)
+        rules = self.env['stock.rule'].sudo().with_context(active_test=False).search_fetch(
+            Domain('location_dest_id', 'in', location_ids) & Domain('action', '!=', 'push'),
+            ['location_dest_id', 'warehouse_id', 'route_id', 'company_id', 'active', 'route_sequence', 'sequence'],
+        )
+        return {'stock_rule_prefetch': tuple(rules.ids), 'stock_rule_prefetch_locations': tuple(location_ids)}
 
     def _filter_warehouse_routes(self, product, warehouses, route):
         return route
@@ -555,6 +599,10 @@ class StockRule(models.Model):
         # Get the location hierarchy, starting from location_id up to its root location.
         while locations[-1].location_id:
             locations |= locations[-1].location_id
+        prefetch_location_ids = self.env.context.get('stock_rule_prefetch_locations')
+        if prefetch_location_ids is not None and not set(locations.ids) <= set(prefetch_location_ids):
+            # a location whose rules were not prefetched (e.g. a pull chain's source)
+            self = self.with_context(stock_rule_prefetch=None)
         domain = self._get_rule_domain(locations, values)
         routes_with_no_warehouse = self.env['stock.route']._get_routes_with_no_warehouse()
         routes = (values.get('route_ids') or self.env['stock.route']) | routes_with_no_warehouse
