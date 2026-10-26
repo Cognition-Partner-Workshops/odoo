@@ -8,6 +8,7 @@ from odoo.exceptions import UserError, ValidationError
 class ProductUom(models.Model):
     _name = 'product.uom'
     _description = 'Link between products and their UoMs'
+    _storage = 'mongodb'      # UNT14 wave 4 w4-b04: embedded as odoo_unt13.productProduct.productUom (signed spec map-draft-5)
     _rec_name = 'barcode'
 
     uom_id = fields.Many2one('uom.uom', 'Unit', required=True, index=True, ondelete='cascade')
@@ -17,6 +18,18 @@ class ProductUom(models.Model):
     allowed_uom_ids = fields.Many2many('uom.uom', compute='_compute_allowed_uom_ids')
 
     _barcode_uniq = models.Constraint('unique(barcode)', 'A barcode can only be assigned to one packaging.')
+
+    @api.constrains('barcode')
+    def _check_barcode_uniq_documents(self):
+        """ `_barcode_uniq` is a SQL UNIQUE constraint; on MongoDB storage the
+        document fields are not covered by it, so the same rule is enforced here. """
+        for packaging in self.filtered('barcode'):
+            duplicate = self.search_count([
+                ('id', '!=', packaging.id),
+                ('barcode', '=', packaging.barcode),
+            ], limit=1)
+            if duplicate:
+                raise ValidationError(_('A barcode can only be assigned to one packaging.'))
 
     @api.constrains('barcode')
     def _check_barcode_uniqueness(self):
