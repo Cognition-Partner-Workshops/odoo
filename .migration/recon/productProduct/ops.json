@@ -1,0 +1,235 @@
+[
+ {
+  "name": "variants_by_id",
+  "collection": "productProduct",
+  "note": "ProductProduct (addons/product/models/product_product.py): every variant with its template, internal reference, barcode, combination indices and active flag as the ORM reads them (active_test off)",
+  "source_sql": "SELECT id, product_tmpl_id, default_code, barcode, combination_indices, active FROM product_product ORDER BY id",
+  "target_pipeline": [
+   {
+    "$sort": {
+     "_id": 1
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "product_tmpl_id": {
+      "$ifNull": [
+       "$productTmplId",
+       null
+      ]
+     },
+     "default_code": {
+      "$ifNull": [
+       "$defaultCode",
+       null
+      ]
+     },
+     "barcode": {
+      "$ifNull": [
+       "$barcode",
+       null
+      ]
+     },
+     "combination_indices": {
+      "$ifNull": [
+       "$combinationIndices",
+       null
+      ]
+     },
+     "active": {
+      "$ifNull": [
+       "$active",
+       null
+      ]
+     }
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "variants_per_template",
+  "collection": "productProduct",
+  "note": "product.template.product_variant_count read path (_compute_product_variant_count): variants per template with the active count",
+  "source_sql": "SELECT product_tmpl_id, count(*) AS variants, count(*) FILTER (WHERE active) AS active_variants FROM product_product GROUP BY product_tmpl_id ORDER BY product_tmpl_id",
+  "target_pipeline": [
+   {
+    "$group": {
+     "_id": "$productTmplId",
+     "variants": {
+      "$sum": 1
+     },
+     "active_variants": {
+      "$sum": {
+       "$cond": [
+        {
+         "$eq": [
+          "$active",
+          true
+         ]
+        },
+        1,
+        0
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "product_tmpl_id": "$_id",
+     "variants": 1,
+     "active_variants": 1
+    }
+   },
+   {
+    "$sort": {
+     "product_tmpl_id": 1
+    }
+   }
+  ],
+  "rules": []
+ },
+ {
+  "name": "orderpoints_per_variant",
+  "collection": "productProduct",
+  "note": "stock.warehouse.orderpoint per product (addons/stock/models/stock_orderpoint.py, embedded stockWarehouseOrderpoint[]): variants with at least one replenishment rule and their rule ids",
+  "source_sql": "SELECT product_id, count(*) AS orderpoints, min(id) AS first_orderpoint_id, max(id) AS last_orderpoint_id FROM stock_warehouse_orderpoint GROUP BY product_id ORDER BY product_id",
+  "target_pipeline": [
+   {
+    "$match": {
+     "stockWarehouseOrderpoint.0": {
+      "$exists": true
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "product_id": "$_id",
+     "orderpoints": {
+      "$size": "$stockWarehouseOrderpoint"
+     },
+     "first_orderpoint_id": {
+      "$min": "$stockWarehouseOrderpoint.id"
+     },
+     "last_orderpoint_id": {
+      "$max": "$stockWarehouseOrderpoint.id"
+     }
+    }
+   },
+   {
+    "$sort": {
+     "product_id": 1
+    }
+   }
+  ],
+  "rules": []
+ },
+ {
+  "name": "supplierinfo_by_id",
+  "collection": "productSupplierinfo",
+  "note": "ProductSupplierinfo (addons/product/models/product_supplierinfo.py): every vendor pricelist line with its vendor, template, variant, sequence and delay as the ORM reads them",
+  "source_sql": "SELECT id, partner_id, product_tmpl_id, product_id, sequence, delay, company_id FROM product_supplierinfo ORDER BY id",
+  "target_pipeline": [
+   {
+    "$sort": {
+     "_id": 1
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "partner_id": {
+      "$ifNull": [
+       "$partnerId",
+       null
+      ]
+     },
+     "product_tmpl_id": {
+      "$ifNull": [
+       "$productTmplId",
+       null
+      ]
+     },
+     "product_id": {
+      "$ifNull": [
+       "$productId",
+       null
+      ]
+     },
+     "sequence": {
+      "$ifNull": [
+       "$sequence",
+       null
+      ]
+     },
+     "delay": {
+      "$ifNull": [
+       "$delay",
+       null
+      ]
+     },
+     "company_id": {
+      "$ifNull": [
+       "$companyId",
+       null
+      ]
+     }
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "supplierinfo_per_template",
+  "collection": "productSupplierinfo",
+  "note": "product.template.seller_ids read path (_select_seller / vendor pricelists tab): vendor lines per template and distinct vendors",
+  "source_sql": "SELECT product_tmpl_id, count(*) AS lines, count(DISTINCT partner_id) AS vendors FROM product_supplierinfo WHERE product_tmpl_id IS NOT NULL GROUP BY product_tmpl_id ORDER BY product_tmpl_id",
+  "target_pipeline": [
+   {
+    "$match": {
+     "productTmplId": {
+      "$exists": true,
+      "$ne": null
+     }
+    }
+   },
+   {
+    "$group": {
+     "_id": "$productTmplId",
+     "lines": {
+      "$sum": 1
+     },
+     "vendors": {
+      "$addToSet": "$partnerId"
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "product_tmpl_id": "$_id",
+     "lines": 1,
+     "vendors": {
+      "$size": "$vendors"
+     }
+    }
+   },
+   {
+    "$sort": {
+     "product_tmpl_id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]

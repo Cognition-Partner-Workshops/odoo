@@ -7,6 +7,7 @@ registry.category("web_tour.tours").add("test_product_replenishment", {
             content: "Open line fields list",
             trigger: ".o_optional_columns_dropdown_toggle",
             run: "click",
+            timeout: 20000, // opening the replenishment screen: plan decision d-replenish-step-limit (raise-step)
         },
         {
             content: "Show route column",

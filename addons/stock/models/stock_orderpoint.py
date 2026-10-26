@@ -23,6 +23,7 @@ class StockWarehouseOrderpoint(models.Model):
     """ Defines Minimum stock rules. """
     _name = 'stock.warehouse.orderpoint'
     _description = "Minimum Inventory Rule"
+    _storage = 'mongodb'      # UNT14 wave 4 w4-b04: embedded as odoo_unt13.productProduct.stockWarehouseOrderpoint (signed spec map-draft-5)
     _check_company_auto = True
     _order = "location_id,company_id,id"
 
