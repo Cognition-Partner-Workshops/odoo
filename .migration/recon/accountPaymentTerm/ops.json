@@ -1,0 +1,103 @@
+[
+  {
+    "name": "terms_with_line_counts",
+    "collection": "accountPaymentTerm",
+    "note": "AccountPaymentTerm.line_ids (embedded line[]) as read by _compute_terms (addons/account/models/account_payment_term.py): per term its company, early-discount flag, line count and summed nb_days",
+    "source_sql": "SELECT t.id, t.company_id, t.early_discount, count(l.id) AS lines, coalesce(sum(l.nb_days), 0) AS nb_days_total FROM account_payment_term t LEFT JOIN account_payment_term_line l ON l.payment_id = t.id GROUP BY t.id, t.company_id, t.early_discount ORDER BY t.id",
+    "target_pipeline": [
+      {
+        "$sort": {
+          "_id": 1
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "company_id": {
+            "$ifNull": [
+              "$companyId",
+              null
+            ]
+          },
+          "early_discount": {
+            "$ifNull": [
+              "$earlyDiscount",
+              null
+            ]
+          },
+          "lines": {
+            "$size": {
+              "$ifNull": [
+                "$line",
+                []
+              ]
+            }
+          },
+          "nb_days_total": {
+            "$sum": {
+              "$map": {
+                "input": {
+                  "$ifNull": [
+                    "$line",
+                    []
+                  ]
+                },
+                "as": "l",
+                "in": {
+                  "$ifNull": [
+                    "$$l.nbDays",
+                    0
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    ],
+    "rules": [
+      "null_missing_equiv"
+    ]
+  },
+  {
+    "name": "active_terms_in_order",
+    "collection": "accountPaymentTerm",
+    "note": "AccountPaymentTerm._order 'sequence, id' with active_test (invoice form selection): active terms in display order",
+    "source_sql": "SELECT id, sequence, company_id FROM account_payment_term WHERE active = true ORDER BY sequence, id",
+    "target_pipeline": [
+      {
+        "$match": {
+          "active": true
+        }
+      },
+      {
+        "$sort": {
+          "sequence": 1,
+          "_id": 1
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "sequence": {
+            "$ifNull": [
+              "$sequence",
+              null
+            ]
+          },
+          "company_id": {
+            "$ifNull": [
+              "$companyId",
+              null
+            ]
+          }
+        }
+      }
+    ],
+    "rules": [
+      "null_missing_equiv"
+    ]
+  }
+]

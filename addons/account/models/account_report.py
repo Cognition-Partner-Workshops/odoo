@@ -46,6 +46,8 @@ AGGREGATION_ENGINE_FORMULA_REGEX = re.compile(
 class AccountReport(models.Model):
     _name = 'account.report'
     _description = "Accounting Report"
+    _storage = 'mongodb'      # UNT14 wave 2 (w2-b03): documents in odoo_unt13.accountReport (signed spec map-draft-5)
+    _shadow_columns = ('active_selection', 'active_fallback')   # read by _compute_sql_active over the shadow rows
     _order = 'sequence, id'
 
     #  CORE ==========================================================================================================================================
@@ -1039,6 +1041,7 @@ class AccountReportExpression(models.Model):
 class AccountReportColumn(models.Model):
     _name = 'account.report.column'
     _description = "Accounting Report Column"
+    _storage = 'mongodb'      # UNT14 wave 2 (w2-b03): documents in odoo_unt13.accountReport (embedded column[]) (signed spec map-draft-5)
     _order = 'sequence, id'
 
     name = fields.Char(string="Name", translate=True, required=True)

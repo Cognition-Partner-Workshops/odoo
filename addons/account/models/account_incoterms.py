@@ -7,6 +7,7 @@ from odoo import api, fields, models
 class AccountIncoterms(models.Model):
     _name = 'account.incoterms'
     _description = 'Incoterms'
+    _storage = 'mongodb'      # UNT14 wave 2 (w2-b03): documents in odoo_unt13.accountIncoterms (signed spec map-draft-5)
     _rec_names_search = ('name', 'code')
 
     name = fields.Char(

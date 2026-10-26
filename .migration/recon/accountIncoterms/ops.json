@@ -1,0 +1,32 @@
+[
+  {
+    "name": "active_incoterms_by_code",
+    "collection": "accountIncoterms",
+    "note": "AccountIncoterms._rec_names_search / account.move incoterm selection (addons/account/models/account_incoterms.py): active incoterms listed by code; read-only replay over the whole population",
+    "source_sql": "SELECT id, code, active FROM account_incoterms WHERE active = true ORDER BY code, id",
+    "target_pipeline": [
+      {
+        "$match": {
+          "active": true
+        }
+      },
+      {
+        "$sort": {
+          "code": 1,
+          "_id": 1
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "code": "$code",
+          "active": "$active"
+        }
+      }
+    ],
+    "rules": [
+      "null_missing_equiv"
+    ]
+  }
+]
