@@ -677,6 +677,7 @@ class AccountReportLine(models.Model):
 class AccountReportExpression(models.Model):
     _name = 'account.report.expression'
     _description = "Accounting Report Expression"
+    _storage = 'mongodb'      # UNT14 wave 4 w4-b01: documents in odoo_unt13.accountReportExpression (signed spec map-draft-5)
     _rec_name = 'report_line_name'
 
     report_line_id = fields.Many2one(string="Report Line", comodel_name='account.report.line', required=True, index=True, ondelete='cascade')
@@ -1074,6 +1075,7 @@ class AccountReportExternalValue(models.Model):
     _name = 'account.report.external.value'
     _inherit = ['res.currency.rate.consolidation.mixin']
     _description = 'Accounting Report External Value'
+    _storage = 'mongodb'      # UNT14 wave 4 w4-b01: embedded as odoo_unt13.accountReportExpression.accountReportExternalValue (signed spec map-draft-5)
     _check_company_auto = True
     _order = 'date, id'
 

@@ -6,6 +6,7 @@ from odoo.exceptions import UserError
 
 class AccountPaymentMethodLine(models.Model):
     _inherit = "account.payment.method.line"
+    _shadow_columns = ('payment_provider_id',)  # UNT14 wave 4 w4-b01: read by the account.journal payment-method SQL
 
     payment_provider_id = fields.Many2one(
         comodel_name='payment.provider',
