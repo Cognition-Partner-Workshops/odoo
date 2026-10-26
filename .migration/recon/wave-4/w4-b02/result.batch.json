@@ -1,0 +1,87 @@
+{
+ "batch": "w4-b02",
+ "status": "PASS",
+ "recon_results": [
+  ".migration/recon/purchaseOrder/result.json"
+ ],
+ "write_targets": [
+  "odoo_unt13.purchaseOrder"
+ ],
+ "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/155",
+ "branch": "devin/unt14-65-w4-b02",
+ "failure_class": null,
+ "one_line_summary": "purchaseOrder (purchase.order with purchase_order_stock_picking_rel embedded as stockPickingRel): live PASS Tiers 1-4 (27/21/27/4 checks) and merge_eligible true from odoo_src into odoo_unt13.purchaseOrder via the shared loader at source concurrency 1 (20 orders, 7 picking links), salted source fingerprint a100e84e matches, fixture-first evidence under purchaseOrder/fixture; _fetch_duplicate_orders moved from a self-join SQL to a bounded ORM search; shadow columns for every purchase_order column the installed SQL readers touch (purchase_stock declares its own); tours 13/13 on PostgreSQL storage and 13/13 on MongoDB storage, 0 skipped.",
+ "head_sha": "db10de774f9fd67eeb997e8b99970c786b9cfc2f",
+ "code_head": "f001da21e3967136d4f9374206c8fa405389a80e",
+ "recon_git_head": "f001da21e3967136d4f9374206c8fa405389a80e",
+ "base_sha": "f84dbc723f61eeca98de9030e0a3fb4cb30dc540",
+ "manifest_sha": "4fb63aa0f729",
+ "plugin_sha": "2c1160efde323c570425953b7e38bcc3496c6053",
+ "mapping_version": "map-draft-5",
+ "tolerance_version": "1",
+ "devin_review": "rounds on ef4e9c92 (1 bug: purchase analysis report columns missing from _shadow_columns, fixed in 13e81033; 2 flags: duplicate-order scan bounded by name/partner_ref in 13e81033, batch evidence absent until this file), eafd1680 (1 bug: purchase_stock-only fields in purchase's tuple, fixed in f001da21), db10de77 (0 findings, 0 flags); every thread resolved",
+ "tiers_passed": {
+  "purchaseOrder": [
+   1,
+   2,
+   3,
+   4
+  ]
+ },
+ "live_recon_runs": 3,
+ "tours": {
+  "postgresql_storage": {
+   "tree": "f84dbc72 (mongo-run/unt13 base, purchase.order on PostgreSQL)",
+   "copy": "odoo_w4b02_ptour",
+   "tests": 13,
+   "passed": 13,
+   "skipped": 0,
+   "failed": [],
+   "needed_rerun": [],
+   "note": "merged waves 1-3 units seeded into odoo_w4b02_ptour__ then -u account,product,uom,stock; test_purchase_order_suggest_search_panel_ux passed within its 120 s whole-tour timeout"
+  },
+  "mongodb_storage": {
+   "tree": "f001da21 (this PR's final code head)",
+   "copy": "odoo_w4b02_mtour2",
+   "tests": 13,
+   "passed": 13,
+   "skipped": 0,
+   "failed": [],
+   "needed_rerun": [],
+   "note": "waves 1-3 units and purchaseOrder seeded into odoo_w4b02_mtour2__, then -u account,product,uom,stock,purchase,purchase_stock; search_panel_ux tour succeeded in about 112 s, under 120 s; an earlier full pass (13/13) ran on code head 1109ff3f, copy odoo_w4b02_mtour"
+  }
+ },
+ "scratch_prefixes": {
+  "odoo_w4b02_ptour__": [
+   {
+    "before_cleanup": 38,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w4b02_mtour__": [
+   {
+    "before_cleanup": 39,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w4b02_mtour2__": [
+   {
+    "before_cleanup": 39,
+    "after_cleanup": 0
+   }
+  ]
+ },
+ "fixture": {
+  "database": "odoo_fixture",
+  "rebuilt_with": ".migration/fixtures/build_fixture.sh",
+  "recon": ".migration/recon/purchaseOrder/fixture/result.json",
+  "merge_evidence": false
+ },
+ "files_written_with_scripted_tools": [
+  ".migration/recon/purchaseOrder/ops.json",
+  ".migration/recon/wave-4/w4-b02/result.batch.json",
+  "addons/purchase/models/purchase_order.py (shadow-column and duplicate-search edits)",
+  "addons/purchase_stock/models/purchase_order.py"
+ ],
+ "guard_blocks": "two mongo_guard false positives on read-only commands (an environment probe before setup, a grep of a blueprint dump), both halted, reported and cleared by the manager; no write was blocked or attempted"
+}
