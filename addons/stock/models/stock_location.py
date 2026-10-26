@@ -14,7 +14,7 @@ class StockLocation(models.Model):
     _name = 'stock.location'
     _description = "Inventory Location"
     _storage = 'mongodb'      # UNT14 wave 3 w3-b02: documents in odoo_unt13.stockLocation (signed spec map-draft-5)
-    _shadow_columns = ('parent_path',)  # read by the report_stock_quantity SQL view (conformance U1)
+    _shadow_columns = ('parent_path', 'usage')  # read by the report_stock_quantity view (conformance U1) and purchase_report SQL
     _parent_name = "location_id"
     _parent_store = True
     _order = 'complete_name, id'

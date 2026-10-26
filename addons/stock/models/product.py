@@ -799,6 +799,7 @@ class ProductProduct(models.Model):
 
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
+    _shadow_columns = ('company_id', 'uom_id', 'categ_id', 'is_storable')  # product's shadow columns plus is_storable, read by the report_stock_quantity view
     _check_company_auto = True
 
     def _default_responsible_id(self):

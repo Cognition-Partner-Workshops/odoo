@@ -21,7 +21,7 @@ class ProductTemplate(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
     _description = "Product"
     _storage = 'mongodb'      # UNT14 wave 3 w3-b02: documents in odoo_unt13.productTemplate (signed spec map-draft-5)
-    _shadow_columns = ('company_id',)   # read by _compute_sql_currency_id / _compute_sql_cost_currency_id over the shadow rows
+    _shadow_columns = ('company_id', 'uom_id', 'categ_id')   # company_id read by _compute_sql_currency_id / _compute_sql_cost_currency_id over the shadow rows; uom_id, categ_id by the SQL reports (stock quantity, vendor delay, AVCO audit) and account's product SQL
     _explanation = "The abstract base representation of a product. It defines the generic properties (name, category, price) that apply to all its variants. If a product has no variations (like size/color), this acts as the main product record."
     _order = "is_favorite desc, name"
     _check_company_auto = True
