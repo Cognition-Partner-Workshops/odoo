@@ -6,7 +6,7 @@
   "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
   "tolerance_version": "1",
   "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416",
-  "git_head": "1de1bb6df54ba04a962f2339a3caa8c97701879d",
+  "git_head": "a17d42b58b11847b904326721304f803390ff600",
   "git_dirty": false,
   "source_db": "odoo_src",
   "source_server": "hmac-sha256:545efbd0aca82e45",
@@ -18,7 +18,7 @@
   "seed": 0,
   "params": {},
   "snapshot": null,
-  "generated_at": "2026-10-26T19:15:03.893595+00:00",
+  "generated_at": "2026-10-26T19:52:23.589137+00:00",
   "redacted": true,
   "redaction_salted": true,
   "tiers": [
