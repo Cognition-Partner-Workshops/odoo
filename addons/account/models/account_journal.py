@@ -37,6 +37,7 @@ class AccountJournalGroup(models.Model):
 
 class AccountJournal(models.Model):
     _name = 'account.journal'
+    _storage = 'mongodb'      # UNT14 wave 3 w3-b01: documents in odoo_unt13.accountJournal (signed spec map-draft-5)
     _description = "Journal"
     _explanation = "Groups financial transactions. Every accounting entry must be posted in a specific journal. Controls default accounts and transaction sequencing."
     _order = 'sequence, type, code'

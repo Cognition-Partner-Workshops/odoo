@@ -406,6 +406,7 @@ class AccountReport(models.Model):
 
 class AccountReportLine(models.Model):
     _name = 'account.report.line'
+    _storage = 'mongodb'      # UNT14 wave 3 w3-b01: documents in odoo_unt13.accountReportLine (signed spec map-draft-5)
     _description = "Accounting Report Line"
     _order = 'sequence, id'
 
