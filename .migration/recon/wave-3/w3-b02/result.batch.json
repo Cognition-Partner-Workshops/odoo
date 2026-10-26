@@ -1,0 +1,124 @@
+{
+ "batch": "w3-b02",
+ "status": "FAIL",
+ "recon_results": [
+  ".migration/recon/stockLocation/result.json",
+  ".migration/recon/saleOrderLineStockRouteRel/result.json",
+  ".migration/recon/productTemplate/result.json",
+  ".migration/recon/productOptionalRel/result.json",
+  ".migration/recon/accountTax/result.json"
+ ],
+ "write_targets": [
+  "odoo_unt13.accountTax",
+  "odoo_unt13.productOptionalRel",
+  "odoo_unt13.productTemplate",
+  "odoo_unt13.saleOrderLineStockRouteRel",
+  "odoo_unt13.stockLocation",
+  "odoo_unt13.stockPickingType",
+  "odoo_unt13.stockRoute",
+  "odoo_unt13.stockWarehouse"
+ ],
+ "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/147",
+ "branch": "devin/unt14-56-w3-b02",
+ "failure_class": "app_tour_timeout_storage_latency",
+ "one_line_summary": "stockLocation (stock.location + stock.picking.type, stock.route with 21 embedded stock.rule, stock.warehouse), saleOrderLineStockRouteRel, productTemplate, productOptionalRel, accountTax (260 embedded repartition lines): live PASS Tiers 1-4 and merge_eligible true on all 5 from odoo_src into odoo_unt13 via the shared loader at source concurrency 1 on the merged tree (w3-b01 merged in), salted source fingerprint a100e84e matches, fixture-first evidence under <unit>/fixture/; raw recursive SQL over stock_location.location_id in stock/models/product.py replaced by the ORM, shadow columns added for every column the installed modules' raw SQL reads from the batch models (review round 1); tours 34/35 on PostgreSQL storage and 31/35 on MongoDB storage (final head, fresh copy), 0 skipped: 2 'add section from product catalog' tours flaky on both storages, 2 MongoDB-only 10 s tour-step timeouts from Atlas RTT x per-orderpoint stock.route/stock.rule searches (reported, not patched); scratch prefixes odoo_w3b02_ptour__ 25->0 and 30->0, odoo_w3b02_mtour__ 34->0 and 38->0, odoo_w3b02_mtour2__ ->0; no mongo_guard block; Devin Review clean on head_sha with 0 unresolved threads",
+ "head_sha": "ad47d74e9f549aa9d6583c72a2eac29c931d13bc",
+ "base_sha": "573f2cd0e8ea4a9b5b5f89aa808e1dd226376b98",
+ "devin_review": "rounds on e6e7880 and ad47d74: 5 findings, 1 fixed (shadow columns for the SQL reports, 6a05b487), 4 dismissed with reasons (website_sale and account_update_tax_tags are uninstalled in odoo_src; stockWarehouse uniqueness is enforced by the spec unique indexes); 0 unresolved threads",
+ "merged_in": "8e8193dfab1 (origin/mongo-run/unt13 after w3-b01, PR #146) merged before the final live recon and tours",
+ "manifest_sha": "79a896029481",
+ "tiers_passed": {
+  "stockLocation": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "saleOrderLineStockRouteRel": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "productTemplate": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "productOptionalRel": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "accountTax": [
+   1,
+   2,
+   3,
+   4
+  ]
+ },
+ "tours": {
+  "postgresql_storage": {
+   "tree": "8e8193d (mongo-run/unt13)",
+   "tests": 35,
+   "passed": 34,
+   "skipped": 0,
+   "failed": [
+    "sale TestSaleOrderProductCatalog.test_add_section_from_product_catalog_on_sale_order_tour (flaky: passed once, failed once on re-runs of the same copy)"
+   ]
+  },
+  "mongodb_storage": {
+   "tree": "final code head 6a05b487 (fresh copy odoo_w3b02_mtour2; earlier full run on merged head c017bf0a: 30/35 with the account variant of the flaky tour also failing)",
+   "tests": 35,
+   "passed": 31,
+   "skipped": 0,
+   "failed_flaky": [
+    "sale TestSaleOrderProductCatalog.test_add_section_from_product_catalog_on_sale_order_tour",
+    "purchase TestPurchaseOrderProductCatalog.test_add_section_from_product_catalog_on_purchase_order_tour"
+   ],
+   "failed_mongodb_only": [
+    "purchase_stock TestStockWarehouseOrderpoint.test_product_replenishment (step 1/10, 10 s step timeout: web_search_read 7.97 s)",
+    "purchase_stock TestPurchaseOrderSuggest.test_purchase_order_suggest_search_panel_ux (step 40/112, 10 s step timeout)"
+   ],
+   "cause": "stock.warehouse.orderpoint list read for 29 orderpoints = 12.2 s: 185 Atlas round trips at ~57 ms RTT from per-orderpoint searches on stock.route/stock.rule (stock_rule.py:546 _get_rule -> stock_location.py:624 _get_routes_with_no_warehouse, stock_rule.py:482 _search_rule_for_warehouses; purchase_stock/models/product.py:164 _get_quantity_in_progress). Shared storage-path latency / application N+1, no raw SQL, no data error; reported to the manager, not patched."
+  }
+ },
+ "scratch_prefixes": {
+  "odoo_w3b02_ptour__": [
+   {
+    "before_cleanup": 25,
+    "after_cleanup": 0
+   },
+   {
+    "before_cleanup": 30,
+    "after_cleanup": 0
+   },
+   {
+    "before_cleanup": 0,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w3b02_mtour__": [
+   {
+    "before_cleanup": 34,
+    "after_cleanup": 0
+   },
+   {
+    "before_cleanup": 38,
+    "after_cleanup": 0
+   },
+   {
+    "before_cleanup": 0,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w3b02_mtour2__": [
+   {
+    "before_cleanup": 38,
+    "after_cleanup": 0
+   }
+  ]
+ }
+}
