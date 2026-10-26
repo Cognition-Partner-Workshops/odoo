@@ -6,18 +6,18 @@
   "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
   "tolerance_version": "1",
   "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416",
-  "git_head": "70cb5d4650d2469b78dfe0f5da40e729ffbafaa4",
+  "git_head": "4cdc6ffead6cd2d489921ed38ab3d813dc6f958d",
   "git_dirty": false,
   "source_db": "odoo_fixture",
   "source_server": "hmac-sha256:993afb77f5d4f38d",
-  "ops_sha256": "3111a93dbd83bbe542dc0c6be90e2bc68db9913aaf41e5d70ea03cd982840649",
+  "ops_sha256": "f70af1137a0c4bf947e12cc0d46c9858acdd374c9447e5e7b94f58d1ed9cd01f",
   "collections": [
     "productDocument"
   ],
   "seed": 0,
   "params": {},
   "snapshot": null,
-  "generated_at": "2026-10-26T03:33:21.722517+00:00",
+  "generated_at": "2026-10-26T03:47:32.346999+00:00",
   "redacted": true,
   "redaction_salted": true,
   "tiers": [
