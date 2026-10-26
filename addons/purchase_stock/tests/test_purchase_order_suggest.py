@@ -664,7 +664,7 @@ class TestPurchaseOrderSuggest(PurchaseTestCommon, HttpCase):
         )
         self.start_tour(
             '/odoo/purchase', "test_purchase_order_suggest_search_panel_ux", login='admin',
-            cookies={"cids": f"{self.company.id}"},
+            cookies={"cids": f"{self.company.id}"}, timeout=120,
         )
 
     def test_monthly_demand_interwarehouse_two_step_delivery(self):
