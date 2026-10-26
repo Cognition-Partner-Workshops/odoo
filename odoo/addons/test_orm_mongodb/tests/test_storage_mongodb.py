@@ -245,6 +245,35 @@ class TestStorageMongodb(TransactionCase):
             [(tags[1].id,)],
         )
 
+    def test_search_sql_has_the_found_ids(self):
+        """ The SQL of a MongoDB search's query selects the found ids, also
+        when rendered before the ids are used (product.template's
+        _search_display_name puts ``_search(...).select()`` in a UNION). """
+        Tag = self.env['test_orm_mongodb.tag']
+        tags = Tag.create([
+            {'name': 'Render A', 'sequence': 921},
+            {'name': 'Render B', 'sequence': 922},
+            {'name': 'Render C', 'sequence': 923},
+        ])
+        self.env.flush_all()
+        self.env.invalidate_all()
+        self.assertEqual(
+            Tag.search([('id', 'in', SQL("%s UNION ALL %s", Tag._search([('sequence', '=', 921)]).select(), Tag._search([('name', '=', 'Render C')]).select()))]),
+            tags[0] + tags[2],
+        )
+        query = Tag._search([('sequence', '>', 921)], order='sequence desc')
+        self.assertIn("unnest", str(query))
+        self.assertEqual(
+            self.env.execute_query(SQL("SELECT %s FROM %s WHERE %s ORDER BY %s", query.table.id, query.from_clause, query.where_clause, query.order)),
+            [(tags[2].id,), (tags[1].id,)],
+        )
+        self.assertEqual(Tag.name_search('Render B', operator='='), [(tags[1].id, 'Render B')])
+        self.assertEqual(Tag.name_search('Render A', operator='=', limit=1), [(tags[0].id, 'Render A')])
+        query = Tag._search([('sequence', 'in', (921, 922))])
+        query.order = SQL("%s DESC", query.table.id)
+        self.assertEqual(query.get_result_ids(), (tags[0].id, tags[1].id))
+        self.assertIn("DESC", str(query))
+
     def test_many2one_subsearches_run_together(self):
         Tag = self.env['test_orm_mongodb.tag']
         Link = self.env['test_orm_mongodb.pg_link']

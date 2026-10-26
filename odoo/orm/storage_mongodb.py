@@ -114,9 +114,13 @@ TRANSLATED_PREFIX = '__lang_'
 
 class MongoQuery(Query):
     """ The result of a search on MongoDB storage, run on the first use of
-    its ids. A fetch of its records (``fetch``) runs it with the fields it
-    needs projected, so a search followed by a read of the result is one
-    round trip instead of two. """
+    its result. A fetch of its records (``fetch``) runs it with the fields
+    it needs projected, so a search followed by a read of the result is one
+    round trip instead of two.
+
+    Every way of reading the query (its ids, its SQL, its clauses) or of
+    changing it (a clause, the order) runs the search first, so the SQL
+    always has the found ids as its rows, as the eager search had. """
 
     def __init__(self, model: BaseModel, run: typing.Callable[[dict | None], list[dict]], ordered: bool, stages: list[dict]):
         super().__init__(model)
@@ -125,10 +129,32 @@ class MongoQuery(Query):
         self._resolved = False
         self.stages = stages    # the pipeline of its first round trip, ids only
 
-    @property
-    def _ids(self) -> tuple[int, ...] | None:
+    def _resolve_first(self) -> None:
         if not self._resolved:
             self.resolve()
+
+    def resolve(self, projection: dict | None = None) -> list[dict]:
+        """ Run the search and return its documents, projected on ``projection``. """
+        if self._resolved:
+            # the documents of a run search are read by id
+            return _fetch_docs(self._model, list(self.get_result_ids()), projection)
+        docs = self._run(projection)
+        self._resolved = True
+        # the found ids become the rows of the query (``set_result_ids``);
+        # a limit, offset or order set on the query by its user still applies
+        limit, offset, order = self.limit, self.offset, self._order
+        self.limit, self.offset, self._order = None, 0, None
+        self.set_result_ids((doc['_id'] for doc in docs), self._ordered)
+        self.limit, self.offset = limit, offset
+        if order is not None:
+            self._order = order
+        return docs
+
+    # the result: ids, or the documents (fetch)
+
+    @property
+    def _ids(self) -> tuple[int, ...] | None:
+        self._resolve_first()
         return self.__dict__['_ids_']
 
     @_ids.setter
@@ -138,28 +164,53 @@ class MongoQuery(Query):
     def is_empty(self) -> bool:
         return self._resolved and super().is_empty()
 
+    # the SQL and its clauses
+
+    @property
+    def from_clause(self) -> SQL:
+        self._resolve_first()
+        return super().from_clause
+
+    @property
+    def where_clause(self) -> SQL:
+        self._resolve_first()
+        return super().where_clause
+
+    @property
+    def order(self) -> SQL | None:
+        self._resolve_first()
+        return super().order
+
+    @order.setter
+    def order(self, value) -> None:
+        self._resolve_first()
+        Query.order.fset(self, value)
+
+    def select(self, *args) -> SQL:
+        self._resolve_first()
+        return super().select(*args)
+
+    def subselect(self, *args) -> SQL:
+        self._resolve_first()
+        return super().subselect(*args)
+
+    def __str__(self) -> str:
+        self._resolve_first()
+        return super().__str__()
+
+    def __copy__(self):
+        self._resolve_first()
+        return super().__copy__()
+
+    # changes to the query
+
     def add_join(self, *args, **kwargs) -> None:
-        # the search runs first, so that its ids restrict the SQL too
-        if not self._resolved:
-            self.resolve()
+        self._resolve_first()
         super().add_join(*args, **kwargs)
 
     def add_where(self, *args, **kwargs) -> None:
-        if not self._resolved:
-            self.resolve()
+        self._resolve_first()
         super().add_where(*args, **kwargs)
-
-    def resolve(self, projection: dict | None = None) -> list[dict]:
-        """ Run the search and return its documents, projected on ``projection``. """
-        docs = self._run(projection)
-        self._resolved = True
-        # the found ids become the rows of the query (``set_result_ids``);
-        # a limit or offset set on the query by its user still applies on top
-        limit, offset = self.limit, self.offset
-        self.limit, self.offset = None, 0
-        self.set_result_ids((doc['_id'] for doc in docs), self._ordered)
-        self.limit, self.offset = limit, offset
-        return docs
 
 
 class StorageError(Exception):
