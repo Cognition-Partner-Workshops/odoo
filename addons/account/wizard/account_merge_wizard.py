@@ -2,6 +2,7 @@ import json
 
 from odoo import _, api, fields, models, Command
 from odoo.exceptions import UserError
+from odoo.orm import storage_mongodb
 from odoo.tools import SQL
 
 
@@ -141,15 +142,24 @@ class AccountMergeWizard(models.TransientModel):
         # Step 1: Keep track of the company_ids and codes we should write on the account.
         # We will do so only at the end, to avoid triggering the constraint that prevents duplicate codes.
         company_ids_to_write = accounts.sudo().company_ids
-        code_by_company = self.env.execute_query(SQL(
-            """
-            SELECT jsonb_object_agg(key, value)
-              FROM account_account, jsonb_each_text(account_account.code_store)
-             WHERE account_account.id IN %(account_ids)s
-            """,
-            account_ids=tuple(accounts.ids),
-            to_flush=accounts._fields['code_store'],
-        ))[0][0]
+        on_mongodb = accounts._storage == 'mongodb'
+        if on_mongodb:
+            # the company maps live in the documents, not in the table
+            accounts.flush_recordset(['code_store'])
+            code_by_company = {}
+            for codes in storage_mongodb.column_values(accounts, 'code_store', accounts.ids).values():
+                code_by_company.update(codes or {})
+            code_by_company = code_by_company or None
+        else:
+            code_by_company = self.env.execute_query(SQL(
+                """
+                SELECT jsonb_object_agg(key, value)
+                  FROM account_account, jsonb_each_text(account_account.code_store)
+                 WHERE account_account.id IN %(account_ids)s
+                """,
+                account_ids=tuple(accounts.ids),
+                to_flush=accounts._fields['code_store'],
+            ))[0][0]
 
         account_to_merge_into = accounts[0]
         accounts_to_remove = accounts[1:]
@@ -167,30 +177,36 @@ class AccountMergeWizard(models.TransientModel):
         wiz._update_reference_fields_generic('account.account', accounts_to_remove, account_to_merge_into)
 
         # 3.3: Merge translations
-        account_names = self.env.execute_query(SQL(
-            """
-                 SELECT id, name
-                   FROM account_account
-                  WHERE id IN %(account_ids)s
-            """,
-            account_ids=tuple(accounts.ids),
-        ))
-        account_name_by_id = dict(account_names)
+        if on_mongodb:
+            account_name_by_id = {account.id: account.sudo()._get_stored_translations('name') or {} for account in accounts}
+        else:
+            account_names = self.env.execute_query(SQL(
+                """
+                     SELECT id, name
+                       FROM account_account
+                      WHERE id IN %(account_ids)s
+                """,
+                account_ids=tuple(accounts.ids),
+            ))
+            account_name_by_id = dict(account_names)
 
         # Construct JSON of name translations, with first account taking precedence.
         merged_account_name = {}
         for account_id in accounts.ids[::-1]:
             merged_account_name.update(account_name_by_id[account_id])
 
-        self.env.cr.execute(SQL(
-            """
-             UPDATE account_account
-                SET name = %(account_name_json)s
-              WHERE id = %(account_to_merge_into_id)s
-            """,
-            account_name_json=json.dumps(merged_account_name),
-            account_to_merge_into_id=account_to_merge_into.id,
-        ))
+        if on_mongodb:
+            storage_mongodb.write_translations(account_to_merge_into, 'name', [(account_to_merge_into.id, merged_account_name)])
+        else:
+            self.env.cr.execute(SQL(
+                """
+                 UPDATE account_account
+                    SET name = %(account_name_json)s
+                  WHERE id = %(account_to_merge_into_id)s
+                """,
+                account_name_json=json.dumps(merged_account_name),
+                account_to_merge_into_id=account_to_merge_into.id,
+            ))
 
         # Step 4: Remove merged accounts
         self.env.invalidate_all()
@@ -201,20 +217,25 @@ class AccountMergeWizard(models.TransientModel):
             """,
             account_ids_to_delete=tuple(accounts_to_remove.ids),
         ))
+        if on_mongodb:
+            storage_mongodb.delete(accounts_to_remove, accounts_to_remove.ids)
 
         # Clear ir.model.data ormcache
         self.env.transaction.invalidate_ormcache()
 
         # Step 5: Write company_ids and codes on the account
-        self.env.cr.execute(SQL(
-            """
-            UPDATE account_account
-               SET code_store = %(code_by_company_json)s
-             WHERE id = %(account_to_merge_into_id)s
-            """,
-            code_by_company_json=code_by_company and json.dumps(code_by_company),
-            account_to_merge_into_id=account_to_merge_into.id,
-        ))
+        if on_mongodb:
+            storage_mongodb.write_company_values(account_to_merge_into, 'code_store', [(account_to_merge_into.id, code_by_company)])
+        else:
+            self.env.cr.execute(SQL(
+                """
+                UPDATE account_account
+                   SET code_store = %(code_by_company_json)s
+                 WHERE id = %(account_to_merge_into_id)s
+                """,
+                code_by_company_json=code_by_company and json.dumps(code_by_company),
+                account_to_merge_into_id=account_to_merge_into.id,
+            ))
 
         account_to_merge_into.sudo().company_ids = company_ids_to_write
         self.env.add_to_compute(self.env['account.account']._fields['tag_ids'], account_to_merge_into)

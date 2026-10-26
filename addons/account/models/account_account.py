@@ -10,6 +10,7 @@ from odoo import api, fields, models, _, Command
 from odoo.fields import Domain
 from odoo.exceptions import UserError, ValidationError, RedirectWarning
 from odoo.models import Query, TableSQL
+from odoo.orm import storage_mongodb
 from odoo.tools import SQL
 
 
@@ -24,6 +25,7 @@ ACCOUNT_TYPE_TO_JOURNAL_TYPE = {
 
 class AccountAccount(models.Model):
     _name = 'account.account'
+    _storage = 'mongodb'      # UNT14 wave 2 (w2-b04): documents in odoo_unt13.accountAccount (signed spec map-draft-5)
     _shadow_relations = ('company_ids',)  # read by raw SQL
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = "Account"
@@ -1439,51 +1441,65 @@ class AccountAccount(models.Model):
 
         # 3.4: Update company_dependent fields
         # Dispatch the values of the existing account to the new accounts.
-        self.env.cr.execute(SQL(
-            """
-            WITH new_account_company AS (
-                SELECT key AS company_id, value::int AS account_id
-                FROM json_each_text(%(new_account_id_by_company_id_json)s)
-            )
-            UPDATE %(table)s new
-            SET %(migrate_fields)s
-            FROM %(table)s old, new_account_company a2c
-            WHERE old.id = %(old_id)s
-            AND a2c.account_id = new.id
-            AND new.id IN %(new_ids)s
-            """,
-            new_account_id_by_company_id_json=new_account_id_by_company_id_json,
-            table=SQL.identifier(self._table),
-            migrate_fields=SQL(', ').join(
-                SQL(
-                    """
-                    %(field)s = CASE WHEN old.%(field)s ? a2c.company_id
-                                THEN jsonb_build_object(a2c.company_id, old.%(field)s->a2c.company_id)
-                                ELSE NULL END
-                    """,
-                    field=SQL.identifier(field_name),
+        company_dependent_fnames = [fname for fname, field in self._fields.items() if field.company_dependent]
+        if self._storage == 'mongodb':
+            # the company maps live in the documents, not in the table
+            for fname in company_dependent_fnames:
+                values = storage_mongodb.column_values(self, fname, self.ids).get(self.id) or {}
+                storage_mongodb.write_company_values(self, fname, [
+                    (new_account_id, {company_id: values[company_id]} if company_id in values else None)
+                    for company_id, new_account_id in new_account_id_by_company_id.items()
+                ] + [
+                    # On the original account, remove values for other companies
+                    (self.id, {company_id: value for company_id, value in values.items() if company_id not in new_account_id_by_company_id} or None),
+                ])
+            (self | new_accounts).invalidate_recordset(company_dependent_fnames)
+        else:
+            self.env.cr.execute(SQL(
+                """
+                WITH new_account_company AS (
+                    SELECT key AS company_id, value::int AS account_id
+                    FROM json_each_text(%(new_account_id_by_company_id_json)s)
                 )
-                for field_name, field in self._fields.items()
-                if field.company_dependent
-            ),
-            old_id=self.id,
-            new_ids=tuple(new_accounts.ids)
-        ))
-        # On the original account, remove values for other companies
-        self.env.cr.execute(SQL(
-            "UPDATE %(table)s SET %(fields_drop_company_ids)s WHERE id = %(id)s",
-            table=SQL.identifier(self._table),
-            fields_drop_company_ids=SQL(', ').join(
-                SQL(
-                    "%(field)s = NULLIF(%(field)s - %(company_ids)s, '{}'::jsonb)",
-                    field=SQL.identifier(field_name),
-                    company_ids=list(new_account_id_by_company_id)
-                )
-                for field_name, field in self._fields.items()
-                if field.company_dependent
-            ),
-            id=self.id
-        ))
+                UPDATE %(table)s new
+                SET %(migrate_fields)s
+                FROM %(table)s old, new_account_company a2c
+                WHERE old.id = %(old_id)s
+                AND a2c.account_id = new.id
+                AND new.id IN %(new_ids)s
+                """,
+                new_account_id_by_company_id_json=new_account_id_by_company_id_json,
+                table=SQL.identifier(self._table),
+                migrate_fields=SQL(', ').join(
+                    SQL(
+                        """
+                        %(field)s = CASE WHEN old.%(field)s ? a2c.company_id
+                                    THEN jsonb_build_object(a2c.company_id, old.%(field)s->a2c.company_id)
+                                    ELSE NULL END
+                        """,
+                        field=SQL.identifier(field_name),
+                    )
+                    for field_name, field in self._fields.items()
+                    if field.company_dependent
+                ),
+                old_id=self.id,
+                new_ids=tuple(new_accounts.ids)
+            ))
+            # On the original account, remove values for other companies
+            self.env.cr.execute(SQL(
+                "UPDATE %(table)s SET %(fields_drop_company_ids)s WHERE id = %(id)s",
+                table=SQL.identifier(self._table),
+                fields_drop_company_ids=SQL(', ').join(
+                    SQL(
+                        "%(field)s = NULLIF(%(field)s - %(company_ids)s, '{}'::jsonb)",
+                        field=SQL.identifier(field_name),
+                        company_ids=list(new_account_id_by_company_id)
+                    )
+                    for field_name, field in self._fields.items()
+                    if field.company_dependent
+                ),
+                id=self.id
+            ))
 
         # 3.5. Split account xmlids based on the company_id that is present within the xmlid
         self.env['ir.model.data'].invalidate_model()

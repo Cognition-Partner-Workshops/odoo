@@ -32,6 +32,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import psycopg2.errors
+import psycopg2.extras
 
 from odoo.tools import SQL, date_utils, split_every, sql
 from odoo.tools.constants import IN_MAX
@@ -205,8 +206,9 @@ def _cascade_delete(records: BaseModel) -> None:
 
 def repoint_references(records: BaseModel, target: BaseModel) -> None:
     """ Point the many2one fields of MongoDB models that reference ``records``
-    to ``target``, like a raw SQL ``UPDATE`` of their foreign keys (partner
-    merge): no ``write()`` overrides run. """
+    to ``target``, and move the MongoDB links of ``records`` to ``target``,
+    like a raw SQL ``UPDATE`` of their foreign keys (partner merge): no
+    ``write()`` overrides run. """
     for field in _references(records.pool).get(records._name, ()):
         dependents = records.env[field.model_name].sudo().with_context(active_test=False).search(
             [(field.name, 'in', records.ids)])
@@ -224,6 +226,22 @@ def repoint_references(records: BaseModel, target: BaseModel) -> None:
             continue
         finally:
             dependents.invalidate_recordset([field.name], flush=False)
+    # relation tables stored in MongoDB: a link the target already has is not
+    # duplicated, like the merge's unique-key UPDATE
+    moved = set()
+    for field in _relation_fields(records.pool):
+        if records._name not in (field.model_name, field.comodel_name):
+            continue
+        if not (layout := relation_layout(field, records.env)):
+            continue
+        for column, model_name in ((field.column1, field.model_name), (field.column2, field.comodel_name)):
+            if model_name != records._name or (field.relation, column) in moved:
+                continue
+            moved.add((field.relation, column))
+            if links := find_links(records.env, layout, column, records.ids):
+                remove_links(records.env, layout, links)
+                add_links(records.env, layout, [link | {column: target.id} for link in links])
+        records.env[field.model_name].invalidate_model([field.name], flush=False)
 
 
 def unlink_dependents(records: BaseModel) -> None:
@@ -1157,6 +1175,33 @@ def write_translations(model: BaseModel, fname: str, rows: list[tuple[int, dict]
                 "UPDATE %s SET %s = %s::jsonb WHERE id = %s",
                 SQL.identifier(model._table), SQL.identifier(fname), json.dumps(value), id_,
             ))
+
+
+def column_values(model: BaseModel, fname: str, ids: typing.Iterable[int]) -> dict[int, typing.Any]:
+    """ The stored values of ``fname``, as a raw ``SELECT`` of the column reads
+    them: for a company-dependent field the whole ``{company_id: value}`` map,
+    ``None`` when unset. """
+    path = _layout(model)['paths'][fname]
+    return {id_: doc.get(path) for id_, doc in _fetch_docs(model, list(ids), {path: 1}).items()}
+
+
+def write_company_values(model: BaseModel, fname: str, rows: list[tuple[int, dict | None]]) -> None:
+    """ Store the whole company maps of ``rows`` (``(id, {company_id: value})``,
+    ``None`` to unset) in the company-dependent ``fname``, like a raw ``UPDATE``
+    of the column. """
+    if not rows:
+        return
+    ids = [id_ for id_, _value in rows]
+    update(model, ids, [{fname: None}] * len(rows))    # ``update`` merges maps: start from none
+    if any(value for _id, value in rows):
+        update(model, ids, [{fname: psycopg2.extras.Json(value) if value else None} for _id, value in rows])
+    if fname in model._shadow_columns:
+        for id_, value in rows:
+            model.env.cr.execute(SQL(
+                "UPDATE %s SET %s = %s::jsonb WHERE id = %s",
+                SQL.identifier(model._table), SQL.identifier(fname), json.dumps(value) if value else None, id_,
+            ))
+
 
 def delete(model: BaseModel, ids: typing.Iterable[int]) -> None:
     """ Delete documents; run right after the shadow rows are deleted. """
