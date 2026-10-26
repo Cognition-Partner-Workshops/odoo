@@ -15,6 +15,7 @@ class AccountCashRounding(models.Model):
     _name = 'account.cash.rounding'
     _description = 'Account Cash Rounding'
     _order = 'sequence, id'
+    _storage = 'mongodb'      # UNT14 wave 2 w2-b02: documents in odoo_unt13.accountCashRounding (signed spec map-draft-5)
     _check_company_auto = True
     _check_company_domain = models.check_company_domain_parent_of
 

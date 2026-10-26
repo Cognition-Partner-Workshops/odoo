@@ -1375,6 +1375,15 @@ class AccountAccount(models.Model):
                 company_ids_to_update=tuple(new_account_id_by_company_id),
             ))
         for field in self.env.registry.many2one_company_dependents[self._name]:
+            dependents = self.env[field.model_name]
+            if dependents._storage == 'mongodb':
+                # the company map lives in the document, not in the shadow table: repoint it through the ORM
+                dependents = dependents.sudo().with_context(active_test=False)
+                for company_id, new_account_id in new_account_id_by_company_id.items():
+                    holders = dependents.with_company(int(company_id))
+                    holders = holders.browse(storage_mongodb.company_dependent_holders(holders, field, self.id))
+                    holders.write({field.name: new_account_id})
+                continue
             self.env.cr.execute(SQL(
                 """
                 UPDATE %(table)s

@@ -1,0 +1,152 @@
+{
+  "unit": "accountCashRounding",
+  "mode": "fixture",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
+  "tolerance_version": "1",
+  "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416",
+  "git_head": "2f68f2104edab31476cb9ebc3f53635de3afcd7a",
+  "git_dirty": true,
+  "source_db": "odoo_fixture",
+  "source_server": "hmac-sha256:993afb77f5d4f38d",
+  "ops_sha256": "92cc3a5c56c36fd165dd90cb2eddbc32ccc81af711ebf1f621ad7eb11c47d5f8",
+  "collections": [
+    "accountCashRounding"
+  ],
+  "seed": 1,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-26T03:33:17.751336+00:00",
+  "redacted": true,
+  "redaction_salted": true,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 4,
+      "stats": {
+        "source_counts": {
+          "accountCashRounding": 2
+        },
+        "embed_source_counts": {
+          "accountCashRounding.resCurrencyRel": 1,
+          "accountCashRounding.resPartnerCategoryRel": 2,
+          "accountCashRounding.accountPaymentMethodLineRel": 2
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 7,
+      "stats": {
+        "deferred_to_tier3": [
+          "accountCashRounding.companyId",
+          "accountCashRounding.createUid",
+          "accountCashRounding.writeUid",
+          "accountCashRounding.roundingMethod",
+          "accountCashRounding.strategy",
+          "accountCashRounding.name",
+          "accountCashRounding.profitAccountId",
+          "accountCashRounding.lossAccountId",
+          "accountCashRounding.active",
+          "accountCashRounding.createDate",
+          "accountCashRounding.writeDate"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "accountCashRounding.roundingMethod",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountCashRounding.strategy",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountCashRounding.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountCashRounding.profitAccountId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountCashRounding.lossAccountId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "accountCashRounding.name",
+            "key": "accountCashRounding"
+          },
+          {
+            "field": "accountCashRounding.profitAccountId",
+            "key": "accountCashRounding"
+          },
+          {
+            "field": "accountCashRounding.lossAccountId",
+            "key": "accountCashRounding"
+          }
+        ],
+        "fields_fully_deferred": 6
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 7,
+      "stats": {
+        "accountCashRounding": {
+          "mode": "full_diff",
+          "population": 2,
+          "duplicate_source_key_count": 0
+        },
+        "embeds_graded": {
+          "accountCashRounding.resCurrencyRel": 1,
+          "accountCashRounding.resPartnerCategoryRel": 2,
+          "accountCashRounding.accountPaymentMethodLineRel": 2
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 1,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": false,
+  "error": null
+}

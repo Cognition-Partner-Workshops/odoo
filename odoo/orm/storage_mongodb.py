@@ -1886,6 +1886,11 @@ def _translated_expr(model: BaseModel, fname: str) -> dict:
     return {'$ifNull': [f'${path}.{lang}' for lang in langs] + [None]}
 
 
+def document_path(model: BaseModel, field: Field) -> str:
+    """ The document path holding ``field``, for model code reading documents itself. """
+    return _path(model, field)
+
+
 def _path(model: BaseModel, field: Field) -> str:
     if _multi_valued(field):
         return TRANSLATED_PREFIX + field.name
