@@ -32,6 +32,7 @@ SQL_OPERATORS = {
 
 class AccountFiscalPosition(models.Model):
     _name = 'account.fiscal.position'
+    _storage = 'mongodb'      # UNT14 wave 3 w3-b01: documents in odoo_unt13.accountFiscalPosition (signed spec map-draft-5)
     _description = 'Fiscal Position'
     _order = 'sequence, id'
     _check_company_auto = True
@@ -322,6 +323,7 @@ class AccountFiscalPosition(models.Model):
 
 class AccountFiscalPositionAccount(models.Model):
     _name = 'account.fiscal.position.account'
+    _storage = 'mongodb'      # UNT14 wave 3 w3-b01: embedded in odoo_unt13.accountFiscalPosition.account (signed spec map-draft-5)
     _description = 'Accounts Mapping of Fiscal Position'
     _rec_name = 'position_id'
     _check_company_auto = True

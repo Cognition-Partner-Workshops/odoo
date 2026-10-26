@@ -1,0 +1,72 @@
+{
+  "unit": "accountReconcileModelLineAccountTaxRel",
+  "mode": "fixture",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
+  "tolerance_version": "1",
+  "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416",
+  "git_head": "573f2cd0e8ea4a9b5b5f89aa808e1dd226376b98",
+  "git_dirty": true,
+  "source_db": "odoo_fixture",
+  "source_server": "hmac-sha256:993afb77f5d4f38d",
+  "ops_sha256": "c16adfcb675a010a692848eb9fbcaa5dc6938b8b9974a15beaccf79dca853ca9",
+  "collections": [
+    "accountReconcileModelLineAccountTaxRel"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-26T05:30:15.631521+00:00",
+  "redacted": true,
+  "redaction_salted": true,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 1,
+      "stats": {
+        "source_counts": {
+          "accountReconcileModelLineAccountTaxRel": 1
+        },
+        "embed_source_counts": {}
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 0,
+      "stats": {},
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 1,
+      "stats": {
+        "accountReconcileModelLineAccountTaxRel": {
+          "mode": "full_diff",
+          "population": 1,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": false,
+  "error": null
+}

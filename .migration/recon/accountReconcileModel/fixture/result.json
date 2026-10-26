@@ -1,0 +1,173 @@
+{
+  "unit": "accountReconcileModel",
+  "mode": "fixture",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
+  "tolerance_version": "1",
+  "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416",
+  "git_head": "573f2cd0e8ea4a9b5b5f89aa808e1dd226376b98",
+  "git_dirty": true,
+  "source_db": "odoo_fixture",
+  "source_server": "hmac-sha256:993afb77f5d4f38d",
+  "ops_sha256": "7c85166a328a4428fedd75728abe543e1089b15d1d0a2d4cf382c940fa04ad55",
+  "collections": [
+    "accountReconcileModel"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-26T05:30:14.145586+00:00",
+  "redacted": true,
+  "redaction_salted": true,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 3,
+      "stats": {
+        "source_counts": {
+          "accountReconcileModel": 9
+        },
+        "embed_source_counts": {
+          "accountReconcileModel.resPartnerRel": 1,
+          "accountReconcileModel.line": 10
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 13,
+      "stats": {
+        "deferred_to_tier3": [
+          "accountReconcileModel.nextActivityTypeId",
+          "accountReconcileModel.mappedPartnerId",
+          "accountReconcileModel.createUid",
+          "accountReconcileModel.writeUid",
+          "accountReconcileModel.trigger",
+          "accountReconcileModel.matchAmount",
+          "accountReconcileModel.matchLabel",
+          "accountReconcileModel.matchLabelParam",
+          "accountReconcileModel.paymentToleranceType",
+          "accountReconcileModel.matchingOrder",
+          "accountReconcileModel.ruleType",
+          "accountReconcileModel.name",
+          "accountReconcileModel.active",
+          "accountReconcileModel.canBeProposed",
+          "accountReconcileModel.createDate",
+          "accountReconcileModel.writeDate",
+          "accountReconcileModel.matchAmountMin",
+          "accountReconcileModel.matchAmountMax"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "accountReconcileModel.trigger",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountReconcileModel.matchAmount",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountReconcileModel.matchLabel",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountReconcileModel.matchLabelParam",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountReconcileModel.paymentToleranceType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountReconcileModel.matchingOrder",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountReconcileModel.ruleType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountReconcileModel.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "accountReconcileModel.name",
+            "key": "accountReconcileModel"
+          }
+        ],
+        "fields_fully_deferred": 8
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 20,
+      "stats": {
+        "accountReconcileModel": {
+          "mode": "full_diff",
+          "population": 9,
+          "duplicate_source_key_count": 0
+        },
+        "embeds_graded": {
+          "accountReconcileModel.resPartnerRel": 1,
+          "accountReconcileModel.line": 10
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": false,
+  "error": null
+}
