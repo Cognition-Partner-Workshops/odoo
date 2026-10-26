@@ -1,0 +1,111 @@
+[
+  {
+    "name": "uom_tree_by_sequence",
+    "collection": "uomUom",
+    "note": "UomUom._order = 'sequence, relative_uom_id, id' and related_uom_ids (addons/uom/models/uom_uom.py:22,41): the unit tree as the ORM lists it, with the reference unit, parent path, UNECE code and active flag; read-only replay over the whole population",
+    "source_sql": "SELECT id, sequence, relative_uom_id, parent_path, unece_code, package_type_id, active FROM uom_uom ORDER BY sequence, relative_uom_id, id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "sequence": {
+            "$ifNull": [
+              "$sequence",
+              null
+            ]
+          },
+          "relative_uom_id": {
+            "$ifNull": [
+              "$relativeUomId",
+              null
+            ]
+          },
+          "parent_path": {
+            "$ifNull": [
+              "$parentPath",
+              null
+            ]
+          },
+          "unece_code": {
+            "$ifNull": [
+              "$uneceCode",
+              null
+            ]
+          },
+          "package_type_id": {
+            "$ifNull": [
+              "$packageTypeId",
+              null
+            ]
+          },
+          "active": {
+            "$ifNull": [
+              "$active",
+              null
+            ]
+          }
+        }
+      }
+    ],
+    "rules": [
+      "null_missing_equiv"
+    ]
+  },
+  {
+    "name": "units_per_reference",
+    "collection": "uomUom",
+    "note": "UomUom._compute_factor / related_uom_ids (addons/uom/models/uom_uom.py): active units grouped under their reference unit, counting those with a package type",
+    "source_sql": "SELECT relative_uom_id, count(*) AS units, count(package_type_id) AS packaged FROM uom_uom WHERE active = true GROUP BY relative_uom_id ORDER BY relative_uom_id",
+    "target_pipeline": [
+      {
+        "$match": {
+          "active": true
+        }
+      },
+      {
+        "$group": {
+          "_id": {
+            "$ifNull": [
+              "$relativeUomId",
+              null
+            ]
+          },
+          "units": {
+            "$sum": 1
+          },
+          "packaged": {
+            "$sum": {
+              "$cond": [
+                {
+                  "$ne": [
+                    {
+                      "$ifNull": [
+                        "$packageTypeId",
+                        null
+                      ]
+                    },
+                    null
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "relative_uom_id": "$_id",
+          "units": 1,
+          "packaged": 1
+        }
+      }
+    ],
+    "rules": [
+      "null_missing_equiv"
+    ]
+  }
+]

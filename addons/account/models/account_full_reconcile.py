@@ -6,6 +6,7 @@ from odoo import api, fields, models, Command
 
 class AccountFullReconcile(models.Model):
     _name = 'account.full.reconcile'
+    _storage = 'mongodb'      # UNT14 wave 2 (w2-b04): documents in odoo_unt13.accountFullReconcile (signed spec map-draft-5)
     _description = "Full Reconcile"
 
     partial_reconcile_ids = fields.One2many('account.partial.reconcile', 'full_reconcile_id', string='Reconciliation Parts')

@@ -308,6 +308,17 @@ class BasePartnerMergeAutomaticWizard(models.TransientModel):
         for fname, field in dst_record._fields.items():
             if not field.company_dependent:
                 continue
+            if dst_record._storage == 'mongodb':
+                # the maps live in the documents: same precedence as the query below
+                values = storage_mongodb.column_values(dst_record, fname, src_records.ids + [dst_record.id])
+                merged = {}
+                for source_id in sorted(src_records.ids):
+                    merged.update(values.get(source_id) or {})
+                if merged:
+                    merged.update(values.get(dst_record.id) or {})
+                    storage_mongodb.write_company_values(dst_record, fname, [(dst_record.id, merged)])
+                    dst_record.invalidate_recordset([fname])
+                continue
             self.env.execute_query(SQL(
                 # use the specific company dependent value of sources
                 # to fill the non-specific value of destination. Source
