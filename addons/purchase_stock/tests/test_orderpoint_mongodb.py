@@ -63,7 +63,7 @@ class TestOrderpointMongodb(TransactionCase):
         self.addCleanup(client.close)
         self.env.flush_all()
         self.env.invalidate_all()
-        self.env.cr.cache.pop(storage_mongodb._AGGREGATE_CACHE, None)
+        self.env.cr.cache.clear()  # the transaction caches: aggregations, rules by location, descendants
         with patch.object(storage_mongodb, '_client', lambda uri: client):
             orderpoints.mapped(field)
         return counter.count
