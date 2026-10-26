@@ -5,10 +5,10 @@
 - Merge eligible: yes (fixture/continuous evidence never merges)
 - Mapping version: `map-draft-5` (sha256 `c0b93dad9526`)
 - Tolerance version: `1` (sha256 `8c9b9e4cf438`)
-- Evidence: git `e80675c263bf` | source db `odoo_src` | source server `hmac-sha256:545efbd0aca82e45` | ops sha256 `edba3af07504`
+- Evidence: git `aef052e89d35` | source db `odoo_src` | source server `hmac-sha256:545efbd0aca82e45` | ops sha256 `edba3af07504`
 - Collections: `productTemplate`
 - Seed: `0`
-- Generated: 2026-10-26T12:14:17.131770+00:00
+- Generated: 2026-10-26T13:18:59.386269+00:00
 - 46 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 25 string fields: min/max/distinct deferred to Tier 3
 
