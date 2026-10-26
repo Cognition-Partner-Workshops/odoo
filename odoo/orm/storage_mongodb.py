@@ -137,7 +137,7 @@ class MongoQuery(Query):
         """ Run the search and return its documents, projected on ``projection``. """
         if self._resolved:
             # the documents of a run search are read by id
-            return _fetch_docs(self._model, list(self.get_result_ids()), projection)
+            return list(_fetch_docs(self._model, list(self.get_result_ids()), projection).values())
         docs = self._run(projection)
         self._resolved = True
         # the found ids become the rows of the query (``set_result_ids``);
@@ -147,7 +147,9 @@ class MongoQuery(Query):
         self.set_result_ids((doc['_id'] for doc in docs), self._ordered)
         self.limit, self.offset = limit, offset
         if order is not None:
+            # the user's order replaces the search's: the ids come from the SQL
             self._order = order
+            self._ids = None
         return docs
 
     # the result: ids, or the documents (fetch)
@@ -185,6 +187,7 @@ class MongoQuery(Query):
     def order(self, value) -> None:
         self._resolve_first()
         Query.order.fset(self, value)
+        self._ids = None    # the ids follow the new order, from the SQL
 
     def select(self, *args) -> SQL:
         self._resolve_first()

@@ -271,8 +271,12 @@ class TestStorageMongodb(TransactionCase):
         self.assertEqual(Tag.name_search('Render A', operator='=', limit=1), [(tags[0].id, 'Render A')])
         query = Tag._search([('sequence', 'in', (921, 922))])
         query.order = SQL("%s DESC", query.table.id)
-        self.assertEqual(query.get_result_ids(), (tags[0].id, tags[1].id))
+        self.assertEqual(query.get_result_ids(), (tags[1].id, tags[0].id))
         self.assertIn("DESC", str(query))
+        query = Tag._search([('sequence', 'in', (921, 922))])
+        self.assertEqual(query.get_result_ids(), (tags[0].id, tags[1].id))
+        query.order = SQL("%s DESC", query.table.id)
+        self.assertEqual(query.get_result_ids(), (tags[1].id, tags[0].id))
 
     def test_many2one_subsearches_run_together(self):
         Tag = self.env['test_orm_mongodb.tag']
