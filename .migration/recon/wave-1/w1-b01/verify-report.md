@@ -38,6 +38,10 @@ Tier 4 used verifier-owned `verify-ops.json`, `ops_sha256 3b14eadcf4e7…7166` (
 - References `companyId -> resCompany`, `userId/createUid/writeUid -> resUsers`: neither target is a migrated collection in a merged wave, so they were resolved against `odoo_src` (`res_company`, `res_users`): 0 dangling.
 - No embeds in this collection; empty-collection case not applicable (source has 1 row).
 
+## Branch
+
+Committed on `recon/verify-w1-b01-unt14`: the ticket's `recon/verify-w1-b01` already exists on origin with an earlier run's verifier evidence (`61ef4f2c39b`, 2026-10-20), so it was left untouched rather than force-pushed.
+
 ## Findings
 
 None.
