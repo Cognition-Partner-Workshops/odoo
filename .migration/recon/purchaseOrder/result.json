@@ -1,0 +1,207 @@
+{
+  "unit": "purchaseOrder",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
+  "tolerance_version": "1",
+  "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416",
+  "git_head": "1109ff3f4d0dd5978edc95be436e676933cbdc72",
+  "git_dirty": false,
+  "source_db": "odoo_src",
+  "source_server": "hmac-sha256:545efbd0aca82e45",
+  "ops_sha256": "1e029687433105d1cb1c43db040d1c2acbfec88e52c509f189edf602b9bb99ea",
+  "collections": [
+    "purchaseOrder"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-26T17:10:32.386123+00:00",
+  "redacted": true,
+  "redaction_salted": true,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 27,
+      "stats": {
+        "source_counts": {
+          "purchaseOrder": 20
+        },
+        "embed_source_counts": {
+          "purchaseOrder.stockPickingRel": 7
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 21,
+      "stats": {
+        "deferred_to_tier3": [
+          "purchaseOrder.destAddressId",
+          "purchaseOrder.invoiceCount",
+          "purchaseOrder.fiscalPositionId",
+          "purchaseOrder.paymentTermId",
+          "purchaseOrder.incotermId",
+          "purchaseOrder.userId",
+          "purchaseOrder.reminderDateBeforeReceipt",
+          "purchaseOrder.createUid",
+          "purchaseOrder.writeUid",
+          "purchaseOrder.accessToken",
+          "purchaseOrder.name",
+          "purchaseOrder.priority",
+          "purchaseOrder.origin",
+          "purchaseOrder.partnerRef",
+          "purchaseOrder.state",
+          "purchaseOrder.invoiceStatus",
+          "purchaseOrder.documentTaxMode",
+          "purchaseOrder.incotermLocation",
+          "purchaseOrder.receiptStatus",
+          "purchaseOrder.note",
+          "purchaseOrder.amountUntaxed",
+          "purchaseOrder.amountTax",
+          "purchaseOrder.amountTotal",
+          "purchaseOrder.amountTotalCc",
+          "purchaseOrder.currencyRate",
+          "purchaseOrder.locked",
+          "purchaseOrder.acknowledged",
+          "purchaseOrder.receiptReminderEmail",
+          "purchaseOrder.dateOrder",
+          "purchaseOrder.dateApprove",
+          "purchaseOrder.datePlanned",
+          "purchaseOrder.dateCalendarStart",
+          "purchaseOrder.createDate",
+          "purchaseOrder.writeDate",
+          "purchaseOrder.effectiveDate",
+          "purchaseOrder.datePromised"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "purchaseOrder.accessToken",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "purchaseOrder.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "purchaseOrder.priority",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "purchaseOrder.origin",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "purchaseOrder.partnerRef",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "purchaseOrder.state",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "purchaseOrder.invoiceStatus",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "purchaseOrder.documentTaxMode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "purchaseOrder.incotermLocation",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "purchaseOrder.receiptStatus",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "purchaseOrder.note",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "fields_fully_deferred": 19
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 27,
+      "stats": {
+        "purchaseOrder": {
+          "mode": "full_diff",
+          "population": 20,
+          "duplicate_source_key_count": 0
+        },
+        "embeds_graded": {
+          "purchaseOrder.stockPickingRel": 7
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 4,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": true,
+  "error": null
+}
