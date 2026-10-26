@@ -573,6 +573,10 @@ def auto_init(model: BaseModel) -> None:
     else:   # drop NOT NULL on the columns of fields removed or not loaded yet
         model._check_removed_columns(log=False)
     columns = sql.table_columns(cr, model._table)
+    for name, column in columns.items():
+        # an upgraded table still carries NOT NULL on columns that now live in the document only
+        if name != 'id' and name not in model._shadow_columns and column['is_nullable'] == 'NO':
+            sql.drop_not_null(cr, model._table, name)
     added = [field.name for field in shadow if field.name not in columns]
     for field in shadow:
         field.update_db(model, columns)
