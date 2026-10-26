@@ -5,6 +5,7 @@ from decimal import Decimal
 from unittest.mock import patch
 
 import psycopg2.errors
+import pymongo.collection
 import pymongo.errors
 from bson.decimal128 import Decimal128
 
@@ -199,6 +200,45 @@ class TestStorageMongodb(TransactionCase):
         self.assertEqual(Tag.search([('sequence', '=', 2)], order='id'), tag)
         tag.sequence = 3
         self.assertEqual(Tag._read_group([('id', '=', tag.id)], ['sequence'], ['__count']), [(3, 1)])
+
+    def test_repeated_search_is_one_round_trip(self):
+        Tag = self.env['test_orm_mongodb.tag']
+        tags = Tag.create([{'name': f'Round trip {n}', 'sequence': 777} for n in range(3)])
+        self.env.flush_all()
+        domain = [('sequence', '=', 777)]
+        Collection = pymongo.collection.Collection
+        with patch.object(Collection, 'aggregate', autospec=True, side_effect=Collection.aggregate) as aggregate:
+            # the same search again in the transaction is served from the cache
+            self.assertEqual(Tag.search(domain, order='id'), tags)
+            self.assertEqual(Tag.search(domain, order='id'), tags)
+            self.assertEqual(aggregate.call_count, 1)
+            # so is a read_group, its id search and its group stage alike
+            self.assertEqual(Tag._read_group(domain, [], ['__count']), [(3,)])
+            round_trips = aggregate.call_count
+            self.assertEqual(Tag._read_group(domain, [], ['__count']), [(3,)])
+            self.assertEqual(aggregate.call_count, round_trips)
+            # the transaction's own writes are visible to the next search
+            tags[0].name = 'Round trip 0 renamed'
+            self.assertEqual(Tag.search([('name', '=', 'Round trip 0 renamed')]), tags[0])
+            tags[1].unlink()
+            self.assertEqual(Tag.search(domain, order='id'), tags[0] | tags[2])
+            self.assertEqual(Tag._read_group(domain, [], ['__count']), [(2,)])
+            # so is what a savepoint rollback restores
+            with self.assertRaises(ZeroDivisionError), self.env.cr.savepoint():
+                tags[2].unlink()
+                self.assertEqual(Tag.search(domain, order='id'), tags[0])
+                1 / 0
+            self.assertEqual(Tag.search(domain, order='id'), tags[0] | tags[2])
+            # also when the savepoint does not flush and the transaction cache was
+            # replaced in between (the undo drops whichever cache is current)
+            with self.assertRaises(ZeroDivisionError), self.env.cr.savepoint(flush=False):
+                tags[2].name = 'Round trip 2 renamed'
+                self.env.flush_all()
+                self.env.clear()
+                self.assertEqual(Tag.search([('name', '=', 'Round trip 2 renamed')]), tags[2])
+                1 / 0
+            self.assertFalse(Tag.search([('name', '=', 'Round trip 2 renamed')]))
+            self.assertEqual(Tag.search(domain, order='id'), tags[0] | tags[2])
 
     def test_unlink_set_null_is_flushed(self):
         Template = self.env['test_orm_mongodb.template']
