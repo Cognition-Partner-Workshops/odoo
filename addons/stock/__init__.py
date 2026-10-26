@@ -5,7 +5,6 @@ from collections import defaultdict
 import json
 
 from odoo.fields import Domain
-from odoo.orm import storage_mongodb
 
 from . import controllers
 from . import models
@@ -44,18 +43,8 @@ def _assign_default_mail_template_picking_id(env):
 
 
 def _create_inventory_adjustment(env):
-    product_model = env['product.product']
-    if product_model._storage == 'mongodb':
-        # the stored company maps live in the documents, not in the shadow table
-        ids = product_model.with_context(active_test=False).search([]).ids
-        products = [
-            (product_id, qty_available)
-            for product_id, qty_available in storage_mongodb.column_values(product_model, 'qty_available', ids).items()
-            if qty_available is not None
-        ]
-    else:
-        env.cr.execute("""SELECT id, qty_available FROM product_product WHERE qty_available IS NOT NULL;""")
-        products = env.cr.fetchall()
+    env.cr.execute("""SELECT id, qty_available FROM product_product WHERE qty_available IS NOT NULL;""")
+    products = env.cr.fetchall()
     qty_available_by_company = defaultdict(lambda: defaultdict(float))
     for product_id, qty_available in products:
         for company_id, quantity in qty_available.items():
@@ -89,11 +78,6 @@ def _save_current_inventory(env):
         for product in env['product.product'].with_company(company).sudo().search([to_adjust]):
             if product.qty_available:
                 qty_available_by_product[product.id][str(company.id)] = product.qty_available
-
-    product_model = env['product.product']
-    if product_model._storage == 'mongodb':
-        storage_mongodb.write_company_values(product_model, 'qty_available', list(qty_available_by_product.items()))
-        return
 
     query = """
         UPDATE product_product AS p
