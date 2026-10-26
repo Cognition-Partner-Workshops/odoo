@@ -1,0 +1,23 @@
+{
+ "batch": "w1-b01",
+ "status": "PASS",
+ "recon_results": [
+  ".migration/recon/accountLockException/result.json"
+ ],
+ "write_targets": [
+  "odoo_unt13.accountLockException"
+ ],
+ "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/136",
+ "branch": "devin/1792966517-unt14-15-w1-canary",
+ "failure_class": "",
+ "one_line_summary": "accountLockException: live PASS Tiers 1-4 (1 root, 4 indexes, 2 Tier 4 ops) from odoo_src into odoo_unt13.accountLockException, salted source fingerprint matches .migration/connectivity.json, merge_eligible true; account tours 6/6 on PostgreSQL storage and 6/6 on MongoDB storage (MongoDB run repeated on the tree with #137 merged); scratch prefix odoo_w1b01_mtour__ 1->0",
+ "head_sha": "e1941f7f6b5ad182b743d8c1918532ab86c668b1",
+ "base_sha": "baf9a97ebf4abee47f74965b7b1c58d1fa25336e",
+ "manifest_sha": "97b919423b64",
+ "scratch_prefixes": {
+  "odoo_w1b01_mtour__": {
+   "before_cleanup": 1,
+   "after_cleanup": 0
+  }
+ }
+}

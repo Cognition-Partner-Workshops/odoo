@@ -1,0 +1,25 @@
+[
+  {
+    "name": "active_exceptions_by_company_user",
+    "collection": "accountLockException",
+    "note": "ResCompany._get_user_lock_date (addons/account/models/company.py:764-775): active exceptions per company and user on a lock date field, ordered by lock_date; read-only replay over the whole population",
+    "source_sql": "SELECT id, company_id, user_id, lock_date_field, lock_date, company_lock_date, active, end_datetime FROM account_lock_exception WHERE active = true ORDER BY company_id, user_id, lock_date",
+    "target_pipeline": [
+      {"$match": {"active": true}},
+      {"$sort": {"companyId": 1, "userId": 1, "lockDate": 1}},
+      {"$project": {"_id": 0, "id": "$_id", "company_id": "$companyId", "user_id": {"$ifNull": ["$userId", null]}, "lock_date_field": "$lockDateField", "lock_date": {"$ifNull": ["$lockDate", null]}, "company_lock_date": {"$ifNull": ["$companyLockDate", null]}, "active": "$active", "end_datetime": {"$ifNull": ["$endDatetime", null]}}}
+    ],
+    "rules": ["datetime_utc_truncate_ms", "null_missing_equiv"]
+  },
+  {
+    "name": "exception_states",
+    "collection": "accountLockException",
+    "note": "AccountLock_Exception._compute_state / _search_state (addons/account/models/account_lock_exception.py:105-135): revoked (inactive) vs still-dated exceptions, counted per company and lock date field, all rows (active_test off)",
+    "source_sql": "SELECT company_id, lock_date_field, active, count(*) AS exceptions, count(end_datetime) AS with_end, count(user_id) AS user_bound FROM account_lock_exception GROUP BY company_id, lock_date_field, active ORDER BY company_id, lock_date_field, active",
+    "target_pipeline": [
+      {"$group": {"_id": {"company_id": "$companyId", "lock_date_field": "$lockDateField", "active": {"$ifNull": ["$active", null]}}, "exceptions": {"$sum": 1}, "with_end": {"$sum": {"$cond": [{"$ne": [{"$ifNull": ["$endDatetime", null]}, null]}, 1, 0]}}, "user_bound": {"$sum": {"$cond": [{"$ne": [{"$ifNull": ["$userId", null]}, null]}, 1, 0]}}}},
+      {"$project": {"_id": 0, "company_id": "$_id.company_id", "lock_date_field": "$_id.lock_date_field", "active": "$_id.active", "exceptions": 1, "with_end": 1, "user_bound": 1}}
+    ],
+    "rules": ["null_missing_equiv"]
+  }
+]
