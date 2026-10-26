@@ -65,17 +65,23 @@ class StockPackageType(models.Model):
 
     # MongoDB storage does not apply the SQL constraints above (storage_mongodb.auto_init):
     # the same rules, checked through the ORM
+    def _lock_barcodes(self, barcodes):
+        # the signed spec has no unique index on barcode and a search over the shadow
+        # rows cannot see another transaction's uncommitted row: whoever claims or
+        # releases a barcode queues on its advisory lock, held until the transaction
+        # ends, like PostgreSQL's unique index makes a rival wait for the row's fate
+        for barcode in sorted(set(barcodes) - {False}):
+            self.env.cr.execute(SQL("SELECT pg_advisory_xact_lock(hashtext(%s))", f'stock_package_type.barcode:{barcode}'))
+
     @api.constrains('barcode')
     def _check_barcode_unique(self):
-        # the signed spec has no unique index on barcode and a search over the shadow
-        # rows cannot see another transaction's uncommitted claim: the claimers of a
-        # barcode queue on an advisory lock held until their transaction ends, then
-        # look at the documents themselves (a rolled-back claim is undone before its
-        # lock is released, a committed one stays)
+        claimers = self.filtered('barcode')
+        claimers._lock_barcodes(claimers.mapped('barcode'))
+        # then the documents themselves: a rolled-back claim is undone before its
+        # lock is released, a committed one stays
         collection = storage_mongodb.get_collection(self)
         path = storage_mongodb.document_path(self, self._fields['barcode'])
-        for package_type in self.filtered('barcode').sorted('barcode'):
-            self.env.cr.execute(SQL("SELECT pg_advisory_xact_lock(hashtext(%s))", f'stock_package_type.barcode:{package_type.barcode}'))
+        for package_type in claimers:
             rivals = self.search([('barcode', '=', package_type.barcode), ('id', '!=', package_type.id)], limit=1)
             if rivals or collection.find_one({path: package_type.barcode, '_id': {'$ne': package_type.id}}, {'_id': 1}):
                 raise ValidationError(self.env._('A barcode can only be assigned to one package type!'))
@@ -131,7 +137,13 @@ class StockPackageType(models.Model):
                 }).id
         return super().create(vals_list)
 
+    def unlink(self):
+        self._lock_barcodes(self.mapped('barcode'))         # a released barcode stays taken until this transaction ends
+        return super().unlink()
+
     def write(self, vals):
+        if 'barcode' in vals:
+            self._lock_barcodes(self.mapped('barcode'))     # a released barcode stays taken until this transaction ends
         seq_vals = {}
         if 'sequence_code' in vals:
             seq_vals['name'] = self.env._('Package Type Sequence %(code)s', code=vals['sequence_code'])

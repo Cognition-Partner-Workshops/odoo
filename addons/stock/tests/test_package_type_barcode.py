@@ -72,3 +72,27 @@ class TestPackageTypeBarcode(TransactionCase):
             rival = self._rival('BOX-78')
             cr.rollback()
         self.assertEqual(rival(), 'created', "a rolled-back claim is undone before its lock is released")
+
+    def test_released_barcode_stays_taken_until_the_release_ends(self):
+        with self._cursor() as cr:
+            holder = self.env(cr=cr)['stock.package.type'].create({'name': 'Holder', 'barcode': 'BOX-79'})
+            cr.commit()
+        try:
+            with self._cursor() as cr:
+                env = self.env(cr=cr)
+                env['stock.package.type'].browse(holder.id).write({'barcode': 'BOX-80'})
+                env.flush_all()
+                rival = self._rival('BOX-79')
+                cr.rollback()
+            self.assertEqual(rival(), 'rejected', "the release was rolled back, the holder keeps BOX-79")
+            with self._cursor() as cr:
+                env = self.env(cr=cr)
+                env['stock.package.type'].browse(holder.id).unlink()
+                env.flush_all()
+                rival = self._rival('BOX-79')
+                cr.rollback()
+            self.assertEqual(rival(), 'rejected', "the deletion was rolled back, the holder keeps BOX-79")
+        finally:
+            with self._cursor() as cr:
+                self.env(cr=cr)['stock.package.type'].browse(holder.id).unlink()
+                cr.commit()
