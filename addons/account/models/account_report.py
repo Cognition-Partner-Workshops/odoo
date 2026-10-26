@@ -739,6 +739,13 @@ class AccountReportExpression(models.Model):
         'The expression label must be unique per report line.',
     )
 
+    @api.constrains('engine', 'subformula')
+    def _check_domain_engine_subformula_documents(self):
+        """ `_domain_engine_subformula_required` is a SQL CHECK; on MongoDB storage the
+        document fields are not covered by it, so the same rule is enforced here. """
+        if any(expression.engine == 'domain' and not expression.subformula for expression in self):
+            raise ValidationError(_("Expressions using 'domain' engine should all have a subformula."))
+
     @api.constrains('carryover_target', 'label')
     def _check_carryover_target(self):
         for expression in self:
