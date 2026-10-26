@@ -7,6 +7,8 @@ from odoo.fields import Domain
 class AccountPaymentMethod(models.Model):
     _name = 'account.payment.method'
     _description = "Payment Method"
+    _storage = 'mongodb'      # UNT14 wave 4 w4-b01: documents in odoo_unt13.accountPaymentMethod (signed spec map-draft-5)
+    _shadow_columns = ('payment_type',)  # read by the account.account currency-check SQL
 
     name = fields.Char(required=True, translate=True)
     code = fields.Char(required=True)  # For internal identification
@@ -97,6 +99,8 @@ class AccountPaymentMethodLine(models.Model):
     _description = "Payment Method Line"
     _order = 'sequence, id'
     _check_company_domain = models.check_company_domain_parent_of
+    _storage = 'mongodb'      # UNT14 wave 4 w4-b01: embedded as odoo_unt13.accountPaymentMethod.line (signed spec map-draft-5)
+    _shadow_columns = ('payment_method_id', 'journal_id', 'payment_account_id')  # read by the account.journal and account.account SQL
 
     # == Business fields ==
     name = fields.Char(compute='_compute_name', readonly=False, store=True)

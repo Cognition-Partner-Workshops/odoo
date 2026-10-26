@@ -1,0 +1,63 @@
+[
+ {
+  "name": "expressions_keyed",
+  "collection": "accountReportExpression",
+  "note": "account.report.expression (addons/account/models/account_report.py): every expression keyed by id with its report line, label, engine and figure type (the (report_line_id, label) unique index is checked by Tier 1)",
+  "source_sql": "SELECT id, report_line_id, label, engine, figure_type FROM account_report_expression ORDER BY id",
+  "target_pipeline": [
+   {
+    "$sort": {
+     "_id": 1
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "report_line_id": "$reportLineId",
+     "label": "$label",
+     "engine": "$engine",
+     "figure_type": {
+      "$ifNull": [
+       "$figureType",
+       null
+      ]
+     }
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "external_values_per_expression",
+  "collection": "accountReportExpression",
+  "note": "account.report.external.value (target_report_expression_id) embedded as accountReportExpression.accountReportExternalValue: external values per expression; expressions without values excluded on both sides",
+  "source_sql": "SELECT target_report_expression_id AS expression_id, count(*) AS external_values FROM account_report_external_value GROUP BY target_report_expression_id ORDER BY target_report_expression_id",
+  "target_pipeline": [
+   {
+    "$match": {
+     "accountReportExternalValue.0": {
+      "$exists": true
+     }
+    }
+   },
+   {
+    "$sort": {
+     "_id": 1
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "expression_id": "$_id",
+     "external_values": {
+      "$size": "$accountReportExternalValue"
+     }
+    }
+   }
+  ],
+  "rules": []
+ }
+]

@@ -14,6 +14,7 @@ class StockPickingBatch(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = "Batch Transfer"
     _order = "priority desc, name desc"
+    _storage = 'mongodb'      # UNT14 wave 4 w4-b01: documents in odoo_unt13.stockPickingBatch (signed spec map-draft-5)
 
     name = fields.Char(
         string='Batch Transfer', default=lambda self: _('New'),
