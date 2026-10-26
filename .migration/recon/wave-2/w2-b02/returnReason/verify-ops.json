@@ -1,0 +1,77 @@
+[
+ {
+  "name": "verify_returnReason_audit_columns_by_id",
+  "collection": "returnReason",
+  "note": "return_reason: create/write uid and date per row (mail/chatter and the record's metadata read), keyed by id",
+  "source_sql": "SELECT id, create_uid, write_uid, create_date, write_date FROM return_reason ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "create_uid": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "write_uid": {
+      "$ifNull": [
+       "$writeUid",
+       null
+      ]
+     },
+     "create_date": {
+      "$ifNull": [
+       "$createDate",
+       null
+      ]
+     },
+     "write_date": {
+      "$ifNull": [
+       "$writeDate",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "datetime_utc_truncate_ms",
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_returnReason_scalar_listing",
+  "collection": "returnReason",
+  "note": "return_reason: every int/string/bool column of every row as a list view reads it, keyed by id",
+  "source_sql": "SELECT id, sequence FROM return_reason ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "sequence": {
+      "$ifNull": [
+       "$sequence",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ }
+]

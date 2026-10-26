@@ -1,0 +1,197 @@
+{
+ "unit": "stockReference",
+ "collection": "odoo_unt13.stockReference",
+ "source": "odoo_src.stock_reference",
+ "taken_at": "2026-10-26T04:52:36.673975+00:00",
+ "probes": [
+  {
+   "probe": "count",
+   "status": "PASS",
+   "source": 121,
+   "target": 121
+  },
+  {
+   "probe": "fields",
+   "status": "PASS",
+   "fields": 5,
+   "stats": {
+    "createUid": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "writeUid": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "name": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "createDate": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "writeDate": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    }
+   }
+  },
+  {
+   "probe": "unmapped_keys",
+   "status": "PASS",
+   "extra_keys": []
+  },
+  {
+   "probe": "duplicates",
+   "status": "PASS",
+   "_id": 0
+  },
+  {
+   "probe": "root_rows",
+   "status": "PASS",
+   "rows_compared": 121,
+   "fields_per_row": 5,
+   "mismatches": 0,
+   "first_mismatches": [],
+   "source_only": [],
+   "target_only": []
+  },
+  {
+   "probe": "embed:moveRel",
+   "status": "PASS",
+   "child_table": "stock_reference_move_rel",
+   "parents_with_children_source": 120,
+   "parents_with_array_target": 120,
+   "children_source": 281,
+   "elements_target": 281,
+   "parents_differing": [],
+   "unmapped_element_keys": [],
+   "explicit_nulls": 0,
+   "bad_types": 0,
+   "empty_arrays": 0
+  },
+  {
+   "probe": "embed:purchaseRel",
+   "status": "PASS",
+   "child_table": "stock_reference_purchase_rel",
+   "parents_with_children_source": 8,
+   "parents_with_array_target": 8,
+   "children_source": 8,
+   "elements_target": 8,
+   "parents_differing": [],
+   "unmapped_element_keys": [],
+   "explicit_nulls": 0,
+   "bad_types": 0,
+   "empty_arrays": 0
+  },
+  {
+   "probe": "embed:saleRel",
+   "status": "PASS",
+   "child_table": "stock_reference_sale_rel",
+   "parents_with_children_source": 114,
+   "parents_with_array_target": 114,
+   "children_source": 114,
+   "elements_target": 114,
+   "parents_differing": [],
+   "unmapped_element_keys": [],
+   "explicit_nulls": 0,
+   "bad_types": 0,
+   "empty_arrays": 0
+  },
+  {
+   "probe": "indexes",
+   "status": "PASS",
+   "declared": 3,
+   "spec_partial_filters": 0,
+   "unique_exists_filters_expected": 0,
+   "live_options": {
+    "[[\"_id\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"moveRel.moveId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"purchaseRel.purchaseId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"saleRel.saleId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    }
+   },
+   "missing": [],
+   "option_mismatch": [],
+   "extra_live": []
+  },
+  {
+   "probe": "reference:createUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:writeUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:moveRel.moveId->stockMove",
+   "status": "PASS",
+   "fk_parent": "stock_move",
+   "resolved_in": "odoo_src.stock_move (PostgreSQL-resident, wave 9)",
+   "distinct_values": 281,
+   "dangling": []
+  },
+  {
+   "probe": "reference:purchaseRel.purchaseId->purchaseOrder",
+   "status": "PASS",
+   "fk_parent": "purchase_order",
+   "resolved_in": "odoo_src.purchase_order (PostgreSQL-resident, wave 4)",
+   "distinct_values": 8,
+   "dangling": []
+  },
+  {
+   "probe": "reference:saleRel.saleId->saleOrder",
+   "status": "PASS",
+   "fk_parent": "sale_order",
+   "resolved_in": "odoo_src.sale_order (PostgreSQL-resident, wave 6)",
+   "distinct_values": 113,
+   "dangling": []
+  },
+  {
+   "probe": "stable_during_probe",
+   "status": "PASS",
+   "count": 121,
+   "raw_bson_sha256": "cf3f102ca5b922bec0599f636038b885ab25da65fc7c6fa75542885dc28e2088",
+   "max_writeDate": "2026-10-20T00:00:00"
+  }
+ ],
+ "snapshot": {
+  "count": 121,
+  "raw_bson_sha256": "cf3f102ca5b922bec0599f636038b885ab25da65fc7c6fa75542885dc28e2088",
+  "max_writeDate": "2026-10-20T00:00:00"
+ },
+ "summary": {
+  "PASS": 15
+ },
+ "verdict": "PASS"
+}

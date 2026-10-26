@@ -1,0 +1,305 @@
+[
+ {
+  "name": "verify_accountReport_audit_columns_by_id",
+  "collection": "accountReport",
+  "note": "account_report: create/write uid and date per row (mail/chatter and the record's metadata read), keyed by id",
+  "source_sql": "SELECT id, create_uid, write_uid, create_date, write_date FROM account_report ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "create_uid": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "write_uid": {
+      "$ifNull": [
+       "$writeUid",
+       null
+      ]
+     },
+     "create_date": {
+      "$ifNull": [
+       "$createDate",
+       null
+      ]
+     },
+     "write_date": {
+      "$ifNull": [
+       "$writeDate",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "datetime_utc_truncate_ms",
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_accountReport_scalar_listing",
+  "collection": "accountReport",
+  "note": "account_report: every int/string/bool column of every row as a list view reads it, keyed by id",
+  "source_sql": "SELECT id, sequence, root_report_id, country_id, load_more_limit, groupby, user_groupby, chart_template, availability_condition, integer_rounding, default_opening_date_filter, currency_translation, filter_multi_company, filter_hide_0_lines, filter_hierarchy, filter_account_type, active_fallback, use_sections, only_tax_exigible, search_bar, allow_foreign_vat, use_fiscal_periods, enable_snapshots, filter_date_range, filter_show_draft, filter_unreconciled, filter_unfold_all, filter_period_comparison, filter_growth_comparison, filter_line_comparison, filter_journals, filter_partner, filter_aml_ir_filters, filter_budgets FROM account_report ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "sequence": {
+      "$ifNull": [
+       "$sequence",
+       null
+      ]
+     },
+     "root_report_id": {
+      "$ifNull": [
+       "$rootReportId",
+       null
+      ]
+     },
+     "country_id": {
+      "$ifNull": [
+       "$countryId",
+       null
+      ]
+     },
+     "load_more_limit": {
+      "$ifNull": [
+       "$loadMoreLimit",
+       null
+      ]
+     },
+     "groupby": {
+      "$ifNull": [
+       "$groupby",
+       null
+      ]
+     },
+     "user_groupby": {
+      "$ifNull": [
+       "$userGroupby",
+       null
+      ]
+     },
+     "chart_template": {
+      "$ifNull": [
+       "$chartTemplate",
+       null
+      ]
+     },
+     "availability_condition": {
+      "$ifNull": [
+       "$availabilityCondition",
+       null
+      ]
+     },
+     "integer_rounding": {
+      "$ifNull": [
+       "$integerRounding",
+       null
+      ]
+     },
+     "default_opening_date_filter": {
+      "$ifNull": [
+       "$defaultOpeningDateFilter",
+       null
+      ]
+     },
+     "currency_translation": {
+      "$ifNull": [
+       "$currencyTranslation",
+       null
+      ]
+     },
+     "filter_multi_company": {
+      "$ifNull": [
+       "$filterMultiCompany",
+       null
+      ]
+     },
+     "filter_hide_0_lines": {
+      "$ifNull": [
+       "$filterHide0Lines",
+       null
+      ]
+     },
+     "filter_hierarchy": {
+      "$ifNull": [
+       "$filterHierarchy",
+       null
+      ]
+     },
+     "filter_account_type": {
+      "$ifNull": [
+       "$filterAccountType",
+       null
+      ]
+     },
+     "active_fallback": {
+      "$ifNull": [
+       "$activeFallback",
+       null
+      ]
+     },
+     "use_sections": {
+      "$ifNull": [
+       "$useSections",
+       null
+      ]
+     },
+     "only_tax_exigible": {
+      "$ifNull": [
+       "$onlyTaxExigible",
+       null
+      ]
+     },
+     "search_bar": {
+      "$ifNull": [
+       "$searchBar",
+       null
+      ]
+     },
+     "allow_foreign_vat": {
+      "$ifNull": [
+       "$allowForeignVat",
+       null
+      ]
+     },
+     "use_fiscal_periods": {
+      "$ifNull": [
+       "$useFiscalPeriods",
+       null
+      ]
+     },
+     "enable_snapshots": {
+      "$ifNull": [
+       "$enableSnapshots",
+       null
+      ]
+     },
+     "filter_date_range": {
+      "$ifNull": [
+       "$filterDateRange",
+       null
+      ]
+     },
+     "filter_show_draft": {
+      "$ifNull": [
+       "$filterShowDraft",
+       null
+      ]
+     },
+     "filter_unreconciled": {
+      "$ifNull": [
+       "$filterUnreconciled",
+       null
+      ]
+     },
+     "filter_unfold_all": {
+      "$ifNull": [
+       "$filterUnfoldAll",
+       null
+      ]
+     },
+     "filter_period_comparison": {
+      "$ifNull": [
+       "$filterPeriodComparison",
+       null
+      ]
+     },
+     "filter_growth_comparison": {
+      "$ifNull": [
+       "$filterGrowthComparison",
+       null
+      ]
+     },
+     "filter_line_comparison": {
+      "$ifNull": [
+       "$filterLineComparison",
+       null
+      ]
+     },
+     "filter_journals": {
+      "$ifNull": [
+       "$filterJournals",
+       null
+      ]
+     },
+     "filter_partner": {
+      "$ifNull": [
+       "$filterPartner",
+       null
+      ]
+     },
+     "filter_aml_ir_filters": {
+      "$ifNull": [
+       "$filterAmlIrFilters",
+       null
+      ]
+     },
+     "filter_budgets": {
+      "$ifNull": [
+       "$filterBudgets",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_accountReport_embed_fanout_by_parent",
+  "collection": "accountReport",
+  "note": "account_report: per-parent count of each embedded array (account_report_column, account_report_section_rel) against the child-row count, keyed by id",
+  "source_sql": "SELECT r.id, COALESCE(e0.n, 0) AS n_column, COALESCE(e1.n, 0) AS n_sectionrel FROM account_report r LEFT JOIN (SELECT report_id AS pid, COUNT(*) AS n FROM account_report_column GROUP BY report_id) e0 ON e0.pid = r.id LEFT JOIN (SELECT main_report_id AS pid, COUNT(*) AS n FROM account_report_section_rel GROUP BY main_report_id) e1 ON e1.pid = r.id ORDER BY r.id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "n_column": {
+      "$size": {
+       "$ifNull": [
+        "$column",
+        []
+       ]
+      }
+     },
+     "n_sectionrel": {
+      "$size": {
+       "$ifNull": [
+        "$sectionRel",
+        []
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]

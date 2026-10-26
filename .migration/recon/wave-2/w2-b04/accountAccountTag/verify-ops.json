@@ -1,0 +1,139 @@
+[
+ {
+  "name": "verify_accountAccountTag_audit_columns_by_id",
+  "collection": "accountAccountTag",
+  "note": "account_account_tag: create/write uid and date per row (mail/chatter and the record's metadata read), keyed by id",
+  "source_sql": "SELECT id, create_uid, write_uid, create_date, write_date FROM account_account_tag ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "create_uid": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "write_uid": {
+      "$ifNull": [
+       "$writeUid",
+       null
+      ]
+     },
+     "create_date": {
+      "$ifNull": [
+       "$createDate",
+       null
+      ]
+     },
+     "write_date": {
+      "$ifNull": [
+       "$writeDate",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "datetime_utc_truncate_ms",
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_accountAccountTag_scalar_listing",
+  "collection": "accountAccountTag",
+  "note": "account_account_tag: every int/string/bool column of every row as a list view reads it, keyed by id",
+  "source_sql": "SELECT id, color, country_id, applicability, active FROM account_account_tag ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "color": {
+      "$ifNull": [
+       "$color",
+       null
+      ]
+     },
+     "country_id": {
+      "$ifNull": [
+       "$countryId",
+       null
+      ]
+     },
+     "applicability": {
+      "$ifNull": [
+       "$applicability",
+       null
+      ]
+     },
+     "active": {
+      "$ifNull": [
+       "$active",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_accountAccountTag_embed_fanout_by_parent",
+  "collection": "accountAccountTag",
+  "note": "account_account_tag: per-parent count of each embedded array (account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel) against the child-row count, keyed by id",
+  "source_sql": "SELECT r.id, COALESCE(e0.n, 0) AS n_accountmovelinerel, COALESCE(e1.n, 0) AS n_accounttaxrepartitionlinerel, COALESCE(e2.n, 0) AS n_producttemplaterel FROM account_account_tag r LEFT JOIN (SELECT account_account_tag_id AS pid, COUNT(*) AS n FROM account_account_tag_account_move_line_rel GROUP BY account_account_tag_id) e0 ON e0.pid = r.id LEFT JOIN (SELECT account_account_tag_id AS pid, COUNT(*) AS n FROM account_account_tag_account_tax_repartition_line_rel GROUP BY account_account_tag_id) e1 ON e1.pid = r.id LEFT JOIN (SELECT account_account_tag_id AS pid, COUNT(*) AS n FROM account_account_tag_product_template_rel GROUP BY account_account_tag_id) e2 ON e2.pid = r.id ORDER BY r.id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "n_accountmovelinerel": {
+      "$size": {
+       "$ifNull": [
+        "$accountMoveLineRel",
+        []
+       ]
+      }
+     },
+     "n_accounttaxrepartitionlinerel": {
+      "$size": {
+       "$ifNull": [
+        "$accountTaxRepartitionLineRel",
+        []
+       ]
+      }
+     },
+     "n_producttemplaterel": {
+      "$size": {
+       "$ifNull": [
+        "$productTemplateRel",
+        []
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]

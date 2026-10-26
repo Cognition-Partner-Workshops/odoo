@@ -1,0 +1,198 @@
+{
+ "unit": "productTag",
+ "collection": "odoo_unt13.productTag",
+ "source": "odoo_src.product_tag",
+ "taken_at": "2026-10-26T04:52:35.211769+00:00",
+ "probes": [
+  {
+   "probe": "count",
+   "status": "PASS",
+   "source": 10,
+   "target": 10
+  },
+  {
+   "probe": "fields",
+   "status": "PASS",
+   "fields": 8,
+   "stats": {
+    "sequence": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "createUid": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "writeUid": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "color": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "name": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "visibleToCustomers": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "createDate": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "writeDate": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    }
+   }
+  },
+  {
+   "probe": "unmapped_keys",
+   "status": "PASS",
+   "extra_keys": []
+  },
+  {
+   "probe": "duplicates",
+   "status": "PASS",
+   "_id": 0,
+   "product_tag_name_uniq": 0
+  },
+  {
+   "probe": "root_rows",
+   "status": "PASS",
+   "rows_compared": 10,
+   "fields_per_row": 8,
+   "mismatches": 0,
+   "first_mismatches": [],
+   "source_only": [],
+   "target_only": []
+  },
+  {
+   "probe": "embed:productProductRel",
+   "status": "PASS",
+   "child_table": "product_tag_product_product_rel",
+   "parents_with_children_source": 1,
+   "parents_with_array_target": 1,
+   "children_source": 1,
+   "elements_target": 1,
+   "parents_differing": [],
+   "unmapped_element_keys": [],
+   "explicit_nulls": 0,
+   "bad_types": 0,
+   "empty_arrays": 0
+  },
+  {
+   "probe": "embed:productTemplateRel",
+   "status": "PASS",
+   "child_table": "product_tag_product_template_rel",
+   "parents_with_children_source": 10,
+   "parents_with_array_target": 10,
+   "children_source": 476,
+   "elements_target": 476,
+   "parents_differing": [],
+   "unmapped_element_keys": [],
+   "explicit_nulls": 0,
+   "bad_types": 0,
+   "empty_arrays": 0
+  },
+  {
+   "probe": "indexes",
+   "status": "PASS",
+   "declared": 3,
+   "spec_partial_filters": 0,
+   "unique_exists_filters_expected": 1,
+   "live_options": {
+    "[[\"_id\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"name\", 1]]": {
+     "unique": true,
+     "partialFilterExpression": {
+      "name": {
+       "$exists": true
+      }
+     }
+    },
+    "[[\"productProductRel.productProductId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"productTemplateRel.productTemplateId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    }
+   },
+   "missing": [],
+   "option_mismatch": [],
+   "extra_live": []
+  },
+  {
+   "probe": "reference:createUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:writeUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:productProductRel.productProductId->productProduct",
+   "status": "PASS",
+   "fk_parent": "product_product",
+   "resolved_in": "odoo_src.product_product (PostgreSQL-resident, wave 4)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:productTemplateRel.productTemplateId->productTemplate",
+   "status": "PASS",
+   "fk_parent": "product_template",
+   "resolved_in": "odoo_src.product_template (PostgreSQL-resident, wave 3)",
+   "distinct_values": 159,
+   "dangling": []
+  },
+  {
+   "probe": "stable_during_probe",
+   "status": "PASS",
+   "count": 10,
+   "raw_bson_sha256": "3153d3be1f6c851e8a24469e4f45247f177995d4075875ce97487fa4268f94f4",
+   "max_writeDate": "2026-10-20T00:00:00"
+  }
+ ],
+ "snapshot": {
+  "count": 10,
+  "raw_bson_sha256": "3153d3be1f6c851e8a24469e4f45247f177995d4075875ce97487fa4268f94f4",
+  "max_writeDate": "2026-10-20T00:00:00"
+ },
+ "summary": {
+  "PASS": 13
+ },
+ "verdict": "PASS"
+}

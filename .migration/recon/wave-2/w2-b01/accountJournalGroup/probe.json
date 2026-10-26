@@ -1,0 +1,134 @@
+{
+ "unit": "accountJournalGroup",
+ "collection": "odoo_unt13.accountJournalGroup",
+ "source": "odoo_src.account_journal_group",
+ "taken_at": "2026-10-26T04:52:01.608248+00:00",
+ "probes": [
+  {
+   "probe": "count",
+   "status": "PASS",
+   "source": 2,
+   "target": 2
+  },
+  {
+   "probe": "fields",
+   "status": "PASS",
+   "fields": 6,
+   "stats": {
+    "sequence": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "createUid": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "writeUid": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "name": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "createDate": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "writeDate": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    }
+   }
+  },
+  {
+   "probe": "unmapped_keys",
+   "status": "PASS",
+   "extra_keys": []
+  },
+  {
+   "probe": "duplicates",
+   "status": "PASS",
+   "_id": 0,
+   "account_journal_group_uniq_name": 0
+  },
+  {
+   "probe": "root_rows",
+   "status": "PASS",
+   "rows_compared": 2,
+   "fields_per_row": 6,
+   "mismatches": 0,
+   "first_mismatches": [],
+   "source_only": [],
+   "target_only": []
+  },
+  {
+   "probe": "indexes",
+   "status": "PASS",
+   "declared": 1,
+   "spec_partial_filters": 0,
+   "unique_exists_filters_expected": 1,
+   "live_options": {
+    "[[\"_id\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"name\", 1]]": {
+     "unique": true,
+     "partialFilterExpression": {
+      "name": {
+       "$exists": true
+      }
+     }
+    }
+   },
+   "missing": [],
+   "option_mismatch": [],
+   "extra_live": []
+  },
+  {
+   "probe": "reference:createUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:writeUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "stable_during_probe",
+   "status": "PASS",
+   "count": 2,
+   "raw_bson_sha256": "6667624a3e9405f26674ac4b6cef570deb992df0caad5ca87c1ea40667e8ff12",
+   "max_writeDate": "2026-10-20T00:00:00"
+  }
+ ],
+ "snapshot": {
+  "count": 2,
+  "raw_bson_sha256": "6667624a3e9405f26674ac4b6cef570deb992df0caad5ca87c1ea40667e8ff12",
+  "max_writeDate": "2026-10-20T00:00:00"
+ },
+ "summary": {
+  "PASS": 9
+ },
+ "verdict": "PASS"
+}

@@ -1,0 +1,89 @@
+[
+ {
+  "name": "verify_stockStorageCategory_audit_columns_by_id",
+  "collection": "stockStorageCategory",
+  "note": "stock_storage_category: create/write uid and date per row (mail/chatter and the record's metadata read), keyed by id",
+  "source_sql": "SELECT id, create_uid, write_uid, create_date, write_date FROM stock_storage_category ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "create_uid": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "write_uid": {
+      "$ifNull": [
+       "$writeUid",
+       null
+      ]
+     },
+     "create_date": {
+      "$ifNull": [
+       "$createDate",
+       null
+      ]
+     },
+     "write_date": {
+      "$ifNull": [
+       "$writeDate",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "datetime_utc_truncate_ms",
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_stockStorageCategory_scalar_listing",
+  "collection": "stockStorageCategory",
+  "note": "stock_storage_category: every int/string/bool column of every row as a list view reads it, keyed by id",
+  "source_sql": "SELECT id, company_id, name, allow_new_product FROM stock_storage_category ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "company_id": {
+      "$ifNull": [
+       "$companyId",
+       null
+      ]
+     },
+     "name": {
+      "$ifNull": [
+       "$name",
+       null
+      ]
+     },
+     "allow_new_product": {
+      "$ifNull": [
+       "$allowNewProduct",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ }
+]

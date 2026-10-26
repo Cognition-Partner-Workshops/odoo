@@ -1,0 +1,129 @@
+[
+ {
+  "name": "verify_productCategory_audit_columns_by_id",
+  "collection": "productCategory",
+  "note": "product_category: create/write uid and date per row (mail/chatter and the record's metadata read), keyed by id",
+  "source_sql": "SELECT id, create_uid, write_uid, create_date, write_date FROM product_category ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "create_uid": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "write_uid": {
+      "$ifNull": [
+       "$writeUid",
+       null
+      ]
+     },
+     "create_date": {
+      "$ifNull": [
+       "$createDate",
+       null
+      ]
+     },
+     "write_date": {
+      "$ifNull": [
+       "$writeDate",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "datetime_utc_truncate_ms",
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_productCategory_scalar_listing",
+  "collection": "productCategory",
+  "note": "product_category: every int/string/bool column of every row as a list view reads it, keyed by id",
+  "source_sql": "SELECT id, parent_id, company_id, parent_path, removal_strategy_id, packaging_reserve_method FROM product_category ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "parent_id": {
+      "$ifNull": [
+       "$parentId",
+       null
+      ]
+     },
+     "company_id": {
+      "$ifNull": [
+       "$companyId",
+       null
+      ]
+     },
+     "parent_path": {
+      "$ifNull": [
+       "$parentPath",
+       null
+      ]
+     },
+     "removal_strategy_id": {
+      "$ifNull": [
+       "$removalStrategyId",
+       null
+      ]
+     },
+     "packaging_reserve_method": {
+      "$ifNull": [
+       "$packagingReserveMethod",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_productCategory_embed_fanout_by_parent",
+  "collection": "productCategory",
+  "note": "product_category: per-parent count of each embedded array (product_category_stock_picking_type_rel) against the child-row count, keyed by id",
+  "source_sql": "SELECT r.id, COALESCE(e0.n, 0) AS n_stockpickingtyperel FROM product_category r LEFT JOIN (SELECT product_category_id AS pid, COUNT(*) AS n FROM product_category_stock_picking_type_rel GROUP BY product_category_id) e0 ON e0.pid = r.id ORDER BY r.id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "n_stockpickingtyperel": {
+      "$size": {
+       "$ifNull": [
+        "$stockPickingTypeRel",
+        []
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]

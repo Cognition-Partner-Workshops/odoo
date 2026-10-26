@@ -1,0 +1,230 @@
+{
+ "unit": "accountAccountTag",
+ "collection": "odoo_unt13.accountAccountTag",
+ "source": "odoo_src.account_account_tag",
+ "taken_at": "2026-10-26T04:52:31.797786+00:00",
+ "probes": [
+  {
+   "probe": "count",
+   "status": "PASS",
+   "source": 15,
+   "target": 15
+  },
+  {
+   "probe": "fields",
+   "status": "PASS",
+   "fields": 9,
+   "stats": {
+    "color": {
+     "source_null": 10,
+     "missing": 10,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "countryId": {
+     "source_null": 14,
+     "missing": 14,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "createUid": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "writeUid": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "applicability": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "name": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "active": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "createDate": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "writeDate": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    }
+   }
+  },
+  {
+   "probe": "unmapped_keys",
+   "status": "PASS",
+   "extra_keys": []
+  },
+  {
+   "probe": "duplicates",
+   "status": "PASS",
+   "_id": 0,
+   "account_account_tag_name_uniq": 0
+  },
+  {
+   "probe": "root_rows",
+   "status": "PASS",
+   "rows_compared": 15,
+   "fields_per_row": 9,
+   "mismatches": 0,
+   "first_mismatches": [],
+   "source_only": [],
+   "target_only": []
+  },
+  {
+   "probe": "embed:accountMoveLineRel",
+   "status": "PASS",
+   "child_table": "account_account_tag_account_move_line_rel",
+   "parents_with_children_source": 2,
+   "parents_with_array_target": 2,
+   "children_source": 51,
+   "elements_target": 51,
+   "parents_differing": [],
+   "unmapped_element_keys": [],
+   "explicit_nulls": 0,
+   "bad_types": 0,
+   "empty_arrays": 0
+  },
+  {
+   "probe": "embed:accountTaxRepartitionLineRel",
+   "status": "PASS",
+   "child_table": "account_account_tag_account_tax_repartition_line_rel",
+   "parents_with_children_source": 1,
+   "parents_with_array_target": 1,
+   "children_source": 1,
+   "elements_target": 1,
+   "parents_differing": [],
+   "unmapped_element_keys": [],
+   "explicit_nulls": 0,
+   "bad_types": 0,
+   "empty_arrays": 0
+  },
+  {
+   "probe": "embed:productTemplateRel",
+   "status": "PASS",
+   "child_table": "account_account_tag_product_template_rel",
+   "parents_with_children_source": 1,
+   "parents_with_array_target": 1,
+   "children_source": 1,
+   "elements_target": 1,
+   "parents_differing": [],
+   "unmapped_element_keys": [],
+   "explicit_nulls": 0,
+   "bad_types": 0,
+   "empty_arrays": 0
+  },
+  {
+   "probe": "indexes",
+   "status": "PASS",
+   "declared": 3,
+   "spec_partial_filters": 0,
+   "unique_exists_filters_expected": 0,
+   "live_options": {
+    "[[\"_id\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"accountMoveLineRel.accountMoveLineId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"accountTaxRepartitionLineRel.accountTaxRepartitionLineId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"productTemplateRel.productTemplateId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    }
+   },
+   "missing": [],
+   "option_mismatch": [],
+   "extra_live": []
+  },
+  {
+   "probe": "reference:countryId->resCountry",
+   "status": "PASS",
+   "fk_parent": "res_country",
+   "resolved_in": "odoo_src.res_country (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:createUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:writeUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:accountMoveLineRel.accountMoveLineId->accountMoveLine",
+   "status": "PASS",
+   "fk_parent": "account_move_line",
+   "resolved_in": "odoo_src.account_move_line (PostgreSQL-resident, wave 8)",
+   "distinct_values": 46,
+   "dangling": []
+  },
+  {
+   "probe": "reference:accountTaxRepartitionLineRel.accountTaxRepartitionLineId->accountTax",
+   "status": "PASS",
+   "fk_parent": "account_tax_repartition_line",
+   "resolved_in": "odoo_src.account_tax_repartition_line (PostgreSQL-resident, wave 3)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:productTemplateRel.productTemplateId->productTemplate",
+   "status": "PASS",
+   "fk_parent": "product_template",
+   "resolved_in": "odoo_src.product_template (PostgreSQL-resident, wave 3)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "stable_during_probe",
+   "status": "PASS",
+   "count": 15,
+   "raw_bson_sha256": "6d0acdaa439ec8809e5626d924755f75bbe9a7627551e95e5615e30e3502aca2",
+   "max_writeDate": "2026-10-20T00:00:00"
+  }
+ ],
+ "snapshot": {
+  "count": 15,
+  "raw_bson_sha256": "6d0acdaa439ec8809e5626d924755f75bbe9a7627551e95e5615e30e3502aca2",
+  "max_writeDate": "2026-10-20T00:00:00"
+ },
+ "summary": {
+  "PASS": 16
+ },
+ "verdict": "PASS"
+}

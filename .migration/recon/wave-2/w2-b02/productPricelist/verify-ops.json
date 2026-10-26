@@ -1,0 +1,95 @@
+[
+ {
+  "name": "verify_productPricelist_audit_columns_by_id",
+  "collection": "productPricelist",
+  "note": "product_pricelist: create/write uid and date per row (mail/chatter and the record's metadata read), keyed by id",
+  "source_sql": "SELECT id, create_uid, write_uid, create_date, write_date FROM product_pricelist ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "create_uid": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "write_uid": {
+      "$ifNull": [
+       "$writeUid",
+       null
+      ]
+     },
+     "create_date": {
+      "$ifNull": [
+       "$createDate",
+       null
+      ]
+     },
+     "write_date": {
+      "$ifNull": [
+       "$writeDate",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "datetime_utc_truncate_ms",
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_productPricelist_scalar_listing",
+  "collection": "productPricelist",
+  "note": "product_pricelist: every int/string/bool column of every row as a list view reads it, keyed by id",
+  "source_sql": "SELECT id, sequence, currency_id, company_id, active FROM product_pricelist ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "sequence": {
+      "$ifNull": [
+       "$sequence",
+       null
+      ]
+     },
+     "currency_id": {
+      "$ifNull": [
+       "$currencyId",
+       null
+      ]
+     },
+     "company_id": {
+      "$ifNull": [
+       "$companyId",
+       null
+      ]
+     },
+     "active": {
+      "$ifNull": [
+       "$active",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ }
+]

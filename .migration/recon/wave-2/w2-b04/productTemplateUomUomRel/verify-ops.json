@@ -1,0 +1,53 @@
+[
+ {
+  "name": "verify_productTemplateUomUomRel_links_ordered",
+  "collection": "productTemplateUomUomRel",
+  "note": "root junction product_template_uom_uom_rel: every link as the ORM's Many2many.read sees it, ordered by both ids",
+  "source_sql": "SELECT product_template_id, uom_uom_id FROM product_template_uom_uom_rel ORDER BY product_template_id, uom_uom_id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "product_template_id": "$productTemplateId",
+     "uom_uom_id": "$uomUomId"
+    }
+   },
+   {
+    "$sort": {
+     "product_template_id": 1,
+     "uom_uom_id": 1
+    }
+   }
+  ],
+  "rules": []
+ },
+ {
+  "name": "verify_productTemplateUomUomRel_links_per_product_template_id",
+  "collection": "productTemplateUomUomRel",
+  "note": "root junction product_template_uom_uom_rel: link count per product_template_id (the owning side's record set size)",
+  "source_sql": "SELECT product_template_id, COUNT(*) AS n FROM product_template_uom_uom_rel GROUP BY product_template_id ORDER BY product_template_id",
+  "target_pipeline": [
+   {
+    "$group": {
+     "_id": "$productTemplateId",
+     "n": {
+      "$sum": 1
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "product_template_id": "$_id",
+     "n": 1
+    }
+   },
+   {
+    "$sort": {
+     "product_template_id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]

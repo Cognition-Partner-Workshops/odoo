@@ -1,0 +1,143 @@
+[
+ {
+  "name": "verify_stockPackageType_audit_columns_by_id",
+  "collection": "stockPackageType",
+  "note": "stock_package_type: create/write uid and date per row (mail/chatter and the record's metadata read), keyed by id",
+  "source_sql": "SELECT id, create_uid, write_uid, create_date, write_date FROM stock_package_type ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "create_uid": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "write_uid": {
+      "$ifNull": [
+       "$writeUid",
+       null
+      ]
+     },
+     "create_date": {
+      "$ifNull": [
+       "$createDate",
+       null
+      ]
+     },
+     "write_date": {
+      "$ifNull": [
+       "$writeDate",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "datetime_utc_truncate_ms",
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_stockPackageType_scalar_listing",
+  "collection": "stockPackageType",
+  "note": "stock_package_type: every int/string/bool column of every row as a list view reads it, keyed by id",
+  "source_sql": "SELECT id, sequence, sequence_id, company_id, name, barcode, package_use FROM stock_package_type ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "sequence": {
+      "$ifNull": [
+       "$sequence",
+       null
+      ]
+     },
+     "sequence_id": {
+      "$ifNull": [
+       "$sequenceId",
+       null
+      ]
+     },
+     "company_id": {
+      "$ifNull": [
+       "$companyId",
+       null
+      ]
+     },
+     "name": {
+      "$ifNull": [
+       "$name",
+       null
+      ]
+     },
+     "barcode": {
+      "$ifNull": [
+       "$barcode",
+       null
+      ]
+     },
+     "package_use": {
+      "$ifNull": [
+       "$packageUse",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_stockPackageType_embed_fanout_by_parent",
+  "collection": "stockPackageType",
+  "note": "stock_package_type: per-parent count of each embedded array (stock_package_type_stock_putaway_rule_rel, stock_package_type_stock_route_rel) against the child-row count, keyed by id",
+  "source_sql": "SELECT r.id, COALESCE(e0.n, 0) AS n_stockputawayrulerel, COALESCE(e1.n, 0) AS n_stockrouterel FROM stock_package_type r LEFT JOIN (SELECT stock_package_type_id AS pid, COUNT(*) AS n FROM stock_package_type_stock_putaway_rule_rel GROUP BY stock_package_type_id) e0 ON e0.pid = r.id LEFT JOIN (SELECT stock_package_type_id AS pid, COUNT(*) AS n FROM stock_package_type_stock_route_rel GROUP BY stock_package_type_id) e1 ON e1.pid = r.id ORDER BY r.id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "n_stockputawayrulerel": {
+      "$size": {
+       "$ifNull": [
+        "$stockPutawayRuleRel",
+        []
+       ]
+      }
+     },
+     "n_stockrouterel": {
+      "$size": {
+       "$ifNull": [
+        "$stockRouteRel",
+        []
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]

@@ -1,0 +1,95 @@
+[
+ {
+  "name": "verify_productDocument_audit_columns_by_id",
+  "collection": "productDocument",
+  "note": "product_document: create/write uid and date per row (mail/chatter and the record's metadata read), keyed by id",
+  "source_sql": "SELECT id, create_uid, write_uid, create_date, write_date FROM product_document ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "create_uid": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "write_uid": {
+      "$ifNull": [
+       "$writeUid",
+       null
+      ]
+     },
+     "create_date": {
+      "$ifNull": [
+       "$createDate",
+       null
+      ]
+     },
+     "write_date": {
+      "$ifNull": [
+       "$writeDate",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "datetime_utc_truncate_ms",
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_productDocument_scalar_listing",
+  "collection": "productDocument",
+  "note": "product_document: every int/string/bool column of every row as a list view reads it, keyed by id",
+  "source_sql": "SELECT id, ir_attachment_id, sequence, active, attached_on_sale FROM product_document ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "ir_attachment_id": {
+      "$ifNull": [
+       "$irAttachmentId",
+       null
+      ]
+     },
+     "sequence": {
+      "$ifNull": [
+       "$sequence",
+       null
+      ]
+     },
+     "active": {
+      "$ifNull": [
+       "$active",
+       null
+      ]
+     },
+     "attached_on_sale": {
+      "$ifNull": [
+       "$attachedOnSale",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ }
+]

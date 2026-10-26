@@ -1,0 +1,333 @@
+{
+ "unit": "accountAccount",
+ "collection": "odoo_unt13.accountAccount",
+ "source": "odoo_src.account_account",
+ "taken_at": "2026-10-26T04:52:33.240600+00:00",
+ "probes": [
+  {
+   "probe": "count",
+   "status": "PASS",
+   "source": 213,
+   "target": 213
+  },
+  {
+   "probe": "fields",
+   "status": "PASS",
+   "fields": 17,
+   "stats": {
+    "currencyId": {
+     "source_null": 213,
+     "missing": 213,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "parentId": {
+     "source_null": 169,
+     "missing": 169,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "accountStockVariationId": {
+     "source_null": 211,
+     "missing": 211,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "accountStockExpenseId": {
+     "source_null": 213,
+     "missing": 213,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "createUid": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "writeUid": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "accountType": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "parentPath": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "name": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "description": {
+     "source_null": 137,
+     "missing": 137,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "codeStore": {
+     "source_null": 129,
+     "missing": 129,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "note": {
+     "source_null": 213,
+     "missing": 213,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "active": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "reconcile": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "nonTrade": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "createDate": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "writeDate": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    }
+   }
+  },
+  {
+   "probe": "unmapped_keys",
+   "status": "PASS",
+   "extra_keys": []
+  },
+  {
+   "probe": "duplicates",
+   "status": "PASS",
+   "_id": 0
+  },
+  {
+   "probe": "root_rows",
+   "status": "PASS",
+   "rows_compared": 213,
+   "fields_per_row": 17,
+   "mismatches": 0,
+   "first_mismatches": [],
+   "source_only": [],
+   "target_only": []
+  },
+  {
+   "probe": "embed:resCompanyRel",
+   "status": "PASS",
+   "child_table": "account_account_res_company_rel",
+   "parents_with_children_source": 213,
+   "parents_with_array_target": 213,
+   "children_source": 213,
+   "elements_target": 213,
+   "parents_differing": [],
+   "unmapped_element_keys": [],
+   "explicit_nulls": 0,
+   "bad_types": 0,
+   "empty_arrays": 0
+  },
+  {
+   "probe": "embed:accountTag",
+   "status": "PASS",
+   "child_table": "account_account_account_tag",
+   "parents_with_children_source": 24,
+   "parents_with_array_target": 24,
+   "children_source": 34,
+   "elements_target": 34,
+   "parents_differing": [],
+   "unmapped_element_keys": [],
+   "explicit_nulls": 0,
+   "bad_types": 0,
+   "empty_arrays": 0
+  },
+  {
+   "probe": "embed:taxDefaultRel",
+   "status": "PASS",
+   "child_table": "account_account_tax_default_rel",
+   "parents_with_children_source": 1,
+   "parents_with_array_target": 1,
+   "children_source": 1,
+   "elements_target": 1,
+   "parents_differing": [],
+   "unmapped_element_keys": [],
+   "explicit_nulls": 0,
+   "bad_types": 0,
+   "empty_arrays": 0
+  },
+  {
+   "probe": "indexes",
+   "status": "PASS",
+   "declared": 11,
+   "spec_partial_filters": 0,
+   "unique_exists_filters_expected": 0,
+   "live_options": {
+    "[[\"_id\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"_id\", 1], [\"accountType\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"accountType\", 1], [\"_id\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"resCompanyRel.resCompanyId\", 1], [\"accountType\", 1], [\"active\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"reconcile\", 1], [\"accountType\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"accountStockExpenseId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"accountStockVariationId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"currencyId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"parentId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"parentPath\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"accountTag.accountAccountTagId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"taxDefaultRel.taxId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    }
+   },
+   "missing": [],
+   "option_mismatch": [],
+   "extra_live": []
+  },
+  {
+   "probe": "reference:accountStockExpenseId->accountAccount",
+   "status": "PASS",
+   "fk_parent": "account_account",
+   "resolved_in": "odoo_unt13.accountAccount._id (merged wave 2, w2-b04)",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:accountStockVariationId->accountAccount",
+   "status": "PASS",
+   "fk_parent": "account_account",
+   "resolved_in": "odoo_unt13.accountAccount._id (merged wave 2, w2-b04)",
+   "distinct_values": 2,
+   "dangling": []
+  },
+  {
+   "probe": "reference:createUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:currencyId->resCurrency",
+   "status": "PASS",
+   "fk_parent": "res_currency",
+   "resolved_in": "odoo_src.res_currency (PostgreSQL-resident, framework table)",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:parentId->accountAccount",
+   "status": "PASS",
+   "fk_parent": "account_account",
+   "resolved_in": "odoo_unt13.accountAccount._id (merged wave 2, w2-b04)",
+   "distinct_values": 10,
+   "dangling": []
+  },
+  {
+   "probe": "reference:writeUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:resCompanyRel.resCompanyId->resCompany",
+   "status": "PASS",
+   "fk_parent": "res_company",
+   "resolved_in": "odoo_src.res_company (PostgreSQL-resident, framework table)",
+   "distinct_values": 2,
+   "dangling": []
+  },
+  {
+   "probe": "reference:accountTag.accountAccountTagId->accountAccountTag",
+   "status": "PASS",
+   "fk_parent": "account_account_tag",
+   "resolved_in": "odoo_unt13.accountAccountTag._id (merged wave 2, w2-b04)",
+   "distinct_values": 5,
+   "dangling": []
+  },
+  {
+   "probe": "reference:taxDefaultRel.taxId->accountTax",
+   "status": "PASS",
+   "fk_parent": "account_tax",
+   "resolved_in": "odoo_src.account_tax (PostgreSQL-resident, wave 3)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "stable_during_probe",
+   "status": "PASS",
+   "count": 213,
+   "raw_bson_sha256": "40c60ea7e49387490a380c641103aa418007c3d7aba327d303ea1fe1882d3a2d",
+   "max_writeDate": "2026-10-20T00:00:00"
+  }
+ ],
+ "snapshot": {
+  "count": 213,
+  "raw_bson_sha256": "40c60ea7e49387490a380c641103aa418007c3d7aba327d303ea1fe1882d3a2d",
+  "max_writeDate": "2026-10-20T00:00:00"
+ },
+ "summary": {
+  "PASS": 19
+ },
+ "verdict": "PASS"
+}

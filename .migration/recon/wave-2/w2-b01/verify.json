@@ -1,0 +1,121 @@
+{
+ "batch": "w2-b01",
+ "verdict": "PASS",
+ "recon_results": [
+  ".migration/recon/wave-2/w2-b01/accountJournalGroup/result.json",
+  ".migration/recon/wave-2/w2-b01/productBaseUnit/result.json",
+  ".migration/recon/wave-2/w2-b01/productDocument/result.json",
+  ".migration/recon/wave-2/w2-b01/stockScrapReasonTag/result.json",
+  ".migration/recon/wave-2/w2-b01/productRemoval/result.json"
+ ],
+ "findings": [],
+ "report_path": "recon/verify-w2-unt14:.migration/recon/wave-2/w2-b01/verify-report.md",
+ "head_sha": "9b90e5561056f14661b2e5d77a719c36ba864158",
+ "run_id": "UNT14-54",
+ "manifest_sha": "ef5b8af24b0b",
+ "verified_base": "573f2cd0e8ea4a9b5b5f89aa808e1dd226376b98",
+ "plugin_sha": "2c1160efde323c570425953b7e38bcc3496c6053",
+ "units": [
+  "accountJournalGroup",
+  "productBaseUnit",
+  "productDocument",
+  "stockScrapReasonTag",
+  "productRemoval"
+ ],
+ "unit_verdicts": {
+  "accountJournalGroup": "PASS",
+  "productBaseUnit": "PASS",
+  "productDocument": "PASS",
+  "stockScrapReasonTag": "PASS",
+  "productRemoval": "PASS"
+ },
+ "probes": [
+  ".migration/recon/wave-2/w2-b01/accountJournalGroup/probe.json",
+  ".migration/recon/wave-2/w2-b01/productBaseUnit/probe.json",
+  ".migration/recon/wave-2/w2-b01/productDocument/probe.json",
+  ".migration/recon/wave-2/w2-b01/stockScrapReasonTag/probe.json",
+  ".migration/recon/wave-2/w2-b01/productRemoval/probe.json"
+ ],
+ "ops": [
+  ".migration/recon/wave-2/w2-b01/accountJournalGroup/verify-ops.json",
+  ".migration/recon/wave-2/w2-b01/productBaseUnit/verify-ops.json",
+  ".migration/recon/wave-2/w2-b01/productDocument/verify-ops.json",
+  ".migration/recon/wave-2/w2-b01/stockScrapReasonTag/verify-ops.json",
+  ".migration/recon/wave-2/w2-b01/productRemoval/verify-ops.json"
+ ],
+ "source_fingerprint": "a100e84ee2fb6282f30b45c003fd1db47561317c739340a10564d9e869e56a4e",
+ "source_server": "hmac-sha256:545efbd0aca82e45",
+ "tour": {
+  "copy": "odoo_v2b01m",
+  "result": "0 failed, 0 error(s) of 2 tests",
+  "tours_succeeded": 0,
+  "rc": 0,
+  "scratch": "25 -> 0 collections",
+  "copy_dropped": true,
+  "stats": [
+   "product: 4 tests 11.67s 558 queries"
+  ],
+  "passed": true,
+  "addons": "product",
+  "tags": "/product:TestPricelistReportController",
+  "claim": "PR #142: units list `tours: []`, so the owning addons' HttpCase classes were run: `/account:TestUi` (6), `/stock:TestStockPickingTour` (4), `/stock:TestStockReportTour` (3), `/product:TestPricelistReportController` (2); PostgreSQL storage (base 2f68f21) 14 pass / 1 fail (`test_inventory_adjustment_apply_all`, identical on the unchanged base tree), MongoDB storage 14 pass / the same 1 fail; `result.batch.json`: tours 14/15 on both storages.",
+  "notes": [
+   "`/product:TestPricelistReportController` has no `start_tour` steps (HttpCase export tests, 0 `tour succeeded` lines), so `/stock:TestStockReportTour` was also run on MongoDB storage on scratch copy `odoo_v2b01u`: 0 failed, 0 error(s) of 3 tests, 3 tours succeeded, scratch prefix 25 -> 0 collections.",
+   "First attempt of `/stock:TestStockReportTour` on scratch copy `odoo_v2b01t` with only `-u stock` errored in setUpClass (0 failed, 1 error(s) of 3 tests): the test's setup creates an opted-in record (`product.pricelist` from the test company, or `product.attribute`) and the storage path's shadow insert hit `NOT NULL` still present on `product_attribute.create_variant` in the copy. `storage_mongodb.auto_init` (odoo/orm/storage_mongodb.py:577-601) drops those NOT NULLs when the module owning an opted-in model is updated, so the copy needs `-u` of the owning modules (`account,product,stock,uom,sale_stock`), as the batch PRs ran; with that the run above passed. Verifier setup, not a batch defect; recorded so the deployment step carries the same module update."
+  ],
+  "extra_run": {
+   "copy": "odoo_v2b01u",
+   "result": "0 failed, 0 error(s) of 3 tests",
+   "tours_succeeded": 3,
+   "rc": 0,
+   "scratch": "25 -> 0 collections",
+   "copy_dropped": true,
+   "stats": [
+    "stock: 5 tests 19.83s 3480 queries"
+   ],
+   "passed": true,
+   "addons": "account,product,stock,uom,sale_stock",
+   "tags": "/stock:TestStockReportTour"
+  },
+  "first_attempt": {
+   "copy": "odoo_v2b01t",
+   "result": "0 failed, 1 error(s) of 3 tests",
+   "tours_succeeded": 2,
+   "rc": 1,
+   "scratch": "25 -> 0 collections",
+   "copy_dropped": true,
+   "stats": [
+    "stock: 5 tests 14.96s 2046 queries"
+   ],
+   "passed": false,
+   "addons": "stock"
+  }
+ },
+ "snapshot": {
+  "accountJournalGroup": {
+   "count": 2,
+   "raw_bson_sha256_before": "6667624a3e9405f26674ac4b6cef570deb992df0caad5ca87c1ea40667e8ff12",
+   "raw_bson_sha256_after": "6667624a3e9405f26674ac4b6cef570deb992df0caad5ca87c1ea40667e8ff12"
+  },
+  "productBaseUnit": {
+   "count": 2,
+   "raw_bson_sha256_before": "9bd2c12167633f3df51bcd9265e1e863d9a1f411b53c21f9868d57ef92cdb990",
+   "raw_bson_sha256_after": "9bd2c12167633f3df51bcd9265e1e863d9a1f411b53c21f9868d57ef92cdb990"
+  },
+  "productDocument": {
+   "count": 2,
+   "raw_bson_sha256_before": "b1bb0c15d92c0c80b16abb6113c1f21eaeb52a436d2a318b6909ea794575b7c9",
+   "raw_bson_sha256_after": "b1bb0c15d92c0c80b16abb6113c1f21eaeb52a436d2a318b6909ea794575b7c9"
+  },
+  "stockScrapReasonTag": {
+   "count": 3,
+   "raw_bson_sha256_before": "b659e5698fa79d7dc7b357344cd36f5e6489021ffd7bdb2d8ac9b610d91e9d61",
+   "raw_bson_sha256_after": "b659e5698fa79d7dc7b357344cd36f5e6489021ffd7bdb2d8ac9b610d91e9d61"
+  },
+  "productRemoval": {
+   "count": 4,
+   "raw_bson_sha256_before": "205367f5bca13bb2b80d1c4eafc53358030aa79d6eaf5027de60f80d1da46340",
+   "raw_bson_sha256_after": "205367f5bca13bb2b80d1c4eafc53358030aa79d6eaf5027de60f80d1da46340"
+  }
+ }
+}

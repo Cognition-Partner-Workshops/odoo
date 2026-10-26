@@ -1,0 +1,295 @@
+{
+ "unit": "productCategory",
+ "collection": "odoo_unt13.productCategory",
+ "source": "odoo_src.product_category",
+ "taken_at": "2026-10-26T04:52:23.011995+00:00",
+ "probes": [
+  {
+   "probe": "count",
+   "status": "PASS",
+   "source": 20,
+   "target": 20
+  },
+  {
+   "probe": "fields",
+   "status": "PASS",
+   "fields": 22,
+   "stats": {
+    "parentId": {
+     "source_null": 14,
+     "missing": 14,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "companyId": {
+     "source_null": 20,
+     "missing": 20,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "createUid": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "writeUid": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "parentPath": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "name": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "productPropertiesDefinition": {
+     "source_null": 20,
+     "missing": 20,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "createDate": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "writeDate": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "propertyAccountIncomeCategId": {
+     "source_null": 20,
+     "missing": 20,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "propertyAccountExpenseCategId": {
+     "source_null": 20,
+     "missing": 20,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "propertyValuation": {
+     "source_null": 20,
+     "missing": 20,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "propertyStockValuationAccountId": {
+     "source_null": 20,
+     "missing": 20,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "propertyStockJournal": {
+     "source_null": 20,
+     "missing": 20,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "propertyCostMethod": {
+     "source_null": 20,
+     "missing": 20,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "propertyPriceDifferenceAccountId": {
+     "source_null": 20,
+     "missing": 20,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "removalStrategyId": {
+     "source_null": 20,
+     "missing": 20,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "packagingReserveMethod": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "propertyAccountBillsToReceiveId": {
+     "source_null": 20,
+     "missing": 20,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "propertyAccountBilledNotReceivedId": {
+     "source_null": 20,
+     "missing": 20,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "propertyAccountInvoicesToIssueId": {
+     "source_null": 20,
+     "missing": 20,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "propertyAccountInvoicedNotDeliveredId": {
+     "source_null": 20,
+     "missing": 20,
+     "explicit_null": 0,
+     "bad_type": 0
+    }
+   }
+  },
+  {
+   "probe": "unmapped_keys",
+   "status": "PASS",
+   "extra_keys": []
+  },
+  {
+   "probe": "duplicates",
+   "status": "PASS",
+   "_id": 0
+  },
+  {
+   "probe": "root_rows",
+   "status": "PASS",
+   "rows_compared": 20,
+   "fields_per_row": 22,
+   "mismatches": 0,
+   "first_mismatches": [],
+   "source_only": [],
+   "target_only": []
+  },
+  {
+   "probe": "embed:stockPickingTypeRel",
+   "status": "PASS",
+   "child_table": "product_category_stock_picking_type_rel",
+   "parents_with_children_source": 2,
+   "parents_with_array_target": 2,
+   "children_source": 4,
+   "elements_target": 4,
+   "parents_differing": [],
+   "unmapped_element_keys": [],
+   "explicit_nulls": 0,
+   "bad_types": 0,
+   "empty_arrays": 0
+  },
+  {
+   "probe": "indexes",
+   "status": "PASS",
+   "declared": 7,
+   "spec_partial_filters": 0,
+   "unique_exists_filters_expected": 0,
+   "live_options": {
+    "[[\"_id\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"name\", 1], [\"parentId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"parentId\", 1], [\"name\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"propertyCostMethod\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"companyId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"removalStrategyId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"parentPath\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"stockPickingTypeRel.stockPickingTypeId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    }
+   },
+   "missing": [],
+   "option_mismatch": [],
+   "extra_live": []
+  },
+  {
+   "probe": "reference:companyId->resCompany",
+   "status": "PASS",
+   "fk_parent": "res_company",
+   "resolved_in": "odoo_src.res_company (PostgreSQL-resident, framework table)",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:createUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:parentId->productCategory",
+   "status": "PASS",
+   "fk_parent": "product_category",
+   "resolved_in": "odoo_unt13.productCategory._id (merged wave 2, w2-b03)",
+   "distinct_values": 4,
+   "dangling": []
+  },
+  {
+   "probe": "reference:removalStrategyId->productRemoval",
+   "status": "PASS",
+   "fk_parent": "product_removal",
+   "resolved_in": "odoo_unt13.productRemoval._id (merged wave 2, w2-b01)",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:writeUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:stockPickingTypeRel.stockPickingTypeId->stockPickingType",
+   "status": "PASS",
+   "fk_parent": "stock_picking_type",
+   "resolved_in": "odoo_src.stock_picking_type (PostgreSQL-resident, wave 3)",
+   "distinct_values": 2,
+   "dangling": []
+  },
+  {
+   "probe": "stable_during_probe",
+   "status": "PASS",
+   "count": 20,
+   "raw_bson_sha256": "f0cbc455ae9dd0471b1bebe18e261e4f42cb77b79c6dfc706cfd404df5bbe0c9",
+   "max_writeDate": "2026-10-20T00:00:00"
+  }
+ ],
+ "snapshot": {
+  "count": 20,
+  "raw_bson_sha256": "f0cbc455ae9dd0471b1bebe18e261e4f42cb77b79c6dfc706cfd404df5bbe0c9",
+  "max_writeDate": "2026-10-20T00:00:00"
+ },
+ "summary": {
+  "PASS": 14
+ },
+ "verdict": "PASS"
+}

@@ -1,0 +1,122 @@
+{
+ "unit": "productTemplateUomUomRel",
+ "collection": "odoo_unt13.productTemplateUomUomRel",
+ "source": "odoo_src.product_template_uom_uom_rel",
+ "taken_at": "2026-10-26T04:52:28.872865+00:00",
+ "probes": [
+  {
+   "probe": "count",
+   "status": "PASS",
+   "source": 2,
+   "target": 2
+  },
+  {
+   "probe": "fields",
+   "status": "PASS",
+   "fields": 0,
+   "stats": {}
+  },
+  {
+   "probe": "unmapped_keys",
+   "status": "PASS",
+   "extra_keys": []
+  },
+  {
+   "probe": "duplicates",
+   "status": "PASS",
+   "_id": 0,
+   "productTemplateId+uomUomId": 0
+  },
+  {
+   "probe": "junction_pairs",
+   "status": "PASS",
+   "source": 2,
+   "target": 2,
+   "source_only": [],
+   "target_only": []
+  },
+  {
+   "probe": "junction_readback:productTemplateId",
+   "status": "PASS",
+   "endpoint_table": "product_template",
+   "resolved_in": "odoo_src.product_template (PostgreSQL-resident, wave 3)",
+   "endpoints": 1,
+   "links": 2,
+   "groups_differing": [],
+   "dangling": []
+  },
+  {
+   "probe": "junction_readback:uomUomId",
+   "status": "PASS",
+   "endpoint_table": "uom_uom",
+   "resolved_in": "odoo_unt13.uomUom._id (wave 2)",
+   "endpoints": 2,
+   "links": 2,
+   "groups_differing": [],
+   "dangling": []
+  },
+  {
+   "probe": "indexes",
+   "status": "PASS",
+   "declared": 2,
+   "spec_partial_filters": 0,
+   "unique_exists_filters_expected": 1,
+   "live_options": {
+    "[[\"_id\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"productTemplateId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"uomUomId\", 1], [\"productTemplateId\", 1]]": {
+     "unique": true,
+     "partialFilterExpression": {
+      "uomUomId": {
+       "$exists": true
+      },
+      "productTemplateId": {
+       "$exists": true
+      }
+     }
+    }
+   },
+   "missing": [],
+   "option_mismatch": [],
+   "extra_live": []
+  },
+  {
+   "probe": "reference:productTemplateId->productTemplate",
+   "status": "PASS",
+   "fk_parent": "product_template",
+   "resolved_in": "odoo_src.product_template (PostgreSQL-resident, wave 3)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:uomUomId->uomUom",
+   "status": "PASS",
+   "fk_parent": "uom_uom",
+   "resolved_in": "odoo_unt13.uomUom._id (merged wave 2, w2-b04)",
+   "distinct_values": 2,
+   "dangling": []
+  },
+  {
+   "probe": "stable_during_probe",
+   "status": "PASS",
+   "count": 2,
+   "raw_bson_sha256": "ccb6a7761f483fb37fbd4be9982d8a92bd77fffece682c302f6c09cd3b83fac1",
+   "max_writeDate": null
+  }
+ ],
+ "snapshot": {
+  "count": 2,
+  "raw_bson_sha256": "ccb6a7761f483fb37fbd4be9982d8a92bd77fffece682c302f6c09cd3b83fac1",
+  "max_writeDate": null
+ },
+ "summary": {
+  "PASS": 11
+ },
+ "verdict": "PASS"
+}

@@ -1,0 +1,106 @@
+{
+ "batch": "w2-b03",
+ "verdict": "PASS",
+ "recon_results": [
+  ".migration/recon/wave-2/w2-b03/accountIncoterms/result.json",
+  ".migration/recon/wave-2/w2-b03/accountReport/result.json",
+  ".migration/recon/wave-2/w2-b03/productCategory/result.json",
+  ".migration/recon/wave-2/w2-b03/accountTaxGroup/result.json",
+  ".migration/recon/wave-2/w2-b03/accountPaymentTerm/result.json"
+ ],
+ "findings": [],
+ "report_path": "recon/verify-w2-unt14:.migration/recon/wave-2/w2-b03/verify-report.md",
+ "head_sha": "49d18c451bd480e2febb1d977eded8d3de288837",
+ "run_id": "UNT14-54",
+ "manifest_sha": "ef5b8af24b0b",
+ "verified_base": "573f2cd0e8ea4a9b5b5f89aa808e1dd226376b98",
+ "plugin_sha": "2c1160efde323c570425953b7e38bcc3496c6053",
+ "units": [
+  "accountIncoterms",
+  "accountReport",
+  "productCategory",
+  "accountTaxGroup",
+  "accountPaymentTerm"
+ ],
+ "unit_verdicts": {
+  "accountIncoterms": "PASS",
+  "accountReport": "PASS",
+  "productCategory": "PASS",
+  "accountTaxGroup": "PASS",
+  "accountPaymentTerm": "PASS"
+ },
+ "probes": [
+  ".migration/recon/wave-2/w2-b03/accountIncoterms/probe.json",
+  ".migration/recon/wave-2/w2-b03/accountReport/probe.json",
+  ".migration/recon/wave-2/w2-b03/productCategory/probe.json",
+  ".migration/recon/wave-2/w2-b03/accountTaxGroup/probe.json",
+  ".migration/recon/wave-2/w2-b03/accountPaymentTerm/probe.json"
+ ],
+ "ops": [
+  ".migration/recon/wave-2/w2-b03/accountIncoterms/verify-ops.json",
+  ".migration/recon/wave-2/w2-b03/accountReport/verify-ops.json",
+  ".migration/recon/wave-2/w2-b03/productCategory/verify-ops.json",
+  ".migration/recon/wave-2/w2-b03/accountTaxGroup/verify-ops.json",
+  ".migration/recon/wave-2/w2-b03/accountPaymentTerm/verify-ops.json"
+ ],
+ "source_fingerprint": "a100e84ee2fb6282f30b45c003fd1db47561317c739340a10564d9e869e56a4e",
+ "source_server": "hmac-sha256:545efbd0aca82e45",
+ "tour": {
+  "copy": "odoo_v2b03r",
+  "result": "0 failed, 0 error(s) of 1 tests",
+  "tours_succeeded": 1,
+  "rc": 0,
+  "scratch": "25 -> 0 collections",
+  "copy_dropped": true,
+  "stats": [
+   "purchase_stock: 3 tests 77.75s 7096 queries"
+  ],
+  "passed": true,
+  "addons": "account,product,stock,uom,sale_stock,purchase_stock",
+  "tags": "/purchase_stock:TestPurchaseOrderSuggest.test_purchase_order_suggest_search_panel_ux",
+  "claim": "PR #144 / `result.batch.json`: `purchase_stock.test_purchase_order_suggest_search_panel_ux` PASS 1/1 and `sale.TestSaleMailComposerUI` PASS 2/2 on PostgreSQL storage (tree 2f68f21) and on MongoDB storage (tree 1ee2491, re-run on the merged head), 0 skipped.",
+  "notes": [
+   "First attempt of the batch tour on scratch copy `odoo_v2b03m` with only `-u purchase_stock` errored in setUpClass (0 failed, 2 error(s) of 0 tests): the test's setup creates an opted-in record (`product.pricelist` from the test company, or `product.attribute`) and the storage path's shadow insert hit `NOT NULL` still present on `product_pricelist.currency_id` in the copy. `storage_mongodb.auto_init` (odoo/orm/storage_mongodb.py:577-601) drops those NOT NULLs when the module owning an opted-in model is updated, so the copy needs `-u` of the owning modules (`account,product,stock,uom,sale_stock`), as the batch PRs ran; with that the run above passed. Verifier setup, not a batch defect; recorded so the deployment step carries the same module update."
+  ],
+  "first_attempt": {
+   "copy": "odoo_v2b03m",
+   "result": "0 failed, 2 error(s) of 0 tests",
+   "tours_succeeded": 0,
+   "rc": 1,
+   "scratch": "25 -> 0 collections",
+   "copy_dropped": true,
+   "stats": [
+    "purchase_stock: 2 tests 1.09s 155 queries"
+   ],
+   "passed": false,
+   "addons": "purchase_stock"
+  }
+ },
+ "snapshot": {
+  "accountIncoterms": {
+   "count": 11,
+   "raw_bson_sha256_before": "44d4f1aa08842ad5d95673ba3e223d1aae1cfe655e17c9365b8b2e73c5c9ae2b",
+   "raw_bson_sha256_after": "44d4f1aa08842ad5d95673ba3e223d1aae1cfe655e17c9365b8b2e73c5c9ae2b"
+  },
+  "accountReport": {
+   "count": 7,
+   "raw_bson_sha256_before": "af257c077f09a847ab94fe246f4612cd1233ed3a26f8e419eb269afe06502916",
+   "raw_bson_sha256_after": "af257c077f09a847ab94fe246f4612cd1233ed3a26f8e419eb269afe06502916"
+  },
+  "productCategory": {
+   "count": 20,
+   "raw_bson_sha256_before": "f0cbc455ae9dd0471b1bebe18e261e4f42cb77b79c6dfc706cfd404df5bbe0c9",
+   "raw_bson_sha256_after": "f0cbc455ae9dd0471b1bebe18e261e4f42cb77b79c6dfc706cfd404df5bbe0c9"
+  },
+  "accountTaxGroup": {
+   "count": 27,
+   "raw_bson_sha256_before": "1e11116f575b475a88f646cb4d18d944d4fc567a058407ff69195aef42326201",
+   "raw_bson_sha256_after": "1e11116f575b475a88f646cb4d18d944d4fc567a058407ff69195aef42326201"
+  },
+  "accountPaymentTerm": {
+   "count": 13,
+   "raw_bson_sha256_before": "973aeefee36b0b9adb401aa267c4248a067fff9fe27cd1bc1bc65bb5bc92ab07",
+   "raw_bson_sha256_after": "973aeefee36b0b9adb401aa267c4248a067fff9fe27cd1bc1bc65bb5bc92ab07"
+  }
+ }
+}

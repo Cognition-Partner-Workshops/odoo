@@ -1,0 +1,97 @@
+{
+  "unit": "productBaseUnit",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
+  "tolerance_version": "1",
+  "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416",
+  "git_head": "573f2cd0e8ea4a9b5b5f89aa808e1dd226376b98",
+  "git_dirty": false,
+  "source_db": "odoo_src",
+  "source_server": "hmac-sha256:545efbd0aca82e45",
+  "ops_sha256": "2d89955b9e130403b8bf2cbd5d1301eda56668e9adc1d99084d49a087d386fed",
+  "collections": [
+    "productBaseUnit"
+  ],
+  "seed": 1,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-26T04:49:33.096740+00:00",
+  "redacted": true,
+  "redaction_salted": true,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 1,
+      "stats": {
+        "source_counts": {
+          "productBaseUnit": 2
+        },
+        "embed_source_counts": {}
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 3,
+      "stats": {
+        "deferred_to_tier3": [
+          "productBaseUnit.createUid",
+          "productBaseUnit.writeUid",
+          "productBaseUnit.name",
+          "productBaseUnit.createDate",
+          "productBaseUnit.writeDate"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "productBaseUnit.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "productBaseUnit.name",
+            "key": "productBaseUnit"
+          }
+        ],
+        "fields_fully_deferred": 2
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {
+        "productBaseUnit": {
+          "mode": "full_diff",
+          "population": 2,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": true,
+  "error": null
+}

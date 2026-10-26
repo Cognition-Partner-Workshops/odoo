@@ -1,0 +1,122 @@
+{
+ "unit": "productAttributeValueProductTemplateAttributeLineRel",
+ "collection": "odoo_unt13.productAttributeValueProductTemplateAttributeLineRel",
+ "source": "odoo_src.product_attribute_value_product_template_attribute_line_rel",
+ "taken_at": "2026-10-26T04:52:40.027565+00:00",
+ "probes": [
+  {
+   "probe": "count",
+   "status": "PASS",
+   "source": 1642,
+   "target": 1642
+  },
+  {
+   "probe": "fields",
+   "status": "PASS",
+   "fields": 0,
+   "stats": {}
+  },
+  {
+   "probe": "unmapped_keys",
+   "status": "PASS",
+   "extra_keys": []
+  },
+  {
+   "probe": "duplicates",
+   "status": "PASS",
+   "_id": 0,
+   "productAttributeValueId+productTemplateAttributeLineId": 0
+  },
+  {
+   "probe": "junction_pairs",
+   "status": "PASS",
+   "source": 1642,
+   "target": 1642,
+   "source_only": [],
+   "target_only": []
+  },
+  {
+   "probe": "junction_readback:productAttributeValueId",
+   "status": "PASS",
+   "endpoint_table": "product_attribute_value",
+   "resolved_in": "odoo_unt13.productAttribute.value.id (wave 2)",
+   "endpoints": 317,
+   "links": 1642,
+   "groups_differing": [],
+   "dangling": []
+  },
+  {
+   "probe": "junction_readback:productTemplateAttributeLineId",
+   "status": "PASS",
+   "endpoint_table": "product_template_attribute_line",
+   "resolved_in": "odoo_src.product_template_attribute_line (PostgreSQL-resident, wave 4)",
+   "endpoints": 410,
+   "links": 1642,
+   "groups_differing": [],
+   "dangling": []
+  },
+  {
+   "probe": "indexes",
+   "status": "PASS",
+   "declared": 2,
+   "spec_partial_filters": 0,
+   "unique_exists_filters_expected": 1,
+   "live_options": {
+    "[[\"_id\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"productAttributeValueId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"productTemplateAttributeLineId\", 1], [\"productAttributeValueId\", 1]]": {
+     "unique": true,
+     "partialFilterExpression": {
+      "productTemplateAttributeLineId": {
+       "$exists": true
+      },
+      "productAttributeValueId": {
+       "$exists": true
+      }
+     }
+    }
+   },
+   "missing": [],
+   "option_mismatch": [],
+   "extra_live": []
+  },
+  {
+   "probe": "reference:productTemplateAttributeLineId->productTemplateAttributeLine",
+   "status": "PASS",
+   "fk_parent": "product_template_attribute_line",
+   "resolved_in": "odoo_src.product_template_attribute_line (PostgreSQL-resident, wave 4)",
+   "distinct_values": 410,
+   "dangling": []
+  },
+  {
+   "probe": "reference:productAttributeValueId->productAttribute",
+   "status": "PASS",
+   "fk_parent": "product_attribute_value",
+   "resolved_in": "odoo_unt13.productAttribute.value.id (merged wave 2, w2-b05)",
+   "distinct_values": 317,
+   "dangling": []
+  },
+  {
+   "probe": "stable_during_probe",
+   "status": "PASS",
+   "count": 1642,
+   "raw_bson_sha256": "4db800a7b735bee945f8203b4115c7df2bec4533fdb9af15461b509ff109c7ab",
+   "max_writeDate": null
+  }
+ ],
+ "snapshot": {
+  "count": 1642,
+  "raw_bson_sha256": "4db800a7b735bee945f8203b4115c7df2bec4533fdb9af15461b509ff109c7ab",
+  "max_writeDate": null
+ },
+ "summary": {
+  "PASS": 11
+ },
+ "verdict": "PASS"
+}

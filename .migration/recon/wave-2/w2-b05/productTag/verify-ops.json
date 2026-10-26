@@ -1,0 +1,125 @@
+[
+ {
+  "name": "verify_productTag_audit_columns_by_id",
+  "collection": "productTag",
+  "note": "product_tag: create/write uid and date per row (mail/chatter and the record's metadata read), keyed by id",
+  "source_sql": "SELECT id, create_uid, write_uid, create_date, write_date FROM product_tag ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "create_uid": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "write_uid": {
+      "$ifNull": [
+       "$writeUid",
+       null
+      ]
+     },
+     "create_date": {
+      "$ifNull": [
+       "$createDate",
+       null
+      ]
+     },
+     "write_date": {
+      "$ifNull": [
+       "$writeDate",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "datetime_utc_truncate_ms",
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_productTag_scalar_listing",
+  "collection": "productTag",
+  "note": "product_tag: every int/string/bool column of every row as a list view reads it, keyed by id",
+  "source_sql": "SELECT id, sequence, color, visible_to_customers FROM product_tag ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "sequence": {
+      "$ifNull": [
+       "$sequence",
+       null
+      ]
+     },
+     "color": {
+      "$ifNull": [
+       "$color",
+       null
+      ]
+     },
+     "visible_to_customers": {
+      "$ifNull": [
+       "$visibleToCustomers",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_productTag_embed_fanout_by_parent",
+  "collection": "productTag",
+  "note": "product_tag: per-parent count of each embedded array (product_tag_product_product_rel, product_tag_product_template_rel) against the child-row count, keyed by id",
+  "source_sql": "SELECT r.id, COALESCE(e0.n, 0) AS n_productproductrel, COALESCE(e1.n, 0) AS n_producttemplaterel FROM product_tag r LEFT JOIN (SELECT product_tag_id AS pid, COUNT(*) AS n FROM product_tag_product_product_rel GROUP BY product_tag_id) e0 ON e0.pid = r.id LEFT JOIN (SELECT product_tag_id AS pid, COUNT(*) AS n FROM product_tag_product_template_rel GROUP BY product_tag_id) e1 ON e1.pid = r.id ORDER BY r.id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "n_productproductrel": {
+      "$size": {
+       "$ifNull": [
+        "$productProductRel",
+        []
+       ]
+      }
+     },
+     "n_producttemplaterel": {
+      "$size": {
+       "$ifNull": [
+        "$productTemplateRel",
+        []
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]

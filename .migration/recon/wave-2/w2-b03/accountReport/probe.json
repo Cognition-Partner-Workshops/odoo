@@ -1,0 +1,411 @@
+{
+ "unit": "accountReport",
+ "collection": "odoo_unt13.accountReport",
+ "source": "odoo_src.account_report",
+ "taken_at": "2026-10-26T04:52:21.535509+00:00",
+ "probes": [
+  {
+   "probe": "count",
+   "status": "PASS",
+   "source": 7,
+   "target": 7
+  },
+  {
+   "probe": "fields",
+   "status": "PASS",
+   "fields": 39,
+   "stats": {
+    "sequence": {
+     "source_null": 7,
+     "missing": 7,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "rootReportId": {
+     "source_null": 4,
+     "missing": 4,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "countryId": {
+     "source_null": 6,
+     "missing": 6,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "loadMoreLimit": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "createUid": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "writeUid": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "groupby": {
+     "source_null": 7,
+     "missing": 7,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "userGroupby": {
+     "source_null": 7,
+     "missing": 7,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "chartTemplate": {
+     "source_null": 7,
+     "missing": 7,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "availabilityCondition": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "integerRounding": {
+     "source_null": 7,
+     "missing": 7,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "defaultOpeningDateFilter": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "currencyTranslation": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "filterMultiCompany": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "filterHide0Lines": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "filterHierarchy": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "filterAccountType": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "name": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "activeSelection": {
+     "source_null": 7,
+     "missing": 7,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "activeFallback": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "useSections": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "onlyTaxExigible": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "searchBar": {
+     "source_null": 7,
+     "missing": 7,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "allowForeignVat": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "useFiscalPeriods": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "enableSnapshots": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "filterDateRange": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "filterShowDraft": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "filterUnreconciled": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "filterUnfoldAll": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "filterPeriodComparison": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "filterGrowthComparison": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "filterLineComparison": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "filterJournals": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "filterPartner": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "filterAmlIrFilters": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "filterBudgets": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "createDate": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    },
+    "writeDate": {
+     "source_null": 0,
+     "missing": 0,
+     "explicit_null": 0,
+     "bad_type": 0
+    }
+   }
+  },
+  {
+   "probe": "unmapped_keys",
+   "status": "PASS",
+   "extra_keys": []
+  },
+  {
+   "probe": "duplicates",
+   "status": "PASS",
+   "_id": 0
+  },
+  {
+   "probe": "root_rows",
+   "status": "PASS",
+   "rows_compared": 7,
+   "fields_per_row": 39,
+   "mismatches": 0,
+   "first_mismatches": [],
+   "source_only": [],
+   "target_only": []
+  },
+  {
+   "probe": "embed:column",
+   "status": "PASS",
+   "child_table": "account_report_column",
+   "parents_with_children_source": 4,
+   "parents_with_array_target": 4,
+   "children_source": 8,
+   "elements_target": 8,
+   "parents_differing": [],
+   "unmapped_element_keys": [],
+   "explicit_nulls": 0,
+   "bad_types": 0,
+   "empty_arrays": 0
+  },
+  {
+   "probe": "embed:sectionRel",
+   "status": "PASS",
+   "child_table": "account_report_section_rel",
+   "parents_with_children_source": 1,
+   "parents_with_array_target": 1,
+   "children_source": 2,
+   "elements_target": 2,
+   "parents_differing": [],
+   "unmapped_element_keys": [],
+   "explicit_nulls": 0,
+   "bad_types": 0,
+   "empty_arrays": 0
+  },
+  {
+   "probe": "indexes",
+   "status": "PASS",
+   "declared": 3,
+   "spec_partial_filters": 0,
+   "unique_exists_filters_expected": 0,
+   "live_options": {
+    "[[\"_id\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"countryId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"rootReportId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    },
+    "[[\"sectionRel.subReportId\", 1]]": {
+     "unique": false,
+     "partialFilterExpression": null
+    }
+   },
+   "missing": [],
+   "option_mismatch": [],
+   "extra_live": []
+  },
+  {
+   "probe": "reference:countryId->resCountry",
+   "status": "PASS",
+   "fk_parent": "res_country",
+   "resolved_in": "odoo_src.res_country (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:createUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:rootReportId->accountReport",
+   "status": "PASS",
+   "fk_parent": "account_report",
+   "resolved_in": "odoo_unt13.accountReport._id (merged wave 2, w2-b03)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:writeUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:column.createUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:column.customAuditActionId->irActWindow",
+   "status": "PASS",
+   "fk_parent": "ir_act_window",
+   "resolved_in": "odoo_src.ir_act_window (PostgreSQL-resident, framework table)",
+   "distinct_values": 0,
+   "dangling": []
+  },
+  {
+   "probe": "reference:column.writeUid->resUsers",
+   "status": "PASS",
+   "fk_parent": "res_users",
+   "resolved_in": "odoo_src.res_users (PostgreSQL-resident, framework table)",
+   "distinct_values": 1,
+   "dangling": []
+  },
+  {
+   "probe": "reference:sectionRel.subReportId->accountReport",
+   "status": "PASS",
+   "fk_parent": "account_report",
+   "resolved_in": "odoo_unt13.accountReport._id (merged wave 2, w2-b03)",
+   "distinct_values": 2,
+   "dangling": []
+  },
+  {
+   "probe": "stable_during_probe",
+   "status": "PASS",
+   "count": 7,
+   "raw_bson_sha256": "af257c077f09a847ab94fe246f4612cd1233ed3a26f8e419eb269afe06502916",
+   "max_writeDate": "2026-10-20T00:00:00"
+  }
+ ],
+ "snapshot": {
+  "count": 7,
+  "raw_bson_sha256": "af257c077f09a847ab94fe246f4612cd1233ed3a26f8e419eb269afe06502916",
+  "max_writeDate": "2026-10-20T00:00:00"
+ },
+ "summary": {
+  "PASS": 17
+ },
+ "verdict": "PASS"
+}

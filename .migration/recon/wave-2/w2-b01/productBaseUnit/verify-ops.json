@@ -1,0 +1,85 @@
+[
+ {
+  "name": "verify_productBaseUnit_audit_columns_by_id",
+  "collection": "productBaseUnit",
+  "note": "product_base_unit: create/write uid and date per row (mail/chatter and the record's metadata read), keyed by id",
+  "source_sql": "SELECT id, create_uid, write_uid, create_date, write_date FROM product_base_unit ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "create_uid": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "write_uid": {
+      "$ifNull": [
+       "$writeUid",
+       null
+      ]
+     },
+     "create_date": {
+      "$ifNull": [
+       "$createDate",
+       null
+      ]
+     },
+     "write_date": {
+      "$ifNull": [
+       "$writeDate",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "datetime_utc_truncate_ms",
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_productBaseUnit_rows_per_create_uid",
+  "collection": "productBaseUnit",
+  "note": "product_base_unit: record count per creating user (the 'created by' grouping of the list view)",
+  "source_sql": "SELECT create_uid, COUNT(*) AS n FROM product_base_unit GROUP BY create_uid ORDER BY create_uid",
+  "target_pipeline": [
+   {
+    "$group": {
+     "_id": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "n": {
+      "$sum": 1
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "create_uid": "$_id",
+     "n": 1
+    }
+   },
+   {
+    "$sort": {
+     "create_uid": 1
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ }
+]

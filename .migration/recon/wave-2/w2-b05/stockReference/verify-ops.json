@@ -1,0 +1,121 @@
+[
+ {
+  "name": "verify_stockReference_audit_columns_by_id",
+  "collection": "stockReference",
+  "note": "stock_reference: create/write uid and date per row (mail/chatter and the record's metadata read), keyed by id",
+  "source_sql": "SELECT id, create_uid, write_uid, create_date, write_date FROM stock_reference ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "create_uid": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "write_uid": {
+      "$ifNull": [
+       "$writeUid",
+       null
+      ]
+     },
+     "create_date": {
+      "$ifNull": [
+       "$createDate",
+       null
+      ]
+     },
+     "write_date": {
+      "$ifNull": [
+       "$writeDate",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "datetime_utc_truncate_ms",
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_stockReference_scalar_listing",
+  "collection": "stockReference",
+  "note": "stock_reference: every int/string/bool column of every row as a list view reads it, keyed by id",
+  "source_sql": "SELECT id, name FROM stock_reference ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "name": {
+      "$ifNull": [
+       "$name",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_stockReference_embed_fanout_by_parent",
+  "collection": "stockReference",
+  "note": "stock_reference: per-parent count of each embedded array (stock_reference_move_rel, stock_reference_purchase_rel, stock_reference_sale_rel) against the child-row count, keyed by id",
+  "source_sql": "SELECT r.id, COALESCE(e0.n, 0) AS n_moverel, COALESCE(e1.n, 0) AS n_purchaserel, COALESCE(e2.n, 0) AS n_salerel FROM stock_reference r LEFT JOIN (SELECT reference_id AS pid, COUNT(*) AS n FROM stock_reference_move_rel GROUP BY reference_id) e0 ON e0.pid = r.id LEFT JOIN (SELECT reference_id AS pid, COUNT(*) AS n FROM stock_reference_purchase_rel GROUP BY reference_id) e1 ON e1.pid = r.id LEFT JOIN (SELECT reference_id AS pid, COUNT(*) AS n FROM stock_reference_sale_rel GROUP BY reference_id) e2 ON e2.pid = r.id ORDER BY r.id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "n_moverel": {
+      "$size": {
+       "$ifNull": [
+        "$moveRel",
+        []
+       ]
+      }
+     },
+     "n_purchaserel": {
+      "$size": {
+       "$ifNull": [
+        "$purchaseRel",
+        []
+       ]
+      }
+     },
+     "n_salerel": {
+      "$size": {
+       "$ifNull": [
+        "$saleRel",
+        []
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]

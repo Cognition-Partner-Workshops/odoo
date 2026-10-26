@@ -1,0 +1,91 @@
+{
+ "batch": "w2-b02",
+ "verdict": "PASS",
+ "recon_results": [
+  ".migration/recon/wave-2/w2-b02/returnReason/result.json",
+  ".migration/recon/wave-2/w2-b02/stockStorageCategory/result.json",
+  ".migration/recon/wave-2/w2-b02/accountCashRounding/result.json",
+  ".migration/recon/wave-2/w2-b02/stockPackageType/result.json",
+  ".migration/recon/wave-2/w2-b02/productPricelist/result.json"
+ ],
+ "findings": [],
+ "report_path": "recon/verify-w2-unt14:.migration/recon/wave-2/w2-b02/verify-report.md",
+ "head_sha": "47d4f88fa279bf2b523d949bf27421ad11b44b19",
+ "run_id": "UNT14-54",
+ "manifest_sha": "ef5b8af24b0b",
+ "verified_base": "573f2cd0e8ea4a9b5b5f89aa808e1dd226376b98",
+ "plugin_sha": "2c1160efde323c570425953b7e38bcc3496c6053",
+ "units": [
+  "returnReason",
+  "stockStorageCategory",
+  "accountCashRounding",
+  "stockPackageType",
+  "productPricelist"
+ ],
+ "unit_verdicts": {
+  "returnReason": "PASS",
+  "stockStorageCategory": "PASS",
+  "accountCashRounding": "PASS",
+  "stockPackageType": "PASS",
+  "productPricelist": "PASS"
+ },
+ "probes": [
+  ".migration/recon/wave-2/w2-b02/returnReason/probe.json",
+  ".migration/recon/wave-2/w2-b02/stockStorageCategory/probe.json",
+  ".migration/recon/wave-2/w2-b02/accountCashRounding/probe.json",
+  ".migration/recon/wave-2/w2-b02/stockPackageType/probe.json",
+  ".migration/recon/wave-2/w2-b02/productPricelist/probe.json"
+ ],
+ "ops": [
+  ".migration/recon/wave-2/w2-b02/returnReason/verify-ops.json",
+  ".migration/recon/wave-2/w2-b02/stockStorageCategory/verify-ops.json",
+  ".migration/recon/wave-2/w2-b02/accountCashRounding/verify-ops.json",
+  ".migration/recon/wave-2/w2-b02/stockPackageType/verify-ops.json",
+  ".migration/recon/wave-2/w2-b02/productPricelist/verify-ops.json"
+ ],
+ "source_fingerprint": "a100e84ee2fb6282f30b45c003fd1db47561317c739340a10564d9e869e56a4e",
+ "source_server": "hmac-sha256:545efbd0aca82e45",
+ "tour": {
+  "copy": "odoo_v2b02m",
+  "result": "0 failed, 0 error(s) of 1 tests",
+  "tours_succeeded": 1,
+  "rc": 0,
+  "scratch": "25 -> 0 collections",
+  "copy_dropped": true,
+  "stats": [
+   "stock: 3 tests 7.89s 2134 queries"
+  ],
+  "passed": true,
+  "addons": "stock",
+  "tags": "/stock:TestBatchPickingSynchronization",
+  "claim": "PR #141 / `result.batch.json`: `stock:TestBatchPickingSynchronization` 1 test, 0 failed, 0 error, tour succeeded on the PostgreSQL copy (base 2f68f21) and on the MongoDB copy.",
+  "notes": []
+ },
+ "snapshot": {
+  "returnReason": {
+   "count": 5,
+   "raw_bson_sha256_before": "1370a0920f1aa4d6d7a4f6627f27c39d6e28d61bbf85d3a0ce869c05e0cb48ff",
+   "raw_bson_sha256_after": "1370a0920f1aa4d6d7a4f6627f27c39d6e28d61bbf85d3a0ce869c05e0cb48ff"
+  },
+  "stockStorageCategory": {
+   "count": 6,
+   "raw_bson_sha256_before": "faff8bc5a6c09ab522d024cea447c58f40d0225f544261d2af91323c463bfc05",
+   "raw_bson_sha256_after": "faff8bc5a6c09ab522d024cea447c58f40d0225f544261d2af91323c463bfc05"
+  },
+  "accountCashRounding": {
+   "count": 2,
+   "raw_bson_sha256_before": "454fc20b2d38a5f1e3eb5a1870569738a345a380ca46341cee5f08c38d8531b6",
+   "raw_bson_sha256_after": "454fc20b2d38a5f1e3eb5a1870569738a345a380ca46341cee5f08c38d8531b6"
+  },
+  "stockPackageType": {
+   "count": 3,
+   "raw_bson_sha256_before": "6c0fe9e74ed1c48a328a9d3bdf3227721395cb3ddd292d67e3f023f4dfb6635b",
+   "raw_bson_sha256_after": "6c0fe9e74ed1c48a328a9d3bdf3227721395cb3ddd292d67e3f023f4dfb6635b"
+  },
+  "productPricelist": {
+   "count": 9,
+   "raw_bson_sha256_before": "3d425809f0281cce1d0f05c1c38720b297be0b187165616bd15c81b5cfcc9876",
+   "raw_bson_sha256_after": "3d425809f0281cce1d0f05c1c38720b297be0b187165616bd15c81b5cfcc9876"
+  }
+ }
+}

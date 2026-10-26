@@ -1,0 +1,145 @@
+[
+ {
+  "name": "verify_accountCashRounding_audit_columns_by_id",
+  "collection": "accountCashRounding",
+  "note": "account_cash_rounding: create/write uid and date per row (mail/chatter and the record's metadata read), keyed by id",
+  "source_sql": "SELECT id, create_uid, write_uid, create_date, write_date FROM account_cash_rounding ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "create_uid": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "write_uid": {
+      "$ifNull": [
+       "$writeUid",
+       null
+      ]
+     },
+     "create_date": {
+      "$ifNull": [
+       "$createDate",
+       null
+      ]
+     },
+     "write_date": {
+      "$ifNull": [
+       "$writeDate",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "datetime_utc_truncate_ms",
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_accountCashRounding_scalar_listing",
+  "collection": "accountCashRounding",
+  "note": "account_cash_rounding: every int/string/bool column of every row as a list view reads it, keyed by id",
+  "source_sql": "SELECT id, sequence, company_id, rounding_method, strategy, active FROM account_cash_rounding ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "sequence": {
+      "$ifNull": [
+       "$sequence",
+       null
+      ]
+     },
+     "company_id": {
+      "$ifNull": [
+       "$companyId",
+       null
+      ]
+     },
+     "rounding_method": {
+      "$ifNull": [
+       "$roundingMethod",
+       null
+      ]
+     },
+     "strategy": {
+      "$ifNull": [
+       "$strategy",
+       null
+      ]
+     },
+     "active": {
+      "$ifNull": [
+       "$active",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_accountCashRounding_embed_fanout_by_parent",
+  "collection": "accountCashRounding",
+  "note": "account_cash_rounding: per-parent count of each embedded array (account_cash_rounding_res_currency_rel, account_cash_rounding_res_partner_category_rel, account_cash_rounding_account_payment_method_line_rel) against the child-row count, keyed by id",
+  "source_sql": "SELECT r.id, COALESCE(e0.n, 0) AS n_rescurrencyrel, COALESCE(e1.n, 0) AS n_respartnercategoryrel, COALESCE(e2.n, 0) AS n_accountpaymentmethodlinerel FROM account_cash_rounding r LEFT JOIN (SELECT account_cash_rounding_id AS pid, COUNT(*) AS n FROM account_cash_rounding_res_currency_rel GROUP BY account_cash_rounding_id) e0 ON e0.pid = r.id LEFT JOIN (SELECT account_cash_rounding_id AS pid, COUNT(*) AS n FROM account_cash_rounding_res_partner_category_rel GROUP BY account_cash_rounding_id) e1 ON e1.pid = r.id LEFT JOIN (SELECT account_cash_rounding_id AS pid, COUNT(*) AS n FROM account_cash_rounding_account_payment_method_line_rel GROUP BY account_cash_rounding_id) e2 ON e2.pid = r.id ORDER BY r.id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "n_rescurrencyrel": {
+      "$size": {
+       "$ifNull": [
+        "$resCurrencyRel",
+        []
+       ]
+      }
+     },
+     "n_respartnercategoryrel": {
+      "$size": {
+       "$ifNull": [
+        "$resPartnerCategoryRel",
+        []
+       ]
+      }
+     },
+     "n_accountpaymentmethodlinerel": {
+      "$size": {
+       "$ifNull": [
+        "$accountPaymentMethodLineRel",
+        []
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]

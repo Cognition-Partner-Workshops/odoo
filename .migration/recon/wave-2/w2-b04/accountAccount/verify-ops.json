@@ -1,0 +1,175 @@
+[
+ {
+  "name": "verify_accountAccount_audit_columns_by_id",
+  "collection": "accountAccount",
+  "note": "account_account: create/write uid and date per row (mail/chatter and the record's metadata read), keyed by id",
+  "source_sql": "SELECT id, create_uid, write_uid, create_date, write_date FROM account_account ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "create_uid": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "write_uid": {
+      "$ifNull": [
+       "$writeUid",
+       null
+      ]
+     },
+     "create_date": {
+      "$ifNull": [
+       "$createDate",
+       null
+      ]
+     },
+     "write_date": {
+      "$ifNull": [
+       "$writeDate",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "datetime_utc_truncate_ms",
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_accountAccount_scalar_listing",
+  "collection": "accountAccount",
+  "note": "account_account: every int/string/bool column of every row as a list view reads it, keyed by id",
+  "source_sql": "SELECT id, currency_id, parent_id, account_stock_variation_id, account_stock_expense_id, account_type, parent_path, note, active, reconcile, non_trade FROM account_account ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "currency_id": {
+      "$ifNull": [
+       "$currencyId",
+       null
+      ]
+     },
+     "parent_id": {
+      "$ifNull": [
+       "$parentId",
+       null
+      ]
+     },
+     "account_stock_variation_id": {
+      "$ifNull": [
+       "$accountStockVariationId",
+       null
+      ]
+     },
+     "account_stock_expense_id": {
+      "$ifNull": [
+       "$accountStockExpenseId",
+       null
+      ]
+     },
+     "account_type": {
+      "$ifNull": [
+       "$accountType",
+       null
+      ]
+     },
+     "parent_path": {
+      "$ifNull": [
+       "$parentPath",
+       null
+      ]
+     },
+     "note": {
+      "$ifNull": [
+       "$note",
+       null
+      ]
+     },
+     "active": {
+      "$ifNull": [
+       "$active",
+       null
+      ]
+     },
+     "reconcile": {
+      "$ifNull": [
+       "$reconcile",
+       null
+      ]
+     },
+     "non_trade": {
+      "$ifNull": [
+       "$nonTrade",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_accountAccount_embed_fanout_by_parent",
+  "collection": "accountAccount",
+  "note": "account_account: per-parent count of each embedded array (account_account_res_company_rel, account_account_account_tag, account_account_tax_default_rel) against the child-row count, keyed by id",
+  "source_sql": "SELECT r.id, COALESCE(e0.n, 0) AS n_rescompanyrel, COALESCE(e1.n, 0) AS n_accounttag, COALESCE(e2.n, 0) AS n_taxdefaultrel FROM account_account r LEFT JOIN (SELECT account_account_id AS pid, COUNT(*) AS n FROM account_account_res_company_rel GROUP BY account_account_id) e0 ON e0.pid = r.id LEFT JOIN (SELECT account_account_id AS pid, COUNT(*) AS n FROM account_account_account_tag GROUP BY account_account_id) e1 ON e1.pid = r.id LEFT JOIN (SELECT account_id AS pid, COUNT(*) AS n FROM account_account_tax_default_rel GROUP BY account_id) e2 ON e2.pid = r.id ORDER BY r.id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "n_rescompanyrel": {
+      "$size": {
+       "$ifNull": [
+        "$resCompanyRel",
+        []
+       ]
+      }
+     },
+     "n_accounttag": {
+      "$size": {
+       "$ifNull": [
+        "$accountTag",
+        []
+       ]
+      }
+     },
+     "n_taxdefaultrel": {
+      "$size": {
+       "$ifNull": [
+        "$taxDefaultRel",
+        []
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]

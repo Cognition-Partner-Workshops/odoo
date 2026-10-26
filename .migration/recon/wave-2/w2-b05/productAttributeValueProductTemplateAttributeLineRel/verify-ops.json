@@ -1,0 +1,53 @@
+[
+ {
+  "name": "verify_productAttributeValueProductTemplateAttributeLineRel_links_ordered",
+  "collection": "productAttributeValueProductTemplateAttributeLineRel",
+  "note": "root junction product_attribute_value_product_template_attribute_line_rel: every link as the ORM's Many2many.read sees it, ordered by both ids",
+  "source_sql": "SELECT product_attribute_value_id, product_template_attribute_line_id FROM product_attribute_value_product_template_attribute_line_rel ORDER BY product_attribute_value_id, product_template_attribute_line_id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "product_attribute_value_id": "$productAttributeValueId",
+     "product_template_attribute_line_id": "$productTemplateAttributeLineId"
+    }
+   },
+   {
+    "$sort": {
+     "product_attribute_value_id": 1,
+     "product_template_attribute_line_id": 1
+    }
+   }
+  ],
+  "rules": []
+ },
+ {
+  "name": "verify_productAttributeValueProductTemplateAttributeLineRel_links_per_product_attribute_value_id",
+  "collection": "productAttributeValueProductTemplateAttributeLineRel",
+  "note": "root junction product_attribute_value_product_template_attribute_line_rel: link count per product_attribute_value_id (the owning side's record set size)",
+  "source_sql": "SELECT product_attribute_value_id, COUNT(*) AS n FROM product_attribute_value_product_template_attribute_line_rel GROUP BY product_attribute_value_id ORDER BY product_attribute_value_id",
+  "target_pipeline": [
+   {
+    "$group": {
+     "_id": "$productAttributeValueId",
+     "n": {
+      "$sum": 1
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "product_attribute_value_id": "$_id",
+     "n": 1
+    }
+   },
+   {
+    "$sort": {
+     "product_attribute_value_id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]

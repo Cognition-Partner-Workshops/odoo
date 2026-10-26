@@ -1,0 +1,141 @@
+[
+ {
+  "name": "verify_accountPaymentTerm_audit_columns_by_id",
+  "collection": "accountPaymentTerm",
+  "note": "account_payment_term: create/write uid and date per row (mail/chatter and the record's metadata read), keyed by id",
+  "source_sql": "SELECT id, create_uid, write_uid, create_date, write_date FROM account_payment_term ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "create_uid": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "write_uid": {
+      "$ifNull": [
+       "$writeUid",
+       null
+      ]
+     },
+     "create_date": {
+      "$ifNull": [
+       "$createDate",
+       null
+      ]
+     },
+     "write_date": {
+      "$ifNull": [
+       "$writeDate",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "datetime_utc_truncate_ms",
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_accountPaymentTerm_scalar_listing",
+  "collection": "accountPaymentTerm",
+  "note": "account_payment_term: every int/string/bool column of every row as a list view reads it, keyed by id",
+  "source_sql": "SELECT id, company_id, sequence, discount_days, early_pay_discount_computation, active, display_on_invoice, early_discount FROM account_payment_term ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "company_id": {
+      "$ifNull": [
+       "$companyId",
+       null
+      ]
+     },
+     "sequence": {
+      "$ifNull": [
+       "$sequence",
+       null
+      ]
+     },
+     "discount_days": {
+      "$ifNull": [
+       "$discountDays",
+       null
+      ]
+     },
+     "early_pay_discount_computation": {
+      "$ifNull": [
+       "$earlyPayDiscountComputation",
+       null
+      ]
+     },
+     "active": {
+      "$ifNull": [
+       "$active",
+       null
+      ]
+     },
+     "display_on_invoice": {
+      "$ifNull": [
+       "$displayOnInvoice",
+       null
+      ]
+     },
+     "early_discount": {
+      "$ifNull": [
+       "$earlyDiscount",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_accountPaymentTerm_embed_fanout_by_parent",
+  "collection": "accountPaymentTerm",
+  "note": "account_payment_term: per-parent count of each embedded array (account_payment_term_line) against the child-row count, keyed by id",
+  "source_sql": "SELECT r.id, COALESCE(e0.n, 0) AS n_line FROM account_payment_term r LEFT JOIN (SELECT payment_id AS pid, COUNT(*) AS n FROM account_payment_term_line GROUP BY payment_id) e0 ON e0.pid = r.id ORDER BY r.id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "n_line": {
+      "$size": {
+       "$ifNull": [
+        "$line",
+        []
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]

@@ -1,0 +1,106 @@
+{
+ "batch": "w2-b04",
+ "verdict": "PASS",
+ "recon_results": [
+  ".migration/recon/wave-2/w2-b04/uomUom/result.json",
+  ".migration/recon/wave-2/w2-b04/productTemplateUomUomRel/result.json",
+  ".migration/recon/wave-2/w2-b04/accountFullReconcile/result.json",
+  ".migration/recon/wave-2/w2-b04/accountAccountTag/result.json",
+  ".migration/recon/wave-2/w2-b04/accountAccount/result.json"
+ ],
+ "findings": [],
+ "report_path": "recon/verify-w2-unt14:.migration/recon/wave-2/w2-b04/verify-report.md",
+ "head_sha": "2b000c73d017e75f3f51320242cfb76aa52edc5f",
+ "run_id": "UNT14-54",
+ "manifest_sha": "ef5b8af24b0b",
+ "verified_base": "573f2cd0e8ea4a9b5b5f89aa808e1dd226376b98",
+ "plugin_sha": "2c1160efde323c570425953b7e38bcc3496c6053",
+ "units": [
+  "uomUom",
+  "productTemplateUomUomRel",
+  "accountFullReconcile",
+  "accountAccountTag",
+  "accountAccount"
+ ],
+ "unit_verdicts": {
+  "uomUom": "PASS",
+  "productTemplateUomUomRel": "PASS",
+  "accountFullReconcile": "PASS",
+  "accountAccountTag": "PASS",
+  "accountAccount": "PASS"
+ },
+ "probes": [
+  ".migration/recon/wave-2/w2-b04/uomUom/probe.json",
+  ".migration/recon/wave-2/w2-b04/productTemplateUomUomRel/probe.json",
+  ".migration/recon/wave-2/w2-b04/accountFullReconcile/probe.json",
+  ".migration/recon/wave-2/w2-b04/accountAccountTag/probe.json",
+  ".migration/recon/wave-2/w2-b04/accountAccount/probe.json"
+ ],
+ "ops": [
+  ".migration/recon/wave-2/w2-b04/uomUom/verify-ops.json",
+  ".migration/recon/wave-2/w2-b04/productTemplateUomUomRel/verify-ops.json",
+  ".migration/recon/wave-2/w2-b04/accountFullReconcile/verify-ops.json",
+  ".migration/recon/wave-2/w2-b04/accountAccountTag/verify-ops.json",
+  ".migration/recon/wave-2/w2-b04/accountAccount/verify-ops.json"
+ ],
+ "source_fingerprint": "a100e84ee2fb6282f30b45c003fd1db47561317c739340a10564d9e869e56a4e",
+ "source_server": "hmac-sha256:545efbd0aca82e45",
+ "tour": {
+  "copy": "odoo_v2b04r",
+  "result": "0 failed, 0 error(s) of 6 tests",
+  "tours_succeeded": 6,
+  "rc": 0,
+  "scratch": "25 -> 0 collections",
+  "copy_dropped": true,
+  "stats": [
+   "account: 8 tests 93.36s 8539 queries"
+  ],
+  "passed": true,
+  "addons": "account,product,stock,uom,sale_stock",
+  "tags": "/account:TestUi",
+  "claim": "PR #143 / `result.batch.json`: account tours (`addons/account/tests/test_tour.py`, 6 tests) 6/6 on PostgreSQL storage and 6/6 on MongoDB storage, no skips; merge/unmerge tests 2/2 on both storages.",
+  "notes": [
+   "First attempt of the batch tour on scratch copy `odoo_v2b04m` with only `-u account` errored in setUpClass (0 failed, 2 error(s) of 0 tests): the test's setup creates an opted-in record (`product.pricelist` from the test company, or `product.attribute`) and the storage path's shadow insert hit `NOT NULL` still present on `product_pricelist.currency_id` in the copy. `storage_mongodb.auto_init` (odoo/orm/storage_mongodb.py:577-601) drops those NOT NULLs when the module owning an opted-in model is updated, so the copy needs `-u` of the owning modules (`account,product,stock,uom,sale_stock`), as the batch PRs ran; with that the run above passed. Verifier setup, not a batch defect; recorded so the deployment step carries the same module update."
+  ],
+  "first_attempt": {
+   "copy": "odoo_v2b04m",
+   "result": "0 failed, 2 error(s) of 0 tests",
+   "tours_succeeded": 0,
+   "rc": 1,
+   "scratch": "25 -> 0 collections",
+   "copy_dropped": true,
+   "stats": [
+    "account: 2 tests 0.81s 263 queries"
+   ],
+   "passed": false,
+   "addons": "account"
+  }
+ },
+ "snapshot": {
+  "uomUom": {
+   "count": 30,
+   "raw_bson_sha256_before": "2ced47e0e426a87baa3898f147e267d735f3d06941bbcec09acd975664d0af38",
+   "raw_bson_sha256_after": "2ced47e0e426a87baa3898f147e267d735f3d06941bbcec09acd975664d0af38"
+  },
+  "productTemplateUomUomRel": {
+   "count": 2,
+   "raw_bson_sha256_before": "ccb6a7761f483fb37fbd4be9982d8a92bd77fffece682c302f6c09cd3b83fac1",
+   "raw_bson_sha256_after": "ccb6a7761f483fb37fbd4be9982d8a92bd77fffece682c302f6c09cd3b83fac1"
+  },
+  "accountFullReconcile": {
+   "count": 42,
+   "raw_bson_sha256_before": "08e1e4ccb96d65b120b69e853aa2618b9d40949f2898b2fa77701800f07a7c0a",
+   "raw_bson_sha256_after": "08e1e4ccb96d65b120b69e853aa2618b9d40949f2898b2fa77701800f07a7c0a"
+  },
+  "accountAccountTag": {
+   "count": 15,
+   "raw_bson_sha256_before": "6d0acdaa439ec8809e5626d924755f75bbe9a7627551e95e5615e30e3502aca2",
+   "raw_bson_sha256_after": "6d0acdaa439ec8809e5626d924755f75bbe9a7627551e95e5615e30e3502aca2"
+  },
+  "accountAccount": {
+   "count": 213,
+   "raw_bson_sha256_before": "40c60ea7e49387490a380c641103aa418007c3d7aba327d303ea1fe1882d3a2d",
+   "raw_bson_sha256_after": "40c60ea7e49387490a380c641103aa418007c3d7aba327d303ea1fe1882d3a2d"
+  }
+ }
+}

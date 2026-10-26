@@ -1,0 +1,131 @@
+[
+ {
+  "name": "verify_productAttribute_audit_columns_by_id",
+  "collection": "productAttribute",
+  "note": "product_attribute: create/write uid and date per row (mail/chatter and the record's metadata read), keyed by id",
+  "source_sql": "SELECT id, create_uid, write_uid, create_date, write_date FROM product_attribute ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "create_uid": {
+      "$ifNull": [
+       "$createUid",
+       null
+      ]
+     },
+     "write_uid": {
+      "$ifNull": [
+       "$writeUid",
+       null
+      ]
+     },
+     "create_date": {
+      "$ifNull": [
+       "$createDate",
+       null
+      ]
+     },
+     "write_date": {
+      "$ifNull": [
+       "$writeDate",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "datetime_utc_truncate_ms",
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_productAttribute_scalar_listing",
+  "collection": "productAttribute",
+  "note": "product_attribute: every int/string/bool column of every row as a list view reads it, keyed by id",
+  "source_sql": "SELECT id, sequence, create_variant, display_type, active FROM product_attribute ORDER BY id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "sequence": {
+      "$ifNull": [
+       "$sequence",
+       null
+      ]
+     },
+     "create_variant": {
+      "$ifNull": [
+       "$createVariant",
+       null
+      ]
+     },
+     "display_type": {
+      "$ifNull": [
+       "$displayType",
+       null
+      ]
+     },
+     "active": {
+      "$ifNull": [
+       "$active",
+       null
+      ]
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "verify_productAttribute_embed_fanout_by_parent",
+  "collection": "productAttribute",
+  "note": "product_attribute: per-parent count of each embedded array (product_attribute_product_template_rel, product_attribute_value) against the child-row count, keyed by id",
+  "source_sql": "SELECT r.id, COALESCE(e0.n, 0) AS n_producttemplaterel, COALESCE(e1.n, 0) AS n_value FROM product_attribute r LEFT JOIN (SELECT product_attribute_id AS pid, COUNT(*) AS n FROM product_attribute_product_template_rel GROUP BY product_attribute_id) e0 ON e0.pid = r.id LEFT JOIN (SELECT attribute_id AS pid, COUNT(*) AS n FROM product_attribute_value GROUP BY attribute_id) e1 ON e1.pid = r.id ORDER BY r.id",
+  "target_pipeline": [
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "n_producttemplaterel": {
+      "$size": {
+       "$ifNull": [
+        "$productTemplateRel",
+        []
+       ]
+      }
+     },
+     "n_value": {
+      "$size": {
+       "$ifNull": [
+        "$value",
+        []
+       ]
+      }
+     }
+    }
+   },
+   {
+    "$sort": {
+     "id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]
