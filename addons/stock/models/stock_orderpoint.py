@@ -419,7 +419,7 @@ class StockWarehouseOrderpoint(models.Model):
             product_context = frozendict({**orderpoint_context})
             orderpoints_contexts[product_context] |= orderpoint
         # the quantities in progress do not depend on the product context: one lookup for all
-        products_qty_in_progress = self.browse().union(*orderpoints_contexts.values())._quantity_in_progress()
+        products_qty_in_progress = self.browse().union(orderpoints_contexts.values())._quantity_in_progress()
         for orderpoint_context, orderpoints_by_context in orderpoints_contexts.items():
             products_qty = {
                 p['id']: p for p in orderpoints_by_context.product_id.with_context(orderpoint_context).read(['qty_available', 'virtual_available'])
