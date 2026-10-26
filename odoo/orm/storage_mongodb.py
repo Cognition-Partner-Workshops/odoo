@@ -1059,6 +1059,34 @@ def _check_key(model: BaseModel, parent_ids: typing.Iterable[int]) -> None:
             seen.add(key)
 
 
+def _check_unique(model: BaseModel, elements: typing.Iterable[dict]) -> None:
+    """ Enforce the model's own ``unique(...)`` constraints on the children
+    just written, across every parent of the collection, like the PostgreSQL
+    unique constraint (skipping NULLs). The spec's key within the parent is
+    ``_check_key``'s. """
+    layout = _layout(model)
+    embed, paths = layout['embed'], layout['paths']
+    array = embed['array']
+    elements = list(elements)
+    for _name, columns in _unique_constraints(model):
+        if embed['parent'] in columns or any(column not in paths for column in columns):
+            continue
+        key_paths = [paths[column] for column in columns]
+        keys = {tuple(element.get(path) for path in key_paths) for element in elements}
+        if not (keys := [dict(zip(key_paths, key)) for key in keys if None not in key]):
+            continue
+        pipeline = [
+            {'$match': {array: {'$elemMatch': {'$or': keys}}}},
+            {'$unwind': f'${array}'},
+            {'$match': {'$or': [{f'{array}.{path}': value for path, value in key.items()} for key in keys]}},
+            {'$group': {'_id': {path: f'${array}.{path}' for path in key_paths}, 'count': {'$sum': 1}}},
+            {'$match': {'count': {'$gt': 1}}},
+            {'$limit': 1},
+        ]
+        for group in get_collection(model).aggregate(pipeline):
+            raise UniqueViolation(model, group['_id'])
+
+
 def _insert_children(model: BaseModel, ids: list[int], rows: list[dict]) -> None:
     import pymongo  # noqa: PLC0415
     embed, collection = _layout(model)['embed'], get_collection(model)
@@ -1077,17 +1105,18 @@ def _insert_children(model: BaseModel, ids: list[int], rows: list[dict]) -> None
     if result.matched_count != len(elements):
         raise StorageError(f"{model._name}: parent documents missing in MongoDB for {sorted(elements)}")
     _check_key(model, elements)
+    _check_unique(model, itertools.chain.from_iterable(elements.values()))
 
 
 def _update_children(model: BaseModel, priors: dict[int, dict], changes: list[tuple[int, dict, dict]]) -> None:
     import pymongo  # noqa: PLC0415
     embed, collection = _layout(model)['embed'], get_collection(model)
     array, id_path, parent_path = embed['array'], embed['id_path'], embed['parent_path']
-    ops, parents = [], set()
+    ops, parents, elements = [], set(), []
     for id_, to_set, to_unset in changes:
         doc = {path: value for path, value in priors[id_].items() if path not in to_unset} | to_set
         old_parent, new_parent = priors[id_][parent_path], doc.get(parent_path)
-        element = _element(embed, doc)
+        elements.append(element := _element(embed, doc))
         if new_parent == old_parent:
             ops.append(pymongo.UpdateOne({'_id': old_parent}, {'$set': {f'{array}.$[e]': element}},
                                          array_filters=[{f'e.{id_path}': id_}]))
@@ -1101,6 +1130,7 @@ def _update_children(model: BaseModel, priors: dict[int, dict], changes: list[tu
     _add_undo(model.env.cr, lambda: _restore_elements(collection, embed, before))
     collection.bulk_write(ops, ordered=True)
     _check_key(model, parents)
+    _check_unique(model, elements)
 
 
 def _delete_children(model: BaseModel, ids: list[int]) -> None:
@@ -1132,6 +1162,9 @@ class UniqueViolation(psycopg2.errors.UniqueViolation):
     """ A duplicate ``key`` (document path -> value) in MongoDB, worded and
     diagnosed like PostgreSQL's unique violation, so Odoo maps it the same. """
 
+    # the traceback names it like PostgreSQL's, which the web client inspects
+    __module__ = psycopg2.errors.__name__
+
     def __init__(self, model: BaseModel, key: dict):
         fields = {path: fname for fname, path in _layout(model)['paths'].items()}
         values = {fields.get(path, path): value for path, value in key.items()}
@@ -1151,15 +1184,20 @@ class UniqueViolation(psycopg2.errors.UniqueViolation):
     pgerror = property(lambda self: self.args[0])
 
 
-def _unique_constraint(model: BaseModel, columns: list[str]) -> tuple[str, list[str]]:
-    """ Return the name and the column order of the model's unique constraint
-    or index on ``columns``, or PostgreSQL's default name for one. """
+def _unique_constraints(model: BaseModel) -> typing.Iterator[tuple[str, list[str]]]:
+    """ Yield the name and the columns of each unique constraint or index of the model. """
     for name, obj in model._table_objects.items():
         definition = obj.get_definition(model.pool)
         if match := re.match(r'UNIQUE\s*(?:INDEX\s*)?(?:USING\s+\w+\s*)?\(([^()]*)\)', definition, re.IGNORECASE):
-            names = [column.strip().strip('"') for column in match[1].split(',')]
-            if sorted(names) == sorted(columns):
-                return name, names
+            yield name, [column.strip().strip('"') for column in match[1].split(',')]
+
+
+def _unique_constraint(model: BaseModel, columns: list[str]) -> tuple[str, list[str]]:
+    """ Return the name and the column order of the model's unique constraint
+    or index on ``columns``, or PostgreSQL's default name for one. """
+    for name, names in _unique_constraints(model):
+        if sorted(names) == sorted(columns):
+            return name, names
     return f"{model._table}_{'_'.join(columns)}_key", columns
 
 
