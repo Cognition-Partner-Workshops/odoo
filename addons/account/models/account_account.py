@@ -26,6 +26,7 @@ ACCOUNT_TYPE_TO_JOURNAL_TYPE = {
 class AccountAccount(models.Model):
     _name = 'account.account'
     _storage = 'mongodb'      # UNT14 wave 2 (w2-b04): documents in odoo_unt13.accountAccount (signed spec map-draft-5)
+    _shadow_columns = ('account_type', 'currency_id')  # read by raw SQL (journal checks, partner balances)
     _shadow_relations = ('company_ids',)  # read by raw SQL
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = "Account"
@@ -1333,6 +1334,18 @@ class AccountAccount(models.Model):
                 continue
             if not (query_company_id := _get_query_company_id(model)):
                 continue
+            if field_to_update.ttype == 'many2one' and self.env[model]._storage == 'mongodb':
+                # documents: retarget through the ORM, one company at a time
+                dependents = self.env[model].sudo().with_context(active_test=False).search([
+                    (field_to_update.name, '=', self.id),
+                    ('company_id', 'in', [int(company_id) for company_id in new_account_id_by_company_id]),
+                ])
+                for dependent in dependents:
+                    dependent[field_to_update.name] = new_account_id_by_company_id[str(dependent.company_id.id)]
+                continue
+            if field_to_update.ttype == 'many2many' and storage_mongodb.relation_layout(
+                    self.env[model]._fields[field_to_update.name], self.env):
+                raise NotImplementedError(f"{model}.{field_to_update.name}: its relation is stored in MongoDB, the update below only reaches PostgreSQL rows")
             if field_to_update.ttype == 'many2one':
                 table = self.env[model]._table
                 account_column = field_to_update.name

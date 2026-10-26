@@ -240,7 +240,11 @@ def repoint_references(records: BaseModel, target: BaseModel) -> None:
             moved.add((field.relation, column))
             if links := find_links(records.env, layout, column, records.ids):
                 remove_links(records.env, layout, links)
-                add_links(records.env, layout, [link | {column: target.id} for link in links])
+                other = next(col for col in links[0] if col != column)
+                held = {link[other] for link in find_links(records.env, layout, column, [target.id])}
+                moving = {link[other]: link | {column: target.id} for link in links if link[other] not in held}
+                if moving:      # only links the target gains, so a rollback leaves its own in place
+                    add_links(records.env, layout, list(moving.values()))
         records.env[field.model_name].invalidate_model([field.name], flush=False)
 
 
