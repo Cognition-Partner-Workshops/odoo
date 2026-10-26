@@ -1,0 +1,76 @@
+{
+  "batch": "w2-b03",
+  "wave": 2,
+  "status": "PASS",
+  "units": [
+    "accountIncoterms",
+    "accountReport",
+    "productCategory",
+    "accountTaxGroup",
+    "accountPaymentTerm"
+  ],
+  "recon_results": [
+    ".migration/recon/accountIncoterms/result.json",
+    ".migration/recon/accountReport/result.json",
+    ".migration/recon/productCategory/result.json",
+    ".migration/recon/accountTaxGroup/result.json",
+    ".migration/recon/accountPaymentTerm/result.json"
+  ],
+  "write_targets": [
+    "odoo_unt13.accountIncoterms",
+    "odoo_unt13.accountPaymentTerm",
+    "odoo_unt13.accountReport",
+    "odoo_unt13.accountTaxGroup",
+    "odoo_unt13.productCategory"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/144",
+  "branch": "devin/1792984986-w2-b03",
+  "failure_class": null,
+  "one_line_summary": "w2-b03: 5 units live recon PASS/PASS/PASS/PASS/PASS Tiers 1-4 from odoo_src into odoo_unt13, merge_eligible=true, tours 4/4 PASS (purchase_stock suggest search panel 1/1, sale mail composer 2/2; PostgreSQL storage on base 2f68f21, MongoDB storage on this branch; 0 skipped); ORM probes PASS; scratch prefixes 42->0; merged with mongo-run/unt13 after #143",
+  "head_sha": "49d18c451bd480e2febb1d977eded8d3de288837",
+  "base_sha": "2f68f2104edab31476cb9ebc3f53635de3afcd7a",
+  "manifest_sha": "ef5b8af24b0b",
+  "mapping_version": "map-draft-5",
+  "tolerance_version": "1",
+  "tours": {
+    "postgresql_storage": {
+      "tree": "2f68f2104edab31476cb9ebc3f53635de3afcd7a",
+      "purchase_stock.test_purchase_order_suggest_search_panel_ux": "PASS 1/1",
+      "sale.TestSaleMailComposerUI": "PASS 2/2"
+    },
+    "mongodb_storage": {
+      "tree": "1ee2491e8653bc307223092a24bf1e3221fad6f7",
+      "purchase_stock.test_purchase_order_suggest_search_panel_ux": "PASS 1/1",
+      "sale.TestSaleMailComposerUI": "PASS 2/2"
+    }
+  },
+  "scratch_prefixes": {
+    "odoo_w2b03_mtour1__": {
+      "before_cleanup": 6,
+      "after_cleanup": 0
+    },
+    "odoo_w2b03_mtour2__": {
+      "before_cleanup": 6,
+      "after_cleanup": 0
+    },
+    "odoo_w2b03_ptour3__": {
+      "before_cleanup": 1,
+      "after_cleanup": 0
+    },
+    "odoo_w2b03_ptour4__": {
+      "before_cleanup": 1,
+      "after_cleanup": 0
+    },
+    "odoo_w2b03_mtour5__": {
+      "before_cleanup": 28,
+      "after_cleanup": 0
+    }
+  },
+  "notes": [
+    "scratch copy odoo_w2b03_mtour5 (VM-local PostgreSQL) left in place: guard block #4; odoo_src untouched",
+    "PostgreSQL-storage tours ran on the base_sha tree (worktree) because the opted-in tree needs the MongoDB URI to load its registry",
+    "mongo-run/unt13 (PR #143, w2-b04) merged into the branch; account.account.tag._translate_tax_tags now follows w2-b04's ORM path (_translate_tax_tags_documents)",
+    "MongoDB-storage tours and ORM probes re-run on the merged head on the reused scratch copy odoo_w2b03_mtour5 (all wave-1/2 merged units loaded under its prefix)",
+    "scratch copies odoo_w2b03_ptour1/2, mtour1/2 (run.sh) and ptour3/4 (run_pg.sh) were created and dropped from inside those scripts"
+  ]
+}
