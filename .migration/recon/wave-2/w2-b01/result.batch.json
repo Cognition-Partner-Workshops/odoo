@@ -1,0 +1,12 @@
+{
+ "batch": "w2-b01",
+ "status": "BLOCKED",
+ "recon_results": [],
+ "write_targets": [],
+ "one_line_summary": "halted before any write: all 5 units are many2many relation tables whose endpoint models all stay on PostgreSQL, and relation_layout() (odoo/orm/storage_mongodb.py:284) only routes a relation to MongoDB when its model or comodel has _storage='mongodb'; opting them in needs an out-of-batch model opt-in or a shared storage-path change (plan decision)",
+ "head_sha": "17f283cbbcb6ffbe2818ae8e51db2f78c27a1267",
+ "pr_url": "",
+ "branch": "devin/1792982506-unt14-41-w2-b01",
+ "failure_class": "plan_decision_required",
+ "manifest_sha": "29cd8df7d2a2"
+}
