@@ -1059,22 +1059,41 @@ def _check_key(model: BaseModel, parent_ids: typing.Iterable[int]) -> None:
             seen.add(key)
 
 
-def _check_unique(model: BaseModel, elements: typing.Iterable[dict]) -> None:
-    """ Enforce the model's own ``unique(...)`` constraints on the children
-    just written, across every parent of the collection, like the PostgreSQL
-    unique constraint (skipping NULLs). The spec's key within the parent is
-    ``_check_key``'s. """
+def _unique_keys(model: BaseModel, elements: list[dict]) -> typing.Iterator[tuple[str, list[str], list[dict]]]:
+    """ Yield, per unique constraint of the model whose columns are all child
+    document fields, its name, its paths and the keys ``elements`` hold
+    (a key with a NULL never collides, like in PostgreSQL). """
     layout = _layout(model)
     embed, paths = layout['embed'], layout['paths']
-    array = embed['array']
-    elements = list(elements)
-    for _name, columns in _unique_constraints(model):
+    for name, columns in _unique_constraints(model):
         if embed['parent'] in columns or any(column not in paths for column in columns):
             continue
         key_paths = [paths[column] for column in columns]
         keys = {tuple(element.get(path) for path in key_paths) for element in elements}
-        if not (keys := [dict(zip(key_paths, key)) for key in keys if None not in key]):
-            continue
+        if keys := sorted((key for key in keys if None not in key), key=repr):
+            yield name, key_paths, [dict(zip(key_paths, key)) for key in keys]
+
+
+def _lock_unique(model: BaseModel, elements: list[dict]) -> None:
+    """ Serialize the writers of one unique key across parents, which share
+    no parent row: a transaction-scoped advisory lock per constraint and key,
+    taken before the write and held until commit, so ``_check_unique`` sees
+    the concurrent write or runs after its rollback. """
+    locks = [
+        f"{model._table}.{name}:{json.dumps(key, sort_keys=True, default=str)}"
+        for name, _key_paths, keys in _unique_keys(model, elements)
+        for key in keys
+    ]
+    if locks:
+        model.env.cr.execute(SQL("SELECT pg_advisory_xact_lock(hashtext(k)) FROM unnest(%s) AS k", locks))
+
+
+def _check_unique(model: BaseModel, elements: list[dict]) -> None:
+    """ Enforce the model's own ``unique(...)`` constraints on the children
+    just written, across every parent of the collection, like the PostgreSQL
+    unique constraint. The spec's key within the parent is ``_check_key``'s. """
+    array = _layout(model)['embed']['array']
+    for _name, key_paths, keys in _unique_keys(model, elements):
         pipeline = [
             {'$match': {array: {'$elemMatch': {'$or': keys}}}},
             {'$unwind': f'${array}'},
@@ -1095,6 +1114,8 @@ def _insert_children(model: BaseModel, ids: list[int], rows: list[dict]) -> None
         doc = _document(model, id_, row)
         elements[doc.get(embed['parent_path'])].append(_element(embed, doc))
     _lock_parents(model, elements)
+    children = list(itertools.chain.from_iterable(elements.values()))
+    _lock_unique(model, children)
     array, id_path = embed['array'], embed['id_path']
     _add_undo(model.env.cr, lambda: collection.update_many(
         {'_id': {'$in': list(elements)}}, {'$pull': {array: {id_path: {'$in': ids}}}}))
@@ -1105,7 +1126,7 @@ def _insert_children(model: BaseModel, ids: list[int], rows: list[dict]) -> None
     if result.matched_count != len(elements):
         raise StorageError(f"{model._name}: parent documents missing in MongoDB for {sorted(elements)}")
     _check_key(model, elements)
-    _check_unique(model, itertools.chain.from_iterable(elements.values()))
+    _check_unique(model, children)
 
 
 def _update_children(model: BaseModel, priors: dict[int, dict], changes: list[tuple[int, dict, dict]]) -> None:
@@ -1127,6 +1148,7 @@ def _update_children(model: BaseModel, priors: dict[int, dict], changes: list[tu
     if not ops:
         return
     before = _elements(model, [id_ for id_, _set, _unset in changes])
+    _lock_unique(model, elements)
     _add_undo(model.env.cr, lambda: _restore_elements(collection, embed, before))
     collection.bulk_write(ops, ordered=True)
     _check_key(model, parents)

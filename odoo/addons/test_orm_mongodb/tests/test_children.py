@@ -1,3 +1,4 @@
+import json
 import traceback
 from unittest.mock import patch
 
@@ -132,6 +133,25 @@ class TestEmbeddedChildrenMongodb(TransactionCase):
         self.assertEqual(self.elements(self.size), before)
         self.size.value_ids[0].color = 2                                        # free: no violation
         self.assertEqual(self.elements(self.size)[0]['color'], 2)
+
+    def test_unique_constraint_locks_across_parents(self):
+        """ Writers of one unique key under different parents share no parent
+        row: the key is locked until the transaction ends, so a concurrent
+        writer waits for the commit or rollback instead of racing the check. """
+        lock = f'product_attribute_value.product_attribute_value_color_uniq:{json.dumps({"color": 7})}'
+        with self.registry.cursor() as other:
+            def other_can_lock():
+                other.execute("SELECT pg_try_advisory_xact_lock(hashtext(%s))", [lock])
+                taken, = other.fetchone()
+                other.rollback()                            # a transaction lock ends with its transaction
+                return taken
+
+            self.assertTrue(other_can_lock())
+            with self.env.cr.savepoint():
+                self.Value.create({'attribute_id': self.size.id, 'name': 'Seven', 'color': 7})
+                self.env.flush_all()
+                self.assertFalse(other_can_lock())          # held by this transaction
+            self.assertFalse(other_can_lock())              # until it ends, not the savepoint
 
     def test_unique_key_within_parent(self):
         Position = self.env['test_orm_mongodb.fiscal_position']
