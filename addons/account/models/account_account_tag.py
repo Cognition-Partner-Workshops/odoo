@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from odoo import api, fields, models, _
 from odoo.fields import Domain
 from odoo.tools import SQL
@@ -6,6 +8,7 @@ from odoo.exceptions import UserError
 
 class AccountAccountTag(models.Model):
     _name = 'account.account.tag'
+    _storage = 'mongodb'      # UNT14 wave 2 (w2-b04): documents in odoo_unt13.accountAccountTag (signed spec map-draft-5)
     _description = 'Account Tag'
 
     name = fields.Char('Tag Name', required=True, translate=True)
@@ -120,32 +123,50 @@ class AccountAccountTag(models.Model):
 
     def _translate_tax_tags(self, langs=None, tag_ids=None):
         """Translate tax tags having the same name as report lines."""
-        langs = list(langs or (code for code, _name in self.env['res.lang'].get_installed() if code != 'en_US'))
-        tag_domain = Domain('applicability', '=', 'taxes') & Domain('country_id', '!=', False)
+        langs = langs or (code for code, _name in self.env['res.lang'].get_installed() if code != 'en_US')
+        if self._storage == 'mongodb':
+            return self._translate_tax_tags_documents(list(langs), tag_ids)
+        for lang in langs:
+            self.env.cr.execute(SQL(
+                """
+                UPDATE account_account_tag tag
+                   SET name = tag.name || jsonb_build_object(%(lang)s, substring(tag.name->>'en_US' FOR 1) || (report_line.name->>%(lang)s))
+                  FROM account_report_line report_line
+                  JOIN account_report report ON report.id = report_line.report_id
+                 WHERE tag.applicability = 'taxes'
+                   AND tag.country_id = report.country_id
+                   AND tag.name->>'en_US' = substring(tag.name->>'en_US' FOR 1) || (report_line.name->>'en_US')
+                   AND tag.name->>%(lang)s != substring(tag.name->>'en_US' FOR 1) || (report_line.name->>%(lang)s)
+                   %(and_tag_ids)s
+                """,
+                lang=lang,
+                and_tag_ids=SQL('AND tag.id IN %s', tuple(tag_ids)) if tag_ids else SQL(''),
+            ))
+
+    def _translate_tax_tags_documents(self, langs, tag_ids):
+        """ The query above over the tag documents: the names of the tags are
+        not in the PostgreSQL table. A tag is retranslated in a language only
+        when both it and the report line have a value there. """
+        domain = Domain('applicability', '=', 'taxes') & Domain('country_id', '!=', False)
         if tag_ids:
-            tag_domain &= Domain('id', 'in', tuple(tag_ids))
-        tags = self.sudo().with_context(active_test=False, lang='en_US').search(tag_domain)
-        if not langs or not tags:
+            domain &= Domain('id', 'in', tag_ids)
+        tags = self.with_context(active_test=False).sudo().search(domain)
+        if not tags:
             return
-        # account.report is stored in MongoDB, so report lines are matched through the ORM
-        # (report country, then the line name in en_US) instead of a SQL join on account_report.
-        reports = self.env['account.report'].sudo().with_context(active_test=False).search(
-            [('country_id', 'in', tags.country_id.ids)])
-        lines_by_key = {}
-        for line in self.env['account.report.line'].sudo().with_context(active_test=False, lang='en_US').search(
-                [('report_id', 'in', reports.ids)]):
-            lines_by_key.setdefault((line.report_id.country_id.id, line.name), line)
+        line_names = defaultdict(list)      # (country_id, en_US name) -> [{lang: name}]
+        for line in self.env['account.report.line'].sudo().search([('report_id.country_id', 'in', tags.country_id.ids)]):
+            names = line._get_stored_translations('name') or {}
+            line_names[line.report_id.country_id.id, names.get('en_US')].append(names)
         for tag in tags:
-            sign, base_name = tag.name[:1], tag.name[1:]
-            line = lines_by_key.get((tag.country_id.id, base_name))
-            if not line:
-                continue
-            line_names = line._get_stored_translations('name') or {}
-            tag_names = tag._get_stored_translations('name') or {}
+            names = tag._get_stored_translations('name') or {}
+            sign, base = (names.get('en_US') or '')[:1], (names.get('en_US') or '')[1:]
+            translations = {}
             for lang in langs:
-                # same rule as the former SQL: only a tag that already carries ``lang``
-                # follows a report line that is translated in ``lang``
-                if lang in tag_names and line_names.get(lang) is not None:
-                    translated = sign + line_names[lang]
-                    if tag_names[lang] != translated:
-                        tag.with_context(lang=lang).name = translated
+                if names.get(lang) is None:
+                    continue
+                for line_name in line_names.get((tag.country_id.id, base), ()):
+                    if line_name.get(lang) is not None and names[lang] != sign + line_name[lang]:
+                        translations[lang] = sign + line_name[lang]
+                        break
+            if translations:
+                tag.update_field_translations('name', translations)

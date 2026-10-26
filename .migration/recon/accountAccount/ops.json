@@ -1,0 +1,112 @@
+[
+  {
+    "name": "chart_per_company",
+    "collection": "accountAccount",
+    "note": "AccountAccount company_ids (account_account_res_company_rel, addons/account/models/account_account.py:121) and the chart of accounts list per company: each account with its type, reconcile flag, parent and the companies it belongs to (active_test off)",
+    "source_sql": "SELECT a.id, a.account_type, a.reconcile, a.non_trade, a.active, a.parent_id, r.res_company_id AS company_id FROM account_account a JOIN account_account_res_company_rel r ON r.account_account_id = a.id ORDER BY a.id, r.res_company_id",
+    "target_pipeline": [
+      {
+        "$unwind": "$resCompanyRel"
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "account_type": "$accountType",
+          "reconcile": {
+            "$ifNull": [
+              "$reconcile",
+              null
+            ]
+          },
+          "non_trade": {
+            "$ifNull": [
+              "$nonTrade",
+              null
+            ]
+          },
+          "active": {
+            "$ifNull": [
+              "$active",
+              null
+            ]
+          },
+          "parent_id": {
+            "$ifNull": [
+              "$parentId",
+              null
+            ]
+          },
+          "company_id": "$resCompanyRel.resCompanyId"
+        }
+      }
+    ],
+    "rules": [
+      "null_missing_equiv"
+    ]
+  },
+  {
+    "name": "codes_per_company",
+    "collection": "accountAccount",
+    "note": "AccountAccount._compute_code / _search_placeholder_code (addons/account/models/account_account.py:47-49, 340-405): the company-dependent code_store map flattened to one row per account and company",
+    "source_sql": "SELECT a.id, c.key AS company_id, c.value AS code FROM account_account a, jsonb_each_text(a.code_store) c ORDER BY a.id, c.key",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "codes": {
+            "$objectToArray": {
+              "$ifNull": [
+                "$codeStore",
+                {}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "$unwind": "$codes"
+      },
+      {
+        "$project": {
+          "id": 1,
+          "company_id": "$codes.k",
+          "code": "$codes.v"
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "tags_and_default_taxes",
+    "collection": "accountAccount",
+    "note": "AccountAccount.tag_ids and tax_ids (addons/account/models/account_account.py:116-130): how many tags and default taxes each account carries (the embedded relation arrays)",
+    "source_sql": "SELECT a.id, (SELECT count(*) FROM account_account_account_tag r WHERE r.account_account_id = a.id) AS tags, (SELECT count(*) FROM account_account_tax_default_rel r WHERE r.account_id = a.id) AS default_taxes FROM account_account a ORDER BY a.id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "tags": {
+            "$size": {
+              "$ifNull": [
+                "$accountTag",
+                []
+              ]
+            }
+          },
+          "default_taxes": {
+            "$size": {
+              "$ifNull": [
+                "$taxDefaultRel",
+                []
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "rules": []
+  }
+]

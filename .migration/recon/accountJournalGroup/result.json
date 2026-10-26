@@ -1,0 +1,98 @@
+{
+  "unit": "accountJournalGroup",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
+  "tolerance_version": "1",
+  "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416",
+  "git_head": "12944a6d50e8aed0a0e50727f6573782cc12016f",
+  "git_dirty": false,
+  "source_db": "odoo_src",
+  "source_server": "hmac-sha256:545efbd0aca82e45",
+  "ops_sha256": "7b2d9726fb5ab012a6148fc5752eb8cdd5f4a9ce6f0c52ee81110a829510e79f",
+  "collections": [
+    "accountJournalGroup"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-26T03:33:42.355216+00:00",
+  "redacted": true,
+  "redaction_salted": true,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {
+        "source_counts": {
+          "accountJournalGroup": 2
+        },
+        "embed_source_counts": {}
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 4,
+      "stats": {
+        "deferred_to_tier3": [
+          "accountJournalGroup.sequence",
+          "accountJournalGroup.createUid",
+          "accountJournalGroup.writeUid",
+          "accountJournalGroup.name",
+          "accountJournalGroup.createDate",
+          "accountJournalGroup.writeDate"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "accountJournalGroup.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "accountJournalGroup.name",
+            "key": "accountJournalGroup"
+          }
+        ],
+        "fields_fully_deferred": 2
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {
+        "accountJournalGroup": {
+          "mode": "full_diff",
+          "population": 2,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": true,
+  "error": null
+}

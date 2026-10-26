@@ -1,0 +1,39 @@
+{
+ "batch": "w2-b01",
+ "status": "PASS",
+ "recon_results": [
+  ".migration/recon/accountJournalGroup/result.json",
+  ".migration/recon/productBaseUnit/result.json",
+  ".migration/recon/productDocument/result.json",
+  ".migration/recon/stockScrapReasonTag/result.json",
+  ".migration/recon/productRemoval/result.json"
+ ],
+ "write_targets": [
+  "odoo_unt13.accountJournalGroup",
+  "odoo_unt13.productBaseUnit",
+  "odoo_unt13.productDocument",
+  "odoo_unt13.productRemoval",
+  "odoo_unt13.stockScrapReasonTag"
+ ],
+ "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/142",
+ "branch": "devin/unt14-49-w2-b01",
+ "failure_class": "",
+ "one_line_summary": "accountJournalGroup, productBaseUnit, productDocument, stockScrapReasonTag, productRemoval: live PASS Tiers 1-4 (5 root-only units, 13 rows, 2 Tier 4 ops each) from odoo_src into odoo_unt13 via the shared loader at source concurrency 1, salted source fingerprint a100e84e matches, merge_eligible true on all 5; fixture-first evidence under <unit>/fixture/; owning-addon tours 14/15 on PostgreSQL storage and 14/15 on MongoDB storage (same test_inventory_adjustment_apply_all failure on both, on the unchanged base tree too); ORM create/search/write/unlink probe passed for all 5 models on MongoDB storage; scratch prefixes odoo_w2b01_ptour__ 1->0, odoo_w2b01_mtour__ 6->0, odoo_w2b01_probe__ 6->0; Devin Review clean on head_sha with 0 unresolved threads",
+ "head_sha": "9b90e5561056f14661b2e5d77a719c36ba864158",
+ "base_sha": "2f68f2104edab31476cb9ebc3f53635de3afcd7a",
+ "manifest_sha": "ef5b8af24b0b",
+ "scratch_prefixes": {
+  "odoo_w2b01_ptour__": {
+   "before_cleanup": 1,
+   "after_cleanup": 0
+  },
+  "odoo_w2b01_mtour__": {
+   "before_cleanup": 6,
+   "after_cleanup": 0
+  },
+  "odoo_w2b01_probe__": {
+   "before_cleanup": 6,
+   "after_cleanup": 0
+  }
+ }
+}

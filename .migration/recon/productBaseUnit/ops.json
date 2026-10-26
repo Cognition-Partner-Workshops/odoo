@@ -1,0 +1,53 @@
+[
+  {
+    "name": "base_units_by_name",
+    "collection": "productBaseUnit",
+    "note": "ProductBaseUnit._order = 'name' (addons/product/models/product_base_unit.py:7): the Many2one dropdown for product_template.base_unit_id lists units ordered by the translated name; whole population",
+    "source_sql": "SELECT id, name->>'en_US' AS name FROM product_base_unit ORDER BY name->>'en_US', id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "name": "$name.en_US"
+        }
+      },
+      {
+        "$sort": {
+          "name": 1,
+          "id": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "base_unit_count",
+    "collection": "productBaseUnit",
+    "note": "count of custom price-per-unit units (product_product.base_unit_name, addons/product/models/product_product.py:645 reads base_unit_id.name)",
+    "source_sql": "SELECT count(*) AS units, count(DISTINCT name->>'en_US') AS distinct_names FROM product_base_unit",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": null,
+          "units": {
+            "$sum": 1
+          },
+          "names": {
+            "$addToSet": "$name.en_US"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "units": 1,
+          "distinct_names": {
+            "$size": "$names"
+          }
+        }
+      }
+    ],
+    "rules": []
+  }
+]

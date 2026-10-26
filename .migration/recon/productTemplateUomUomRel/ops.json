@@ -1,0 +1,42 @@
+[
+  {
+    "name": "template_packagings",
+    "collection": "productTemplateUomUomRel",
+    "note": "ProductTemplate.uom_ids (addons/product/models/product_template.py:160): the additional packagings of each template as the many2many reads them",
+    "source_sql": "SELECT product_template_id, uom_uom_id FROM product_template_uom_uom_rel ORDER BY product_template_id, uom_uom_id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "product_template_id": "$productTemplateId",
+          "uom_uom_id": "$uomUomId"
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "packagings_per_template",
+    "collection": "productTemplateUomUomRel",
+    "note": "ProductTemplate.uom_ids count per template (the packaging selector on the sale line)",
+    "source_sql": "SELECT product_template_id, count(*) AS packagings FROM product_template_uom_uom_rel GROUP BY product_template_id ORDER BY product_template_id",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": "$productTemplateId",
+          "packagings": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "product_template_id": "$_id",
+          "packagings": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]

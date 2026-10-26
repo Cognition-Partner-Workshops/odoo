@@ -1,0 +1,53 @@
+[
+  {
+    "name": "removal_methods_in_id_order",
+    "collection": "productRemoval",
+    "note": "StockQuant._get_removal_strategy (addons/stock/models/stock_quant.py:650-660): reads removal_strategy_id.with_context(lang=None).method, the en_US source value; whole population in id order",
+    "source_sql": "SELECT id, name->>'en_US' AS name, method->>'en_US' AS method FROM product_removal ORDER BY id",
+    "target_pipeline": [
+      {
+        "$sort": {
+          "_id": 1
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "name": "$name.en_US",
+          "method": "$method.en_US"
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "pos_methods",
+    "collection": "productRemoval",
+    "note": "pos_stock ProductRemoval._load_pos_data_fields (addons/pos_stock/models/product_removal.py:10) loads ['method'] for every strategy: strategies per method",
+    "source_sql": "SELECT method->>'en_US' AS method, count(*) AS strategies FROM product_removal GROUP BY method->>'en_US' ORDER BY method->>'en_US'",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": "$method.en_US",
+          "strategies": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$sort": {
+          "_id": 1
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "method": "$_id",
+          "strategies": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]

@@ -17,6 +17,7 @@ _logger = logging.getLogger(__name__)
 class AccountJournalGroup(models.Model):
     _name = 'account.journal.group'
     _description = "Account Journal Group"
+    _storage = 'mongodb'      # UNT14 wave 2 w2-b01: documents in odoo_unt13.accountJournalGroup (signed spec map-draft-5)
 
     name = fields.Char("Ledger group", required=True, translate=True)
 
