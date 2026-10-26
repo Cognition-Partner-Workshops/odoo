@@ -201,6 +201,57 @@ class TestStorageMongodb(TransactionCase):
         tag.sequence = 3
         self.assertEqual(Tag._read_group([('id', '=', tag.id)], ['sequence'], ['__count']), [(3, 1)])
 
+    def test_search_then_read_is_one_round_trip(self):
+        Tag = self.env['test_orm_mongodb.tag']
+        tags = Tag.create([{'name': f'One trip {n}', 'sequence': 778 + n} for n in range(3)])
+        self.env.flush_all()
+        self.env.invalidate_all()
+        domain = [('sequence', 'in', [778, 779, 780])]
+        Collection = pymongo.collection.Collection
+        with patch.object(Collection, 'aggregate', autospec=True, side_effect=Collection.aggregate) as aggregate:
+            # the search runs with the read's projection: one pipeline, not an id search and a fetch
+            self.assertEqual(
+                Tag.search_read(domain, ['name', 'sequence'], order='sequence desc'),
+                [{'id': tag.id, 'name': tag.name, 'sequence': tag.sequence} for tag in reversed(tags)],
+            )
+            self.assertEqual(aggregate.call_count, 1)
+            # search_fetch alike, and the ids keep the search order
+            self.assertEqual(Tag.search_fetch(domain, ['name'], order='sequence', limit=2), tags[:2])
+            self.assertEqual(aggregate.call_count, 2)
+            name_path = storage_mongodb._layout(Tag)['paths']['name']
+            self.assertEqual(aggregate.call_args.args[1][-1], {'$project': {'_id': 1, name_path: 1}})
+            # a search whose ids are used before any fetch runs once, with ids only
+            self.assertEqual(Tag.search(domain, order='id').ids, tags.ids)
+            self.assertEqual(aggregate.call_count, 3)
+            self.assertEqual(aggregate.call_args.args[1][-1], {'$project': {'_id': 1}})
+            self.assertEqual(Tag.search_count(domain), 3)
+
+    def test_many2one_subsearches_run_together(self):
+        Tag = self.env['test_orm_mongodb.tag']
+        Link = self.env['test_orm_mongodb.pg_link']
+        tag_a, tag_b = Tag.create([{'name': 'Facet A', 'sequence': 901}, {'name': 'Facet B', 'sequence': 902}])
+        link = Link.create({'name': 'facet', 'tag_id': tag_a.id, 'restrict_tag_id': tag_b.id})
+        Link.create({'name': 'other', 'tag_id': tag_b.id, 'restrict_tag_id': tag_a.id})
+        self.env.flush_all()
+        self.env.invalidate_all()
+        Collection = pymongo.collection.Collection
+        with patch.object(Collection, 'aggregate', autospec=True, side_effect=Collection.aggregate) as aggregate:
+            # two many2one conditions on the same MongoDB comodel: one $facet round trip
+            # answers both subsearches, their one-by-one runs come from the cache
+            self.assertEqual(Link.search([('tag_id.sequence', '=', 901), ('restrict_tag_id.name', '=', 'Facet B')]), link)
+            self.assertEqual(aggregate.call_count, 1)
+            self.assertEqual(list(aggregate.call_args.args[1][0]), ['$facet'])
+            # negative conditions take part in the same round trip
+            self.assertEqual(
+                Link.search([('tag_id.sequence', '!=', 902), ('restrict_tag_id', 'not any', [('sequence', '=', 901)])]),
+                link,
+            )
+            self.assertEqual(aggregate.call_count, 2)
+            # a single subsearch runs on its own, without a $facet
+            self.assertEqual(Link.search([('tag_id.sequence', '=', 902)]).name, 'other')
+            self.assertEqual(aggregate.call_count, 3)
+            self.assertNotIn('$facet', aggregate.call_args.args[1][0])
+
     def test_repeated_search_is_one_round_trip(self):
         Tag = self.env['test_orm_mongodb.tag']
         tags = Tag.create([{'name': f'Round trip {n}', 'sequence': 777} for n in range(3)])
