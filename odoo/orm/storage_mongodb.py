@@ -56,12 +56,14 @@ def _cached_aggregate(model: BaseModel, stages: list[dict], **options) -> list[d
     repeat of the same pipeline from the transaction's cache instead of a
     new round trip.
 
-    Within one transaction the documents only change through this module's
-    writes, every one of which goes through ``_add_undo`` and clears the
-    cache (also when a savepoint rollback replays its undo); the cache
-    itself lives in ``cr.cache``, which the transaction clears on commit and
-    rollback. Other transactions' writes stay invisible until then, as rows
-    do under PostgreSQL's REPEATABLE READ snapshot.
+    The transaction's own writes all go through ``_add_undo``, which drops
+    the cache on the write and again when a savepoint rollback replays the
+    undo, so they stay visible to its next search; the cache itself lives in
+    ``cr.cache``, which the transaction drops on commit and rollback.
+    Documents have no isolation between transactions (another transaction's
+    write, and its rollback, show up in the next aggregation at once, before
+    it commits); the cache keeps the state first read for the rest of the
+    transaction, as ``env.cache`` already does for the records it holds.
     """
     cache = model.env.cr.cache.setdefault(_AGGREGATE_CACHE, {})
     key = (
@@ -79,12 +81,11 @@ def _cached_aggregate(model: BaseModel, stages: list[dict], **options) -> list[d
 
 def _add_undo(cr, func: typing.Callable[[], typing.Any]) -> None:
     """ Register ``func`` as the undo of a MongoDB write (``cr.add_undo``);
-    the write, like its undo, invalidates the transaction's aggregation cache. """
-    cache = cr.cache.setdefault(_AGGREGATE_CACHE, {})
-    cache.clear()
+    the write, like its undo, drops the transaction's aggregation cache. """
+    cr.cache.pop(_AGGREGATE_CACHE, None)
 
     def undo():
-        cache.clear()
+        cr.cache.pop(_AGGREGATE_CACHE, None)
         func()
 
     cr.add_undo(undo)

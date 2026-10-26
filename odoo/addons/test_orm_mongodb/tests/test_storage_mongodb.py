@@ -229,6 +229,16 @@ class TestStorageMongodb(TransactionCase):
                 self.assertEqual(Tag.search(domain, order='id'), tags[0])
                 1 / 0
             self.assertEqual(Tag.search(domain, order='id'), tags[0] | tags[2])
+            # also when the savepoint does not flush and the transaction cache was
+            # replaced in between (the undo drops whichever cache is current)
+            with self.assertRaises(ZeroDivisionError), self.env.cr.savepoint(flush=False):
+                tags[2].name = 'Round trip 2 renamed'
+                self.env.flush_all()
+                self.env.clear()
+                self.assertEqual(Tag.search([('name', '=', 'Round trip 2 renamed')]), tags[2])
+                1 / 0
+            self.assertFalse(Tag.search([('name', '=', 'Round trip 2 renamed')]))
+            self.assertEqual(Tag.search(domain, order='id'), tags[0] | tags[2])
 
     def test_unlink_set_null_is_flushed(self):
         Template = self.env['test_orm_mongodb.template']
