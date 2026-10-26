@@ -1,0 +1,100 @@
+{
+  "unit": "stockReference",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
+  "tolerance_version": "1",
+  "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416",
+  "git_head": "24ec4b56d6cb841624ecc6f9519c31d2608d9bfc",
+  "git_dirty": false,
+  "source_db": "odoo_src",
+  "source_server": "hmac-sha256:545efbd0aca82e45",
+  "ops_sha256": "c326ab61859a0550acbc5d650f7e62035db581123fbb77a89f9f1d182c368523",
+  "collections": [
+    "stockReference"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-26T04:11:27.632463+00:00",
+  "redacted": true,
+  "redaction_salted": true,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 7,
+      "stats": {
+        "source_counts": {
+          "stockReference": 121
+        },
+        "embed_source_counts": {
+          "stockReference.moveRel": 281,
+          "stockReference.purchaseRel": 8,
+          "stockReference.saleRel": 114
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 3,
+      "stats": {
+        "deferred_to_tier3": [
+          "stockReference.createUid",
+          "stockReference.writeUid",
+          "stockReference.name",
+          "stockReference.createDate",
+          "stockReference.writeDate"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "stockReference.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "fields_fully_deferred": 2
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 524,
+      "stats": {
+        "stockReference": {
+          "mode": "full_diff",
+          "population": 121,
+          "duplicate_source_key_count": 0
+        },
+        "embeds_graded": {
+          "stockReference.moveRel": 281,
+          "stockReference.purchaseRel": 8,
+          "stockReference.saleRel": 114
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": true,
+  "error": null
+}

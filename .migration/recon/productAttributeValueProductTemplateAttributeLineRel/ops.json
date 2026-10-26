@@ -1,0 +1,64 @@
+[
+  {
+    "name": "values_per_line",
+    "collection": "productAttributeValueProductTemplateAttributeLineRel",
+    "note": "product.template.attribute.line.value_ids many2many owner (addons/product/models/product_template_attribute_line.py:32): values per attribute line with the lowest value id, as the configurator reads them",
+    "source_sql": "SELECT product_template_attribute_line_id AS line_id, count(*) AS values, min(product_attribute_value_id) AS first_value FROM product_attribute_value_product_template_attribute_line_rel GROUP BY product_template_attribute_line_id ORDER BY product_template_attribute_line_id",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": "$productTemplateAttributeLineId",
+          "values": {
+            "$sum": 1
+          },
+          "first_value": {
+            "$min": "$productAttributeValueId"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "line_id": "$_id",
+          "values": 1,
+          "first_value": 1
+        }
+      },
+      {
+        "$sort": {
+          "line_id": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "lines_per_value",
+    "collection": "productAttributeValueProductTemplateAttributeLineRel",
+    "note": "product.attribute.value.pav_attribute_line_ids inverse side (addons/product/models/product_attribute_value.py:29): attribute lines per value, the count behind a value's template usage",
+    "source_sql": "SELECT product_attribute_value_id AS value_id, count(*) AS lines FROM product_attribute_value_product_template_attribute_line_rel GROUP BY product_attribute_value_id ORDER BY product_attribute_value_id",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": "$productAttributeValueId",
+          "lines": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "value_id": "$_id",
+          "lines": 1
+        }
+      },
+      {
+        "$sort": {
+          "value_id": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]
