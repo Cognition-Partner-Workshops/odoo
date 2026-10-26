@@ -14,6 +14,7 @@ class ProductTemplateAttributeValue(models.Model):
 
     _name = 'product.template.attribute.value'
     _description = "Product Template Attribute Value"
+    _storage = 'mongodb'      # UNT14 wave 4 w4-b03: embedded as odoo_unt13.productTemplateAttributeLine.productTemplateAttributeValue (signed spec map-draft-5)
     _order = 'sequence, attribute_line_id, product_attribute_value_id, id'
 
     def _get_default_color(self):

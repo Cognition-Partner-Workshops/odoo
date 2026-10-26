@@ -1,0 +1,68 @@
+[
+ {
+  "name": "move_id_links",
+  "collection": "templateAttributeValueStockMoveRel",
+  "note": "stock.move.never_product_template_attribute_value_ids many2many owner (addons/stock/models/stock_move.py:47): never-attribute values per move with the lowest value id",
+  "source_sql": "SELECT move_id, count(*) AS links, min(template_attribute_value_id) AS first_template_attribute_value_id FROM template_attribute_value_stock_move_rel GROUP BY move_id ORDER BY move_id",
+  "target_pipeline": [
+   {
+    "$group": {
+     "_id": "$moveId",
+     "links": {
+      "$sum": 1
+     },
+     "first_template_attribute_value_id": {
+      "$min": "$templateAttributeValueId"
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "move_id": "$_id",
+     "links": 1,
+     "first_template_attribute_value_id": 1
+    }
+   },
+   {
+    "$sort": {
+     "move_id": 1
+    }
+   }
+  ],
+  "rules": []
+ },
+ {
+  "name": "template_attribute_value_id_links",
+  "collection": "templateAttributeValueStockMoveRel",
+  "note": "the inverse side: moves carrying each never-attribute value with the lowest move id",
+  "source_sql": "SELECT template_attribute_value_id, count(*) AS links, min(move_id) AS first_move_id FROM template_attribute_value_stock_move_rel GROUP BY template_attribute_value_id ORDER BY template_attribute_value_id",
+  "target_pipeline": [
+   {
+    "$group": {
+     "_id": "$templateAttributeValueId",
+     "links": {
+      "$sum": 1
+     },
+     "first_move_id": {
+      "$min": "$moveId"
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "template_attribute_value_id": "$_id",
+     "links": 1,
+     "first_move_id": 1
+    }
+   },
+   {
+    "$sort": {
+     "template_attribute_value_id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]
