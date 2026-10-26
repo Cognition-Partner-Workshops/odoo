@@ -1,0 +1,279 @@
+{
+  "unit": "productCategory",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
+  "tolerance_version": "1",
+  "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416",
+  "git_head": "e987b78c3002cdb627f4a45da71736c4e1500ee9",
+  "git_dirty": false,
+  "source_db": "odoo_src",
+  "source_server": "hmac-sha256:545efbd0aca82e45",
+  "ops_sha256": "e410c5367439df96436300e023056bd4335b12df5314c807ca48439875153f4a",
+  "collections": [
+    "productCategory"
+  ],
+  "seed": 1,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-26T03:40:02.278542+00:00",
+  "redacted": true,
+  "redaction_salted": true,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 9,
+      "stats": {
+        "source_counts": {
+          "productCategory": 20
+        },
+        "embed_source_counts": {
+          "productCategory.stockPickingTypeRel": 4
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 6,
+      "stats": {
+        "deferred_to_tier3": [
+          "productCategory.parentId",
+          "productCategory.companyId",
+          "productCategory.createUid",
+          "productCategory.writeUid",
+          "productCategory.parentPath",
+          "productCategory.name",
+          "productCategory.productPropertiesDefinition",
+          "productCategory.createDate",
+          "productCategory.writeDate",
+          "productCategory.propertyAccountIncomeCategId",
+          "productCategory.propertyAccountExpenseCategId",
+          "productCategory.propertyValuation",
+          "productCategory.propertyStockValuationAccountId",
+          "productCategory.propertyStockJournal",
+          "productCategory.propertyCostMethod",
+          "productCategory.propertyPriceDifferenceAccountId",
+          "productCategory.removalStrategyId",
+          "productCategory.packagingReserveMethod",
+          "productCategory.propertyAccountBillsToReceiveId",
+          "productCategory.propertyAccountBilledNotReceivedId",
+          "productCategory.propertyAccountInvoicesToIssueId",
+          "productCategory.propertyAccountInvoicedNotDeliveredId"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "productCategory.parentPath",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.productPropertiesDefinition",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyAccountIncomeCategId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyAccountExpenseCategId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyValuation",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyStockValuationAccountId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyStockJournal",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyCostMethod",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyPriceDifferenceAccountId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.packagingReserveMethod",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyAccountBillsToReceiveId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyAccountBilledNotReceivedId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyAccountInvoicesToIssueId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productCategory.propertyAccountInvoicedNotDeliveredId",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "productCategory.name",
+            "key": "productCategory"
+          },
+          {
+            "field": "productCategory.productPropertiesDefinition",
+            "key": "productCategory"
+          },
+          {
+            "field": "productCategory.propertyAccountIncomeCategId",
+            "key": "productCategory"
+          },
+          {
+            "field": "productCategory.propertyAccountExpenseCategId",
+            "key": "productCategory"
+          },
+          {
+            "field": "productCategory.propertyValuation",
+            "key": "productCategory"
+          },
+          {
+            "field": "productCategory.propertyStockValuationAccountId",
+            "key": "productCategory"
+          },
+          {
+            "field": "productCategory.propertyStockJournal",
+            "key": "productCategory"
+          },
+          {
+            "field": "productCategory.propertyCostMethod",
+            "key": "productCategory"
+          },
+          {
+            "field": "productCategory.propertyPriceDifferenceAccountId",
+            "key": "productCategory"
+          },
+          {
+            "field": "productCategory.propertyAccountBillsToReceiveId",
+            "key": "productCategory"
+          },
+          {
+            "field": "productCategory.propertyAccountBilledNotReceivedId",
+            "key": "productCategory"
+          },
+          {
+            "field": "productCategory.propertyAccountInvoicesToIssueId",
+            "key": "productCategory"
+          },
+          {
+            "field": "productCategory.propertyAccountInvoicedNotDeliveredId",
+            "key": "productCategory"
+          }
+        ],
+        "fields_fully_deferred": 16
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 24,
+      "stats": {
+        "productCategory": {
+          "mode": "full_diff",
+          "population": 20,
+          "duplicate_source_key_count": 0
+        },
+        "embeds_graded": {
+          "productCategory.stockPickingTypeRel": 4
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": true,
+  "error": null
+}
