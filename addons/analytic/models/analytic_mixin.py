@@ -1,4 +1,5 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
+import re
 from collections import defaultdict
 
 from odoo import _, api, fields, models
@@ -122,6 +123,42 @@ class AnalyticMixin(models.AbstractModel):
                 ids,
                 table.analytic_distribution,
             ))
+
+    def _read_group(self, domain, groupby=(), aggregates=(), having=(), offset=0, limit=None, order=None):
+        # Documents are aggregated by storage_mongodb, which never calls _read_group_groupby:
+        # grouping by `analytic_distribution` needs the same explode-and-count through the ORM.
+        if self._storage == 'mongodb' and list(groupby) == ['analytic_distribution']:
+            return self._read_group_analytic_distribution(domain, aggregates, having, offset, limit, order)
+        return super()._read_group(domain, groupby, aggregates, having, offset, limit, order)
+
+    def _read_group_analytic_distribution(self, domain, aggregates, having, offset, limit, order):
+        """ORM counterpart of `_read_group_groupby`: one row per analytic account found in the
+        keys of `analytic_distribution`, counting the distinct `_get_count_field` values."""
+        aggregates = list(aggregates)
+        if aggregates != ['__count']:
+            raise ValueError(f"analytic_distribution grouping does not accept {', '.join(aggregates) or 'no aggregate'} as aggregate.")
+        if having or offset or limit or order not in (None, '', 'analytic_distribution'):
+            raise ValueError("analytic_distribution grouping does not accept having, offset, limit or order.")
+        count_field = self._get_count_field()
+        counted = defaultdict(set)
+        for record in self.search_fetch(domain, ['analytic_distribution', count_field]):
+            counted_value = record[count_field]
+            counted_id = counted_value.id if isinstance(counted_value, models.BaseModel) else counted_value
+            for key in (record.analytic_distribution or {}):
+                for account_id in re.findall(r'\d+', key):
+                    counted[int(account_id)].add(counted_id)
+        return [(account_id, len(ids)) for account_id, ids in sorted(counted.items())]
+
+    def _get_count_field(self):
+        """Field counted per analytic account, the ORM name of `_get_count_id`'s column."""
+        match self._table:
+            case 'account_move_line':
+                return 'move_id'
+            case 'purchase_order_line':
+                return 'order_id'
+            case 'account_asset' | 'hr_expense':
+                return 'id'
+        raise ValueError(f"{self._table} does not support analytic_distribution grouping.")
 
     def _read_group_groupby(self, table, groupby_spec) -> SQL:
         """To group by `analytic_distribution`, we first need to separate the analytic_ids and associate them with the ids to be counted

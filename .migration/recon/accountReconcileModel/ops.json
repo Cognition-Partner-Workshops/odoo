@@ -1,0 +1,102 @@
+[
+  {
+    "name": "models_in_sequence_order",
+    "collection": "accountReconcileModel",
+    "note": "account.reconcile.model search in _order = 'sequence, id' (addons/account/models/account_reconcile_model.py): rule type, trigger, matching order, active flag and company of every model as the bank reconciliation widget lists them; all rows (active_test off)",
+    "source_sql": "SELECT id, sequence, rule_type, trigger, matching_order, active, company_id FROM account_reconcile_model ORDER BY sequence, id",
+    "target_pipeline": [
+      {
+        "$sort": {
+          "sequence": 1,
+          "_id": 1
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "sequence": {
+            "$ifNull": [
+              "$sequence",
+              null
+            ]
+          },
+          "rule_type": {
+            "$ifNull": [
+              "$ruleType",
+              null
+            ]
+          },
+          "trigger": {
+            "$ifNull": [
+              "$trigger",
+              null
+            ]
+          },
+          "matching_order": {
+            "$ifNull": [
+              "$matchingOrder",
+              null
+            ]
+          },
+          "active": {
+            "$ifNull": [
+              "$active",
+              null
+            ]
+          },
+          "company_id": {
+            "$ifNull": [
+              "$companyId",
+              null
+            ]
+          }
+        }
+      }
+    ],
+    "rules": [
+      "null_missing_equiv"
+    ]
+  },
+  {
+    "name": "lines_and_partners_per_model",
+    "collection": "accountReconcileModel",
+    "note": "account.reconcile.model.line_ids one2many (embedded as accountReconcileModel.line) and match_partner_ids many2many (embedded as resPartnerRel): write-off lines, their lowest account and matched partners per model; models without lines or partners included with 0",
+    "source_sql": "SELECT m.id AS model_id, (SELECT count(*) FROM account_reconcile_model_line l WHERE l.model_id = m.id) AS lines, (SELECT min(l.account_id) FROM account_reconcile_model_line l WHERE l.model_id = m.id) AS first_account, (SELECT count(*) FROM account_reconcile_model_res_partner_rel r WHERE r.account_reconcile_model_id = m.id) AS partners FROM account_reconcile_model m ORDER BY m.id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "model_id": "$_id",
+          "lines": {
+            "$size": {
+              "$ifNull": [
+                "$line",
+                []
+              ]
+            }
+          },
+          "first_account": {
+            "$min": "$line.accountId"
+          },
+          "partners": {
+            "$size": {
+              "$ifNull": [
+                "$resPartnerRel",
+                []
+              ]
+            }
+          }
+        }
+      },
+      {
+        "$sort": {
+          "model_id": 1
+        }
+      }
+    ],
+    "rules": [
+      "null_missing_equiv"
+    ]
+  }
+]
