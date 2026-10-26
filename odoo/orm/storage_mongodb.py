@@ -38,6 +38,7 @@ from odoo.tools import SQL, date_utils, split_every, sql
 from odoo.tools.constants import IN_MAX
 
 from .domains import Domain, DomainAnd, DomainBool, DomainCondition, DomainCustom, DomainNot, DomainOr
+from .query import Query
 
 if typing.TYPE_CHECKING:
     from .fields import Field
@@ -66,10 +67,7 @@ def _cached_aggregate(model: BaseModel, stages: list[dict], **options) -> list[d
     transaction, as ``env.cache`` already does for the records it holds.
     """
     cache = model.env.cr.cache.setdefault(_AGGREGATE_CACHE, {})
-    key = (
-        get_collection(model).full_name,
-        hashlib.sha256(json.dumps([stages, options], default=str, sort_keys=True).encode()).hexdigest(),
-    )
+    key = _aggregate_key(model, stages, options)
     if (docs := cache.get(key)) is None:
         with get_collection(model).aggregate(stages, **options) as cursor:
             docs = list(cursor)
@@ -77,6 +75,21 @@ def _cached_aggregate(model: BaseModel, stages: list[dict], **options) -> list[d
             cache.clear()
         cache[key] = docs
     return docs
+
+
+def _aggregate_key(model: BaseModel, stages: list[dict], options: dict) -> tuple[str, str]:
+    return (
+        get_collection(model).full_name,
+        hashlib.sha256(json.dumps([stages, options], default=str, sort_keys=True).encode()).hexdigest(),
+    )
+
+
+def _prime_aggregate(model: BaseModel, stages: list[dict], docs: list[dict], **options) -> None:
+    """ Cache ``docs`` as the result of ``stages``, for ``_cached_aggregate``. """
+    cache = model.env.cr.cache.setdefault(_AGGREGATE_CACHE, {})
+    if len(cache) >= AGGREGATE_CACHE_LIMIT:
+        cache.clear()
+    cache[_aggregate_key(model, stages, options)] = docs
 
 
 def _add_undo(cr, func: typing.Callable[[], typing.Any]) -> None:
@@ -97,6 +110,44 @@ SPEC_SHA256 = 'c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7'
 DEFAULT_URI = 'mongodb://localhost:27017'
 
 TRANSLATED_PREFIX = '__lang_'
+
+
+class MongoQuery(Query):
+    """ The result of a search on MongoDB storage, run on the first use of
+    its ids. A fetch of its records (``fetch``) runs it with the fields it
+    needs projected, so a search followed by a read of the result is one
+    round trip instead of two. """
+
+    def __init__(self, model: BaseModel, run: typing.Callable[[dict | None], list[dict]], ordered: bool, stages: list[dict]):
+        super().__init__(model)
+        self._run = run
+        self._ordered = ordered
+        self._resolved = False
+        self.stages = stages    # the pipeline of its first round trip, ids only
+
+    @property
+    def _ids(self) -> tuple[int, ...] | None:
+        if not self._resolved:
+            self.resolve()
+        return self.__dict__['_ids_']
+
+    @_ids.setter
+    def _ids(self, ids: tuple[int, ...] | None) -> None:
+        self.__dict__['_ids_'] = ids
+
+    def is_empty(self) -> bool:
+        return self._resolved and super().is_empty()
+
+    def resolve(self, projection: dict | None = None) -> list[dict]:
+        """ Run the search and return its documents, projected on ``projection``. """
+        docs = self._run(projection)
+        self._resolved = True
+        ids = tuple(doc['_id'] for doc in docs)
+        if len(self._joins) > 1 or self._where_clauses or self.limit or self.offset:
+            self._ids = ids
+        else:
+            self.set_result_ids(ids, self._ordered)
+        return docs
 
 
 class StorageError(Exception):
@@ -1379,12 +1430,17 @@ def fetch(model: BaseModel, query: Query, fields: typing.Iterable[Field]) -> Bas
     fields = list(fields)
     if translated := [field.name for field in fields if field.translate]:
         model.flush_model(translated)
-    ids = list(query.get_result_ids())
-    if not ids:
-        return model.browse()
     layout = _layout(model)
     projection = {layout['paths'][field.name]: 1 for field in fields}
-    docs = _fetch_docs(model, ids, projection)
+    if isinstance(query, MongoQuery) and not query._resolved:
+        # the search has not run yet: read the documents in its round trip
+        docs = {doc['_id']: doc for doc in query.resolve(projection)}
+        ids = list(docs)
+    else:
+        ids = list(query.get_result_ids())
+        docs = _fetch_docs(model, ids, projection) if ids else {}
+    if not ids:
+        return model.browse()
     if missing := [id_ for id_ in ids if id_ not in docs]:
         _logger.warning("%s: shadow rows without a MongoDB document: %s", model._name, missing)
     fetched = model.browse([id_ for id_ in ids if id_ in docs])
@@ -1432,6 +1488,15 @@ def search(model: BaseModel, domain, sec_domain, order: str | None, limit, offse
         if sec_domain.is_false():
             return model.browse()._as_query()
         match = {'$and': [match, to_filter(self_sudo, sec_domain)]}
+    if (
+        not order and not limit and not offset and sec_domain.is_true()
+        and isinstance(domain, DomainCondition) and domain.field_expr == 'id' and domain.operator == 'in'
+        and not isinstance(domain.value, (Query, Domain, SQL))
+    ):
+        # a search by id only (the subquery of a many2one condition, typically):
+        # the shadow rows tell which ids exist, without a round trip
+        ids = list(domain.value)
+        return model.browse([id_ for id_ in ids if id_ in _alive(model, ids)])._as_query(ordered=False)
     pipeline = _virtual_stages(_layout(model))
     if translated := _translated_fields(model, domain, sec_domain, order):
         pipeline.append({'$addFields': {
@@ -1442,24 +1507,70 @@ def search(model: BaseModel, domain, sec_domain, order: str | None, limit, offse
     # read offset + limit ids (a bounded top-k sort), dropping documents
     # without a shadow row (no committed record) before paging; read further
     # only when such documents left the page short
-    bound = (offset or 0) + limit if limit else None
-    while True:
-        stages = pipeline + ([{'$limit': bound}] if bound else []) + [{'$project': {'_id': 1}}]
-        read, ids, orphans = 0, [], []
-        for batch in split_every(IN_MAX, (doc['_id'] for doc in _cached_aggregate(model, stages, batchSize=IN_MAX))):
-            read += len(batch)
-            alive = _alive(model, batch)
-            orphans.extend(id_ for id_ in batch if id_ not in alive)
-            ids.extend(id_ for id_ in batch if id_ in alive)
-        if not (bound and orphans and read == bound and len(ids) < (offset or 0) + limit):
-            break
-        bound += len(orphans)
-    if orphans:
-        _logger.warning("%s: MongoDB documents without a shadow row: %s", model._name, orphans)
-    ids = ids[offset or 0:]
-    if limit:
-        ids = ids[:limit]
-    return model.browse(ids)._as_query(ordered=bool(order))
+    def stages(bound: int | None, projection: dict | None = None) -> list[dict]:
+        return pipeline + ([{'$limit': bound}] if bound else []) + [{'$project': {'_id': 1, **(projection or {})}}]
+
+    def run(projection: dict | None) -> list[dict]:
+        bound = (offset or 0) + limit if limit else None
+        while True:
+            stages_ = stages(bound, projection)
+            read, docs, orphans = 0, [], []
+            found = _cached_aggregate(model, stages_, batchSize=IN_MAX)
+            if projection:
+                # the same search run for its ids only (a count, a subquery) is served from the cache too
+                _prime_aggregate(model, stages(bound), [{'_id': doc['_id']} for doc in found], batchSize=IN_MAX)
+            for batch in split_every(IN_MAX, found):
+                read += len(batch)
+                alive = _alive(model, [doc['_id'] for doc in batch])
+                orphans.extend(doc['_id'] for doc in batch if doc['_id'] not in alive)
+                docs.extend(doc for doc in batch if doc['_id'] in alive)
+            if not (bound and orphans and read == bound and len(docs) < (offset or 0) + limit):
+                break
+            bound += len(orphans)
+        if orphans:
+            _logger.warning("%s: MongoDB documents without a shadow row: %s", model._name, orphans)
+        docs = docs[offset or 0:]
+        if limit:
+            docs = docs[:limit]
+        return docs
+
+    # the search runs on the first use of its ids, or in the fetch of its records
+    return MongoQuery(model, run, ordered=bool(order), stages=stages((offset or 0) + limit if limit else None))
+
+
+def prefetch_subsearches(*searches: tuple[BaseModel, Domain]) -> None:
+    """ Before the domains of ``searches`` are rendered to SQL for their
+    model (on PostgreSQL), run the searches of their many2one conditions
+    whose comodel is on MongoDB storage together: one ``$facet`` aggregation
+    per collection, whose results prime the transaction's cache for the
+    one-by-one searches the rendering does (``Many2one.condition_to_sql``). """
+    groups = defaultdict(list)
+    cache = searches[0][0].env.cr.cache.get(_AGGREGATE_CACHE, {})
+    for model, domain in searches:
+        for cond in domain.iter_conditions():
+            if cond.operator not in ('any', 'not any', 'any!', 'not any!') or not isinstance(cond.value, Domain):
+                continue
+            field = model._fields.get(cond.field_expr)
+            if field is None or field.type != 'many2one':
+                continue
+            comodel = model.env[field.comodel_name]
+            if comodel._storage != 'mongodb':
+                continue
+            bypass_access = cond.operator.endswith('!') or field.bypass_search_access
+            query = comodel._search(cond.value, active_test=False, bypass_access=bypass_access)
+            if (
+                isinstance(query, MongoQuery) and not query._resolved
+                and _aggregate_key(comodel, query.stages, {'batchSize': IN_MAX}) not in cache
+            ):
+                groups[get_collection(comodel).full_name].append((comodel, query))
+    for group in groups.values():
+        if len(group) < 2:
+            continue
+        comodel = group[0][0]
+        with get_collection(comodel).aggregate([{'$facet': {str(i): query.stages for i, (_, query) in enumerate(group)}}]) as cursor:
+            facets = next(cursor)
+        for i, (_, query) in enumerate(group):
+            _prime_aggregate(comodel, query.stages, facets[str(i)], batchSize=IN_MAX)
 
 
 # ---------------------------------------------------------------------------
