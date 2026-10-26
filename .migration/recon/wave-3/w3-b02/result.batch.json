@@ -1,0 +1,183 @@
+{
+ "batch": "w3-b02",
+ "status": "PASS",
+ "recon_results": [
+  ".migration/recon/stockLocation/result.json",
+  ".migration/recon/saleOrderLineStockRouteRel/result.json",
+  ".migration/recon/productTemplate/result.json",
+  ".migration/recon/productOptionalRel/result.json",
+  ".migration/recon/accountTax/result.json"
+ ],
+ "write_targets": [
+  "odoo_unt13.accountTax",
+  "odoo_unt13.productOptionalRel",
+  "odoo_unt13.productTemplate",
+  "odoo_unt13.saleOrderLineStockRouteRel",
+  "odoo_unt13.stockLocation",
+  "odoo_unt13.stockPickingType",
+  "odoo_unt13.stockRoute",
+  "odoo_unt13.stockWarehouse"
+ ],
+ "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/147",
+ "branch": "devin/unt14-56-w3-b02",
+ "failure_class": null,
+ "one_line_summary": "stockLocation (stock.location + stock.picking.type, stock.route with 21 embedded stock.rule, stock.warehouse), saleOrderLineStockRouteRel, productTemplate, productOptionalRel, accountTax (260 embedded repartition lines): live PASS Tiers 1-4 and merge_eligible true on all 5 from odoo_src into odoo_unt13 via the shared loader at source concurrency 1 on the merged tree (w3-b01 merged in), salted source fingerprint a100e84e matches, fixture-first evidence under <unit>/fixture/; raw recursive SQL over stock_location.location_id in stock/models/product.py replaced by the ORM, shadow columns added for every column the installed modules raw SQL reads from the batch models (review round 1); with PRs #148, #149, #150 and #151 merged and the user-selected 120 s whole-tour timeout on test_purchase_order_suggest_search_panel_ux (d-suggest-tour-timeout) on code head 64b5e9ae: tours 35/35 on PostgreSQL storage and 35/35 on MongoDB storage, 0 skipped, no re-run needed on either; scratch copies dropped and every odoo_w3b02_ptour*/odoo_w3b02_mtour* prefix at 0 (round 5: ptour 30->0, mtour 38->0); no mongo_guard block; Devin Review clean on head_sha with 0 unresolved threads",
+ "head_sha": "99bc4f1a32769c62de915ccb8e69fd3de9b1dd8d",
+ "code_head": "64b5e9ae6f3e35230623c4dd8815d9cf0127b392",
+ "recon_git_head": "64b5e9ae6f3e35230623c4dd8815d9cf0127b392",
+ "base_sha": "573f2cd0e8ea4a9b5b5f89aa808e1dd226376b98",
+ "devin_review": "rounds on e6e7880, ad47d74, ec64c11, 5ab32923 the round-4 head 18b21f7d and the round-5 head (0 findings on the final evidence heads): 5 findings, 1 fixed (shadow columns for the SQL reports, 6a05b487), 4 dismissed with reasons (website_sale and account_update_tax_tags are uninstalled in odoo_src; stockWarehouse uniqueness is enforced by the spec unique indexes); 0 unresolved threads",
+ "merged_in": "8e8193dfab1 (origin/mongo-run/unt13 after w3-b01, PR #146) and PR #148 (devin/unt14-57-orderpoint-latency, head eb80d00f, merge f6e32b4c: per-transaction MongoDB aggregation cache in storage_mongodb.py) and PR #149 (devin/unt14-58-suggest-latency, merge e80675c2: fewer purchase-suggest round trips, RegistryRLock serving HttpCase requests in arrival order) and PR #150 (devin/unt14-58-lock-fairness, merge aef052e8: the ids of a MongoDB search restrict the SQL of its query) and PR #151 (devin/unt14-58-query-resolve, head 34a4704, merge 64b5e9ae: a MongoDB search runs before any read or change of its query, so the name_search subselects carry the Mongo-found ids), plus the user-selected 120 s whole-tour timeout of test_purchase_order_suggest_search_panel_ux (965c9a61, plan decision d-suggest-tour-timeout raise-120, both storages, 10 s step timeout kept), all merged before the final live recon and tours",
+ "manifest_sha": "79a896029481",
+ "tiers_passed": {
+  "stockLocation": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "saleOrderLineStockRouteRel": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "productTemplate": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "productOptionalRel": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "accountTax": [
+   1,
+   2,
+   3,
+   4
+  ]
+ },
+ "tours": {
+  "postgresql_storage": {
+   "tree": "8e8193d (mongo-run/unt13 base, this batch on PostgreSQL)",
+   "copy": "odoo_w3b02_ptour5",
+   "tests": 35,
+   "passed": 35,
+   "skipped": 0,
+   "failed": [],
+   "needed_rerun": [],
+   "note": "test_purchase_order_suggest_search_panel_ux ran with its 120 s whole-tour timeout and passed"
+  },
+  "mongodb_storage": {
+   "tree": "final code head 64b5e9ae (PR #148 aggregation cache + PR #149 purchase-suggest round trips / RegistryRLock + PR #150 + PR #151 lazy MongoQuery resolve-before-use + 120 s whole-tour timeout on the purchase-suggest tour)",
+   "copy": "odoo_w3b02_mtour6",
+   "tests": 35,
+   "passed": 35,
+   "skipped": 0,
+   "failed": [],
+   "needed_rerun": [],
+   "note": "all 35 pass first time, no re-run used: the four TestSaleComboConfigurator tours (fixed by PR #151), the three catalog add-section tours, test_product_replenishment and test_invoice_payment_widget_total_exchange_tour; test_purchase_order_suggest_search_panel_ux reached 112/112 in about 96 s wall under its 120 s whole-tour timeout (plan decision d-suggest-tour-timeout), 10 s step timeout unchanged.",
+   "previous_rounds": "30/35 on c017bf0a, 31/35 on 6a05b487 (before PR #148), 34/35 on f6e32b4c (PR #148), 29/35 on e80675c2 (PR #149: 5 new failures), 30/35 on aef052e8 (PR #150: invoice payment widget fixed, combo configurator still failing), 35/35 on 64b5e9ae (PR #151 + 120 s timeout)"
+  }
+ },
+ "scratch_prefixes": {
+  "odoo_w3b02_ptour__": [
+   {
+    "before_cleanup": 25,
+    "after_cleanup": 0
+   },
+   {
+    "before_cleanup": 30,
+    "after_cleanup": 0
+   },
+   {
+    "before_cleanup": 0,
+    "after_cleanup": 0
+   },
+   {
+    "before_cleanup": 0,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w3b02_mtour__": [
+   {
+    "before_cleanup": 34,
+    "after_cleanup": 0
+   },
+   {
+    "before_cleanup": 38,
+    "after_cleanup": 0
+   },
+   {
+    "before_cleanup": 0,
+    "after_cleanup": 0
+   },
+   {
+    "before_cleanup": 0,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w3b02_mtour2__": [
+   {
+    "before_cleanup": 38,
+    "after_cleanup": 0
+   },
+   {
+    "before_cleanup": 0,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w3b02_mtour3__": [
+   {
+    "before_cleanup": 38,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w3b02_ptour2__": [
+   {
+    "before_cleanup": 30,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w3b02_mtour4__": [
+   {
+    "before_cleanup": 38,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w3b02_ptour3__": [
+   {
+    "before_cleanup": 30,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w3b02_mtour5__": [
+   {
+    "before_cleanup": 38,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w3b02_ptour4__": [
+   {
+    "before_cleanup": 30,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w3b02_ptour": [
+   {
+    "before_cleanup": 30,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w3b02_mtour": [
+   {
+    "before_cleanup": 38,
+    "after_cleanup": 0
+   }
+  ]
+ }
+}

@@ -13,6 +13,8 @@ from odoo.fields import Command, Domain
 class StockLocation(models.Model):
     _name = 'stock.location'
     _description = "Inventory Location"
+    _storage = 'mongodb'      # UNT14 wave 3 w3-b02: documents in odoo_unt13.stockLocation (signed spec map-draft-5)
+    _shadow_columns = ('parent_path', 'usage')  # read by the report_stock_quantity view (conformance U1) and purchase_report SQL
     _parent_name = "location_id"
     _parent_store = True
     _order = 'complete_name, id'
@@ -196,6 +198,26 @@ class StockLocation(models.Model):
                 replenish_wh_location = self.search([('id', '!=', loc.id), ('replenish_location', '=', True), '|', ('location_id', 'child_of', loc.id), ('location_id', 'parent_of', loc.id)], limit=1)
                 if replenish_wh_location:
                     raise ValidationError(_('Another parent/sub replenish location %s exists, if you wish to change it, uncheck it first', replenish_wh_location.name))
+
+    @api.constrains('barcode', 'company_id')
+    def _check_barcode_company_uniq_documents(self):
+        """ `_barcode_company_uniq` is a SQL UNIQUE constraint; on MongoDB storage the
+        document fields are not covered by it, so the same rule is enforced here. """
+        for location in self.filtered('barcode'):
+            duplicate = self.with_context(active_test=False).search_count([
+                ('id', '!=', location.id),
+                ('barcode', '=', location.barcode),
+                ('company_id', '=', location.company_id.id),
+            ], limit=1)
+            if duplicate:
+                raise ValidationError(_('The barcode for a location must be unique per company!'))
+
+    @api.constrains('cyclic_inventory_frequency')
+    def _check_inventory_freq_nonneg_documents(self):
+        """ `_inventory_freq_nonneg` is a SQL CHECK; on MongoDB storage the document
+        fields are not covered by it, so the same rule is enforced here. """
+        if any(location.cyclic_inventory_frequency < 0 for location in self):
+            raise ValidationError(_('The inventory frequency (days) for a location must be non-negative'))
 
     @api.constrains('usage')
     def _check_scrap_location(self):
@@ -512,6 +534,7 @@ class StockLocation(models.Model):
 
 class StockRoute(models.Model):
     _name = 'stock.route'
+    _storage = 'mongodb'      # UNT14 wave 3 w3-b02: documents in odoo_unt13.stockRoute (signed spec map-draft-5)
     _shadow_relations = ('product_ids', 'warehouse_ids')  # read by raw SQL
     _description = "Inventory Route"
     _order = 'sequence'

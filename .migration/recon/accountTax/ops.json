@@ -1,0 +1,93 @@
+[
+ {
+  "name": "taxes_by_sequence",
+  "collection": "accountTax",
+  "note": "AccountTax._order = 'sequence,id' (addons/account/models/account_tax.py): the tax list as the ORM orders it with company, scope, computation type and active flag (active_test off)",
+  "source_sql": "SELECT id, sequence, company_id, type_tax_use, amount_type, active FROM account_tax ORDER BY sequence, id",
+  "target_pipeline": [
+   {
+    "$sort": {
+     "sequence": 1,
+     "_id": 1
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "id": "$_id",
+     "sequence": "$sequence",
+     "company_id": "$companyId",
+     "type_tax_use": "$typeTaxUse",
+     "amount_type": "$amountType",
+     "active": {
+      "$ifNull": [
+       "$active",
+       null
+      ]
+     }
+    }
+   }
+  ],
+  "rules": [
+   "null_missing_equiv"
+  ]
+ },
+ {
+  "name": "repartition_lines_per_tax",
+  "collection": "accountTax",
+  "note": "account.tax.repartition_line_ids one2many (addons/account/models/account_tax.py) embedded as accountTax.repartitionLine: lines per tax with the invoice-document and tax-type counts; taxes without lines excluded on both sides",
+  "source_sql": "SELECT tax_id, count(*) AS lines, count(*) FILTER (WHERE document_type = 'invoice') AS invoice_lines, count(*) FILTER (WHERE repartition_type = 'tax') AS tax_lines FROM account_tax_repartition_line GROUP BY tax_id ORDER BY tax_id",
+  "target_pipeline": [
+   {
+    "$match": {
+     "repartitionLine.0": {
+      "$exists": true
+     }
+    }
+   },
+   {
+    "$project": {
+     "_id": 0,
+     "tax_id": "$_id",
+     "lines": {
+      "$size": "$repartitionLine"
+     },
+     "invoice_lines": {
+      "$size": {
+       "$filter": {
+        "input": "$repartitionLine",
+        "as": "l",
+        "cond": {
+         "$eq": [
+          "$$l.documentType",
+          "invoice"
+         ]
+        }
+       }
+      }
+     },
+     "tax_lines": {
+      "$size": {
+       "$filter": {
+        "input": "$repartitionLine",
+        "as": "l",
+        "cond": {
+         "$eq": [
+          "$$l.repartitionType",
+          "tax"
+         ]
+        }
+       }
+      }
+     }
+    }
+   },
+   {
+    "$sort": {
+     "tax_id": 1
+    }
+   }
+  ],
+  "rules": []
+ }
+]

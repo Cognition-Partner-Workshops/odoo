@@ -5,6 +5,7 @@ from decimal import Decimal
 from unittest.mock import patch
 
 import psycopg2.errors
+import pymongo.collection
 import pymongo.errors
 from bson.decimal128 import Decimal128
 
@@ -199,6 +200,148 @@ class TestStorageMongodb(TransactionCase):
         self.assertEqual(Tag.search([('sequence', '=', 2)], order='id'), tag)
         tag.sequence = 3
         self.assertEqual(Tag._read_group([('id', '=', tag.id)], ['sequence'], ['__count']), [(3, 1)])
+
+    def test_search_then_read_is_one_round_trip(self):
+        Tag = self.env['test_orm_mongodb.tag']
+        tags = Tag.create([{'name': f'One trip {n}', 'sequence': 778 + n} for n in range(3)])
+        self.env.flush_all()
+        self.env.invalidate_all()
+        domain = [('sequence', 'in', [778, 779, 780])]
+        Collection = pymongo.collection.Collection
+        with patch.object(Collection, 'aggregate', autospec=True, side_effect=Collection.aggregate) as aggregate:
+            # the search runs with the read's projection: one pipeline, not an id search and a fetch
+            self.assertEqual(
+                Tag.search_read(domain, ['name', 'sequence'], order='sequence desc'),
+                [{'id': tag.id, 'name': tag.name, 'sequence': tag.sequence} for tag in reversed(tags)],
+            )
+            self.assertEqual(aggregate.call_count, 1)
+            # search_fetch alike, and the ids keep the search order
+            self.assertEqual(Tag.search_fetch(domain, ['name'], order='sequence', limit=2), tags[:2])
+            self.assertEqual(aggregate.call_count, 2)
+            name_path = storage_mongodb._layout(Tag)['paths']['name']
+            self.assertEqual(aggregate.call_args.args[1][-1], {'$project': {'_id': 1, name_path: 1}})
+            # a search whose ids are used before any fetch runs once, with ids only
+            self.assertEqual(Tag.search(domain, order='id').ids, tags.ids)
+            self.assertEqual(aggregate.call_count, 3)
+            self.assertEqual(aggregate.call_args.args[1][-1], {'$project': {'_id': 1}})
+            self.assertEqual(Tag.search_count(domain), 3)
+
+    def test_search_query_restricts_sql_added_before_its_use(self):
+        """ A where clause added to the query of a MongoDB search, before its
+        ids are used, applies on top of the search (account.move.line's
+        search panel adds an EXISTS to the account.account search). """
+        Tag = self.env['test_orm_mongodb.tag']
+        tags = Tag.create([
+            {'name': 'Query A', 'sequence': 911},
+            {'name': 'Query B', 'sequence': 912},
+            {'name': 'Query C', 'sequence': 913},
+        ])
+        self.env.flush_all()
+        query = Tag._search([('sequence', 'in', (911, 912))])
+        query.add_where(SQL("%s != %s", query.table.id, tags[0].id))
+        self.assertEqual(query.get_result_ids(), (tags[1].id,))
+        self.assertEqual(
+            self.env.execute_query(query.select(SQL("DISTINCT %s", query.table.id))),
+            [(tags[1].id,)],
+        )
+
+    def test_search_sql_has_the_found_ids(self):
+        """ The SQL of a MongoDB search's query selects the found ids, also
+        when rendered before the ids are used (product.template's
+        _search_display_name puts ``_search(...).select()`` in a UNION). """
+        Tag = self.env['test_orm_mongodb.tag']
+        tags = Tag.create([
+            {'name': 'Render A', 'sequence': 921},
+            {'name': 'Render B', 'sequence': 922},
+            {'name': 'Render C', 'sequence': 923},
+        ])
+        self.env.flush_all()
+        self.env.invalidate_all()
+        self.assertEqual(
+            Tag.search([('id', 'in', SQL("%s UNION ALL %s", Tag._search([('sequence', '=', 921)]).select(), Tag._search([('name', '=', 'Render C')]).select()))]),
+            tags[0] + tags[2],
+        )
+        query = Tag._search([('sequence', '>', 921)], order='sequence desc')
+        self.assertIn("unnest", str(query))
+        self.assertEqual(
+            self.env.execute_query(SQL("SELECT %s FROM %s WHERE %s ORDER BY %s", query.table.id, query.from_clause, query.where_clause, query.order)),
+            [(tags[2].id,), (tags[1].id,)],
+        )
+        self.assertEqual(Tag.name_search('Render B', operator='='), [(tags[1].id, 'Render B')])
+        self.assertEqual(Tag.name_search('Render A', operator='=', limit=1), [(tags[0].id, 'Render A')])
+        query = Tag._search([('sequence', 'in', (921, 922))])
+        query.order = SQL("%s DESC", query.table.id)
+        self.assertEqual(query.get_result_ids(), (tags[1].id, tags[0].id))
+        self.assertIn("DESC", str(query))
+        query = Tag._search([('sequence', 'in', (921, 922))])
+        self.assertEqual(query.get_result_ids(), (tags[0].id, tags[1].id))
+        query.order = SQL("%s DESC", query.table.id)
+        self.assertEqual(query.get_result_ids(), (tags[1].id, tags[0].id))
+
+    def test_many2one_subsearches_run_together(self):
+        Tag = self.env['test_orm_mongodb.tag']
+        Link = self.env['test_orm_mongodb.pg_link']
+        tag_a, tag_b = Tag.create([{'name': 'Facet A', 'sequence': 901}, {'name': 'Facet B', 'sequence': 902}])
+        link = Link.create({'name': 'facet', 'tag_id': tag_a.id, 'restrict_tag_id': tag_b.id})
+        Link.create({'name': 'other', 'tag_id': tag_b.id, 'restrict_tag_id': tag_a.id})
+        self.env.flush_all()
+        self.env.invalidate_all()
+        Collection = pymongo.collection.Collection
+        with patch.object(Collection, 'aggregate', autospec=True, side_effect=Collection.aggregate) as aggregate:
+            # two many2one conditions on the same MongoDB comodel: one $facet round trip
+            # answers both subsearches, their one-by-one runs come from the cache
+            self.assertEqual(Link.search([('tag_id.sequence', '=', 901), ('restrict_tag_id.name', '=', 'Facet B')]), link)
+            self.assertEqual(aggregate.call_count, 1)
+            self.assertEqual(list(aggregate.call_args.args[1][0]), ['$facet'])
+            # negative conditions take part in the same round trip
+            self.assertEqual(
+                Link.search([('tag_id.sequence', '!=', 902), ('restrict_tag_id', 'not any', [('sequence', '=', 901)])]),
+                link,
+            )
+            self.assertEqual(aggregate.call_count, 2)
+            # a single subsearch runs on its own, without a $facet
+            self.assertEqual(Link.search([('tag_id.sequence', '=', 902)]).name, 'other')
+            self.assertEqual(aggregate.call_count, 3)
+            self.assertNotIn('$facet', aggregate.call_args.args[1][0])
+
+    def test_repeated_search_is_one_round_trip(self):
+        Tag = self.env['test_orm_mongodb.tag']
+        tags = Tag.create([{'name': f'Round trip {n}', 'sequence': 777} for n in range(3)])
+        self.env.flush_all()
+        domain = [('sequence', '=', 777)]
+        Collection = pymongo.collection.Collection
+        with patch.object(Collection, 'aggregate', autospec=True, side_effect=Collection.aggregate) as aggregate:
+            # the same search again in the transaction is served from the cache
+            self.assertEqual(Tag.search(domain, order='id'), tags)
+            self.assertEqual(Tag.search(domain, order='id'), tags)
+            self.assertEqual(aggregate.call_count, 1)
+            # so is a read_group, its id search and its group stage alike
+            self.assertEqual(Tag._read_group(domain, [], ['__count']), [(3,)])
+            round_trips = aggregate.call_count
+            self.assertEqual(Tag._read_group(domain, [], ['__count']), [(3,)])
+            self.assertEqual(aggregate.call_count, round_trips)
+            # the transaction's own writes are visible to the next search
+            tags[0].name = 'Round trip 0 renamed'
+            self.assertEqual(Tag.search([('name', '=', 'Round trip 0 renamed')]), tags[0])
+            tags[1].unlink()
+            self.assertEqual(Tag.search(domain, order='id'), tags[0] | tags[2])
+            self.assertEqual(Tag._read_group(domain, [], ['__count']), [(2,)])
+            # so is what a savepoint rollback restores
+            with self.assertRaises(ZeroDivisionError), self.env.cr.savepoint():
+                tags[2].unlink()
+                self.assertEqual(Tag.search(domain, order='id'), tags[0])
+                1 / 0
+            self.assertEqual(Tag.search(domain, order='id'), tags[0] | tags[2])
+            # also when the savepoint does not flush and the transaction cache was
+            # replaced in between (the undo drops whichever cache is current)
+            with self.assertRaises(ZeroDivisionError), self.env.cr.savepoint(flush=False):
+                tags[2].name = 'Round trip 2 renamed'
+                self.env.flush_all()
+                self.env.clear()
+                self.assertEqual(Tag.search([('name', '=', 'Round trip 2 renamed')]), tags[2])
+                1 / 0
+            self.assertFalse(Tag.search([('name', '=', 'Round trip 2 renamed')]))
+            self.assertEqual(Tag.search(domain, order='id'), tags[0] | tags[2])
 
     def test_unlink_set_null_is_flushed(self):
         Template = self.env['test_orm_mongodb.template']

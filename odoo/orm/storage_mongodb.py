@@ -38,6 +38,7 @@ from odoo.tools import SQL, date_utils, split_every, sql
 from odoo.tools.constants import IN_MAX
 
 from .domains import Domain, DomainAnd, DomainBool, DomainCondition, DomainCustom, DomainNot, DomainOr
+from .query import Query
 
 if typing.TYPE_CHECKING:
     from .fields import Field
@@ -46,12 +47,173 @@ if typing.TYPE_CHECKING:
 
 _logger = logging.getLogger(__name__)
 
+# key in ``cr.cache`` of the transaction's aggregation results (see ``_cached_aggregate``)
+_AGGREGATE_CACHE = 'storage_mongodb.aggregate'
+AGGREGATE_CACHE_LIMIT = 1000   # pipelines kept per transaction before dropping them all
+
+
+def _cached_aggregate(model: BaseModel, stages: list[dict], **options) -> list[dict]:
+    """ Run the aggregation ``stages`` on the model's collection, serving a
+    repeat of the same pipeline from the transaction's cache instead of a
+    new round trip.
+
+    The transaction's own writes all go through ``_add_undo``, which drops
+    the cache on the write and again when a savepoint rollback replays the
+    undo, so they stay visible to its next search; the cache itself lives in
+    ``cr.cache``, which the transaction drops on commit and rollback.
+    Documents have no isolation between transactions (another transaction's
+    write, and its rollback, show up in the next aggregation at once, before
+    it commits); the cache keeps the state first read for the rest of the
+    transaction, as ``env.cache`` already does for the records it holds.
+    """
+    cache = model.env.cr.cache.setdefault(_AGGREGATE_CACHE, {})
+    key = _aggregate_key(model, stages, options)
+    if (docs := cache.get(key)) is None:
+        with get_collection(model).aggregate(stages, **options) as cursor:
+            docs = list(cursor)
+        if len(cache) >= AGGREGATE_CACHE_LIMIT:
+            cache.clear()
+        cache[key] = docs
+    return docs
+
+
+def _aggregate_key(model: BaseModel, stages: list[dict], options: dict) -> tuple[str, str]:
+    return (
+        get_collection(model).full_name,
+        hashlib.sha256(json.dumps([stages, options], default=str, sort_keys=True).encode()).hexdigest(),
+    )
+
+
+def _prime_aggregate(model: BaseModel, stages: list[dict], docs: list[dict], **options) -> None:
+    """ Cache ``docs`` as the result of ``stages``, for ``_cached_aggregate``. """
+    cache = model.env.cr.cache.setdefault(_AGGREGATE_CACHE, {})
+    if len(cache) >= AGGREGATE_CACHE_LIMIT:
+        cache.clear()
+    cache[_aggregate_key(model, stages, options)] = docs
+
+
+def _add_undo(cr, func: typing.Callable[[], typing.Any]) -> None:
+    """ Register ``func`` as the undo of a MongoDB write (``cr.add_undo``);
+    the write, like its undo, drops the transaction's aggregation cache. """
+    cr.cache.pop(_AGGREGATE_CACHE, None)
+
+    def undo():
+        cr.cache.pop(_AGGREGATE_CACHE, None)
+        func()
+
+    cr.add_undo(undo)
+
+
 DATABASE = 'odoo_unt13'     # the only target in .migration/allowed_targets.json
 SPEC_PATH = Path(__file__).resolve().parents[2] / '.migration' / 'mapping_spec.json'
 SPEC_SHA256 = 'c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7'
 DEFAULT_URI = 'mongodb://localhost:27017'
 
 TRANSLATED_PREFIX = '__lang_'
+
+
+class MongoQuery(Query):
+    """ The result of a search on MongoDB storage, run on the first use of
+    its result. A fetch of its records (``fetch``) runs it with the fields
+    it needs projected, so a search followed by a read of the result is one
+    round trip instead of two.
+
+    Every way of reading the query (its ids, its SQL, its clauses) or of
+    changing it (a clause, the order) runs the search first, so the SQL
+    always has the found ids as its rows, as the eager search had. """
+
+    def __init__(self, model: BaseModel, run: typing.Callable[[dict | None], list[dict]], ordered: bool, stages: list[dict]):
+        super().__init__(model)
+        self._run = run
+        self._ordered = ordered
+        self._resolved = False
+        self.stages = stages    # the pipeline of its first round trip, ids only
+
+    def _resolve_first(self) -> None:
+        if not self._resolved:
+            self.resolve()
+
+    def resolve(self, projection: dict | None = None) -> list[dict]:
+        """ Run the search and return its documents, projected on ``projection``. """
+        if self._resolved:
+            # the documents of a run search are read by id
+            return list(_fetch_docs(self._model, list(self.get_result_ids()), projection).values())
+        docs = self._run(projection)
+        self._resolved = True
+        # the found ids become the rows of the query (``set_result_ids``);
+        # a limit, offset or order set on the query by its user still applies
+        limit, offset, order = self.limit, self.offset, self._order
+        self.limit, self.offset, self._order = None, 0, None
+        self.set_result_ids((doc['_id'] for doc in docs), self._ordered)
+        self.limit, self.offset = limit, offset
+        if order is not None:
+            # the user's order replaces the search's: the ids come from the SQL
+            self._order = order
+            self._ids = None
+        return docs
+
+    # the result: ids, or the documents (fetch)
+
+    @property
+    def _ids(self) -> tuple[int, ...] | None:
+        self._resolve_first()
+        return self.__dict__['_ids_']
+
+    @_ids.setter
+    def _ids(self, ids: tuple[int, ...] | None) -> None:
+        self.__dict__['_ids_'] = ids
+
+    def is_empty(self) -> bool:
+        return self._resolved and super().is_empty()
+
+    # the SQL and its clauses
+
+    @property
+    def from_clause(self) -> SQL:
+        self._resolve_first()
+        return super().from_clause
+
+    @property
+    def where_clause(self) -> SQL:
+        self._resolve_first()
+        return super().where_clause
+
+    @property
+    def order(self) -> SQL | None:
+        self._resolve_first()
+        return super().order
+
+    @order.setter
+    def order(self, value) -> None:
+        self._resolve_first()
+        Query.order.fset(self, value)
+        self._ids = None    # the ids follow the new order, from the SQL
+
+    def select(self, *args) -> SQL:
+        self._resolve_first()
+        return super().select(*args)
+
+    def subselect(self, *args) -> SQL:
+        self._resolve_first()
+        return super().subselect(*args)
+
+    def __str__(self) -> str:
+        self._resolve_first()
+        return super().__str__()
+
+    def __copy__(self):
+        self._resolve_first()
+        return super().__copy__()
+
+    # changes to the query
+
+    def add_join(self, *args, **kwargs) -> None:
+        self._resolve_first()
+        super().add_join(*args, **kwargs)
+
+    def add_where(self, *args, **kwargs) -> None:
+        self._resolve_first()
+        super().add_where(*args, **kwargs)
 
 
 class StorageError(Exception):
@@ -505,11 +667,11 @@ def add_links(env, layout: dict, links: list[dict]) -> None:
     collection = _relation_collection(env, layout)
     _mirror_links(env, layout, links, add=True)
     if 'owner' in layout:
-        env.cr.add_undo(lambda: _apply_to_arrays(collection, layout, links, add=False))
+        _add_undo(env.cr, lambda: _apply_to_arrays(collection, layout, links, add=False))
         _apply_to_arrays(collection, layout, links, add=True)
         return
     docs = [{'_id': ObjectId()} | {path: link[col] for col, path in layout['targets'].items()} for link in links]
-    env.cr.add_undo(lambda: collection.delete_many({'_id': {'$in': [doc['_id'] for doc in docs]}}))
+    _add_undo(env.cr, lambda: collection.delete_many({'_id': {'$in': [doc['_id'] for doc in docs]}}))
     try:
         collection.insert_many(docs, ordered=False)
     except pymongo.errors.BulkWriteError as e:
@@ -523,13 +685,13 @@ def remove_links(env, layout: dict, links: list[dict]) -> None:
     collection = _relation_collection(env, layout)
     _mirror_links(env, layout, links, add=False)
     if 'owner' in layout:
-        env.cr.add_undo(lambda: _apply_to_arrays(collection, layout, links, add=True))
+        _add_undo(env.cr, lambda: _apply_to_arrays(collection, layout, links, add=True))
         _apply_to_arrays(collection, layout, links, add=False)
         return
     targets = layout['targets']
     priors = list(collection.find({'$or': [{path: link[col] for col, path in targets.items()} for link in links]}))
     if priors:
-        env.cr.add_undo(lambda: collection.insert_many(priors))
+        _add_undo(env.cr, lambda: collection.insert_many(priors))
         collection.delete_many({'_id': {'$in': [doc['_id'] for doc in priors]}})
 
 
@@ -906,7 +1068,7 @@ def _insert_children(model: BaseModel, ids: list[int], rows: list[dict]) -> None
         elements[doc.get(embed['parent_path'])].append(_element(embed, doc))
     _lock_parents(model, elements)
     array, id_path = embed['array'], embed['id_path']
-    model.env.cr.add_undo(lambda: collection.update_many(
+    _add_undo(model.env.cr, lambda: collection.update_many(
         {'_id': {'$in': list(elements)}}, {'$pull': {array: {id_path: {'$in': ids}}}}))
     result = collection.bulk_write([
         pymongo.UpdateOne({'_id': parent_id}, {'$push': {array: {'$each': children}}})
@@ -936,7 +1098,7 @@ def _update_children(model: BaseModel, priors: dict[int, dict], changes: list[tu
     if not ops:
         return
     before = _elements(model, [id_ for id_, _set, _unset in changes])
-    model.env.cr.add_undo(lambda: _restore_elements(collection, embed, before))
+    _add_undo(model.env.cr, lambda: _restore_elements(collection, embed, before))
     collection.bulk_write(ops, ordered=True)
     _check_key(model, parents)
 
@@ -946,7 +1108,7 @@ def _delete_children(model: BaseModel, ids: list[int]) -> None:
     if not (priors := _elements(model, ids)):
         return
     _lock_parents(model, {parent_id for parent_id, _index, _element in priors.values()}, check=False)
-    model.env.cr.add_undo(lambda: _restore_elements(collection, embed, priors))
+    _add_undo(model.env.cr, lambda: _restore_elements(collection, embed, priors))
     array, id_path = embed['array'], embed['id_path']
     collection.update_many({'_id': {'$in': [prior[0] for prior in priors.values()]}},
                            {'$pull': {array: {id_path: {'$in': list(priors)}}}})
@@ -1028,7 +1190,7 @@ def insert(model: BaseModel, ids: list[int], rows: list[dict]) -> None:
     if _layout(model).get('embed'):
         return _insert_children(model, ids, rows)
     collection = get_collection(model)
-    model.env.cr.add_undo(lambda: collection.delete_many({'_id': {'$in': ids}}))
+    _add_undo(model.env.cr, lambda: collection.delete_many({'_id': {'$in': ids}}))
     try:
         collection.insert_many([_document(model, id_, row) for id_, row in zip(ids, rows, strict=True)])
     except pymongo.errors.BulkWriteError as e:
@@ -1050,7 +1212,7 @@ def update(model: BaseModel, ids: list[int], vals_list: list[dict]) -> None:
                              SQL.identifier(model._table), tuple(ids)))
     priors = _fetch_docs(model, ids)
     if not embed:
-        model.env.cr.add_undo(lambda: [collection.replace_one({'_id': doc['_id']}, doc) for doc in priors.values()])
+        _add_undo(model.env.cr, lambda: [collection.replace_one({'_id': doc['_id']}, doc) for doc in priors.values()])
     ops, changes, fallbacks = [], [], {}
     for id_, vals in zip(ids, vals_list, strict=True):
         to_set, to_unset = {}, {}
@@ -1215,7 +1377,7 @@ def delete(model: BaseModel, ids: typing.Iterable[int]) -> None:
         return _delete_children(model, ids)
     priors = list(collection.find({'_id': {'$in': ids}}))
     if priors:
-        model.env.cr.add_undo(lambda: collection.insert_many(priors))
+        _add_undo(model.env.cr, lambda: collection.insert_many(priors))
     collection.delete_many({'_id': {'$in': ids}})
 
 
@@ -1319,7 +1481,7 @@ def company_dependent_set_null(model: BaseModel, field: Field, ids) -> None:
     model.env.cr.execute(SQL("SELECT id FROM %s WHERE id IN %s FOR UPDATE",
                              SQL.identifier(model._table), tuple(matched)))
     priors = list(collection.find({'_id': {'$in': matched}}))
-    model.env.cr.add_undo(lambda: [collection.replace_one({'_id': doc['_id']}, doc) for doc in priors])
+    _add_undo(model.env.cr, lambda: [collection.replace_one({'_id': doc['_id']}, doc) for doc in priors])
     for doc in priors:
         values = {key: None if value in ids else value for key, value in (doc.get(path) or {}).items()}
         collection.update_one({'_id': doc['_id']}, {'$set': {path: values}})
@@ -1334,12 +1496,17 @@ def fetch(model: BaseModel, query: Query, fields: typing.Iterable[Field]) -> Bas
     fields = list(fields)
     if translated := [field.name for field in fields if field.translate]:
         model.flush_model(translated)
-    ids = list(query.get_result_ids())
-    if not ids:
-        return model.browse()
     layout = _layout(model)
     projection = {layout['paths'][field.name]: 1 for field in fields}
-    docs = _fetch_docs(model, ids, projection)
+    if isinstance(query, MongoQuery) and not query._resolved:
+        # the search has not run yet: read the documents in its round trip
+        docs = {doc['_id']: doc for doc in query.resolve(projection)}
+        ids = list(docs)
+    else:
+        ids = list(query.get_result_ids())
+        docs = _fetch_docs(model, ids, projection) if ids else {}
+    if not ids:
+        return model.browse()
     if missing := [id_ for id_ in ids if id_ not in docs]:
         _logger.warning("%s: shadow rows without a MongoDB document: %s", model._name, missing)
     fetched = model.browse([id_ for id_ in ids if id_ in docs])
@@ -1397,25 +1564,70 @@ def search(model: BaseModel, domain, sec_domain, order: str | None, limit, offse
     # read offset + limit ids (a bounded top-k sort), dropping documents
     # without a shadow row (no committed record) before paging; read further
     # only when such documents left the page short
-    bound = (offset or 0) + limit if limit else None
-    while True:
-        stages = pipeline + ([{'$limit': bound}] if bound else []) + [{'$project': {'_id': 1}}]
-        read, ids, orphans = 0, [], []
-        with get_collection(model).aggregate(stages, batchSize=IN_MAX) as cursor:
-            for batch in split_every(IN_MAX, (doc['_id'] for doc in cursor)):
+    def stages(bound: int | None, projection: dict | None = None) -> list[dict]:
+        return pipeline + ([{'$limit': bound}] if bound else []) + [{'$project': {'_id': 1, **(projection or {})}}]
+
+    def run(projection: dict | None) -> list[dict]:
+        bound = (offset or 0) + limit if limit else None
+        while True:
+            stages_ = stages(bound, projection)
+            read, docs, orphans = 0, [], []
+            found = _cached_aggregate(model, stages_, batchSize=IN_MAX)
+            if projection:
+                # the same search run for its ids only (a count, a subquery) is served from the cache too
+                _prime_aggregate(model, stages(bound), [{'_id': doc['_id']} for doc in found], batchSize=IN_MAX)
+            for batch in split_every(IN_MAX, found):
                 read += len(batch)
-                alive = _alive(model, batch)
-                orphans.extend(id_ for id_ in batch if id_ not in alive)
-                ids.extend(id_ for id_ in batch if id_ in alive)
-        if not (bound and orphans and read == bound and len(ids) < (offset or 0) + limit):
-            break
-        bound += len(orphans)
-    if orphans:
-        _logger.warning("%s: MongoDB documents without a shadow row: %s", model._name, orphans)
-    ids = ids[offset or 0:]
-    if limit:
-        ids = ids[:limit]
-    return model.browse(ids)._as_query(ordered=bool(order))
+                alive = _alive(model, [doc['_id'] for doc in batch])
+                orphans.extend(doc['_id'] for doc in batch if doc['_id'] not in alive)
+                docs.extend(doc for doc in batch if doc['_id'] in alive)
+            if not (bound and orphans and read == bound and len(docs) < (offset or 0) + limit):
+                break
+            bound += len(orphans)
+        if orphans:
+            _logger.warning("%s: MongoDB documents without a shadow row: %s", model._name, orphans)
+        docs = docs[offset or 0:]
+        if limit:
+            docs = docs[:limit]
+        return docs
+
+    # the search runs on the first use of its ids, or in the fetch of its records
+    return MongoQuery(model, run, ordered=bool(order), stages=stages((offset or 0) + limit if limit else None))
+
+
+def prefetch_subsearches(*searches: tuple[BaseModel, Domain]) -> None:
+    """ Before the domains of ``searches`` are rendered to SQL for their
+    model (on PostgreSQL), run the searches of their many2one conditions
+    whose comodel is on MongoDB storage together: one ``$facet`` aggregation
+    per collection, whose results prime the transaction's cache for the
+    one-by-one searches the rendering does (``Many2one.condition_to_sql``). """
+    groups = defaultdict(list)
+    cache = searches[0][0].env.cr.cache.get(_AGGREGATE_CACHE, {})
+    for model, domain in searches:
+        for cond in domain.iter_conditions():
+            if cond.operator not in ('any', 'not any', 'any!', 'not any!') or not isinstance(cond.value, Domain):
+                continue
+            field = model._fields.get(cond.field_expr)
+            if field is None or field.type != 'many2one':
+                continue
+            comodel = model.env[field.comodel_name]
+            if comodel._storage != 'mongodb':
+                continue
+            bypass_access = cond.operator.endswith('!') or field.bypass_search_access
+            query = comodel._search(cond.value, active_test=False, bypass_access=bypass_access)
+            if (
+                isinstance(query, MongoQuery) and not query._resolved
+                and _aggregate_key(comodel, query.stages, {'batchSize': IN_MAX}) not in cache
+            ):
+                groups[get_collection(comodel).full_name].append((comodel, query))
+    for group in groups.values():
+        if len(group) < 2:
+            continue
+        comodel = group[0][0]
+        with get_collection(comodel).aggregate([{'$facet': {str(i): query.stages for i, (_, query) in enumerate(group)}}]) as cursor:
+            facets = next(cursor)
+        for i, (_, query) in enumerate(group):
+            _prime_aggregate(comodel, query.stages, facets[str(i)], batchSize=IN_MAX)
 
 
 # ---------------------------------------------------------------------------
@@ -1485,15 +1697,14 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
     groups = {}
     for chunk in map(list, split_every(GROUP_CHUNK, ids)):
         stages = _virtual_stages(_layout(model), chunk) + [{'$group': {'_id': keys or None, **accumulators}}]
-        with get_collection(model).aggregate(stages, allowDiskUse=True) as cursor:
-            for group in map(_native, cursor):
-                gkey = tuple(sorted((group['_id'] or {}).items()))
-                if (prior := groups.get(gkey)) is None:
-                    groups[gkey] = group
-                    continue
-                for name, accumulator in accumulators.items():
-                    (op,) = accumulator
-                    prior[name] = _MERGE[op](prior[name], group[name])
+        for group in map(_native, _cached_aggregate(model, stages, allowDiskUse=True)):
+            gkey = tuple(sorted((group['_id'] or {}).items()))
+            if (prior := groups.get(gkey)) is None:
+                groups[gkey] = group
+                continue
+            for name, accumulator in accumulators.items():
+                (op,) = accumulator
+                prior[name] = _MERGE[op](prior[name], group[name])
     if many2many := {i: model._fields[path] for i, path in enumerate(paths)
                      if path in model._fields and model._fields[path].type == 'many2many'}:
         groups = _expand(groups, {i: _many2many_ids(model, field, ids) for i, field in many2many.items()},

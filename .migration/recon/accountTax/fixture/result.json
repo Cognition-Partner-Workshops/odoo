@@ -1,0 +1,245 @@
+{
+  "unit": "accountTax",
+  "mode": "fixture",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
+  "tolerance_version": "1",
+  "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416",
+  "git_head": "573f2cd0e8ea4a9b5b5f89aa808e1dd226376b98",
+  "git_dirty": true,
+  "source_db": "odoo_fixture",
+  "source_server": "hmac-sha256:993afb77f5d4f38d",
+  "ops_sha256": "574e7d597871b709c4045cd130e2e29b0370e42f32428ebb6bbea7245e8831d0",
+  "collections": [
+    "accountTax"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-26T05:31:13.286224+00:00",
+  "redacted": true,
+  "redaction_salted": true,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 8,
+      "stats": {
+        "source_counts": {
+          "accountTax": 65
+        },
+        "embed_source_counts": {
+          "accountTax.alternatives": 2,
+          "accountTax.filiationRel": 5,
+          "accountTax.purchaseOrderLineRel": 35,
+          "accountTax.repartitionLine": 260,
+          "accountTax.saleOrderLineRel": 455,
+          "accountTax.productSupplierTaxesRel": 876,
+          "accountTax.productTaxesRel": 876
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 16,
+      "stats": {
+        "deferred_to_tier3": [
+          "accountTax.cashBasisTransitionAccountId",
+          "accountTax.createUid",
+          "accountTax.writeUid",
+          "accountTax.typeTaxUse",
+          "accountTax.taxScope",
+          "accountTax.amountType",
+          "accountTax.priceIncludeOverride",
+          "accountTax.taxExigibility",
+          "accountTax.name",
+          "accountTax.description",
+          "accountTax.invoiceLabel",
+          "accountTax.invoiceLegalNotes",
+          "accountTax.isDomestic",
+          "accountTax.active",
+          "accountTax.includeBaseAmount",
+          "accountTax.isBaseAffected",
+          "accountTax.analytic",
+          "accountTax.createDate",
+          "accountTax.writeDate",
+          "accountTax.ublCiiTaxCategoryCode",
+          "accountTax.ublCiiTaxExemptionReason",
+          "accountTax.ublCiiTaxExemptionReasonCode",
+          "accountTax.l10nUsStateId",
+          "accountTax.l10nUsCountyId",
+          "accountTax.l10nUsCityId",
+          "accountTax.l10nUsExemptParentTaxId",
+          "accountTax.l10nUsNontaxableParentTaxId",
+          "accountTax.l10nUsJurisdictionType"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "accountTax.typeTaxUse",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.taxScope",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.amountType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.priceIncludeOverride",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.taxExigibility",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.description",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.invoiceLabel",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.invoiceLegalNotes",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.ublCiiTaxCategoryCode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.ublCiiTaxExemptionReason",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.ublCiiTaxExemptionReasonCode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "accountTax.l10nUsJurisdictionType",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "accountTax.name",
+            "key": "accountTax"
+          },
+          {
+            "field": "accountTax.description",
+            "key": "accountTax"
+          },
+          {
+            "field": "accountTax.invoiceLabel",
+            "key": "accountTax"
+          },
+          {
+            "field": "accountTax.invoiceLegalNotes",
+            "key": "accountTax"
+          }
+        ],
+        "fields_fully_deferred": 17
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 2574,
+      "stats": {
+        "accountTax": {
+          "mode": "full_diff",
+          "population": 65,
+          "duplicate_source_key_count": 0
+        },
+        "embeds_graded": {
+          "accountTax.alternatives": 2,
+          "accountTax.filiationRel": 5,
+          "accountTax.purchaseOrderLineRel": 35,
+          "accountTax.repartitionLine": 260,
+          "accountTax.saleOrderLineRel": 455,
+          "accountTax.productSupplierTaxesRel": 876,
+          "accountTax.productTaxesRel": 876
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": false,
+  "error": null
+}

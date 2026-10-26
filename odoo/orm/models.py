@@ -4963,15 +4963,18 @@ class BaseModel(metaclass=MetaModel):
         if self._storage == 'mongodb':
             return storage_mongodb.search(self, domain, sec_domain, order, limit, offset)
         query = Query(self)
+        self_sudo = self.sudo().with_context(active_test=False)
+        if not sec_domain.is_true():
+            sec_domain = sec_domain.optimize_full(self_sudo, search_domain=domain)
+            if sec_domain.is_false():
+                return self.browse()._as_query()
         if not domain.is_true():
+            # the many2one conditions on MongoDB comodels, of both domains, in one round trip
+            storage_mongodb.prefetch_subsearches((self, domain), (self_sudo, sec_domain))
             query.add_where(domain._to_sql(query.table))
 
         # security access domain
         if not sec_domain.is_true():
-            self_sudo = self.sudo().with_context(active_test=False)
-            sec_domain = sec_domain.optimize_full(self_sudo, search_domain=domain)
-            if sec_domain.is_false():
-                return self.browse()._as_query()
             if (
                 sec_domain.is_condition('id', 'any!', Query)
                 and (ids := sec_domain.value._ids) is not None
