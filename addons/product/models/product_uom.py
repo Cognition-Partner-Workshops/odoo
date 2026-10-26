@@ -29,7 +29,8 @@ class ProductUom(models.Model):
                 ('barcode', '=', packaging.barcode),
             ], limit=1)
             if duplicate:
-                raise ValidationError(_('A barcode can only be assigned to one packaging.'))
+                # same text the SQL constraint violation reaches the user with (odoo/http/retrying.py)
+                raise ValidationError(_('The operation cannot be completed: %s', _('A barcode can only be assigned to one packaging.')))
 
     @api.constrains('barcode')
     def _check_barcode_uniqueness(self):
