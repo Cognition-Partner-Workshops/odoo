@@ -62,20 +62,18 @@ def unit_specs(unit):
     """The unit's collections from the signed spec, checked against units.json and the unit's write targets."""
     by_name = {spec['collection']: spec for spec in storage_mongodb._spec_tables().values()}
     specs = []
-    for entry in unit['collections']:
-        name = entry['collection']
+    for name in unit['collections']:
         if f'{TARGET_DB}.{name}' not in unit['write_targets']:
             raise SystemExit(f'{TARGET_DB}.{name} is not a write target of {unit["id"]}: plan gap, halt')
         spec = by_name.get(name)
         if spec is None:
             raise SystemExit(f'{name} is not in the signed mapping spec')
-        if spec['root_table'] != entry['root_table']:
-            raise SystemExit(f'{name}: units.json says table {entry["root_table"]!r}, the spec says {spec["root_table"]!r}')
-        declared = sorted(entry['embedded_tables'])
-        embedded = sorted(embed['child_table'] for embed in spec['embeds'])
-        if declared != embedded:
-            raise SystemExit(f'{unit["id"]} declares embeds {declared} for {name} but the spec embeds {embedded}: plan gap, halt')
         specs.append(spec)
+    declared = sorted(unit['tables'])
+    mapped = sorted({table for spec in specs
+                     for table in [spec['root_table']] + [embed['child_table'] for embed in spec['embeds']]})
+    if declared != mapped:
+        raise SystemExit(f'{unit["id"]} declares tables {declared} but the spec maps {mapped}: plan gap, halt')
     return specs
 
 
