@@ -226,6 +226,25 @@ class TestStorageMongodb(TransactionCase):
             self.assertEqual(aggregate.call_args.args[1][-1], {'$project': {'_id': 1}})
             self.assertEqual(Tag.search_count(domain), 3)
 
+    def test_search_query_restricts_sql_added_before_its_use(self):
+        """ A where clause added to the query of a MongoDB search, before its
+        ids are used, applies on top of the search (account.move.line's
+        search panel adds an EXISTS to the account.account search). """
+        Tag = self.env['test_orm_mongodb.tag']
+        tags = Tag.create([
+            {'name': 'Query A', 'sequence': 911},
+            {'name': 'Query B', 'sequence': 912},
+            {'name': 'Query C', 'sequence': 913},
+        ])
+        self.env.flush_all()
+        query = Tag._search([('sequence', 'in', (911, 912))])
+        query.add_where(SQL("%s != %s", query.table.id, tags[0].id))
+        self.assertEqual(query.get_result_ids(), (tags[1].id,))
+        self.assertEqual(
+            self.env.execute_query(query.select(SQL("DISTINCT %s", query.table.id))),
+            [(tags[1].id,)],
+        )
+
     def test_many2one_subsearches_run_together(self):
         Tag = self.env['test_orm_mongodb.tag']
         Link = self.env['test_orm_mongodb.pg_link']

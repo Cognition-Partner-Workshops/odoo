@@ -138,15 +138,27 @@ class MongoQuery(Query):
     def is_empty(self) -> bool:
         return self._resolved and super().is_empty()
 
+    def add_join(self, *args, **kwargs) -> None:
+        # the search runs first, so that its ids restrict the SQL too
+        if not self._resolved:
+            self.resolve()
+        super().add_join(*args, **kwargs)
+
+    def add_where(self, *args, **kwargs) -> None:
+        if not self._resolved:
+            self.resolve()
+        super().add_where(*args, **kwargs)
+
     def resolve(self, projection: dict | None = None) -> list[dict]:
         """ Run the search and return its documents, projected on ``projection``. """
         docs = self._run(projection)
         self._resolved = True
-        ids = tuple(doc['_id'] for doc in docs)
-        if len(self._joins) > 1 or self._where_clauses or self.limit or self.offset:
-            self._ids = ids
-        else:
-            self.set_result_ids(ids, self._ordered)
+        # the found ids become the rows of the query (``set_result_ids``);
+        # a limit or offset set on the query by its user still applies on top
+        limit, offset = self.limit, self.offset
+        self.limit, self.offset = None, 0
+        self.set_result_ids((doc['_id'] for doc in docs), self._ordered)
+        self.limit, self.offset = limit, offset
         return docs
 
 
