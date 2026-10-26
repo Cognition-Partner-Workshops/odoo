@@ -130,20 +130,6 @@ class StockWarehouseOrderpoint(models.Model):
         'A replenishment rule already exists for this product on this location.',
     )
 
-    @api.constrains('product_id', 'location_id', 'company_id')
-    def _check_product_location_documents(self):
-        """ `_product_location_check` is a SQL UNIQUE constraint; on MongoDB storage the
-        document fields are not covered by it, so the same rule is enforced here. """
-        for orderpoint in self:
-            duplicate = self.with_context(active_test=False).search_count([
-                ('id', '!=', orderpoint.id),
-                ('product_id', '=', orderpoint.product_id.id),
-                ('location_id', '=', orderpoint.location_id.id),
-                ('company_id', '=', orderpoint.company_id.id),
-            ], limit=1)
-            if duplicate:
-                raise ValidationError(_('A replenishment rule already exists for this product on this location.'))
-
     @api.depends('warehouse_id')
     def _compute_allowed_location_ids(self):
         # We want to keep only the locations

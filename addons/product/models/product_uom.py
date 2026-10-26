@@ -20,19 +20,6 @@ class ProductUom(models.Model):
     _barcode_uniq = models.Constraint('unique(barcode)', 'A barcode can only be assigned to one packaging.')
 
     @api.constrains('barcode')
-    def _check_barcode_uniq_documents(self):
-        """ `_barcode_uniq` is a SQL UNIQUE constraint; on MongoDB storage the
-        document fields are not covered by it, so the same rule is enforced here. """
-        for packaging in self.filtered('barcode'):
-            duplicate = self.search_count([
-                ('id', '!=', packaging.id),
-                ('barcode', '=', packaging.barcode),
-            ], limit=1)
-            if duplicate:
-                # same text the SQL constraint violation reaches the user with (odoo/http/retrying.py)
-                raise ValidationError(_('The operation cannot be completed: %s', _('A barcode can only be assigned to one packaging.')))
-
-    @api.constrains('barcode')
     def _check_barcode_uniqueness(self):
         """ With GS1 nomenclature, products and packagings use the same pattern. Therefore, we need
         to ensure the uniqueness between products' barcodes and packagings' ones"""
