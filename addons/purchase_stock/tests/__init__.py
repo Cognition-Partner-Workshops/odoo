@@ -7,6 +7,7 @@ from . import test_stock
 from . import test_move_cancel_propagation
 from . import test_old_rules
 from . import test_onchange_product
+from . import test_orderpoint_mongodb
 from . import test_product_template
 from . import test_purchase_delete_order
 from . import test_purchase_lead_time
