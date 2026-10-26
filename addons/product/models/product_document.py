@@ -8,6 +8,7 @@ from odoo.exceptions import ValidationError
 class ProductDocument(models.Model):
     _name = 'product.document'
     _description = "Product Document"
+    _storage = 'mongodb'      # UNT14 wave 2 w2-b01: documents in odoo_unt13.productDocument (signed spec map-draft-5)
     _inherits = {
         'ir.attachment': 'ir_attachment_id',
     }

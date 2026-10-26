@@ -1,0 +1,110 @@
+{
+  "unit": "productRemoval",
+  "mode": "fixture",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
+  "tolerance_version": "1",
+  "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416",
+  "git_head": "70cb5d4650d2469b78dfe0f5da40e729ffbafaa4",
+  "git_dirty": false,
+  "source_db": "odoo_fixture",
+  "source_server": "hmac-sha256:993afb77f5d4f38d",
+  "ops_sha256": "68bd5e0f79a9eaaccf3dd09ad611a7d678990ce9710b4ff80041e4c9252ce005",
+  "collections": [
+    "productRemoval"
+  ],
+  "seed": 0,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-26T03:33:27.320706+00:00",
+  "redacted": true,
+  "redaction_salted": true,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 1,
+      "stats": {
+        "source_counts": {
+          "productRemoval": 4
+        },
+        "embed_source_counts": {}
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 4,
+      "stats": {
+        "deferred_to_tier3": [
+          "productRemoval.createUid",
+          "productRemoval.writeUid",
+          "productRemoval.name",
+          "productRemoval.method",
+          "productRemoval.createDate",
+          "productRemoval.writeDate"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "productRemoval.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "productRemoval.method",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "productRemoval.name",
+            "key": "productRemoval"
+          },
+          {
+            "field": "productRemoval.method",
+            "key": "productRemoval"
+          }
+        ],
+        "fields_fully_deferred": 2
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 4,
+      "stats": {
+        "productRemoval": {
+          "mode": "full_diff",
+          "population": 4,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": false,
+  "error": null
+}
