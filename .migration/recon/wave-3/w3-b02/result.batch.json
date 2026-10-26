@@ -21,11 +21,11 @@
  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/147",
  "branch": "devin/unt14-56-w3-b02",
  "failure_class": "app_tour_timeout",
- "one_line_summary": "stockLocation (stock.location + stock.picking.type, stock.route with 21 embedded stock.rule, stock.warehouse), saleOrderLineStockRouteRel, productTemplate, productOptionalRel, accountTax (260 embedded repartition lines): live PASS Tiers 1-4 and merge_eligible true on all 5 from odoo_src into odoo_unt13 via the shared loader at source concurrency 1 on the merged tree (w3-b01 merged in), salted source fingerprint a100e84e matches, fixture-first evidence under <unit>/fixture/; raw recursive SQL over stock_location.location_id in stock/models/product.py replaced by the ORM, shadow columns added for every column the installed modules' raw SQL reads from the batch models (review round 1); with PR #148 and PR #149 merged (e80675c2): tours 35/35 on PostgreSQL storage (no re-run needed) and 29/35 on MongoDB storage, 0 skipped: catalog tours and replenishment pass; test_purchase_order_suggest_search_panel_ux still fails on the 60 s whole-tour limit (expected), and 5 NEW MongoDB-only failures since PR #149 that also fail on re-run: account test_invoice_payment_widget_total_exchange_tour (step 16/17) and the four TestSaleComboConfigurator tours (step 11 product autocomplete); scratch prefixes odoo_w3b02_ptour__ 25->0 and 30->0, odoo_w3b02_mtour__ 34->0 and 38->0, odoo_w3b02_mtour2__ 38->0, odoo_w3b02_mtour3__ ->0, odoo_w3b02_ptour2__ 30->0, odoo_w3b02_mtour4__ ->0, odoo_w3b02_ptour3__ ->0; no mongo_guard block; Devin Review clean on head_sha with 0 unresolved threads",
- "head_sha": "5ab32923e182064fc10ad11ce65d7487450b971e",
+ "one_line_summary": "stockLocation (stock.location + stock.picking.type, stock.route with 21 embedded stock.rule, stock.warehouse), saleOrderLineStockRouteRel, productTemplate, productOptionalRel, accountTax (260 embedded repartition lines): live PASS Tiers 1-4 and merge_eligible true on all 5 from odoo_src into odoo_unt13 via the shared loader at source concurrency 1 on the merged tree (w3-b01 merged in), salted source fingerprint a100e84e matches, fixture-first evidence under <unit>/fixture/; raw recursive SQL over stock_location.location_id in stock/models/product.py replaced by the ORM, shadow columns added for every column the installed modules' raw SQL reads from the batch models (review round 1); with PRs #148, #149 and #150 merged (aef052e8): tours 35/35 on PostgreSQL storage (no re-run needed) and 30/35 on MongoDB storage, 0 skipped: catalog tours, replenishment and the invoice payment widget tour pass; test_purchase_order_suggest_search_panel_ux still fails on the 60 s whole-tour limit (expected), and the four TestSaleComboConfigurator tours fail at step 11 on both the run and the re-run because product.template.name_search ignores its term on MongoDB storage (lazy MongoQuery subselect rendered before resolve, shared storage path, reported not patched); scratch prefixes odoo_w3b02_ptour__ 25->0 and 30->0, odoo_w3b02_mtour__ 34->0 and 38->0, odoo_w3b02_mtour2__ 38->0, odoo_w3b02_mtour3__ ->0, odoo_w3b02_ptour2__ 30->0, odoo_w3b02_mtour4__ ->0, odoo_w3b02_ptour3__ ->0, odoo_w3b02_mtour5__ ->0, odoo_w3b02_ptour4__ ->0; no mongo_guard block; Devin Review clean on head_sha with 0 unresolved threads",
+ "head_sha": "acca3a00fd2326c3db3c039509a98b65ddd85174",
  "base_sha": "573f2cd0e8ea4a9b5b5f89aa808e1dd226376b98",
- "devin_review": "rounds on e6e7880, ad47d74, ec64c11 and 5ab32923 (0 findings on the final evidence head): 5 findings, 1 fixed (shadow columns for the SQL reports, 6a05b487), 4 dismissed with reasons (website_sale and account_update_tax_tags are uninstalled in odoo_src; stockWarehouse uniqueness is enforced by the spec unique indexes); 0 unresolved threads",
- "merged_in": "8e8193dfab1 (origin/mongo-run/unt13 after w3-b01, PR #146) and PR #148 (devin/unt14-57-orderpoint-latency, head eb80d00f, merge f6e32b4c: per-transaction MongoDB aggregation cache in storage_mongodb.py) and PR #149 (devin/unt14-58-suggest-latency, merge e80675c2: fewer purchase-suggest round trips, RegistryRLock serving HttpCase requests in arrival order) merged before the final live recon and tours",
+ "devin_review": "rounds on e6e7880, ad47d74, ec64c11, 5ab32923 and the round-4 head (0 findings on the final evidence heads): 5 findings, 1 fixed (shadow columns for the SQL reports, 6a05b487), 4 dismissed with reasons (website_sale and account_update_tax_tags are uninstalled in odoo_src; stockWarehouse uniqueness is enforced by the spec unique indexes); 0 unresolved threads",
+ "merged_in": "8e8193dfab1 (origin/mongo-run/unt13 after w3-b01, PR #146) and PR #148 (devin/unt14-57-orderpoint-latency, head eb80d00f, merge f6e32b4c: per-transaction MongoDB aggregation cache in storage_mongodb.py) and PR #149 (devin/unt14-58-suggest-latency, merge e80675c2: fewer purchase-suggest round trips, RegistryRLock serving HttpCase requests in arrival order) and PR #150 (devin/unt14-58-lock-fairness, merge aef052e8: the ids of a MongoDB search restrict the SQL of its query) merged before the final live recon and tours",
  "manifest_sha": "79a896029481",
  "tiers_passed": {
   "stockLocation": [
@@ -62,7 +62,7 @@
  "tours": {
   "postgresql_storage": {
    "tree": "8e8193d (mongo-run/unt13 base, this batch on PostgreSQL)",
-   "copy": "odoo_w3b02_ptour3",
+   "copy": "odoo_w3b02_ptour4",
    "tests": 35,
    "passed": 35,
    "skipped": 0,
@@ -70,19 +70,19 @@
    "needed_rerun": []
   },
   "mongodb_storage": {
-   "tree": "combined head e80675c2 (PR #148 aggregation cache + PR #149 purchase-suggest round trips / RegistryRLock merged)",
-   "copy": "odoo_w3b02_mtour4",
+   "tree": "combined head aef052e8 (PR #148 aggregation cache + PR #149 purchase-suggest round trips / RegistryRLock + PR #150 MongoQuery ids restrict SQL merged)",
+   "copy": "odoo_w3b02_mtour5",
    "tests": 35,
-   "passed": 29,
+   "passed": 30,
    "skipped": 0,
    "needed_rerun": [],
    "failed": [
-    "purchase_stock TestPurchaseOrderSuggest.test_purchase_order_suggest_search_panel_ux (expected: 60 s whole-tour script limit on Atlas, failed in the full run)",
-    "account TestUi.test_invoice_payment_widget_total_exchange_tour (NEW: step 16/17 \"Reconciled journal items are shown\" 10 s step timeout; failed again on its re-run alone)",
-    "sale TestSaleComboConfigurator.test_sale_combo_configurator, test_sale_combo_configurator_preconfigure_unconfigurable_pta, test_sale_combo_configurator_preselect_single_unconfigurable, test_sale_combo_configurator_with_optional_products (NEW: all four at step 11 \"ul.ui-autocomplete a:contains(Combo product)\" 10 s step timeout; failed again on their re-run alone)"
+    "purchase_stock TestPurchaseOrderSuggest.test_purchase_order_suggest_search_panel_ux (expected: \"Script timeout exceeded\", the 60 s whole-tour limit on Atlas; default limits kept)",
+    "sale TestSaleComboConfigurator.test_sale_combo_configurator, test_sale_combo_configurator_preconfigure_unconfigurable_pta, test_sale_combo_configurator_preselect_single_unconfigurable, test_sale_combo_configurator_with_optional_products (all four at step 11 \"ul.ui-autocomplete a:contains(Combo product)\", 10 s step timeout; failed again on their one re-run alone)"
    ],
-   "note": "the catalog \"add section\" tours and test_product_replenishment passed first time; the 5 NEW failures passed in rounds 1-2 (c017bf0a, 6a05b487, f6e32b4c) and appear only on this head, i.e. after PR #149; PostgreSQL storage on the base tree is unaffected (35/35). Reported to the manager, not patched.",
-   "previous_rounds": "30/35 on c017bf0a, 31/35 on 6a05b487 (before PR #148), 34/35 on f6e32b4c (PR #148, only search_panel_ux failing)"
+   "root_cause_of_combo_failures": "product.template.name_search(\"Combo product\") on MongoDB storage ignores the search term: product.template._search_display_name builds its domain from sub-queries of _search over name/default_code, and since PR #149/#150 those are lazy MongoQuery objects whose subselect() is rendered before resolve(), so the SQL is a plain SELECT id FROM product_template without the Mongo-found ids (observed domain: id in ((SELECT id FROM product_template) UNION ALL (SELECT id FROM product_template))). The autocomplete returns the first 8 products alphabetically and the tour step never matches. Shared storage path (odoo/orm/storage_mongodb.py MongoQuery: resolve-on-use exists for add_join/add_where only), reported to the manager with repro /home/ubuntu/w3b02/repro_combo_search2.py, not patched here. search([(\"name\",\"ilike\",\"Combo product\")]) is correct; live recon is unaffected.",
+   "note": "the catalog \"add section\" tours, test_product_replenishment and test_invoice_payment_widget_total_exchange_tour pass first time on this head.",
+   "previous_rounds": "30/35 on c017bf0a, 31/35 on 6a05b487 (before PR #148), 34/35 on f6e32b4c (PR #148), 29/35 on e80675c2 (PR #149: 5 new failures), 30/35 on aef052e8 (PR #150: invoice payment widget fixed, combo configurator still failing)"
   }
  },
  "scratch_prefixes": {
@@ -151,6 +151,18 @@
    }
   ],
   "odoo_w3b02_ptour3__": [
+   {
+    "before_cleanup": 30,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w3b02_mtour5__": [
+   {
+    "before_cleanup": 38,
+    "after_cleanup": 0
+   }
+  ],
+  "odoo_w3b02_ptour4__": [
    {
     "before_cleanup": 30,
     "after_cleanup": 0
