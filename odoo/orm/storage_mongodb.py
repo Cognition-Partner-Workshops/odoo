@@ -46,6 +46,50 @@ if typing.TYPE_CHECKING:
 
 _logger = logging.getLogger(__name__)
 
+# key in ``cr.cache`` of the transaction's aggregation results (see ``_cached_aggregate``)
+_AGGREGATE_CACHE = 'storage_mongodb.aggregate'
+AGGREGATE_CACHE_LIMIT = 1000   # pipelines kept per transaction before dropping them all
+
+
+def _cached_aggregate(model: BaseModel, stages: list[dict], **options) -> list[dict]:
+    """ Run the aggregation ``stages`` on the model's collection, serving a
+    repeat of the same pipeline from the transaction's cache instead of a
+    new round trip.
+
+    Within one transaction the documents only change through this module's
+    writes, every one of which goes through ``_add_undo`` and clears the
+    cache (also when a savepoint rollback replays its undo); the cache
+    itself lives in ``cr.cache``, which the transaction clears on commit and
+    rollback. Other transactions' writes stay invisible until then, as rows
+    do under PostgreSQL's REPEATABLE READ snapshot.
+    """
+    cache = model.env.cr.cache.setdefault(_AGGREGATE_CACHE, {})
+    key = (
+        get_collection(model).full_name,
+        hashlib.sha256(json.dumps([stages, options], default=str, sort_keys=True).encode()).hexdigest(),
+    )
+    if (docs := cache.get(key)) is None:
+        with get_collection(model).aggregate(stages, **options) as cursor:
+            docs = list(cursor)
+        if len(cache) >= AGGREGATE_CACHE_LIMIT:
+            cache.clear()
+        cache[key] = docs
+    return docs
+
+
+def _add_undo(cr, func: typing.Callable[[], typing.Any]) -> None:
+    """ Register ``func`` as the undo of a MongoDB write (``cr.add_undo``);
+    the write, like its undo, invalidates the transaction's aggregation cache. """
+    cache = cr.cache.setdefault(_AGGREGATE_CACHE, {})
+    cache.clear()
+
+    def undo():
+        cache.clear()
+        func()
+
+    cr.add_undo(undo)
+
+
 DATABASE = 'odoo_unt13'     # the only target in .migration/allowed_targets.json
 SPEC_PATH = Path(__file__).resolve().parents[2] / '.migration' / 'mapping_spec.json'
 SPEC_SHA256 = 'c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7'
@@ -505,11 +549,11 @@ def add_links(env, layout: dict, links: list[dict]) -> None:
     collection = _relation_collection(env, layout)
     _mirror_links(env, layout, links, add=True)
     if 'owner' in layout:
-        env.cr.add_undo(lambda: _apply_to_arrays(collection, layout, links, add=False))
+        _add_undo(env.cr, lambda: _apply_to_arrays(collection, layout, links, add=False))
         _apply_to_arrays(collection, layout, links, add=True)
         return
     docs = [{'_id': ObjectId()} | {path: link[col] for col, path in layout['targets'].items()} for link in links]
-    env.cr.add_undo(lambda: collection.delete_many({'_id': {'$in': [doc['_id'] for doc in docs]}}))
+    _add_undo(env.cr, lambda: collection.delete_many({'_id': {'$in': [doc['_id'] for doc in docs]}}))
     try:
         collection.insert_many(docs, ordered=False)
     except pymongo.errors.BulkWriteError as e:
@@ -523,13 +567,13 @@ def remove_links(env, layout: dict, links: list[dict]) -> None:
     collection = _relation_collection(env, layout)
     _mirror_links(env, layout, links, add=False)
     if 'owner' in layout:
-        env.cr.add_undo(lambda: _apply_to_arrays(collection, layout, links, add=True))
+        _add_undo(env.cr, lambda: _apply_to_arrays(collection, layout, links, add=True))
         _apply_to_arrays(collection, layout, links, add=False)
         return
     targets = layout['targets']
     priors = list(collection.find({'$or': [{path: link[col] for col, path in targets.items()} for link in links]}))
     if priors:
-        env.cr.add_undo(lambda: collection.insert_many(priors))
+        _add_undo(env.cr, lambda: collection.insert_many(priors))
         collection.delete_many({'_id': {'$in': [doc['_id'] for doc in priors]}})
 
 
@@ -906,7 +950,7 @@ def _insert_children(model: BaseModel, ids: list[int], rows: list[dict]) -> None
         elements[doc.get(embed['parent_path'])].append(_element(embed, doc))
     _lock_parents(model, elements)
     array, id_path = embed['array'], embed['id_path']
-    model.env.cr.add_undo(lambda: collection.update_many(
+    _add_undo(model.env.cr, lambda: collection.update_many(
         {'_id': {'$in': list(elements)}}, {'$pull': {array: {id_path: {'$in': ids}}}}))
     result = collection.bulk_write([
         pymongo.UpdateOne({'_id': parent_id}, {'$push': {array: {'$each': children}}})
@@ -936,7 +980,7 @@ def _update_children(model: BaseModel, priors: dict[int, dict], changes: list[tu
     if not ops:
         return
     before = _elements(model, [id_ for id_, _set, _unset in changes])
-    model.env.cr.add_undo(lambda: _restore_elements(collection, embed, before))
+    _add_undo(model.env.cr, lambda: _restore_elements(collection, embed, before))
     collection.bulk_write(ops, ordered=True)
     _check_key(model, parents)
 
@@ -946,7 +990,7 @@ def _delete_children(model: BaseModel, ids: list[int]) -> None:
     if not (priors := _elements(model, ids)):
         return
     _lock_parents(model, {parent_id for parent_id, _index, _element in priors.values()}, check=False)
-    model.env.cr.add_undo(lambda: _restore_elements(collection, embed, priors))
+    _add_undo(model.env.cr, lambda: _restore_elements(collection, embed, priors))
     array, id_path = embed['array'], embed['id_path']
     collection.update_many({'_id': {'$in': [prior[0] for prior in priors.values()]}},
                            {'$pull': {array: {id_path: {'$in': list(priors)}}}})
@@ -1028,7 +1072,7 @@ def insert(model: BaseModel, ids: list[int], rows: list[dict]) -> None:
     if _layout(model).get('embed'):
         return _insert_children(model, ids, rows)
     collection = get_collection(model)
-    model.env.cr.add_undo(lambda: collection.delete_many({'_id': {'$in': ids}}))
+    _add_undo(model.env.cr, lambda: collection.delete_many({'_id': {'$in': ids}}))
     try:
         collection.insert_many([_document(model, id_, row) for id_, row in zip(ids, rows, strict=True)])
     except pymongo.errors.BulkWriteError as e:
@@ -1050,7 +1094,7 @@ def update(model: BaseModel, ids: list[int], vals_list: list[dict]) -> None:
                              SQL.identifier(model._table), tuple(ids)))
     priors = _fetch_docs(model, ids)
     if not embed:
-        model.env.cr.add_undo(lambda: [collection.replace_one({'_id': doc['_id']}, doc) for doc in priors.values()])
+        _add_undo(model.env.cr, lambda: [collection.replace_one({'_id': doc['_id']}, doc) for doc in priors.values()])
     ops, changes, fallbacks = [], [], {}
     for id_, vals in zip(ids, vals_list, strict=True):
         to_set, to_unset = {}, {}
@@ -1215,7 +1259,7 @@ def delete(model: BaseModel, ids: typing.Iterable[int]) -> None:
         return _delete_children(model, ids)
     priors = list(collection.find({'_id': {'$in': ids}}))
     if priors:
-        model.env.cr.add_undo(lambda: collection.insert_many(priors))
+        _add_undo(model.env.cr, lambda: collection.insert_many(priors))
     collection.delete_many({'_id': {'$in': ids}})
 
 
@@ -1319,7 +1363,7 @@ def company_dependent_set_null(model: BaseModel, field: Field, ids) -> None:
     model.env.cr.execute(SQL("SELECT id FROM %s WHERE id IN %s FOR UPDATE",
                              SQL.identifier(model._table), tuple(matched)))
     priors = list(collection.find({'_id': {'$in': matched}}))
-    model.env.cr.add_undo(lambda: [collection.replace_one({'_id': doc['_id']}, doc) for doc in priors])
+    _add_undo(model.env.cr, lambda: [collection.replace_one({'_id': doc['_id']}, doc) for doc in priors])
     for doc in priors:
         values = {key: None if value in ids else value for key, value in (doc.get(path) or {}).items()}
         collection.update_one({'_id': doc['_id']}, {'$set': {path: values}})
@@ -1401,12 +1445,11 @@ def search(model: BaseModel, domain, sec_domain, order: str | None, limit, offse
     while True:
         stages = pipeline + ([{'$limit': bound}] if bound else []) + [{'$project': {'_id': 1}}]
         read, ids, orphans = 0, [], []
-        with get_collection(model).aggregate(stages, batchSize=IN_MAX) as cursor:
-            for batch in split_every(IN_MAX, (doc['_id'] for doc in cursor)):
-                read += len(batch)
-                alive = _alive(model, batch)
-                orphans.extend(id_ for id_ in batch if id_ not in alive)
-                ids.extend(id_ for id_ in batch if id_ in alive)
+        for batch in split_every(IN_MAX, (doc['_id'] for doc in _cached_aggregate(model, stages, batchSize=IN_MAX))):
+            read += len(batch)
+            alive = _alive(model, batch)
+            orphans.extend(id_ for id_ in batch if id_ not in alive)
+            ids.extend(id_ for id_ in batch if id_ in alive)
         if not (bound and orphans and read == bound and len(ids) < (offset or 0) + limit):
             break
         bound += len(orphans)
@@ -1485,15 +1528,14 @@ def read_group(model: BaseModel, domain, groupby, aggregates, having, offset, li
     groups = {}
     for chunk in map(list, split_every(GROUP_CHUNK, ids)):
         stages = _virtual_stages(_layout(model), chunk) + [{'$group': {'_id': keys or None, **accumulators}}]
-        with get_collection(model).aggregate(stages, allowDiskUse=True) as cursor:
-            for group in map(_native, cursor):
-                gkey = tuple(sorted((group['_id'] or {}).items()))
-                if (prior := groups.get(gkey)) is None:
-                    groups[gkey] = group
-                    continue
-                for name, accumulator in accumulators.items():
-                    (op,) = accumulator
-                    prior[name] = _MERGE[op](prior[name], group[name])
+        for group in map(_native, _cached_aggregate(model, stages, allowDiskUse=True)):
+            gkey = tuple(sorted((group['_id'] or {}).items()))
+            if (prior := groups.get(gkey)) is None:
+                groups[gkey] = group
+                continue
+            for name, accumulator in accumulators.items():
+                (op,) = accumulator
+                prior[name] = _MERGE[op](prior[name], group[name])
     if many2many := {i: model._fields[path] for i, path in enumerate(paths)
                      if path in model._fields and model._fields[path].type == 'many2many'}:
         groups = _expand(groups, {i: _many2many_ids(model, field, ids) for i, field in many2many.items()},
