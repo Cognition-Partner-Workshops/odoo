@@ -11,6 +11,7 @@ from . import test_old_rules
 from . import test_overview_graph
 from . import test_packing
 from . import test_packing_neg
+from . import test_package_type_barcode
 from . import test_picking_tours
 from . import test_proc_rule
 from . import test_product

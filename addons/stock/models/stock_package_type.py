@@ -3,6 +3,8 @@
 
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
+from odoo.orm import storage_mongodb
+from odoo.tools import SQL
 
 
 class StockPackageType(models.Model):
@@ -65,8 +67,17 @@ class StockPackageType(models.Model):
     # the same rules, checked through the ORM
     @api.constrains('barcode')
     def _check_barcode_unique(self):
-        for package_type in self.filtered('barcode'):
-            if self.search_count([('barcode', '=', package_type.barcode), ('id', '!=', package_type.id)], limit=1):
+        # the signed spec has no unique index on barcode and a search over the shadow
+        # rows cannot see another transaction's uncommitted claim: the claimers of a
+        # barcode queue on an advisory lock held until their transaction ends, then
+        # look at the documents themselves (a rolled-back claim is undone before its
+        # lock is released, a committed one stays)
+        collection = storage_mongodb.get_collection(self)
+        path = storage_mongodb.document_path(self, self._fields['barcode'])
+        for package_type in self.filtered('barcode').sorted('barcode'):
+            self.env.cr.execute(SQL("SELECT pg_advisory_xact_lock(hashtext(%s))", f'stock_package_type.barcode:{package_type.barcode}'))
+            rivals = self.search([('barcode', '=', package_type.barcode), ('id', '!=', package_type.id)], limit=1)
+            if rivals or collection.find_one({path: package_type.barcode, '_id': {'$ne': package_type.id}}, {'_id': 1}):
                 raise ValidationError(self.env._('A barcode can only be assigned to one package type!'))
 
     @api.constrains('height', 'width', 'packaging_length', 'max_weight')
