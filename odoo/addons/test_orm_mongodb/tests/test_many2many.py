@@ -146,6 +146,37 @@ class TestMany2manyMongodb(TransactionCase):
         fob.unlink()
         self.assertEqual(self.junction()[1], sorted(before + [(exw.id, b.id)]))
 
+    def test_root_junction_mongodb_writes_from_both_sides(self):
+        incoterm = self.Incoterm.create({'code': 'TST', 'name': 'Test'})
+        link = self.Link.create({'name': 'Test'})
+        pair = (incoterm.id, link.id)
+
+        incoterm.optional_link_ids = [Command.link(link.id)]
+        self.assertIn(pair, self.junction()[1])
+        self.assertFalse(sql.table_exists(self.env.cr, 'product_optional_rel'))
+        self.env.invalidate_all()
+        self.assertEqual(incoterm.optional_link_ids, link)
+        self.assertEqual(link.optional_incoterm_ids, incoterm)
+
+        incoterm.optional_link_ids = [Command.unlink(link.id)]
+        self.assertNotIn(pair, self.junction()[1])
+        self.env.invalidate_all()
+        self.assertFalse(incoterm.optional_link_ids)
+        self.assertFalse(link.optional_incoterm_ids)
+
+        link.optional_incoterm_ids = [Command.link(incoterm.id)]
+        self.assertIn(pair, self.junction()[1])
+        self.assertFalse(sql.table_exists(self.env.cr, 'product_optional_rel'))
+        self.env.invalidate_all()
+        self.assertEqual(incoterm.optional_link_ids, link)
+        self.assertEqual(link.optional_incoterm_ids, incoterm)
+
+        link.optional_incoterm_ids = [Command.unlink(incoterm.id)]
+        self.assertNotIn(pair, self.junction()[1])
+        self.env.invalidate_all()
+        self.assertFalse(incoterm.optional_link_ids)
+        self.assertFalse(link.optional_incoterm_ids)
+
     def test_link_to_missing_record_fails(self):
         exw, _fob = self.incoterms
         tag = self.Tag.create({'name': 'red'})

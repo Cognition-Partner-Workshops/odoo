@@ -16,15 +16,25 @@ Rules (migration-planning SKILL, s3.3-unit-derivation, at the pinned plugin):
   reference and must be cited in NO_WRITE_PATH_SETTER; an uncited one stops the derivation.
 - Collections that reference each other in a cycle form one unit (strongly connected
   component); a unit's depth is its longest ordering path to a unit with no dependencies.
-- Wave 1 is the canary alone: the smallest depth-0 unit by rows with at least one row; it
-  lands the run's one shared loader. Wave 2 holds the other depth-0 units, wave d+2 depth d.
-  Within a wave units go smallest first (rows, then id); batches take up to 5 units in order.
+- Wave 1 is the canary alone: the smallest depth-0 non-junction unit by rows with at least one
+  row; it lands the run's one shared loader. Wave 2 holds the other depth-0 non-junction units,
+  wave d+2 depth d. Within a wave, non-junction units go smallest first (rows, then id); in that
+  order, each unit and its junctions (sorted by rows, then id) form an indivisible group, and
+  batches greedily pack whole groups up to 5 units.
+- A root junction unit (its root table is a pure link table) is placed with the earlier of its
+  endpoint units in migration order (the first one to opt into MongoDB; the many2many owner and
+  comodel are cited in JUNCTION_OWNERS): it joins that unit's batch right after it and takes its
+  wave and depth, because storage_mongodb.relation_layout (odoo/orm/storage_mongodb.py:284) routes
+  a relation to MongoDB once the model or the comodel is on MongoDB. A junction unit is never the
+  canary, and a group larger than 5 units stops the derivation.
 """
 import argparse
+import ast
 import hashlib
 import json
 import re
 import sys
+import textwrap
 from collections import defaultdict
 from pathlib import Path
 
@@ -65,6 +75,49 @@ MIRRORED_RELATIONS = [
     ('stock.picking.type', 'favorite_user_ids', 'picking_type_favorite_user_rel', 'addons/stock/models/stock_picking_type.py'),
     ('sale.order.line', 'invoice_lines', 'sale_order_line_invoice_rel', 'addons/sale/models/sale_order_line.py'),
 ]
+JUNCTION_OWNERS: dict[str, list[tuple[str, str, str]]] = {
+    'sale_order_line_accrual_move_rel': [
+        ('sale.order.line', 'accrual_move_ids', 'addons/sale/models/sale_order_line.py:368'),
+    ],
+    'account_reconcile_model_line_account_tax_rel': [
+        ('account.reconcile.model.line', 'tax_ids', 'addons/account/models/account_reconcile_model.py:51'),
+        ('account.tax', 'account_reconcile_model_line_ids', 'addons/account/models/account_tax.py:208'),
+    ],
+    'product_template_attribute_excluded_value_ids_rel': [
+        ('product.template.attribute.value', 'excluded_value_ids',
+         'addons/product/models/product_template_attribute_value.py:50'),
+    ],
+    'product_template_attribute_value_sale_order_line_rel': [
+        ('sale.order.line', 'product_no_variant_attribute_value_ids',
+         'addons/sale/models/sale_order_line.py:138'),
+    ],
+    'sale_order_line_stock_route_rel': [
+        ('sale.order.line', 'route_ids', 'addons/sale_stock/models/sale_order_line.py:16'),
+    ],
+    'product_template_attribute_value_purchase_order_line_rel': [
+        ('purchase.order.line', 'product_no_variant_attribute_value_ids',
+         'addons/purchase/models/purchase_order_line.py:141'),
+    ],
+    'product_template_uom_uom_rel': [
+        ('product.template', 'uom_ids', 'addons/product/models/product_template.py:160'),
+    ],
+    'template_attribute_value_stock_move_rel': [
+        ('stock.move', 'never_product_template_attribute_value_ids', 'addons/stock/models/stock_move.py:47'),
+    ],
+    'product_optional_rel': [
+        ('product.template', 'optional_product_ids', 'addons/sale/models/product_template.py:55'),
+    ],
+    'sale_order_line_invoice_rel': [
+        ('sale.order.line', 'invoice_lines', 'addons/sale/models/sale_order_line.py:329'),
+        ('account.move.line', 'sale_line_ids', 'addons/sale/models/account_move_line.py:12'),
+    ],
+    'product_attribute_value_product_template_attribute_line_rel': [
+        ('product.template.attribute.line', 'value_ids',
+         'addons/product/models/product_template_attribute_line.py:32'),
+        ('product.attribute.value', 'pav_attribute_line_ids',
+         'addons/product/models/product_attribute_value.py:29'),
+    ],
+}
 PLUGIN_FINDINGS = [
     'No unit or wave derivation tool at the pin: skills/migration-planning/SKILL.md:90 states the s3.3 rule '
     'in prose and no script under skills/ computes units or waves, so this run carries the derivation in '
@@ -127,6 +180,84 @@ def site_in(site, cell):
 
 def table_names(cell):
     return [t.strip().removesuffix(' (w)').strip() for t in cell.split(',') if t.strip() not in ('', '-')]
+
+
+def verify_junction_declaration(table, model, field, declared_at):
+    path, line = declared_at.rsplit(':', 1)
+    source_path = ROOT / path
+    source = source_path.read_text()
+    line_number = int(line)
+    lines = source.splitlines(keepends=True)
+    if not 1 <= line_number <= len(lines):
+        sys.exit(f'{declared_at}: declaration line does not exist')
+    match = re.match(rf'^\s*{re.escape(field)}\s*=\s*fields\.Many2many\(', lines[line_number - 1])
+    if not match:
+        sys.exit(f'{declared_at}: expected {field} = fields.Many2many(')
+
+    line_start = sum(len(value) for value in lines[:line_number - 1])
+    opening = line_start + match.end() - 1
+    depth, quote, triple, escaped, comment = 0, None, False, False, False
+    index = opening
+    closing = None
+    while index < len(source):
+        char = source[index]
+        if comment:
+            if char == '\n':
+                comment = False
+        elif quote:
+            if escaped:
+                escaped = False
+            elif char == '\\':
+                escaped = True
+            elif triple and source.startswith(quote * 3, index):
+                quote = None
+                triple = False
+                index += 2
+            elif not triple and char == quote:
+                quote = None
+        elif char == '#':
+            comment = True
+        elif char in ("'", '"'):
+            quote = char
+            triple = source.startswith(char * 3, index)
+            if triple:
+                index += 2
+        elif char == '(':
+            depth += 1
+        elif char == ')':
+            depth -= 1
+            if depth == 0:
+                closing = index + 1
+                break
+        index += 1
+    if closing is None:
+        sys.exit(f'{declared_at}: unbalanced Many2many declaration')
+    try:
+        tree = ast.parse(textwrap.dedent(source[line_start:closing]))
+    except SyntaxError as exc:
+        sys.exit(f'{declared_at}: cannot parse Many2many declaration: {exc}')
+    call = tree.body[0].value
+    if not isinstance(call, ast.Call):
+        sys.exit(f'{declared_at}: expected a Many2many call')
+
+    string_values = {node.value for node in ast.walk(call)
+                     if isinstance(node, ast.Constant) and isinstance(node.value, str)}
+    if table in string_values:
+        return
+
+    has_relation_keyword = any(keyword.arg == 'relation' for keyword in call.keywords)
+    has_second_string = (len(call.args) > 1 and isinstance(call.args[1], ast.Constant)
+                         and isinstance(call.args[1].value, str))
+    if has_relation_keyword or has_second_string:
+        sys.exit(f'{declared_at}: Many2many declaration does not name relation table {table}')
+    comodel = next((keyword.value for keyword in call.keywords if keyword.arg == 'comodel_name'),
+                   call.args[0] if call.args else None)
+    if not isinstance(comodel, ast.Constant) or not isinstance(comodel.value, str):
+        sys.exit(f'{declared_at}: cannot determine comodel for relation table {table}')
+    auto_relation = '%s_%s_rel' % tuple(sorted([model.replace('.', '_'),
+                                                 comodel.value.replace('.', '_')]))
+    if auto_relation != table:
+        sys.exit(f'{declared_at}: auto relation {auto_relation} does not match {table}')
 
 
 def derive():
@@ -237,10 +368,82 @@ def derive():
         depth_of(u)
     unit_rows = {u: sum(coll_rows[n] for n in ns) for u, ns in units.items()}
 
-    candidates = [u for u in units if depth[u] == 0 and unit_rows[u] > 0]
+    unit_of_table = {t: unit_of[coll_of_table[t]] for t in coll_of_table}
+    root_junctions = {}
+    for u, names in units.items():
+        if len(names) == 1:
+            collection = colls[names[0]]
+            if not collection['embeds'] and is_junction(collection['root_table']):
+                root_junctions[u] = collection['root_table']
+    if set(root_junctions.values()) != set(JUNCTION_OWNERS):
+        missing = sorted(set(root_junctions.values()) - set(JUNCTION_OWNERS))
+        extra = sorted(set(JUNCTION_OWNERS) - set(root_junctions.values()))
+        sys.exit(f'JUNCTION_OWNERS tables differ from root junctions; missing {missing}, extra {extra}')
+    for table, declarations in JUNCTION_OWNERS.items():
+        if not declarations:
+            sys.exit(f'{table}: JUNCTION_OWNERS has no declarations')
+        for model, field, declared_at in declarations:
+            verify_junction_declaration(table, model, field, declared_at)
+
+    junction_endpoints = {}
+    for u, table in root_junctions.items():
+        collection = units[u][0]
+        endpoints = {unit_of[ref['to']] for ref in junction_refs
+                     if ref['collection'] == collection and ref['table'] == table}
+        if not endpoints:
+            sys.exit(f'{table}: root junction has no endpoint units')
+        owner_model = JUNCTION_OWNERS[table][0][0]
+        owner_table = owner_model.replace('.', '_')
+        if owner_table not in unit_of_table or unit_of_table[owner_table] not in endpoints:
+            sys.exit(f'{table}: owner model {owner_model} is not one of its endpoint units')
+        junction_endpoints[u] = endpoints
+
+    non_junction_units = set(units) - set(root_junctions)
+    candidates = [u for u in non_junction_units if depth[u] == 0 and unit_rows[u] > 0]
     canary = min(candidates, key=lambda u: (unit_rows[u], len(units[u]), u))
-    wave_of = {u: 1 if u == canary else depth[u] + 2 for u in units}
-    ordered = sorted(units, key=lambda u: (wave_of[u], unit_rows[u], u))
+    base_wave_of = {u: 1 if u == canary else depth[u] + 2 for u in non_junction_units}
+    base_ordered = sorted(non_junction_units, key=lambda u: (base_wave_of[u], unit_rows[u], u))
+    base_position = {u: i + 1 for i, u in enumerate(base_ordered)}
+    junction_anchor, junctions_by_anchor = {}, defaultdict(list)
+    for u, endpoints in junction_endpoints.items():
+        if any(endpoint not in base_position for endpoint in endpoints):
+            sys.exit(f'{root_junctions[u]}: endpoint is not a non-junction unit')
+        anchor = min(endpoints, key=base_position.get)
+        if anchor == canary:
+            sys.exit(f'{root_junctions[u]}: junction anchor cannot be the canary')
+        junction_anchor[u] = anchor
+        junctions_by_anchor[anchor].append(u)
+    for junctions in junctions_by_anchor.values():
+        junctions.sort(key=lambda u: (unit_rows[u], u))
+
+    wave_of = dict(base_wave_of)
+    for u, anchor in junction_anchor.items():
+        wave_of[u] = wave_of[anchor]
+        depth[u] = depth[anchor]
+    batch_members_by_wave, batch_of, ordered = {}, {}, []
+    for w in sorted(set(base_wave_of.values())):
+        members = [u for u in base_ordered if base_wave_of[u] == w]
+        groups = []
+        for u in members:
+            group = [u, *junctions_by_anchor[u]]
+            if len(group) > BATCH_MAX_UNITS:
+                sys.exit(f'{u}: junction group exceeds {BATCH_MAX_UNITS} units')
+            groups.append(group)
+        wave_chunks = []
+        chunk = []
+        for group in groups:
+            if chunk and len(chunk) + len(group) > BATCH_MAX_UNITS:
+                wave_chunks.append(chunk)
+                chunk = []
+            chunk.extend(group)
+        if chunk:
+            wave_chunks.append(chunk)
+        for i, chunk in enumerate(wave_chunks):
+            bid = f'w{w}-b{i + 1:02d}'
+            for u in chunk:
+                batch_of[u] = bid
+            ordered.extend(chunk)
+        batch_members_by_wave[w] = wave_chunks
     position = {u: i + 1 for i, u in enumerate(ordered)}
 
     def earlier(a, b):  # unit a merges in an earlier wave than unit b
@@ -264,7 +467,6 @@ def derive():
                                     'why': 'link-table id: resolves once the target unit merges'})
 
     acceptance = {u: defaultdict(list) for u in units}
-    unit_of_table = {t: unit_of[coll_of_table[t]] for t in coll_of_table}
 
     def first_moved(ts):
         us = sorted({unit_of_table[t] for t in ts if t in unit_of_table}, key=position.get)
@@ -400,26 +602,23 @@ def derive():
     base_batch = {'fixture_manifest': FIXTURE_MANIFEST, 'recon_tolerances_version': tol_version,
                   'mapping_version': mapping_version, 'mapping_sha256': SIGNED_MAPPING_SHA256,
                   'tolerance_sha256': sha256_file('recon_tolerances.json')}
-    waves, batch_of = [], {}
+    waves = []
     for w in sorted(set(wave_of.values())):
         members = [u for u in ordered if wave_of[u] == w]
         batches = []
-        for i in range(0, len(members), BATCH_MAX_UNITS):
-            chunk = members[i:i + BATCH_MAX_UNITS]
-            bid = f'w{w}-b{len(batches) + 1:02d}'
+        for i, chunk in enumerate(batch_members_by_wave[w]):
+            bid = f'w{w}-b{i + 1:02d}'
             nf = sorted({f['stat'] for u in chunk for f in forward[u] if f['kind'] == 'never_filled'})
             b = {'id': bid, 'units': chunk,
                  'write_targets': sorted(f'{TARGET_DB}.{n}' for u in chunk for n in units[u]), **base_batch}
             if nf:
                 b['never_filled_refs'] = nf
             batches.append(b)
-            for u in chunk:
-                batch_of[u] = bid
         waves.append({'wave': w, 'depth': depth[members[0]], 'units': members, 'batches': batches})
 
     out_units = []
     for u in ordered:
-        out_units.append({
+        out_unit = {
             'id': u, 'wave': wave_of[u], 'batch': batch_of[u], 'order': position[u], 'depth': depth[u],
             'rows': unit_rows[u],
             'collections': [{'collection': n, 'root_table': colls[n]['root_table'],
@@ -434,7 +633,20 @@ def derive():
                            ('raw_sql_failures', 'register_rows_owned', 'register_rows_recheck',
                             'sql_view_reports', 'mirrored_link_tables', 'crons_to_pause', 'storage_items')
                            if acceptance[u][k]},
-        })
+        }
+        if u in root_junctions:
+            relation = root_junctions[u]
+            declarations = JUNCTION_OWNERS[relation]
+            out_unit['junction'] = {
+                'relation': relation,
+                'owner': {'model': declarations[0][0], 'field': declarations[0][1],
+                          'declared_at': declarations[0][2]},
+                'also_declared': [{'model': model, 'field': field, 'declared_at': declared_at}
+                                 for model, field, declared_at in declarations[1:]],
+                'endpoints': sorted(junction_endpoints[u], key=position.get),
+                'placed_with': junction_anchor[u],
+            }
+        out_units.append(out_unit)
     return {
         'kind': 'migration-units', 'plan_step': 's3.5-units', 'generator': '.migration/derive_units.py',
         'plugin_sha': (MIG / 'plugin_sha').read_text().strip(),
@@ -448,11 +660,12 @@ def derive():
         'write_path_setters': [{'table': t, 'column': c, 'set_at': s} for (t, c), s in sorted(WRITE_PATH_SETTERS.items())],
         'shared_loader': {'path': SHARED_LOADER, 'landed_by': canary, 'batch': 'w1-b01',
                           'rule': 'one loader per run; later batches import it, never ship a copy'},
-        'canary': {'unit': canary, 'rows': unit_rows[canary], 'why': 'smallest depth-0 unit by rows with at least one row'},
+        'canary': {'unit': canary, 'rows': unit_rows[canary],
+                   'why': 'smallest depth-0 non-junction unit by rows with at least one row'},
         'totals': {'collections': len(colls), 'units': len(units), 'waves': len(waves),
                    'batches': sum(len(w['batches']) for w in waves), 'rows': sum(unit_rows.values()),
                    'raw_sql_failures': len(failures), 'junction_refs': len(junction_refs),
-                   'never_filled_refs': len(never_filled)},
+                   'never_filled_refs': len(never_filled), 'root_junction_units': len(root_junctions)},
         'waves': waves,
         'units': out_units,
         'crons_review_before_load': review_crons,
@@ -473,12 +686,26 @@ def notes_section(d):
          '### Rules', ''] + [f'- {r}' for r in d['rules']] + [
          '', 'Never-filled references that still order because installed code sets them:', ''] + [
          f"- `{s['table']}.{s['column']}`: `{s['set_at']}`" for s in d['write_path_setters']] + [
-         '', '### Waves', '', '| wave | depth | batch | units (smallest first) | rows |', '|---|---|---|---|---|']
+         '', '### Waves', '',
+         '| wave | depth | batch | units (non-junction smallest first; junctions after anchor) | rows |',
+         '|---|---|---|---|---|']
     rows = {u['id']: u['rows'] for u in d['units']}
     for w in d['waves']:
         for b in w['batches']:
             L.append(f"| {w['wave']} | {w['depth']} | {b['id']} | " + ', '.join(f'`{u}`' for u in b['units'])
                      + f" | {sum(rows[u] for u in b['units'])} |")
+    L += ['', '### Root junction units', '',
+          '| unit | relation | owner field (declared at) | endpoints | placed with | wave | batch |',
+          '|---|---|---|---|---|---|---|']
+    for u in d['units']:
+        if 'junction' not in u:
+            continue
+        junction = u['junction']
+        owner = junction['owner']
+        endpoints = ', '.join(f"`{endpoint}`" for endpoint in junction['endpoints'])
+        L.append(f"| `{u['id']}` | `{junction['relation']}` | "
+                 f"`{owner['model']}.{owner['field']}` (`{owner['declared_at']}`) | {endpoints} | "
+                 f"`{junction['placed_with']}` | {u['wave']} | `{u['batch']}` |")
     L += ['', '### Units', '',
           'Order is the global migration order. Tables: root table first, embedded tables after it. '
           'Tours: test files under the scope addons and bridges that call `start_tour` and name one of the unit\'s '
