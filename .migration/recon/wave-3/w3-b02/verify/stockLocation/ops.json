@@ -1,0 +1,224 @@
+[
+  {
+    "name": "locations_per_usage",
+    "collection": "stockLocation",
+    "note": "verifier: stock.location usage buckets (internal/view/supplier/customer/...) with active counts and picking-type links",
+    "source_sql": "SELECT l.usage, count(*) AS locations, count(*) FILTER (WHERE l.active) AS active_locations, (SELECT count(*) FROM stock_location_stock_picking_type_rel r JOIN stock_location l2 ON l2.id = r.stock_location_id WHERE l2.usage = l.usage) AS picking_type_links FROM stock_location l GROUP BY l.usage ORDER BY l.usage",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": {
+            "$ifNull": [
+              "$usage",
+              null
+            ]
+          },
+          "locations": {
+            "$sum": 1
+          },
+          "active_locations": {
+            "$sum": {
+              "$cond": [
+                {
+                  "$eq": [
+                    "$active",
+                    true
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          },
+          "picking_type_links": {
+            "$sum": {
+              "$size": {
+                "$ifNull": [
+                  "$stockPickingTypeRel",
+                  []
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "usage": "$_id",
+          "locations": 1,
+          "active_locations": 1,
+          "picking_type_links": 1
+        }
+      },
+      {
+        "$sort": {
+          "usage": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "routes_with_rule_and_warehouse_counts",
+    "collection": "stockRoute",
+    "note": "verifier: route form lists its rules and warehouses per route (embedded stockRule and warehouse arrays)",
+    "source_sql": "SELECT r.id, r.active, r.sequence, (SELECT count(*) FROM stock_rule s WHERE s.route_id = r.id) AS rules, (SELECT count(*) FROM stock_route_warehouse w WHERE w.route_id = r.id) AS warehouses, (SELECT count(*) FROM stock_route_product p WHERE p.route_id = r.id) AS products FROM stock_route r ORDER BY r.id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "active": {
+            "$ifNull": [
+              "$active",
+              null
+            ]
+          },
+          "sequence": {
+            "$ifNull": [
+              "$sequence",
+              null
+            ]
+          },
+          "rules": {
+            "$size": {
+              "$ifNull": [
+                "$stockRule",
+                []
+              ]
+            }
+          },
+          "warehouses": {
+            "$size": {
+              "$ifNull": [
+                "$warehouse",
+                []
+              ]
+            }
+          },
+          "products": {
+            "$size": {
+              "$ifNull": [
+                "$product",
+                []
+              ]
+            }
+          }
+        }
+      },
+      {
+        "$sort": {
+          "id": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "picking_types_per_code",
+    "collection": "stockPickingType",
+    "note": "verifier: inventory overview groups operation types by code with active count and favourite-user links",
+    "source_sql": "SELECT t.code, count(*) AS picking_types, count(*) FILTER (WHERE t.active) AS active_types, (SELECT count(*) FROM picking_type_favorite_user_rel f JOIN stock_picking_type t2 ON t2.id = f.picking_type_id WHERE t2.code = t.code) AS favourite_links FROM stock_picking_type t GROUP BY t.code ORDER BY t.code",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": {
+            "$ifNull": [
+              "$code",
+              null
+            ]
+          },
+          "picking_types": {
+            "$sum": 1
+          },
+          "active_types": {
+            "$sum": {
+              "$cond": [
+                {
+                  "$eq": [
+                    "$active",
+                    true
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          },
+          "favourite_links": {
+            "$sum": {
+              "$size": {
+                "$ifNull": [
+                  "$pickingTypeFavoriteUserRel",
+                  []
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "code": "$_id",
+          "picking_types": 1,
+          "active_types": 1,
+          "favourite_links": 1
+        }
+      },
+      {
+        "$sort": {
+          "code": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "warehouses_with_resupply",
+    "collection": "stockWarehouse",
+    "note": "verifier: warehouse list with code, company and resupply-from count (embedded stockWhResupplyTable)",
+    "source_sql": "SELECT w.id, w.code, w.company_id, w.active, (SELECT count(*) FROM stock_wh_resupply_table t WHERE t.supplied_wh_id = w.id) AS suppliers FROM stock_warehouse w ORDER BY w.id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "code": {
+            "$ifNull": [
+              "$code",
+              null
+            ]
+          },
+          "company_id": {
+            "$ifNull": [
+              "$companyId",
+              null
+            ]
+          },
+          "active": {
+            "$ifNull": [
+              "$active",
+              null
+            ]
+          },
+          "suppliers": {
+            "$size": {
+              "$ifNull": [
+                "$stockWhResupplyTable",
+                []
+              ]
+            }
+          }
+        }
+      },
+      {
+        "$sort": {
+          "id": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]

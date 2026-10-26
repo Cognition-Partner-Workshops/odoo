@@ -1,0 +1,64 @@
+[
+  {
+    "name": "taxes_with_repartition_and_children",
+    "collection": "accountTax",
+    "note": "verifier: tax form per tax with type, amount type, active flag, repartition line count (embedded repartitionLine) and parent-group links (filiationRel keyed on child_tax)",
+    "source_sql": "SELECT t.id, t.type_tax_use, t.amount_type, t.active, (SELECT count(*) FROM account_tax_repartition_line r WHERE r.tax_id = t.id) AS repartition_lines, (SELECT count(*) FROM account_tax_filiation_rel f WHERE f.child_tax = t.id) AS parent_links, (SELECT count(*) FROM product_taxes_rel p WHERE p.tax_id = t.id) AS product_links FROM account_tax t ORDER BY t.id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "type_tax_use": {
+            "$ifNull": [
+              "$typeTaxUse",
+              null
+            ]
+          },
+          "amount_type": {
+            "$ifNull": [
+              "$amountType",
+              null
+            ]
+          },
+          "active": {
+            "$ifNull": [
+              "$active",
+              null
+            ]
+          },
+          "repartition_lines": {
+            "$size": {
+              "$ifNull": [
+                "$repartitionLine",
+                []
+              ]
+            }
+          },
+          "parent_links": {
+            "$size": {
+              "$ifNull": [
+                "$filiationRel",
+                []
+              ]
+            }
+          },
+          "product_links": {
+            "$size": {
+              "$ifNull": [
+                "$productTaxesRel",
+                []
+              ]
+            }
+          }
+        }
+      },
+      {
+        "$sort": {
+          "id": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]

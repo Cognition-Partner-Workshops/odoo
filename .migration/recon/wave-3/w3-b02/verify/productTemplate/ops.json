@@ -1,0 +1,91 @@
+[
+  {
+    "name": "templates_per_category_type",
+    "collection": "productTemplate",
+    "note": "verifier: product catalog grouped by category and type with saleable/purchasable/active counts",
+    "source_sql": "SELECT categ_id, type, count(*) AS templates, count(*) FILTER (WHERE sale_ok) AS saleable, count(*) FILTER (WHERE purchase_ok) AS purchasable, count(*) FILTER (WHERE active) AS active_templates FROM product_template GROUP BY categ_id, type ORDER BY categ_id, type",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": {
+            "c": {
+              "$ifNull": [
+                "$categId",
+                null
+              ]
+            },
+            "t": {
+              "$ifNull": [
+                "$type",
+                null
+              ]
+            }
+          },
+          "templates": {
+            "$sum": 1
+          },
+          "saleable": {
+            "$sum": {
+              "$cond": [
+                {
+                  "$eq": [
+                    "$saleOk",
+                    true
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          },
+          "purchasable": {
+            "$sum": {
+              "$cond": [
+                {
+                  "$eq": [
+                    "$purchaseOk",
+                    true
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          },
+          "active_templates": {
+            "$sum": {
+              "$cond": [
+                {
+                  "$eq": [
+                    "$active",
+                    true
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "categ_id": "$_id.c",
+          "type": "$_id.t",
+          "templates": 1,
+          "saleable": 1,
+          "purchasable": 1,
+          "active_templates": 1
+        }
+      },
+      {
+        "$sort": {
+          "categ_id": 1,
+          "type": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]

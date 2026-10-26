@@ -1,0 +1,56 @@
+[
+  {
+    "name": "models_with_line_counts",
+    "collection": "accountReconcileModel",
+    "note": "verifier: reconcile model form lists its lines (embedded line array) and partners per model with rule type, trigger and can-be-proposed flag",
+    "source_sql": "SELECT m.id, m.rule_type, m.trigger, m.can_be_proposed, (SELECT count(*) FROM account_reconcile_model_line l WHERE l.model_id = m.id) AS lines, (SELECT count(*) FROM account_reconcile_model_res_partner_rel p WHERE p.account_reconcile_model_id = m.id) AS partners FROM account_reconcile_model m ORDER BY m.id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "rule_type": {
+            "$ifNull": [
+              "$ruleType",
+              null
+            ]
+          },
+          "trigger": {
+            "$ifNull": [
+              "$trigger",
+              null
+            ]
+          },
+          "can_be_proposed": {
+            "$ifNull": [
+              "$canBeProposed",
+              null
+            ]
+          },
+          "lines": {
+            "$size": {
+              "$ifNull": [
+                "$line",
+                []
+              ]
+            }
+          },
+          "partners": {
+            "$size": {
+              "$ifNull": [
+                "$resPartnerRel",
+                []
+              ]
+            }
+          }
+        }
+      },
+      {
+        "$sort": {
+          "id": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]

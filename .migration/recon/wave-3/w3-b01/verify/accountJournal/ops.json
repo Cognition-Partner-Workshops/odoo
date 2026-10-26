@@ -1,0 +1,72 @@
+[
+  {
+    "name": "journals_per_company_type",
+    "collection": "accountJournal",
+    "note": "verifier: journal dashboard groups journals by company and type; count, active count and reconcile-model links per group",
+    "source_sql": "SELECT j.company_id, j.type, count(*) AS journals, count(*) FILTER (WHERE j.active) AS active_journals, (SELECT count(*) FROM account_journal_account_reconcile_model_rel r JOIN account_journal j2 ON j2.id = r.account_journal_id WHERE j2.company_id = j.company_id AND j2.type = j.type) AS reconcile_model_links FROM account_journal j GROUP BY j.company_id, j.type ORDER BY j.company_id, j.type",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": {
+            "c": {
+              "$ifNull": [
+                "$companyId",
+                null
+              ]
+            },
+            "t": {
+              "$ifNull": [
+                "$type",
+                null
+              ]
+            }
+          },
+          "journals": {
+            "$sum": 1
+          },
+          "active_journals": {
+            "$sum": {
+              "$cond": [
+                {
+                  "$eq": [
+                    "$active",
+                    true
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          },
+          "reconcile_model_links": {
+            "$sum": {
+              "$size": {
+                "$ifNull": [
+                  "$accountReconcileModelRel",
+                  []
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "company_id": "$_id.c",
+          "type": "$_id.t",
+          "journals": 1,
+          "active_journals": 1,
+          "reconcile_model_links": 1
+        }
+      },
+      {
+        "$sort": {
+          "company_id": 1,
+          "type": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]

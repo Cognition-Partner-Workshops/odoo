@@ -1,0 +1,398 @@
+{
+  "accountReportLine": {
+    "docs": 2,
+    "scanned": 2,
+    "unmapped_keys": {},
+    "type_errors": {},
+    "null_fields": {},
+    "indexes": {
+      "spec": 3,
+      "present": 3,
+      "missing": [],
+      "attribute_mismatch": [],
+      "extra_non_id": []
+    },
+    "references": [
+      {
+        "column": "create_uid",
+        "field": "createUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "parent_id",
+        "field": "parentId",
+        "to": "accountReportLine",
+        "resolved_against": "mongo:accountReportLine._id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "report_id",
+        "field": "reportId",
+        "to": "accountReport",
+        "resolved_against": "mongo:accountReport._id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "write_uid",
+        "field": "writeUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      }
+    ]
+  },
+  "accountReconcileModel": {
+    "docs": 9,
+    "scanned": 9,
+    "unmapped_keys": {},
+    "type_errors": {},
+    "null_fields": {},
+    "indexes": {
+      "spec": 3,
+      "present": 3,
+      "missing": [],
+      "attribute_mismatch": [],
+      "extra_non_id": []
+    },
+    "references": [
+      {
+        "column": "company_id",
+        "field": "companyId",
+        "to": "resCompany",
+        "resolved_against": "pg:res_company.id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "create_uid",
+        "field": "createUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "mapped_partner_id",
+        "field": "mappedPartnerId",
+        "to": "resPartner",
+        "resolved_against": "pg:res_partner.id",
+        "distinct": 0,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "next_activity_type_id",
+        "field": "nextActivityTypeId",
+        "to": "mailActivityType",
+        "resolved_against": "pg:mail_activity_type.id",
+        "distinct": 0,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "write_uid",
+        "field": "writeUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      }
+    ]
+  },
+  "accountReconcileModelLineAccountTaxRel": {
+    "docs": 1,
+    "scanned": 1,
+    "unmapped_keys": {},
+    "type_errors": {},
+    "null_fields": {},
+    "indexes": {
+      "spec": 2,
+      "present": 2,
+      "missing": [],
+      "attribute_mismatch": [
+        {
+          "keys": [
+            [
+              "accountReconcileModelLineId",
+              1
+            ],
+            [
+              "accountTaxId",
+              1
+            ]
+          ],
+          "partial_expected": null,
+          "partial_actual": {
+            "accountReconcileModelLineId": {
+              "$exists": true
+            },
+            "accountTaxId": {
+              "$exists": true
+            }
+          }
+        }
+      ],
+      "extra_non_id": []
+    },
+    "references": [
+      {
+        "column": "account_reconcile_model_line_id",
+        "field": "accountReconcileModelLineId",
+        "to": "accountReconcileModel",
+        "resolved_against": "mongo:accountReconcileModel.line.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "account_tax_id",
+        "field": "accountTaxId",
+        "to": "accountTax",
+        "resolved_against": "mongo:accountTax._id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      }
+    ],
+    "junction_readback": {
+      "links_mongo": 1,
+      "links_pg": 1,
+      "dup_pairs": 0,
+      "missing_in_mongo": 0,
+      "extra_in_mongo": 0,
+      "endpoint_a_fanout_matches": true,
+      "endpoint_b_fanout_matches": true,
+      "distinct_a": 1,
+      "distinct_b": 1
+    }
+  },
+  "accountJournal": {
+    "docs": 25,
+    "scanned": 25,
+    "unmapped_keys": {},
+    "type_errors": {},
+    "null_fields": {},
+    "indexes": {
+      "spec": 19,
+      "present": 19,
+      "missing": [],
+      "attribute_mismatch": [
+        {
+          "keys": [
+            [
+              "companyId",
+              1
+            ],
+            [
+              "code",
+              1
+            ]
+          ],
+          "partial_expected": null,
+          "partial_actual": {
+            "companyId": {
+              "$exists": true
+            },
+            "code": {
+              "$exists": true
+            }
+          }
+        }
+      ],
+      "extra_non_id": []
+    },
+    "references": [
+      {
+        "column": "alias_id",
+        "field": "aliasId",
+        "to": "mailAlias",
+        "resolved_against": "pg:mail_alias.id",
+        "distinct": 16,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "bank_account_id",
+        "field": "bankAccountId",
+        "to": "resPartnerBank",
+        "resolved_against": "pg:res_partner_bank.id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "company_id",
+        "field": "companyId",
+        "to": "resCompany",
+        "resolved_against": "pg:res_company.id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "create_uid",
+        "field": "createUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "currency_id",
+        "field": "currencyId",
+        "to": "resCurrency",
+        "resolved_against": "pg:res_currency.id",
+        "distinct": 0,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "default_account_id",
+        "field": "defaultAccountId",
+        "to": "accountAccount",
+        "resolved_against": "mongo:accountAccount._id",
+        "distinct": 11,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "invoice_template_pdf_report_id",
+        "field": "invoiceTemplatePdfReportId",
+        "to": "irActReportXml",
+        "resolved_against": "pg:ir_act_report_xml.id",
+        "distinct": 0,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "journal_group_id",
+        "field": "journalGroupId",
+        "to": "accountJournalGroup",
+        "resolved_against": "mongo:accountJournalGroup._id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "loss_account_id",
+        "field": "lossAccountId",
+        "to": "accountAccount",
+        "resolved_against": "mongo:accountAccount._id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "non_deductible_account_id",
+        "field": "nonDeductibleAccountId",
+        "to": "accountAccount",
+        "resolved_against": "mongo:accountAccount._id",
+        "distinct": 0,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "profit_account_id",
+        "field": "profitAccountId",
+        "to": "accountAccount",
+        "resolved_against": "mongo:accountAccount._id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "suspense_account_id",
+        "field": "suspenseAccountId",
+        "to": "accountAccount",
+        "resolved_against": "mongo:accountAccount._id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "write_uid",
+        "field": "writeUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      }
+    ]
+  },
+  "accountFiscalPosition": {
+    "docs": 4,
+    "scanned": 4,
+    "unmapped_keys": {},
+    "type_errors": {},
+    "null_fields": {},
+    "indexes": {
+      "spec": 7,
+      "present": 7,
+      "missing": [],
+      "attribute_mismatch": [],
+      "extra_non_id": []
+    },
+    "references": [
+      {
+        "column": "company_id",
+        "field": "companyId",
+        "to": "resCompany",
+        "resolved_against": "pg:res_company.id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "country_group_id",
+        "field": "countryGroupId",
+        "to": "resCountryGroup",
+        "resolved_against": "pg:res_country_group.id",
+        "distinct": 0,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "country_id",
+        "field": "countryId",
+        "to": "resCountry",
+        "resolved_against": "pg:res_country.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "create_uid",
+        "field": "createUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "write_uid",
+        "field": "writeUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      }
+    ]
+  }
+}

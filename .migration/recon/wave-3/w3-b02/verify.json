@@ -1,0 +1,425 @@
+{
+  "run_id": "UNT14-59",
+  "manifest_sha": "79a896029481",
+  "batch": "w3-b02",
+  "wave": 3,
+  "verdict": "PASS",
+  "verifier": "devin-b0e11dcba3364ea2b9c10fbf77fe9cae",
+  "generated_at": "2026-10-26T15:45:22+00:00",
+  "base_sha": "f84dbc723f61eeca98de9030e0a3fb4cb30dc540",
+  "batch_head_sha_checked": "f84dbc723f61eeca98de9030e0a3fb4cb30dc540",
+  "batch_merge_commit": "f84dbc723f6",
+  "batch_pr": "https://github.com/Cognition-Partner-Workshops/odoo/pull/147",
+  "worker_batch_result": ".migration/recon/wave-3/w3-b02/result.batch.json",
+  "worker_head_sha": "99bc4f1a32769c62de915ccb8e69fd3de9b1dd8d",
+  "worker_recon_git_head": "64b5e9ae6f3e35230623c4dd8815d9cf0127b392",
+  "plugin_sha": "2c1160efde323c570425953b7e38bcc3496c6053",
+  "harness": "mongo-recon-harness 0.3.3 (detached worktree /home/ubuntu/plug2c11)",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "target_db": "odoo_unt13",
+  "source_fingerprint_sha256": "a100e84ee2fb6282f30b45c003fd1db47561317c739340a10564d9e869e56a4e",
+  "units": [
+    "stockLocation",
+    "saleOrderLineStockRouteRel",
+    "productTemplate",
+    "productOptionalRel",
+    "accountTax"
+  ],
+  "unit_verdicts": {
+    "stockLocation": {
+      "verdict": "PASS",
+      "merge_eligible": true,
+      "mode": "live",
+      "target_class": "migration_cluster",
+      "source_server": "hmac-sha256:545efbd0aca82e45",
+      "git_head": "f84dbc723f61eeca98de9030e0a3fb4cb30dc540",
+      "git_dirty": false,
+      "collections": [
+        "stockLocation",
+        "stockPickingType",
+        "stockRoute",
+        "stockWarehouse"
+      ],
+      "tiers": {
+        "1": {
+          "passed": true,
+          "checks_run": 88
+        },
+        "2": {
+          "passed": true,
+          "checks_run": 65
+        },
+        "3": {
+          "passed": true,
+          "checks_run": 164
+        },
+        "4": {
+          "passed": true,
+          "checks_run": 4
+        }
+      },
+      "ops_sha256": "08689bc3df18cf66235eaee36ecdd46ee0d48c3f170d23bed2aa1d23c10ca5f0",
+      "warnings": []
+    },
+    "saleOrderLineStockRouteRel": {
+      "verdict": "PASS",
+      "merge_eligible": true,
+      "mode": "live",
+      "target_class": "migration_cluster",
+      "source_server": "hmac-sha256:545efbd0aca82e45",
+      "git_head": "f84dbc723f61eeca98de9030e0a3fb4cb30dc540",
+      "git_dirty": false,
+      "collections": [
+        "saleOrderLineStockRouteRel"
+      ],
+      "tiers": {
+        "1": {
+          "passed": true,
+          "checks_run": 3
+        },
+        "2": {
+          "passed": true,
+          "checks_run": 0
+        },
+        "3": {
+          "passed": true,
+          "checks_run": 1
+        },
+        "4": {
+          "passed": true,
+          "checks_run": 2
+        }
+      },
+      "ops_sha256": "096626d4b0fbfc9af26d7a9e18998314a32eba30dda22f9b2bbd348587bfb311",
+      "warnings": []
+    },
+    "productTemplate": {
+      "verdict": "PASS",
+      "merge_eligible": true,
+      "mode": "live",
+      "target_class": "migration_cluster",
+      "source_server": "hmac-sha256:545efbd0aca82e45",
+      "git_head": "f84dbc723f61eeca98de9030e0a3fb4cb30dc540",
+      "git_dirty": false,
+      "collections": [
+        "productTemplate"
+      ],
+      "tiers": {
+        "1": {
+          "passed": true,
+          "checks_run": 12
+        },
+        "2": {
+          "passed": true,
+          "checks_run": 17
+        },
+        "3": {
+          "passed": true,
+          "checks_run": 439
+        },
+        "4": {
+          "passed": true,
+          "checks_run": 1
+        }
+      },
+      "ops_sha256": "c0f9137976a6ca776c37e95502cade6f02233982350f052e49a4a639d72def61",
+      "warnings": []
+    },
+    "productOptionalRel": {
+      "verdict": "PASS",
+      "merge_eligible": true,
+      "mode": "live",
+      "target_class": "migration_cluster",
+      "source_server": "hmac-sha256:545efbd0aca82e45",
+      "git_head": "f84dbc723f61eeca98de9030e0a3fb4cb30dc540",
+      "git_dirty": false,
+      "collections": [
+        "productOptionalRel"
+      ],
+      "tiers": {
+        "1": {
+          "passed": true,
+          "checks_run": 3
+        },
+        "2": {
+          "passed": true,
+          "checks_run": 0
+        },
+        "3": {
+          "passed": true,
+          "checks_run": 3
+        },
+        "4": {
+          "passed": true,
+          "checks_run": 2
+        }
+      },
+      "ops_sha256": "2ede7aca30b8cd1a0966cf9fa6b55b65c78dd343671525eb266e00c6b46f5764",
+      "warnings": []
+    },
+    "accountTax": {
+      "verdict": "PASS",
+      "merge_eligible": true,
+      "mode": "live",
+      "target_class": "migration_cluster",
+      "source_server": "hmac-sha256:545efbd0aca82e45",
+      "git_head": "f84dbc723f61eeca98de9030e0a3fb4cb30dc540",
+      "git_dirty": false,
+      "collections": [
+        "accountTax"
+      ],
+      "tiers": {
+        "1": {
+          "passed": true,
+          "checks_run": 26
+        },
+        "2": {
+          "passed": true,
+          "checks_run": 16
+        },
+        "3": {
+          "passed": true,
+          "checks_run": 2574
+        },
+        "4": {
+          "passed": true,
+          "checks_run": 1
+        }
+      },
+      "ops_sha256": "b4776b086f9f1b8cf94e390f0daf3c795113f6b6b1994b332eaffbf7e4f8471d",
+      "warnings": []
+    }
+  },
+  "recon_results": [
+    ".migration/recon/wave-3/w3-b02/verify/stockLocation/result.json",
+    ".migration/recon/wave-3/w3-b02/verify/saleOrderLineStockRouteRel/result.json",
+    ".migration/recon/wave-3/w3-b02/verify/productTemplate/result.json",
+    ".migration/recon/wave-3/w3-b02/verify/productOptionalRel/result.json",
+    ".migration/recon/wave-3/w3-b02/verify/accountTax/result.json"
+  ],
+  "evidence_comparison": [
+    {
+      "unit": "stockLocation",
+      "source_counts_match": true,
+      "tier2_aggregates_match": true,
+      "tier3_populations_match": true,
+      "mapping_sha_match": true,
+      "tolerance_sha_match": true,
+      "source_counts": {
+        "stockLocation": 62,
+        "stockPickingType": 40,
+        "stockRoute": 13,
+        "stockWarehouse": 5
+      },
+      "worker_result": ".migration/recon/stockLocation/result.json",
+      "worker_git_head": "64b5e9ae6f3e35230623c4dd8815d9cf0127b392"
+    },
+    {
+      "unit": "saleOrderLineStockRouteRel",
+      "source_counts_match": true,
+      "tier2_aggregates_match": true,
+      "tier3_populations_match": true,
+      "mapping_sha_match": true,
+      "tolerance_sha_match": true,
+      "source_counts": {
+        "saleOrderLineStockRouteRel": 1
+      },
+      "worker_result": ".migration/recon/saleOrderLineStockRouteRel/result.json",
+      "worker_git_head": "64b5e9ae6f3e35230623c4dd8815d9cf0127b392"
+    },
+    {
+      "unit": "productTemplate",
+      "source_counts_match": true,
+      "tier2_aggregates_match": true,
+      "tier3_populations_match": true,
+      "mapping_sha_match": true,
+      "tolerance_sha_match": true,
+      "source_counts": {
+        "productTemplate": 439
+      },
+      "worker_result": ".migration/recon/productTemplate/result.json",
+      "worker_git_head": "64b5e9ae6f3e35230623c4dd8815d9cf0127b392"
+    },
+    {
+      "unit": "productOptionalRel",
+      "source_counts_match": true,
+      "tier2_aggregates_match": true,
+      "tier3_populations_match": true,
+      "mapping_sha_match": true,
+      "tolerance_sha_match": true,
+      "source_counts": {
+        "productOptionalRel": 3
+      },
+      "worker_result": ".migration/recon/productOptionalRel/result.json",
+      "worker_git_head": "64b5e9ae6f3e35230623c4dd8815d9cf0127b392"
+    },
+    {
+      "unit": "accountTax",
+      "source_counts_match": true,
+      "tier2_aggregates_match": true,
+      "tier3_populations_match": true,
+      "mapping_sha_match": true,
+      "tolerance_sha_match": true,
+      "source_counts": {
+        "accountTax": 65
+      },
+      "worker_result": ".migration/recon/accountTax/result.json",
+      "worker_git_head": "64b5e9ae6f3e35230623c4dd8815d9cf0127b392"
+    }
+  ],
+  "probes": {
+    "docs_scanned": {
+      "stockLocation": 62,
+      "stockPickingType": 40,
+      "stockRoute": 13,
+      "stockWarehouse": 5,
+      "saleOrderLineStockRouteRel": 1,
+      "productTemplate": 439,
+      "productOptionalRel": 3,
+      "accountTax": 65
+    },
+    "unmapped_keys": 0,
+    "type_errors": 0,
+    "explicit_null_values": 0,
+    "indexes": {
+      "stockLocation": "18/18",
+      "stockPickingType": "11/11",
+      "stockRoute": "23/23",
+      "stockWarehouse": "24/24",
+      "saleOrderLineStockRouteRel": "2/2",
+      "productTemplate": "11/11",
+      "productOptionalRel": "2/2",
+      "accountTax": "18/18"
+    },
+    "indexes_missing": 0,
+    "unique_indexes_with_exists_partial_filter": [
+      {
+        "collection": "stockWarehouse",
+        "keys": [
+          [
+            "code",
+            1
+          ],
+          [
+            "companyId",
+            1
+          ]
+        ]
+      },
+      {
+        "collection": "stockWarehouse",
+        "keys": [
+          [
+            "name",
+            1
+          ],
+          [
+            "companyId",
+            1
+          ]
+        ]
+      },
+      {
+        "collection": "saleOrderLineStockRouteRel",
+        "keys": [
+          [
+            "stockRouteId",
+            1
+          ],
+          [
+            "saleOrderLineId",
+            1
+          ]
+        ]
+      },
+      {
+        "collection": "productOptionalRel",
+        "keys": [
+          [
+            "destId",
+            1
+          ],
+          [
+            "srcId",
+            1
+          ]
+        ]
+      }
+    ],
+    "references_checked": 65,
+    "references_dangling": 0,
+    "reference_targets": [
+      "mongo:accountAccount._id",
+      "mongo:accountTax._id",
+      "mongo:accountTaxGroup._id",
+      "mongo:productBaseUnit._id",
+      "mongo:productCategory._id",
+      "mongo:productRemoval._id",
+      "mongo:productTemplate._id",
+      "mongo:stockLocation._id",
+      "mongo:stockPickingType._id",
+      "mongo:stockRoute._id",
+      "mongo:stockRoute.stockRule.id",
+      "mongo:stockStorageCategory._id",
+      "mongo:stockWarehouse._id",
+      "pg:ir_sequence.id",
+      "pg:l10n_us_res_county.id",
+      "pg:res_city.id",
+      "pg:res_company.id",
+      "pg:res_country.id",
+      "pg:res_country_state.id",
+      "pg:res_partner.id",
+      "pg:res_users.id",
+      "pg:sale_order_line.id"
+    ],
+    "junction_readback": {
+      "saleOrderLineStockRouteRel": {
+        "links_mongo": 1,
+        "links_pg": 1,
+        "dup_pairs": 0,
+        "missing_in_mongo": 0,
+        "extra_in_mongo": 0,
+        "endpoint_a_fanout_matches": true,
+        "endpoint_b_fanout_matches": true,
+        "distinct_a": 1,
+        "distinct_b": 1
+      },
+      "productOptionalRel": {
+        "links_mongo": 3,
+        "links_pg": 3,
+        "dup_pairs": 0,
+        "missing_in_mongo": 0,
+        "extra_in_mongo": 0,
+        "endpoint_a_fanout_matches": true,
+        "endpoint_b_fanout_matches": true,
+        "distinct_a": 3,
+        "distinct_b": 2
+      }
+    },
+    "detail": ".migration/recon/wave-3/w3-b02/verify/probe.json"
+  },
+  "tour_replay": {
+    "suite": "purchase_stock:TestPurchaseOrderSuggest (addons/purchase_stock/tests/test_purchase_order_suggest.py)",
+    "tests": 9,
+    "failed": 0,
+    "errors": 0,
+    "tours_succeeded": 1,
+    "scratch_pg": "odoo_w3v_b02",
+    "scratch_prefix": "odoo_w3v_b02__",
+    "log": "verify/tour-mongodb.log",
+    "note": "test_purchase_order_suggest_search_panel_ux tour succeeded in 72 s (15:36:02 to 15:37:14) under its user-approved 120 s whole-tour limit; the other eight tests ran with normal limits; worker PR evidence reports 35/35 on both storages"
+  },
+  "findings": [
+    "All 5 units re-ran live against odoo_unt13 as it stands with verifier-authored Tier 4 ops and returned PASS with merge_eligible true and source_server hmac-sha256:545efbd0aca82e45.",
+    "Verifier Tier 1 source counts, Tier 2 aggregates and Tier 3 graded populations equal the worker's committed result.json for every unit, against the same mapping and tolerance sha256.",
+    "Probe over 628 documents found no unmapped keys, no BSON type errors and no explicit nulls, and every spec index is present (0 missing).",
+    "The unique indexes carry a partialFilterExpression requiring every key to exist, which the spec does not list; odoo/orm/storage_mongodb.py adds it by design so missing keys never collide like PostgreSQL NULLs, and the harness index check accepts it, so this is informational.",
+    "All 65 declared references resolve with 0 dangling ids, into merged wave 1-3 collections in odoo_unt13 or PostgreSQL-resident tables only.",
+    "Root junction links read back identically from both endpoints: every (a, b) pair in MongoDB matches odoo_src with no duplicates and the per-endpoint fan-out counts agree.",
+    "MongoDB-storage tour replay on scratch copy odoo_w3v_b02 (purchase_stock:TestPurchaseOrderSuggest (addons/purchase_stock/tests/test_purchase_order_suggest.py)): 9 tests, 0 failed, 0 error(s), 1 tour(s) succeeded; test_purchase_order_suggest_search_panel_ux tour succeeded in 72 s (15:36:02 to 15:37:14) under its user-approved 120 s whole-tour limit; the other eight tests ran with normal limits; worker PR evidence reports 35/35 on both storages.",
+    "The ticket's scratch recipe (createdb -T odoo_src, then -u product,stock,account,purchase_stock,sale_stock) fails on the first -u with MissingError account.report(1) until the 35 merged wave 1-3 units are loaded into the <scratch>__ prefix with .migration/load/load_unit.py --prefix; after that load the same -u completed with no errors, so this is a recipe gap, not a data defect.",
+    "Scratch state was removed afterwards: both PostgreSQL copies dropped and 76 odoo_w3v_b0*__ collections dropped from odoo_unt13, leaving its migrated collections untouched; recon and probes were read-only on both endpoints."
+  ],
+  "report_path": "recon/verify-w3-unt14:.migration/recon/wave-3/w3-b02/verify-report.md"
+}

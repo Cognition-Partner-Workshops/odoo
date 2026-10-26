@@ -1,0 +1,824 @@
+{
+  "stockLocation": {
+    "docs": 62,
+    "scanned": 62,
+    "unmapped_keys": {},
+    "type_errors": {},
+    "null_fields": {},
+    "indexes": {
+      "spec": 18,
+      "present": 18,
+      "missing": [],
+      "attribute_mismatch": [],
+      "extra_non_id": []
+    },
+    "references": [
+      {
+        "column": "company_id",
+        "field": "companyId",
+        "to": "resCompany",
+        "resolved_against": "pg:res_company.id",
+        "distinct": 3,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "create_uid",
+        "field": "createUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "location_id",
+        "field": "locationId",
+        "to": "stockLocation",
+        "resolved_against": "mongo:stockLocation._id",
+        "distinct": 11,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "removal_strategy_id",
+        "field": "removalStrategyId",
+        "to": "productRemoval",
+        "resolved_against": "mongo:productRemoval._id",
+        "distinct": 0,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "storage_category_id",
+        "field": "storageCategoryId",
+        "to": "stockStorageCategory",
+        "resolved_against": "mongo:stockStorageCategory._id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "valuation_account_id",
+        "field": "valuationAccountId",
+        "to": "accountAccount",
+        "resolved_against": "mongo:accountAccount._id",
+        "distinct": 0,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "warehouse_id",
+        "field": "warehouseId",
+        "to": "stockWarehouse",
+        "resolved_against": "mongo:stockWarehouse._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "write_uid",
+        "field": "writeUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      }
+    ]
+  },
+  "stockPickingType": {
+    "docs": 40,
+    "scanned": 40,
+    "unmapped_keys": {},
+    "type_errors": {},
+    "null_fields": {},
+    "indexes": {
+      "spec": 11,
+      "present": 11,
+      "missing": [],
+      "attribute_mismatch": [],
+      "extra_non_id": []
+    },
+    "references": [
+      {
+        "column": "allocated_location_id",
+        "field": "allocatedLocationId",
+        "to": "stockLocation",
+        "resolved_against": "mongo:stockLocation._id",
+        "distinct": 0,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "company_id",
+        "field": "companyId",
+        "to": "resCompany",
+        "resolved_against": "pg:res_company.id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "create_uid",
+        "field": "createUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "default_location_dest_id",
+        "field": "defaultLocationDestId",
+        "to": "stockLocation",
+        "resolved_against": "mongo:stockLocation._id",
+        "distinct": 21,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "default_location_src_id",
+        "field": "defaultLocationSrcId",
+        "to": "stockLocation",
+        "resolved_against": "mongo:stockLocation._id",
+        "distinct": 21,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "return_picking_type_id",
+        "field": "returnPickingTypeId",
+        "to": "stockPickingType",
+        "resolved_against": "mongo:stockPickingType._id",
+        "distinct": 10,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "sequence_id",
+        "field": "sequenceId",
+        "to": "irSequence",
+        "resolved_against": "pg:ir_sequence.id",
+        "distinct": 40,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "warehouse_id",
+        "field": "warehouseId",
+        "to": "stockWarehouse",
+        "resolved_against": "mongo:stockWarehouse._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "write_uid",
+        "field": "writeUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      }
+    ]
+  },
+  "stockRoute": {
+    "docs": 13,
+    "scanned": 13,
+    "unmapped_keys": {},
+    "type_errors": {},
+    "null_fields": {},
+    "indexes": {
+      "spec": 23,
+      "present": 23,
+      "missing": [],
+      "attribute_mismatch": [],
+      "extra_non_id": []
+    },
+    "references": [
+      {
+        "column": "company_id",
+        "field": "companyId",
+        "to": "resCompany",
+        "resolved_against": "pg:res_company.id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "create_uid",
+        "field": "createUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "supplied_wh_id",
+        "field": "suppliedWhId",
+        "to": "stockWarehouse",
+        "resolved_against": "mongo:stockWarehouse._id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "supplier_wh_id",
+        "field": "supplierWhId",
+        "to": "stockWarehouse",
+        "resolved_against": "mongo:stockWarehouse._id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "write_uid",
+        "field": "writeUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      }
+    ]
+  },
+  "stockWarehouse": {
+    "docs": 5,
+    "scanned": 5,
+    "unmapped_keys": {},
+    "type_errors": {},
+    "null_fields": {},
+    "indexes": {
+      "spec": 24,
+      "present": 24,
+      "missing": [],
+      "attribute_mismatch": [
+        {
+          "keys": [
+            [
+              "code",
+              1
+            ],
+            [
+              "companyId",
+              1
+            ]
+          ],
+          "partial_expected": null,
+          "partial_actual": {
+            "code": {
+              "$exists": true
+            },
+            "companyId": {
+              "$exists": true
+            }
+          }
+        },
+        {
+          "keys": [
+            [
+              "name",
+              1
+            ],
+            [
+              "companyId",
+              1
+            ]
+          ],
+          "partial_expected": null,
+          "partial_actual": {
+            "name": {
+              "$exists": true
+            },
+            "companyId": {
+              "$exists": true
+            }
+          }
+        }
+      ],
+      "extra_non_id": []
+    },
+    "references": [
+      {
+        "column": "buy_pull_id",
+        "field": "buyPullId",
+        "to": "stockRoute",
+        "resolved_against": "mongo:stockRoute.stockRule.id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "company_id",
+        "field": "companyId",
+        "to": "resCompany",
+        "resolved_against": "pg:res_company.id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "create_uid",
+        "field": "createUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "delivery_route_id",
+        "field": "deliveryRouteId",
+        "to": "stockRoute",
+        "resolved_against": "mongo:stockRoute._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "in_type_id",
+        "field": "inTypeId",
+        "to": "stockPickingType",
+        "resolved_against": "mongo:stockPickingType._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "int_type_id",
+        "field": "intTypeId",
+        "to": "stockPickingType",
+        "resolved_against": "mongo:stockPickingType._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "lot_stock_id",
+        "field": "lotStockId",
+        "to": "stockLocation",
+        "resolved_against": "mongo:stockLocation._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "mto_pull_id",
+        "field": "mtoPullId",
+        "to": "stockRoute",
+        "resolved_against": "mongo:stockRoute.stockRule.id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "out_type_id",
+        "field": "outTypeId",
+        "to": "stockPickingType",
+        "resolved_against": "mongo:stockPickingType._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "pack_type_id",
+        "field": "packTypeId",
+        "to": "stockPickingType",
+        "resolved_against": "mongo:stockPickingType._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "partner_id",
+        "field": "partnerId",
+        "to": "resPartner",
+        "resolved_against": "pg:res_partner.id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "pick_type_id",
+        "field": "pickTypeId",
+        "to": "stockPickingType",
+        "resolved_against": "mongo:stockPickingType._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "qc_type_id",
+        "field": "qcTypeId",
+        "to": "stockPickingType",
+        "resolved_against": "mongo:stockPickingType._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "reception_route_id",
+        "field": "receptionRouteId",
+        "to": "stockRoute",
+        "resolved_against": "mongo:stockRoute._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "store_type_id",
+        "field": "storeTypeId",
+        "to": "stockPickingType",
+        "resolved_against": "mongo:stockPickingType._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "view_location_id",
+        "field": "viewLocationId",
+        "to": "stockLocation",
+        "resolved_against": "mongo:stockLocation._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "wh_input_stock_loc_id",
+        "field": "whInputStockLocId",
+        "to": "stockLocation",
+        "resolved_against": "mongo:stockLocation._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "wh_output_stock_loc_id",
+        "field": "whOutputStockLocId",
+        "to": "stockLocation",
+        "resolved_against": "mongo:stockLocation._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "wh_pack_stock_loc_id",
+        "field": "whPackStockLocId",
+        "to": "stockLocation",
+        "resolved_against": "mongo:stockLocation._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "wh_qc_stock_loc_id",
+        "field": "whQcStockLocId",
+        "to": "stockLocation",
+        "resolved_against": "mongo:stockLocation._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "write_uid",
+        "field": "writeUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "xdock_type_id",
+        "field": "xdockTypeId",
+        "to": "stockPickingType",
+        "resolved_against": "mongo:stockPickingType._id",
+        "distinct": 5,
+        "dangling": 0,
+        "sample": []
+      }
+    ]
+  },
+  "saleOrderLineStockRouteRel": {
+    "docs": 1,
+    "scanned": 1,
+    "unmapped_keys": {},
+    "type_errors": {},
+    "null_fields": {},
+    "indexes": {
+      "spec": 2,
+      "present": 2,
+      "missing": [],
+      "attribute_mismatch": [
+        {
+          "keys": [
+            [
+              "stockRouteId",
+              1
+            ],
+            [
+              "saleOrderLineId",
+              1
+            ]
+          ],
+          "partial_expected": null,
+          "partial_actual": {
+            "stockRouteId": {
+              "$exists": true
+            },
+            "saleOrderLineId": {
+              "$exists": true
+            }
+          }
+        }
+      ],
+      "extra_non_id": []
+    },
+    "references": [
+      {
+        "column": "sale_order_line_id",
+        "field": "saleOrderLineId",
+        "to": "saleOrder",
+        "resolved_against": "pg:sale_order_line.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "stock_route_id",
+        "field": "stockRouteId",
+        "to": "stockRoute",
+        "resolved_against": "mongo:stockRoute._id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      }
+    ],
+    "junction_readback": {
+      "links_mongo": 1,
+      "links_pg": 1,
+      "dup_pairs": 0,
+      "missing_in_mongo": 0,
+      "extra_in_mongo": 0,
+      "endpoint_a_fanout_matches": true,
+      "endpoint_b_fanout_matches": true,
+      "distinct_a": 1,
+      "distinct_b": 1
+    }
+  },
+  "productTemplate": {
+    "docs": 439,
+    "scanned": 439,
+    "unmapped_keys": {},
+    "type_errors": {},
+    "null_fields": {},
+    "indexes": {
+      "spec": 11,
+      "present": 11,
+      "missing": [],
+      "attribute_mismatch": [],
+      "extra_non_id": []
+    },
+    "references": [
+      {
+        "column": "base_unit_id",
+        "field": "baseUnitId",
+        "to": "productBaseUnit",
+        "resolved_against": "mongo:productBaseUnit._id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "categ_id",
+        "field": "categId",
+        "to": "productCategory",
+        "resolved_against": "mongo:productCategory._id",
+        "distinct": 14,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "company_id",
+        "field": "companyId",
+        "to": "resCompany",
+        "resolved_against": "pg:res_company.id",
+        "distinct": 0,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "create_uid",
+        "field": "createUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "lot_sequence_id",
+        "field": "lotSequenceId",
+        "to": "irSequence",
+        "resolved_against": "pg:ir_sequence.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "write_uid",
+        "field": "writeUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      }
+    ]
+  },
+  "productOptionalRel": {
+    "docs": 3,
+    "scanned": 3,
+    "unmapped_keys": {},
+    "type_errors": {},
+    "null_fields": {},
+    "indexes": {
+      "spec": 2,
+      "present": 2,
+      "missing": [],
+      "attribute_mismatch": [
+        {
+          "keys": [
+            [
+              "destId",
+              1
+            ],
+            [
+              "srcId",
+              1
+            ]
+          ],
+          "partial_expected": null,
+          "partial_actual": {
+            "destId": {
+              "$exists": true
+            },
+            "srcId": {
+              "$exists": true
+            }
+          }
+        }
+      ],
+      "extra_non_id": []
+    },
+    "references": [
+      {
+        "column": "dest_id",
+        "field": "destId",
+        "to": "productTemplate",
+        "resolved_against": "mongo:productTemplate._id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "src_id",
+        "field": "srcId",
+        "to": "productTemplate",
+        "resolved_against": "mongo:productTemplate._id",
+        "distinct": 3,
+        "dangling": 0,
+        "sample": []
+      }
+    ],
+    "junction_readback": {
+      "links_mongo": 3,
+      "links_pg": 3,
+      "dup_pairs": 0,
+      "missing_in_mongo": 0,
+      "extra_in_mongo": 0,
+      "endpoint_a_fanout_matches": true,
+      "endpoint_b_fanout_matches": true,
+      "distinct_a": 3,
+      "distinct_b": 2
+    }
+  },
+  "accountTax": {
+    "docs": 65,
+    "scanned": 65,
+    "unmapped_keys": {},
+    "type_errors": {},
+    "null_fields": {},
+    "indexes": {
+      "spec": 18,
+      "present": 18,
+      "missing": [],
+      "attribute_mismatch": [],
+      "extra_non_id": []
+    },
+    "references": [
+      {
+        "column": "cash_basis_transition_account_id",
+        "field": "cashBasisTransitionAccountId",
+        "to": "accountAccount",
+        "resolved_against": "mongo:accountAccount._id",
+        "distinct": 0,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "company_id",
+        "field": "companyId",
+        "to": "resCompany",
+        "resolved_against": "pg:res_company.id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "country_id",
+        "field": "countryId",
+        "to": "resCountry",
+        "resolved_against": "pg:res_country.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "create_uid",
+        "field": "createUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "l10n_us_city_id",
+        "field": "l10nUsCityId",
+        "to": "resCity",
+        "resolved_against": "pg:res_city.id",
+        "distinct": 0,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "l10n_us_county_id",
+        "field": "l10nUsCountyId",
+        "to": "l10nUsResCounty",
+        "resolved_against": "pg:l10n_us_res_county.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "l10n_us_exempt_parent_tax_id",
+        "field": "l10nUsExemptParentTaxId",
+        "to": "accountTax",
+        "resolved_against": "mongo:accountTax._id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "l10n_us_nontaxable_parent_tax_id",
+        "field": "l10nUsNontaxableParentTaxId",
+        "to": "accountTax",
+        "resolved_against": "mongo:accountTax._id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "l10n_us_state_id",
+        "field": "l10nUsStateId",
+        "to": "resCountryState",
+        "resolved_against": "pg:res_country_state.id",
+        "distinct": 2,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "tax_group_id",
+        "field": "taxGroupId",
+        "to": "accountTaxGroup",
+        "resolved_against": "mongo:accountTaxGroup._id",
+        "distinct": 27,
+        "dangling": 0,
+        "sample": []
+      },
+      {
+        "column": "write_uid",
+        "field": "writeUid",
+        "to": "resUsers",
+        "resolved_against": "pg:res_users.id",
+        "distinct": 1,
+        "dangling": 0,
+        "sample": []
+      }
+    ]
+  }
+}

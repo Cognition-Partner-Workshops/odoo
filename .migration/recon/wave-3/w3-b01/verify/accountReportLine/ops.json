@@ -1,0 +1,60 @@
+[
+  {
+    "name": "lines_per_report",
+    "collection": "accountReportLine",
+    "note": "verifier: account.report renders its lines per report (addons/account/models/account_report.py), root lines first; count, root count and max sequence per report",
+    "source_sql": "SELECT report_id, count(*) AS lines, count(*) FILTER (WHERE parent_id IS NULL) AS root_lines, max(sequence) AS max_sequence FROM account_report_line GROUP BY report_id ORDER BY report_id",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": {
+            "$ifNull": [
+              "$reportId",
+              null
+            ]
+          },
+          "lines": {
+            "$sum": 1
+          },
+          "root_lines": {
+            "$sum": {
+              "$cond": [
+                {
+                  "$eq": [
+                    {
+                      "$ifNull": [
+                        "$parentId",
+                        null
+                      ]
+                    },
+                    null
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          },
+          "max_sequence": {
+            "$max": "$sequence"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "report_id": "$_id",
+          "lines": 1,
+          "root_lines": 1,
+          "max_sequence": 1
+        }
+      },
+      {
+        "$sort": {
+          "report_id": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]

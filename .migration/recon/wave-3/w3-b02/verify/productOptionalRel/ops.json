@@ -1,0 +1,57 @@
+[
+  {
+    "name": "optional_links_full",
+    "collection": "productOptionalRel",
+    "note": "verifier: every optional-product link as the configurator reads it, ordered by owning template then optional template",
+    "source_sql": "SELECT src_id, dest_id FROM product_optional_rel ORDER BY src_id, dest_id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "src_id": "$srcId",
+          "dest_id": "$destId"
+        }
+      },
+      {
+        "$sort": {
+          "src_id": 1,
+          "dest_id": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "owners_per_optional_template",
+    "collection": "productOptionalRel",
+    "note": "verifier: link read from the optional-product endpoint (inverse side)",
+    "source_sql": "SELECT dest_id, count(*) AS owners, max(src_id) AS last_owner FROM product_optional_rel GROUP BY dest_id ORDER BY dest_id",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": "$destId",
+          "owners": {
+            "$sum": 1
+          },
+          "last_owner": {
+            "$max": "$srcId"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "dest_id": "$_id",
+          "owners": 1,
+          "last_owner": 1
+        }
+      },
+      {
+        "$sort": {
+          "dest_id": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]

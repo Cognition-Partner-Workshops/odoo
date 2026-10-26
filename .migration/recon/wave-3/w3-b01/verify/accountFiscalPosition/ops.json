@@ -1,0 +1,64 @@
+[
+  {
+    "name": "positions_with_mapping_counts",
+    "collection": "accountFiscalPosition",
+    "note": "verifier: fiscal position form shows account and tax mappings per position (embedded account array, accountTaxRel links)",
+    "source_sql": "SELECT p.id, p.company_id, p.auto_apply, p.active, (SELECT count(*) FROM account_fiscal_position_account a WHERE a.position_id = p.id) AS account_maps, (SELECT count(*) FROM account_fiscal_position_account_tax_rel t WHERE t.account_fiscal_position_id = p.id) AS tax_links, (SELECT count(*) FROM account_fiscal_position_res_country_state_rel s WHERE s.account_fiscal_position_id = p.id) AS states FROM account_fiscal_position p ORDER BY p.id",
+    "target_pipeline": [
+      {
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "company_id": {
+            "$ifNull": [
+              "$companyId",
+              null
+            ]
+          },
+          "auto_apply": {
+            "$ifNull": [
+              "$autoApply",
+              null
+            ]
+          },
+          "active": {
+            "$ifNull": [
+              "$active",
+              null
+            ]
+          },
+          "account_maps": {
+            "$size": {
+              "$ifNull": [
+                "$account",
+                []
+              ]
+            }
+          },
+          "tax_links": {
+            "$size": {
+              "$ifNull": [
+                "$accountTaxRel",
+                []
+              ]
+            }
+          },
+          "states": {
+            "$size": {
+              "$ifNull": [
+                "$resCountryStateRel",
+                []
+              ]
+            }
+          }
+        }
+      },
+      {
+        "$sort": {
+          "id": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]

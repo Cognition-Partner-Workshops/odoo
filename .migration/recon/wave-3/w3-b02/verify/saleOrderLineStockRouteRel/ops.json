@@ -1,0 +1,68 @@
+[
+  {
+    "name": "routes_per_order_line",
+    "collection": "saleOrderLineStockRouteRel",
+    "note": "verifier: link read from the sale order line endpoint (sale.order.line.route_ids)",
+    "source_sql": "SELECT sale_order_line_id, count(*) AS routes, max(stock_route_id) AS last_route FROM sale_order_line_stock_route_rel GROUP BY sale_order_line_id ORDER BY sale_order_line_id",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": "$saleOrderLineId",
+          "routes": {
+            "$sum": 1
+          },
+          "last_route": {
+            "$max": "$stockRouteId"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "sale_order_line_id": "$_id",
+          "routes": 1,
+          "last_route": 1
+        }
+      },
+      {
+        "$sort": {
+          "sale_order_line_id": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "order_lines_per_route",
+    "collection": "saleOrderLineStockRouteRel",
+    "note": "verifier: link read from the route endpoint (inverse of route_ids)",
+    "source_sql": "SELECT stock_route_id, count(*) AS order_lines, min(sale_order_line_id) AS first_line FROM sale_order_line_stock_route_rel GROUP BY stock_route_id ORDER BY stock_route_id",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": "$stockRouteId",
+          "order_lines": {
+            "$sum": 1
+          },
+          "first_line": {
+            "$min": "$saleOrderLineId"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "stock_route_id": "$_id",
+          "order_lines": 1,
+          "first_line": 1
+        }
+      },
+      {
+        "$sort": {
+          "stock_route_id": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]

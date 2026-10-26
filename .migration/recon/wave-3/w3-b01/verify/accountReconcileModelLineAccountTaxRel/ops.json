@@ -1,0 +1,68 @@
+[
+  {
+    "name": "taxes_per_model_line",
+    "collection": "accountReconcileModelLineAccountTaxRel",
+    "note": "verifier: link read from the model-line endpoint (account.reconcile.model.line.tax_ids)",
+    "source_sql": "SELECT account_reconcile_model_line_id, count(*) AS taxes, max(account_tax_id) AS last_tax FROM account_reconcile_model_line_account_tax_rel GROUP BY account_reconcile_model_line_id ORDER BY account_reconcile_model_line_id",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": "$accountReconcileModelLineId",
+          "taxes": {
+            "$sum": 1
+          },
+          "last_tax": {
+            "$max": "$accountTaxId"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "account_reconcile_model_line_id": "$_id",
+          "taxes": 1,
+          "last_tax": 1
+        }
+      },
+      {
+        "$sort": {
+          "account_reconcile_model_line_id": 1
+        }
+      }
+    ],
+    "rules": []
+  },
+  {
+    "name": "model_lines_per_tax",
+    "collection": "accountReconcileModelLineAccountTaxRel",
+    "note": "verifier: link read from the tax endpoint (inverse of tax_ids)",
+    "source_sql": "SELECT account_tax_id, count(*) AS model_lines, min(account_reconcile_model_line_id) AS first_line FROM account_reconcile_model_line_account_tax_rel GROUP BY account_tax_id ORDER BY account_tax_id",
+    "target_pipeline": [
+      {
+        "$group": {
+          "_id": "$accountTaxId",
+          "model_lines": {
+            "$sum": 1
+          },
+          "first_line": {
+            "$min": "$accountReconcileModelLineId"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "account_tax_id": "$_id",
+          "model_lines": 1,
+          "first_line": 1
+        }
+      },
+      {
+        "$sort": {
+          "account_tax_id": 1
+        }
+      }
+    ],
+    "rules": []
+  }
+]
