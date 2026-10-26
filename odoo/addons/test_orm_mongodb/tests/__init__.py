@@ -8,3 +8,4 @@ from . import test_foreign_keys
 from . import test_order
 from . import test_sql_conditions
 from . import test_search_panel
+from . import test_one2many_search

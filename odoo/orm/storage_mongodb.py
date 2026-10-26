@@ -2290,11 +2290,11 @@ def _condition(model: BaseModel, cond: DomainCondition) -> dict:
         if operator.endswith('!'):
             comodel = comodel.sudo()
         if isinstance(value, Query):
-            ids = value.get_result_ids()
+            ids = value
         elif isinstance(value, Domain) and inverse:
-            ids = comodel._search(value & Domain(inverse, 'not in', {False})).get_result_ids()
+            ids = comodel._search(value & Domain(inverse, 'not in', {False}))
         elif isinstance(value, Domain):
-            ids = comodel.with_context(active_test=False)._search(value).get_result_ids()
+            ids = comodel.with_context(active_test=False)._search(value)
         elif isinstance(value, SQL):   # a subquery of comodel ids, as PostgreSQL runs it
             rows = [id_ for id_, in model.env.execute_query(value)]
             ids = [id_ for id_ in rows if id_ is not None]
@@ -2304,7 +2304,9 @@ def _condition(model: BaseModel, cond: DomainCondition) -> dict:
         else:
             raise unsupported
         if inverse:
-            ids = comodel.sudo().browse(ids)[inverse]._ids
+            ids = _inverse_ids(comodel, ids, inverse)
+        elif isinstance(ids, Query):
+            ids = ids.get_result_ids()
         path = '_id' if inverse or field.name == 'id' else _path(model, field)
         return {path: {'$nin' if operator.startswith('not') else '$in': list(ids)}}
 
@@ -2351,6 +2353,19 @@ def _condition(model: BaseModel, cond: DomainCondition) -> dict:
         return {path: {'$not': regex}} if operator.startswith('not') else {path: regex}
 
     raise unsupported
+
+
+def _inverse_ids(comodel: BaseModel, ids, inverse: str) -> list[int]:
+    """ Return the ``inverse`` many2one of the comodel records ``ids`` (a
+    Query or a list of ids). A search on MongoDB storage reads the column in
+    its own round trip, like the subquery PostgreSQL runs. """
+    field = comodel._fields[inverse]
+    if isinstance(ids, MongoQuery) and field.store and field.column_type and not _multi_valued(field):
+        path = _path(comodel, field)
+        return [doc[path] for doc in ids.resolve({path: 1}) if doc.get(path) is not None]
+    if isinstance(ids, Query):
+        ids = ids.get_result_ids()
+    return list(comodel.sudo().browse(ids)[inverse]._ids)
 
 
 def _many2many_condition(model: BaseModel, field: Field, operator: str, value, unsupported) -> dict:
