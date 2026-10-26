@@ -228,7 +228,7 @@ class AccountPartialReconcile(models.Model):
         processed_amls._write_multi([{
             'matching_number': str(line.full_reconcile_id.id) if line.full_reconcile_id else f'P{line2number[line.id]}',
         } for line in processed_amls])
-        processed_amls.invalidate_recordset(['matching_number'])
+        processed_amls.invalidate_recordset(['matching_number', 'write_uid', 'write_date'])
         (amls - processed_amls).matching_number = False
 
     # -------------------------------------------------------------------------

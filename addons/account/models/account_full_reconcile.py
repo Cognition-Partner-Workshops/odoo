@@ -46,7 +46,9 @@ class AccountFullReconcile(models.Model):
         for full, record_ids in zip(fulls, ids_list):
             ids.extend(record_ids)
             vals_list.extend([{'full_reconcile_id': full.id}] * len(record_ids))
-        model.browse(ids)._write_multi(vals_list)
+        records = model.browse(ids)
+        records._write_multi(vals_list)
+        records.invalidate_recordset(['write_uid', 'write_date'], flush=False)
 
     def unlink(self):
         # The default `ondelete='set null'` on `account_move_line.full_reconcile_id`
