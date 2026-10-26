@@ -1488,15 +1488,6 @@ def search(model: BaseModel, domain, sec_domain, order: str | None, limit, offse
         if sec_domain.is_false():
             return model.browse()._as_query()
         match = {'$and': [match, to_filter(self_sudo, sec_domain)]}
-    if (
-        not order and not limit and not offset and sec_domain.is_true()
-        and isinstance(domain, DomainCondition) and domain.field_expr == 'id' and domain.operator == 'in'
-        and not isinstance(domain.value, (Query, Domain, SQL))
-    ):
-        # a search by id only (the subquery of a many2one condition, typically):
-        # the shadow rows tell which ids exist, without a round trip
-        ids = list(domain.value)
-        return model.browse([id_ for id_ in ids if id_ in _alive(model, ids)])._as_query(ordered=False)
     pipeline = _virtual_stages(_layout(model))
     if translated := _translated_fields(model, domain, sec_domain, order):
         pipeline.append({'$addFields': {

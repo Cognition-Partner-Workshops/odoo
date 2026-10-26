@@ -224,9 +224,6 @@ class TestStorageMongodb(TransactionCase):
             self.assertEqual(Tag.search(domain, order='id').ids, tags.ids)
             self.assertEqual(aggregate.call_count, 3)
             self.assertEqual(aggregate.call_args.args[1][-1], {'$project': {'_id': 1}})
-            # a search by id only is answered by the shadow rows, without a round trip
-            self.assertEqual(Tag._search(Domain('id', 'in', tags.ids + [0])).get_result_ids(), tuple(tags.ids))
-            self.assertEqual(aggregate.call_count, 3)
             self.assertEqual(Tag.search_count(domain), 3)
 
     def test_many2one_subsearches_run_together(self):
