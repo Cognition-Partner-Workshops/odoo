@@ -7,6 +7,7 @@ from odoo.exceptions import UserError
 class ProductAttribute(models.Model):
     _name = 'product.attribute'
     _description = "Product Attribute"
+    _storage = 'mongodb'      # UNT14 wave 2 w2-b05: documents in odoo_unt13.productAttribute (signed spec map-draft-5)
     # if you change this _order, keep it in sync with the method
     # `_sort_key_attribute_value` in `product.template`
     _order = 'sequence, id'
