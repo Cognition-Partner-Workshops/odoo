@@ -1,0 +1,53 @@
+{
+  "batch": "w2-b02",
+  "wave": 2,
+  "status": "PASS",
+  "failure_class": null,
+  "recon_results": [
+    ".migration/recon/returnReason/result.json",
+    ".migration/recon/stockStorageCategory/result.json",
+    ".migration/recon/accountCashRounding/result.json",
+    ".migration/recon/stockPackageType/result.json",
+    ".migration/recon/productPricelist/result.json"
+  ],
+  "write_targets": [
+    "odoo_unt13.accountCashRounding",
+    "odoo_unt13.productPricelist",
+    "odoo_unt13.returnReason",
+    "odoo_unt13.stockPackageType",
+    "odoo_unt13.stockStorageCategory"
+  ],
+  "units": [
+    "returnReason",
+    "stockStorageCategory",
+    "accountCashRounding",
+    "stockPackageType",
+    "productPricelist"
+  ],
+  "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/141",
+  "branch": "devin/1792985163-unt14-50-w2-b02",
+  "base_sha": "2f68f2104edab31476cb9ebc3f53635de3afcd7a",
+  "head_sha": "47d4f88fa279bf2b523d949bf27421ad11b44b19",
+  "manifest_sha": "ef5b8af24b0b",
+  "plugin_sha": "2c1160efde323c570425953b7e38bcc3496c6053",
+  "mapping_version": "map-draft-5",
+  "tolerances_version": null,
+  "recon_git_head": "cd323f16d80aaae2dd944340ce54f149a7b86820",
+  "scratch_prefixes": {
+    "odoo_w2b02_mtour__": {
+      "before_cleanup": 6,
+      "after_cleanup": 0
+    },
+    "odoo_w2b02_mtour2__": {
+      "before_cleanup": 6,
+      "after_cleanup": 0
+    }
+  },
+  "tours": {
+    "stock:TestBatchPickingSynchronization": {
+      "postgresql": "1 test, 0 failed, 0 error, tour succeeded",
+      "mongodb": "1 test, 0 failed, 0 error, tour succeeded"
+    }
+  },
+  "one_line_summary": "w2-b02: 5/5 units live PASS and merge_eligible (migration_cluster, Tiers 1-4, odoo_src), tours pass on PostgreSQL and MongoDB copies; recon ran at code commit cd323f1, later commits add ORM constraint checks and tests only (no loader, mapping or data change)"
+}
