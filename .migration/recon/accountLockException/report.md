@@ -2,14 +2,13 @@
 
 - **Verdict: PASS** (values redacted)
 - Mode: `live`
-- Merge eligible: no (fixture/continuous evidence never merges)
+- Merge eligible: yes (fixture/continuous evidence never merges)
 - Mapping version: `map-draft-5` (sha256 `c0b93dad9526`)
 - Tolerance version: `1` (sha256 `8c9b9e4cf438`)
-- Evidence: git `7ea759d0a47f` | source db `odoo_src` | source server `none` | ops sha256 `0310a36bfd09`
+- Evidence: git `e7a22d5f363c` | source db `odoo_src` | source server `hmac-sha256:545efbd0aca82e45` | ops sha256 `0310a36bfd09`
 - Collections: `accountLockException`
 - Seed: `1`
-- Generated: 2026-10-25T22:29:25.293093+00:00
-- **WARNING: no source fingerprint: RECON_REDACT_SALT unset**
+- Generated: 2026-10-26T01:41:16.068078+00:00
 - 11 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 2 string fields: min/max/distinct deferred to Tier 3
 

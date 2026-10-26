@@ -1,10 +1,9 @@
 # Recon summary: `accountLockException` - **PASS**
 
 - Mode: `live`
-- Merge eligible: no (fixture/continuous evidence never merges)
+- Merge eligible: yes (fixture/continuous evidence never merges)
 - Mapping `map-draft-5` / tolerances `1` / seed `1`
-- Generated: 2026-10-25T22:29:25.293093+00:00
-- **WARNING: no source fingerprint: RECON_REDACT_SALT unset**
+- Generated: 2026-10-26T01:41:16.068078+00:00
 
 | Tier | Checks | Result |
 |---|---|---|

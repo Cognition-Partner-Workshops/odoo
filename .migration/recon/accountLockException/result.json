@@ -6,10 +6,10 @@
   "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
   "tolerance_version": "1",
   "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416",
-  "git_head": "7ea759d0a47f5b6a08b597248969233c13734e66",
+  "git_head": "e7a22d5f363cef5888c8b18046d679820658cec2",
   "git_dirty": false,
   "source_db": "odoo_src",
-  "source_server": null,
+  "source_server": "hmac-sha256:545efbd0aca82e45",
   "ops_sha256": "0310a36bfd09449b6d3b5f2f1d6e4660b45578228c32a231aad79685719363e8",
   "collections": [
     "accountLockException"
@@ -17,9 +17,9 @@
   "seed": 1,
   "params": {},
   "snapshot": null,
-  "generated_at": "2026-10-25T22:29:25.293093+00:00",
+  "generated_at": "2026-10-26T01:41:16.068078+00:00",
   "redacted": true,
-  "redaction_salted": false,
+  "redaction_salted": true,
   "tiers": [
     {
       "tier": 1,
@@ -98,10 +98,8 @@
       "findings": []
     }
   ],
-  "warnings": [
-    "no source fingerprint: RECON_REDACT_SALT unset"
-  ],
+  "warnings": [],
   "verdict": "PASS",
-  "merge_eligible": false,
+  "merge_eligible": true,
   "error": null
 }
