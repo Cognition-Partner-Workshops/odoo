@@ -468,6 +468,16 @@ class AccountReportLine(models.Model):
         'A report line with the same code already exists.',
     )
 
+    @api.constrains('report_id', 'code')
+    def _check_code_unique_documents(self):
+        """ `_code_uniq` is a SQL unique constraint; on MongoDB storage report_id and code are
+        document fields, so the same rule is enforced here (NULL codes never collide). """
+        if self._storage != 'mongodb':
+            return
+        for line in self.filtered('code'):
+            if self.search_count([('report_id', '=', line.report_id.id), ('code', '=', line.code), ('id', '!=', line.id)], limit=1):
+                raise ValidationError(_("A report line with the same code already exists."))
+
     @api.depends('parent_id.hierarchy_level')
     def _compute_hierarchy_level(self):
         for report_line in self:
