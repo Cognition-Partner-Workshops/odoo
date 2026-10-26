@@ -5,6 +5,6 @@
     ".migration/recon/wave-1/w1-b01/accountLockException/result.json"
   ],
   "findings": [],
-  "report_path": "recon/verify-w1-b01-unt14:.migration/recon/wave-1/w1-b01/verify-report.md",
+  "report_path": "recon/verify-w1-b01:.migration/recon/wave-1/w1-b01/verify-report.md",
   "head_sha": "6047909ee628d2c84a4ef115b94d4d68734cd91e"
 }
