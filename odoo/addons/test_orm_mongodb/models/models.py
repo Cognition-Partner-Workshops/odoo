@@ -150,6 +150,9 @@ class Test_Orm_MongodbAttributeValue(models.Model):
     html_color = fields.Char()
     default_extra_price = fields.Float()
     is_custom = fields.Boolean()
+    color = fields.Integer()
+
+    _color_uniq = models.Constraint('unique(color)', 'A color index can only be assigned to one value.')
 
 
 class Test_Orm_MongodbFiscalPosition(models.Model):
