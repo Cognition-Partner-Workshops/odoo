@@ -22,6 +22,15 @@ class PurchaseOrder(models.Model):
     _name = 'purchase.order'
     _inherit = ['portal.mixin', 'product.catalog.mixin', 'mail.thread', 'mail.activity.mixin', 'account.document.import.mixin']
     _description = "Purchase Order"
+    _storage = 'mongodb'      # UNT14 wave 4 w4-b02: documents in odoo_unt13.purchaseOrder (signed spec map-draft-5)
+    # columns the raw SQL of this module reads from purchase_order: the purchase analysis
+    # report (report/purchase_report.py), purchase.bill.union, purchase.bill.line.match and
+    # account.move's auto-complete subquery; purchase_stock extends the tuple with its own
+    _shadow_columns = (
+        'name', 'partner_ref', 'partner_id', 'dest_address_id', 'user_id', 'company_id', 'currency_id',
+        'currency_rate', 'fiscal_position_id', 'state', 'invoice_status', 'date_order', 'date_approve',
+        'amount_untaxed',
+    )
     _rec_names_search = ('name', 'partner_ref')
     _order = 'priority desc, id desc'
     _mail_post_access = 'read'
@@ -396,27 +405,31 @@ class PurchaseOrder(models.Model):
         if not orders:
             return {}
 
-        self.env['purchase.order'].flush_model(['company_id', 'partner_id', 'partner_ref', 'origin', 'state'])
-
-        result = self.env.execute_query(SQL("""
-            SELECT
-                po.id AS order_id,
-                array_agg(duplicate_po.id) AS duplicate_ids
-            FROM purchase_order po
-            JOIN purchase_order AS duplicate_po
-                ON po.company_id = duplicate_po.company_id
-                AND po.id != duplicate_po.id
-                AND duplicate_po.state != 'cancel'
-                AND po.partner_id = duplicate_po.partner_id
-                AND (
-                    po.origin = duplicate_po.name
-                    OR po.partner_ref = duplicate_po.partner_ref
+        # purchase.order is on MongoDB storage: origin, name, partner_ref and state are
+        # document fields, so the candidates come from the ORM instead of a self-join SQL,
+        # restricted to the orders whose name or vendor reference can match at all
+        candidates = self.env['purchase.order'].sudo().search([
+            ('company_id', 'in', orders.company_id.ids),
+            ('partner_id', 'in', orders.partner_id.ids),
+            ('state', '!=', 'cancel'),
+            '|',
+            ('name', 'in', [origin for origin in orders.mapped('origin') if origin]),
+            ('partner_ref', 'in', [ref for ref in orders.mapped('partner_ref') if ref]),
+        ])
+        result = {}
+        for order in orders:
+            duplicates = candidates.filtered(lambda duplicate: (
+                duplicate.id != order.id
+                and duplicate.company_id == order.company_id
+                and duplicate.partner_id == order.partner_id
+                and (
+                    (order.origin and order.origin == duplicate.name)
+                    or (order.partner_ref and order.partner_ref == duplicate.partner_ref)
                 )
-            WHERE po.id IN %(orders)s
-            GROUP BY po.id
-        """, orders=tuple(orders.ids)))
-
-        return {order_id: set(duplicate_ids) for order_id, duplicate_ids in result}
+            ))
+            if duplicates:
+                result[order.id] = set(duplicates.ids)
+        return result
 
     def action_open_business_doc(self):
         self.ensure_one()

@@ -14,6 +14,7 @@ class ProductTemplateAttributeValue(models.Model):
 
     _name = 'product.template.attribute.value'
     _description = "Product Template Attribute Value"
+    _storage = 'mongodb'      # UNT14 wave 4 w4-b03: embedded as odoo_unt13.productTemplateAttributeLine.productTemplateAttributeValue (signed spec map-draft-5)
     _order = 'sequence, attribute_line_id, product_attribute_value_id, id'
 
     def _get_default_color(self):
@@ -88,6 +89,19 @@ class ProductTemplateAttributeValue(models.Model):
                     attribute=ptav.attribute_id.display_name,
                     product=ptav.product_tmpl_id.display_name,
                 ))
+
+    @api.constrains('attribute_line_id', 'product_attribute_value_id')
+    def _check_attribute_value_unique_documents(self):
+        """ `_attribute_value_unique` is a SQL UNIQUE constraint; on MongoDB storage the
+        embedded documents are not covered by it, so the same rule is enforced here. """
+        for ptav in self:
+            duplicate = self.with_context(active_test=False).search_count([
+                ('id', '!=', ptav.id),
+                ('attribute_line_id', '=', ptav.attribute_line_id.id),
+                ('product_attribute_value_id', '=', ptav.product_attribute_value_id.id),
+            ], limit=1)
+            if duplicate:
+                raise ValidationError(_('Each value should be defined only once per attribute per product.'))
 
     @api.model_create_multi
     def create(self, vals_list):

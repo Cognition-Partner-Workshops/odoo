@@ -1,3 +1,5 @@
+import json
+import traceback
 from unittest.mock import patch
 
 import psycopg2.errors
@@ -106,6 +108,50 @@ class TestEmbeddedChildrenMongodb(TransactionCase):
         with self.assertRaises(psycopg2.errors.NotNullViolation):
             self.color.value_ids[0].attribute_id = False
         self.assertEqual(self.names(self.color), ['Red', 'Blue'])
+
+    def test_unique_constraint_across_parents(self):
+        """ A model's own unique(...) constraint spans the parents, like the
+        PostgreSQL constraint on the table, and reads like its violation. """
+        red = self.color.value_ids.sorted('id')[0]
+        red.color = 1
+        self.Value.create([{'attribute_id': self.size.id, 'name': 'Small'}] * 2)    # NULLs never collide
+        self.env.flush_all()
+        before = self.elements(self.size)
+        with self.assertRaises(psycopg2.errors.UniqueViolation) as caught, self.env.cr.savepoint():
+            self.Value.create({'attribute_id': self.size.id, 'name': 'Scarlet', 'color': 1})
+        self.assertEqual(caught.exception.diag.constraint_name, 'product_attribute_value_color_uniq')
+        self.assertIn('Key (color)=(1) already exists.', str(caught.exception))
+        self.assertTrue(traceback.format_exception_only(caught.exception)[0].startswith('psycopg2.errors.UniqueViolation: '))
+        self.assertEqual(self.elements(self.size), before)                      # the push was undone
+        with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
+            self.Value.create([
+                {'attribute_id': self.size.id, 'name': 'Scarlet', 'color': 2},
+                {'attribute_id': self.size.id, 'name': 'Crimson', 'color': 2},
+            ])
+        with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
+            self.size.value_ids[0].color = 1
+        self.assertEqual(self.elements(self.size), before)
+        self.size.value_ids[0].color = 2                                        # free: no violation
+        self.assertEqual(self.elements(self.size)[0]['color'], 2)
+
+    def test_unique_constraint_locks_across_parents(self):
+        """ Writers of one unique key under different parents share no parent
+        row: the key is locked until the transaction ends, so a concurrent
+        writer waits for the commit or rollback instead of racing the check. """
+        lock = f'product_attribute_value.product_attribute_value_color_uniq:{json.dumps({"color": 7})}'
+        with self.registry.cursor() as other:
+            def other_can_lock():
+                other.execute("SELECT pg_try_advisory_xact_lock(hashtext(%s))", [lock])
+                taken, = other.fetchone()
+                other.rollback()                            # a transaction lock ends with its transaction
+                return taken
+
+            self.assertTrue(other_can_lock())
+            with self.env.cr.savepoint():
+                self.Value.create({'attribute_id': self.size.id, 'name': 'Seven', 'color': 7})
+                self.env.flush_all()
+                self.assertFalse(other_can_lock())          # held by this transaction
+            self.assertFalse(other_can_lock())              # until it ends, not the savepoint
 
     def test_unique_key_within_parent(self):
         Position = self.env['test_orm_mongodb.fiscal_position']

@@ -12,6 +12,13 @@ from odoo.tools.misc import OrderedSet
 
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
+    # purchase's shadow columns plus picking_type_id and effective_date, read by this module's
+    # purchase analysis extension (report/purchase_report.py) through SQL
+    _shadow_columns = (
+        'name', 'partner_ref', 'partner_id', 'dest_address_id', 'user_id', 'company_id', 'currency_id',
+        'currency_rate', 'fiscal_position_id', 'state', 'invoice_status', 'date_order', 'date_approve',
+        'amount_untaxed', 'picking_type_id', 'effective_date',
+    )
 
     @api.model
     def _default_picking_type(self):
