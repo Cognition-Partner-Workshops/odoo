@@ -90,6 +90,19 @@ class ProductTemplateAttributeValue(models.Model):
                     product=ptav.product_tmpl_id.display_name,
                 ))
 
+    @api.constrains('attribute_line_id', 'product_attribute_value_id')
+    def _check_attribute_value_unique_documents(self):
+        """ `_attribute_value_unique` is a SQL UNIQUE constraint; on MongoDB storage the
+        embedded documents are not covered by it, so the same rule is enforced here. """
+        for ptav in self:
+            duplicate = self.with_context(active_test=False).search_count([
+                ('id', '!=', ptav.id),
+                ('attribute_line_id', '=', ptav.attribute_line_id.id),
+                ('product_attribute_value_id', '=', ptav.product_attribute_value_id.id),
+            ], limit=1)
+            if duplicate:
+                raise ValidationError(_('Each value should be defined only once per attribute per product.'))
+
     @api.model_create_multi
     def create(self, vals_list):
         if any('ptav_product_variant_ids' in v for v in vals_list):
