@@ -10,7 +10,6 @@ from dateutil.relativedelta import relativedelta
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
-from odoo.tools import SQL
 from odoo.tools.barcode import check_barcode_encoding
 
 PY_OPERATORS = {
@@ -415,25 +414,10 @@ class ProductProduct(models.Model):
             dest_loc_domain_out = Domain('location_dest_id', 'not in', locations.ids)
             dest_loc_domain_done = dest_loc_domain
         elif locations:
-            descendants_query = SQL(
-                    """
-                    (
-                        WITH RECURSIVE descendants AS (
-                            SELECT id
-                            FROM stock_location
-                            WHERE id IN %s
-
-                            UNION
-
-                            SELECT sl.id
-                            FROM stock_location sl
-                            JOIN descendants d
-                                ON sl.location_id = d.id
-                        )
-                        SELECT id FROM descendants
-                    )
-                    """,
-                    tuple(locations.ids),
+            # stock.location is on MongoDB storage: its parent links are document
+            # fields, so the descendants come from the ORM (parent_path), not raw SQL
+            descendants_query = locations.with_context(active_test=False)._search(
+                Domain('id', 'child_of', locations.ids)
             )
             loc_domain = Domain('location_id', 'in', descendants_query)
             # The condition should be split for done and not-done moves as the final_dest_id only make sense
