@@ -1,0 +1,120 @@
+{
+  "unit": "uomUom",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-5",
+  "mapping_sha256": "c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7",
+  "tolerance_version": "1",
+  "tolerance_sha256": "8c9b9e4cf4382dcfccf40cfbbec4428cc03ff62d1563e9a187e2d27fa3da5416",
+  "git_head": "a5e196aa436077d10c1a3c5166e0b03f47bfedc4",
+  "git_dirty": false,
+  "source_db": "odoo_src",
+  "source_server": "hmac-sha256:545efbd0aca82e45",
+  "ops_sha256": "015639493d64ecde51bece9c9319aea6eba1769aea170a9674df49b2b41983ff",
+  "collections": [
+    "uomUom"
+  ],
+  "seed": 1,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-10-26T03:48:36.998863+00:00",
+  "redacted": true,
+  "redaction_salted": true,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 5,
+      "stats": {
+        "source_counts": {
+          "uomUom": 30
+        },
+        "embed_source_counts": {}
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 8,
+      "stats": {
+        "deferred_to_tier3": [
+          "uomUom.sequence",
+          "uomUom.relativeUomId",
+          "uomUom.createUid",
+          "uomUom.writeUid",
+          "uomUom.parentPath",
+          "uomUom.name",
+          "uomUom.factor",
+          "uomUom.active",
+          "uomUom.createDate",
+          "uomUom.writeDate",
+          "uomUom.packageTypeId",
+          "uomUom.uneceCode"
+        ],
+        "string_aggregates_deferred_to_tier3": [
+          {
+            "field": "uomUom.parentPath",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "uomUom.name",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          },
+          {
+            "field": "uomUom.uneceCode",
+            "stats": [
+              "min",
+              "max",
+              "distinct_count"
+            ]
+          }
+        ],
+        "document_aggregates_deferred_to_tier3": [
+          {
+            "field": "uomUom.name",
+            "key": "uomUom"
+          }
+        ],
+        "fields_fully_deferred": 5
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 30,
+      "stats": {
+        "uomUom": {
+          "mode": "full_diff",
+          "population": 30,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "merge_eligible": true,
+  "error": null
+}
