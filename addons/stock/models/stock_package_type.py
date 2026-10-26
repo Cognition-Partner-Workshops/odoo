@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class StockPackageType(models.Model):
@@ -59,6 +60,26 @@ class StockPackageType(models.Model):
         'CHECK(max_weight>=0.0)',
         'Max Weight must be positive',
     )
+
+    # MongoDB storage does not apply the SQL constraints above (storage_mongodb.auto_init):
+    # the same rules, checked through the ORM
+    @api.constrains('barcode')
+    def _check_barcode_unique(self):
+        for package_type in self.filtered('barcode'):
+            if self.search_count([('barcode', '=', package_type.barcode), ('id', '!=', package_type.id)], limit=1):
+                raise ValidationError(self.env._('A barcode can only be assigned to one package type!'))
+
+    @api.constrains('height', 'width', 'packaging_length', 'max_weight')
+    def _check_positive_dimensions(self):
+        for package_type in self:
+            if package_type.height < 0.0:
+                raise ValidationError(self.env._('Height must be positive'))
+            if package_type.width < 0.0:
+                raise ValidationError(self.env._('Width must be positive'))
+            if package_type.packaging_length < 0.0:
+                raise ValidationError(self.env._('Length must be positive'))
+            if package_type.max_weight < 0.0:
+                raise ValidationError(self.env._('Max Weight must be positive'))
 
     @api.depends('name', 'packaging_length', 'width', 'height')
     @api.depends_context('formatted_display_name')

@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class StockStorageCategory(models.Model):
@@ -27,6 +28,12 @@ class StockStorageCategory(models.Model):
         'CHECK(max_weight >= 0)',
         'Max weight should be a positive number.',
     )
+
+    @api.constrains('max_weight')
+    def _check_positive_max_weight(self):
+        # MongoDB storage does not apply the SQL constraint above (storage_mongodb.auto_init)
+        if any(category.max_weight < 0 for category in self):
+            raise ValidationError(self.env._('Max weight should be a positive number.'))
 
     @api.depends('capacity_ids')
     def _compute_storage_capacity_ids(self):
