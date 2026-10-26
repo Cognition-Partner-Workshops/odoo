@@ -10,13 +10,15 @@ from odoo.tests import TransactionCase, tagged
 
 
 class CommandCounter(monitoring.CommandListener):
-    """ Counts the commands the server is sent: one per round trip. """
+    """ Counts the commands sent for one collection: one per round trip. """
 
-    def __init__(self):
+    def __init__(self, collection):
+        self.collection = collection
         self.count = 0
 
     def started(self, event):
-        self.count += 1
+        if next(iter(event.command.values()), None) == self.collection:
+            self.count += 1
 
     def succeeded(self, event):
         pass
@@ -41,16 +43,20 @@ class TestOrderpointMongodb(TransactionCase):
             'purchase_ok': True,
             'seller_ids': [Command.create({'partner_id': vendor.id, 'delay': delay, 'min_qty': 1, 'price': 750})],
         } for delay in (1, 5, 10)])
+        locations = warehouse.lot_stock_id | cls.env['stock.location'].create([
+            {'name': name, 'usage': 'internal', 'location_id': warehouse.lot_stock_id.id}
+            for name in ('Shelf A', 'Shelf B')
+        ])
         cls.orderpoints = cls.env['stock.warehouse.orderpoint'].create([{
             'product_id': product.id,
-            'location_id': warehouse.lot_stock_id.id,
+            'location_id': location.id,
             'product_min_qty': 1,
             'product_max_qty': 5,
-        } for product in products])
+        } for product, location in zip(products, locations)])
 
-    def commands(self, orderpoints):
-        """ Return the number of MongoDB round trips a cold read of ``qty_forecast`` takes. """
-        counter = CommandCounter()
+    def commands(self, orderpoints, model):
+        """ Return the MongoDB round trips to ``model``'s collection of a cold read of ``qty_forecast``. """
+        counter = CommandCounter(storage_mongodb.get_collection(self.env[model]).name)
         uri = os.environ.get('ODOO_MONGODB_URI', storage_mongodb.DEFAULT_URI)
         client = pymongo.MongoClient(uri, tz_aware=False, appname='odoo', connect=False, event_listeners=[counter])
         self.addCleanup(client.close)
@@ -62,6 +68,9 @@ class TestOrderpointMongodb(TransactionCase):
         return counter.count
 
     def test_forecast_batches_quantities_in_progress(self):
-        self.assertEqual(len(set(self.orderpoints.mapped('lead_horizon_date'))), 3)     # three product contexts
-        one = self.commands(self.orderpoints[0])
-        self.assertEqual(self.commands(self.orderpoints), one)
+        """ The purchase lines in progress are looked up once for all the
+        orderpoints: their domain reaches the picking types once, not once
+        per product context (location and lead horizon). """
+        self.assertEqual(len(set(self.orderpoints.mapped('location_id'))), 3)
+        self.assertEqual(len(set(self.orderpoints.mapped('lead_horizon_date'))), 3)
+        self.assertEqual(self.commands(self.orderpoints, 'stock.picking.type'), 1)
