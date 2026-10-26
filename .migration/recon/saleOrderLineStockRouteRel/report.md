@@ -5,10 +5,10 @@
 - Merge eligible: yes (fixture/continuous evidence never merges)
 - Mapping version: `map-draft-5` (sha256 `c0b93dad9526`)
 - Tolerance version: `1` (sha256 `8c9b9e4cf438`)
-- Evidence: git `6a05b487b518` | source db `odoo_src` | source server `hmac-sha256:545efbd0aca82e45` | ops sha256 `9932d353c286`
+- Evidence: git `f6e32b4cd8f8` | source db `odoo_src` | source server `hmac-sha256:545efbd0aca82e45` | ops sha256 `9932d353c286`
 - Collections: `saleOrderLineStockRouteRel`
 - Seed: `0`
-- Generated: 2026-10-26T08:12:34.490676+00:00
+- Generated: 2026-10-26T09:27:36.886095+00:00
 
 | Tier | Name | Checks | Result |
 |---|---|---|---|

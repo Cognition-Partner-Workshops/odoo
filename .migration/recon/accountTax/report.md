@@ -5,10 +5,10 @@
 - Merge eligible: yes (fixture/continuous evidence never merges)
 - Mapping version: `map-draft-5` (sha256 `c0b93dad9526`)
 - Tolerance version: `1` (sha256 `8c9b9e4cf438`)
-- Evidence: git `6a05b487b518` | source db `odoo_src` | source server `hmac-sha256:545efbd0aca82e45` | ops sha256 `574e7d597871`
+- Evidence: git `f6e32b4cd8f8` | source db `odoo_src` | source server `hmac-sha256:545efbd0aca82e45` | ops sha256 `574e7d597871`
 - Collections: `accountTax`
 - Seed: `0`
-- Generated: 2026-10-26T08:12:58.545457+00:00
+- Generated: 2026-10-26T09:27:58.437908+00:00
 - 28 fields: Tier 2 aggregates deferred to Tier 3 (rules change the value)
 - 13 string fields: min/max/distinct deferred to Tier 3
 
