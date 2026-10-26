@@ -1,0 +1,88 @@
+{
+ "batch": "w4-b04",
+ "wave": 4,
+ "status": "FAIL",
+ "failure_class": "tours",
+ "units": [
+  "productProduct"
+ ],
+ "write_targets": [
+  "odoo_unt13.productProduct",
+  "odoo_unt13.productSupplierinfo"
+ ],
+ "branch": "devin/unt14-66-w4-b04",
+ "pr_url": "https://github.com/Cognition-Partner-Workshops/odoo/pull/157",
+ "base_sha": "f84dbc723f61eeca98de9030e0a3fb4cb30dc540",
+ "merged_in": "30ac48f1ee0 (mongo-run/unt13 with #158 embedded unique constraints and #159 orderpoint quantities, merged into the branch at 85847328; no rebase)",
+ "code_head": "a17d42b58b11847b904326721304f803390ff600",
+ "recon_git_head": "a17d42b58b11847b904326721304f803390ff600",
+ "head_sha": "2df433c7e69",
+ "head_sha_note": "evidence head (code head a17d42b5 + the live recon re-run on it); the batch-result commit sits on top, as in the earlier waves",
+ "manifest_sha": "4fb63aa0f729",
+ "manifest_sha_note": "preflight at 2c1160e on the spec built verbatim from units.json waves[3] (live / migration_cluster / auto_merge true / base f84dbc7): exit 0, 'wave 4 OK: 4 batches, manifest_sha 4fb63aa0f729', w4-b04 block matches; re-run from the merged tree with the same result",
+ "plugin_sha": "2c1160efde323c570425953b7e38bcc3496c6053",
+ "mapping_version": "map-draft-5",
+ "tolerances_version": "1",
+ "source_fingerprint": "a100e84ee2fb6282f30b45c003fd1db47561317c739340a10564d9e869e56a4e",
+ "recon_results": {
+  "productProduct": {
+   "fixture": ".migration/recon/productProduct/fixture/result.json (PASS Tiers 1-4, merge_eligible false, non-merge evidence)",
+   "live": ".migration/recon/productProduct/result.json (PASS Tiers 1-4, migration_cluster, merge_eligible true, git_head a17d42b5, git_dirty false; earlier runs on 07120c66 and 1de1bb6d also PASS)"
+  }
+ },
+ "tiers_passed": [
+  1,
+  2,
+  3,
+  4
+ ],
+ "loads": {
+  "fixture": "odoo_fixture -> productProduct 1394 docs, productSupplierinfo 637 docs (dropped before live load)",
+  "live": "odoo_src at source concurrency 1 -> productProduct 1393 docs, productSupplierinfo 529 docs"
+ },
+ "tours": {
+  "postgresql_storage": {
+   "tests": 21,
+   "passed": 20,
+   "skipped": 0,
+   "failed": [
+    "stock:TestStockPickingTour.test_inventory_adjustment_apply_all"
+   ],
+   "tree": "30ac48f1 (mongo-run/unt13 after the storage fixes #158/#159: this batch on PostgreSQL, waves 1-3 and w4-b01..b03 on MongoDB) from a detached worktree of the clone, with the committed 20 s step timeout copied onto test_product_replenishment",
+   "copy": "odoo_w4b04_ptour2 (createdb -T odoo_src; 46 merged units seeded into odoo_w4b04_ptour2__ with load_unit.py --prefix; -u account,product,purchase,sale_stock,stock,uom)",
+   "note": "test_inventory_adjustment_apply_all is pre-existing (fails on the unchanged base tree; odoo_src carries 187 quants with inventory_quantity_set and Apply All trips stock.quant.check_quantity on a serial-tracked product; recorded by w2-b01 too). test_product_replenishment passed in the full run (step 1 ~6.3 s) and again alone with the 20 s step timeout (action/run 2.3 s, web_search_read 4.0 s). test_purchase_order_suggest_search_panel_ux passed within its approved 120 s whole-tour limit."
+  },
+  "mongodb_storage": {
+   "tests": 21,
+   "passed": 19,
+   "skipped": 0,
+   "failed": [
+    "stock:TestStockPickingTour.test_inventory_adjustment_apply_all",
+    "purchase_stock:TestPurchaseOrderSuggest.test_purchase_order_suggest_search_panel_ux"
+   ],
+   "tree": "a17d42b5 (this batch on MongoDB, storage fixes 30ac48f1 merged, 20 s step timeout on the replenishment screen per plan decision d-replenish-step-limit)",
+   "copy": "odoo_w4b04_mtour2 (createdb -T odoo_src; 46 merged units + productProduct seeded into odoo_w4b04_mtour2__ with load_unit.py --prefix; -u account,product,purchase,sale_edi_ubl,sale_stock,stock,uom)",
+   "reruns": "full run 18/21 (test_product_replenishment failed at its old 10 s step limit: action/run 4.3 s, search panels 0.4+1.2+1.6 s, web_search_read 4.9 s); then test_product_replenishment + test_purchase_order_suggest_search_panel_ux re-run alone on a17d42b5: replenishment PASSED with the 20 s step (step 1 took 11.5 s: action/run 3.7 s, web_search_read 4.5 s), purchase-suggest failed again",
+   "note": "test_barcode_duplication_error now PASSES on MongoDB (storage path enforces the embedded unique constraint, #158). test_inventory_adjustment_apply_all: same pre-existing base-tree data failure as on PostgreSQL. test_purchase_order_suggest_search_panel_ux (MongoDB only, new with product.product on MongoDB): fails at step 32/112 'input.o_PurchaseSuggestInput:eq(0)' by the normal 10 s step limit (reported as 'Script timeout exceeded'), ~50 s into the 120 s whole-tour limit; the purchase catalog's product.product reads on Atlas take web_search_read 6.2 s / 8.9 s, search_panel_select_range 1.7 s / 10.6 s, search_panel_select_multi_range 3.3 s / 1.3 s, search_read 1.3 s (q=44-50, SQL 0.02 s each). No timeout changed for it; storage-path performance gap reported to the manager."
+  }
+ },
+ "scratch_prefixes": {
+  "round_1": {
+   "odoo_w4b04_ptour__": "38 collections dropped",
+   "odoo_w4b04_mtour__": "40 collections dropped"
+  },
+  "round_2": {
+   "odoo_w4b04_ptour2__": "49 collections dropped",
+   "odoo_w4b04_mtour2__": "51 collections dropped"
+  },
+  "remaining_odoo_w4b04_*": 0,
+  "scratch_databases_dropped": [
+   "odoo_w4b04_ptour",
+   "odoo_w4b04_mtour",
+   "odoo_w4b04_ptour2",
+   "odoo_w4b04_mtour2"
+  ]
+ },
+ "devin_review": "see PR body",
+ "one_line_summary": "productProduct: live recon PASS Tiers 1-4 from odoo_src into odoo_unt13 (1393 + 529 docs), merge_eligible true on the final code head a17d42b5, fingerprint a100e84e matches, manifest_sha 4fb63aa0f729; after the storage fixes (30ac48f1) tours are 20/21 on PostgreSQL storage and 19/21 on MongoDB storage: test_inventory_adjustment_apply_all pre-existing on both, test_barcode_duplication_error fixed, test_product_replenishment passes with the user-approved 20 s first-step timeout (11.5 s on Atlas), test_purchase_order_suggest_search_panel_ux newly fails on MongoDB at a 10 s step over slow product.product catalog reads (storage-path performance gap)."
+}
