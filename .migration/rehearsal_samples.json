@@ -426,9 +426,7 @@
       "$date": "2026-10-19T00:00:00Z"
     },
     "active": true,
-    "endDatetime": {
-      "$date": "2026-10-27T00:00:00Z"
-    },
+    "endDatetime": null,
     "createDate": {
       "$date": "2026-10-20T00:00:00Z"
     },
