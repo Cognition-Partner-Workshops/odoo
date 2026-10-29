@@ -848,7 +848,10 @@ env["resource.calendar.leaves"].create(
 env["resource.resource"].create({"name": "Forklift 1", "resource_type": "material", "calendar_id": company.resource_calendar_id.id})
 env["utm.campaign"].create({"name": "UNT13 Autumn promotion", "tag_ids": [(0, 0, {"name": "Seasonal promo"})]})
 
-# Lock dates are applied only after all postings have been completed.
+# Lock dates are applied only after all postings have been completed. The exception has no
+# end_datetime (valid forever): Odoo evaluates its state against PostgreSQL now(), which
+# libfaketime does not fake, so any fixed end would expire on the wall clock and fail the
+# assertion below once the real date passes it.
 company.write({"sale_lock_date": LOCK_DATE})
 env["account.lock_exception"].create(
     {
@@ -857,7 +860,6 @@ env["account.lock_exception"].create(
         "reason": "UNT13 fixture late posting exception",
         "lock_date_field": "sale_lock_date",
         "lock_date": LOCK_EXCEPTION_DATE,
-        "end_datetime": FIXED_INSTANT + datetime.timedelta(days=7),
     }
 )
 assert company.with_user(env.user)._get_user_lock_date("sale_lock_date") == LOCK_EXCEPTION_DATE
