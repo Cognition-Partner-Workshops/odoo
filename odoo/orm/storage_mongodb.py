@@ -16,6 +16,9 @@ Environment:
     ODOO_MONGODB_PG_DATABASE        the one PostgreSQL database that owns the spec's
                                     collection names; any other PostgreSQL database
                                     (tests, clones) gets ``<dbname>__``-prefixed ones
+    ODOO_MONGODB_SWEEP              ``1`` for conformance sweeps only: every model whose table
+                                    the signed spec maps is stored in MongoDB, with all its
+                                    columns mirrored in PostgreSQL (see ``apply_sweep``)
 """
 from __future__ import annotations
 
@@ -264,6 +267,25 @@ def collection_prefix(dbname: str) -> str:
     return '' if dbname == os.environ.get('ODOO_MONGODB_PG_DATABASE') else f'{dbname}__'
 
 
+def apply_sweep(registry) -> None:
+    """ With ``ODOO_MONGODB_SWEEP=1``, opt every regular model whose table the
+    signed spec maps into MongoDB storage, keeping all its stored columns as
+    shadow columns so raw SQL still finds them. Only under a scratch prefix,
+    never in the collections of ``ODOO_MONGODB_PG_DATABASE``. """
+    if os.environ.get('ODOO_MONGODB_SWEEP') != '1':
+        return
+    if not collection_prefix(registry.db_name):
+        raise StorageError(f"ODOO_MONGODB_SWEEP runs under a scratch prefix only, not on {registry.db_name!r}")
+    tables = _spec_tables().keys() | _spec_children().keys()
+    for model_cls in registry.models.values():
+        if model_cls._storage or model_cls._abstract or not model_cls._auto or model_cls._table not in tables:
+            continue
+        model_cls._storage = 'mongodb'
+        model_cls._shadow_columns = tuple(
+            name for name, field in model_cls._fields.items() if name != 'id' and field.store and field.column_type
+        )
+
+
 def get_collection(model: BaseModel):
     prefix = collection_prefix(model.env.cr.dbname)
     return get_database().get_collection(prefix + _layout(model)['collection'])
@@ -301,6 +323,8 @@ def _layout(model: BaseModel) -> dict:
             layout['indexes'] = []     # embedded documents are indexed with their parent
             layout['embed'] = {
                 'array': embed['array_path'], 'parent': parent, 'parent_path': paths[parent],
+                # one child per parent, stored as an object instead of an array
+                'subdocument': embed.get('shape') == 'subdocument',
                 'id_path': columns['id']['target'],
                 'key_paths': None if key == ['id'] else [columns[col]['target'] for col in key],
             }
@@ -766,7 +790,8 @@ def auto_init(model: BaseModel) -> None:
 
     cr = model.env.cr
     new_fields = _new_fields(model)
-    if not sql.table_exists(cr, model._table):
+    existed = sql.table_exists(cr, model._table)
+    if not existed:
         sql.create_model_table(cr, model._table, model._description, [
             (field.name, field.stored_sql_column_type, field.string) for field in shadow
         ])
@@ -796,6 +821,32 @@ def auto_init(model: BaseModel) -> None:
         _logger.warning("%s: SQL constraints and indexes are not applied on MongoDB storage: %s",
                         model._name, ", ".join(model._table_objects))
     ensure_indexes(model)
+    if existed:
+        _seed_sweep(model)
+
+
+def _seed_sweep(model: BaseModel) -> None:
+    """ Under ``ODOO_MONGODB_SWEEP``, give the rows of an existing table their
+    documents when its scratch collection holds none: the switch keeps every
+    stored column as a shadow column, so PostgreSQL still has them all. """
+    if os.environ.get('ODOO_MONGODB_SWEEP') != '1' or not collection_prefix(model.env.cr.dbname):
+        return
+    layout, collection = _layout(model), get_collection(model)
+    embed = layout.get('embed')
+    if collection.count_documents({f"{embed['array']}.{embed['id_path']}": {'$exists': True}} if embed else {}, limit=1):
+        return
+    fnames = ['id', *(fname for fname in layout['paths'] if fname in model._shadow_columns)]
+    model.env.cr.execute(SQL("SELECT %s FROM %s ORDER BY id", SQL(', ').join(map(SQL.identifier, fnames)),
+                             SQL.identifier(model._table)))
+    rows = [{key: bytes(val) if isinstance(val, memoryview) else val for key, val in row.items()}
+            for row in model.env.cr.dictfetchall()]
+    if embed:   # children go into parent documents seeded before them
+        present = set(collection.distinct('_id', {'_id': {'$in': list({row[embed['parent']] for row in rows})}}))
+        if skipped := sum(row[embed['parent']] not in present for row in rows):
+            _logger.warning("%s: %s rows not seeded, their parent documents are missing", model._name, skipped)
+        rows = [row for row in rows if row[embed['parent']] in present]
+    for chunk in split_every(1000, rows):
+        insert(model, [row.pop('id') for row in chunk], list(chunk))
 
 
 def _new_fields(model: BaseModel) -> list[Field]:
@@ -988,7 +1039,8 @@ def _document(model: BaseModel, id_: int, values: dict) -> dict:
 # ---------------------------------------------------------------------------
 # embedded child documents
 # ---------------------------------------------------------------------------
-# A child record is an element of its parent document's array. Searches and
+# A child record is an element of its parent document's array (or the
+# parent's single subdocument, for a ``subdocument`` embed). Searches and
 # reads see it as a "virtual document": the element with ``_id`` set to the
 # record id and the parent key set to the parent document's ``_id``.
 
@@ -1018,6 +1070,14 @@ def _element(embed: dict, doc: dict) -> dict:
     }
 
 
+def _children_of(embed: dict, doc: dict) -> list[dict]:
+    """ Return the child elements of the parent document ``doc``. """
+    children = doc.get(embed['array'])
+    if embed['subdocument']:
+        return [] if children is None else [children]
+    return children or []
+
+
 def _elements(model: BaseModel, ids: list[int]) -> dict[int, tuple[int, int, dict]]:
     """ Return the parent id, array index and array element of child ``ids``. """
     embed = _layout(model)['embed']
@@ -1025,17 +1085,50 @@ def _elements(model: BaseModel, ids: list[int]) -> dict[int, tuple[int, int, dic
     return {
         element[id_path]: (doc['_id'], index, element)
         for doc in get_collection(model).find({f'{array}.{id_path}': {'$in': ids}}, {array: 1})
-        for index, element in enumerate(doc[array])
+        for index, element in enumerate(_children_of(embed, doc))
         if element[id_path] in wanted
     }
+
+
+def _remove_op(embed: dict, ids: list[int]) -> dict:
+    """ Return the update removing the children ``ids`` from their parents. """
+    array, id_path = embed['array'], embed['id_path']
+    return {'$unset': {array: ''}} if embed['subdocument'] else {'$pull': {array: {id_path: {'$in': ids}}}}
+
+
+def _add_op(embed: dict, elements: list[dict]) -> dict:
+    """ Return the update adding ``elements`` to one parent (a subdocument parent takes one). """
+    if embed['subdocument']:
+        [element] = elements
+        return {'$set': {embed['array']: element}}
+    return {'$push': {embed['array']: {'$each': elements}}}
+
+
+def _check_vacant(model: BaseModel, elements: dict[int, list[dict]], leaving: typing.Iterable[int] = ()) -> None:
+    """ Refuse a second child in a subdocument parent, like the unique parent
+    key of a one-to-one table: a parent takes at most one child, unless its
+    child is among the ``leaving`` ones. Run with the parents locked. """
+    embed = _layout(model)['embed']
+    if not embed['subdocument']:
+        return
+    parent_path, leaving = embed['parent_path'], set(leaving)
+    for parent_id, children in elements.items():
+        if len(children) > 1:
+            raise UniqueViolation(model, {parent_path: parent_id})
+    for doc in get_collection(model).find({'_id': {'$in': list(elements)}, embed['array']: {'$exists': True}},
+                                          {embed['array']: 1}):
+        if any(child[embed['id_path']] not in leaving for child in _children_of(embed, doc)):
+            raise UniqueViolation(model, {parent_path: doc['_id']})
 
 
 def _restore_elements(collection, embed: dict, priors: dict[int, tuple[int, int, dict]]) -> None:
     """ Put child elements back in their parent at their former index. """
     array, id_path, ids = embed['array'], embed['id_path'], list(priors)
-    collection.update_many({f'{array}.{id_path}': {'$in': ids}}, {'$pull': {array: {id_path: {'$in': ids}}}})
+    collection.update_many({f'{array}.{id_path}': {'$in': ids}}, _remove_op(embed, ids))
     for parent_id, index, element in sorted(priors.values(), key=lambda prior: prior[1]):
-        collection.update_one({'_id': parent_id}, {'$push': {array: {'$each': [element], '$position': index}}})
+        update = _add_op(embed, [element]) if embed['subdocument'] else \
+            {'$push': {array: {'$each': [element], '$position': index}}}
+        collection.update_one({'_id': parent_id}, update)
 
 
 def _lock_parents(model: BaseModel, parent_ids: typing.Iterable, check: bool = True) -> None:
@@ -1065,7 +1158,7 @@ def _check_key(model: BaseModel, parent_ids: typing.Iterable[int]) -> None:
     array = embed['array']
     for doc in get_collection(model).find({'_id': {'$in': list(parent_ids)}}, {array: 1}):
         seen = set()
-        for element in doc.get(array, ()):
+        for element in _children_of(embed, doc):
             key = tuple(element.get(path) for path in key_paths)
             if None in key:
                 continue
@@ -1108,10 +1201,15 @@ def _check_unique(model: BaseModel, elements: list[dict]) -> None:
     """ Enforce the model's own ``unique(...)`` constraints on the children
     just written, across every parent of the collection, like the PostgreSQL
     unique constraint. The spec's key within the parent is ``_check_key``'s. """
-    array = _layout(model)['embed']['array']
+    embed = _layout(model)['embed']
+    array = embed['array']
     for _name, key_paths, keys in _unique_keys(model, elements):
+        if embed['subdocument']:
+            candidates = {'$or': [{f'{array}.{path}': value for path, value in key.items()} for key in keys]}
+        else:
+            candidates = {array: {'$elemMatch': {'$or': keys}}}
         pipeline = [
-            {'$match': {array: {'$elemMatch': {'$or': keys}}}},
+            {'$match': candidates},
             {'$unwind': f'${array}'},
             {'$match': {'$or': [{f'{array}.{path}': value for path, value in key.items()} for key in keys]}},
             {'$group': {'_id': {path: f'${array}.{path}' for path in key_paths}, 'count': {'$sum': 1}}},
@@ -1132,11 +1230,12 @@ def _insert_children(model: BaseModel, ids: list[int], rows: list[dict]) -> None
     _lock_parents(model, elements)
     children = list(itertools.chain.from_iterable(elements.values()))
     _lock_unique(model, children)
+    _check_vacant(model, elements)
     array, id_path = embed['array'], embed['id_path']
     _add_undo(model.env.cr, lambda: collection.update_many(
-        {'_id': {'$in': list(elements)}}, {'$pull': {array: {id_path: {'$in': ids}}}}))
+        {'_id': {'$in': list(elements)}, f'{array}.{id_path}': {'$in': ids}}, _remove_op(embed, ids)))
     result = collection.bulk_write([
-        pymongo.UpdateOne({'_id': parent_id}, {'$push': {array: {'$each': children}}})
+        pymongo.UpdateOne({'_id': parent_id}, _add_op(embed, children))
         for parent_id, children in elements.items()
     ])
     if result.matched_count != len(elements):
@@ -1149,21 +1248,27 @@ def _update_children(model: BaseModel, priors: dict[int, dict], changes: list[tu
     import pymongo  # noqa: PLC0415
     embed, collection = _layout(model)['embed'], get_collection(model)
     array, id_path, parent_path = embed['array'], embed['id_path'], embed['parent_path']
-    ops, parents, elements = [], set(), []
+    ops, removals, parents, elements, moved = [], [], set(), [], defaultdict(list)
     for id_, to_set, to_unset in changes:
         doc = {path: value for path, value in priors[id_].items() if path not in to_unset} | to_set
         old_parent, new_parent = priors[id_][parent_path], doc.get(parent_path)
         elements.append(element := _element(embed, doc))
-        if new_parent == old_parent:
+        if new_parent == old_parent and embed['subdocument']:
+            ops.append(pymongo.UpdateOne({'_id': old_parent, f'{array}.{id_path}': id_}, {'$set': {array: element}}))
+        elif new_parent == old_parent:
             ops.append(pymongo.UpdateOne({'_id': old_parent}, {'$set': {f'{array}.$[e]': element}},
                                          array_filters=[{f'e.{id_path}': id_}]))
         else:
-            ops.append(pymongo.UpdateOne({'_id': old_parent}, {'$pull': {array: {id_path: id_}}}))
-            ops.append(pymongo.UpdateOne({'_id': new_parent}, {'$push': {array: element}}))
+            # removals first: a subdocument parent is vacant before a child moves in
+            removals.append(pymongo.UpdateOne({'_id': old_parent, f'{array}.{id_path}': id_}, _remove_op(embed, [id_])))
+            ops.append(pymongo.UpdateOne({'_id': new_parent}, _add_op(embed, [element])))
+            moved[new_parent].append(element)
         parents.update((old_parent, new_parent))
+    ops = removals + ops
     if not ops:
         return
     before = _elements(model, [id_ for id_, _set, _unset in changes])
+    _check_vacant(model, moved, leaving=before)
     _lock_unique(model, elements)
     _add_undo(model.env.cr, lambda: _restore_elements(collection, embed, before))
     collection.bulk_write(ops, ordered=True)
@@ -1177,9 +1282,9 @@ def _delete_children(model: BaseModel, ids: list[int]) -> None:
         return
     _lock_parents(model, {parent_id for parent_id, _index, _element in priors.values()}, check=False)
     _add_undo(model.env.cr, lambda: _restore_elements(collection, embed, priors))
-    array, id_path = embed['array'], embed['id_path']
-    collection.update_many({'_id': {'$in': [prior[0] for prior in priors.values()]}},
-                           {'$pull': {array: {id_path: {'$in': list(priors)}}}})
+    array, id_path, ids = embed['array'], embed['id_path'], list(priors)
+    collection.update_many({'_id': {'$in': [prior[0] for prior in priors.values()]}, f'{array}.{id_path}': {'$in': ids}},
+                           _remove_op(embed, ids))
 
 
 # ---------------------------------------------------------------------------
