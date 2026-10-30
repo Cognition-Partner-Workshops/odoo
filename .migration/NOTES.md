@@ -899,3 +899,34 @@ What the storage path cannot do (batches work around it):
 - An embedded child cannot be orphaned: `ondelete='set null'` or writing its parent key to NULL raises `NotNullViolation`.
 - A `subdocument` embed holds one child per parent; a second one is a unique violation, like the one-to-one table's unique parent key.
 - Unique indexes are enforced per collection; none in map-draft-2 is on an embedded array path.
+
+## s3.5 storage-on conformance (UNT15O-9/-10/-11 gap lists)
+
+Fixed in `odoo/orm/storage_mongodb.py`, one test each in `test_orm_mongodb/tests/test_conformance.py`:
+- Sweep seed skipped many2many link arrays (`_seed_sweep` → new `_seed_links`, :865), so `account.account` had no `companyIds`; the sweep also no longer clears a relation mirror it seeds from.
+- `_condition` inverse lookup assumed records (:2468); a many2one_reference inverse (`res_id`) gives ints.
+- A stored column against a subquery (`res_id any! <Query|SQL>`) raised NotImplementedError; it now resolves the subquery's ids.
+- Grouped SQL over a MongoDB search ordered by `ordinality` outside the GROUP BY (GroupingError); it now orders by `MIN(ordinality)`.
+
+Slice reruns (local rem-mongo + PostgreSQL 5433, each slice's own command shape, collections 0 before and after, throwaway databases dropped):
+
+| Slice | Storage-off | Storage-on before | Storage-on after |
+|---|---|---|---|
+| UNT15O-10 product/uom/stock | 8 of 864 | 68 of 152 | 12 of 864 (4 storage-only, all limits below) |
+| UNT15O-11 sale/purchase/account | 5 of 1579 | 130 errors | 99 of 1523 (94 storage-only) |
+| UNT15O-9 base/web/mail | 12 of 1314 | 173 of 1291 | hung in a UI tour after ~1090 tests; 112 failing so far, 103 of them the discuss_channel limit |
+
+The company errors, the `int._ids` errors, every `res_id any!` NotImplementedError and every GroupingError are gone. The duplicate journal code (CT) did not recur; it was a follow-on of the company errors.
+
+Known storage-design limits (not bugs; batches route around them):
+- Correlated `Domain.custom` SQL that names an outer table (`addons/mail/models/discuss/discuss_channel.py:1965`, `:1991`, `res_id = discuss_channel.id`): `to_filter` resolves raw SQL standalone (`storage_mongodb.py:2413`), so there is no outer row. 103 base/web/mail errors.
+- Columns created at runtime are outside the signed spec: analytic plans add `x_planN_id` to `account_analytic_line` (`addons/analytic/models/analytic_plan.py:367`), refused at `storage_mongodb.py:325`. 20 sale/purchase/account errors.
+- Children embedded in a base model the sweep cannot move (`discuss.voice.metadata`, `product.document` in `irAttachment`): `storage_mongodb.py:1275`.
+- Raw SQL writes to a MongoDB model's table bypass MongoDB (`stock.quant._merge_quants`, `addons/stock/models/stock_quant.py:1239`).
+- BSON dates keep milliseconds; a microsecond datetime round-trips truncated.
+- Ties in a raw SQL ORDER BY over a MongoDB search follow MongoDB order, not heap order (`stock_quant.py:668`, test_package_selection).
+- Gap 0: `res_users_notification_type` CheckViolation while `-u base` loads `base_groups.xml` under the sweep (kernel models).
+
+Open, storage-only, not yet diagnosed: 37 sale/purchase/account reconcile tests find no `account.full.reconcile` (suspect: raw SQL reads of `account_partial_reconcile` in `addons/account/models/account_move_line.py:1101-1193`), plus ~37 scattered account assertions.
+
+Environment: rem-mongo crashed twice with WiredTiger "Too many open files" (container nofile 1024); recreated on the same volumes with nofile 64000.
