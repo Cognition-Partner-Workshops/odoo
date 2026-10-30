@@ -23,7 +23,6 @@ ROUTE_NAMES = {
 class StockWarehouse(models.Model):
     _name = 'stock.warehouse'
     _description = "Warehouse"
-    _storage = 'mongodb'      # UNT14 wave 3 w3-b02: documents in odoo_unt13.stockWarehouse (signed spec map-draft-5)
     _shadow_columns = ('view_location_id', 'company_id', 'active')  # read by the report_stock_quantity view and sale_stock's warehouse SQL
     _order = 'sequence,id'
     _check_company_auto = True

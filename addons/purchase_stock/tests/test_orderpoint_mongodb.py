@@ -1,4 +1,5 @@
 import os
+import unittest
 from unittest.mock import patch
 
 import pymongo
@@ -35,6 +36,9 @@ class TestOrderpointMongodb(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        if cls.env['stock.picking.type']._storage != 'mongodb':
+            reason = "stock.picking.type is not stored in MongoDB"
+            raise unittest.SkipTest(reason)
         warehouse = cls.env['stock.warehouse'].search([('company_id', '=', cls.env.company.id)], limit=1)
         vendor = cls.env['res.partner'].create({'name': 'Wood Corner'})
         products = cls.env['product.product'].create([{

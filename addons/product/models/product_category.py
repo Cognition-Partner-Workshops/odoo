@@ -9,7 +9,6 @@ class ProductCategory(models.Model):
     _name = 'product.category'
     _inherit = ['mail.thread']
     _description = "Product Category"
-    _storage = 'mongodb'      # UNT14 wave 2 (w2-b03): documents in odoo_unt13.productCategory (signed spec map-draft-5)
     _parent_name = "parent_id"
     _parent_store = True
     _rec_name = 'complete_name'

@@ -4,7 +4,6 @@ from odoo import fields, models
 class StockReference(models.Model):
     _name = 'stock.reference'
     _description = 'Reference between stock documents'
-    _storage = 'mongodb'      # UNT14 wave 2 w2-b05: documents in odoo_unt13.stockReference (signed spec map-draft-5)
 
     name = fields.Char('Reference', required=True, readonly=True)
     move_ids = fields.Many2many(

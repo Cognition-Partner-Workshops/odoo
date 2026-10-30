@@ -17,7 +17,6 @@ _logger = logging.getLogger(__name__)
 class AccountJournalGroup(models.Model):
     _name = 'account.journal.group'
     _description = "Account Journal Group"
-    _storage = 'mongodb'      # UNT14 wave 2 w2-b01: documents in odoo_unt13.accountJournalGroup (signed spec map-draft-5)
 
     name = fields.Char("Ledger group", required=True, translate=True)
 
@@ -37,7 +36,6 @@ class AccountJournalGroup(models.Model):
 
 class AccountJournal(models.Model):
     _name = 'account.journal'
-    _storage = 'mongodb'      # UNT14 wave 3 w3-b01: documents in odoo_unt13.accountJournal (signed spec map-draft-5)
     _shadow_columns = ('company_id', 'currency_id', 'default_account_id', 'type')  # read by raw SQL (account checks, payment methods, statements, dashboard, kpi)
     _description = "Journal"
     _explanation = "Groups financial transactions. Every accounting entry must be posted in a specific journal. Controls default accounts and transaction sequencing."

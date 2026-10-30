@@ -25,7 +25,6 @@ ACCOUNT_TYPE_TO_JOURNAL_TYPE = {
 
 class AccountAccount(models.Model):
     _name = 'account.account'
-    _storage = 'mongodb'      # UNT14 wave 2 (w2-b04): documents in odoo_unt13.accountAccount (signed spec map-draft-5)
     _shadow_columns = ('account_type', 'currency_id')  # read by raw SQL (journal checks, partner balances)
     _shadow_relations = ('company_ids',)  # read by raw SQL
     _inherit = ['mail.thread', 'mail.activity.mixin']

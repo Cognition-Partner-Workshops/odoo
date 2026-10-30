@@ -19,7 +19,6 @@ class StockPackage(models.Model):
     _description = "Package"
     _order = 'name, id'
     _parent_name = 'parent_package_id'
-    _storage = 'mongodb'      # UNT14 wave 4 w4-b01: documents in odoo_unt13.stockPackage (signed spec map-draft-5)
     _parent_store = True
     _rec_name = 'complete_name'
 

@@ -9,7 +9,6 @@ class StockStorageCategory(models.Model):
     _name = 'stock.storage.category'
     _description = "Storage Category"
     _order = "name"
-    _storage = 'mongodb'      # UNT14 wave 2 w2-b02: documents in odoo_unt13.stockStorageCategory (signed spec map-draft-5)
 
     name = fields.Char('Storage Category', required=True)
     max_weight = fields.Float('Max Weight', digits='Stock Weight')

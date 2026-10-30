@@ -46,7 +46,6 @@ AGGREGATION_ENGINE_FORMULA_REGEX = re.compile(
 class AccountReport(models.Model):
     _name = 'account.report'
     _description = "Accounting Report"
-    _storage = 'mongodb'      # UNT14 wave 2 (w2-b03): documents in odoo_unt13.accountReport (signed spec map-draft-5)
     _shadow_columns = ('active_selection', 'active_fallback')   # read by _compute_sql_active over the shadow rows
     _order = 'sequence, id'
 
@@ -406,7 +405,6 @@ class AccountReport(models.Model):
 
 class AccountReportLine(models.Model):
     _name = 'account.report.line'
-    _storage = 'mongodb'      # UNT14 wave 3 w3-b01: documents in odoo_unt13.accountReportLine (signed spec map-draft-5)
     _description = "Accounting Report Line"
     _order = 'sequence, id'
 
@@ -677,7 +675,6 @@ class AccountReportLine(models.Model):
 class AccountReportExpression(models.Model):
     _name = 'account.report.expression'
     _description = "Accounting Report Expression"
-    _storage = 'mongodb'      # UNT14 wave 4 w4-b01: documents in odoo_unt13.accountReportExpression (signed spec map-draft-5)
     _rec_name = 'report_line_name'
 
     report_line_id = fields.Many2one(string="Report Line", comodel_name='account.report.line', required=True, index=True, ondelete='cascade')
@@ -1060,7 +1057,6 @@ class AccountReportExpression(models.Model):
 class AccountReportColumn(models.Model):
     _name = 'account.report.column'
     _description = "Accounting Report Column"
-    _storage = 'mongodb'      # UNT14 wave 2 (w2-b03): documents in odoo_unt13.accountReport (embedded column[]) (signed spec map-draft-5)
     _order = 'sequence, id'
 
     name = fields.Char(string="Name", translate=True, required=True)
@@ -1082,7 +1078,6 @@ class AccountReportExternalValue(models.Model):
     _name = 'account.report.external.value'
     _inherit = ['res.currency.rate.consolidation.mixin']
     _description = 'Accounting Report External Value'
-    _storage = 'mongodb'      # UNT14 wave 4 w4-b01: embedded as odoo_unt13.accountReportExpression.accountReportExternalValue (signed spec map-draft-5)
     _check_company_auto = True
     _order = 'date, id'
 

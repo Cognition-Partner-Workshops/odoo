@@ -22,7 +22,6 @@ class PurchaseOrder(models.Model):
     _name = 'purchase.order'
     _inherit = ['portal.mixin', 'product.catalog.mixin', 'mail.thread', 'mail.activity.mixin', 'account.document.import.mixin']
     _description = "Purchase Order"
-    _storage = 'mongodb'      # UNT14 wave 4 w4-b02: documents in odoo_unt13.purchaseOrder (signed spec map-draft-5)
     # columns the raw SQL of this module reads from purchase_order: the purchase analysis
     # report (report/purchase_report.py), purchase.bill.union, purchase.bill.line.match and
     # account.move's auto-complete subquery; purchase_stock extends the tuple with its own
