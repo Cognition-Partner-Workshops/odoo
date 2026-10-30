@@ -13,7 +13,6 @@ from odoo.fields import Command, Domain
 class StockLocation(models.Model):
     _name = 'stock.location'
     _description = "Inventory Location"
-    _storage = 'mongodb'      # UNT14 wave 3 w3-b02: documents in odoo_unt13.stockLocation (signed spec map-draft-5)
     _shadow_columns = ('parent_path', 'usage')  # read by the report_stock_quantity view (conformance U1) and purchase_report SQL
     _parent_name = "location_id"
     _parent_store = True
@@ -534,7 +533,6 @@ class StockLocation(models.Model):
 
 class StockRoute(models.Model):
     _name = 'stock.route'
-    _storage = 'mongodb'      # UNT14 wave 3 w3-b02: documents in odoo_unt13.stockRoute (signed spec map-draft-5)
     _shadow_relations = ('product_ids', 'warehouse_ids')  # read by raw SQL
     _description = "Inventory Route"
     _order = 'sequence'

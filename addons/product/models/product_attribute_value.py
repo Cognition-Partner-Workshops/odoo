@@ -12,7 +12,6 @@ class ProductAttributeValue(models.Model):
     _name = 'product.attribute.value'
     _order = 'attribute_id, sequence, id'
     _description = "Attribute Value"
-    _storage = 'mongodb'      # UNT14 wave 2 w2-b05: embedded in odoo_unt13.productAttribute.value (signed spec map-draft-5)
 
     def _get_default_color(self):
         return randint(1, 11)

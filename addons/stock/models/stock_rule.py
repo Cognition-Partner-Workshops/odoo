@@ -43,7 +43,6 @@ class StockRule(models.Model):
     """ A rule describe what a procurement should do; produce, buy, move, ... """
     _name = 'stock.rule'
     _description = "Stock Rule"
-    _storage = 'mongodb'      # UNT14 wave 3 w3-b02: embedded as odoo_unt13.stockRoute.stockRule (signed spec map-draft-5)
     _order = "sequence, id"
     _check_company_auto = True
 

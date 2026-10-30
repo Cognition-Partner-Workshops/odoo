@@ -8,7 +8,6 @@ from odoo.exceptions import UserError
 
 class AccountAccountTag(models.Model):
     _name = 'account.account.tag'
-    _storage = 'mongodb'      # UNT14 wave 2 (w2-b04): documents in odoo_unt13.accountAccountTag (signed spec map-draft-5)
     _description = 'Account Tag'
 
     name = fields.Char('Tag Name', required=True, translate=True)

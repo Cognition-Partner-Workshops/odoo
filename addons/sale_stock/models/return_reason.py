@@ -7,7 +7,6 @@ class ReturnReason(models.Model):
     _name = "return.reason"
     _description = "Return Reason"
     _order = "sequence"
-    _storage = 'mongodb'      # UNT14 wave 2 w2-b02: documents in odoo_unt13.returnReason (signed spec map-draft-5)
 
     name = fields.Char(string="Reason", required=True, translate=True)
     sequence = fields.Integer(default=10)

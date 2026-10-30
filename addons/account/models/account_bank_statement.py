@@ -11,7 +11,6 @@ class AccountBankStatement(models.Model):
     _name = 'account.bank.statement'
     _description = "Bank Statement"
     _order = "first_line_index desc"
-    _storage = 'mongodb'      # UNT14 wave 4 w4-b01: documents in odoo_unt13.accountBankStatement (signed spec map-draft-5)
     _shadow_columns = ('journal_id', 'company_id', 'first_line_index', 'date', 'balance_start', 'balance_end_real')  # read by the journal dashboard and statement-line SQL
     _check_company_auto = True
 

@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 
 class UomUom(models.Model):
     _name = 'uom.uom'
-    _storage = 'mongodb'      # UNT14 wave 2 (w2-b04): documents in odoo_unt13.uomUom (signed spec map-draft-5)
     _shadow_columns = ('factor',)  # read by the SQL reports (sale, purchase, invoice, stock quantity, vendor delay)
     _description = 'Product Unit of Measure'
     _parent_name = 'relative_uom_id'

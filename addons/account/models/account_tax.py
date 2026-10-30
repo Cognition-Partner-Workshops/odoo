@@ -23,7 +23,6 @@ TYPE_TAX_USE = [
 class AccountTaxGroup(models.Model):
     _name = 'account.tax.group'
     _description = 'Tax Group'
-    _storage = 'mongodb'      # UNT14 wave 2 (w2-b03): documents in odoo_unt13.accountTaxGroup (signed spec map-draft-5)
     _order = 'sequence asc, id'
     _check_company_auto = True
     _check_company_domain = models.check_company_domain_parent_of
@@ -54,7 +53,6 @@ class AccountTaxGroup(models.Model):
 
 class AccountTax(models.Model):
     _name = 'account.tax'
-    _storage = 'mongodb'      # UNT14 wave 3 w3-b02: documents in odoo_unt13.accountTax (signed spec map-draft-5)
     _shadow_columns = ('amount_type', 'sequence', 'is_base_affected', 'tax_exigibility')  # read by the tax details SQL (account_move_line_tax_details)
     _shadow_relations = ('children_tax_ids', 'replacing_tax_ids')  # read by raw SQL
     _inherit = ['mail.thread']
@@ -5190,7 +5188,6 @@ class AccountTax(models.Model):
 class AccountTaxRepartitionLine(models.Model):
     _name = 'account.tax.repartition.line'
     _description = "Tax Repartition Line"
-    _storage = 'mongodb'      # UNT14 wave 3 w3-b02: embedded as odoo_unt13.accountTax.repartitionLine (signed spec map-draft-5)
     _shadow_columns = ('account_id', 'factor_percent', 'use_in_tax_closing')  # read by the tax details SQL (account_move_line_tax_details)
     _order = 'document_type, repartition_type, sequence, id'
     _check_company_auto = True

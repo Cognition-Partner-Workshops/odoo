@@ -11,7 +11,8 @@ rollback in PostgreSQL also undoes the matching MongoDB writes.
 
 Environment:
     ODOO_MONGODB_URI                connection string (default: local server)
-    ODOO_MONGODB_DATABASE           must be ``DATABASE``; anything else fails closed
+    ODOO_MONGODB_DATABASE           must be the one database in .migration/allowed_targets.json;
+                                    anything else fails closed
     ODOO_MONGODB_PG_DATABASE        the one PostgreSQL database that owns the spec's
                                     collection names; any other PostgreSQL database
                                     (tests, clones) gets ``<dbname>__``-prefixed ones
@@ -104,8 +105,9 @@ def _add_undo(cr, func: typing.Callable[[], typing.Any]) -> None:
     cr.add_undo(undo)
 
 
-DATABASE = 'odoo_unt13'     # the only target in .migration/allowed_targets.json
-SPEC_PATH = Path(__file__).resolve().parents[2] / '.migration' / 'mapping_spec.json'
+_MIGRATION_DIR = Path(__file__).resolve().parents[2] / '.migration'
+SPEC_PATH = _MIGRATION_DIR / 'mapping_spec.json'
+
 SPEC_SHA256 = 'c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7'
 DEFAULT_URI = 'mongodb://localhost:27017'
 
@@ -220,6 +222,18 @@ class StorageError(Exception):
     """ The model or the configuration does not match the storage contract. """
 
 
+def _allowed_database() -> str:
+    """ The one database named in the committed ``.migration/allowed_targets.json``. """
+    with open(_MIGRATION_DIR / 'allowed_targets.json', 'rb') as f:
+        databases = json.load(f)['databases']
+    if len(databases) != 1:
+        raise StorageError(f"allowed_targets.json must name exactly one database, got {databases!r}")
+    return databases[0]
+
+
+DATABASE = _allowed_database()
+
+
 # ---------------------------------------------------------------------------
 # configuration
 # ---------------------------------------------------------------------------
@@ -243,7 +257,7 @@ def get_database():
     name = os.environ.get('ODOO_MONGODB_DATABASE', DATABASE)
     if name != DATABASE:
         raise StorageError(f"MongoDB database {name!r} is not allowed, only {DATABASE!r} is")
-    return _client(os.environ.get('ODOO_MONGODB_URI', DEFAULT_URI)).get_database('odoo_unt13')
+    return _client(os.environ.get('ODOO_MONGODB_URI', DEFAULT_URI)).get_database(DATABASE)
 
 
 def collection_prefix(dbname: str) -> str:
@@ -1318,7 +1332,6 @@ def update(model: BaseModel, ids: list[int], vals_list: list[dict]) -> None:
             collection.bulk_write(ops, ordered=True)
         except pymongo.errors.BulkWriteError as e:
             _raise_unique_violation(model, e)
-
 
 
 # ---------------------------------------------------------------------------

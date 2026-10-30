@@ -11,7 +11,6 @@ class StockPackageType(models.Model):
     _name = 'stock.package.type'
     _description = "Stock package type"
     _order = "sequence, id"
-    _storage = 'mongodb'      # UNT14 wave 2 w2-b02: documents in odoo_unt13.stockPackageType (signed spec map-draft-5)
 
     def _get_default_length_uom(self):
         return self.env['product.template']._get_length_uom_name_from_ir_config_parameter()
