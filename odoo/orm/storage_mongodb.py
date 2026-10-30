@@ -829,20 +829,20 @@ def auto_init(model: BaseModel) -> None:
 
 
 def _seed_sweep(model: BaseModel) -> None:
-    """ Under ``ODOO_MONGODB_SWEEP``, give the rows of an existing table their
-    documents when its scratch collection holds none: the switch keeps every
+    """ Under ``ODOO_MONGODB_SWEEP``, give the rows of an existing table that
+    have no document in its scratch collection one: the switch keeps every
     stored column as a shadow column, so PostgreSQL still has them all. """
     if not os.environ.get('ODOO_MONGODB_SWEEP') or not collection_prefix(model.env.cr.dbname):
         return
     layout, collection = _layout(model), get_collection(model)
     embed = layout.get('embed')
-    if collection.count_documents({f"{embed['array']}.{embed['id_path']}": {'$exists': True}} if embed else {}, limit=1):
-        return
+    # only rows without a document: a sweep stopped between chunks resumes
+    seeded = set(collection.distinct(f"{embed['array']}.{embed['id_path']}" if embed else '_id'))
     fnames = ['id', *(fname for fname in layout['paths'] if fname in model._shadow_columns)]
     model.env.cr.execute(SQL("SELECT %s FROM %s ORDER BY id", SQL(', ').join(map(SQL.identifier, fnames)),
                              SQL.identifier(model._table)))
     rows = [{key: bytes(val) if isinstance(val, memoryview) else val for key, val in row.items()}
-            for row in model.env.cr.dictfetchall()]
+            for row in model.env.cr.dictfetchall() if row['id'] not in seeded]
     if embed:   # children go into parent documents seeded before them
         present = set(collection.distinct('_id', {'_id': {'$in': list({row[embed['parent']] for row in rows})}}))
         if skipped := sum(row[embed['parent']] not in present for row in rows):
@@ -1251,7 +1251,7 @@ def _update_children(model: BaseModel, priors: dict[int, dict], changes: list[tu
     import pymongo  # noqa: PLC0415
     embed, collection = _layout(model)['embed'], get_collection(model)
     array, id_path, parent_path = embed['array'], embed['id_path'], embed['parent_path']
-    ops, removals, parents, elements, moved = [], [], set(), [], defaultdict(list)
+    ops, removals, parents, elements, moved, leaving = [], [], set(), [], defaultdict(list), set()
     for id_, to_set, to_unset in changes:
         doc = {path: value for path, value in priors[id_].items() if path not in to_unset} | to_set
         old_parent, new_parent = priors[id_][parent_path], doc.get(parent_path)
@@ -1266,12 +1266,13 @@ def _update_children(model: BaseModel, priors: dict[int, dict], changes: list[tu
             removals.append(pymongo.UpdateOne({'_id': old_parent, f'{array}.{id_path}': id_}, _remove_op(embed, [id_])))
             ops.append(pymongo.UpdateOne({'_id': new_parent}, _add_op(embed, [element])))
             moved[new_parent].append(element)
+            leaving.add(id_)
         parents.update((old_parent, new_parent))
     ops = removals + ops
     if not ops:
         return
     before = _elements(model, [id_ for id_, _set, _unset in changes])
-    _check_vacant(model, moved, leaving=before)
+    _check_vacant(model, moved, leaving=leaving)
     _lock_unique(model, elements)
     _add_undo(model.env.cr, lambda: _restore_elements(collection, embed, before))
     collection.bulk_write(ops, ordered=True)

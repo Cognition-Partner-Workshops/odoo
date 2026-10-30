@@ -257,6 +257,11 @@ class TestSubdocumentMongodb(TransactionCase):
         with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
             other.report_id = self.first
             self.env.flush_all()
+        # an occupant that stays (only its fields change) still blocks a move in
+        with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
+            column.name = 'Renamed'
+            other.report_id = self.first
+            self.env.flush_all()
         self.assertEqual(self.subdoc(self.first), before)
         self.assertEqual(self.subdoc(self.second)['id'], other.id)
         self.env.invalidate_all()

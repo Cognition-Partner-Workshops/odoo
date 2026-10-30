@@ -783,7 +783,7 @@ class TestStorageMongodb(TransactionCase):
 
     def test_sweep_seeds_existing_rows(self):
         """ Under the sweep switch, rows already in a table get their documents
-        when its scratch collection holds none, once. """
+        when they have none in its scratch collection, once. """
         collection = storage_mongodb.get_collection(self.Lock)
         self.assertEqual(collection.count_documents({}), 0)
         self.env.cr.execute(SQL("INSERT INTO account_lock_exception (company_id) VALUES (%s) RETURNING id", self.company.id))
@@ -795,7 +795,12 @@ class TestStorageMongodb(TransactionCase):
             os.environ['ODOO_MONGODB_SWEEP'] = '1'
             storage_mongodb._seed_sweep(self.Lock)
             storage_mongodb._seed_sweep(self.Lock)
-        self.assertEqual(list(collection.find()), [{'_id': lock_id, 'companyId': self.company.id}])
+            self.assertEqual(list(collection.find()), [{'_id': lock_id, 'companyId': self.company.id}])
+            # a sweep stopped part way resumes with the rows still missing a document
+            self.env.cr.execute(SQL("INSERT INTO account_lock_exception (company_id) VALUES (%s) RETURNING id", self.company.id))
+            [(late_id,)] = self.env.cr.fetchall()
+            storage_mongodb._seed_sweep(self.Lock)
+        self.assertEqual(sorted(doc['_id'] for doc in collection.find()), [lock_id, late_id])
 
     def test_bindata_round_trip(self):
         value = storage_mongodb._to_bson('binData', psycopg2.Binary(b'\x00\x01raw'))
