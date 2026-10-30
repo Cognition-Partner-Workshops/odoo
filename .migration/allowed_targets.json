@@ -1,8 +1,8 @@
 {
-  "databases": ["odoo_unt13"],
+  "databases": ["odoo_unt15"],
   "mode": "block",
   "target_uri_secret": "MONGODB_ATLAS_URI",
   "legacy_dsn_secrets": ["ODOO_PG_RO_DSN"],
   "guard_mode": "warn",
-  "catalogs": ["odoo_unt13"]
+  "catalogs": ["odoo_unt15"]
 }
