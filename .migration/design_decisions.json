@@ -1803,6 +1803,132 @@
     }
   },
   {
+    "op": "index",
+    "collection": "productProductUomUomRel",
+    "keys": [
+      [
+        "uomUomId",
+        1
+      ],
+      [
+        "productProductId",
+        1
+      ]
+    ],
+    "unique": true,
+    "evidence": {
+      "file": "odoo/orm/fields_relational.py",
+      "lines": "1386-1390",
+      "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+      "note": "UNT15O-6 s3.1 worker, from code/profile evidence (not a customer statement): productProductUomUomRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair, so one link per pair; the key lives outside _id, so a unique compound index keeps that guarantee (with the carried single-key index it serves both lookup directions); UNT14 precedent on the same shape"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "productVariantCombination",
+    "keys": [
+      [
+        "productTemplateAttributeValueId",
+        1
+      ],
+      [
+        "productProductId",
+        1
+      ]
+    ],
+    "unique": true,
+    "evidence": {
+      "file": "odoo/orm/fields_relational.py",
+      "lines": "1386-1390",
+      "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+      "note": "UNT15O-6 s3.1 worker, from code/profile evidence (not a customer statement): productVariantCombination is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair, so one link per pair; the key lives outside _id, so a unique compound index keeps that guarantee (with the carried single-key index it serves both lookup directions); UNT14 precedent on the same shape"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "purchaseOrderLineAccrualMoveRel",
+    "keys": [
+      [
+        "moveId",
+        1
+      ],
+      [
+        "orderLineId",
+        1
+      ]
+    ],
+    "unique": true,
+    "evidence": {
+      "file": "odoo/orm/fields_relational.py",
+      "lines": "1386-1390",
+      "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+      "note": "UNT15O-6 s3.1 worker, from code/profile evidence (not a customer statement): purchaseOrderLineAccrualMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair, so one link per pair; the key lives outside _id, so a unique compound index keeps that guarantee (with the carried single-key index it serves both lookup directions); UNT14 precedent on the same shape"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "saleOrderLineAccrualMoveRel",
+    "keys": [
+      [
+        "moveId",
+        1
+      ],
+      [
+        "orderLineId",
+        1
+      ]
+    ],
+    "unique": true,
+    "evidence": {
+      "file": "odoo/orm/fields_relational.py",
+      "lines": "1386-1390",
+      "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+      "note": "UNT15O-6 s3.1 worker, from code/profile evidence (not a customer statement): saleOrderLineAccrualMoveRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair, so one link per pair; the key lives outside _id, so a unique compound index keeps that guarantee (with the carried single-key index it serves both lookup directions); UNT14 precedent on the same shape"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "saleOrderLineInvoiceRel",
+    "keys": [
+      [
+        "orderLineId",
+        1
+      ],
+      [
+        "invoiceLineId",
+        1
+      ]
+    ],
+    "unique": true,
+    "evidence": {
+      "file": "odoo/orm/fields_relational.py",
+      "lines": "1386-1390",
+      "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+      "note": "UNT15O-6 s3.1 worker, from code/profile evidence (not a customer statement): saleOrderLineInvoiceRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair, so one link per pair; the key lives outside _id, so a unique compound index keeps that guarantee (with the carried single-key index it serves both lookup directions); UNT14 precedent on the same shape"
+    }
+  },
+  {
+    "op": "index",
+    "collection": "saleOrderLineStockRouteRel",
+    "keys": [
+      [
+        "stockRouteId",
+        1
+      ],
+      [
+        "saleOrderLineId",
+        1
+      ]
+    ],
+    "unique": true,
+    "evidence": {
+      "file": "odoo/orm/fields_relational.py",
+      "lines": "1386-1390",
+      "quote": "PRIMARY KEY(%(id1)s, %(id2)s));",
+      "note": "UNT15O-6 s3.1 worker, from code/profile evidence (not a customer statement): saleOrderLineStockRouteRel is an Odoo Many2many relation table kept as its own collection; the ORM creates it with PRIMARY KEY on the id pair, so one link per pair; the key lives outside _id, so a unique compound index keeps that guarantee (with the carried single-key index it serves both lookup directions); UNT14 precedent on the same shape"
+    }
+  },
+  {
     "op": "accept",
     "match": {
       "rule": "junction_array"

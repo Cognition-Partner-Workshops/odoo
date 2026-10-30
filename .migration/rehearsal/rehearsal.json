@@ -5,7 +5,7 @@
  "target_class": "local",
  "source_database": "odoo_fixture",
  "samples_file": ".migration/rehearsal_samples.json",
- "wall_time_seconds": 10.826,
+ "wall_time_seconds": 10.678,
  "collections": 224,
  "documents": 152237,
  "root_row_count_matches": 224,
@@ -3396,7 +3396,7 @@
    "max_doc_pct_of_limit": 0.0003,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ae4f3bc31be48c633367f1e"
+    "$oid": "6ae4f6fd8f4147bbd0dd3a9e"
    },
    "p50_doc_bytes": 58,
    "indexes_in_spec": 1,
@@ -3664,7 +3664,7 @@
    "max_doc_pct_of_limit": 0.0005,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ae4f3bd31be48c633368b89"
+    "$oid": "6ae4f6fe8f4147bbd0dd4709"
    },
    "p50_doc_bytes": 81,
    "indexes_in_spec": 1,
@@ -4470,7 +4470,7 @@
    "max_doc_pct_of_limit": 0.0003,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ae4f3be31be48c633371fb2"
+    "$oid": "6ae4f6ff8f4147bbd0dddb32"
    },
    "p50_doc_bytes": 58,
    "indexes_in_spec": 1,
@@ -4489,7 +4489,7 @@
    "max_doc_pct_of_limit": 0.0004,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ae4f3be31be48c633372132"
+    "$oid": "6ae4f6ff8f4147bbd0dddcb2"
    },
    "p50_doc_bytes": 61,
    "indexes_in_spec": 1,
@@ -5280,7 +5280,7 @@
    "max_doc_pct_of_limit": 0.0004,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ae4f3bf31be48c633372a18"
+    "$oid": "6ae4f7008f4147bbd0dde598"
    },
    "p50_doc_bytes": 61,
    "indexes_in_spec": 2,
@@ -5299,7 +5299,7 @@
    "max_doc_pct_of_limit": 0.0004,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ae4f3bf31be48c633372bdf"
+    "$oid": "6ae4f7008f4147bbd0dde75f"
    },
    "p50_doc_bytes": 65,
    "indexes_in_spec": 2,
@@ -5318,7 +5318,7 @@
    "max_doc_pct_of_limit": 0.0005,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ae4f3c031be48c633372c02"
+    "$oid": "6ae4f7008f4147bbd0dde782"
    },
    "p50_doc_bytes": 80,
    "indexes_in_spec": 2,
@@ -5337,7 +5337,7 @@
    "max_doc_pct_of_limit": 0.0005,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ae4f3c031be48c633372c03"
+    "$oid": "6ae4f7008f4147bbd0dde783"
    },
    "p50_doc_bytes": 84,
    "indexes_in_spec": 2,
@@ -5356,7 +5356,7 @@
    "max_doc_pct_of_limit": 0.0004,
    "max_doc_within_16mb": true,
    "largest_document_id": {
-    "$oid": "6ae4f3c031be48c633372c05"
+    "$oid": "6ae4f7018f4147bbd0dde785"
    },
    "p50_doc_bytes": 62,
    "indexes_in_spec": 2,
