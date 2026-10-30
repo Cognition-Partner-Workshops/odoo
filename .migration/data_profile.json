@@ -2,11 +2,11 @@
   "profile_version": 1,
   "source_family": "postgresql",
   "census_sha256": "12b46b165ae3f351742924a42f9d2b4ec659bb994b30099b15b74090589d21fb",
-  "as_of": "2026-10-30T17:26:12.006742+00:00",
+  "as_of": "2026-10-30T20:41:50.111680+00:00",
   "origin": "live",
   "source": {
     "database": "odoo_src",
-    "server": null
+    "server": "hmac-sha256:545efbd0aca82e45"
   },
   "stats": [
     {
