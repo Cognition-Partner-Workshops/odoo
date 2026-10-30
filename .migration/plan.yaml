@@ -104,8 +104,12 @@ phases:
       - id: s2.5-observe
         title: Observe co-writes
         description: >
-          observe_cowrites.py over one window covering a scheduled job (ir.cron tick on local Odoo against odoo_src is read-only;
-          the observer binds source identity and census hash) into .migration/cowrites.json.
+          observe_cowrites.py on odoo_src over one window that spans an ir.cron schedule boundary, into .migration/cowrites.json
+          with the source identity and census hash bound. odoo_src is frozen and odoo_ro is SELECT-only, so no cron can execute
+          there (ir_cron._acquire_one_job needs a row lock): the window is expected to record zero write transactions, which is
+          the evidence that the frozen source has no code-less writers. If preflight treats that as cowrites_idle and refuses a
+          writes slice, that is a plugin gap for frozen sources (logged in NOTES.md) and the slice falls back to static evidence;
+          no writable clone is run, because its identity would not be the source's.
         depends_on: [s2.1-pipeline]
       - id: s2.3-dependency-register
         title: Register other writers and readers
@@ -143,9 +147,13 @@ phases:
               - {id: repository-layer, label: "Per-model repository layer under the ORM API (cost = new mechanism + per-unit adapters)"}
             selected: null
       - id: s3.2-storage-path
-        title: Bring the shared storage path to the new spec
-        description: Only under d-storage-path = orm-storage-path. Mechanism exists; spec-specific code waits for g-model-accepted.
-        depends_on: [s2.1-pipeline]
+        title: Build the storage mechanism Dhrov picked
+        description: >
+          Runs under either d-storage-path option. orm-storage-path: bring the kept storage_mongodb.py mechanism to the new spec
+          (model-independent work first, spec-specific code after g-model-accepted). repository-layer: build the per-model
+          repository layer under the ORM API with the same contract (opt-in per model, spec-driven layout, undo on rollback).
+          Either way the output is one shared mechanism every unit opts into, with one fix owner.
+        depends_on: [s2.1-pipeline, s3.1-design-decisions]
       - id: s3.4-accepted-empty
         title: Settle empty tables with Dhrov
         description: Census empties vs expected_empty.txt proposal; his decision becomes recon_tolerances.accepted_empty (version bump) before wave-1 preflight.
@@ -164,7 +172,9 @@ phases:
         depends_on: [s3.1-design-decisions, s2.3-dependency-register]
       - id: s3.5-storage-conformance
         title: Storage conformance sweep
-        description: Only with s3.2; app tests on local MongoDB under scratch prefixes; prefixes torn down.
+        description: >
+          For the mechanism s3.2 delivered (either option): every unit's models on it at once, app tests on local MongoDB under
+          scratch prefixes, prefixes torn down. Gate ticked on the shared fix merged and empty gap lists.
         depends_on: [s3.2-storage-path, s3.3-unit-derivation]
         gates:
           - {id: g-storage-conformance, description: Shared fix merged; gap lists empty; prefixes torn down, done: false}
