@@ -3818,8 +3818,8 @@
         "census:tables"
       ],
       "suggested": "review",
-      "disposition": null,
-      "decision": null
+      "disposition": "migrate-together",
+      "decision": "g-model-accepted"
     },
     {
       "table": "discuss_channel_rtc_session",
@@ -3868,8 +3868,8 @@
         "census:tables"
       ],
       "suggested": "review",
-      "disposition": null,
-      "decision": null
+      "disposition": "migrate-together",
+      "decision": "g-model-accepted"
     },
     {
       "table": "discuss_voice_metadata",
@@ -5788,8 +5788,8 @@
         "census:tables"
       ],
       "suggested": "review",
-      "disposition": null,
-      "decision": null
+      "disposition": "migrate-together",
+      "decision": "g-model-accepted"
     },
     {
       "table": "ir_profile",
@@ -7802,8 +7802,8 @@
         "census:tables"
       ],
       "suggested": "review",
-      "disposition": null,
-      "decision": null
+      "disposition": "migrate-together",
+      "decision": "g-model-accepted"
     },
     {
       "table": "orm_signaling_default",
@@ -7813,8 +7813,8 @@
         "census:tables"
       ],
       "suggested": "review",
-      "disposition": null,
-      "decision": null
+      "disposition": "migrate-together",
+      "decision": "g-model-accepted"
     },
     {
       "table": "orm_signaling_groups",
@@ -7824,8 +7824,8 @@
         "census:tables"
       ],
       "suggested": "review",
-      "disposition": null,
-      "decision": null
+      "disposition": "migrate-together",
+      "decision": "g-model-accepted"
     },
     {
       "table": "orm_signaling_registry",
@@ -7861,8 +7861,8 @@
         "census:tables"
       ],
       "suggested": "review",
-      "disposition": null,
-      "decision": null
+      "disposition": "migrate-together",
+      "decision": "g-model-accepted"
     },
     {
       "table": "orm_signaling_stable",
@@ -7872,8 +7872,8 @@
         "census:tables"
       ],
       "suggested": "review",
-      "disposition": null,
-      "decision": null
+      "disposition": "migrate-together",
+      "decision": "g-model-accepted"
     },
     {
       "table": "orm_signaling_templates",
@@ -7883,8 +7883,8 @@
         "census:tables"
       ],
       "suggested": "review",
-      "disposition": null,
-      "decision": null
+      "disposition": "migrate-together",
+      "decision": "g-model-accepted"
     },
     {
       "table": "payment_capture_wizard",
@@ -8330,8 +8330,8 @@
         "census:tables"
       ],
       "suggested": "review",
-      "disposition": null,
-      "decision": null
+      "disposition": "migrate-together",
+      "decision": "g-model-accepted"
     },
     {
       "table": "portal_share",
