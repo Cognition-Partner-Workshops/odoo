@@ -18,7 +18,7 @@
   },
   "timing_seconds": {
     "source_recipe_build": 256,
-    "pipeline": 186
+    "pipeline": 222
   },
   "pipeline_exit": 0,
   "handoff": {
@@ -3417,24 +3417,24 @@
   },
   "access": {
     "candidates": 6163,
-    "confirmed": 29,
+    "confirmed": 28,
     "workload_export_exit": 2,
     "workload_limitation": "pg_stat_statements unavailable; frequencies remain unmeasured.",
     "confirmed_by_frequency": {
       "hot": 10,
-      "warm": 14,
-      "cold": 5
+      "warm": 15,
+      "cold": 3
     },
     "review": "s2.2-access-review: code-path confirmations with file:line cites; unmeasured"
   },
   "artifact_sha256": {
     "apps.json": "20757d80bbe1f3f04ef976b9bdb485ea5f222541b33ac5b2d556ee8199c0cbad",
     "census.json": "12b46b165ae3f351742924a42f9d2b4ec659bb994b30099b15b74090589d21fb",
-    "data_profile.json": "602f87258d5ee8cb17d304afb79270355ef2cb394cf7e10770465f3849edb6ed",
-    "access_patterns.json": "38557f09d579f14681d89c2f25645b0536f1c87874c59393e15f739c54f5289c",
-    "mapping_spec.json": "c7c64de422dae0d38149155ed55b15dc6c16f16ac101e00ae87d9d4a46adc82b",
+    "data_profile.json": "a123849f120408b0a5e7165fbf41e35301c2b53f72adcb2f717cfdeb4d21c73b",
+    "access_patterns.json": "6582035072d8cfb132f1353db3d0b4093175a03b966d8e7eaa2b7503a401ff41",
+    "mapping_spec.json": "dc3208082ea02da0d1158ec25e841e04f4a5db95945b246eb1e3432957cfe0c0",
     "model_cards.md": "449c9755488b08466ce1dfe707a178d1c45b47f63368815b70aeba3599111eb2",
-    "table_buckets.json": "69131ca36ef84d6ec91d513302c77eb0484ce1ea99cf425d991535ca5a90f30f",
+    "table_buckets.json": "5258624e1d90e2c218562f8dd96ce50aec7f49ddcfe5cb16052eb98d8308f1ac",
     "table_buckets.py": "fed476622b1e0a84df683402bc755274f602eeed107fc4dc9e449dcd907851d8"
   },
   "merge_authority": "No recon or model-acceptance claim; this is modeling evidence only."

@@ -174319,8 +174319,8 @@
         }
       ],
       "sort": [],
-      "frequency": "cold",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/stock/models/stock_orderpoint.py",
         "lines": [
@@ -174333,8 +174333,7 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "StockWarehouseOrderpoint._procure_orderpoint_confirm",
-      "note": "UNT15O-4 review: workload batch -> cold (code path, not measured: pg_stat_statements absent on odoo_src); addons/stock/models/stock_orderpoint.py:743 scheduler/replenish: StockWarehouseOrderpoint._procure_orderpoint_confirm batches"
+      "routine": "StockWarehouseOrderpoint._procure_orderpoint_confirm"
     },
     {
       "id": "ap-7ed29ee9f2",
@@ -178592,7 +178591,7 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": "cold",
+      "frequency": "warm",
       "confirmed": true,
       "source": {
         "file": "addons/stock/models/stock_rule.py",
@@ -178608,7 +178607,7 @@
       },
       "routine": "StockRule._run_pull",
       "verb": "insert",
-      "note": "UNT15O-4 review: workload batch -> cold (code path, not measured: pg_stat_statements absent on odoo_src); addons/stock/models/stock_rule.py:287 StockRule._run_pull creates moves; reached from scheduler/orderpoints only (sale_stock, purchase_stock not installed)"
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/stock/models/stock_orderpoint.py:385 StockRule._run_pull creates moves on manual Replenish (StockWarehouseOrderpoint.action_replenish -> _procure_orderpoint_confirm) as well as the scheduler"
     },
     {
       "id": "ap-6a29a6418b",

@@ -151879,15 +151879,15 @@
     },
     "data_profile": {
       "path": ".migration/data_profile.json",
-      "sha256": "602f87258d5ee8cb17d304afb79270355ef2cb394cf7e10770465f3849edb6ed",
-      "as_of": "2026-10-30T17:18:47.271002+00:00"
+      "sha256": "a123849f120408b0a5e7165fbf41e35301c2b53f72adcb2f717cfdeb4d21c73b",
+      "as_of": "2026-10-30T17:26:12.006742+00:00"
     },
     "access_patterns": {
       "path": ".migration/access_patterns.json",
-      "sha256": "38557f09d579f14681d89c2f25645b0536f1c87874c59393e15f739c54f5289c"
+      "sha256": "6582035072d8cfb132f1353db3d0b4093175a03b966d8e7eaa2b7503a401ff41"
     },
     "application_evidence": {
-      "confirmed_patterns": 29,
+      "confirmed_patterns": 28,
       "files": [
         "addons/account/models/account_move.py",
         "addons/account/models/account_move_line.py",
@@ -151898,7 +151898,6 @@
         "addons/purchase/models/purchase_order.py",
         "addons/sale/models/sale_order.py",
         "addons/stock/models/stock_move.py",
-        "addons/stock/models/stock_orderpoint.py",
         "addons/stock/models/stock_picking.py",
         "addons/stock/models/stock_quant.py",
         "addons/stock/models/stock_rule.py"
