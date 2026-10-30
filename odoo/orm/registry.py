@@ -566,6 +566,8 @@ class Registry(Mapping[str, type["BaseModel"]]):
             self.__dict__.pop(cache, None)
 
         model_classes.setup_model_classes(env)
+        from . import storage_mongodb  # noqa: PLC0415
+        storage_mongodb.apply_sweep(self)
 
         # determine field_depends and field_depends_context
         for model_cls in self.models.values():

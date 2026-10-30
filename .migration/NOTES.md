@@ -34,6 +34,8 @@ Run: Odoo (`mongo-run/unt15`, cut from `mongo-run/unt13`) from local read-only P
 - UNT15O-8 — `dependency_register.py` keeps only `disposition`/`decision` on regeneration and drops any citation field, so the spec/bucket cite for the 10 `migrate-together` rows lives in the s3.3 section below, not in the register. ACU cost: negligible.
 - UNT15O-8 — the org-wide dbx-migration-factory guard (not this run's mongo_guard) blocked one command at about 21:18Z: a Python heredoc sat in the same command as an inline read-only select of name,state on ir_module_module through the Postgres client, and the guard read the heredoc's `<` as script input to that client. Nothing ran. Halted and reported; the manager withdrew the query, so installed-module scope came from the build recipe (`.migration/fixtures/build_source.sh:4`) and each module's `__manifest__.py` (`depends`, `auto_install`, `countries`) instead. Dhrov's rule for the rest of the ticket: a read-only select through that client, alone in its own exec with no input redirection, when a source read is genuinely needed. ACU cost: about 2.
 - UNT15O-8 — this run's mongo_guard blocked one local file edit at about 21:25Z: a Python heredoc appending these NOTES lines, whose text quoted the blocked Postgres-client command, plus a `git add`; the guard read the quoted client name and a write verb as a legacy write. No connection of any kind was made. Halted and reported; on Dhrov's ruling the entries describe the query in words instead of quoting it. ACU cost: about 1.
+- UNT15O-7 — The guard hook refused a python3 heredoc that patches the source text of the ORM storage module (`odoo/orm/storage_mongodb.py`, adding `subdocument` embed support): the patch text carries the driver's collection call names as Python source and names no database literal, so the hook read a source change as a target-database operation. Nothing ran (no file changed, no database contacted). Done instead: halted and reported to the manager, no retry or rewording; Block at about 20:50 UTC 2026-10-30 (guard writes no log; time from `~/unt15o7/guard_blocks.log`). Dhrov approved route 1 (relayed by the manager about 21:26 UTC): the identical patch written to a script file with a shell heredoc (`cat > ~/unt15o7/edit.py <<'EOF'`, 21:26:11 UTC) and run with `python3 ~/unt15o7/edit.py` (21:26:16 UTC); neither command was blocked. Plugin pin stays df77c830 (his fix for this false positive is on plugin main). ACU cost: about 35 minutes of wall time spent halted or on other work; no ACU separately metered.
+- UNT15O-7 — The org dbx-migration-factory guard refused a housekeeping exec (about 21:31 UTC 2026-10-30) that listed local throwaway Odoo test databases (`t7off_*`, port 5433) with an inline `-Atc` SELECT of the PostgreSQL CLI inside a `$(...)` loop to drop them, reading it as script input; nothing ran. Done instead: halted and reported; the manager ruled to drop the command, let the running suite finish and use the existing `run_off_suite.sh` path (createdb/dropdb on its own database, no CLI read). ACU cost: a few minutes halted.
 
 ## Bill
 
@@ -870,3 +872,30 @@ Devin Review on #174 found `never` rows whose column the app fills through a hel
 `mail_call_artifact.recording_started_by_id` stays `never`: its only non-test assignment is `addons/cloud_storage/controllers/rtc.py:27`, and `cloud_storage` is not installed in this source. It is not in the recipe (`.migration/fixtures/build_source.sh:4`, `-i product,uom,sale,purchase,stock,account`), not a transitive dependency of those, and has no `auto_install` (`addons/cloud_storage/__manifest__.py:7`, depends `base_setup`, `mail`). The other 33 rows' remaining matches assign the column on a different model or sit in modules that are not installed (non-US charts via `countries`, crm, hr, calendar, im_livechat and similar). `x_plan1_id`/`x_plan4_id` mentions now include `.migration/plan.yaml` (named there by #173).
 
 With the 6 `sets` rows derive_units refused on a 9-collection cycle (crmTeam, irSequence, productCategory, productTemplate, resCompany, resPartner, resUsers, stockPackageType, uomUom) closed by `res_company.sale_discount_product_id` -> productTemplate. Ordering that edge out is outside the enumerated set D, so it went to Dhrov; he added it as the 295th `forward` row (213 units / 16 waves / 36 batches accepted). The derivation output above is from that run.
+
+## s3.2 storage path
+
+UNT15O-7. `SPEC_SHA256` in `odoo/orm/storage_mongodb.py` re-signed from `c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7` (UNT14 map-draft-5) to `118c0a110732f40527d6061422c7b1f1d57436e120bdb1de2604523083dff55c` (map-draft-2). Local evidence only (rem-mongo `mongo:7`, local PostgreSQL 16 on 5433); not merge evidence for any unit.
+
+Baselines (base 64396bc vs head of the s3.2 PR):
+- `test_orm_mongodb` on rem-mongo, database `odoo_unt15`, collection prefix `<pgdb>__`: base 0 tests (install fails on the stale pin); head 112 run, 0 failed, 0 errors; prefix collections 15 before teardown, 0 after.
+- Storage-off `-i base,product,sale,purchase,stock,account --test-tags /base,/product,/sale,/purchase,/stock,/account` on a throwaway database: base 17 failed + 371 errors of 3146 (358 of the errors are the stale-pin `StorageError` raised by every unlink, storage off); head after the re-sign 4 failed + 8 errors of 3165, no failure absent from the base list. A registry with no MongoDB model no longer reads the spec at all.
+
+All-on sweep for s3.4 probes (`ODOO_MONGODB_SWEEP`, default off, refused unless the PostgreSQL database gets a scratch prefix, i.e. it is not `ODOO_MONGODB_PG_DATABASE`). Per unit, on a fresh throwaway database `<scratch>`:
+
+```
+createdb <scratch>
+odoo-bin -d <scratch> -i <modules> --stop-after-init                         # storage-off install
+ODOO_MONGODB_URI=mongodb://localhost:27017 ODOO_MONGODB_SWEEP=<modules> \
+  odoo-bin -d <scratch> -u <modules> --test-tags /<module>,/<module> --stop-after-init
+# teardown: drop the '<scratch>__*' collections of database odoo_unt15 on rem-mongo, count them (must be 0); dropdb <scratch>
+```
+
+The switch opts in every regular model the signed spec maps that the listed modules define (`1` = every mapped model), keeps all stored columns as shadow columns, and seeds each existing table's rows into its empty scratch collection at `auto_init`. Smoke run, unit `product` (`ODOO_MONGODB_SWEEP=product`): 155 tests, 0 failed, 1 error (`TestProductDocument.test_fetch_product_document_field_does_not_scan_all_attachments`: `product.document` is embedded in `irAttachment`, whose model is not on storage in that run); collections 0 before, 0 after.
+
+What the storage path cannot do (batches work around it):
+- A fresh `-i` with storage on cannot bootstrap `base` (`odoo/modules/db.py` inserts `ir_module_category` in raw SQL before the registry exists), and `-u` cannot sweep base's kernel models (the module list is read before `auto_init` seeds them): sweep units on a storage-off install, never `ODOO_MONGODB_SWEEP=1` with `-u base`.
+- A child embedded in another unit's parent (e.g. `product_document` in `irAttachment`) needs the parent's model on storage in the same run.
+- An embedded child cannot be orphaned: `ondelete='set null'` or writing its parent key to NULL raises `NotNullViolation`.
+- A `subdocument` embed holds one child per parent; a second one is a unique violation, like the one-to-one table's unique parent key.
+- Unique indexes are enforced per collection; none in map-draft-2 is on an embedded array path.

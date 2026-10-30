@@ -15,6 +15,7 @@ class TestMany2manyMongodb(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.Tag = cls.env['test_orm_mongodb.tag']
+        cls.Template = cls.env['test_orm_mongodb.template']
         cls.Link = cls.env['test_orm_mongodb.pg_link']
         cls.Incoterm = cls.env['test_orm_mongodb.incoterm']
         cls.links = cls.Link.create([{'name': f'link {i}'} for i in range(3)])
@@ -27,58 +28,77 @@ class TestMany2manyMongodb(TransactionCase):
         return sorted(item[key] for item in (self.doc(record) or {}).get(path, []))
 
     def junction(self):
+        """ (incoterm, link) pairs of the root junction collection productProductUomUomRel. """
         layout = storage_mongodb.relation_layout(self.Incoterm._fields['optional_link_ids'], self.env)
         collection = storage_mongodb._relation_collection(self.env, layout)
-        return collection, sorted((doc['srcId'], doc['destId']) for doc in collection.find())
+        return collection, sorted((doc['productProductId'], doc['uomUomId']) for doc in collection.find())
+
+    def tag_incoterms(self, tag):
+        """ Incoterm ids linked to ``tag`` in the root junction collection productTagProductProductRel. """
+        layout = storage_mongodb.relation_layout(self.Tag._fields['incoterm_ids'], self.env)
+        collection = storage_mongodb._relation_collection(self.env, layout)
+        return sorted(doc['productProductId'] for doc in collection.find({'productTagId': tag.id}))
 
     def test_junction_array_commands(self):
         a, b, c = self.links
-        tag = self.Tag.create({'name': 'red', 'link_ids': [Command.link(a.id), Command.link(b.id)]})
-        self.assertEqual(self.array(tag, 'productTemplateRel', 'productTemplateId'), sorted([a.id, b.id]))
-        self.assertFalse(sql.table_exists(self.env.cr, 'product_tag_product_template_rel'))
+        template = self.Template.create({'name': 'red', 'link_ids': [Command.link(a.id), Command.link(b.id)]})
+        self.assertEqual(self.array(template, 'taxesId', 'taxId'), sorted([a.id, b.id]))
+        self.assertFalse(sql.table_exists(self.env.cr, 'product_taxes_rel'))
 
-        tag.write({'link_ids': [Command.unlink(a.id), Command.link(c.id)]})
-        self.assertEqual(self.array(tag, 'productTemplateRel', 'productTemplateId'), sorted([b.id, c.id]))
-        tag.invalidate_recordset()
-        self.assertEqual(tag.link_ids, b + c)
-        tag.link_ids = [Command.set([a.id])]
-        self.assertEqual(self.array(tag, 'productTemplateRel', 'productTemplateId'), [a.id])
-        tag.link_ids = [Command.clear()]
-        self.assertEqual(self.doc(tag).get('productTemplateRel'), [])
+        template.write({'link_ids': [Command.unlink(a.id), Command.link(c.id)]})
+        self.assertEqual(self.array(template, 'taxesId', 'taxId'), sorted([b.id, c.id]))
+        template.invalidate_recordset()
+        self.assertEqual(template.link_ids, b + c)
+        template.link_ids = [Command.set([a.id])]
+        self.assertEqual(self.array(template, 'taxesId', 'taxId'), [a.id])
+        template.link_ids = [Command.clear()]
+        self.assertEqual(self.doc(template).get('taxesId'), [])
 
     def test_junction_array_reverse_side(self):
         a, b, _c = self.links
-        red, blue = self.Tag.create([{'name': 'red', 'sequence': 2}, {'name': 'blue', 'sequence': 1}])
-        a.tag_ids = [Command.set([red.id, blue.id])]
-        b.tag_ids = [Command.link(red.id)]
-        self.assertEqual(self.array(red, 'productTemplateRel', 'productTemplateId'), sorted([a.id, b.id]))
+        red, blue = self.Template.create([{'name': 'red'}, {'name': 'blue'}])
+        a.template_ids = [Command.set([red.id, blue.id])]
+        b.template_ids = [Command.link(red.id)]
+        self.assertEqual(self.array(red, 'taxesId', 'taxId'), sorted([a.id, b.id]))
         self.env.invalidate_all()
-        self.assertEqual(a.tag_ids.ids, [blue.id, red.id], "ordered by the comodel's _order")
+        self.assertEqual(a.template_ids.ids, [blue.id, red.id], "ordered by the comodel's _order")
         self.assertEqual(red.link_ids, a + b)
-        a.tag_ids = [Command.unlink(red.id)]
-        self.assertEqual(self.array(red, 'productTemplateRel', 'productTemplateId'), [b.id])
+        a.template_ids = [Command.unlink(red.id)]
+        self.assertEqual(self.array(red, 'taxesId', 'taxId'), [b.id])
 
     def test_junction_array_search(self):
         a, b, c = self.links
-        red, blue, bare = self.Tag.create([
+        red, blue, bare = self.Template.create([
             {'name': 'red', 'link_ids': [Command.set([a.id, b.id])]},
             {'name': 'blue', 'link_ids': [Command.set([b.id])]},
             {'name': 'bare'},
         ])
-        tags = red + blue + bare
-        self.assertEqual(self.Tag.search([('id', 'in', tags.ids), ('link_ids', 'in', a.ids)]), red)
-        self.assertEqual(self.Tag.search([('id', 'in', tags.ids), ('link_ids', 'not in', a.ids)]), blue + bare)
-        self.assertEqual(self.Tag.search([('id', 'in', tags.ids), ('link_ids', '=', False)]), bare)
-        self.assertEqual(self.Tag.search([('id', 'in', tags.ids), ('link_ids.name', '=', 'link 1')]), red + blue)
+        templates = red + blue + bare
+        Template = self.Template
+        self.assertEqual(Template.search([('id', 'in', templates.ids), ('link_ids', 'in', a.ids)]), red)
+        self.assertEqual(Template.search([('id', 'in', templates.ids), ('link_ids', 'not in', a.ids)]), bare + blue)
+        self.assertEqual(Template.search([('id', 'in', templates.ids), ('link_ids', '=', False)]), bare)
+        self.assertEqual(Template.search([('id', 'in', templates.ids), ('link_ids.name', '=', 'link 1')]), blue + red)
         links = self.links
-        self.assertEqual(self.Link.search([('id', 'in', links.ids), ('tag_ids', 'in', blue.ids)]), b)
-        self.assertEqual(self.Link.search([('id', 'in', links.ids), ('tag_ids', '=', False)]), c)
-        self.assertEqual(self.Link.search([('id', 'in', links.ids), ('tag_ids.name', '=', 'red')]), a + b)
+        self.assertEqual(self.Link.search([('id', 'in', links.ids), ('template_ids', 'in', blue.ids)]), b)
+        self.assertEqual(self.Link.search([('id', 'in', links.ids), ('template_ids', '=', False)]), c)
+        self.assertEqual(self.Link.search([('id', 'in', links.ids), ('template_ids.name', '=', 'red')]), a + b)
 
     def test_junction_array_between_mongodb_models(self):
+        """ productTagIds is on the owning side (the template), as s3.1 moved it. """
+        red, blue = self.Tag.create([{'name': 'red'}, {'name': 'blue'}])
+        template = self.Template.create({'name': 'shirt', 'tag_ids': [Command.set([blue.id, red.id])]})
+        self.assertEqual(self.array(template, 'productTagIds', 'productTagId'), sorted([red.id, blue.id]))
+        self.assertFalse(sql.table_exists(self.env.cr, 'product_tag_product_template_rel'))
+        template.invalidate_recordset()
+        self.assertEqual(template.tag_ids, red + blue)
+        self.assertEqual(self.Template.search([('id', '=', template.id), ('tag_ids.name', '=', 'blue')]), template)
+
+    def test_root_junction_between_mongodb_models(self):
         exw, fob = self.incoterms
         tag = self.Tag.create({'name': 'red', 'incoterm_ids': [Command.set([fob.id, exw.id])]})
-        self.assertEqual(self.array(tag, 'productProductRel', 'productProductId'), sorted([exw.id, fob.id]))
+        self.assertEqual(self.tag_incoterms(tag), sorted([exw.id, fob.id]))
+        self.assertNotIn('productProductRel', self.doc(tag))
         tag.invalidate_recordset()
         self.assertEqual(tag.incoterm_ids, exw + fob)
         self.assertEqual(self.Tag.search([('id', '=', tag.id), ('incoterm_ids.code', '=', 'FOB')]), tag)
@@ -112,14 +132,14 @@ class TestMany2manyMongodb(TransactionCase):
     def test_unlink_follows_ondelete(self):
         a, b, _c = self.links
         exw, fob = self.incoterms
-        tag = self.Tag.create({'name': 'red', 'link_ids': [Command.set([a.id, b.id])],
-                               'incoterm_ids': [Command.set([exw.id])]})
+        template = self.Template.create({'name': 'red', 'link_ids': [Command.set([a.id, b.id])]})
+        tag = self.Tag.create({'name': 'red', 'incoterm_ids': [Command.set([exw.id])]})
         a.unlink()
-        self.assertEqual(self.array(tag, 'productTemplateRel', 'productTemplateId'), [b.id])
+        self.assertEqual(self.array(template, 'taxesId', 'taxId'), [b.id])
         with self.assertRaises(psycopg2.errors.ForeignKeyViolation):
             exw.unlink()
         fob.unlink()
-        self.assertEqual(self.array(tag, 'productProductRel', 'productProductId'), [exw.id])
+        self.assertEqual(self.tag_incoterms(tag), [exw.id])
 
     def test_root_junction_collection(self):
         a, b, c = self.links
@@ -129,9 +149,9 @@ class TestMany2manyMongodb(TransactionCase):
         c.optional_incoterm_ids = [Command.link(exw.id), Command.link(fob.id)]
         expected = sorted(before + [(exw.id, a.id), (exw.id, b.id), (exw.id, c.id), (fob.id, c.id)])
         self.assertEqual(self.junction()[1], expected)
-        self.assertFalse(sql.table_exists(self.env.cr, 'product_optional_rel'))
+        self.assertFalse(sql.table_exists(self.env.cr, 'product_product_uom_uom_rel'))
         unique = [index['key'] for index in collection.list_indexes() if index.get('unique')]
-        self.assertIn({'destId': 1, 'srcId': 1}, [dict(key) for key in unique])
+        self.assertIn({'uomUomId': 1, 'productProductId': 1}, [dict(key) for key in unique])
 
         self.env.invalidate_all()
         self.assertEqual(exw.optional_link_ids, a + b + c)
@@ -153,7 +173,7 @@ class TestMany2manyMongodb(TransactionCase):
 
         incoterm.optional_link_ids = [Command.link(link.id)]
         self.assertIn(pair, self.junction()[1])
-        self.assertFalse(sql.table_exists(self.env.cr, 'product_optional_rel'))
+        self.assertFalse(sql.table_exists(self.env.cr, 'product_product_uom_uom_rel'))
         self.env.invalidate_all()
         self.assertEqual(incoterm.optional_link_ids, link)
         self.assertEqual(link.optional_incoterm_ids, incoterm)
@@ -166,7 +186,7 @@ class TestMany2manyMongodb(TransactionCase):
 
         link.optional_incoterm_ids = [Command.link(incoterm.id)]
         self.assertIn(pair, self.junction()[1])
-        self.assertFalse(sql.table_exists(self.env.cr, 'product_optional_rel'))
+        self.assertFalse(sql.table_exists(self.env.cr, 'product_product_uom_uom_rel'))
         self.env.invalidate_all()
         self.assertEqual(incoterm.optional_link_ids, link)
         self.assertEqual(link.optional_incoterm_ids, incoterm)
@@ -179,25 +199,25 @@ class TestMany2manyMongodb(TransactionCase):
 
     def test_link_to_missing_record_fails(self):
         exw, _fob = self.incoterms
-        tag = self.Tag.create({'name': 'red'})
+        template = self.Template.create({'name': 'red'})
         missing = self.links[-1].id + 1000
-        for record, fname in ((tag, 'link_ids'), (exw, 'optional_link_ids')):
+        for record, fname in ((template, 'link_ids'), (exw, 'optional_link_ids')):
             with self.subTest(fname=fname), self.assertRaises(psycopg2.errors.ForeignKeyViolation):
                 record[fname] = [Command.link(missing)]
-        self.assertFalse(self.doc(tag).get('productTemplateRel'))
+        self.assertFalse(self.doc(template).get('taxesId'))
         self.assertNotIn(missing, [dest for _src, dest in self.junction()[1]])
 
     def test_savepoint_rollback_undoes_links(self):
         a, b, _c = self.links
         exw, _fob = self.incoterms
-        tag = self.Tag.create({'name': 'red', 'link_ids': [Command.set([a.id])]})
+        template = self.Template.create({'name': 'red', 'link_ids': [Command.set([a.id])]})
         exw.optional_link_ids = [Command.set([a.id])]
         _collection, before = self.junction()
         with self.assertRaises(ZeroDivisionError), self.env.cr.savepoint():
-            tag.link_ids = [Command.set([b.id])]
+            template.link_ids = [Command.set([b.id])]
             exw.optional_link_ids = [Command.set([b.id])]
             1 / 0
-        self.assertEqual(self.array(tag, 'productTemplateRel', 'productTemplateId'), [a.id])
+        self.assertEqual(self.array(template, 'taxesId', 'taxId'), [a.id])
         self.assertEqual(self.junction()[1], before)
 
     def mirror(self, table, column, ids):
@@ -208,7 +228,7 @@ class TestMany2manyMongodb(TransactionCase):
         field = self.Tag._fields['incoterm_ids']
         exw, fob = self.incoterms
         red = self.Tag.create({'name': 'red', 'incoterm_ids': [Command.set([exw.id, fob.id])]})
-        self.assertEqual(self.array(red, 'productProductRel', 'productProductId'), sorted([exw.id, fob.id]))
+        self.assertEqual(self.tag_incoterms(red), sorted([exw.id, fob.id]))
         rows = lambda: self.mirror('product_tag_product_product_rel', 'product_tag_id', red.ids)  # noqa: E731
         self.assertEqual(rows(), sorted([(red.id, exw.id), (red.id, fob.id)]))
 
@@ -219,7 +239,7 @@ class TestMany2manyMongodb(TransactionCase):
             self.assertEqual(rows(), [(red.id, fob.id)])
             1 / 0
         self.assertEqual(rows(), [(red.id, exw.id)])
-        self.assertEqual(self.array(red, 'productProductRel', 'productProductId'), [exw.id])
+        self.assertEqual(self.tag_incoterms(red), [exw.id])
         self.assertEqual(storage_mongodb.relation_mirror_diff(field, self.env), (set(), set()))
         red.unlink()
         self.assertEqual(rows(), [])
@@ -246,7 +266,7 @@ class TestMany2manyMongodb(TransactionCase):
         with patch.object(self.env.registry, 'post_init', lambda *args: None):
             field.update_db(self.Incoterm, {})
         self.assertEqual(storage_mongodb.relation_mirror_diff(field, self.env), (set(), set()), "filled from MongoDB")
-        rows = lambda: self.mirror('product_optional_rel', 'src_id', self.incoterms.ids)  # noqa: E731
+        rows = lambda: self.mirror('product_product_uom_uom_rel', 'product_product_id', self.incoterms.ids)  # noqa: E731
         self.assertEqual(rows(), sorted([(exw.id, a.id), (exw.id, b.id)]))
 
         c.optional_incoterm_ids = [Command.link(fob.id)]

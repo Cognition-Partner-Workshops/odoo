@@ -1,7 +1,9 @@
 import datetime as dt
+import json
 import os
 import unittest
 from decimal import Decimal
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import psycopg2.errors
@@ -344,35 +346,35 @@ class TestStorageMongodb(TransactionCase):
             self.assertEqual(Tag.search(domain, order='id'), tags[0] | tags[2])
 
     def test_unlink_set_null_is_flushed(self):
-        Template = self.env['test_orm_mongodb.template']
-        Variant = self.env['test_orm_mongodb.variant']
-        template = Template.create({'name': 'Gone'})
-        variant = Variant.create({'product_tmpl_id': template.id, 'default_code': 'V'})
-        field = Variant._fields['product_tmpl_id']
+        Attribute = self.env['test_orm_mongodb.attribute']
+        Value = self.env['test_orm_mongodb.attribute_value']
+        attribute = Attribute.create({'name': 'Gone'})
+        value = Value.create({'attribute_id': attribute.id, 'name': 'V'})
+        field = Value._fields['attribute_id']
         self.patch(field, 'ondelete', 'set null')
         self.patch(field, 'required', False)
-        template.unlink()
+        attribute.unlink()
         self.env.flush_all()
-        variant.invalidate_recordset()
-        self.assertFalse(variant.product_tmpl_id)
-        self.assertEqual(variant.default_code, 'V')
+        value.invalidate_recordset()
+        self.assertFalse(value.attribute_id)
+        self.assertEqual(value.name, 'V')
 
     def test_unlink_set_null_is_a_foreign_key_update(self):
-        Template = self.env['test_orm_mongodb.template']
-        Variant = self.env['test_orm_mongodb.variant']
-        template = Template.create({'name': 'Gone'})
-        variant = Variant.create({'product_tmpl_id': template.id, 'default_code': 'V'})
-        field = Variant._fields['product_tmpl_id']
+        Attribute = self.env['test_orm_mongodb.attribute']
+        Value = self.env['test_orm_mongodb.attribute_value']
+        attribute = Attribute.create({'name': 'Gone'})
+        value = Value.create({'attribute_id': attribute.id, 'name': 'V'})
+        field = Value._fields['attribute_id']
         self.patch(field, 'ondelete', 'set null')
         self.patch(field, 'required', False)
         # like PostgreSQL's foreign key, nulling the reference runs no write()
         # override, whose own writes the delete would drop from the cache
-        self.patch(type(Variant), 'write', lambda records, vals: self.fail(f"write({vals}) called"))
-        template.unlink()
+        self.patch(type(Value), 'write', lambda records, vals: self.fail(f"write({vals}) called"))
+        attribute.unlink()
         self.env.flush_all()
-        variant.invalidate_recordset()
-        self.assertFalse(variant.product_tmpl_id)
-        self.assertEqual(variant.default_code, 'V')
+        value.invalidate_recordset()
+        self.assertFalse(value.attribute_id)
+        self.assertEqual(value.name, 'V')
 
     def test_cascade_from_shadow_column_removes_documents(self):
         other = self.env['res.company'].create({'name': 'Doomed'})
@@ -583,9 +585,12 @@ class TestStorageMongodb(TransactionCase):
         keys = {tuple(map(tuple, index['key'])): index for index in info.values()}
         unique = keys[('reportLineId', 1), ('label', 1)]
         self.assertTrue(unique['unique'])
-        self.assertIn((('engine', 1), ('formula', 1), ('_id', 1)), keys)
-        self.assertIn((('code', 1),), {tuple(map(tuple, i['key'])) for i in
-                                        storage_mongodb.get_collection(self.Incoterm).index_information().values()})
+        # every index the signed spec lists for the collection exists
+        for model in (self.Expression, self.Lock, self.Category, self.env['test_orm_mongodb.template']):
+            created = {tuple(map(tuple, index['key']))
+                       for index in storage_mongodb.get_collection(model).index_information().values()}
+            for index in storage_mongodb._layout(model)['indexes']:
+                self.assertIn(tuple(map(tuple, index['keys'])), created, model._name)
 
     def test_unique_index(self):
         self.Expression.create({'report_line_id': 1, 'label': 'balance'})
@@ -719,9 +724,92 @@ class TestStorageMongodb(TransactionCase):
             with self.assertRaisesRegex(storage_mongodb.StorageError, "'code' is not in the signed mapping"):
                 storage_mongodb._layout(self.Incoterm)
 
+    def test_spec_shapes_are_handled(self):
+        """ Every embed, root junction, BSON type and field rule of the signed
+        spec is one the storage path lays out and converts. """
+        relations, children = storage_mongodb._spec_relations(), storage_mongodb._spec_children()
+        bson_types = {'int', 'string', 'object', 'bool', 'date', 'decimal', 'double', 'binData'}
+        spec = json.loads(storage_mongodb.SPEC_PATH.read_bytes())
+        rules = {rule['rule'] for rule in spec['canonicalization']['rules']}
+        for coll in storage_mongodb._spec_tables().values():
+            fields = list(coll['fields'])
+            for embed in coll['embeds']:
+                table = embed['child_table']
+                self.assertIn(embed.get('shape', 'array'), ('array', 'subdocument'), table)
+                self.assertIn(table, relations.keys() | children.keys())
+                if embed.get('shape') == 'subdocument':
+                    self.assertIn(table, children, "a subdocument is a child document, never a link array")
+                fields += embed['child_fields'] + embed['parent_key_fields']
+            for field in fields:
+                self.assertIn(field['bson_type'], bson_types, (coll['root_table'], field['source']))
+                self.assertLessEqual(set(field['rules']), rules, (coll['root_table'], field['source']))
+        for table, (coll, embed) in relations.items():
+            if embed is None:   # root junction: one link per id pair, like the relation's primary key
+                unique = [sorted(path for path, _ in index['keys']) for index in coll['indexes'] if index.get('unique')]
+                self.assertIn(sorted(coll['key']['target']), unique, table)
+
+    def test_sweep_switch(self):
+        """ ODOO_MONGODB_SWEEP=1 opts the spec's models into MongoDB storage,
+        their columns mirrored, under a scratch prefix only; default off. """
+        def registry(dbname):
+            fields = {name: self.Incoterm._fields[name] for name in ('id', 'code', 'display_name')}
+            base = {'_storage': None, '_abstract': False, '_auto': True, '_shadow_columns': (), '_fields': fields,
+                    '_original_module': 'test_orm_mongodb'}
+            return SimpleNamespace(db_name=dbname, models={
+                'mapped': type('Mapped', (), dict(base, _table='account_incoterms')),
+                'unmapped': type('Unmapped', (), dict(base, _table='test_orm_mongodb_pg_link')),
+            })
+
+        scratch = registry('scratch')
+        with patch.dict(os.environ):
+            os.environ.pop('ODOO_MONGODB_SWEEP', None)
+            storage_mongodb.apply_sweep(scratch)
+            self.assertIsNone(scratch.models['mapped']._storage)
+            os.environ['ODOO_MONGODB_SWEEP'] = '1'
+            storage_mongodb.apply_sweep(scratch)
+            self.assertEqual(scratch.models['mapped']._storage, 'mongodb')
+            self.assertEqual(scratch.models['mapped']._shadow_columns, ('code',))
+            self.assertIsNone(scratch.models['unmapped']._storage)
+            other_unit = registry('scratch')
+            os.environ['ODOO_MONGODB_SWEEP'] = 'product,stock'     # only the models of these modules
+            storage_mongodb.apply_sweep(other_unit)
+            self.assertIsNone(other_unit.models['mapped']._storage)
+            os.environ['ODOO_MONGODB_SWEEP'] = 'product,test_orm_mongodb'
+            storage_mongodb.apply_sweep(other_unit)
+            self.assertEqual(other_unit.models['mapped']._storage, 'mongodb')
+            os.environ['ODOO_MONGODB_PG_DATABASE'] = 'odoo_main'
+            with self.assertRaises(storage_mongodb.StorageError):
+                storage_mongodb.apply_sweep(registry('odoo_main'))
+
+    def test_sweep_seeds_existing_rows(self):
+        """ Under the sweep switch, rows already in a table get their documents
+        when they have none in its scratch collection, once. """
+        collection = storage_mongodb.get_collection(self.Lock)
+        self.assertEqual(collection.count_documents({}), 0)
+        self.env.cr.execute(SQL("INSERT INTO account_lock_exception (company_id) VALUES (%s) RETURNING id", self.company.id))
+        [(lock_id,)] = self.env.cr.fetchall()
+        with patch.dict(os.environ):
+            os.environ.pop('ODOO_MONGODB_SWEEP', None)
+            storage_mongodb._seed_sweep(self.Lock)
+            self.assertEqual(collection.count_documents({}), 0, "off by default")
+            os.environ['ODOO_MONGODB_SWEEP'] = '1'
+            storage_mongodb._seed_sweep(self.Lock)
+            storage_mongodb._seed_sweep(self.Lock)
+            self.assertEqual(list(collection.find()), [{'_id': lock_id, 'companyId': self.company.id}])
+            # a sweep stopped part way resumes with the rows still missing a document
+            self.env.cr.execute(SQL("INSERT INTO account_lock_exception (company_id) VALUES (%s) RETURNING id", self.company.id))
+            [(late_id,)] = self.env.cr.fetchall()
+            storage_mongodb._seed_sweep(self.Lock)
+        self.assertEqual(sorted(doc['_id'] for doc in collection.find()), [lock_id, late_id])
+
+    def test_bindata_round_trip(self):
+        value = storage_mongodb._to_bson('binData', psycopg2.Binary(b'\x00\x01raw'))
+        self.assertEqual(value, b'\x00\x01raw')
+        self.assertIsNone(storage_mongodb._to_bson('binData', None), "NULL is stored as a missing key")
+
     @mute_logger('odoo.sql_db')
     def test_unsupported_operations_fail_closed(self):
         with self.assertRaises(NotImplementedError):
-            self.env['test_orm_mongodb.tag']._read_group([], ['link_ids.name'], ['__count'])
+            self.env['test_orm_mongodb.template']._read_group([], ['link_ids.name'], ['__count'])
         with self.assertRaises(NotImplementedError):
             self.Lock.search([], order='display_name')

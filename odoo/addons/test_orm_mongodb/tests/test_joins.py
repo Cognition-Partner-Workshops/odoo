@@ -11,6 +11,7 @@ class TestCrossStoreOrderMongodb(TransactionCase):
         cls.Attribute = cls.env['test_orm_mongodb.attribute']
         cls.Value = cls.env['test_orm_mongodb.attribute_value']
         cls.Tag = cls.env['test_orm_mongodb.tag']
+        cls.Template = cls.env['test_orm_mongodb.template']
         cls.Link = cls.env['test_orm_mongodb.pg_link']
         cls.color, cls.size = cls.Attribute.create([
             {'name': 'Color', 'sequence': 2, 'value_ids': [Command.create({'name': 'Red'})]},
@@ -35,12 +36,12 @@ class TestCrossStoreOrderMongodb(TransactionCase):
         self.assertEqual(self.Link.search(domain, order='tag_id desc, id'), c + a + b)
 
     def test_postgresql_model_groups_by_mongodb_many2many(self):
-        red, blue = self.Tag.create([{'name': 'red'}, {'name': 'blue'}])
+        red, blue = self.Template.create([{'name': 'red'}, {'name': 'blue'}])
         a, b, c = self.Link.create([
-            {'name': 'a', 'tag_ids': [Command.set([red.id, blue.id])]},
-            {'name': 'b', 'tag_ids': [Command.set([red.id])]},
+            {'name': 'a', 'template_ids': [Command.set([red.id, blue.id])]},
+            {'name': 'b', 'template_ids': [Command.set([red.id])]},
             {'name': 'c'},
         ])
-        rows = self.Link._read_group([('id', 'in', (a + b + c).ids)], ['tag_ids'], ['__count'], order='tag_ids')
+        rows = self.Link._read_group([('id', 'in', (a + b + c).ids)], ['template_ids'], ['__count'], order='template_ids')
         self.assertEqual(sorted((tag.id, count) for tag, count in rows if tag), sorted([(red.id, 2), (blue.id, 1)]))
-        self.assertIn((self.Tag, 1), rows)      # c has no tag
+        self.assertIn((self.Template, 1), rows)      # c has no template

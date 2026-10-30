@@ -52,7 +52,7 @@ class TestReadGroupMongodb(TransactionCase):
 
     def test_group_by_many2many(self):
         # like the SQL join: one group per linked record, and one for records without links
-        Tag, Link, Partner = self.env['test_orm_mongodb.tag'], self.env['test_orm_mongodb.pg_link'], self.env['res.partner']
+        Tag, Link, Partner = self.env['test_orm_mongodb.template'], self.env['test_orm_mongodb.pg_link'], self.env['res.partner']
         Incoterm = self.env['test_orm_mongodb.incoterm']
         a, b = Link.create([{'name': 'a'}, {'name': 'b'}])
         p1, p2 = Partner.create([{'name': 'P1'}, {'name': 'P2'}])

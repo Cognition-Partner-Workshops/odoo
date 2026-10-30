@@ -14,7 +14,8 @@ class Test_Orm_MongodbIncoterm(models.Model):
     code = fields.Char()
     name = fields.Char(translate=True)
     active = fields.Boolean(default=True)
-    optional_link_ids = fields.Many2many('test_orm_mongodb.pg_link', 'product_optional_rel', 'src_id', 'dest_id')
+    optional_link_ids = fields.Many2many('test_orm_mongodb.pg_link', 'product_product_uom_uom_rel',
+                                        'product_product_id', 'uom_uom_id')
 
 
 class Test_Orm_MongodbLock_Exception(models.Model):
@@ -79,9 +80,9 @@ class Test_Orm_MongodbPg_Link(models.Model):
     tag_id = fields.Many2one('test_orm_mongodb.tag', ondelete='set null')
     restrict_tag_id = fields.Many2one('test_orm_mongodb.tag', ondelete='restrict')
     attribute_value_id = fields.Many2one('test_orm_mongodb.attribute_value', ondelete='set null')
-    tag_ids = fields.Many2many('test_orm_mongodb.tag', 'product_tag_product_template_rel',
-                               'product_template_id', 'product_tag_id')
-    optional_incoterm_ids = fields.Many2many('test_orm_mongodb.incoterm', 'product_optional_rel', 'dest_id', 'src_id')
+    template_ids = fields.Many2many('test_orm_mongodb.template', 'product_taxes_rel', 'tax_id', 'prod_id')
+    optional_incoterm_ids = fields.Many2many('test_orm_mongodb.incoterm', 'product_product_uom_uom_rel',
+                                             'uom_uom_id', 'product_product_id')
 
 
 class Test_Orm_MongodbWarehouse(models.Model):
@@ -96,7 +97,7 @@ class Test_Orm_MongodbWarehouse(models.Model):
 
 class Test_Orm_MongodbTag(models.Model):
     _name = 'test_orm_mongodb.tag'
-    _description = 'Product tag stored in MongoDB, with junction arrays'
+    _description = 'Product tag stored in MongoDB, with a root junction collection'
     _table = 'product_tag'
     _storage = 'mongodb'
     _order = 'sequence, id'
@@ -104,8 +105,6 @@ class Test_Orm_MongodbTag(models.Model):
 
     name = fields.Char()
     sequence = fields.Integer()
-    link_ids = fields.Many2many('test_orm_mongodb.pg_link', 'product_tag_product_template_rel',
-                                'product_tag_id', 'product_template_id')
     incoterm_ids = fields.Many2many('test_orm_mongodb.incoterm', 'product_tag_product_product_rel',
                                     'product_tag_id', 'product_product_id', ondelete='restrict')
     # relation table outside the signed spec, so it stays in PostgreSQL
@@ -127,7 +126,7 @@ class Test_Orm_MongodbTag(models.Model):
 
 class Test_Orm_MongodbAttribute(models.Model):
     _name = 'test_orm_mongodb.attribute'
-    _description = 'Product attribute stored in MongoDB, with embedded values'
+    _description = 'Product attribute stored in MongoDB'
     _table = 'product_attribute'
     _storage = 'mongodb'
     _order = 'sequence, id'
@@ -139,7 +138,7 @@ class Test_Orm_MongodbAttribute(models.Model):
 
 class Test_Orm_MongodbAttributeValue(models.Model):
     _name = 'test_orm_mongodb.attribute_value'
-    _description = 'Product attribute value embedded in its attribute document'
+    _description = 'Product attribute value stored in its own MongoDB collection'
     _table = 'product_attribute_value'
     _storage = 'mongodb'
     _order = 'sequence, id'
@@ -152,7 +151,36 @@ class Test_Orm_MongodbAttributeValue(models.Model):
     is_custom = fields.Boolean()
     color = fields.Integer()
 
-    _color_uniq = models.Constraint('unique(color)', 'A color index can only be assigned to one value.')
+
+
+class Test_Orm_MongodbReport(models.Model):
+    _name = 'test_orm_mongodb.report'
+    _description = 'Report stored in MongoDB, with embedded columns'
+    _table = 'account_report'
+    _storage = 'mongodb'
+    _order = 'sequence, id'
+
+    name = fields.Char(translate=True)
+    sequence = fields.Integer()
+    column_ids = fields.One2many('test_orm_mongodb.report_column', 'report_id')
+
+
+class Test_Orm_MongodbReportColumn(models.Model):
+    _name = 'test_orm_mongodb.report_column'
+    _description = 'Report column embedded in its report document'
+    _table = 'account_report_column'
+    _storage = 'mongodb'
+    _order = 'sequence, id'
+
+    report_id = fields.Many2one('test_orm_mongodb.report', required=True, ondelete='cascade')
+    name = fields.Char(translate=True)
+    sequence = fields.Integer()
+    expression_label = fields.Char()
+    figure_type = fields.Char()
+    sortable = fields.Boolean()
+    custom_audit_action_id = fields.Integer()
+
+    _audit_uniq = models.Constraint('unique(custom_audit_action_id)', 'An audit action can only be used by one column.')
 
 
 class Test_Orm_MongodbFiscalPosition(models.Model):
@@ -201,18 +229,24 @@ class Test_Orm_MongodbCategory(models.Model):
 
 class Test_Orm_MongodbTemplate(models.Model):
     _name = 'test_orm_mongodb.template'
-    _description = 'Product template stored in MongoDB'
+    _description = 'Product template stored in MongoDB, with junction arrays'
     _table = 'product_template'
     _storage = 'mongodb'
     _order = 'name, id'
 
     name = fields.Char(translate=True, required=True)
     description = fields.Html(translate=html_translate)
+    sequence = fields.Integer()
+    link_ids = fields.Many2many('test_orm_mongodb.pg_link', 'product_taxes_rel', 'prod_id', 'tax_id')
+    tag_ids = fields.Many2many('test_orm_mongodb.tag', 'product_tag_product_template_rel',
+                               'product_template_id', 'product_tag_id')
+    # relation table outside the signed spec, so it stays in PostgreSQL
+    partner_ids = fields.Many2many('res.partner', 'test_orm_mongodb_template_partner_rel', 'template_id', 'partner_id')
 
 
 class Test_Orm_MongodbVariant(models.Model):
     _name = 'test_orm_mongodb.variant'
-    _description = 'Product variant stored in MongoDB, inheriting its template'
+    _description = 'Product variant embedded in its template document, inheriting it'
     _table = 'product_product'
     _storage = 'mongodb'
     _inherits = {'test_orm_mongodb.template': 'product_tmpl_id'}
