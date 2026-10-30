@@ -19550,8 +19550,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
         "lines": [
@@ -19566,7 +19566,8 @@
         "field": "line_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "UNT15O-4 review: workload read_hot -> hot (code path, not measured: pg_stat_statements absent on odoo_src); addons/account/models/account_move.py:1211 journal entry/invoice form: AccountMove._compute_amount iterates line_ids"
     },
     {
       "id": "ap-677571f568",
@@ -20036,8 +20037,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
         "lines": [
@@ -20052,7 +20053,8 @@
         "field": "invoice_line_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "UNT15O-4 review: workload read_hot -> hot (code path, not measured: pg_stat_statements absent on odoo_src); addons/account/models/account_move.py:1914 invoice form: invoice_line_ids is the editable line list; AccountMove._compute_tax_totals"
     },
     {
       "id": "ap-aeb0356bf3",
@@ -25306,8 +25308,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/account/models/account_payment_term.py",
         "lines": [
@@ -25322,7 +25324,8 @@
         "field": "line_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/account/models/account_payment_term.py:25 due-date computation on invoice post: AccountPaymentTerm.line_ids"
     },
     {
       "id": "ap-b9f0a0d515",
@@ -26850,8 +26853,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/account/models/account_tax.py",
         "lines": [
@@ -26866,7 +26869,8 @@
         "field": "repartition_line_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/account/models/account_tax.py:176 tax computation on line create/post: AccountTax.repartition_line_ids"
     },
     {
       "id": "ap-de722145a5",
@@ -37773,8 +37777,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_template.py",
         "lines": [
@@ -37789,7 +37793,8 @@
         "field": "product_variant_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "UNT15O-4 review: workload read_hot -> hot (code path, not measured: pg_stat_statements absent on odoo_src); addons/product/models/product_template.py:183 product form/kanban: ProductTemplate.product_variant_ids drives every variant-related compute"
     },
     {
       "id": "ap-776d0bbbf3",
@@ -47928,8 +47933,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -47944,7 +47949,8 @@
         "field": "order_line",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "UNT15O-4 review: workload read_hot -> hot (code path, not measured: pg_stat_statements absent on odoo_src); addons/sale/models/sale_order.py:723 sale order form/list: SaleOrder._compute_amounts reads order_line via _get_priced_lines"
     },
     {
       "id": "ap-fa9cad8cb5",
@@ -51680,8 +51686,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/stock/models/stock_picking.py",
         "lines": [
@@ -51696,7 +51702,8 @@
         "field": "move_ids",
         "side": "parent",
         "owns": false
-      }
+      },
+      "note": "UNT15O-4 review: workload read_hot -> hot (code path, not measured: pg_stat_statements absent on odoo_src); addons/stock/models/stock_picking.py:97 transfer form: StockPicking.move_ids is the operations list"
     },
     {
       "id": "ap-0774fcf099",
@@ -51900,8 +51907,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/stock/models/stock_picking.py",
         "lines": [
@@ -51916,7 +51923,8 @@
         "field": "move_line_ids",
         "side": "parent",
         "owns": false
-      }
+      },
+      "note": "UNT15O-4 review: workload read_hot -> hot (code path, not measured: pg_stat_statements absent on odoo_src); addons/stock/models/stock_picking.py:122 transfer detailed operations: StockPicking.move_line_ids"
     },
     {
       "id": "ap-f69d68bdb6",
@@ -53702,8 +53710,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/stock/models/stock_move.py",
         "lines": [
@@ -53718,7 +53726,8 @@
         "field": "move_line_ids",
         "side": "parent",
         "owns": false
-      }
+      },
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/stock/models/stock_move.py:153 reservation/validation: StockMove.move_line_ids read in _action_assign/_action_done"
     },
     {
       "id": "ap-dce24c2c53",
@@ -63460,8 +63469,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -63476,7 +63485,8 @@
         "field": "order_line",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "UNT15O-4 review: workload read_hot -> hot (code path, not measured: pg_stat_statements absent on odoo_src); addons/purchase/models/purchase_order.py:308 purchase order form: PurchaseOrder._compute_tax_totals reads order_line"
     },
     {
       "id": "ap-d802e51a76",
@@ -77461,8 +77471,8 @@
         "account_move_line.move_name",
         "account_move_line.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
         "lines": [
@@ -77475,7 +77485,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "AccountMove._compute_payments_widget_to_reconcile_info"
+      "routine": "AccountMove._compute_payments_widget_to_reconcile_info",
+      "note": "UNT15O-4 review: workload read_hot -> hot (code path, not measured: pg_stat_statements absent on odoo_src); addons/account/models/account_move.py:1525 invoice form outstanding-payments widget: AccountMove._compute_payments_widget_to_reconcile_info"
     },
     {
       "id": "ap-dc29093a9b",
@@ -79235,8 +79246,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
         "lines": [
@@ -79250,7 +79261,8 @@
         "method": "write"
       },
       "routine": "AccountMove._post",
-      "verb": "update"
+      "verb": "update",
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/account/models/account_move.py:6327 AccountMove._post writes state=posted"
     },
     {
       "id": "ap-aea7b579c2",
@@ -79950,8 +79962,8 @@
         "account_move.invoice_date",
         "account_move.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move.py",
         "lines": [
@@ -79964,7 +79976,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "AccountMove._autopost_draft_entries"
+      "routine": "AccountMove._autopost_draft_entries",
+      "note": "UNT15O-4 review: workload batch -> cold (code path, not measured: pg_stat_statements absent on odoo_src); addons/account/models/account_move.py:7191 ir.cron autopost: AccountMove._autopost_draft_entries search"
     },
     {
       "id": "ap-a62f664084",
@@ -81188,8 +81201,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move_line.py",
         "lines": [
@@ -81203,7 +81216,8 @@
         "method": "create"
       },
       "routine": "AccountMoveLine._reconcile_plan_with_sync",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/account/models/account_move_line.py:3188 AccountMoveLine._reconcile_plan_with_sync creates partial reconciles"
     },
     {
       "id": "ap-a687be7c07",
@@ -81246,8 +81260,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/account/models/account_move_line.py",
         "lines": [
@@ -81261,7 +81275,8 @@
         "method": "create"
       },
       "routine": "AccountMoveLine._reconcile_plan_with_sync",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/account/models/account_move_line.py:3290 AccountMoveLine._reconcile_plan_with_sync creates full reconciles"
     },
     {
       "id": "ap-e521ec78cf",
@@ -145235,8 +145250,8 @@
         "product_template.name",
         "product_product.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -145249,7 +145264,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ProductProduct.name_search"
+      "routine": "ProductProduct.name_search",
+      "note": "UNT15O-4 review: workload read_hot -> hot (code path, not measured: pg_stat_statements absent on odoo_src); addons/product/models/product_product.py:1151 product picker on every order/invoice line: ProductProduct.name_search search_fetch"
     },
     {
       "id": "ap-3b8ccb7030",
@@ -145374,8 +145390,8 @@
         "product_template.name",
         "product_product.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/product/models/product_product.py",
         "lines": [
@@ -145388,7 +145404,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "ProductProduct.name_search"
+      "routine": "ProductProduct.name_search",
+      "note": "UNT15O-4 review: workload read_hot -> hot (code path, not measured: pg_stat_statements absent on odoo_src); addons/product/models/product_product.py:1171 product picker name match: ProductProduct.name_search search_fetch"
     },
     {
       "id": "ap-54e24431aa",
@@ -150652,8 +150669,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/purchase/models/purchase_order.py",
         "lines": [
@@ -150667,7 +150684,8 @@
         "method": "create"
       },
       "routine": "PurchaseOrder.action_create_invoice",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/purchase/models/purchase_order.py:883 PurchaseOrder.action_create_invoice creates the vendor bill"
     },
     {
       "id": "ap-0bb4971376",
@@ -157238,8 +157256,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/sale/models/sale_order.py",
         "lines": [
@@ -157253,7 +157271,8 @@
         "method": "write"
       },
       "routine": "SaleOrder.action_confirm",
-      "verb": "update"
+      "verb": "update",
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/sale/models/sale_order.py:1635 SaleOrder.action_confirm writes confirmation values"
     },
     {
       "id": "ap-ee1a81b457",
@@ -170752,8 +170771,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/stock/models/stock_move.py",
         "lines": [
@@ -170767,7 +170786,8 @@
         "method": "create"
       },
       "routine": "StockMove._action_assign",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/stock/models/stock_move.py:2247 StockMove._action_assign creates reserved move lines"
     },
     {
       "id": "ap-47ee649541",
@@ -170864,8 +170884,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/stock/models/stock_move.py",
         "lines": [
@@ -170879,7 +170899,8 @@
         "method": "write"
       },
       "routine": "StockMove._action_assign",
-      "verb": "update"
+      "verb": "update",
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/stock/models/stock_move.py:2268 StockMove._action_assign writes state=assigned"
     },
     {
       "id": "ap-29d57729f7",
@@ -176264,8 +176285,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/stock/models/stock_picking.py",
         "lines": [
@@ -176279,7 +176300,8 @@
         "method": "write"
       },
       "routine": "StockPicking._action_done",
-      "verb": "update"
+      "verb": "update",
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/stock/models/stock_picking.py:1012 StockPicking._action_done writes date_done/state"
     },
     {
       "id": "ap-86c165a694",
@@ -177938,8 +177960,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/stock/models/stock_quant.py",
         "lines": [
@@ -177952,7 +177974,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "StockQuant._gather"
+      "routine": "StockQuant._gather",
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/stock/models/stock_quant.py:820 StockQuant._gather search on reservation and validation"
     },
     {
       "id": "ap-8ddc5d76ff",
@@ -178150,8 +178173,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/stock/models/stock_quant.py",
         "lines": [
@@ -178165,7 +178188,8 @@
         "method": "write"
       },
       "routine": "StockQuant._update_available_quantity",
-      "verb": "update"
+      "verb": "update",
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/stock/models/stock_quant.py:1122 StockQuant._update_available_quantity writes quant on move done"
     },
     {
       "id": "ap-3b595bd66e",
@@ -178177,8 +178201,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/stock/models/stock_quant.py",
         "lines": [
@@ -178192,7 +178216,8 @@
         "method": "create"
       },
       "routine": "StockQuant._update_available_quantity",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/stock/models/stock_quant.py:1136 StockQuant._update_available_quantity creates quant on move done"
     },
     {
       "id": "ap-cc1eaf64cc",
@@ -178566,8 +178591,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/stock/models/stock_rule.py",
         "lines": [
@@ -178581,7 +178606,8 @@
         "method": "create"
       },
       "routine": "StockRule._run_pull",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "UNT15O-4 review: workload transactional -> warm (code path, not measured: pg_stat_statements absent on odoo_src); addons/stock/models/stock_orderpoint.py:385 StockRule._run_pull creates moves on manual Replenish (StockWarehouseOrderpoint.action_replenish -> _procure_orderpoint_confirm) as well as the scheduler"
     },
     {
       "id": "ap-6a29a6418b",
@@ -178773,8 +178799,8 @@
         "stock_warehouse_orderpoint.company_id",
         "stock_warehouse_orderpoint.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/stock/models/stock_rule.py",
         "lines": [
@@ -178787,7 +178813,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "StockRule._run_scheduler_tasks"
+      "routine": "StockRule._run_scheduler_tasks",
+      "note": "UNT15O-4 review: workload batch -> cold (code path, not measured: pg_stat_statements absent on odoo_src); addons/stock/models/stock_rule.py:687 ir.cron scheduler: StockRule._run_scheduler_tasks orderpoint search"
     },
     {
       "id": "ap-6355b88298",
@@ -178804,8 +178831,8 @@
         "stock_move.date",
         "stock_move.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/stock/models/stock_rule.py",
         "lines": [
@@ -178818,7 +178845,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "StockRule._run_scheduler_tasks"
+      "routine": "StockRule._run_scheduler_tasks",
+      "note": "UNT15O-4 review: workload batch -> cold (code path, not measured: pg_stat_statements absent on odoo_src); addons/stock/models/stock_rule.py:698 ir.cron scheduler: StockRule._run_scheduler_tasks confirmed-move search"
     },
     {
       "id": "ap-486dcc6e1a",
