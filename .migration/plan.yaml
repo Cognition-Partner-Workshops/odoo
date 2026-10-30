@@ -145,6 +145,23 @@ phases:
             options:
               - {id: orm-storage-path, label: "Shared ORM storage path (storage_mongodb.py kept from unt13; cost = conformance + per-unit opt-ins)"}
               - {id: repository-layer, label: "Per-model repository layer under the ORM API (cost = new mechanism + per-unit adapters)"}
+            cost_note: >
+              UNT15O-6 costing from UNT14's recorded board figures (devin_ticket_manage get on board UNT14, "ACUs used"; wall = ticket
+              created -> last update, which includes waits) and git history on origin/mongo-run/unt13. orm-storage-path: the mechanism
+              exists (odoo/orm/storage_mongodb.py, 2,381 lines over 99 commits b8ede7915df..30f4f06aacc), so UNT15 pays only
+              (1) the spec re-sign: UNT14-34 "Add partial unique indexes, re-sign" + UNT14-35 "spec pin" (pin commit efc5fb13105, one
+              commit); UNT14-34's session recorded 18.75 ACU shared with the UNT14-10 answers ticket, so the re-sign is under that;
+              (2) the conformance sweep over the register rows the storage path handles: UNT14-12 recorded 52.71 ACU, 2026-10-22 12:28 ->
+              10-25 21:49 elapsed (three sweep reports, commit spans 16 + 6 + 11 min, PRs #96 #126 #132), plus its gap-fix rounds;
+              (3) per-unit opt-ins, done inside each batch ticket (UNT14 batches recorded 22.71-105.95 ACU, median 36.15 over the 11
+              wave 2-4 batches, about 50-100 min wall each; no separate opt-in cost). Incremental before batches: about 53 ACU and
+              about 1 day elapsed, dominated by the sweep. repository-layer: never built, so no recorded cost; the closest recorded
+              comparable is UNT14 building the storage path from scratch: one session (devin-8cc1bc2a) recorded 16.65 ACU across
+              UNT14-11, -24..-33 and -35..-37 (initial build commit envelope 3 h 08 min on 2026-10-22; gap rounds to 10-25), plus the
+              52.71 ACU sweep that found its gaps (UNT14-30..-37 fixed them). A new layer would pay at least that again (about 69 ACU,
+              2-3 days elapsed) before per-unit adapters, which UNT14 never recorded separately (64 units, 19 batches, units.json:72-81),
+              and the plan's 32 ACU/batch target (plan.yaml run.targets_to_beat) has no recorded UNT14 source. Evidence:
+              the cost table in .migration/NOTES.md section "s3.1 d-storage-path costing".
             selected: null
       - id: s3.2-storage-path
         title: Build the storage mechanism Dhrov picked
