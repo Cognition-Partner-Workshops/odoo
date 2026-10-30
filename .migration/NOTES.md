@@ -817,3 +817,13 @@ Recon verdict: PASS, `merge_eligible: false` for the local fixture target. Tier 
 A fixture PASS checks the local load path only; it is not merge evidence and says nothing about production parity.
 
 - rem-mongo (mongo:7) crashed with `Too many open files` / WT_PANIC loading 224 collections and ~670 indexes at the default nofile limit; recreated with --ulimit nofile=64000:64000 (blueprint should create it that way).
+
+## s3.1 schema sign-off (2026-10-30)
+
+Dhrov signed off map-draft-2 as-is (PR #171, merged 64396bc) in the manager chat, relayed by the parent session: "yes to all three". Gates g-model-evidence (manager re-ran `model_patch.py --check --data-profile --census --access-patterns` on 64396bc: check OK, 1982 decisions, 0 open items) and g-model-accepted are ticked in plan.yaml. The 361 decisions closed by the nine worker rules in `answers.txt` are his by this sign-off; the product-variant-in-template embed (up to 480 per template, 132 KB max document) was called out and accepted.
+
+d-storage-path: `orm-storage-path` selected (keep `odoo/orm/storage_mongodb.py`; costed at about 53 ACU / about one day before batches, versus at least 69 ACU plus uncosted adapters for a new repository layer; table under "s3.1 d-storage-path costing"). s3.2 re-signs `SPEC_SHA256` to the accepted spec, then s3.4/s3.5 conformance.
+
+## s3.4 accepted-empty (2026-10-30)
+
+Census: 241 of 521 base tables have zero rows in the frozen source; 145 of them are `transient_excluded` and out of scope, 96 are in scope (map-draft-2: 27 root collections, 69 embed paths, resolved through `mapping_spec.json` root_table / embeds.child_table). `expected_empty.txt` proposed 43 of the 96. Dhrov chose the edited list: all 96. `recon_tolerances.json` is now version 2 with those 96 keys under `accepted_empty` (root collection names and `<collection>.<array_path>`, as the harness reads them); every other tolerance is unchanged. Effect: recon no longer reports those zero-row collections/embeds as UNVERIFIED; it proves nothing about them, which is accepted because the source is frozen.
