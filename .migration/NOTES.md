@@ -872,3 +872,30 @@ Devin Review on #174 found `never` rows whose column the app fills through a hel
 `mail_call_artifact.recording_started_by_id` stays `never`: its only non-test assignment is `addons/cloud_storage/controllers/rtc.py:27`, and `cloud_storage` is not installed in this source. It is not in the recipe (`.migration/fixtures/build_source.sh:4`, `-i product,uom,sale,purchase,stock,account`), not a transitive dependency of those, and has no `auto_install` (`addons/cloud_storage/__manifest__.py:7`, depends `base_setup`, `mail`). The other 33 rows' remaining matches assign the column on a different model or sit in modules that are not installed (non-US charts via `countries`, crm, hr, calendar, im_livechat and similar). `x_plan1_id`/`x_plan4_id` mentions now include `.migration/plan.yaml` (named there by #173).
 
 With the 6 `sets` rows derive_units refused on a 9-collection cycle (crmTeam, irSequence, productCategory, productTemplate, resCompany, resPartner, resUsers, stockPackageType, uomUom) closed by `res_company.sale_discount_product_id` -> productTemplate. Ordering that edge out is outside the enumerated set D, so it went to Dhrov; he added it as the 295th `forward` row (213 units / 16 waves / 36 batches accepted). The derivation output above is from that run.
+
+## s3.2 storage path
+
+UNT15O-7. `SPEC_SHA256` in `odoo/orm/storage_mongodb.py` re-signed from `c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7` (UNT14 map-draft-5) to `118c0a110732f40527d6061422c7b1f1d57436e120bdb1de2604523083dff55c` (map-draft-2). Local evidence only (rem-mongo `mongo:7`, local PostgreSQL 16 on 5433); not merge evidence for any unit.
+
+Baselines (base 64396bc vs head of the s3.2 PR):
+- `test_orm_mongodb` on rem-mongo, database `odoo_unt15`, collection prefix `<pgdb>__`: base 0 tests (install fails on the stale pin); head 112 run, 0 failed, 0 errors; prefix collections 15 before teardown, 0 after.
+- Storage-off `-i base,product,sale,purchase,stock,account --test-tags /base,/product,/sale,/purchase,/stock,/account` on a throwaway database: base 17 failed + 371 errors of 3146 (358 of the errors are the stale-pin `StorageError` raised by every unlink, storage off); head after the re-sign 4 failed + 8 errors of 3165, no failure absent from the base list. A registry with no MongoDB model no longer reads the spec at all.
+
+All-on sweep for s3.4 probes (`ODOO_MONGODB_SWEEP`, default off, refused unless the PostgreSQL database gets a scratch prefix, i.e. it is not `ODOO_MONGODB_PG_DATABASE`). Per unit, on a fresh throwaway database `<scratch>`:
+
+```
+createdb <scratch>
+odoo-bin -d <scratch> -i <modules> --stop-after-init                         # storage-off install
+ODOO_MONGODB_URI=mongodb://localhost:27017 ODOO_MONGODB_SWEEP=<modules> \
+  odoo-bin -d <scratch> -u <modules> --test-tags /<module>,/<module> --stop-after-init
+# teardown: drop the '<scratch>__*' collections of database odoo_unt15 on rem-mongo, count them (must be 0); dropdb <scratch>
+```
+
+The switch opts in every regular model the signed spec maps that the listed modules define (`1` = every mapped model), keeps all stored columns as shadow columns, and seeds each existing table's rows into its empty scratch collection at `auto_init`. Smoke run, unit `product` (`ODOO_MONGODB_SWEEP=product`): 155 tests, 0 failed, 1 error (`TestProductDocument.test_fetch_product_document_field_does_not_scan_all_attachments`: `product.document` is embedded in `irAttachment`, whose model is not on storage in that run); collections 0 before, 0 after.
+
+What the storage path cannot do (batches work around it):
+- A fresh `-i` with storage on cannot bootstrap `base` (`odoo/modules/db.py` inserts `ir_module_category` in raw SQL before the registry exists), and `-u` cannot sweep base's kernel models (the module list is read before `auto_init` seeds them): sweep units on a storage-off install, never `ODOO_MONGODB_SWEEP=1` with `-u base`.
+- A child embedded in another unit's parent (e.g. `product_document` in `irAttachment`) needs the parent's model on storage in the same run.
+- An embedded child cannot be orphaned: `ondelete='set null'` or writing its parent key to NULL raises `NotNullViolation`.
+- A `subdocument` embed holds one child per parent; a second one is a unique violation, like the one-to-one table's unique parent key.
+- Unique indexes are enforced per collection; none in map-draft-2 is on an embedded array path.
