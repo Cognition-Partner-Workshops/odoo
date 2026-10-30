@@ -16,9 +16,10 @@ Environment:
     ODOO_MONGODB_PG_DATABASE        the one PostgreSQL database that owns the spec's
                                     collection names; any other PostgreSQL database
                                     (tests, clones) gets ``<dbname>__``-prefixed ones
-    ODOO_MONGODB_SWEEP              ``1`` for conformance sweeps only: every model whose table
-                                    the signed spec maps is stored in MongoDB, with all its
-                                    columns mirrored in PostgreSQL (see ``apply_sweep``)
+    ODOO_MONGODB_SWEEP              conformance sweeps only: ``1`` stores every model whose table
+                                    the signed spec maps in MongoDB, or a comma-separated list of
+                                    modules only the models they define, all columns mirrored in
+                                    PostgreSQL (see ``apply_sweep``)
 """
 from __future__ import annotations
 
@@ -272,13 +273,15 @@ def apply_sweep(registry) -> None:
     signed spec maps into MongoDB storage, keeping all its stored columns as
     shadow columns so raw SQL still finds them. Only under a scratch prefix,
     never in the collections of ``ODOO_MONGODB_PG_DATABASE``. """
-    if os.environ.get('ODOO_MONGODB_SWEEP') != '1':
+    if not (sweep := os.environ.get('ODOO_MONGODB_SWEEP')):
         return
     if not collection_prefix(registry.db_name):
         raise StorageError(f"ODOO_MONGODB_SWEEP runs under a scratch prefix only, not on {registry.db_name!r}")
     tables = _spec_tables().keys() | _spec_children().keys()
     for model_cls in registry.models.values():
         if model_cls._storage or model_cls._abstract or not model_cls._auto or model_cls._table not in tables:
+            continue
+        if sweep != '1' and model_cls._original_module not in sweep.split(','):
             continue
         model_cls._storage = 'mongodb'
         model_cls._shadow_columns = tuple(
@@ -829,7 +832,7 @@ def _seed_sweep(model: BaseModel) -> None:
     """ Under ``ODOO_MONGODB_SWEEP``, give the rows of an existing table their
     documents when its scratch collection holds none: the switch keeps every
     stored column as a shadow column, so PostgreSQL still has them all. """
-    if os.environ.get('ODOO_MONGODB_SWEEP') != '1' or not collection_prefix(model.env.cr.dbname):
+    if not os.environ.get('ODOO_MONGODB_SWEEP') or not collection_prefix(model.env.cr.dbname):
         return
     layout, collection = _layout(model), get_collection(model)
     embed = layout.get('embed')

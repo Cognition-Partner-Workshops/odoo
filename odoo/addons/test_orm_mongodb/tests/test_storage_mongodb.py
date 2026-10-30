@@ -753,7 +753,8 @@ class TestStorageMongodb(TransactionCase):
         their columns mirrored, under a scratch prefix only; default off. """
         def registry(dbname):
             fields = {name: self.Incoterm._fields[name] for name in ('id', 'code', 'display_name')}
-            base = {'_storage': None, '_abstract': False, '_auto': True, '_shadow_columns': (), '_fields': fields}
+            base = {'_storage': None, '_abstract': False, '_auto': True, '_shadow_columns': (), '_fields': fields,
+                    '_original_module': 'test_orm_mongodb'}
             return SimpleNamespace(db_name=dbname, models={
                 'mapped': type('Mapped', (), dict(base, _table='account_incoterms')),
                 'unmapped': type('Unmapped', (), dict(base, _table='test_orm_mongodb_pg_link')),
@@ -769,6 +770,13 @@ class TestStorageMongodb(TransactionCase):
             self.assertEqual(scratch.models['mapped']._storage, 'mongodb')
             self.assertEqual(scratch.models['mapped']._shadow_columns, ('code',))
             self.assertIsNone(scratch.models['unmapped']._storage)
+            other_unit = registry('scratch')
+            os.environ['ODOO_MONGODB_SWEEP'] = 'product,stock'     # only the models of these modules
+            storage_mongodb.apply_sweep(other_unit)
+            self.assertIsNone(other_unit.models['mapped']._storage)
+            os.environ['ODOO_MONGODB_SWEEP'] = 'product,test_orm_mongodb'
+            storage_mongodb.apply_sweep(other_unit)
+            self.assertEqual(other_unit.models['mapped']._storage, 'mongodb')
             os.environ['ODOO_MONGODB_PG_DATABASE'] = 'odoo_main'
             with self.assertRaises(storage_mongodb.StorageError):
                 storage_mongodb.apply_sweep(registry('odoo_main'))
