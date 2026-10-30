@@ -203,10 +203,10 @@ phases:
               plus company pointers 45, plus account_account.currency_id 45; set D clears it (no cycle over 4).
             important: true
             options:
-              - {id: set-d, label: "D: all 264 create_uid/write_uid -> resUsers edges + the 24 res_company configuration pointers + account_account.currency_id + account_move.tax_cash_basis_rec_id, res_company.account_opening_move_id, res_company.automatic_entry_default_journal_id, stock_route.supplied_wh_id, stock_route.supplier_wh_id (294 edges)"}
+              - {id: set-d, label: "D: all 264 create_uid/write_uid -> resUsers edges + the 24 res_company configuration pointers + account_account.currency_id + account_move.tax_cash_basis_rec_id, res_company.account_opening_move_id, res_company.automatic_entry_default_journal_id, stock_route.supplied_wh_id, stock_route.supplier_wh_id, plus res_company.sale_discount_product_id added 2026-10-30 after the setter review re-opened a 9-collection cycle (295 edges)"}
               - {id: model-change, label: Change the signed model instead (re-opens g-model-accepted)}
             selected: set-d
-            selected_by: "Dhrov, 2026-10-30 (manager chat). Catch accepted: edges 1-3 are app-written and their targets land 2-5 waves after the writer. x_plan1_id..x_plan4_id stay never-filled with an OPEN note (runtime-generated setter names; plugin gap)."
+            selected_by: "Dhrov, 2026-10-30 (manager chat), amended the same day for the 295th edge (B+ yes). Result: 213 units, 16 waves, 36 batches, about 1,152 ACU at 32 ACU/batch. Catch accepted: edges 1-3 are app-written and their targets land 2-5 waves after the writer. x_plan1_id..x_plan4_id stay never-filled with an OPEN note (runtime-generated setter names; plugin gap)."
       - id: s3.5-storage-conformance
         title: Storage conformance sweep
         description: >
