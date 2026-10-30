@@ -65,7 +65,7 @@ phases:
         title: Commit tolerances
         description: >
           .migration/recon_tolerances.json: version 1, full_diff_row_threshold 100000, numeric_abs_tol 0, aggregate_rel_tol 1e-9,
-          source_concurrency 1, accepted_empty [] until d-accepted-empty is decided (s3.4).
+          source_concurrency 1, accepted_empty [] until d-accepted-empty is decided (s3.4; version 2 carries his edited list).
         depends_on: [s1.3-allowlist]
         decisions:
           - id: d-tolerances
@@ -136,8 +136,8 @@ phases:
           review page, fan-outs, hot queries, local rehearsal and the d-storage-path numbers go to Dhrov before any migration code.
         depends_on: [s2.2-access-review, s2.3-dependency-register, s2.4-fixture]
         gates:
-          - {id: g-model-evidence, description: "model_patch.py --check exits 0", done: false}
-          - {id: g-model-accepted, description: Dhrov signs off the schema model (explicit yes in the manager chat) before unit derivation, done: false}
+          - {id: g-model-evidence, description: "model_patch.py --check exits 0 (manager re-ran it on 64396bc: check OK, 1982 decisions, 0 open items)", done: true}
+          - {id: g-model-accepted, description: "Dhrov signs off the schema model (explicit yes in the manager chat) before unit derivation; given 2026-10-30 for map-draft-2 (PR #171, 64396bc)", done: true}
         decisions:
           - id: d-storage-path
             description: How the Odoo ORM reaches MongoDB. Both options costed in ACU and wall time at sign-off; Dhrov picks.
@@ -162,7 +162,8 @@ phases:
               2-3 days elapsed) before per-unit adapters, which UNT14 never recorded separately (64 units, 19 batches, units.json:72-81),
               and the plan's 32 ACU/batch target (plan.yaml run.targets_to_beat) has no recorded UNT14 source. Evidence:
               the cost table in .migration/NOTES.md section "s3.1 d-storage-path costing".
-            selected: null
+            selected: orm-storage-path
+            selected_by: "Dhrov, 2026-10-30, at schema sign-off (manager chat)"
       - id: s3.2-storage-path
         title: Build the storage mechanism Dhrov picked
         description: >
@@ -182,7 +183,8 @@ phases:
             options:
               - {id: proposal, label: Accept the build's expected_empty.txt proposal as-is}
               - {id: edited, label: Accept an edited list}
-            selected: null
+            selected: edited
+            selected_by: "Dhrov, 2026-10-30: all 96 in-scope zero-row tables (96 recon keys in recon_tolerances.json version 2), not only the 43 in expected_empty.txt"
       - id: s3.3-unit-derivation
         title: Derive units and waves
         description: derive_units.py with the default batch size; print batch count and assumed per-batch cost; no --batch-max.
