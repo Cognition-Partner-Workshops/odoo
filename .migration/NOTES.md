@@ -22,6 +22,12 @@ Run: Odoo (`mongo-run/unt15`, cut from `mongo-run/unt13`) from local read-only P
 - UNT15O-3 — `observe_cowrites.py` ran as `odoo_ro`, which is not a member of `pg_read_all_stats` (the PostgreSQL profile names it as required for other roles' activity), and neither refused nor flagged it: the `active_dml_locks` sampler sees only the observer role's own sessions. The `table_write_counts` counters (`pg_stat_user_tables`) cover every role and read zero for the window; no grant was changed. ACU cost: none beyond the run.
 - UNT15O-3 — `observe_cowrites.py` folds every `pg_inherits` child into its parent, not only partitions, so the five classic-inheritance census tables `ir_act_client`, `ir_act_report_xml`, `ir_act_server`, `ir_act_url`, `ir_act_window` are counted under `ir_actions` and absent from `table_writes` (516 of 521 tables named). Recorded as observed; their writes (zero) are inside the `ir_actions` count. ACU cost: none.
 - UNT15O-3 — `observe_cowrites.py` needs psycopg 3, present only in `/home/ubuntu/.venvs/recon` (the Odoo venv has psycopg2 only); ran it from the recon venv. The frozen source did not make it refuse or emit `cowrites_idle`: it wrote an `origin: observed` window with zero write transactions. ACU cost: negligible.
+- UNT15O-6 — `model_proposal.py` places many2many junction arrays by junction name, not by which side's list stays bounded: 17 arrays landed on the side that grows with catalog, ledger or user volume (e.g. `product_taxes_rel` on `accountTax`, 438 of 439 templates; `account_account_tag_account_move_line_rel` on `accountAccountTag`; `account_tax_sale_order_line_rel` on `accountTax`, 300 lines). Moved 12 to the owning side with embed decisions and kept 5 as their own collection (the owning side is itself embedded); see `design_decisions.json`. ACU cost: not separately metered; included in the worker total.
+- UNT15O-6 — The ownership rule embeds a child under an optional pointer even when most or all child rows have it NULL (`ir_act_client` 11/11, `ir_act_url` 4/4, `ir_actions` 380/502 by `binding_model_id`, `ir_model_inherit` 315/323 by `parent_field_id`), so the embed would drop those rows; the `embed_null_pointer_rows` question flags it but the draft applies it. Taken out with reference decisions. ACU cost: not separately metered; included in the worker total.
+- UNT15O-6 — A reference decision that takes a junction out of an embed (or an embed decision that moves it) drops the ORM's reverse-lookup relation index and adds no unique index for the id-pair PRIMARY KEY; re-added with index decisions (12 multikey, 5 unique pairs). The proposer's own root junction collections also lack the id-pair unique index; added for 6 of them. ACU cost: not separately metered; included in the worker total.
+- UNT15O-6 — `model_patch.py --check --access-patterns ...` as written in the ticket exits 1 ("spec cites a data profile; pass --data-profile / --census"); the gate check was run with `--data-profile .migration/data_profile.json --census .migration/census.json` added (exit 0). ACU cost: not separately metered; included in the worker total.
+- UNT15O-6 — `model_patch.py` evidence accepts only code (`file`/`lines`/`quote`) or `source: customer`; evidence from data_profile.json, census.json or NOTES.md has no legal slot, and `--answers` lines always compile to `source: customer`. The 361 decisions compiled from answers.txt therefore carry `source: customer` with notes starting "UNT15O-6 s3.1 worker, from code/profile evidence (not a customer statement)"; they are worker rules awaiting Dhrov's sign-off, not customer statements. ACU cost: not separately metered; included in the worker total.
+- UNT15O-6 — The rehearsal loader copied from UNT14 wrote explicit BSON nulls and built plain unique indexes; the first recon run also showed it emitted spec `subdocument` embeds as arrays. Updated `.migration/rehearsal/load_fixture.py` to omit null keys, apply storage-path partial filters to unique indexes, and emit subdocuments as objects (not a plugin change). ACU cost: not separately metered; included in the worker total.
 
 ## Bill
 
@@ -784,3 +790,30 @@ Worker classification: A storage path handles it 548, B unit owns it 134, C out 
 | website | reader | odoo | access:ap-38a38a12be, access:ap-72e9848cec, access:ap-49e09fc644 (+52) | migrate-together | - | - | B | 1 raw SQL site(s) the owning unit converts | odoo/tools/translate.py:2715 |
 | website | writer | odoo | access:ap-23b5a683b1, access:ap-d81a05e92b, access:ap-ab98764e1c (+3) | migrate-together | - | - | C | modules not installed in odoo_src: website,website_address_autocomplete,website_sale | addons/website/__init__.py:27; addons/website/data/neutralize.sql:11; addons/website/data/neutralize.sql:15 … |
 | wizard_ir_model_menu_create | reader | odoo | access:ap-f86d5f9f15 | route-to-source | - | - | A | 1 ORM pattern(s), routed by the storage path | odoo/orm/models.py:3264 (read), 4964 (search); e.g. odoo/addons/base/wizard/wizard_ir_model_menu_create.py:8 |
+
+## s3.1 d-storage-path costing
+
+ACU and ticket timestamps are the UNT14 board's recorded figures (`devin_ticket_manage get` on board UNT14, "ACUs used" = every session that worked the ticket, so one session's total repeats on each ticket it worked); Git evidence is commit history on `origin/mongo-run/unt13` and the `devin/*-unt14-*` branches. Elapsed figures are derived from each ticket's created and updated timestamps and include waits; commit spans are elapsed timestamp spans, not active work time. The same session total repeats on every ticket it worked; for example, `devin-8cc1bc2a` records 16.65 ACU on UNT14-11, -24..-33, and -35..-37, so those entries are not additive.
+
+| item | recorded ACU | elapsed (ticket created -> last update; includes waits) | git evidence |
+|---|---|---|---|
+| Shared storage-path build + gap rounds (UNT14-11, -24..-33, -36, -37) | 16.65 ACU on each of 13 tickets (UNT14 board) | 00:25:44–23:58:13; median 01:19:10 (13 tickets) | Initial build-series commit envelope 3h 08m 20s; eight `unt14-gap-*` PRs #97–104 and four E-series fix PRs; 99 commits, 5 files changed, 2,518 insertions / 16 deletions. |
+| Spec re-sign (UNT14-34/-35) | 18.75 ACU (-34); 16.65 ACU (-35) (UNT14 board) | 1d 06:09:13 (-34); 02:16:08 (-35) | `efc5fb13105` `[IMP] orm: pin the re-signed MongoDB mapping spec`, PR #125, one commit. |
+| Conformance sweep (UNT14-12) | 52.71 ACU (UNT14 board) | 3d 09:21:29 | Three Git spans: 15m 54s (PR #96), 5m 57s (PR #126), 11m 23s (PR #132). |
+| Canary (UNT14-15) | 52.11 ACU (UNT14 board) | 3d 13:51:01 | Canary-specific Git span: not recorded. |
+| Wave 2-4 batches (UNT14-49/-50/-51/-52/-53/-55/-56/-63/-64/-65/-66; 11 tickets) | 22.71–105.95 ACU; median 36.15 (UNT14 board) | 00:39:27–09:46:55; median 01:06:43 | Batch-specific commit spans: not recorded. |
+| Per-unit adapters / repository layer | Not recorded | Not recorded | Repository-layer mechanism was never built in the checked UNT14 refs; no per-unit cost recorded. |
+
+Summary and the per-option totals are in plan.yaml d-storage-path cost_note.
+
+## s3.1 rehearsal (local, fixture mode)
+
+Target: `rem-mongo` (`mongo:7`), database `odoo_unt15`, `target_class: local`. The fresh map-draft-2 load processed 224 collections and 152,237 documents; all 224 root counts matched (0 mismatches); 671 of 672 spec indexes were created, with 0 refused. Largest document: `irUiView` `_id` 809, 131,961 bytes (16,777,216-byte limit). Longest array: `productTemplate.productProduct`, 480 elements. Loader wall time: 10.678 seconds.
+
+The initial Tier 1 recon check flagged `irModelFields.propertiesBaseDefinition`: the fixture loader emitted a list for the spec's `subdocument` shape. The source child row has a matching parent; the loader now represents this shape as a subdocument and the final recon rerun passes.
+
+Recon verdict: PASS, `merge_eligible: false` for the local fixture target. Tier 1 `counts_through_mapping`: PASS; Tier 2 `per_field_aggregates`: PASS; Tier 3 `keyed_diffs`: PASS; no findings. Warnings note that Tier 2 LOB aggregates are skipped and value-checked at Tier 3, `paymentData` reports a missing `_id` index, and zero-row collections/embeds remain unverified.
+
+A fixture PASS checks the local load path only; it is not merge evidence and says nothing about production parity.
+
+- rem-mongo (mongo:7) crashed with `Too many open files` / WT_PANIC loading 224 collections and ~670 indexes at the default nofile limit; recreated with --ulimit nofile=64000:64000 (blueprint should create it that way).
