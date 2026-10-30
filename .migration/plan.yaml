@@ -36,7 +36,7 @@ phases:
       - id: s1.5-source-build
         title: Build and freeze odoo_src
         description: >
-          .migration/fixtures/build_source.sh once (marker v4, 70 modules, 526 tables, 266 s). Read-only login odoo_ro.
+          .migration/fixtures/build_source.sh once (marker v4, 70 modules, 521 base tables + 5 views, 169,202 rows, 266 s; fingerprint in source_fingerprint.json). Read-only login odoo_ro.
           Never modified afterwards; tables still empty after the build go to Dhrov as accepted_empty before wave 1
           (expected_empty.txt is the build's proposal, not a decision).
         depends_on: [s1.1-blueprint]
