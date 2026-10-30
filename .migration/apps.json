@@ -1,0 +1,12 @@
+{
+  "apps_version": 1,
+  "apps": [
+    {
+      "id": "odoo",
+      "roots": ["."],
+      "actors": ["odoo%"]
+    }
+  ],
+  "libraries": [],
+  "deploy_actors": ["psql%"]
+}
