@@ -1,12 +1,12 @@
 {
  "source": "odoo_src (migration.fixture_source=4, row_counts_sha256=a100e84ee2fb6282f30b45c003fd1db47561317c739340a10564d9e869e56a4e, profile census_sha256=12b46b165ae3f351742924a42f9d2b4ec659bb994b30099b15b74090589d21fb)",
  "method": "synthetic",
- "spec_version": "map-draft-1",
+ "spec_version": "map-draft-2",
  "spec": {
   "file": ".migration/mapping_spec.json",
-  "sha256": "955890063d7888c47526b5130aa5b07c89cd5984f3e10e702254c3eca8bde0b0",
-  "draft": true,
-  "note": "built from a draft (plan gate g-model-accepted not done); rebuild after sign-off if the signed spec_version differs"
+  "sha256": "118c0a110732f40527d6061422c7b1f1d57436e120bdb1de2604523083dff55c",
+  "draft": false,
+  "note": "built after schema sign-off (plan gate g-model-accepted done)"
  },
  "scope": {
   "file": ".migration/table_buckets.json",
@@ -16,7 +16,7 @@
   ]
  },
  "masked_columns": [],
- "produced_at": "2026-10-30T17:10:20+00:00",
+ "produced_at": "2026-10-30T20:45:54+00:00",
  "produced_by": ".migration/fixtures/build_fixture.sh",
  "database": "odoo_fixture",
  "filestore": "~/.local/share/Odoo/filestore/odoo_fixture",
@@ -422,10 +422,10 @@
   "rule": "fixture p50/p99/max >= profile p50/p99/max for every compared fan-out"
  },
  "embed_coverage": {
-  "spec_version": "map-draft-1",
-  "spec_embeds": 159,
-  "compared": 148,
-  "skipped_empty_parent": 11
+  "spec_version": "map-draft-2",
+  "spec_embeds": 146,
+  "compared": 136,
+  "skipped_empty_parent": 10
  },
  "fanouts": [
   {
@@ -644,9 +644,7 @@
    "id": "fanout:account_account_tag_account_move_line_rel->account_account_tag(account_account_tag_id)",
    "parent": "account_account_tag",
    "child": "account_account_tag_account_move_line_rel",
-   "embeds": [
-    "accountAccountTag.accountMoveLineRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 38,
@@ -662,7 +660,9 @@
    "id": "fanout:account_account_tag_account_move_line_rel->account_move_line(account_move_line_id)",
    "parent": "account_move_line",
    "child": "account_account_tag_account_move_line_rel",
-   "embeds": [],
+   "embeds": [
+    "accountMoveLine.taxTagIds"
+   ],
    "profile": {
     "p50": 0,
     "p99": 0,
@@ -712,9 +712,7 @@
    "id": "fanout:account_account_tag_product_template_rel->account_account_tag(account_account_tag_id)",
    "parent": "account_account_tag",
    "child": "account_account_tag_product_template_rel",
-   "embeds": [
-    "accountAccountTag.productTemplateRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 1,
@@ -730,7 +728,9 @@
    "id": "fanout:account_account_tag_product_template_rel->product_template(product_template_id)",
    "parent": "product_template",
    "child": "account_account_tag_product_template_rel",
-   "embeds": [],
+   "embeds": [
+    "productTemplate.accountTagIds"
+   ],
    "profile": {
     "p50": 0,
     "p99": 0,
@@ -5016,9 +5016,7 @@
    "id": "fanout:account_tax_purchase_order_line_rel->account_tax(account_tax_id)",
    "parent": "account_tax",
    "child": "account_tax_purchase_order_line_rel",
-   "embeds": [
-    "accountTax.purchaseOrderLineRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 28,
@@ -5098,7 +5096,9 @@
    "id": "fanout:account_tax_repartition_line->account_tax(tax_id)",
    "parent": "account_tax",
    "child": "account_tax_repartition_line",
-   "embeds": [],
+   "embeds": [
+    "accountTax.repartitionLine"
+   ],
    "profile": {
     "p50": 4,
     "p99": 4,
@@ -5130,9 +5130,7 @@
    "id": "fanout:account_tax_sale_order_line_rel->account_tax(account_tax_id)",
    "parent": "account_tax",
    "child": "account_tax_sale_order_line_rel",
-   "embeds": [
-    "accountTax.saleOrderLineRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 300,
@@ -6784,9 +6782,7 @@
    "id": "fanout:ir_act_client->ir_model(binding_model_id)",
    "parent": "ir_model",
    "child": "ir_act_client",
-   "embeds": [
-    "irModel.irActClient"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 0,
@@ -7290,9 +7286,7 @@
    "id": "fanout:ir_act_url->ir_model(binding_model_id)",
    "parent": "ir_model",
    "child": "ir_act_url",
-   "embeds": [
-    "irModel.irActUrl"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 0,
@@ -7520,9 +7514,7 @@
    "id": "fanout:ir_actions->ir_model(binding_model_id)",
    "parent": "ir_model",
    "child": "ir_actions",
-   "embeds": [
-    "irModel.irActions"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 8,
@@ -8604,9 +8596,7 @@
    "id": "fanout:ir_model_inherit->ir_model_fields(parent_field_id)",
    "parent": "ir_model_fields",
    "child": "ir_model_inherit",
-   "embeds": [
-    "irModelFields.irModelInherit"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 0,
@@ -12418,9 +12408,7 @@
    "id": "fanout:product_attribute_product_template_rel->product_attribute(product_attribute_id)",
    "parent": "product_attribute",
    "child": "product_attribute_product_template_rel",
-   "embeds": [
-    "productAttribute.productTemplateRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 12,
     "p99": 22,
@@ -12436,7 +12424,9 @@
    "id": "fanout:product_attribute_product_template_rel->product_template(product_template_id)",
    "parent": "product_template",
    "child": "product_attribute_product_template_rel",
-   "embeds": [],
+   "embeds": [
+    "productTemplate.productAttributeIds"
+   ],
    "profile": {
     "p50": 0,
     "p99": 5,
@@ -12500,7 +12490,9 @@
    "id": "fanout:product_attribute_value_product_template_attribute_line_rel->product_template_attribute_line(product_template_attribute_line_id)",
    "parent": "product_template_attribute_line",
    "child": "product_attribute_value_product_template_attribute_line_rel",
-   "embeds": [],
+   "embeds": [
+    "productTemplateAttributeLine.valueIds"
+   ],
    "profile": {
     "p50": 4,
     "p99": 6,
@@ -12516,9 +12508,7 @@
    "id": "fanout:product_attribute_value_product_template_attribute_line_rel->product_attribute_value(product_attribute_value_id)",
    "parent": "product_attribute_value",
    "child": "product_attribute_value_product_template_attribute_line_rel",
-   "embeds": [
-    "productAttributeValue.productTemplateAttributeLineRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 4,
     "p99": 14,
@@ -13182,7 +13172,9 @@
    "id": "fanout:product_product->product_template(product_tmpl_id)",
    "parent": "product_template",
    "child": "product_product",
-   "embeds": [],
+   "embeds": [
+    "productTemplate.productProduct"
+   ],
    "profile": {
     "p50": 1,
     "p99": 25,
@@ -13214,9 +13206,7 @@
    "id": "fanout:product_product_uom_uom_rel->product_product(product_product_id)",
    "parent": "product_product",
    "child": "product_product_uom_uom_rel",
-   "embeds": [
-    "productProduct.uomUomRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 0,
@@ -13280,7 +13270,9 @@
    "id": "fanout:product_supplier_taxes_rel->product_template(prod_id)",
    "parent": "product_template",
    "child": "product_supplier_taxes_rel",
-   "embeds": [],
+   "embeds": [
+    "productTemplate.supplierTaxesId"
+   ],
    "profile": {
     "p50": 2,
     "p99": 2,
@@ -13296,9 +13288,7 @@
    "id": "fanout:product_supplier_taxes_rel->account_tax(tax_id)",
    "parent": "account_tax",
    "child": "product_supplier_taxes_rel",
-   "embeds": [
-    "accountTax.productSupplierTaxesRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 438,
@@ -13490,9 +13480,7 @@
    "id": "fanout:product_tag_product_product_rel->product_tag(product_tag_id)",
    "parent": "product_tag",
    "child": "product_tag_product_product_rel",
-   "embeds": [
-    "productTag.productProductRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 1,
@@ -13508,9 +13496,7 @@
    "id": "fanout:product_tag_product_template_rel->product_tag(product_tag_id)",
    "parent": "product_tag",
    "child": "product_tag_product_template_rel",
-   "embeds": [
-    "productTag.productTemplateRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 46,
     "p99": 60,
@@ -13526,7 +13512,9 @@
    "id": "fanout:product_tag_product_template_rel->product_template(product_template_id)",
    "parent": "product_template",
    "child": "product_tag_product_template_rel",
-   "embeds": [],
+   "embeds": [
+    "productTemplate.productTagIds"
+   ],
    "profile": {
     "p50": 0,
     "p99": 5,
@@ -13542,7 +13530,9 @@
    "id": "fanout:product_taxes_rel->product_template(prod_id)",
    "parent": "product_template",
    "child": "product_taxes_rel",
-   "embeds": [],
+   "embeds": [
+    "productTemplate.taxesId"
+   ],
    "profile": {
     "p50": 2,
     "p99": 2,
@@ -13558,9 +13548,7 @@
    "id": "fanout:product_taxes_rel->account_tax(tax_id)",
    "parent": "account_tax",
    "child": "product_taxes_rel",
-   "embeds": [
-    "accountTax.productTaxesRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 438,
@@ -13882,9 +13870,7 @@
    "id": "fanout:product_template_attribute_value_purchase_order_line_rel->product_template_attribute_value(product_template_attribute_value_id)",
    "parent": "product_template_attribute_value",
    "child": "product_template_attribute_value_purchase_order_line_rel",
-   "embeds": [
-    "productTemplateAttributeValue.purchaseOrderLineRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 0,
@@ -13916,9 +13902,7 @@
    "id": "fanout:product_template_attribute_value_sale_order_line_rel->product_template_attribute_value(product_template_attribute_value_id)",
    "parent": "product_template_attribute_value",
    "child": "product_template_attribute_value_sale_order_line_rel",
-   "embeds": [
-    "productTemplateAttributeValue.saleOrderLineRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 0,
@@ -14144,9 +14128,7 @@
    "id": "fanout:product_value->product_product(product_id)",
    "parent": "product_product",
    "child": "product_value",
-   "embeds": [
-    "productProduct.productValue"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 1,
@@ -14194,9 +14176,7 @@
    "id": "fanout:product_variant_combination->product_product(product_product_id)",
    "parent": "product_product",
    "child": "product_variant_combination",
-   "embeds": [
-    "productProduct.productVariantCombination"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 2,
     "p99": 4,
@@ -14502,7 +14482,9 @@
    "id": "fanout:purchase_order_line->purchase_order(order_id)",
    "parent": "purchase_order",
    "child": "purchase_order_line",
-   "embeds": [],
+   "embeds": [
+    "purchaseOrder.line"
+   ],
    "profile": {
     "p50": 2,
     "p99": 3,
@@ -14630,9 +14612,7 @@
    "id": "fanout:purchase_order_line_accrual_move_rel->purchase_order_line(order_line_id)",
    "parent": "purchase_order_line",
    "child": "purchase_order_line_accrual_move_rel",
-   "embeds": [
-    "purchaseOrderLine.accrualMoveRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 0,
@@ -15548,9 +15528,7 @@
    "id": "fanout:res_company_users_rel->res_company(cid)",
    "parent": "res_company",
    "child": "res_company_users_rel",
-   "embeds": [
-    "resCompany.usersRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 3,
     "p99": 27,
@@ -15566,7 +15544,9 @@
    "id": "fanout:res_company_users_rel->res_users(user_id)",
    "parent": "res_users",
    "child": "res_company_users_rel",
-   "embeds": [],
+   "embeds": [
+    "resUsers.companyIds"
+   ],
    "profile": {
     "p50": 1,
     "p99": 3,
@@ -16154,9 +16134,7 @@
    "id": "fanout:res_groups_users_rel->res_groups(gid)",
    "parent": "res_groups",
    "child": "res_groups_users_rel",
-   "embeds": [
-    "resGroups.usersRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 12,
@@ -16172,7 +16150,9 @@
    "id": "fanout:res_groups_users_rel->res_users(uid)",
    "parent": "res_users",
    "child": "res_groups_users_rel",
-   "embeds": [],
+   "embeds": [
+    "resUsers.groupIds"
+   ],
    "profile": {
     "p50": 1,
     "p99": 12,
@@ -17950,7 +17930,9 @@
    "id": "fanout:sale_order_line->sale_order(order_id)",
    "parent": "sale_order",
    "child": "sale_order_line",
-   "embeds": [],
+   "embeds": [
+    "saleOrder.line"
+   ],
    "profile": {
     "p50": 3,
     "p99": 10,
@@ -18094,9 +18076,7 @@
    "id": "fanout:sale_order_line_accrual_move_rel->sale_order_line(order_line_id)",
    "parent": "sale_order_line",
    "child": "sale_order_line_accrual_move_rel",
-   "embeds": [
-    "saleOrderLine.accrualMoveRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 0,
@@ -18128,9 +18108,7 @@
    "id": "fanout:sale_order_line_invoice_rel->sale_order_line(order_line_id)",
    "parent": "sale_order_line",
    "child": "sale_order_line_invoice_rel",
-   "embeds": [
-    "saleOrderLine.invoiceRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 1,
     "p99": 1,
@@ -18146,9 +18124,7 @@
    "id": "fanout:sale_order_line_stock_route_rel->sale_order_line(sale_order_line_id)",
    "parent": "sale_order_line",
    "child": "sale_order_line_stock_route_rel",
-   "embeds": [
-    "saleOrderLine.stockRouteRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 0,
@@ -20952,7 +20928,9 @@
    "id": "fanout:stock_route_move->stock_move(move_id)",
    "parent": "stock_move",
    "child": "stock_route_move",
-   "embeds": [],
+   "embeds": [
+    "stockMove.routeIds"
+   ],
    "profile": {
     "p50": 0,
     "p99": 0,
@@ -20968,9 +20946,7 @@
    "id": "fanout:stock_route_move->stock_route(route_id)",
    "parent": "stock_route",
    "child": "stock_route_move",
-   "embeds": [
-    "stockRoute.move"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 2,
@@ -20986,7 +20962,9 @@
    "id": "fanout:stock_route_product->product_template(product_id)",
    "parent": "product_template",
    "child": "stock_route_product",
-   "embeds": [],
+   "embeds": [
+    "productTemplate.routeIds"
+   ],
    "profile": {
     "p50": 0,
     "p99": 0,
@@ -21002,9 +20980,7 @@
    "id": "fanout:stock_route_product->stock_route(route_id)",
    "parent": "stock_route",
    "child": "stock_route_product",
-   "embeds": [
-    "stockRoute.product"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 1,
@@ -21922,7 +21898,9 @@
    "id": "fanout:template_attribute_value_stock_move_rel->stock_move(move_id)",
    "parent": "stock_move",
    "child": "template_attribute_value_stock_move_rel",
-   "embeds": [],
+   "embeds": [
+    "stockMove.neverProductTemplateAttributeValueIds"
+   ],
    "profile": {
     "p50": 0,
     "p99": 0,
@@ -21938,9 +21916,7 @@
    "id": "fanout:template_attribute_value_stock_move_rel->product_template_attribute_value(template_attribute_value_id)",
    "parent": "product_template_attribute_value",
    "child": "template_attribute_value_stock_move_rel",
-   "embeds": [
-    "productTemplateAttributeValue.templateAttributeValueStockMoveRel"
-   ],
+   "embeds": [],
    "profile": {
     "p50": 0,
     "p99": 0,
@@ -22548,9 +22524,7 @@
    "id": "fanout:ir_profile_query->ir_profile(profile_id)",
    "parent": "ir_profile",
    "child": "ir_profile_query",
-   "embeds": [
-    "irProfile.query"
-   ],
+   "embeds": [],
    "profile": {
     "p50": null,
     "p99": null,

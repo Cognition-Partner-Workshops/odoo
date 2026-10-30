@@ -4,7 +4,7 @@
   "generator": "skills/wave-preflight/dependency_register.py",
   "inputs_sha256": {
     "census.json": "12b46b165ae3f351742924a42f9d2b4ec659bb994b30099b15b74090589d21fb",
-    "access_patterns.json": "a5a3a58d734a7c6eb76742d128d339229f1de386a41722b3edc992c6e631b4a2",
+    "access_patterns.json": "6582035072d8cfb132f1353db3d0b4093175a03b966d8e7eaa2b7503a401ff41",
     "cowrites.json": "a2ac8445ad873e68b8b3fa655e4c3193a11f60063cf0b3bfefb4e596562cbbe0",
     "apps.json": "20757d80bbe1f3f04ef976b9bdb485ea5f222541b33ac5b2d556ee8199c0cbad"
   },
