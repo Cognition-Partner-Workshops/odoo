@@ -857,27 +857,34 @@ def _seed_sweep(model: BaseModel) -> None:
         if skipped := sum(row[embed['parent']] not in present for row in rows):
             _logger.warning("%s: %s rows not seeded, their parent documents are missing", model._name, skipped)
         rows = [row for row in rows if row[embed['parent']] in present]
+    new_ids = {row['id'] for row in rows}
     for chunk in split_every(1000, rows):
         insert(model, [row.pop('id') for row in chunk], list(chunk))
-    _seed_links(model)
+    _seed_links(model, new_ids)
 
 
-def _seed_links(model: BaseModel) -> None:
-    """ Copy the PostgreSQL relation rows of the many2many links held by the
-    documents of ``model`` (owner arrays, or root junctions on its column1
-    side) that MongoDB does not have yet. """
+def _seed_links(model: BaseModel, ids: set[int]) -> None:
+    """ Copy the PostgreSQL relation rows of the many2many links of the
+    just seeded records ``ids`` of ``model`` (its owner arrays, or root
+    junctions on either side) into MongoDB. Records seeded before are left
+    alone: their PostgreSQL rows may hold links removed since. """
     env, seen = model.env, set()
+    if not ids:
+        return
     for field in _relation_fields(model.pool):
         if field.relation in seen or not (layout := relation_layout(field, env)):
             continue
-        holder = field.model_name if field.column1 == layout.get('owner', field.column1) else field.comodel_name
-        if holder != model._name or not sql.table_exists(env.cr, field.relation):
+        sides = [(field.column1, field.model_name), (field.column2, field.comodel_name)]
+        mine = [column for column, model_name in sides if model_name == model._name
+                and column == layout.get('owner', column)]
+        if not mine or not sql.table_exists(env.cr, field.relation):
             continue
         seen.add(field.relation)
         columns = sorted((field.column1, field.column2))
         env.cr.execute(SQL("SELECT %s, %s FROM %s", *map(SQL.identifier, [*columns, field.relation])))
         present = set(_all_links(env, layout, *columns))
-        links = [dict(zip(columns, row)) for row in env.cr.fetchall() if tuple(row) not in present]
+        links = [link for row in env.cr.fetchall() if tuple(row) not in present
+                 and any((link := dict(zip(columns, row)))[column] in ids for column in mine)]
         for chunk in split_every(1000, links):
             add_links(env, layout, list(chunk))
 

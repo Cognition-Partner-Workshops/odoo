@@ -1,7 +1,7 @@
 import os
 from unittest.mock import patch
 
-from odoo.fields import Domain
+from odoo.fields import Command, Domain
 from odoo.orm import storage_mongodb
 from odoo.tests import TransactionCase, tagged
 from odoo.tools import SQL
@@ -20,12 +20,25 @@ class TestConformance(TransactionCase):
         self.env.cr.execute(SQL("CREATE TABLE IF NOT EXISTS product_tag_product_template_rel "
                                 "(product_template_id integer, product_tag_id integer)"))
         self.env.cr.execute(SQL("INSERT INTO product_tag_product_template_rel VALUES (%s, %s)", template.id, tag.id))
-        storage_mongodb._seed_links(Template)
-        storage_mongodb._seed_links(Template)
+        storage_mongodb._seed_links(Template, {template.id})
+        storage_mongodb._seed_links(Template, {template.id})
         template.invalidate_recordset()
         self.assertEqual(template.tag_ids, tag)
         [doc] = storage_mongodb.get_collection(Template).find({'_id': template.id})
         self.assertEqual(len(doc['productTagIds']), 1, "seeded once")
+        template.tag_ids = [Command.unlink(tag.id)]
+        with patch.dict(os.environ, {'ODOO_MONGODB_SWEEP': '1'}):
+            storage_mongodb._seed_sweep(Template)
+        template.invalidate_recordset()
+        self.assertFalse(template.tag_ids, "a removed link is not seeded again")
+
+    def test_sweep_seeds_junction_from_either_side(self):
+        Tag, Incoterm = self.env['test_orm_mongodb.tag'], self.env['test_orm_mongodb.incoterm']
+        tag, incoterm = Tag.create({'name': 'a'}), Incoterm.create({'code': 'I'})
+        self.env.cr.execute(SQL("INSERT INTO product_tag_product_product_rel VALUES (%s, %s)", tag.id, incoterm.id))
+        storage_mongodb._seed_links(Incoterm, {incoterm.id})
+        tag.invalidate_recordset()
+        self.assertEqual(tag.incoterm_ids, incoterm)
 
     def test_sweep_keeps_mirror_rows(self):
         # account.account companyIds: the sweep's mirror fill ran before the seed
@@ -37,7 +50,7 @@ class TestConformance(TransactionCase):
         self.env.cr.execute(SQL("INSERT INTO product_tag_product_product_rel VALUES (%s, %s)", tag.id, incoterm.id))
         with patch.dict(os.environ, {'ODOO_MONGODB_SWEEP': '1'}):
             storage_mongodb.fill_relation_mirror(field, self.env, storage_mongodb.relation_layout(field, self.env))
-            storage_mongodb._seed_links(Tag)
+            storage_mongodb._seed_links(Tag, {tag.id})
         tag.invalidate_recordset()
         self.assertEqual(tag.incoterm_ids, incoterm)
         self.assertEqual(storage_mongodb.relation_mirror_diff(field, self.env), (set(), set()))
