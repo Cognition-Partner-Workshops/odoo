@@ -12,7 +12,9 @@ Run: Odoo (`mongo-run/unt15`, cut from `mongo-run/unt13`) from local read-only P
 
 ## Plugin gaps
 
-(none yet; format: ticket, what the plugin did, what was done instead, ACU cost)
+- UNT15O-2 — The recon snapshot lacked the PostgreSQL driver (`ModuleNotFoundError: psycopg2`) despite the worker setup contract. Installed `psycopg2-binary==2.9.10` into `/home/ubuntu/.venvs/recon`; no plugin changes. ACU cost: not separately metered; included in the worker total.
+- UNT15O-2 — `skills/wave-preflight/apps.py` accepts directory roots only, so the requested `odoo-bin` file root is rejected. Used one Odoo app rooted at `.`; attribution covers the server, addons and entry point without overlapping roots. The ORM's `odoo%` sessions and the committed recipe's default `psql%` deploy sessions are declared. ACU cost: not separately metered; included in the worker total.
+- UNT15O-2 — The live census retains five SQL views, but the pinned proposer generates neither mappings nor questions for them (`report_stock_quantity`, `res_device`, `res_session`, `stock_avco_report`, `vendor_delay_report`). Preserved each as an explicit unmodeled `view_review` entry with a census citation in `modeling_run.json`; no view exclusion or migration decision was made. All 521 base tables are independently covered exactly once by proposal buckets. ACU cost: not separately metered; included in the worker total.
 
 ## Bill
 
