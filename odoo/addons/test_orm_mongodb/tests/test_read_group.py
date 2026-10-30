@@ -89,7 +89,8 @@ class TestReadGroupMongodb(TransactionCase):
         tags = Tag.create([{'name': f'Computed {i}', 'sequence': i} for i in range(1, 5)])
         aggregates = ['double_sequence:sum', 'double_sequence:avg', 'double_sequence:max', 'is_even:bool_and']
         self.assertEqual(Tag._read_group([('id', 'in', tags.ids)], aggregates=aggregates), [(20, 5.0, 8, False)])
-        self.assertEqual(Tag._read_group([('id', 'in', tags[1].ids)], aggregates=aggregates), [(4, 4.0, 4, True)])
+        self.assertEqual(Tag._read_group([('id', 'in', tags[1].ids)], aggregates=aggregates),
+                         [(4, 4.0, 4, tags[1].id % 2 == 0)])  # is_even depends on the allocated id
         with self.assertRaises(ValueError):
             Tag._read_group([('id', 'in', tags.ids)], aggregates=['double_sequence:recordset'])
 

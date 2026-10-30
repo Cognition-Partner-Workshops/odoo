@@ -83,6 +83,8 @@ class Test_Orm_MongodbPg_Link(models.Model):
     template_ids = fields.Many2many('test_orm_mongodb.template', 'product_taxes_rel', 'tax_id', 'prod_id')
     optional_incoterm_ids = fields.Many2many('test_orm_mongodb.incoterm', 'product_product_uom_uom_rel',
                                              'uom_uom_id', 'product_product_id')
+    res_model = fields.Char()
+    res_id = fields.Many2oneReference(model_field='res_model')
 
 
 class Test_Orm_MongodbWarehouse(models.Model):
@@ -109,6 +111,8 @@ class Test_Orm_MongodbTag(models.Model):
                                     'product_tag_id', 'product_product_id', ondelete='restrict')
     # relation table outside the signed spec, so it stays in PostgreSQL
     partner_ids = fields.Many2many('res.partner', 'test_orm_mongodb_tag_partner_rel', 'tag_id', 'partner_id')
+    # inverse is a many2one_reference, like mail.thread's message_ids
+    ref_link_ids = fields.One2many('test_orm_mongodb.pg_link', 'res_id')
     is_even = fields.Boolean(compute='_compute_is_even', compute_sql='_compute_sql_is_even')
     double_sequence = fields.Integer(compute='_compute_double_sequence')
 

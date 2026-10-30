@@ -7,3 +7,4 @@ from . import test_hierarchy
 from . import test_foreign_keys
 from . import test_order
 from . import test_sql_conditions
+from . import test_conformance
