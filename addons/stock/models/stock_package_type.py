@@ -74,6 +74,8 @@ class StockPackageType(models.Model):
 
     @api.constrains('barcode')
     def _check_barcode_unique(self):
+        if self._storage != 'mongodb':
+            return
         claimers = self.filtered('barcode')
         claimers._lock_barcodes(claimers.mapped('barcode'))
         # then the documents themselves: a rolled-back claim is undone before its
