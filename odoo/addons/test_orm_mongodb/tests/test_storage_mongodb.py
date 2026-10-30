@@ -3,6 +3,7 @@ import json
 import os
 import unittest
 from decimal import Decimal
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import psycopg2.errors
@@ -746,6 +747,47 @@ class TestStorageMongodb(TransactionCase):
             if embed is None:   # root junction: one link per id pair, like the relation's primary key
                 unique = [sorted(path for path, _ in index['keys']) for index in coll['indexes'] if index.get('unique')]
                 self.assertIn(sorted(coll['key']['target']), unique, table)
+
+    def test_sweep_switch(self):
+        """ ODOO_MONGODB_SWEEP=1 opts the spec's models into MongoDB storage,
+        their columns mirrored, under a scratch prefix only; default off. """
+        def registry(dbname):
+            fields = {name: self.Incoterm._fields[name] for name in ('id', 'code', 'display_name')}
+            base = {'_storage': None, '_abstract': False, '_auto': True, '_shadow_columns': (), '_fields': fields}
+            return SimpleNamespace(db_name=dbname, models={
+                'mapped': type('Mapped', (), dict(base, _table='account_incoterms')),
+                'unmapped': type('Unmapped', (), dict(base, _table='test_orm_mongodb_pg_link')),
+            })
+
+        scratch = registry('scratch')
+        with patch.dict(os.environ):
+            os.environ.pop('ODOO_MONGODB_SWEEP', None)
+            storage_mongodb.apply_sweep(scratch)
+            self.assertIsNone(scratch.models['mapped']._storage)
+            os.environ['ODOO_MONGODB_SWEEP'] = '1'
+            storage_mongodb.apply_sweep(scratch)
+            self.assertEqual(scratch.models['mapped']._storage, 'mongodb')
+            self.assertEqual(scratch.models['mapped']._shadow_columns, ('code',))
+            self.assertIsNone(scratch.models['unmapped']._storage)
+            os.environ['ODOO_MONGODB_PG_DATABASE'] = 'odoo_main'
+            with self.assertRaises(storage_mongodb.StorageError):
+                storage_mongodb.apply_sweep(registry('odoo_main'))
+
+    def test_sweep_seeds_existing_rows(self):
+        """ Under the sweep switch, rows already in a table get their documents
+        when its scratch collection holds none, once. """
+        collection = storage_mongodb.get_collection(self.Lock)
+        self.assertEqual(collection.count_documents({}), 0)
+        self.env.cr.execute(SQL("INSERT INTO account_lock_exception (company_id) VALUES (%s) RETURNING id", self.company.id))
+        [(lock_id,)] = self.env.cr.fetchall()
+        with patch.dict(os.environ):
+            os.environ.pop('ODOO_MONGODB_SWEEP', None)
+            storage_mongodb._seed_sweep(self.Lock)
+            self.assertEqual(collection.count_documents({}), 0, "off by default")
+            os.environ['ODOO_MONGODB_SWEEP'] = '1'
+            storage_mongodb._seed_sweep(self.Lock)
+            storage_mongodb._seed_sweep(self.Lock)
+        self.assertEqual(list(collection.find()), [{'_id': lock_id, 'companyId': self.company.id}])
 
     def test_bindata_round_trip(self):
         value = storage_mongodb._to_bson('binData', psycopg2.Binary(b'\x00\x01raw'))

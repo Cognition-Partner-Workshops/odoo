@@ -194,3 +194,86 @@ class TestEmbeddedChildrenMongodb(TransactionCase):
         self.assertFalse(src.account_ids)
         self.assertEqual(dst.account_ids, kept)
         self.assertEqual(len(storage_mongodb.get_collection(dst).find_one({'_id': dst.id})['account']), 1)
+
+
+@tagged('at_install', '-post_install')
+class TestSubdocumentMongodb(TransactionCase):
+    """ A ``subdocument`` embed (map-draft-2: properties_base_definition in
+    irModelFields) stores its one child as an object, not an array. The
+    report columns stand in for it, their embed reshaped to a subdocument. """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.Report = cls.env['test_orm_mongodb.report']
+        cls.Column = cls.env['test_orm_mongodb.report_column']
+
+    def setUp(self):
+        super().setUp()
+        children = dict(storage_mongodb._spec_children())
+        coll, embed = children['account_report_column']
+        children['account_report_column'] = (coll, dict(embed, shape='subdocument'))
+        self.patch(storage_mongodb, '_spec_children', lambda: children)
+        layouts = self.registry.__dict__.setdefault('_mongodb_layouts', {})
+        layouts.pop(self.Column._name, None)
+        self.addCleanup(layouts.pop, self.Column._name, None)
+        self.assertTrue(storage_mongodb._layout(self.Column)['embed']['subdocument'])
+        self.first, self.second = self.Report.create([{'name': 'First'}, {'name': 'Second'}])
+
+    def subdoc(self, report):
+        self.env.flush_all()
+        return storage_mongodb.get_collection(report).find_one({'_id': report.id}).get('column')
+
+    def test_subdocument_round_trip(self):
+        column = self.Column.create({'report_id': self.first.id, 'name': 'Balance', 'expression_label': 'balance'})
+        doc = self.subdoc(self.first)
+        self.assertIsInstance(doc, dict)
+        self.assertEqual((doc['id'], doc['expressionLabel']), (column.id, 'balance'))
+        self.assertNotIn('reportId', doc)
+        self.env.invalidate_all()
+        self.assertEqual(self.first.column_ids, column)
+        self.assertEqual((column.name, column.expression_label, column.report_id), ('Balance', 'balance', self.first))
+        self.assertEqual(self.Column.search([('expression_label', '=', 'balance')]), column)
+        self.assertEqual(self.Report.search([('column_ids.expression_label', '=', 'balance')]), self.first)
+
+        column.expression_label = 'debit'
+        self.assertEqual(self.subdoc(self.first)['expressionLabel'], 'debit')
+        column.expression_label = False
+        self.assertNotIn('expressionLabel', self.subdoc(self.first), "NULL is stored as a missing key")
+        column.report_id = self.second
+        self.assertIsNone(self.subdoc(self.first))
+        self.assertEqual(self.subdoc(self.second)['id'], column.id)
+        column.unlink()
+        self.assertIsNone(self.subdoc(self.second))
+
+    def test_subdocument_takes_one_child(self):
+        column = self.Column.create({'report_id': self.first.id, 'name': 'Balance'})
+        before = self.subdoc(self.first)
+        with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
+            self.Column.create({'report_id': self.first.id, 'name': 'Second one'})
+        with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
+            self.Column.create([{'report_id': self.second.id, 'name': 'A'}, {'report_id': self.second.id, 'name': 'B'}])
+        other = self.Column.create({'report_id': self.second.id, 'name': 'Other'})
+        with self.assertRaises(psycopg2.errors.UniqueViolation), self.env.cr.savepoint():
+            other.report_id = self.first
+            self.env.flush_all()
+        self.assertEqual(self.subdoc(self.first), before)
+        self.assertEqual(self.subdoc(self.second)['id'], other.id)
+        self.env.invalidate_all()
+        self.assertEqual(self.first.column_ids, column)
+
+    def test_subdocument_savepoint_rollback(self):
+        column = self.Column.create({'report_id': self.first.id, 'name': 'Balance', 'expression_label': 'balance'})
+        before = (self.subdoc(self.first), self.subdoc(self.second))
+        with self.assertRaises(ZeroDivisionError), self.env.cr.savepoint():
+            column.expression_label = 'debit'
+            column.report_id = self.second
+            self.env.flush_all()    # the first report is vacant once the move is written
+            self.Column.create({'report_id': self.first.id, 'name': 'New'})
+            self.env.flush_all()
+            1 / 0
+        self.assertEqual((self.subdoc(self.first), self.subdoc(self.second)), before)
+        with self.assertRaises(ZeroDivisionError), self.env.cr.savepoint():
+            column.unlink()
+            1 / 0
+        self.assertEqual(self.subdoc(self.first), before[0])
