@@ -21,6 +21,10 @@
     "pipeline": 181.4
   },
   "pipeline_exit": 0,
+  "handoff": {
+    "runtime_spec": "SPEC_SHA256 remains pinned to UNT14; s3.2-storage-path rebinds it after g-model-accepted.",
+    "fixture_scope": "build_fixture.py filters bucket == 'in_scope'; the fixture ticket maps raw root_collection + embedded buckets to its scope."
+  },
   "model_check": {
     "exit": 3,
     "status": "draft_awaiting_design_decisions",
@@ -3422,7 +3426,9 @@
     "data_profile.json": "3814a04752deb6f4e1fcb2c2f9aea3f59935d8714df299c2c07ba48b98b09903",
     "access_patterns.json": "a5a3a58d734a7c6eb76742d128d339229f1de386a41722b3edc992c6e631b4a2",
     "mapping_spec.json": "955890063d7888c47526b5130aa5b07c89cd5984f3e10e702254c3eca8bde0b0",
-    "model_cards.md": "9755b085e50b22c9712af22c3113847188451fc737242d7b677438eee4365b6e"
+    "model_cards.md": "9755b085e50b22c9712af22c3113847188451fc737242d7b677438eee4365b6e",
+    "table_buckets.json": "2cd766541e37285466f845f07865300b37cd08bfce62f153a8d7350d3e5c9bcc",
+    "table_buckets.py": "fed476622b1e0a84df683402bc755274f602eeed107fc4dc9e449dcd907851d8"
   },
   "merge_authority": "No recon or model-acceptance claim; this is modeling evidence only."
 }
