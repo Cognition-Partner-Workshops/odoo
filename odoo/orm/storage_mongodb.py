@@ -108,7 +108,7 @@ def _add_undo(cr, func: typing.Callable[[], typing.Any]) -> None:
 _MIGRATION_DIR = Path(__file__).resolve().parents[2] / '.migration'
 SPEC_PATH = _MIGRATION_DIR / 'mapping_spec.json'
 
-SPEC_SHA256 = 'c0b93dad9526fc8f02df6b8199436d76da9f938a05ccadc98ab3adb7a35202a7'
+SPEC_SHA256 = '118c0a110732f40527d6061422c7b1f1d57436e120bdb1de2604523083dff55c'
 DEFAULT_URI = 'mongodb://localhost:27017'
 
 TRANSLATED_PREFIX = '__lang_'
@@ -712,7 +712,9 @@ def remove_links(env, layout: dict, links: list[dict]) -> None:
 def _relation_fields(registry) -> list[Field]:
     """ Return the stored many2many fields whose relation is in the spec. """
     fields = registry.__dict__.get('_mongodb_relation_fields')
-    if fields is None:
+    if fields is None and not any(model_cls._storage == 'mongodb' for model_cls in registry.models.values()):
+        fields = []     # PostgreSQL-only registry: never reads the spec
+    elif fields is None:
         relations = _spec_relations()
         fields = [
             field
