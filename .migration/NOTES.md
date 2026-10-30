@@ -792,16 +792,16 @@ Worker classification: A storage path handles it 548, B unit owns it 134, C out 
 
 ## s3.1 d-storage-path costing
 
-ACU and ticket timestamps are from `/home/ubuntu/s31/unt14_ticket_acu.txt`; Git evidence is from `/home/ubuntu/s31/storage_path_costs.md`. Elapsed figures are derived from each ticket's created and updated timestamps and include waits; commit spans are elapsed timestamp spans, not active work time. The same session total repeats on every ticket it worked; for example, `devin-8cc1bc2a` records 16.65 ACU on UNT14-11, -24..-33, and -35..-37, so those entries are not additive.
+ACU and ticket timestamps are the UNT14 board's recorded figures (`devin_ticket_manage get` on board UNT14, "ACUs used" = every session that worked the ticket, so one session's total repeats on each ticket it worked); Git evidence is commit history on `origin/mongo-run/unt13` and the `devin/*-unt14-*` branches. Elapsed figures are derived from each ticket's created and updated timestamps and include waits; commit spans are elapsed timestamp spans, not active work time. The same session total repeats on every ticket it worked; for example, `devin-8cc1bc2a` records 16.65 ACU on UNT14-11, -24..-33, and -35..-37, so those entries are not additive.
 
 | item | recorded ACU | elapsed (ticket created -> last update; includes waits) | git evidence |
 |---|---|---|---|
-| Shared storage-path build + gap rounds (UNT14-11, -24..-33, -36, -37) | 16.65 ACU on each of 13 tickets (`unt14_ticket_acu.txt:4-14,17-18`) | 00:25:44–23:58:13; median 01:19:10 (13 tickets) | Initial build-series commit envelope 3h 08m 20s; eight `unt14-gap-*` PRs #97–104 and four E-series fix PRs; 99 commits, 5 files changed, 2,518 insertions / 16 deletions (`storage_path_costs.md:15-22,26-40,54-62`). |
-| Spec re-sign (UNT14-34/-35) | 18.75 ACU (-34); 16.65 ACU (-35) (`unt14_ticket_acu.txt:15-16`) | 1d 06:09:13 (-34); 02:16:08 (-35) | `efc5fb13105` `[IMP] orm: pin the re-signed MongoDB mapping spec`, PR #125, one commit (`storage_path_costs.md:41`). |
-| Conformance sweep (UNT14-12) | 52.71 ACU (`unt14_ticket_acu.txt:19`) | 3d 09:21:29 | Three Git spans: 15m 54s (PR #96), 5m 57s (PR #126), 11m 23s (PR #132) (`storage_path_costs.md:23-25`). |
-| Canary (UNT14-15) | 52.11 ACU (`unt14_ticket_acu.txt:22`) | 3d 13:51:01 | Canary-specific Git span: not recorded (`storage_path_costs.md:7,75`). |
-| Wave 2-4 batches (UNT14-49/-50/-51/-52/-53/-55/-56/-63/-64/-65/-66; 11 tickets) | 22.71–105.95 ACU; median 36.15 (`unt14_ticket_acu.txt:24-34`) | 00:39:27–09:46:55; median 01:06:43 | Batch-specific commit spans: not recorded (`storage_path_costs.md:44-45`). |
-| Per-unit adapters / repository layer | Not recorded | Not recorded | Repository-layer mechanism was never built in the checked UNT14 refs; no per-unit cost recorded (`storage_path_costs.md:45-46`). |
+| Shared storage-path build + gap rounds (UNT14-11, -24..-33, -36, -37) | 16.65 ACU on each of 13 tickets (UNT14 board) | 00:25:44–23:58:13; median 01:19:10 (13 tickets) | Initial build-series commit envelope 3h 08m 20s; eight `unt14-gap-*` PRs #97–104 and four E-series fix PRs; 99 commits, 5 files changed, 2,518 insertions / 16 deletions. |
+| Spec re-sign (UNT14-34/-35) | 18.75 ACU (-34); 16.65 ACU (-35) (UNT14 board) | 1d 06:09:13 (-34); 02:16:08 (-35) | `efc5fb13105` `[IMP] orm: pin the re-signed MongoDB mapping spec`, PR #125, one commit. |
+| Conformance sweep (UNT14-12) | 52.71 ACU (UNT14 board) | 3d 09:21:29 | Three Git spans: 15m 54s (PR #96), 5m 57s (PR #126), 11m 23s (PR #132). |
+| Canary (UNT14-15) | 52.11 ACU (UNT14 board) | 3d 13:51:01 | Canary-specific Git span: not recorded. |
+| Wave 2-4 batches (UNT14-49/-50/-51/-52/-53/-55/-56/-63/-64/-65/-66; 11 tickets) | 22.71–105.95 ACU; median 36.15 (UNT14 board) | 00:39:27–09:46:55; median 01:06:43 | Batch-specific commit spans: not recorded. |
+| Per-unit adapters / repository layer | Not recorded | Not recorded | Repository-layer mechanism was never built in the checked UNT14 refs; no per-unit cost recorded. |
 
 Summary and the per-option totals are in plan.yaml d-storage-path cost_note.
 
