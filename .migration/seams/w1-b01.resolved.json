@@ -1,0 +1,28 @@
+{
+  "accepted": [],
+  "accepted_findings": [],
+  "base_sha": "f099dcabc38ffa9bea99d9efc13c777326081a21",
+  "expanded": [],
+  "findings": [],
+  "id_authority": "source-sequence",
+  "inputs_sha256": {
+    ".migration/access_patterns.json": "6582035072d8cfb132f1353db3d0b4093175a03b966d8e7eaa2b7503a401ff41",
+    ".migration/apps.json": "20757d80bbe1f3f04ef976b9bdb485ea5f222541b33ac5b2d556ee8199c0cbad",
+    ".migration/census.json": "12b46b165ae3f351742924a42f9d2b4ec659bb994b30099b15b74090589d21fb",
+    ".migration/connectivity.json": "4f8113b3f9e8bba4f91e7833fc17a0824a7b7faf5e5410ba58ec410ba79c9de8",
+    ".migration/cowrites.json": "a2ac8445ad873e68b8b3fa655e4c3193a11f60063cf0b3bfefb4e596562cbbe0",
+    ".migration/dependency_register.json": "4dd3c26fddf5e4d3294fa29ade4b49602b0db8cafd76f66dd66d9331bca98991",
+    ".migration/units.json": "2aa865902afaff55ada7ee534009e63fabc3e00ec49abf69896624259bbc43b8"
+  },
+  "moved": [],
+  "phase": "reads",
+  "policy": "d-seam-policy: auto-resolve",
+  "resolved": [],
+  "slice": "w1-b01",
+  "slice_path": "w1-b01.json",
+  "slice_sha256": "d256526f6993675e4acea82d496b36c58ca1bdc78ca765817a33c7f45425d63c",
+  "tables": [
+    "orm_signaling_assets"
+  ],
+  "waves_closed": 0
+}
