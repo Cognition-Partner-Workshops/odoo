@@ -17,8 +17,8 @@
     }
   },
   "timing_seconds": {
-    "source_recipe_build": 235,
-    "pipeline": 181.4
+    "source_recipe_build": 256,
+    "pipeline": 186
   },
   "pipeline_exit": 0,
   "handoff": {
@@ -28,19 +28,20 @@
   "model_check": {
     "exit": 3,
     "status": "draft_awaiting_design_decisions",
-    "open_items": 613,
+    "open_items": 766,
     "open_item_kinds": {
-      "cascade_into_embed": 113,
+      "cascade_into_embed": 109,
       "date_as_string": 1,
       "date_format_assumed": 1,
       "embed_null_pointer_rows": 4,
       "embed_unbounded": 17,
-      "fanout_unmeasured": 55,
+      "fanout_unmeasured": 53,
       "lob": 56,
       "many_to_many_junction": 126,
-      "no_access_evidence": 211,
+      "no_access_evidence": 200,
       "nullable_unique_key": 27,
       "repeating_group": 1,
+      "source_index_not_exercised": 170,
       "transient_tables": 1
     },
     "model_accepted": false
@@ -49,9 +50,9 @@
     "census_tables": 521,
     "bucketed_tables": 521,
     "bucket_counts": {
-      "collection": 211,
+      "collection": 214,
       "proposed_exclusion": 151,
-      "embedded": 159
+      "embedded": 156
     },
     "missing": [],
     "overlapping": [],
@@ -547,20 +548,20 @@
       {
         "table": "account_tax_repartition_line",
         "census_ref": ".migration/census.json#/tables/account_tax_repartition_line",
-        "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/30/root_table"
+        "bucket": "embedded",
+        "proposal_ref": ".migration/mapping_spec.json#/collections/28/embeds/3/child_table"
       },
       {
         "table": "account_tax_sale_order_line_rel",
         "census_ref": ".migration/census.json#/tables/account_tax_sale_order_line_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/28/embeds/3/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/28/embeds/4/child_table"
       },
       {
         "table": "activity_attachment_rel",
         "census_ref": ".migration/census.json#/tables/activity_attachment_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/61/embeds/2/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/60/embeds/2/child_table"
       },
       {
         "table": "adjusting_entries__account_move",
@@ -572,7 +573,7 @@
         "table": "auth_passkey_key",
         "census_ref": ".migration/census.json#/tables/auth_passkey_key",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/31/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/30/root_table"
       },
       {
         "table": "auth_passkey_key_create",
@@ -584,7 +585,7 @@
         "table": "auth_totp_device",
         "census_ref": ".migration/census.json#/tables/auth_totp_device",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/167/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/168/embeds/0/child_table"
       },
       {
         "table": "auth_totp_rate_limit_log",
@@ -602,13 +603,13 @@
         "table": "barcode_nomenclature",
         "census_ref": ".migration/census.json#/tables/barcode_nomenclature",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/32/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/31/root_table"
       },
       {
         "table": "barcode_rule",
         "census_ref": ".migration/census.json#/tables/barcode_rule",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/33/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/32/root_table"
       },
       {
         "table": "base_document_layout",
@@ -632,7 +633,7 @@
         "table": "base_import_mapping",
         "census_ref": ".migration/census.json#/tables/base_import_mapping",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/34/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/33/root_table"
       },
       {
         "table": "base_import_module",
@@ -722,7 +723,7 @@
         "table": "bus_bus",
         "census_ref": ".migration/census.json#/tables/bus_bus",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/35/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/34/root_table"
       },
       {
         "table": "change_password_own",
@@ -746,7 +747,7 @@
         "table": "clearing_label",
         "census_ref": ".migration/census.json#/tables/clearing_label",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/36/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/35/root_table"
       },
       {
         "table": "confirm_stock_sms",
@@ -758,43 +759,43 @@
         "table": "crm_tag",
         "census_ref": ".migration/census.json#/tables/crm_tag",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/37/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/36/root_table"
       },
       {
         "table": "crm_team",
         "census_ref": ".migration/census.json#/tables/crm_team",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/38/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/37/root_table"
       },
       {
         "table": "crm_team_member",
         "census_ref": ".migration/census.json#/tables/crm_team_member",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/39/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/38/root_table"
       },
       {
         "table": "customer_product_reference",
         "census_ref": ".migration/census.json#/tables/customer_product_reference",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/40/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/39/root_table"
       },
       {
         "table": "decimal_precision",
         "census_ref": ".migration/census.json#/tables/decimal_precision",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/41/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/40/root_table"
       },
       {
         "table": "digest_digest",
         "census_ref": ".migration/census.json#/tables/digest_digest",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/42/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/41/root_table"
       },
       {
         "table": "digest_digest_res_users_rel",
         "census_ref": ".migration/census.json#/tables/digest_digest_res_users_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/42/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/41/embeds/0/child_table"
       },
       {
         "table": "digest_test",
@@ -812,253 +813,253 @@
         "table": "digest_tip",
         "census_ref": ".migration/census.json#/tables/digest_tip",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/43/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/42/root_table"
       },
       {
         "table": "digest_tip_res_users_rel",
         "census_ref": ".migration/census.json#/tables/digest_tip_res_users_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/43/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/42/embeds/0/child_table"
       },
       {
         "table": "discuss_call_history",
         "census_ref": ".migration/census.json#/tables/discuss_call_history",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/44/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/43/root_table"
       },
       {
         "table": "discuss_category",
         "census_ref": ".migration/census.json#/tables/discuss_category",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/45/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/44/root_table"
       },
       {
         "table": "discuss_channel",
         "census_ref": ".migration/census.json#/tables/discuss_channel",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/46/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/45/root_table"
       },
       {
         "table": "discuss_channel_last_interest_update",
         "census_ref": ".migration/census.json#/tables/discuss_channel_last_interest_update",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/46/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/45/embeds/0/child_table"
       },
       {
         "table": "discuss_channel_member",
         "census_ref": ".migration/census.json#/tables/discuss_channel_member",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/47/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/46/root_table"
       },
       {
         "table": "discuss_channel_res_groups_rel",
         "census_ref": ".migration/census.json#/tables/discuss_channel_res_groups_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/46/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/45/embeds/1/child_table"
       },
       {
         "table": "discuss_channel_rtc_session",
         "census_ref": ".migration/census.json#/tables/discuss_channel_rtc_session",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/48/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/47/root_table"
       },
       {
         "table": "discuss_gif_favorite",
         "census_ref": ".migration/census.json#/tables/discuss_gif_favorite",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/49/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/48/root_table"
       },
       {
         "table": "discuss_voice_metadata",
         "census_ref": ".migration/census.json#/tables/discuss_voice_metadata",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/61/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/60/embeds/0/child_table"
       },
       {
         "table": "email_template_attachment_rel",
         "census_ref": ".migration/census.json#/tables/email_template_attachment_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/61/embeds/3/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/60/embeds/3/child_table"
       },
       {
         "table": "fetchmail_server",
         "census_ref": ".migration/census.json#/tables/fetchmail_server",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/50/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/49/root_table"
       },
       {
         "table": "html_editor_converter_test",
         "census_ref": ".migration/census.json#/tables/html_editor_converter_test",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/51/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/50/root_table"
       },
       {
         "table": "html_editor_converter_test_sub",
         "census_ref": ".migration/census.json#/tables/html_editor_converter_test_sub",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/52/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/51/root_table"
       },
       {
         "table": "iap_account",
         "census_ref": ".migration/census.json#/tables/iap_account",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/53/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/52/root_table"
       },
       {
         "table": "iap_account_res_company_rel",
         "census_ref": ".migration/census.json#/tables/iap_account_res_company_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/53/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/52/embeds/0/child_table"
       },
       {
         "table": "iap_account_res_users_rel",
         "census_ref": ".migration/census.json#/tables/iap_account_res_users_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/53/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/52/embeds/1/child_table"
       },
       {
         "table": "iap_service",
         "census_ref": ".migration/census.json#/tables/iap_service",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/54/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/53/root_table"
       },
       {
         "table": "iap_service_pack",
         "census_ref": ".migration/census.json#/tables/iap_service_pack",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/54/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/53/embeds/0/child_table"
       },
       {
         "table": "ir_access",
         "census_ref": ".migration/census.json#/tables/ir_access",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/55/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/54/root_table"
       },
       {
         "table": "ir_act_client",
         "census_ref": ".migration/census.json#/tables/ir_act_client",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/70/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/69/embeds/0/child_table"
       },
       {
         "table": "ir_act_report_xml",
         "census_ref": ".migration/census.json#/tables/ir_act_report_xml",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/56/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/55/root_table"
       },
       {
         "table": "ir_act_server",
         "census_ref": ".migration/census.json#/tables/ir_act_server",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/57/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/56/root_table"
       },
       {
         "table": "ir_act_server_group_rel",
         "census_ref": ".migration/census.json#/tables/ir_act_server_group_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/57/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/56/embeds/1/child_table"
       },
       {
         "table": "ir_act_server_mail_message_subtype_rel",
         "census_ref": ".migration/census.json#/tables/ir_act_server_mail_message_subtype_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/57/embeds/2/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/56/embeds/2/child_table"
       },
       {
         "table": "ir_act_server_res_partner_rel",
         "census_ref": ".migration/census.json#/tables/ir_act_server_res_partner_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/57/embeds/3/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/56/embeds/3/child_table"
       },
       {
         "table": "ir_act_server_webhook_field_rel",
         "census_ref": ".migration/census.json#/tables/ir_act_server_webhook_field_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/57/embeds/4/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/56/embeds/4/child_table"
       },
       {
         "table": "ir_act_url",
         "census_ref": ".migration/census.json#/tables/ir_act_url",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/70/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/69/embeds/1/child_table"
       },
       {
         "table": "ir_act_window",
         "census_ref": ".migration/census.json#/tables/ir_act_window",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/58/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/57/root_table"
       },
       {
         "table": "ir_act_window_group_rel",
         "census_ref": ".migration/census.json#/tables/ir_act_window_group_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/58/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/57/embeds/1/child_table"
       },
       {
         "table": "ir_act_window_view",
         "census_ref": ".migration/census.json#/tables/ir_act_window_view",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/58/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/57/embeds/0/child_table"
       },
       {
         "table": "ir_actions",
         "census_ref": ".migration/census.json#/tables/ir_actions",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/70/embeds/2/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/69/embeds/2/child_table"
       },
       {
         "table": "ir_actions_server_history",
         "census_ref": ".migration/census.json#/tables/ir_actions_server_history",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/57/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/56/embeds/0/child_table"
       },
       {
         "table": "ir_actions_todo",
         "census_ref": ".migration/census.json#/tables/ir_actions_todo",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/59/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/58/root_table"
       },
       {
         "table": "ir_asset",
         "census_ref": ".migration/census.json#/tables/ir_asset",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/60/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/59/root_table"
       },
       {
         "table": "ir_attachment",
         "census_ref": ".migration/census.json#/tables/ir_attachment",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/61/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/60/root_table"
       },
       {
         "table": "ir_config_parameter",
         "census_ref": ".migration/census.json#/tables/ir_config_parameter",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/62/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/61/root_table"
       },
       {
         "table": "ir_cron",
         "census_ref": ".migration/census.json#/tables/ir_cron",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/63/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/62/root_table"
       },
       {
         "table": "ir_cron_progress",
         "census_ref": ".migration/census.json#/tables/ir_cron_progress",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/63/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/62/embeds/0/child_table"
       },
       {
         "table": "ir_cron_trigger",
         "census_ref": ".migration/census.json#/tables/ir_cron_trigger",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/63/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/62/embeds/1/child_table"
       },
       {
         "table": "ir_default",
         "census_ref": ".migration/census.json#/tables/ir_default",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/64/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/63/root_table"
       },
       {
         "table": "ir_demo",
@@ -1082,193 +1083,193 @@
         "table": "ir_embedded_actions",
         "census_ref": ".migration/census.json#/tables/ir_embedded_actions",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/65/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/64/root_table"
       },
       {
         "table": "ir_embedded_actions_res_groups_rel",
         "census_ref": ".migration/census.json#/tables/ir_embedded_actions_res_groups_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/65/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/64/embeds/0/child_table"
       },
       {
         "table": "ir_exports",
         "census_ref": ".migration/census.json#/tables/ir_exports",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/66/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/65/root_table"
       },
       {
         "table": "ir_exports_line",
         "census_ref": ".migration/census.json#/tables/ir_exports_line",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/66/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/65/embeds/0/child_table"
       },
       {
         "table": "ir_exports_res_lang_rel",
         "census_ref": ".migration/census.json#/tables/ir_exports_res_lang_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/66/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/65/embeds/1/child_table"
       },
       {
         "table": "ir_filters",
         "census_ref": ".migration/census.json#/tables/ir_filters",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/67/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/66/root_table"
       },
       {
         "table": "ir_filters_res_users_rel",
         "census_ref": ".migration/census.json#/tables/ir_filters_res_users_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/67/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/66/embeds/0/child_table"
       },
       {
         "table": "ir_logging",
         "census_ref": ".migration/census.json#/tables/ir_logging",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/68/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/67/root_table"
       },
       {
         "table": "ir_mail_server",
         "census_ref": ".migration/census.json#/tables/ir_mail_server",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/69/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/68/root_table"
       },
       {
         "table": "ir_model",
         "census_ref": ".migration/census.json#/tables/ir_model",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/70/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/69/root_table"
       },
       {
         "table": "ir_model_constraint",
         "census_ref": ".migration/census.json#/tables/ir_model_constraint",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/71/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/70/root_table"
       },
       {
         "table": "ir_model_data",
         "census_ref": ".migration/census.json#/tables/ir_model_data",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/72/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/71/root_table"
       },
       {
         "table": "ir_model_fields",
         "census_ref": ".migration/census.json#/tables/ir_model_fields",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/73/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/72/root_table"
       },
       {
         "table": "ir_model_fields_group_rel",
         "census_ref": ".migration/census.json#/tables/ir_model_fields_group_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/73/embeds/2/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/72/embeds/2/child_table"
       },
       {
         "table": "ir_model_fields_selection",
         "census_ref": ".migration/census.json#/tables/ir_model_fields_selection",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/74/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/73/root_table"
       },
       {
         "table": "ir_model_inherit",
         "census_ref": ".migration/census.json#/tables/ir_model_inherit",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/73/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/72/embeds/0/child_table"
       },
       {
         "table": "ir_model_relation",
         "census_ref": ".migration/census.json#/tables/ir_model_relation",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/75/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/74/root_table"
       },
       {
         "table": "ir_model_spreadsheet_dashboard_rel",
         "census_ref": ".migration/census.json#/tables/ir_model_spreadsheet_dashboard_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/70/embeds/3/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/69/embeds/3/child_table"
       },
       {
         "table": "ir_module_category",
         "census_ref": ".migration/census.json#/tables/ir_module_category",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/76/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/75/root_table"
       },
       {
         "table": "ir_module_module",
         "census_ref": ".migration/census.json#/tables/ir_module_module",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/77/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/76/root_table"
       },
       {
         "table": "ir_module_module_dependency",
         "census_ref": ".migration/census.json#/tables/ir_module_module_dependency",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/77/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/76/embeds/0/child_table"
       },
       {
         "table": "ir_module_module_exclusion",
         "census_ref": ".migration/census.json#/tables/ir_module_module_exclusion",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/77/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/76/embeds/1/child_table"
       },
       {
         "table": "ir_profile",
         "census_ref": ".migration/census.json#/tables/ir_profile",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/78/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/77/root_table"
       },
       {
         "table": "ir_profile_query",
         "census_ref": ".migration/census.json#/tables/ir_profile_query",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/78/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/77/embeds/0/child_table"
       },
       {
         "table": "ir_sequence",
         "census_ref": ".migration/census.json#/tables/ir_sequence",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/79/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/78/root_table"
       },
       {
         "table": "ir_sequence_date_range",
         "census_ref": ".migration/census.json#/tables/ir_sequence_date_range",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/80/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/79/root_table"
       },
       {
         "table": "ir_ui_menu",
         "census_ref": ".migration/census.json#/tables/ir_ui_menu",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/81/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/80/root_table"
       },
       {
         "table": "ir_ui_menu_group_rel",
         "census_ref": ".migration/census.json#/tables/ir_ui_menu_group_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/81/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/80/embeds/0/child_table"
       },
       {
         "table": "ir_ui_view",
         "census_ref": ".migration/census.json#/tables/ir_ui_view",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/82/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/81/root_table"
       },
       {
         "table": "ir_ui_view_custom",
         "census_ref": ".migration/census.json#/tables/ir_ui_view_custom",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/83/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/82/root_table"
       },
       {
         "table": "ir_ui_view_group_rel",
         "census_ref": ".migration/census.json#/tables/ir_ui_view_group_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/82/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/81/embeds/0/child_table"
       },
       {
         "table": "l10n_us_res_county",
         "census_ref": ".migration/census.json#/tables/l10n_us_res_county",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/84/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/83/root_table"
       },
       {
         "table": "lot_label_layout",
@@ -1292,13 +1293,13 @@
         "table": "mail_activity",
         "census_ref": ".migration/census.json#/tables/mail_activity",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/85/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/84/root_table"
       },
       {
         "table": "mail_activity_plan",
         "census_ref": ".migration/census.json#/tables/mail_activity_plan",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/86/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/85/root_table"
       },
       {
         "table": "mail_activity_plan_mail_activity_schedule_rel",
@@ -1310,13 +1311,13 @@
         "table": "mail_activity_plan_template",
         "census_ref": ".migration/census.json#/tables/mail_activity_plan_template",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/87/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/86/root_table"
       },
       {
         "table": "mail_activity_rel",
         "census_ref": ".migration/census.json#/tables/mail_activity_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/88/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/87/embeds/0/child_table"
       },
       {
         "table": "mail_activity_schedule",
@@ -1334,31 +1335,31 @@
         "table": "mail_activity_type",
         "census_ref": ".migration/census.json#/tables/mail_activity_type",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/88/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/87/root_table"
       },
       {
         "table": "mail_activity_type_mail_template_rel",
         "census_ref": ".migration/census.json#/tables/mail_activity_type_mail_template_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/88/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/87/embeds/1/child_table"
       },
       {
         "table": "mail_alias",
         "census_ref": ".migration/census.json#/tables/mail_alias",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/89/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/88/root_table"
       },
       {
         "table": "mail_alias_domain",
         "census_ref": ".migration/census.json#/tables/mail_alias_domain",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/90/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/89/root_table"
       },
       {
         "table": "mail_blacklist",
         "census_ref": ".migration/census.json#/tables/mail_blacklist",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/91/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/90/root_table"
       },
       {
         "table": "mail_blacklist_remove",
@@ -1370,19 +1371,19 @@
         "table": "mail_call_artifact",
         "census_ref": ".migration/census.json#/tables/mail_call_artifact",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/44/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/43/embeds/0/child_table"
       },
       {
         "table": "mail_canned_response",
         "census_ref": ".migration/census.json#/tables/mail_canned_response",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/92/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/91/root_table"
       },
       {
         "table": "mail_canned_response_res_groups_rel",
         "census_ref": ".migration/census.json#/tables/mail_canned_response_res_groups_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/92/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/91/embeds/0/child_table"
       },
       {
         "table": "mail_compose_message",
@@ -1412,7 +1413,7 @@
         "table": "mail_followers",
         "census_ref": ".migration/census.json#/tables/mail_followers",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/93/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/92/root_table"
       },
       {
         "table": "mail_followers_edit",
@@ -1430,175 +1431,175 @@
         "table": "mail_followers_mail_message_subtype_rel",
         "census_ref": ".migration/census.json#/tables/mail_followers_mail_message_subtype_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/93/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/92/embeds/0/child_table"
       },
       {
         "table": "mail_gateway_allowed",
         "census_ref": ".migration/census.json#/tables/mail_gateway_allowed",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/94/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/93/root_table"
       },
       {
         "table": "mail_guest",
         "census_ref": ".migration/census.json#/tables/mail_guest",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/95/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/94/root_table"
       },
       {
         "table": "mail_ice_server",
         "census_ref": ".migration/census.json#/tables/mail_ice_server",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/96/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/95/root_table"
       },
       {
         "table": "mail_link_preview",
         "census_ref": ".migration/census.json#/tables/mail_link_preview",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/97/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/96/root_table"
       },
       {
         "table": "mail_mail",
         "census_ref": ".migration/census.json#/tables/mail_mail",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/98/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/97/root_table"
       },
       {
         "table": "mail_mail_res_partner_cc_rel",
         "census_ref": ".migration/census.json#/tables/mail_mail_res_partner_cc_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/98/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/97/embeds/0/child_table"
       },
       {
         "table": "mail_mail_res_partner_rel",
         "census_ref": ".migration/census.json#/tables/mail_mail_res_partner_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/98/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/97/embeds/1/child_table"
       },
       {
         "table": "mail_message",
         "census_ref": ".migration/census.json#/tables/mail_message",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/99/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/98/root_table"
       },
       {
         "table": "mail_message_link_preview",
         "census_ref": ".migration/census.json#/tables/mail_message_link_preview",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/100/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/99/root_table"
       },
       {
         "table": "mail_message_reaction",
         "census_ref": ".migration/census.json#/tables/mail_message_reaction",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/101/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/100/root_table"
       },
       {
         "table": "mail_message_res_partner_bookmarked_rel",
         "census_ref": ".migration/census.json#/tables/mail_message_res_partner_bookmarked_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/99/embeds/2/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/98/embeds/2/child_table"
       },
       {
         "table": "mail_message_res_partner_cc_rel",
         "census_ref": ".migration/census.json#/tables/mail_message_res_partner_cc_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/99/embeds/3/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/98/embeds/3/child_table"
       },
       {
         "table": "mail_message_res_partner_rel",
         "census_ref": ".migration/census.json#/tables/mail_message_res_partner_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/99/embeds/4/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/98/embeds/4/child_table"
       },
       {
         "table": "mail_message_schedule",
         "census_ref": ".migration/census.json#/tables/mail_message_schedule",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/99/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/98/embeds/0/child_table"
       },
       {
         "table": "mail_message_subtype",
         "census_ref": ".migration/census.json#/tables/mail_message_subtype",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/102/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/101/root_table"
       },
       {
         "table": "mail_message_translation",
         "census_ref": ".migration/census.json#/tables/mail_message_translation",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/99/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/98/embeds/1/child_table"
       },
       {
         "table": "mail_notification",
         "census_ref": ".migration/census.json#/tables/mail_notification",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/103/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/102/root_table"
       },
       {
         "table": "mail_poll",
         "census_ref": ".migration/census.json#/tables/mail_poll",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/104/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/103/root_table"
       },
       {
         "table": "mail_poll_option",
         "census_ref": ".migration/census.json#/tables/mail_poll_option",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/105/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/104/root_table"
       },
       {
         "table": "mail_poll_vote",
         "census_ref": ".migration/census.json#/tables/mail_poll_vote",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/106/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/105/root_table"
       },
       {
         "table": "mail_presence",
         "census_ref": ".migration/census.json#/tables/mail_presence",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/107/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/106/root_table"
       },
       {
         "table": "mail_push",
         "census_ref": ".migration/census.json#/tables/mail_push",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/108/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/107/embeds/0/child_table"
       },
       {
         "table": "mail_push_device",
         "census_ref": ".migration/census.json#/tables/mail_push_device",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/108/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/107/root_table"
       },
       {
         "table": "mail_scheduled_message",
         "census_ref": ".migration/census.json#/tables/mail_scheduled_message",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/109/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/108/root_table"
       },
       {
         "table": "mail_scheduled_message_res_partner_cc_rel",
         "census_ref": ".migration/census.json#/tables/mail_scheduled_message_res_partner_cc_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/109/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/108/embeds/0/child_table"
       },
       {
         "table": "mail_scheduled_message_res_partner_rel",
         "census_ref": ".migration/census.json#/tables/mail_scheduled_message_res_partner_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/109/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/108/embeds/1/child_table"
       },
       {
         "table": "mail_template",
         "census_ref": ".migration/census.json#/tables/mail_template",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/110/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/109/root_table"
       },
       {
         "table": "mail_template_ir_actions_report_rel",
         "census_ref": ".migration/census.json#/tables/mail_template_ir_actions_report_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/110/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/109/embeds/0/child_table"
       },
       {
         "table": "mail_template_mail_template_reset_rel",
@@ -1622,91 +1623,91 @@
         "table": "message_attachment_rel",
         "census_ref": ".migration/census.json#/tables/message_attachment_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/61/embeds/4/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/60/embeds/4/child_table"
       },
       {
         "table": "module_country",
         "census_ref": ".migration/census.json#/tables/module_country",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/77/embeds/2/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/76/embeds/2/child_table"
       },
       {
         "table": "onboarding_onboarding",
         "census_ref": ".migration/census.json#/tables/onboarding_onboarding",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/111/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/110/root_table"
       },
       {
         "table": "onboarding_onboarding_onboarding_onboarding_step_rel",
         "census_ref": ".migration/census.json#/tables/onboarding_onboarding_onboarding_onboarding_step_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/111/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/110/embeds/0/child_table"
       },
       {
         "table": "onboarding_onboarding_step",
         "census_ref": ".migration/census.json#/tables/onboarding_onboarding_step",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/112/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/111/root_table"
       },
       {
         "table": "onboarding_progress",
         "census_ref": ".migration/census.json#/tables/onboarding_progress",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/113/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/112/root_table"
       },
       {
         "table": "onboarding_progress_onboarding_progress_step_rel",
         "census_ref": ".migration/census.json#/tables/onboarding_progress_onboarding_progress_step_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/113/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/112/embeds/0/child_table"
       },
       {
         "table": "onboarding_progress_step",
         "census_ref": ".migration/census.json#/tables/onboarding_progress_step",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/114/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/113/root_table"
       },
       {
         "table": "orm_signaling_assets",
         "census_ref": ".migration/census.json#/tables/orm_signaling_assets",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/115/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/114/root_table"
       },
       {
         "table": "orm_signaling_default",
         "census_ref": ".migration/census.json#/tables/orm_signaling_default",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/116/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/115/root_table"
       },
       {
         "table": "orm_signaling_groups",
         "census_ref": ".migration/census.json#/tables/orm_signaling_groups",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/117/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/116/root_table"
       },
       {
         "table": "orm_signaling_registry",
         "census_ref": ".migration/census.json#/tables/orm_signaling_registry",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/118/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/117/root_table"
       },
       {
         "table": "orm_signaling_routing",
         "census_ref": ".migration/census.json#/tables/orm_signaling_routing",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/119/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/118/root_table"
       },
       {
         "table": "orm_signaling_stable",
         "census_ref": ".migration/census.json#/tables/orm_signaling_stable",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/120/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/119/root_table"
       },
       {
         "table": "orm_signaling_templates",
         "census_ref": ".migration/census.json#/tables/orm_signaling_templates",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/121/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/120/root_table"
       },
       {
         "table": "payment_capture_wizard",
@@ -1724,19 +1725,19 @@
         "table": "payment_country_rel",
         "census_ref": ".migration/census.json#/tables/payment_country_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/124/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/123/embeds/0/child_table"
       },
       {
         "table": "payment_currency_rel",
         "census_ref": ".migration/census.json#/tables/payment_currency_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/124/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/123/embeds/1/child_table"
       },
       {
         "table": "payment_data",
         "census_ref": ".migration/census.json#/tables/payment_data",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/122/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/121/root_table"
       },
       {
         "table": "payment_link_wizard",
@@ -1748,31 +1749,31 @@
         "table": "payment_method",
         "census_ref": ".migration/census.json#/tables/payment_method",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/123/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/122/root_table"
       },
       {
         "table": "payment_method_res_country_rel",
         "census_ref": ".migration/census.json#/tables/payment_method_res_country_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/123/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/122/embeds/0/child_table"
       },
       {
         "table": "payment_method_res_currency_rel",
         "census_ref": ".migration/census.json#/tables/payment_method_res_currency_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/123/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/122/embeds/1/child_table"
       },
       {
         "table": "payment_provider",
         "census_ref": ".migration/census.json#/tables/payment_provider",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/124/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/123/root_table"
       },
       {
         "table": "payment_provider_product_pricelist_rel",
         "census_ref": ".migration/census.json#/tables/payment_provider_product_pricelist_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/124/embeds/2/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/123/embeds/2/child_table"
       },
       {
         "table": "payment_refund_wizard",
@@ -1784,19 +1785,19 @@
         "table": "payment_token",
         "census_ref": ".migration/census.json#/tables/payment_token",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/125/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/124/root_table"
       },
       {
         "table": "payment_transaction",
         "census_ref": ".migration/census.json#/tables/payment_transaction",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/126/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/125/root_table"
       },
       {
         "table": "phone_blacklist",
         "census_ref": ".migration/census.json#/tables/phone_blacklist",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/127/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/126/root_table"
       },
       {
         "table": "phone_blacklist_remove",
@@ -1820,13 +1821,13 @@
         "table": "picking_type_favorite_user_rel",
         "census_ref": ".migration/census.json#/tables/picking_type_favorite_user_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/167/embeds/2/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/168/embeds/2/child_table"
       },
       {
         "table": "portal_entry",
         "census_ref": ".migration/census.json#/tables/portal_entry",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/128/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/127/root_table"
       },
       {
         "table": "portal_share",
@@ -1862,7 +1863,7 @@
         "table": "privacy_log",
         "census_ref": ".migration/census.json#/tables/privacy_log",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/129/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/128/root_table"
       },
       {
         "table": "privacy_lookup_wizard",
@@ -1880,73 +1881,73 @@
         "table": "product_attribute",
         "census_ref": ".migration/census.json#/tables/product_attribute",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/130/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/129/root_table"
       },
       {
         "table": "product_attribute_custom_value",
         "census_ref": ".migration/census.json#/tables/product_attribute_custom_value",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/131/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/130/root_table"
       },
       {
         "table": "product_attribute_product_template_rel",
         "census_ref": ".migration/census.json#/tables/product_attribute_product_template_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/130/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/129/embeds/0/child_table"
       },
       {
         "table": "product_attribute_value",
         "census_ref": ".migration/census.json#/tables/product_attribute_value",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/132/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/131/root_table"
       },
       {
         "table": "product_attribute_value_product_template_attribute_line_rel",
         "census_ref": ".migration/census.json#/tables/product_attribute_value_product_template_attribute_line_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/132/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/131/embeds/0/child_table"
       },
       {
         "table": "product_base_unit",
         "census_ref": ".migration/census.json#/tables/product_base_unit",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/133/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/132/root_table"
       },
       {
         "table": "product_category",
         "census_ref": ".migration/census.json#/tables/product_category",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/134/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/133/root_table"
       },
       {
         "table": "product_category_stock_picking_type_rel",
         "census_ref": ".migration/census.json#/tables/product_category_stock_picking_type_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/134/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/133/embeds/0/child_table"
       },
       {
         "table": "product_combo",
         "census_ref": ".migration/census.json#/tables/product_combo",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/135/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/134/root_table"
       },
       {
         "table": "product_combo_item",
         "census_ref": ".migration/census.json#/tables/product_combo_item",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/136/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/135/root_table"
       },
       {
         "table": "product_combo_product_template_rel",
         "census_ref": ".migration/census.json#/tables/product_combo_product_template_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/135/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/134/embeds/0/child_table"
       },
       {
         "table": "product_document",
         "census_ref": ".migration/census.json#/tables/product_document",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/61/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/60/embeds/1/child_table"
       },
       {
         "table": "product_label_layout",
@@ -1982,37 +1983,37 @@
         "table": "product_optional_rel",
         "census_ref": ".migration/census.json#/tables/product_optional_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/143/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/142/embeds/0/child_table"
       },
       {
         "table": "product_pricelist",
         "census_ref": ".migration/census.json#/tables/product_pricelist",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/137/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/136/root_table"
       },
       {
         "table": "product_pricelist_item",
         "census_ref": ".migration/census.json#/tables/product_pricelist_item",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/138/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/137/root_table"
       },
       {
         "table": "product_product",
         "census_ref": ".migration/census.json#/tables/product_product",
-        "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/139/root_table"
+        "bucket": "embedded",
+        "proposal_ref": ".migration/mapping_spec.json#/collections/142/embeds/1/child_table"
       },
       {
         "table": "product_product_uom_uom_rel",
         "census_ref": ".migration/census.json#/tables/product_product_uom_uom_rel",
-        "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/139/embeds/1/child_table"
+        "bucket": "collection",
+        "proposal_ref": ".migration/mapping_spec.json#/collections/138/root_table"
       },
       {
         "table": "product_removal",
         "census_ref": ".migration/census.json#/tables/product_removal",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/140/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/139/root_table"
       },
       {
         "table": "product_replenish",
@@ -2024,13 +2025,13 @@
         "table": "product_supplier_taxes_rel",
         "census_ref": ".migration/census.json#/tables/product_supplier_taxes_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/28/embeds/4/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/28/embeds/5/child_table"
       },
       {
         "table": "product_supplierinfo",
         "census_ref": ".migration/census.json#/tables/product_supplierinfo",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/141/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/140/root_table"
       },
       {
         "table": "product_supplierinfo_stock_replenishment_info_rel",
@@ -2042,115 +2043,115 @@
         "table": "product_tag",
         "census_ref": ".migration/census.json#/tables/product_tag",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/142/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/141/root_table"
       },
       {
         "table": "product_tag_product_product_rel",
         "census_ref": ".migration/census.json#/tables/product_tag_product_product_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/142/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/141/embeds/0/child_table"
       },
       {
         "table": "product_tag_product_template_rel",
         "census_ref": ".migration/census.json#/tables/product_tag_product_template_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/142/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/141/embeds/1/child_table"
       },
       {
         "table": "product_taxes_rel",
         "census_ref": ".migration/census.json#/tables/product_taxes_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/28/embeds/5/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/28/embeds/6/child_table"
       },
       {
         "table": "product_template",
         "census_ref": ".migration/census.json#/tables/product_template",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/143/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/142/root_table"
       },
       {
         "table": "product_template_attribute_excluded_value_ids_rel",
         "census_ref": ".migration/census.json#/tables/product_template_attribute_excluded_value_ids_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/145/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/144/embeds/0/child_table"
       },
       {
         "table": "product_template_attribute_line",
         "census_ref": ".migration/census.json#/tables/product_template_attribute_line",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/144/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/143/root_table"
       },
       {
         "table": "product_template_attribute_value",
         "census_ref": ".migration/census.json#/tables/product_template_attribute_value",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/145/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/144/root_table"
       },
       {
         "table": "product_template_attribute_value_purchase_order_line_rel",
         "census_ref": ".migration/census.json#/tables/product_template_attribute_value_purchase_order_line_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/145/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/144/embeds/1/child_table"
       },
       {
         "table": "product_template_attribute_value_sale_order_line_rel",
         "census_ref": ".migration/census.json#/tables/product_template_attribute_value_sale_order_line_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/145/embeds/2/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/144/embeds/2/child_table"
       },
       {
         "table": "product_template_uom_uom_rel",
         "census_ref": ".migration/census.json#/tables/product_template_uom_uom_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/143/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/142/embeds/2/child_table"
       },
       {
         "table": "product_uom",
         "census_ref": ".migration/census.json#/tables/product_uom",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/146/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/145/root_table"
       },
       {
         "table": "product_value",
         "census_ref": ".migration/census.json#/tables/product_value",
-        "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/139/embeds/0/child_table"
+        "bucket": "collection",
+        "proposal_ref": ".migration/mapping_spec.json#/collections/146/root_table"
       },
       {
         "table": "product_variant_combination",
         "census_ref": ".migration/census.json#/tables/product_variant_combination",
-        "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/139/embeds/2/child_table"
+        "bucket": "collection",
+        "proposal_ref": ".migration/mapping_spec.json#/collections/147/root_table"
       },
       {
         "table": "properties_base_definition",
         "census_ref": ".migration/census.json#/tables/properties_base_definition",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/73/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/72/embeds/1/child_table"
       },
       {
         "table": "purchase_order",
         "census_ref": ".migration/census.json#/tables/purchase_order",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/147/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/148/root_table"
       },
       {
         "table": "purchase_order_line",
         "census_ref": ".migration/census.json#/tables/purchase_order_line",
-        "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/148/root_table"
+        "bucket": "embedded",
+        "proposal_ref": ".migration/mapping_spec.json#/collections/148/embeds/0/child_table"
       },
       {
         "table": "purchase_order_line_accrual_move_rel",
         "census_ref": ".migration/census.json#/tables/purchase_order_line_accrual_move_rel",
-        "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/148/embeds/0/child_table"
+        "bucket": "collection",
+        "proposal_ref": ".migration/mapping_spec.json#/collections/149/root_table"
       },
       {
         "table": "purchase_order_stock_picking_rel",
         "census_ref": ".migration/census.json#/tables/purchase_order_stock_picking_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/147/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/148/embeds/1/child_table"
       },
       {
         "table": "rel_modules_langexport",
@@ -2162,37 +2163,37 @@
         "table": "report_layout",
         "census_ref": ".migration/census.json#/tables/report_layout",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/149/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/150/root_table"
       },
       {
         "table": "report_paperformat",
         "census_ref": ".migration/census.json#/tables/report_paperformat",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/150/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/151/root_table"
       },
       {
         "table": "res_city",
         "census_ref": ".migration/census.json#/tables/res_city",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/151/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/152/root_table"
       },
       {
         "table": "res_company",
         "census_ref": ".migration/census.json#/tables/res_company",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/152/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/153/root_table"
       },
       {
         "table": "res_company_spreadsheet_dashboard_rel",
         "census_ref": ".migration/census.json#/tables/res_company_spreadsheet_dashboard_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/152/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/153/embeds/0/child_table"
       },
       {
         "table": "res_company_users_rel",
         "census_ref": ".migration/census.json#/tables/res_company_users_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/152/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/153/embeds/1/child_table"
       },
       {
         "table": "res_config",
@@ -2210,97 +2211,97 @@
         "table": "res_country",
         "census_ref": ".migration/census.json#/tables/res_country",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/153/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/154/root_table"
       },
       {
         "table": "res_country_group",
         "census_ref": ".migration/census.json#/tables/res_country_group",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/154/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/155/root_table"
       },
       {
         "table": "res_country_group_pricelist_rel",
         "census_ref": ".migration/census.json#/tables/res_country_group_pricelist_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/154/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/155/embeds/0/child_table"
       },
       {
         "table": "res_country_group_res_country_state_rel",
         "census_ref": ".migration/census.json#/tables/res_country_group_res_country_state_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/154/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/155/embeds/1/child_table"
       },
       {
         "table": "res_country_res_country_group_rel",
         "census_ref": ".migration/census.json#/tables/res_country_res_country_group_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/153/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/154/embeds/0/child_table"
       },
       {
         "table": "res_country_state",
         "census_ref": ".migration/census.json#/tables/res_country_state",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/155/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/156/root_table"
       },
       {
         "table": "res_currency",
         "census_ref": ".migration/census.json#/tables/res_currency",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/156/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/157/root_table"
       },
       {
         "table": "res_currency_rate",
         "census_ref": ".migration/census.json#/tables/res_currency_rate",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/157/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/158/root_table"
       },
       {
         "table": "res_device_log",
         "census_ref": ".migration/census.json#/tables/res_device_log",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/158/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/159/root_table"
       },
       {
         "table": "res_groups",
         "census_ref": ".migration/census.json#/tables/res_groups",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/159/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/160/root_table"
       },
       {
         "table": "res_groups_implied_rel",
         "census_ref": ".migration/census.json#/tables/res_groups_implied_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/159/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/160/embeds/0/child_table"
       },
       {
         "table": "res_groups_privilege",
         "census_ref": ".migration/census.json#/tables/res_groups_privilege",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/160/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/161/root_table"
       },
       {
         "table": "res_groups_report_rel",
         "census_ref": ".migration/census.json#/tables/res_groups_report_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/159/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/160/embeds/1/child_table"
       },
       {
         "table": "res_groups_spreadsheet_dashboard_rel",
         "census_ref": ".migration/census.json#/tables/res_groups_spreadsheet_dashboard_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/159/embeds/2/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/160/embeds/2/child_table"
       },
       {
         "table": "res_groups_users_rel",
         "census_ref": ".migration/census.json#/tables/res_groups_users_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/159/embeds/3/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/160/embeds/3/child_table"
       },
       {
         "table": "res_lang",
         "census_ref": ".migration/census.json#/tables/res_lang",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/161/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/162/root_table"
       },
       {
         "table": "res_lang_install_rel",
@@ -2312,61 +2313,61 @@
         "table": "res_partner",
         "census_ref": ".migration/census.json#/tables/res_partner",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/162/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/163/root_table"
       },
       {
         "table": "res_partner_bank",
         "census_ref": ".migration/census.json#/tables/res_partner_bank",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/163/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/164/root_table"
       },
       {
         "table": "res_partner_category",
         "census_ref": ".migration/census.json#/tables/res_partner_category",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/164/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/165/root_table"
       },
       {
         "table": "res_partner_industry",
         "census_ref": ".migration/census.json#/tables/res_partner_industry",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/165/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/166/root_table"
       },
       {
         "table": "res_partner_res_partner_category_rel",
         "census_ref": ".migration/census.json#/tables/res_partner_res_partner_category_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/162/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/163/embeds/0/child_table"
       },
       {
         "table": "res_partner_stock_lot_rel",
         "census_ref": ".migration/census.json#/tables/res_partner_stock_lot_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/162/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/163/embeds/1/child_table"
       },
       {
         "table": "res_role",
         "census_ref": ".migration/census.json#/tables/res_role",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/166/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/167/root_table"
       },
       {
         "table": "res_role_res_users_rel",
         "census_ref": ".migration/census.json#/tables/res_role_res_users_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/166/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/167/embeds/0/child_table"
       },
       {
         "table": "res_users",
         "census_ref": ".migration/census.json#/tables/res_users",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/167/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/168/root_table"
       },
       {
         "table": "res_users_apikeys",
         "census_ref": ".migration/census.json#/tables/res_users_apikeys",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/167/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/168/embeds/1/child_table"
       },
       {
         "table": "res_users_apikeys_description",
@@ -2378,7 +2379,7 @@
         "table": "res_users_deletion",
         "census_ref": ".migration/census.json#/tables/res_users_deletion",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/168/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/169/root_table"
       },
       {
         "table": "res_users_identitycheck",
@@ -2390,43 +2391,43 @@
         "table": "res_users_log",
         "census_ref": ".migration/census.json#/tables/res_users_log",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/169/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/170/root_table"
       },
       {
         "table": "res_users_settings",
         "census_ref": ".migration/census.json#/tables/res_users_settings",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/170/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/171/root_table"
       },
       {
         "table": "res_users_settings_embedded_action",
         "census_ref": ".migration/census.json#/tables/res_users_settings_embedded_action",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/171/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/172/root_table"
       },
       {
         "table": "res_users_settings_volumes",
         "census_ref": ".migration/census.json#/tables/res_users_settings_volumes",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/172/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/173/root_table"
       },
       {
         "table": "res_users_spreadsheet_dashboard_favorite_filters_rel",
         "census_ref": ".migration/census.json#/tables/res_users_spreadsheet_dashboard_favorite_filters_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/167/embeds/3/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/168/embeds/3/child_table"
       },
       {
         "table": "res_users_spreadsheet_dashboard_rel",
         "census_ref": ".migration/census.json#/tables/res_users_spreadsheet_dashboard_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/167/embeds/4/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/168/embeds/4/child_table"
       },
       {
         "table": "res_users_web_tour_tour_rel",
         "census_ref": ".migration/census.json#/tables/res_users_web_tour_tour_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/167/embeds/5/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/168/embeds/5/child_table"
       },
       {
         "table": "reset_view_arch_wizard",
@@ -2438,31 +2439,31 @@
         "table": "resource_calendar",
         "census_ref": ".migration/census.json#/tables/resource_calendar",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/173/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/174/root_table"
       },
       {
         "table": "resource_calendar_attendance",
         "census_ref": ".migration/census.json#/tables/resource_calendar_attendance",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/173/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/174/embeds/0/child_table"
       },
       {
         "table": "resource_calendar_leaves",
         "census_ref": ".migration/census.json#/tables/resource_calendar_leaves",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/173/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/174/embeds/1/child_table"
       },
       {
         "table": "resource_resource",
         "census_ref": ".migration/census.json#/tables/resource_resource",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/174/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/175/root_table"
       },
       {
         "table": "return_reason",
         "census_ref": ".migration/census.json#/tables/return_reason",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/175/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/176/root_table"
       },
       {
         "table": "sale_advance_payment_inv",
@@ -2486,7 +2487,7 @@
         "table": "sale_order",
         "census_ref": ".migration/census.json#/tables/sale_order",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/176/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/177/root_table"
       },
       {
         "table": "sale_order_discount",
@@ -2497,26 +2498,26 @@
       {
         "table": "sale_order_line",
         "census_ref": ".migration/census.json#/tables/sale_order_line",
-        "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/177/root_table"
-      },
-      {
-        "table": "sale_order_line_accrual_move_rel",
-        "census_ref": ".migration/census.json#/tables/sale_order_line_accrual_move_rel",
         "bucket": "embedded",
         "proposal_ref": ".migration/mapping_spec.json#/collections/177/embeds/0/child_table"
       },
       {
+        "table": "sale_order_line_accrual_move_rel",
+        "census_ref": ".migration/census.json#/tables/sale_order_line_accrual_move_rel",
+        "bucket": "collection",
+        "proposal_ref": ".migration/mapping_spec.json#/collections/178/root_table"
+      },
+      {
         "table": "sale_order_line_invoice_rel",
         "census_ref": ".migration/census.json#/tables/sale_order_line_invoice_rel",
-        "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/177/embeds/1/child_table"
+        "bucket": "collection",
+        "proposal_ref": ".migration/mapping_spec.json#/collections/179/root_table"
       },
       {
         "table": "sale_order_line_stock_route_rel",
         "census_ref": ".migration/census.json#/tables/sale_order_line_stock_route_rel",
-        "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/177/embeds/2/child_table"
+        "bucket": "collection",
+        "proposal_ref": ".migration/mapping_spec.json#/collections/180/root_table"
       },
       {
         "table": "sale_order_mass_cancel_wizard_rel",
@@ -2528,19 +2529,19 @@
         "table": "sale_order_tag_rel",
         "census_ref": ".migration/census.json#/tables/sale_order_tag_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/176/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/177/embeds/1/child_table"
       },
       {
         "table": "sale_order_transaction_rel",
         "census_ref": ".migration/census.json#/tables/sale_order_transaction_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/176/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/177/embeds/2/child_table"
       },
       {
         "table": "scheduled_message_attachment_rel",
         "census_ref": ".migration/census.json#/tables/scheduled_message_attachment_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/61/embeds/5/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/60/embeds/5/child_table"
       },
       {
         "table": "server_action_history_wizard",
@@ -2576,13 +2577,13 @@
         "table": "sms_sms",
         "census_ref": ".migration/census.json#/tables/sms_sms",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/178/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/181/root_table"
       },
       {
         "table": "sms_template",
         "census_ref": ".migration/census.json#/tables/sms_template",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/179/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/182/root_table"
       },
       {
         "table": "sms_template_preview",
@@ -2606,37 +2607,37 @@
         "table": "sms_tracker",
         "census_ref": ".migration/census.json#/tables/sms_tracker",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/103/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/102/embeds/0/child_table"
       },
       {
         "table": "spreadsheet_dashboard",
         "census_ref": ".migration/census.json#/tables/spreadsheet_dashboard",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/180/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/183/root_table"
       },
       {
         "table": "spreadsheet_dashboard_allowed_users_rel",
         "census_ref": ".migration/census.json#/tables/spreadsheet_dashboard_allowed_users_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/180/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/183/embeds/1/child_table"
       },
       {
         "table": "spreadsheet_dashboard_favorite_filters",
         "census_ref": ".migration/census.json#/tables/spreadsheet_dashboard_favorite_filters",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/181/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/184/root_table"
       },
       {
         "table": "spreadsheet_dashboard_group",
         "census_ref": ".migration/census.json#/tables/spreadsheet_dashboard_group",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/182/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/185/root_table"
       },
       {
         "table": "spreadsheet_dashboard_share",
         "census_ref": ".migration/census.json#/tables/spreadsheet_dashboard_share",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/180/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/183/embeds/0/child_table"
       },
       {
         "table": "stock_add_to_wave",
@@ -2714,7 +2715,7 @@
         "table": "stock_location",
         "census_ref": ".migration/census.json#/tables/stock_location",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/183/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/186/root_table"
       },
       {
         "table": "stock_location_label_layout",
@@ -2726,37 +2727,37 @@
         "table": "stock_location_stock_picking_type_rel",
         "census_ref": ".migration/census.json#/tables/stock_location_stock_picking_type_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/183/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/186/embeds/0/child_table"
       },
       {
         "table": "stock_lot",
         "census_ref": ".migration/census.json#/tables/stock_lot",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/184/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/187/root_table"
       },
       {
         "table": "stock_move",
         "census_ref": ".migration/census.json#/tables/stock_move",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/185/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/188/root_table"
       },
       {
         "table": "stock_move_created_purchase_line_rel",
         "census_ref": ".migration/census.json#/tables/stock_move_created_purchase_line_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/185/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/188/embeds/0/child_table"
       },
       {
         "table": "stock_move_line",
         "census_ref": ".migration/census.json#/tables/stock_move_line",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/186/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/189/root_table"
       },
       {
         "table": "stock_move_line_consume_rel",
         "census_ref": ".migration/census.json#/tables/stock_move_line_consume_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/186/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/189/embeds/0/child_table"
       },
       {
         "table": "stock_move_line_stock_package_destination_rel",
@@ -2774,13 +2775,13 @@
         "table": "stock_move_move_rel",
         "census_ref": ".migration/census.json#/tables/stock_move_move_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/185/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/188/embeds/1/child_table"
       },
       {
         "table": "stock_move_stock_scrap_reason_tag_rel",
         "census_ref": ".migration/census.json#/tables/stock_move_stock_scrap_reason_tag_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/185/embeds/2/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/188/embeds/2/child_table"
       },
       {
         "table": "stock_orderpoint_snooze",
@@ -2810,7 +2811,7 @@
         "table": "stock_package",
         "census_ref": ".migration/census.json#/tables/stock_package",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/187/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/190/root_table"
       },
       {
         "table": "stock_package_destination",
@@ -2822,13 +2823,13 @@
         "table": "stock_package_history",
         "census_ref": ".migration/census.json#/tables/stock_package_history",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/188/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/191/root_table"
       },
       {
         "table": "stock_package_history_stock_picking_rel",
         "census_ref": ".migration/census.json#/tables/stock_package_history_stock_picking_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/188/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/191/embeds/0/child_table"
       },
       {
         "table": "stock_package_label_layout",
@@ -2846,25 +2847,25 @@
         "table": "stock_package_type",
         "census_ref": ".migration/census.json#/tables/stock_package_type",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/189/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/192/root_table"
       },
       {
         "table": "stock_package_type_stock_putaway_rule_rel",
         "census_ref": ".migration/census.json#/tables/stock_package_type_stock_putaway_rule_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/189/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/192/embeds/0/child_table"
       },
       {
         "table": "stock_package_type_stock_route_rel",
         "census_ref": ".migration/census.json#/tables/stock_package_type_stock_route_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/189/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/192/embeds/1/child_table"
       },
       {
         "table": "stock_picking",
         "census_ref": ".migration/census.json#/tables/stock_picking",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/190/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/193/root_table"
       },
       {
         "table": "stock_picking_backorder_rel",
@@ -2876,7 +2877,7 @@
         "table": "stock_picking_batch",
         "census_ref": ".migration/census.json#/tables/stock_picking_batch",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/191/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/194/root_table"
       },
       {
         "table": "stock_picking_sms_rel",
@@ -2900,7 +2901,7 @@
         "table": "stock_picking_type",
         "census_ref": ".migration/census.json#/tables/stock_picking_type",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/192/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/195/root_table"
       },
       {
         "table": "stock_picking_type_label_layout",
@@ -2918,13 +2919,13 @@
         "table": "stock_putaway_rule",
         "census_ref": ".migration/census.json#/tables/stock_putaway_rule",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/193/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/196/root_table"
       },
       {
         "table": "stock_quant",
         "census_ref": ".migration/census.json#/tables/stock_quant",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/194/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/197/root_table"
       },
       {
         "table": "stock_quant_relocate",
@@ -2948,25 +2949,25 @@
         "table": "stock_reference",
         "census_ref": ".migration/census.json#/tables/stock_reference",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/195/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/198/root_table"
       },
       {
         "table": "stock_reference_move_rel",
         "census_ref": ".migration/census.json#/tables/stock_reference_move_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/195/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/198/embeds/0/child_table"
       },
       {
         "table": "stock_reference_purchase_rel",
         "census_ref": ".migration/census.json#/tables/stock_reference_purchase_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/195/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/198/embeds/1/child_table"
       },
       {
         "table": "stock_reference_sale_rel",
         "census_ref": ".migration/census.json#/tables/stock_reference_sale_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/195/embeds/2/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/198/embeds/2/child_table"
       },
       {
         "table": "stock_replenishment_info",
@@ -2990,25 +2991,25 @@
         "table": "stock_route",
         "census_ref": ".migration/census.json#/tables/stock_route",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/196/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/199/root_table"
       },
       {
         "table": "stock_route_categ",
         "census_ref": ".migration/census.json#/tables/stock_route_categ",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/196/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/199/embeds/0/child_table"
       },
       {
         "table": "stock_route_move",
         "census_ref": ".migration/census.json#/tables/stock_route_move",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/196/embeds/1/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/199/embeds/1/child_table"
       },
       {
         "table": "stock_route_product",
         "census_ref": ".migration/census.json#/tables/stock_route_product",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/196/embeds/2/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/199/embeds/2/child_table"
       },
       {
         "table": "stock_route_stock_rules_report_rel",
@@ -3020,13 +3021,13 @@
         "table": "stock_route_warehouse",
         "census_ref": ".migration/census.json#/tables/stock_route_warehouse",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/196/embeds/3/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/199/embeds/3/child_table"
       },
       {
         "table": "stock_rule",
         "census_ref": ".migration/census.json#/tables/stock_rule",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/197/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/200/root_table"
       },
       {
         "table": "stock_rules_report",
@@ -3044,19 +3045,19 @@
         "table": "stock_scrap_reason_tag",
         "census_ref": ".migration/census.json#/tables/stock_scrap_reason_tag",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/198/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/201/root_table"
       },
       {
         "table": "stock_storage_category",
         "census_ref": ".migration/census.json#/tables/stock_storage_category",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/199/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/202/root_table"
       },
       {
         "table": "stock_storage_category_capacity",
         "census_ref": ".migration/census.json#/tables/stock_storage_category_capacity",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/200/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/203/root_table"
       },
       {
         "table": "stock_traceability_report",
@@ -3068,13 +3069,13 @@
         "table": "stock_warehouse",
         "census_ref": ".migration/census.json#/tables/stock_warehouse",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/201/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/204/root_table"
       },
       {
         "table": "stock_warehouse_orderpoint",
         "census_ref": ".migration/census.json#/tables/stock_warehouse_orderpoint",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/202/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/205/root_table"
       },
       {
         "table": "stock_warn_insufficient_qty_scrap",
@@ -3086,7 +3087,7 @@
         "table": "stock_wh_resupply_table",
         "census_ref": ".migration/census.json#/tables/stock_wh_resupply_table",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/201/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/204/embeds/0/child_table"
       },
       {
         "table": "stock_zero_demand_confirmation",
@@ -3098,19 +3099,19 @@
         "table": "team_favorite_user_rel",
         "census_ref": ".migration/census.json#/tables/team_favorite_user_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/38/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/37/embeds/0/child_table"
       },
       {
         "table": "template_attribute_value_stock_move_rel",
         "census_ref": ".migration/census.json#/tables/template_attribute_value_stock_move_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/145/embeds/3/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/144/embeds/3/child_table"
       },
       {
         "table": "uom_uom",
         "census_ref": ".migration/census.json#/tables/uom_uom",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/203/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/206/root_table"
       },
       {
         "table": "update_product_attribute_value",
@@ -3122,37 +3123,37 @@
         "table": "utm_campaign",
         "census_ref": ".migration/census.json#/tables/utm_campaign",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/204/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/207/root_table"
       },
       {
         "table": "utm_medium",
         "census_ref": ".migration/census.json#/tables/utm_medium",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/205/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/208/root_table"
       },
       {
         "table": "utm_source",
         "census_ref": ".migration/census.json#/tables/utm_source",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/206/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/209/root_table"
       },
       {
         "table": "utm_stage",
         "census_ref": ".migration/census.json#/tables/utm_stage",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/207/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/210/root_table"
       },
       {
         "table": "utm_tag",
         "census_ref": ".migration/census.json#/tables/utm_tag",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/208/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/211/root_table"
       },
       {
         "table": "utm_tag_rel",
         "census_ref": ".migration/census.json#/tables/utm_tag_rel",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/208/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/211/embeds/0/child_table"
       },
       {
         "table": "validate_account_move",
@@ -3164,19 +3165,19 @@
         "table": "web_tour_tour",
         "census_ref": ".migration/census.json#/tables/web_tour_tour",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/209/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/212/root_table"
       },
       {
         "table": "web_tour_tour_step",
         "census_ref": ".migration/census.json#/tables/web_tour_tour_step",
         "bucket": "embedded",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/209/embeds/0/child_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/212/embeds/0/child_table"
       },
       {
         "table": "website",
         "census_ref": ".migration/census.json#/tables/website",
         "bucket": "collection",
-        "proposal_ref": ".migration/mapping_spec.json#/collections/210/root_table"
+        "proposal_ref": ".migration/mapping_spec.json#/collections/213/root_table"
       },
       {
         "table": "wizard_ir_model_menu_create",
@@ -3416,18 +3417,24 @@
   },
   "access": {
     "candidates": 6163,
-    "confirmed": 0,
+    "confirmed": 29,
     "workload_export_exit": 2,
-    "workload_limitation": "pg_stat_statements unavailable; frequencies remain unmeasured."
+    "workload_limitation": "pg_stat_statements unavailable; frequencies remain unmeasured.",
+    "confirmed_by_frequency": {
+      "hot": 10,
+      "warm": 14,
+      "cold": 5
+    },
+    "review": "s2.2-access-review: code-path confirmations with file:line cites; unmeasured"
   },
   "artifact_sha256": {
     "apps.json": "20757d80bbe1f3f04ef976b9bdb485ea5f222541b33ac5b2d556ee8199c0cbad",
     "census.json": "12b46b165ae3f351742924a42f9d2b4ec659bb994b30099b15b74090589d21fb",
-    "data_profile.json": "3814a04752deb6f4e1fcb2c2f9aea3f59935d8714df299c2c07ba48b98b09903",
-    "access_patterns.json": "a5a3a58d734a7c6eb76742d128d339229f1de386a41722b3edc992c6e631b4a2",
-    "mapping_spec.json": "955890063d7888c47526b5130aa5b07c89cd5984f3e10e702254c3eca8bde0b0",
-    "model_cards.md": "9755b085e50b22c9712af22c3113847188451fc737242d7b677438eee4365b6e",
-    "table_buckets.json": "2cd766541e37285466f845f07865300b37cd08bfce62f153a8d7350d3e5c9bcc",
+    "data_profile.json": "602f87258d5ee8cb17d304afb79270355ef2cb394cf7e10770465f3849edb6ed",
+    "access_patterns.json": "38557f09d579f14681d89c2f25645b0536f1c87874c59393e15f739c54f5289c",
+    "mapping_spec.json": "c7c64de422dae0d38149155ed55b15dc6c16f16ac101e00ae87d9d4a46adc82b",
+    "model_cards.md": "449c9755488b08466ce1dfe707a178d1c45b47f63368815b70aeba3599111eb2",
+    "table_buckets.json": "69131ca36ef84d6ec91d513302c77eb0484ce1ea99cf425d991535ca5a90f30f",
     "table_buckets.py": "fed476622b1e0a84df683402bc755274f602eeed107fc4dc9e449dcd907851d8"
   },
   "merge_authority": "No recon or model-acceptance claim; this is modeling evidence only."

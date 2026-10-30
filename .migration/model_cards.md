@@ -2,7 +2,7 @@
 
 ## Your data in MongoDB
 
-370 source tables become 211 collections: 131 hold one table each, and 80 also carry 159 smaller tables embedded inside their documents (158 as arrays, 1 as one subdocument; 126 of the arrays are link tables). The most common reason a table keeps its own collection: other tables also point at it, so it keeps its own collection (1029 of 1036 references). The most common reason a table is embedded: a link table, kept as an array on this side (126 of 159 embeds). 151 tables stay on the source and are not migrated: account_account_account_merge_wizard_rel, account_accrued_orders_wizard, account_automatic_entry_wizard, account_automatic_entry_wizard_account_move_line_rel, account_autopost_bills_wizard, account_financial_year_op, account_merge_wizard, account_merge_wizard_line and 143 more.
+370 source tables become 214 collections: 137 hold one table each, and 77 also carry 156 smaller tables embedded inside their documents (155 as arrays, 1 as one subdocument; 120 of the arrays are link tables). The most common reason a table keeps its own collection: other tables also point at it, so it keeps its own collection (982 of 1024 references). The most common reason a table is embedded: a link table, kept as an array on this side (120 of 156 embeds). 151 tables stay on the source and are not migrated: account_account_account_merge_wizard_rel, account_accrued_orders_wizard, account_automatic_entry_wizard, account_automatic_entry_wizard_account_move_line_rel, account_autopost_bills_wizard, account_financial_year_op, account_merge_wizard, account_merge_wizard_line and 143 more.
 
 ### Examples
 
@@ -16,16 +16,16 @@ _No rehearsal sample for Reference: re-render with --samples (schema-modeling st
 
 ### Known limits
 
-- 1299 of 1392 relationship choices follow the schema alone (assumed), not measured data or app code.
-- 143 embedded arrays have no measured size bound (cardinality assumed).
-- 613 questions are still open; they are listed below.
+- 1252 of 1392 relationship choices follow the schema alone (assumed), not measured data or app code.
+- 137 embedded arrays have no measured size bound (cardinality assumed).
+- 766 questions are still open; they are listed below.
 - No rehearsal sample yet: examples appear once the page is re-rendered with --samples.
 
 ## Review
 
-- **Draft:** 211 collections, 159 embedded tables, 151 tables excluded.
-- **Evidence:** of 1392 relationship choices, 93 rest on measured data or app code and 0 on a recorded decision (`derived`); the rest follow the schema alone (`assumed`).
-- **Decisions:** 12 kinds of question, 613 items. The draft already applies each proposal; answer each group with one line in `.migration/answers.txt` (template below).
+- **Draft:** 214 collections, 156 embedded tables, 151 tables excluded.
+- **Evidence:** of 1392 relationship choices, 140 rest on measured data or app code and 0 on a recorded decision (`derived`); the rest follow the schema alone (`assumed`).
+- **Decisions:** 13 kinds of question, 766 items. The draft already applies each proposal; answer each group with one line in `.migration/answers.txt` (template below).
 
 1. **many_to_many_junction** (126): proposed as an array in account_account (junction name); confirm the side, that neither side's list grows without bound or past the 16 MB document limit, and add a multikey index for the reverse lookup — or keep a reference  
    Applies to: account_account_account_tag, account_account_res_company_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_account_tax_default_rel, account_analytic_line_stock_move_rel, account_bank_statement_ir_attachment_rel and 118 more
@@ -36,34 +36,37 @@ _No rehearsal sample for Reference: re-render with --samples (schema-modeling st
 4. **date_format_assumed** (1): unmeasurable in this profile  
    Applies to: mail_template
 5. **transient_tables** (1): 151 table(s) back transient models, scratch state the framework deletes on a timer, so they are not migrated: account_account_account_merge_wizard_rel, account_accrued_orders_wizard, account_automatic_entry_wizard, account_automatic_entry_wizard_account_move_line_rel, account_autopost_bills_wizard, account_financial_year_op, account_merge_wizard, account_merge_wizard_line, account_move_account_move_send_batch_wizard_rel, account_move_account_resequence_wizard_rel, account_move_reversal, account_move_reversal_move, account_move_reversal_new_move, account_move_send_batch_wizard, account_move_send_wizard, account_move_send_wizard_res_partner_rel, account_move_validate_account_move_rel, account_payment_register, account_payment_register_move_line_rel, account_resequence_wizard, account_secure_entries_wizard, account_setup_bank_manual_config, auth_passkey_key_create, auth_totp_rate_limit_log, auth_totp_wizard, base_document_layout, base_enable_profiling_wizard, base_import_import, base_import_module, base_language_export, base_language_import, base_language_install, base_module_install_request, base_module_install_review, base_module_uninstall, base_module_uninstall_ir_module_module_rel, base_module_update, base_module_upgrade, base_partner_merge_automatic_wizard, base_partner_merge_automatic_wizard_res_partner_rel, base_partner_merge_line, bill_to_po_wizard, change_password_own, change_password_user, change_password_wizard, confirm_stock_sms, digest_test, digest_test_res_users_rel, ir_demo, ir_demo_failure, ir_demo_failure_wizard, lot_label_layout, lot_label_layout_stock_lot_rel, lot_label_layout_stock_move_line_rel, mail_activity_plan_mail_activity_schedule_rel, mail_activity_schedule, mail_activity_schedule_line, mail_blacklist_remove, mail_compose_message, mail_compose_message_ir_attachments_rel, mail_compose_message_res_partner_cc_rel, mail_compose_message_res_partner_rel, mail_followers_edit, mail_followers_edit_res_partner_rel, mail_template_mail_template_reset_rel, mail_template_preview, mail_template_reset, payment_capture_wizard, payment_capture_wizard_payment_transaction_rel, payment_link_wizard, payment_refund_wizard, phone_blacklist_remove, picking_label_type, picking_label_type_stock_picking_rel, portal_share, portal_share_res_partner_rel, portal_wizard, portal_wizard_res_partner_rel, portal_wizard_user, privacy_lookup_wizard, privacy_lookup_wizard_line, product_label_layout, product_label_layout_product_product_rel, product_label_layout_product_template_rel, product_label_layout_product_uom_rel, product_label_layout_stock_move_rel, product_replenish, product_supplierinfo_stock_replenishment_info_rel, rel_modules_langexport, res_config, res_config_settings, res_lang_install_rel, res_users_apikeys_description, res_users_identitycheck, reset_view_arch_wizard, sale_advance_payment_inv, sale_advance_payment_inv_sale_order_rel, sale_mass_cancel_orders, sale_order_discount, sale_order_mass_cancel_wizard_rel, server_action_history_wizard, sms_account_code, sms_account_phone, sms_account_sender, sms_composer, sms_template_preview, sms_template_reset, sms_template_sms_template_reset_rel, stock_add_to_wave, stock_add_to_wave_stock_move_line_rel, stock_add_to_wave_stock_picking_rel, stock_backorder_confirmation, stock_backorder_confirmation_line, stock_conflict_quant_rel, stock_inventory_adjustment_name, stock_inventory_adjustment_name_stock_quant_rel, stock_inventory_conflict, stock_inventory_conflict_stock_quant_rel, stock_inventory_warning, stock_inventory_warning_stock_quant_rel, stock_location_label_layout, stock_move_line_stock_package_destination_rel, stock_move_line_stock_put_in_pack_rel, stock_orderpoint_snooze, stock_orderpoint_snooze_stock_warehouse_orderpoint_rel, stock_orderpoint_suggest, stock_orderpoint_suggest_stock_warehouse_orderpoint_rel, stock_package_destination, stock_package_label_layout, stock_package_stock_put_in_pack_rel, stock_picking_backorder_rel, stock_picking_sms_rel, stock_picking_stock_zero_demand_confirmation_rel, stock_picking_to_batch, stock_picking_type_label_layout, stock_put_in_pack, stock_quant_relocate, stock_quant_stock_quant_relocate_rel, stock_quant_stock_request_count_rel, stock_replenishment_info, stock_replenishment_option, stock_request_count, stock_route_stock_rules_report_rel, stock_rules_report, stock_rules_report_stock_warehouse_rel, stock_traceability_report, stock_warn_insufficient_qty_scrap, stock_zero_demand_confirmation, update_product_attribute_value, validate_account_move, wizard_ir_model_menu_create; confirm none must survive cutover
-6. **no_access_evidence** (211): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged  
-   Applies to: account_account, account_account_tag, account_analytic_account, account_analytic_applicability, account_analytic_distribution_model, account_analytic_line, account_analytic_plan, account_bank_statement and 203 more
-7. **cascade_into_embed** (113): account_account_res_company_rel is embedded in account_account, but deleting a res_company row cascades to its account_account_res_company_rel: the app must pull them from every account_account document, or keep account_account_res_company_rel separate  
-   Applies to: account_account_res_company_rel, account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_analytic_line_stock_move_rel, account_bank_statement_ir_attachment_rel, account_cash_rounding_account_payment_method_line_rel and 105 more
-8. **lob** (56): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)  
+6. **no_access_evidence** (200): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged  
+   Applies to: account_account, account_account_tag, account_analytic_account, account_analytic_applicability, account_analytic_distribution_model, account_analytic_line, account_analytic_plan, account_bank_statement and 192 more
+7. **source_index_not_exercised** (170): source index not exercised by any confirmed access pattern; keep or drop  
+   Applies to: account_invoice_transaction_rel, account_move, account_move__account_payment, account_move_purchase_order_rel, adjusting_entries__account_move, account_move_line, account_move_line_account_tax_rel, account_partial_reconcile and 28 more
+8. **cascade_into_embed** (109): account_account_res_company_rel is embedded in account_account, but deleting a res_company row cascades to its account_account_res_company_rel: the app must pull them from every account_account document, or keep account_account_res_company_rel separate  
+   Applies to: account_account_res_company_rel, account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_analytic_line_stock_move_rel, account_bank_statement_ir_attachment_rel, account_cash_rounding_account_payment_method_line_rel and 101 more
+9. **lob** (56): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)  
    Applies to: account_account, account_analytic_plan, account_journal, account_move, account_move_line, account_report_expression, discuss_channel, fetchmail_server and 48 more
-9. **fanout_unmeasured** (55): account_analytic_line_stock_move_rel has no rows per account_analytic_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding  
-   Applies to: account_analytic_line_stock_move_rel, account_invoice_transaction_rel, adjusting_entries__account_move, account_payment_account_bank_statement_line_rel, digest_tip_res_users_rel, discuss_channel_last_interest_update, iap_account_res_company_rel, iap_account_res_users_rel and 47 more
-10. **nullable_unique_key** (27): source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-11. **date_as_string** (1)  
+10. **fanout_unmeasured** (53): account_analytic_line_stock_move_rel has no rows per account_analytic_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding  
+   Applies to: account_analytic_line_stock_move_rel, account_invoice_transaction_rel, adjusting_entries__account_move, account_payment_account_bank_statement_line_rel, digest_tip_res_users_rel, discuss_channel_last_interest_update, iap_account_res_company_rel, iap_account_res_users_rel and 45 more
+11. **nullable_unique_key** (27): source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
+12. **date_as_string** (1)  
    Applies to: mail_template
-12. **repeating_group** (1): collapse each numbered series into one array field; needs app evidence, mapped 1:1 until then  
+13. **repeating_group** (1): collapse each numbered series into one array field; needs app evidence, mapped 1:1 until then  
    Applies to: ir_model_fields
 
 **Answers template.** Copy it to `.migration/answers.txt` and replace each `<...>` with who decided and why. `accept` keeps the embeds and copied fields a rule proposed (from the schema alone), `reject` makes its embeds references, `except` exempts tables, `close` settles every question of a kind. Delete lines you are not ready to answer.
 
 ```
-accept junction_array: <who said so, and why>  # 126 tables: account_account_account_tag, account_account_res_company_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_account_tax_default_rel, account_analytic_line_stock_move_rel, account_bank_statement_ir_attachment_rel and 118 more
+accept junction_array: <who said so, and why>  # 120 tables: account_account_account_tag, account_account_res_company_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_account_tax_default_rel, account_analytic_line_stock_move_rel, account_bank_statement_ir_attachment_rel and 112 more
 accept ownership: <who said so, and why>  # 17 tables: auth_totp_device, discuss_channel_last_interest_update, discuss_voice_metadata, iap_service_pack, ir_act_client, ir_act_url, ir_cron_progress, ir_exports_line and 9 more
 close many_to_many_junction: <who said so, and why>  # 126 questions
 close embed_unbounded: <who said so, and why>  # 17 questions
 close embed_null_pointer_rows: <who said so, and why>  # 4 questions
 close date_format_assumed: <who said so, and why>  # 1 questions
 close transient_tables: <who said so, and why>  # 1 questions
-close no_access_evidence: <who said so, and why>  # 211 questions
-close cascade_into_embed: <who said so, and why>  # 113 questions
+close no_access_evidence: <who said so, and why>  # 200 questions
+close source_index_not_exercised: <who said so, and why>  # 170 questions
+close cascade_into_embed: <who said so, and why>  # 109 questions
 close lob: <who said so, and why>  # 56 questions
-close fanout_unmeasured: <who said so, and why>  # 55 questions
+close fanout_unmeasured: <who said so, and why>  # 53 questions
 close nullable_unique_key: <who said so, and why>  # 27 questions
 close date_as_string: <who said so, and why>  # 1 questions
 close repeating_group: <who said so, and why>  # 1 questions
@@ -106,13 +109,13 @@ From `account_account` with `account_account_account_tag`, `account_account_res_
 ```
 
 Why:
-- account_account → account_account, account_analytic_line, account_journal, account_move_line, account_payment, account_payment_method_line, account_reconcile_model_line, account_tax, account_tax_repartition_line, res_company, stock_location: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- account_account → account_account, account_analytic_line, account_journal, account_payment, account_payment_method_line, account_reconcile_model_line, account_tax, res_company, stock_location: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users, res_currency → account_account: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_account → account_account_account_tag, account_account_res_company_rel, account_account_tax_default_rel: **embed**, a link table, kept as an array on this side (assumed)
 - account_account_tag → account_account_account_tag: **reference**, a link table, embedded on the other side (assumed)
 - res_company → account_account_res_company_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_tax → account_account_tax_default_rel: **reference**, a link table, embedded on the other side (assumed)
-- account_account → account_fiscal_position_account: **reference**, it is embedded under another parent; this one is referenced (derived)
+- account_account → account_fiscal_position_account, account_move_line, account_tax_repartition_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 
 Open questions (4):
 - **cascade_into_embed** (account_account_res_company_rel): account_account_res_company_rel is embedded in account_account, but deleting a res_company row cascades to its account_account_res_company_rel: the app must pull them from every account_account document, or keep account_account_res_company_rel separate
@@ -247,7 +250,8 @@ Why:
 - res_company, res_users, res_currency, account_journal → account_bank_statement: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_bank_statement → account_bank_statement_ir_attachment_rel: **embed**, a link table, kept as an array on this side (assumed)
 - ir_attachment → account_bank_statement_ir_attachment_rel: **reference**, a link table, embedded on the other side (assumed)
-- account_bank_statement → account_bank_statement_line, account_move_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- account_bank_statement → account_bank_statement_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- account_bank_statement → account_move_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 
 Open questions (2):
 - **cascade_into_embed** (account_bank_statement_ir_attachment_rel): account_bank_statement_ir_attachment_rel is embedded in account_bank_statement, but deleting a ir_attachment row cascades to its account_bank_statement_ir_attachment_rel: the app must pull them from every account_bank_statement document, or keep account_bank_statement_ir_attachment_rel separate
@@ -403,10 +407,11 @@ From `account_journal` with `account_journal_account_reconcile_model_rel` embedd
 ```
 
 Why:
-- account_journal → account_analytic_line, account_bank_statement, account_bank_statement_line, account_move, account_move_line, account_payment, account_payment_method_line, res_company, sale_order: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- account_journal → account_analytic_line, account_bank_statement, account_bank_statement_line, account_move, account_payment, account_payment_method_line, res_company, sale_order: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - mail_alias, res_partner_bank, res_company, res_users, res_currency, account_account, ir_act_report_xml, account_journal_group → account_journal: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_reconcile_model → account_journal_account_reconcile_model_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_journal → account_journal_account_reconcile_model_rel: **embed**, a link table, kept as an array on this side (assumed)
+- account_journal → account_move_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 
 Open questions (3):
 - **cascade_into_embed** (account_journal_account_reconcile_model_rel): account_journal_account_reconcile_model_rel is embedded in account_journal, but deleting a account_reconcile_model row cascades to its account_journal_account_reconcile_model_rel: the app must pull them from every account_journal document, or keep account_journal_account_reconcile_model_rel separate
@@ -513,23 +518,60 @@ From `account_move` with `account_invoice_transaction_rel`, `account_move__accou
 ```
 
 Why:
-- account_move → account_analytic_line, account_bank_statement_line, account_move, account_move_line, account_partial_reconcile, account_payment, res_company, stock_move: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- account_move → account_analytic_line, account_bank_statement_line, account_move, account_partial_reconcile, account_payment, product_value, res_company, stock_move: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_move → account_invoice_transaction_rel, account_move__account_payment, account_move_purchase_order_rel, adjusting_entries__account_move: **embed**, a link table, kept as an array on this side (assumed)
 - payment_transaction → account_invoice_transaction_rel: **reference**, a link table, embedded on the other side (assumed)
 - utm_campaign, res_partner, res_company, res_users, res_currency, account_fiscal_position, ir_attachment, account_cash_rounding, account_incoterms, account_payment_term, account_journal, utm_medium, account_payment, res_partner_bank, account_payment_method_line, utm_source, account_bank_statement_line, account_partial_reconcile, crm_team → account_move: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_payment → account_move__account_payment: **reference**, a link table, embedded on the other side (assumed)
+- account_move → account_move_line: **reference**, the app reads it on its own (derived)
 - purchase_order → account_move_purchase_order_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_move → adjusting_entries__account_move, purchase_order_line_accrual_move_rel, sale_order_line_accrual_move_rel: **reference**, a link table, embedded on the other side (assumed)
-- account_move → product_value: **reference**, it is embedded under another parent; this one is referenced (derived)
 
-Open questions (7):
+Open questions (44):
 - **fanout_unmeasured** (account_invoice_transaction_rel): account_invoice_transaction_rel has no rows per account_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
 - **fanout_unmeasured** (adjusting_entries__account_move): adjusting_entries__account_move has no rows per account_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
 - **cascade_into_embed** (account_invoice_transaction_rel): account_invoice_transaction_rel is embedded in account_move, but deleting a payment_transaction row cascades to its account_invoice_transaction_rel: the app must pull them from every account_move document, or keep account_invoice_transaction_rel separate
 - **cascade_into_embed** (account_move__account_payment): account_move__account_payment is embedded in account_move, but deleting a account_payment row cascades to its account_move__account_payment: the app must pull them from every account_move document, or keep account_move__account_payment separate
 - **cascade_into_embed** (account_move_purchase_order_rel): account_move_purchase_order_rel is embedded in account_move, but deleting a purchase_order row cascades to its account_move_purchase_order_rel: the app must pull them from every account_move document, or keep account_move_purchase_order_rel separate
-- **no_access_evidence** (account_move): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 - **lob** (account_move): LOB column(s) narration measured max 209 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
+- **source_index_not_exercised** (account_invoice_transaction_rel): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move__account_payment): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_purchase_order_rel): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (adjusting_entries__account_move): source index not exercised by any confirmed access pattern; keep or drop
 
 ## accountMoveLine
 
@@ -606,15 +648,36 @@ From `account_move_line` with `account_move_line_account_tax_rel` embedded.
 
 Why:
 - account_move_line → account_account_tag_account_move_line_rel, sale_order_line_invoice_rel: **reference**, a link table, embedded on the other side (assumed)
-- account_move_line → account_analytic_line, account_move_line, account_partial_reconcile: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- account_account, res_currency, res_company, res_users, account_full_reconcile, account_tax, account_journal, account_move, res_partner, account_payment, product_product, uom_uom, purchase_order_line, account_reconcile_model, account_bank_statement, account_bank_statement_line, stock_move, account_tax_group, account_tax_repartition_line → account_move_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- account_move_line → account_analytic_line, account_partial_reconcile: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- account_account, res_currency, res_company, res_users, account_full_reconcile, account_tax, account_journal, res_partner, account_payment, product_product, uom_uom, purchase_order_line, account_reconcile_model, account_bank_statement, account_bank_statement_line, stock_move, account_tax_group, account_tax_repartition_line → account_move_line: **reference**, it is embedded under another parent; this one is referenced (derived)
+- account_move_line → account_move_line: **reference**, it is embedded under another parent; this one is referenced (derived)
+- account_move → account_move_line: **reference**, the app reads it on its own (derived)
 - account_move_line → account_move_line_account_tax_rel: **embed**, a link table, kept as an array on this side (assumed)
 - account_tax → account_move_line_account_tax_rel: **reference**, too many children per parent (measured) (derived)
 
-Open questions (3):
+Open questions (22):
 - **cascade_into_embed** (account_move_line_account_tax_rel): account_move_line_account_tax_rel is embedded in account_move_line, but deleting a account_tax row cascades to its account_move_line_account_tax_rel: the app must pull them from every account_move_line document, or keep account_move_line_account_tax_rel separate
-- **no_access_evidence** (account_move_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 - **lob** (account_move_line): LOB column(s) name measured max 67 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_move_line_account_tax_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## accountPayment
 
@@ -664,8 +727,9 @@ From `account_payment` with `account_payment_account_bank_statement_line_rel` em
 ```
 
 Why:
-- account_payment → account_move, account_move_line, account_payment, payment_transaction: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- account_payment → account_move, account_payment, payment_transaction: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_payment → account_move__account_payment: **reference**, a link table, embedded on the other side (assumed)
+- account_payment → account_move_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 - res_partner, res_company, res_users, res_currency, account_account, account_journal, ir_attachment, account_move, res_partner_bank, account_payment_method, account_payment_method_line, payment_token, payment_transaction → account_payment: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_bank_statement_line → account_payment_account_bank_statement_line_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_payment → account_payment_account_bank_statement_line_rel: **embed**, a link table, kept as an array on this side (assumed)
@@ -715,10 +779,7 @@ Why:
 - account_payment_term → account_move, purchase_order, sale_order: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users → account_payment_term: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → account_payment_term_line: **reference**, it is embedded under another parent; this one is referenced (derived)
-- account_payment_term → account_payment_term_line: **embed**, owned by its parent (cascade delete or ordinal key) (derived)
-
-Open questions (1):
-- **no_access_evidence** (account_payment_term): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
+- account_payment_term → account_payment_term_line: **embed**, the app reads it with its parent (derived)
 
 ## accountReconcileModel
 
@@ -756,8 +817,9 @@ From `account_reconcile_model` with `account_reconcile_model_res_partner_rel` em
 
 Why:
 - account_reconcile_model → account_journal_account_reconcile_model_rel: **reference**, a link table, embedded on the other side (assumed)
-- account_reconcile_model → account_move_line, account_reconcile_model_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- account_reconcile_model → account_move_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 - res_company, res_users, res_partner, mail_activity_type → account_reconcile_model: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- account_reconcile_model → account_reconcile_model_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_reconcile_model → account_reconcile_model_res_partner_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_partner → account_reconcile_model_res_partner_rel: **reference**, a link table, embedded on the other side (assumed)
 
@@ -928,7 +990,7 @@ Open questions (2):
 
 ## accountTax
 
-From `account_tax` with `account_tax_alternatives`, `account_tax_filiation_rel`, `account_tax_purchase_order_line_rel`, `account_tax_sale_order_line_rel`, `product_supplier_taxes_rel`, `product_taxes_rel` embedded.
+From `account_tax` with `account_tax_alternatives`, `account_tax_filiation_rel`, `account_tax_purchase_order_line_rel`, `account_tax_repartition_line`, `account_tax_sale_order_line_rel`, `product_supplier_taxes_rel`, `product_taxes_rel` embedded.
 
 ```js
 {
@@ -975,6 +1037,20 @@ From `account_tax` with `account_tax_alternatives`, `account_tax_filiation_rel`,
   purchaseOrderLineRel: [{  // account_tax_purchase_order_line_rel, 1:N assumed
     purchaseOrderLineId: int,  // purchase_order_line_id
   }],
+  repartitionLine: [{  // account_tax_repartition_line, 1:N derived
+    id: int,  // id
+    accountId: int,  // account_id
+    companyId: int,  // company_id
+    sequence: int,  // sequence
+    createUid: int,  // create_uid
+    writeUid: int,  // write_uid
+    repartitionType: string,  // repartition_type
+    documentType: string,  // document_type
+    factorPercent: decimal,  // factor_percent
+    useInTaxClosing: bool,  // use_in_tax_closing
+    createDate: date,  // create_date
+    writeDate: date,  // write_date
+  }],
   saleOrderLineRel: [{  // account_tax_sale_order_line_rel, 1:N assumed
     saleOrderLineId: int,  // sale_order_line_id
   }],
@@ -989,21 +1065,32 @@ From `account_tax` with `account_tax_alternatives`, `account_tax_filiation_rel`,
 
 Why:
 - account_tax → account_account_tax_default_rel, account_fiscal_position_account_tax_rel, account_reconcile_model_line_account_tax_rel, account_tax_alternatives, account_tax_filiation_rel: **reference**, a link table, embedded on the other side (assumed)
-- account_tax → account_move_line, account_tax, account_tax_repartition_line, res_company: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- account_tax → account_move_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 - account_tax → account_move_line_account_tax_rel: **reference**, too many children per parent (measured) (derived)
 - account_account, res_company, res_country, res_users, res_city, l10n_us_res_county, res_country_state, account_tax_group → account_tax: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- account_tax → account_tax, res_company: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_tax → account_tax_alternatives, account_tax_filiation_rel, account_tax_purchase_order_line_rel, account_tax_sale_order_line_rel, product_supplier_taxes_rel, product_taxes_rel: **embed**, a link table, kept as an array on this side (assumed)
 - purchase_order_line → account_tax_purchase_order_line_rel: **reference**, a link table, embedded on the other side (assumed)
+- account_account, res_company, res_users → account_tax_repartition_line: **reference**, it is embedded under another parent; this one is referenced (derived)
+- account_tax → account_tax_repartition_line: **embed**, the app reads it with its parent (derived)
 - sale_order_line → account_tax_sale_order_line_rel: **reference**, a link table, embedded on the other side (assumed)
 - product_template → product_supplier_taxes_rel: **reference**, a link table, embedded on the other side (assumed)
 - product_template → product_taxes_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (5):
+Open questions (13):
 - **cascade_into_embed** (account_tax_purchase_order_line_rel): account_tax_purchase_order_line_rel is embedded in account_tax, but deleting a purchase_order_line row cascades to its account_tax_purchase_order_line_rel: the app must pull them from every account_tax document, or keep account_tax_purchase_order_line_rel separate
 - **cascade_into_embed** (account_tax_sale_order_line_rel): account_tax_sale_order_line_rel is embedded in account_tax, but deleting a sale_order_line row cascades to its account_tax_sale_order_line_rel: the app must pull them from every account_tax document, or keep account_tax_sale_order_line_rel separate
 - **cascade_into_embed** (product_supplier_taxes_rel): product_supplier_taxes_rel is embedded in account_tax, but deleting a product_template row cascades to its product_supplier_taxes_rel: the app must pull them from every account_tax document, or keep product_supplier_taxes_rel separate
 - **cascade_into_embed** (product_taxes_rel): product_taxes_rel is embedded in account_tax, but deleting a product_template row cascades to its product_taxes_rel: the app must pull them from every account_tax document, or keep product_taxes_rel separate
-- **no_access_evidence** (account_tax): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
+- **source_index_not_exercised** (account_tax): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_tax): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_tax_alternatives): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_tax_filiation_rel): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_tax_purchase_order_line_rel): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_tax_repartition_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_tax_sale_order_line_rel): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (product_supplier_taxes_rel): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (product_taxes_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## crmTeam
 
@@ -2819,75 +2906,6 @@ Open questions (2):
 - **cascade_into_embed** (product_combo_product_template_rel): product_combo_product_template_rel is embedded in product_combo, but deleting a product_template row cascades to its product_combo_product_template_rel: the app must pull them from every product_combo document, or keep product_combo_product_template_rel separate
 - **no_access_evidence** (product_combo): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
-## productProduct
-
-From `product_product` with `product_value`, `product_product_uom_uom_rel`, `product_variant_combination` embedded.
-
-```js
-{
-  _id: int,  // id
-  productTmplId: int,  // product_tmpl_id
-  baseUnitId: int,  // base_unit_id
-  createUid: int,  // create_uid
-  writeUid: int,  // write_uid
-  defaultCode: string,  // default_code
-  barcode: string,  // barcode
-  combinationIndices: string,  // combination_indices
-  standardPrice: object,  // standard_price
-  qtyAvailable: object,  // qty_available
-  lstPrice: decimal,  // lst_price
-  volume: decimal,  // volume
-  weight: decimal,  // weight
-  baseUnitCount: decimal,  // base_unit_count
-  active: bool,  // active
-  canImageVariant1024BeZoomed: bool,  // can_image_variant_1024_be_zoomed
-  isFavorite: bool,  // is_favorite
-  writeDate: date,  // write_date
-  createDate: date,  // create_date
-  lotPropertiesDefinition: object,  // lot_properties_definition
-  productValue: [{  // product_value, 1:N derived
-    id: int,  // id
-    lotId: int,  // lot_id
-    moveId: int,  // move_id
-    companyId: int,  // company_id
-    userId: int,  // user_id
-    accountMoveId: int,  // account_move_id
-    createUid: int,  // create_uid
-    writeUid: int,  // write_uid
-    description: string,  // description
-    quantity: decimal,  // quantity
-    oldCost: decimal,  // old_cost
-    newCost: decimal,  // new_cost
-    oldValue: decimal,  // old_value
-    newValue: decimal,  // new_value
-    value: decimal,  // value
-    date: date,  // date
-    createDate: date,  // create_date
-    writeDate: date,  // write_date
-  }],
-  uomUomRel: [{  // product_product_uom_uom_rel, 1:N assumed
-    uomUomId: int,  // uom_uom_id
-  }],
-  productVariantCombination: [{  // product_variant_combination, 1:N assumed
-    productTemplateAttributeValueId: int,  // product_template_attribute_value_id
-  }],
-}
-```
-
-Why:
-- product_product → account_analytic_distribution_model, account_analytic_line, account_move_line, customer_product_reference, product_combo_item, product_pricelist_item, product_supplierinfo, product_uom, purchase_order_line, res_company, sale_order_line, stock_lot, stock_move, stock_move_line, stock_putaway_rule, stock_quant, stock_storage_category_capacity, stock_warehouse_orderpoint: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- product_base_unit, res_users, product_template → product_product: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- product_product → product_product_uom_uom_rel, product_variant_combination: **embed**, a link table, kept as an array on this side (assumed)
-- uom_uom → product_product_uom_uom_rel: **reference**, a link table, embedded on the other side (assumed)
-- product_product → product_tag_product_product_rel: **reference**, a link table, embedded on the other side (assumed)
-- account_move, res_company, res_users, stock_lot, stock_move → product_value: **reference**, it is embedded under another parent; this one is referenced (derived)
-- product_product → product_value: **embed**, owned by its parent (cascade delete or ordinal key) (derived)
-- product_template_attribute_value → product_variant_combination: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (2):
-- **cascade_into_embed** (product_product_uom_uom_rel): product_product_uom_uom_rel is embedded in product_product, but deleting a uom_uom row cascades to its product_product_uom_uom_rel: the app must pull them from every product_product document, or keep product_product_uom_uom_rel separate
-- **no_access_evidence** (product_product): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## productTag
 
 From `product_tag` with `product_tag_product_product_rel`, `product_tag_product_template_rel` embedded.
@@ -2925,7 +2943,7 @@ Open questions (3):
 
 ## productTemplate
 
-From `product_template` with `product_optional_rel`, `product_template_uom_uom_rel` embedded.
+From `product_template` with `product_optional_rel`, `product_product`, `product_template_uom_uom_rel` embedded.
 
 ```js
 {
@@ -2981,6 +2999,27 @@ From `product_template` with `product_optional_rel`, `product_template_uom_uom_r
   productOptionalRel: [{  // product_optional_rel, 1:N assumed
     srcId: int,  // src_id
   }],
+  productProduct: [{  // product_product, 1:N derived
+    id: int,  // id
+    baseUnitId: int,  // base_unit_id
+    createUid: int,  // create_uid
+    writeUid: int,  // write_uid
+    defaultCode: string,  // default_code
+    barcode: string,  // barcode
+    combinationIndices: string,  // combination_indices
+    standardPrice: object,  // standard_price
+    qtyAvailable: object,  // qty_available
+    lstPrice: decimal,  // lst_price
+    volume: decimal,  // volume
+    weight: decimal,  // weight
+    baseUnitCount: decimal,  // base_unit_count
+    active: bool,  // active
+    canImageVariant1024BeZoomed: bool,  // can_image_variant_1024_be_zoomed
+    isFavorite: bool,  // is_favorite
+    writeDate: date,  // write_date
+    createDate: date,  // create_date
+    lotPropertiesDefinition: object,  // lot_properties_definition
+  }],
   uomUomRel: [{  // product_template_uom_uom_rel, 1:N assumed
     uomUomId: int,  // uom_uom_id
   }],
@@ -2990,14 +3029,25 @@ From `product_template` with `product_optional_rel`, `product_template_uom_uom_r
 Why:
 - product_template → account_account_tag_product_template_rel, product_attribute_product_template_rel, product_combo_product_template_rel, product_optional_rel, product_supplier_taxes_rel, product_tag_product_template_rel, product_taxes_rel, stock_route_product: **reference**, a link table, embedded on the other side (assumed)
 - product_template → product_optional_rel, product_template_uom_uom_rel: **embed**, a link table, kept as an array on this side (assumed)
-- product_template → product_pricelist_item, product_product, product_supplierinfo, product_template_attribute_line, product_template_attribute_value: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- product_template → product_pricelist_item, product_supplierinfo, product_template_attribute_line, product_template_attribute_value: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- product_base_unit, res_users → product_product: **reference**, it is embedded under another parent; this one is referenced (derived)
+- product_template → product_product: **embed**, the app reads it with its parent (derived)
 - product_base_unit, product_category, res_company, res_users, ir_sequence, uom_uom → product_template: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - uom_uom → product_template_uom_uom_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (3):
+Open questions (12):
 - **cascade_into_embed** (product_template_uom_uom_rel): product_template_uom_uom_rel is embedded in product_template, but deleting a uom_uom row cascades to its product_template_uom_uom_rel: the app must pull them from every product_template document, or keep product_template_uom_uom_rel separate
-- **no_access_evidence** (product_template): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 - **lob** (product_template): LOB column(s) purchase_line_warn_msg, sale_line_warn_msg measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
+- **source_index_not_exercised** (product_optional_rel): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (product_product): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (product_product): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (product_product): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (product_template): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (product_template): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (product_template): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (product_template): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (product_template): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (product_template_uom_uom_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## productTemplateAttributeValue
 
@@ -3051,7 +3101,7 @@ Open questions (4):
 
 ## purchaseOrder
 
-From `purchase_order` with `purchase_order_stock_picking_rel` embedded.
+From `purchase_order` with `purchase_order_line`, `purchase_order_stock_picking_rel` embedded.
 
 ```js
 {
@@ -3096,6 +3146,45 @@ From `purchase_order` with `purchase_order_stock_picking_rel` embedded.
   pickingTypeId: int,  // picking_type_id
   effectiveDate: date,  // effective_date
   datePromised: date,  // date_promised
+  line: [{  // purchase_order_line, 1:N derived
+    id: int,  // id
+    productId: int,  // product_id
+    sequence: int,  // sequence
+    uomId: int,  // uom_id
+    companyId: int,  // company_id
+    partnerId: int,  // partner_id
+    createUid: int,  // create_uid
+    writeUid: int,  // write_uid
+    qtyReceivedMethod: string,  // qty_received_method
+    displayType: string,  // display_type
+    analyticDistribution: object,  // analytic_distribution
+    name: string,  // name
+    productQty: decimal,  // product_qty
+    discount: decimal,  // discount
+    priceUnit: decimal,  // price_unit
+    priceUnitProductUom: decimal,  // price_unit_product_uom
+    priceSubtotal: decimal,  // price_subtotal
+    priceTotal: decimal,  // price_total
+    qtyInvoiced: decimal,  // qty_invoiced
+    qtyReceived: decimal,  // qty_received
+    qtyReceivedManual: decimal,  // qty_received_manual
+    qtyToInvoice: decimal,  // qty_to_invoice
+    qtyToInvoiceRaw: decimal,  // qty_to_invoice_raw
+    isDownpayment: bool,  // is_downpayment
+    datePlanned: date,  // date_planned
+    createDate: date,  // create_date
+    writeDate: date,  // write_date
+    productUomQty: double,  // product_uom_qty
+    priceTax: double,  // price_tax
+    nonDeductibleTax: double,  // non_deductible_tax
+    technicalPriceUnit: double,  // technical_price_unit
+    orderpointId: int,  // orderpoint_id
+    forecastedLocationId: int,  // forecasted_location_id
+    productDescriptionVariants: string,  // product_description_variants
+    propagateCancel: bool,  // propagate_cancel
+    datePromised: date,  // date_promised
+    saleLineId: int,  // sale_line_id
+  }],
   stockPickingRel: [{  // purchase_order_stock_picking_rel, 1:N assumed
     stockPickingId: int,  // stock_picking_id
   }],
@@ -3105,77 +3194,33 @@ From `purchase_order` with `purchase_order_stock_picking_rel` embedded.
 Why:
 - purchase_order → account_move_purchase_order_rel, stock_reference_purchase_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_company, res_users, res_currency, res_partner, account_fiscal_position, account_incoterms, account_payment_term, stock_picking_type → purchase_order: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- purchase_order → purchase_order_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- res_company, res_users, stock_location, stock_warehouse_orderpoint, res_partner, product_product, sale_order_line, uom_uom → purchase_order_line: **reference**, it is embedded under another parent; this one is referenced (derived)
+- purchase_order → purchase_order_line: **embed**, the app reads it with its parent (derived)
 - purchase_order → purchase_order_stock_picking_rel: **embed**, a link table, kept as an array on this side (assumed)
 - stock_picking → purchase_order_stock_picking_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (3):
+Open questions (21):
 - **cascade_into_embed** (purchase_order_stock_picking_rel): purchase_order_stock_picking_rel is embedded in purchase_order, but deleting a stock_picking row cascades to its purchase_order_stock_picking_rel: the app must pull them from every purchase_order document, or keep purchase_order_stock_picking_rel separate
-- **no_access_evidence** (purchase_order): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 - **lob** (purchase_order): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
-## purchaseOrderLine
-
-From `purchase_order_line` with `purchase_order_line_accrual_move_rel` embedded.
-
-```js
-{
-  _id: int,  // id
-  productId: int,  // product_id
-  sequence: int,  // sequence
-  uomId: int,  // uom_id
-  orderId: int,  // order_id
-  companyId: int,  // company_id
-  partnerId: int,  // partner_id
-  createUid: int,  // create_uid
-  writeUid: int,  // write_uid
-  qtyReceivedMethod: string,  // qty_received_method
-  displayType: string,  // display_type
-  analyticDistribution: object,  // analytic_distribution
-  name: string,  // name
-  productQty: decimal,  // product_qty
-  discount: decimal,  // discount
-  priceUnit: decimal,  // price_unit
-  priceUnitProductUom: decimal,  // price_unit_product_uom
-  priceSubtotal: decimal,  // price_subtotal
-  priceTotal: decimal,  // price_total
-  qtyInvoiced: decimal,  // qty_invoiced
-  qtyReceived: decimal,  // qty_received
-  qtyReceivedManual: decimal,  // qty_received_manual
-  qtyToInvoice: decimal,  // qty_to_invoice
-  qtyToInvoiceRaw: decimal,  // qty_to_invoice_raw
-  isDownpayment: bool,  // is_downpayment
-  datePlanned: date,  // date_planned
-  createDate: date,  // create_date
-  writeDate: date,  // write_date
-  productUomQty: double,  // product_uom_qty
-  priceTax: double,  // price_tax
-  nonDeductibleTax: double,  // non_deductible_tax
-  technicalPriceUnit: double,  // technical_price_unit
-  orderpointId: int,  // orderpoint_id
-  forecastedLocationId: int,  // forecasted_location_id
-  productDescriptionVariants: string,  // product_description_variants
-  propagateCancel: bool,  // propagate_cancel
-  datePromised: date,  // date_promised
-  saleLineId: int,  // sale_line_id
-  accrualMoveRel: [{  // purchase_order_line_accrual_move_rel, 1:N assumed
-    moveId: int,  // move_id
-  }],
-}
-```
-
-Why:
-- purchase_order_line → account_move_line, stock_move: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- purchase_order_line → account_tax_purchase_order_line_rel, product_template_attribute_value_purchase_order_line_rel, stock_move_created_purchase_line_rel: **reference**, a link table, embedded on the other side (assumed)
-- res_company, res_users, stock_location, purchase_order, stock_warehouse_orderpoint, res_partner, product_product, sale_order_line, uom_uom → purchase_order_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- account_move → purchase_order_line_accrual_move_rel: **reference**, a link table, embedded on the other side (assumed)
-- purchase_order_line → purchase_order_line_accrual_move_rel: **embed**, a link table, kept as an array on this side (assumed)
-
-Open questions (4):
-- **fanout_unmeasured** (purchase_order_line_accrual_move_rel): purchase_order_line_accrual_move_rel has no rows per purchase_order_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (purchase_order_line_accrual_move_rel): purchase_order_line_accrual_move_rel is embedded in purchase_order_line, but deleting a account_move row cascades to its purchase_order_line_accrual_move_rel: the app must pull them from every purchase_order_line document, or keep purchase_order_line_accrual_move_rel separate
-- **no_access_evidence** (purchase_order_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 - **lob** (purchase_order_line): LOB column(s) name measured max 38 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
+- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (purchase_order_stock_picking_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## resCompany
 
@@ -3319,8 +3364,8 @@ From `res_company` with `res_company_spreadsheet_dashboard_rel`, `res_company_us
 
 Why:
 - res_company → account_account_res_company_rel, iap_account_res_company_rel: **reference**, a link table, embedded on the other side (assumed)
-- res_company → account_analytic_account, account_analytic_applicability, account_analytic_distribution_model, account_analytic_line, account_bank_statement, account_bank_statement_line, account_cash_rounding, account_fiscal_position, account_journal, account_lock_exception, account_move, account_move_line, account_partial_reconcile, account_payment, account_payment_term, account_reconcile_model, account_reconcile_model_line, account_tax, account_tax_group, account_tax_repartition_line, crm_team, digest_digest, ir_attachment, ir_default, ir_sequence, mail_activity_plan, mail_message, onboarding_progress, onboarding_progress_step, payment_provider, payment_token, payment_transaction, product_category, product_combo, product_combo_item, product_pricelist, product_pricelist_item, product_supplierinfo, product_template, product_uom, purchase_order, purchase_order_line, res_company, res_partner, res_partner_bank, res_users, resource_calendar, resource_resource, sale_order, sale_order_line, stock_location, stock_lot, stock_move, stock_move_line, stock_package, stock_package_history, stock_package_type, stock_picking, stock_picking_batch, stock_picking_type, stock_putaway_rule, stock_quant, stock_route, stock_rule, stock_storage_category, stock_warehouse, stock_warehouse_orderpoint, website: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- res_company → account_fiscal_position_account, account_report_external_value, product_value, res_currency_rate, resource_calendar_leaves: **reference**, it is embedded under another parent; this one is referenced (derived)
+- res_company → account_analytic_account, account_analytic_applicability, account_analytic_distribution_model, account_analytic_line, account_bank_statement, account_bank_statement_line, account_cash_rounding, account_fiscal_position, account_journal, account_lock_exception, account_move, account_partial_reconcile, account_payment, account_payment_term, account_reconcile_model, account_reconcile_model_line, account_tax, account_tax_group, crm_team, digest_digest, ir_attachment, ir_default, ir_sequence, mail_activity_plan, mail_message, onboarding_progress, onboarding_progress_step, payment_provider, payment_token, payment_transaction, product_category, product_combo, product_combo_item, product_pricelist, product_pricelist_item, product_supplierinfo, product_template, product_uom, product_value, purchase_order, res_company, res_partner, res_partner_bank, res_users, resource_calendar, resource_resource, sale_order, stock_location, stock_lot, stock_move, stock_move_line, stock_package, stock_package_history, stock_package_type, stock_picking, stock_picking_batch, stock_picking_type, stock_putaway_rule, stock_quant, stock_route, stock_rule, stock_storage_category, stock_warehouse, stock_warehouse_orderpoint, website: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- res_company → account_fiscal_position_account, account_move_line, account_report_external_value, account_tax_repartition_line, purchase_order_line, res_currency_rate, resource_calendar_leaves, sale_order_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 - account_account, res_country, account_move, account_fiscal_position, account_tax, mail_alias_domain, account_journal, ir_sequence, res_users, res_currency, ir_ui_view, account_incoterms, stock_location, barcode_nomenclature, report_paperformat, res_partner, resource_calendar, product_product, mail_template, sms_template → res_company: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company → res_company_spreadsheet_dashboard_rel, res_company_users_rel: **embed**, a link table, kept as an array on this side (assumed)
 - spreadsheet_dashboard → res_company_spreadsheet_dashboard_rel: **reference**, a link table, embedded on the other side (assumed)
@@ -3557,7 +3602,8 @@ From `res_partner` with `res_partner_res_partner_category_rel`, `res_partner_sto
 ```
 
 Why:
-- res_partner → account_analytic_account, account_analytic_distribution_model, account_analytic_line, account_bank_statement_line, account_move, account_move_line, account_payment, account_reconcile_model, account_reconcile_model_line, customer_product_reference, discuss_channel_member, discuss_channel_rtc_session, mail_followers, mail_message, mail_message_reaction, mail_notification, mail_push_device, mail_scheduled_message, payment_token, payment_transaction, product_supplierinfo, purchase_order, purchase_order_line, res_company, res_partner, res_partner_bank, res_users, res_users_settings_volumes, sale_order, sale_order_line, sms_sms, stock_move, stock_move_line, stock_picking, stock_quant, stock_rule, stock_warehouse: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- res_partner → account_analytic_account, account_analytic_distribution_model, account_analytic_line, account_bank_statement_line, account_move, account_payment, account_reconcile_model, account_reconcile_model_line, customer_product_reference, discuss_channel_member, discuss_channel_rtc_session, mail_followers, mail_message, mail_message_reaction, mail_notification, mail_push_device, mail_scheduled_message, payment_token, payment_transaction, product_supplierinfo, purchase_order, res_company, res_partner, res_partner_bank, res_users, res_users_settings_volumes, sale_order, sms_sms, stock_move, stock_move_line, stock_picking, stock_quant, stock_rule, stock_warehouse: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- res_partner → account_move_line, purchase_order_line, sale_order_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 - res_partner → account_reconcile_model_res_partner_rel, ir_act_server_res_partner_rel, mail_mail_res_partner_cc_rel, mail_mail_res_partner_rel, mail_message_res_partner_bookmarked_rel, mail_message_res_partner_cc_rel, mail_message_res_partner_rel, mail_scheduled_message_res_partner_cc_rel, mail_scheduled_message_res_partner_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users, res_city, res_company, res_country, account_incoterms, res_partner_industry, ir_act_report_xml, res_country_state → res_partner: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_partner_category → res_partner_res_partner_category_rel: **reference**, a link table, embedded on the other side (assumed)
@@ -3665,8 +3711,8 @@ From `res_users` with `auth_totp_device`, `res_users_apikeys`, `picking_type_fav
 ```
 
 Why:
-- res_users → account_account, account_account_tag, account_analytic_account, account_analytic_applicability, account_analytic_distribution_model, account_analytic_line, account_analytic_plan, account_bank_statement, account_bank_statement_line, account_cash_rounding, account_fiscal_position, account_full_reconcile, account_incoterms, account_journal, account_journal_group, account_lock_exception, account_move, account_move_line, account_partial_reconcile, account_payment, account_payment_method, account_payment_method_line, account_payment_term, account_reconcile_model, account_reconcile_model_line, account_report, account_report_expression, account_report_line, account_tax, account_tax_group, account_tax_repartition_line, auth_passkey_key, barcode_nomenclature, barcode_rule, base_import_mapping, bus_bus, clearing_label, crm_tag, crm_team, crm_team_member, customer_product_reference, decimal_precision, digest_digest, digest_tip, discuss_call_history, discuss_category, discuss_channel, discuss_channel_member, discuss_channel_rtc_session, discuss_gif_favorite, fetchmail_server, html_editor_converter_test, html_editor_converter_test_sub, iap_account, iap_service, ir_access, ir_act_report_xml, ir_act_server, ir_act_window, ir_actions_todo, ir_asset, ir_attachment, ir_config_parameter, ir_cron, ir_default, ir_embedded_actions, ir_exports, ir_filters, ir_mail_server, ir_model, ir_model_constraint, ir_model_data, ir_model_fields, ir_model_fields_selection, ir_model_relation, ir_module_category, ir_module_module, ir_sequence, ir_ui_menu, ir_ui_view, ir_ui_view_custom, l10n_us_res_county, mail_activity, mail_activity_plan, mail_activity_plan_template, mail_activity_type, mail_alias, mail_alias_domain, mail_blacklist, mail_canned_response, mail_followers, mail_gateway_allowed, mail_guest, mail_ice_server, mail_link_preview, mail_mail, mail_message, mail_message_link_preview, mail_message_subtype, mail_poll, mail_poll_option, mail_poll_vote, mail_presence, mail_push_device, mail_scheduled_message, mail_template, onboarding_onboarding, onboarding_onboarding_step, onboarding_progress, onboarding_progress_step, payment_data, payment_method, payment_provider, payment_token, payment_transaction, phone_blacklist, portal_entry, privacy_log, product_attribute, product_attribute_custom_value, product_attribute_value, product_base_unit, product_category, product_combo, product_combo_item, product_pricelist, product_pricelist_item, product_product, product_removal, product_supplierinfo, product_tag, product_template, product_template_attribute_line, product_template_attribute_value, product_uom, purchase_order, purchase_order_line, report_layout, report_paperformat, res_city, res_company, res_country, res_country_group, res_country_state, res_currency, res_device_log, res_groups, res_groups_privilege, res_lang, res_partner, res_partner_bank, res_partner_category, res_partner_industry, res_role, res_users, res_users_deletion, res_users_log, res_users_settings, res_users_settings_embedded_action, res_users_settings_volumes, resource_calendar, resource_resource, return_reason, sale_order, sale_order_line, sms_sms, sms_template, spreadsheet_dashboard, spreadsheet_dashboard_favorite_filters, spreadsheet_dashboard_group, stock_location, stock_lot, stock_move, stock_move_line, stock_package, stock_package_history, stock_package_type, stock_picking, stock_picking_batch, stock_picking_type, stock_putaway_rule, stock_quant, stock_reference, stock_route, stock_rule, stock_scrap_reason_tag, stock_storage_category, stock_storage_category_capacity, stock_warehouse, stock_warehouse_orderpoint, uom_uom, utm_campaign, utm_medium, utm_source, utm_stage, utm_tag, web_tour_tour, website: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- res_users → account_fiscal_position_account, account_payment_term_line, account_report_column, account_report_external_value, discuss_voice_metadata, iap_service_pack, ir_act_client, ir_act_url, ir_act_window_view, ir_actions, ir_actions_server_history, ir_cron_progress, ir_cron_trigger, ir_exports_line, ir_module_module_exclusion, ir_sequence_date_range, mail_call_artifact, mail_message_schedule, mail_message_translation, mail_push, product_document, product_value, properties_base_definition, res_currency_rate, resource_calendar_attendance, resource_calendar_leaves, sms_tracker, spreadsheet_dashboard_share, web_tour_tour_step: **reference**, it is embedded under another parent; this one is referenced (derived)
+- res_users → account_account, account_account_tag, account_analytic_account, account_analytic_applicability, account_analytic_distribution_model, account_analytic_line, account_analytic_plan, account_bank_statement, account_bank_statement_line, account_cash_rounding, account_fiscal_position, account_full_reconcile, account_incoterms, account_journal, account_journal_group, account_lock_exception, account_move, account_partial_reconcile, account_payment, account_payment_method, account_payment_method_line, account_payment_term, account_reconcile_model, account_reconcile_model_line, account_report, account_report_expression, account_report_line, account_tax, account_tax_group, auth_passkey_key, barcode_nomenclature, barcode_rule, base_import_mapping, bus_bus, clearing_label, crm_tag, crm_team, crm_team_member, customer_product_reference, decimal_precision, digest_digest, digest_tip, discuss_call_history, discuss_category, discuss_channel, discuss_channel_member, discuss_channel_rtc_session, discuss_gif_favorite, fetchmail_server, html_editor_converter_test, html_editor_converter_test_sub, iap_account, iap_service, ir_access, ir_act_report_xml, ir_act_server, ir_act_window, ir_actions_todo, ir_asset, ir_attachment, ir_config_parameter, ir_cron, ir_default, ir_embedded_actions, ir_exports, ir_filters, ir_mail_server, ir_model, ir_model_constraint, ir_model_data, ir_model_fields, ir_model_fields_selection, ir_model_relation, ir_module_category, ir_module_module, ir_sequence, ir_ui_menu, ir_ui_view, ir_ui_view_custom, l10n_us_res_county, mail_activity, mail_activity_plan, mail_activity_plan_template, mail_activity_type, mail_alias, mail_alias_domain, mail_blacklist, mail_canned_response, mail_followers, mail_gateway_allowed, mail_guest, mail_ice_server, mail_link_preview, mail_mail, mail_message, mail_message_link_preview, mail_message_subtype, mail_poll, mail_poll_option, mail_poll_vote, mail_presence, mail_push_device, mail_scheduled_message, mail_template, onboarding_onboarding, onboarding_onboarding_step, onboarding_progress, onboarding_progress_step, payment_data, payment_method, payment_provider, payment_token, payment_transaction, phone_blacklist, portal_entry, privacy_log, product_attribute, product_attribute_custom_value, product_attribute_value, product_base_unit, product_category, product_combo, product_combo_item, product_pricelist, product_pricelist_item, product_removal, product_supplierinfo, product_tag, product_template, product_template_attribute_line, product_template_attribute_value, product_uom, product_value, purchase_order, report_layout, report_paperformat, res_city, res_company, res_country, res_country_group, res_country_state, res_currency, res_device_log, res_groups, res_groups_privilege, res_lang, res_partner, res_partner_bank, res_partner_category, res_partner_industry, res_role, res_users, res_users_deletion, res_users_log, res_users_settings, res_users_settings_embedded_action, res_users_settings_volumes, resource_calendar, resource_resource, return_reason, sale_order, sms_sms, sms_template, spreadsheet_dashboard, spreadsheet_dashboard_favorite_filters, spreadsheet_dashboard_group, stock_location, stock_lot, stock_move, stock_move_line, stock_package, stock_package_history, stock_package_type, stock_picking, stock_picking_batch, stock_picking_type, stock_putaway_rule, stock_quant, stock_reference, stock_route, stock_rule, stock_scrap_reason_tag, stock_storage_category, stock_storage_category_capacity, stock_warehouse, stock_warehouse_orderpoint, uom_uom, utm_campaign, utm_medium, utm_source, utm_stage, utm_tag, web_tour_tour, website: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- res_users → account_fiscal_position_account, account_move_line, account_payment_term_line, account_report_column, account_report_external_value, account_tax_repartition_line, discuss_voice_metadata, iap_service_pack, ir_act_client, ir_act_url, ir_act_window_view, ir_actions, ir_actions_server_history, ir_cron_progress, ir_cron_trigger, ir_exports_line, ir_module_module_exclusion, ir_sequence_date_range, mail_call_artifact, mail_message_schedule, mail_message_translation, mail_push, product_document, product_product, properties_base_definition, purchase_order_line, res_currency_rate, resource_calendar_attendance, resource_calendar_leaves, sale_order_line, sms_tracker, spreadsheet_dashboard_share, web_tour_tour_step: **reference**, it is embedded under another parent; this one is referenced (derived)
 - res_users → auth_totp_device, res_users_apikeys: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 - res_users → digest_digest_res_users_rel, digest_tip_res_users_rel, iap_account_res_users_rel, ir_filters_res_users_rel, res_company_users_rel, res_groups_users_rel, res_role_res_users_rel, spreadsheet_dashboard_allowed_users_rel, team_favorite_user_rel: **reference**, a link table, embedded on the other side (assumed)
 - stock_picking_type → picking_type_favorite_user_rel: **reference**, a link table, embedded on the other side (assumed)
@@ -3760,7 +3806,7 @@ Open questions (1):
 
 ## saleOrder
 
-From `sale_order` with `sale_order_tag_rel`, `sale_order_transaction_rel` embedded.
+From `sale_order` with `sale_order_line`, `sale_order_tag_rel`, `sale_order_transaction_rel` embedded.
 
 ```js
 {
@@ -3817,6 +3863,54 @@ From `sale_order` with `sale_order_tag_rel`, `sale_order_transaction_rel` embedd
   warehouseId: int,  // warehouse_id
   pickingPolicy: string,  // picking_policy
   effectiveDate: date,  // effective_date
+  line: [{  // sale_order_line, 1:N derived
+    id: int,  // id
+    productId: int,  // product_id
+    sequence: int,  // sequence
+    companyId: int,  // company_id
+    currencyId: int,  // currency_id
+    orderPartnerId: int,  // order_partner_id
+    salesmanId: int,  // salesman_id
+    productUomId: int,  // product_uom_id
+    linkedLineId: int,  // linked_line_id
+    comboItemId: int,  // combo_item_id
+    customerLead: int,  // customer_lead
+    sectionUomId: int,  // section_uom_id
+    createUid: int,  // create_uid
+    writeUid: int,  // write_uid
+    state: string,  // state
+    displayType: string,  // display_type
+    virtualId: string,  // virtual_id
+    linkedVirtualId: string,  // linked_virtual_id
+    qtyDeliveredMethod: string,  // qty_delivered_method
+    invoiceStatus: string,  // invoice_status
+    analyticDistribution: object,  // analytic_distribution
+    extraTaxData: object,  // extra_tax_data
+    name: string,  // name
+    productUomQty: decimal,  // product_uom_qty
+    priceUnit: decimal,  // price_unit
+    discount: decimal,  // discount
+    priceSubtotal: decimal,  // price_subtotal
+    priceTotal: decimal,  // price_total
+    priceReduceTaxexcl: decimal,  // price_reduce_taxexcl
+    priceReduceTaxinc: decimal,  // price_reduce_taxinc
+    qtyDelivered: decimal,  // qty_delivered
+    qtyInvoiced: decimal,  // qty_invoiced
+    qtyToInvoice: decimal,  // qty_to_invoice
+    untaxedAmountInvoiced: decimal,  // untaxed_amount_invoiced
+    untaxedAmountToInvoice: decimal,  // untaxed_amount_to_invoice
+    sectionQty: decimal,  // section_qty
+    isDownpayment: bool,  // is_downpayment
+    isExpense: bool,  // is_expense
+    collapsePrices: bool,  // collapse_prices
+    collapseComposition: bool,  // collapse_composition
+    createDate: date,  // create_date
+    writeDate: date,  // write_date
+    technicalPriceUnit: double,  // technical_price_unit
+    priceTax: double,  // price_tax
+    ediCustomerProductRef: string,  // edi_customer_product_ref
+    warehouseId: int,  // warehouse_id
+  }],
   tagRel: [{  // sale_order_tag_rel, 1:N assumed
     tagId: int,  // tag_id
   }],
@@ -3827,100 +3921,41 @@ From `sale_order` with `sale_order_tag_rel`, `sale_order_transaction_rel` embedd
 ```
 
 Why:
-- sale_order → account_analytic_line, sale_order_line, stock_picking: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- sale_order → account_analytic_line, stock_picking: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_analytic_account, utm_campaign, res_company, res_users, res_currency, account_fiscal_position, account_incoterms, account_journal, utm_medium, res_partner, account_payment_term, mail_template, account_payment_method_line, product_pricelist, utm_source, crm_team, stock_warehouse → sale_order: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- product_combo_item, res_company, res_users, res_currency, sale_order_line, res_partner, product_product, uom_uom, stock_warehouse → sale_order_line: **reference**, it is embedded under another parent; this one is referenced (derived)
+- sale_order → sale_order_line: **embed**, the app reads it with its parent (derived)
 - sale_order → sale_order_tag_rel, sale_order_transaction_rel: **embed**, a link table, kept as an array on this side (assumed)
 - crm_tag → sale_order_tag_rel: **reference**, a link table, embedded on the other side (assumed)
 - payment_transaction → sale_order_transaction_rel: **reference**, a link table, embedded on the other side (assumed)
 - sale_order → stock_reference_sale_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (5):
+Open questions (25):
 - **fanout_unmeasured** (sale_order_transaction_rel): sale_order_transaction_rel has no rows per sale_order in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
 - **cascade_into_embed** (sale_order_tag_rel): sale_order_tag_rel is embedded in sale_order, but deleting a crm_tag row cascades to its sale_order_tag_rel: the app must pull them from every sale_order document, or keep sale_order_tag_rel separate
 - **cascade_into_embed** (sale_order_transaction_rel): sale_order_transaction_rel is embedded in sale_order, but deleting a payment_transaction row cascades to its sale_order_transaction_rel: the app must pull them from every sale_order document, or keep sale_order_transaction_rel separate
-- **no_access_evidence** (sale_order): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 - **lob** (sale_order): LOB column(s) note measured max 182 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
-## saleOrderLine
-
-From `sale_order_line` with `sale_order_line_accrual_move_rel`, `sale_order_line_invoice_rel`, `sale_order_line_stock_route_rel` embedded.
-
-```js
-{
-  _id: int,  // id
-  productId: int,  // product_id
-  orderId: int,  // order_id
-  sequence: int,  // sequence
-  companyId: int,  // company_id
-  currencyId: int,  // currency_id
-  orderPartnerId: int,  // order_partner_id
-  salesmanId: int,  // salesman_id
-  productUomId: int,  // product_uom_id
-  linkedLineId: int,  // linked_line_id
-  comboItemId: int,  // combo_item_id
-  customerLead: int,  // customer_lead
-  sectionUomId: int,  // section_uom_id
-  createUid: int,  // create_uid
-  writeUid: int,  // write_uid
-  state: string,  // state
-  displayType: string,  // display_type
-  virtualId: string,  // virtual_id
-  linkedVirtualId: string,  // linked_virtual_id
-  qtyDeliveredMethod: string,  // qty_delivered_method
-  invoiceStatus: string,  // invoice_status
-  analyticDistribution: object,  // analytic_distribution
-  extraTaxData: object,  // extra_tax_data
-  name: string,  // name
-  productUomQty: decimal,  // product_uom_qty
-  priceUnit: decimal,  // price_unit
-  discount: decimal,  // discount
-  priceSubtotal: decimal,  // price_subtotal
-  priceTotal: decimal,  // price_total
-  priceReduceTaxexcl: decimal,  // price_reduce_taxexcl
-  priceReduceTaxinc: decimal,  // price_reduce_taxinc
-  qtyDelivered: decimal,  // qty_delivered
-  qtyInvoiced: decimal,  // qty_invoiced
-  qtyToInvoice: decimal,  // qty_to_invoice
-  untaxedAmountInvoiced: decimal,  // untaxed_amount_invoiced
-  untaxedAmountToInvoice: decimal,  // untaxed_amount_to_invoice
-  sectionQty: decimal,  // section_qty
-  isDownpayment: bool,  // is_downpayment
-  isExpense: bool,  // is_expense
-  collapsePrices: bool,  // collapse_prices
-  collapseComposition: bool,  // collapse_composition
-  createDate: date,  // create_date
-  writeDate: date,  // write_date
-  technicalPriceUnit: double,  // technical_price_unit
-  priceTax: double,  // price_tax
-  ediCustomerProductRef: string,  // edi_customer_product_ref
-  warehouseId: int,  // warehouse_id
-  accrualMoveRel: [{  // sale_order_line_accrual_move_rel, 1:N assumed
-    moveId: int,  // move_id
-  }],
-  invoiceRel: [{  // sale_order_line_invoice_rel, 1:N assumed
-    invoiceLineId: int,  // invoice_line_id
-  }],
-  stockRouteRel: [{  // sale_order_line_stock_route_rel, 1:N assumed
-    stockRouteId: int,  // stock_route_id
-  }],
-}
-```
-
-Why:
-- sale_order_line → account_analytic_line, product_attribute_custom_value, purchase_order_line, sale_order_line, stock_move: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- sale_order_line → account_tax_sale_order_line_rel, product_template_attribute_value_sale_order_line_rel: **reference**, a link table, embedded on the other side (assumed)
-- product_combo_item, res_company, res_users, res_currency, sale_order, res_partner, product_product, uom_uom, stock_warehouse → sale_order_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- account_move → sale_order_line_accrual_move_rel: **reference**, a link table, embedded on the other side (assumed)
-- sale_order_line → sale_order_line_accrual_move_rel, sale_order_line_invoice_rel, sale_order_line_stock_route_rel: **embed**, a link table, kept as an array on this side (assumed)
-- account_move_line → sale_order_line_invoice_rel: **reference**, a link table, embedded on the other side (assumed)
-- stock_route → sale_order_line_stock_route_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (5):
-- **fanout_unmeasured** (sale_order_line_accrual_move_rel): sale_order_line_accrual_move_rel has no rows per sale_order_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (sale_order_line_accrual_move_rel): sale_order_line_accrual_move_rel is embedded in sale_order_line, but deleting a account_move row cascades to its sale_order_line_accrual_move_rel: the app must pull them from every sale_order_line document, or keep sale_order_line_accrual_move_rel separate
-- **cascade_into_embed** (sale_order_line_invoice_rel): sale_order_line_invoice_rel is embedded in sale_order_line, but deleting a account_move_line row cascades to its sale_order_line_invoice_rel: the app must pull them from every sale_order_line document, or keep sale_order_line_invoice_rel separate
-- **no_access_evidence** (sale_order_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 - **lob** (sale_order_line): LOB column(s) name measured max 45 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
+- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order_tag_rel): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (sale_order_transaction_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## spreadsheetDashboard
 
@@ -4003,7 +4038,8 @@ From `stock_location` with `stock_location_stock_picking_type_rel` embedded.
 ```
 
 Why:
-- stock_location → purchase_order_line, res_company, stock_location, stock_lot, stock_move, stock_move_line, stock_package, stock_package_history, stock_picking, stock_picking_type, stock_putaway_rule, stock_quant, stock_rule, stock_warehouse, stock_warehouse_orderpoint: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- stock_location → purchase_order_line: **reference**, it is embedded under another parent; this one is referenced (derived)
+- stock_location → res_company, stock_location, stock_lot, stock_move, stock_move_line, stock_package, stock_package_history, stock_picking, stock_picking_type, stock_putaway_rule, stock_quant, stock_rule, stock_warehouse, stock_warehouse_orderpoint: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users, product_removal, stock_storage_category, account_account, stock_warehouse → stock_location: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - stock_picking_type → stock_location_stock_picking_type_rel: **reference**, a link table, embedded on the other side (assumed)
 - stock_location → stock_location_stock_picking_type_rel: **embed**, a link table, kept as an array on this side (assumed)
@@ -4087,18 +4123,36 @@ From `stock_move` with `stock_move_created_purchase_line_rel`, `stock_move_move_
 
 Why:
 - stock_move → account_analytic_line_stock_move_rel, stock_move_move_rel, stock_reference_move_rel, stock_route_move, template_attribute_value_stock_move_rel: **reference**, a link table, embedded on the other side (assumed)
-- stock_move → account_move_line, stock_move, stock_move_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- stock_move → product_value: **reference**, it is embedded under another parent; this one is referenced (derived)
+- stock_move → account_move_line: **reference**, it is embedded under another parent; this one is referenced (derived)
+- stock_move → product_value, stock_move, stock_move_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_move, res_company, res_users, stock_location, stock_warehouse_orderpoint, uom_uom, res_partner, stock_picking, stock_picking_type, product_product, purchase_order_line, stock_rule, sale_order_line, stock_warehouse → stock_move: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - purchase_order_line → stock_move_created_purchase_line_rel: **reference**, a link table, embedded on the other side (assumed)
 - stock_move → stock_move_created_purchase_line_rel, stock_move_move_rel, stock_move_stock_scrap_reason_tag_rel: **embed**, a link table, kept as an array on this side (assumed)
 - stock_scrap_reason_tag → stock_move_stock_scrap_reason_tag_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (4):
+Open questions (22):
 - **cascade_into_embed** (stock_move_created_purchase_line_rel): stock_move_created_purchase_line_rel is embedded in stock_move, but deleting a purchase_order_line row cascades to its stock_move_created_purchase_line_rel: the app must pull them from every stock_move document, or keep stock_move_created_purchase_line_rel separate
 - **cascade_into_embed** (stock_move_stock_scrap_reason_tag_rel): stock_move_stock_scrap_reason_tag_rel is embedded in stock_move, but deleting a stock_scrap_reason_tag row cascades to its stock_move_stock_scrap_reason_tag_rel: the app must pull them from every stock_move document, or keep stock_move_stock_scrap_reason_tag_rel separate
-- **no_access_evidence** (stock_move): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 - **lob** (stock_move): LOB column(s) description_picking_manual measured max 49 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move_created_purchase_line_rel): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move_move_rel): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move_stock_scrap_reason_tag_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## stockMoveLine
 
@@ -4141,9 +4195,18 @@ Why:
 - stock_move_line → stock_move_line_consume_rel: **embed**, a link table, kept as an array on this side (assumed)
 - stock_move_line → stock_move_line_consume_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (2):
+Open questions (11):
 - **fanout_unmeasured** (stock_move_line_consume_rel): stock_move_line_consume_rel has no rows per stock_move_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **no_access_evidence** (stock_move_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
+- **source_index_not_exercised** (stock_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move_line): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_move_line_consume_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## stockPackageHistory
 
@@ -4361,7 +4424,8 @@ From `stock_warehouse` with `stock_wh_resupply_table` embedded.
 ```
 
 Why:
-- stock_warehouse → sale_order, sale_order_line, stock_location, stock_move, stock_picking_type, stock_route, stock_rule, stock_warehouse_orderpoint: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- stock_warehouse → sale_order, stock_location, stock_move, stock_picking_type, stock_route, stock_rule, stock_warehouse_orderpoint: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- stock_warehouse → sale_order_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 - stock_warehouse → stock_route_warehouse, stock_wh_resupply_table: **reference**, a link table, embedded on the other side (assumed)
 - stock_rule, res_company, res_users, stock_route, stock_picking_type, stock_location, res_partner → stock_warehouse: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - stock_warehouse → stock_wh_resupply_table: **embed**, a link table, kept as an array on this side (assumed)
@@ -4488,7 +4552,8 @@ From `account_bank_statement_line`.
 
 Why:
 - res_company, res_users, res_currency, account_journal, account_move, res_partner, account_bank_statement → account_bank_statement_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- account_bank_statement_line → account_move, account_move_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- account_bank_statement_line → account_move: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- account_bank_statement_line → account_move_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 - account_bank_statement_line → account_payment_account_bank_statement_line_rel: **reference**, a link table, embedded on the other side (assumed)
 
 Open questions (1):
@@ -4500,10 +4565,8 @@ From `account_full_reconcile`.
 
 Why:
 - res_users → account_full_reconcile: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- account_full_reconcile → account_move_line, account_partial_reconcile: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (account_full_reconcile): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
+- account_full_reconcile → account_move_line: **reference**, it is embedded under another parent; this one is referenced (derived)
+- account_full_reconcile → account_partial_reconcile: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
 ## accountIncoterms
 
@@ -4545,8 +4608,12 @@ Why:
 - account_partial_reconcile → account_move: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users, res_currency, account_move_line, account_move, account_full_reconcile → account_partial_reconcile: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (account_partial_reconcile): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
+Open questions (5):
+- **source_index_not_exercised** (account_partial_reconcile): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_partial_reconcile): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_partial_reconcile): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_partial_reconcile): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (account_partial_reconcile): source index not exercised by any confirmed access pattern; keep or drop
 
 ## accountPaymentMethod
 
@@ -4589,23 +4656,12 @@ Open questions (2):
 From `account_tax_group`.
 
 Why:
-- account_tax_group → account_move_line, account_tax: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- account_tax_group → account_move_line: **reference**, it is embedded under another parent; this one is referenced (derived)
+- account_tax_group → account_tax: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_country, res_users → account_tax_group: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
 Open questions (1):
 - **no_access_evidence** (account_tax_group): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
-## accountTaxRepartitionLine
-
-From `account_tax_repartition_line`.
-
-Why:
-- account_tax_repartition_line → account_account_tag_account_tax_repartition_line_rel: **reference**, a link table, embedded on the other side (assumed)
-- account_tax_repartition_line → account_move_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- account_account, res_company, res_users, account_tax → account_tax_repartition_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (account_tax_repartition_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## authPasskeyKey
 
@@ -5314,7 +5370,8 @@ From `product_base_unit`.
 
 Why:
 - res_users → product_base_unit: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- product_base_unit → product_product, product_template: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- product_base_unit → product_product: **reference**, it is embedded under another parent; this one is referenced (derived)
+- product_base_unit → product_template: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
 Open questions (1):
 - **no_access_evidence** (product_base_unit): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
@@ -5325,7 +5382,7 @@ From `product_combo_item`.
 
 Why:
 - product_combo, res_company, res_users, product_product → product_combo_item: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- product_combo_item → sale_order_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- product_combo_item → sale_order_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 
 Open questions (1):
 - **no_access_evidence** (product_combo_item): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
@@ -5351,6 +5408,17 @@ Why:
 
 Open questions (1):
 - **no_access_evidence** (product_pricelist_item): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
+
+## productProductUomUomRel
+
+From `product_product_uom_uom_rel`.
+
+Why:
+- product_product → product_product_uom_uom_rel: **reference**, its parent is itself embedded, and arrays don't nest (assumed)
+- uom_uom → product_product_uom_uom_rel: **reference**, a link table, embedded on the other side (assumed)
+
+Open questions (1):
+- **no_access_evidence** (product_product_uom_uom_rel): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## productRemoval
 
@@ -5395,6 +5463,38 @@ Why:
 
 Open questions (1):
 - **no_access_evidence** (product_uom): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
+
+## productValue
+
+From `product_value`.
+
+Why:
+- account_move, res_company, res_users, stock_lot, stock_move, product_product → product_value: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+
+Open questions (1):
+- **no_access_evidence** (product_value): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
+
+## productVariantCombination
+
+From `product_variant_combination`.
+
+Why:
+- product_product → product_variant_combination: **reference**, its parent is itself embedded, and arrays don't nest (assumed)
+- product_template_attribute_value → product_variant_combination: **reference**, a link table, embedded on the other side (assumed)
+
+Open questions (1):
+- **no_access_evidence** (product_variant_combination): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
+
+## purchaseOrderLineAccrualMoveRel
+
+From `purchase_order_line_accrual_move_rel`.
+
+Why:
+- account_move → purchase_order_line_accrual_move_rel: **reference**, a link table, embedded on the other side (assumed)
+- purchase_order_line → purchase_order_line_accrual_move_rel: **reference**, its parent is itself embedded, and arrays don't nest (assumed)
+
+Open questions (1):
+- **no_access_evidence** (purchase_order_line_accrual_move_rel): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## reportLayout
 
@@ -5445,8 +5545,9 @@ Open questions (1):
 From `res_currency`.
 
 Why:
-- res_currency → account_account, account_analytic_line, account_bank_statement, account_bank_statement_line, account_journal, account_move, account_move_line, account_partial_reconcile, account_payment, payment_transaction, product_pricelist, product_pricelist_item, product_supplierinfo, purchase_order, res_company, res_country, sale_order, sale_order_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- res_currency → account_account, account_analytic_line, account_bank_statement, account_bank_statement_line, account_journal, account_move, account_partial_reconcile, account_payment, payment_transaction, product_pricelist, product_pricelist_item, product_supplierinfo, purchase_order, res_company, res_country, sale_order: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_currency → account_cash_rounding_res_currency_rel, payment_currency_rel, payment_method_res_currency_rel: **reference**, a link table, embedded on the other side (assumed)
+- res_currency → account_move_line, sale_order_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 - res_users → res_currency: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_currency → res_currency_rate: **reference**, no evidence either way (assumed)
 
@@ -5607,6 +5708,39 @@ Why:
 Open questions (1):
 - **no_access_evidence** (return_reason): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
+## saleOrderLineAccrualMoveRel
+
+From `sale_order_line_accrual_move_rel`.
+
+Why:
+- account_move → sale_order_line_accrual_move_rel: **reference**, a link table, embedded on the other side (assumed)
+- sale_order_line → sale_order_line_accrual_move_rel: **reference**, its parent is itself embedded, and arrays don't nest (assumed)
+
+Open questions (1):
+- **no_access_evidence** (sale_order_line_accrual_move_rel): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
+
+## saleOrderLineInvoiceRel
+
+From `sale_order_line_invoice_rel`.
+
+Why:
+- account_move_line → sale_order_line_invoice_rel: **reference**, a link table, embedded on the other side (assumed)
+- sale_order_line → sale_order_line_invoice_rel: **reference**, its parent is itself embedded, and arrays don't nest (assumed)
+
+Open questions (1):
+- **no_access_evidence** (sale_order_line_invoice_rel): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
+
+## saleOrderLineStockRouteRel
+
+From `sale_order_line_stock_route_rel`.
+
+Why:
+- sale_order_line → sale_order_line_stock_route_rel: **reference**, its parent is itself embedded, and arrays don't nest (assumed)
+- stock_route → sale_order_line_stock_route_rel: **reference**, a link table, embedded on the other side (assumed)
+
+Open questions (1):
+- **no_access_evidence** (sale_order_line_stock_route_rel): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
+
 ## smsSms
 
 From `sms_sms`.
@@ -5657,10 +5791,9 @@ Open questions (1):
 From `stock_lot`.
 
 Why:
-- stock_lot → product_value: **reference**, it is embedded under another parent; this one is referenced (derived)
+- stock_lot → product_value, stock_move_line, stock_quant: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - stock_lot → res_partner_stock_lot_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_company, res_users, stock_location, product_product → stock_lot: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- stock_lot → stock_move_line, stock_quant: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
 Open questions (2):
 - **no_access_evidence** (stock_lot): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
@@ -5686,10 +5819,21 @@ Why:
 - stock_picking → stock_move, stock_move_line, stock_picking: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - stock_picking_batch, res_company, res_users, stock_location, res_partner, stock_picking_type, return_reason, sale_order → stock_picking: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (3):
-- **no_access_evidence** (stock_picking): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
+Open questions (14):
 - **lob** (stock_picking): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
 - **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
+- **source_index_not_exercised** (stock_picking): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_picking): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_picking): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_picking): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_picking): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_picking): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_picking): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_picking): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_picking): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_picking): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_picking): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_picking): source index not exercised by any confirmed access pattern; keep or drop
 
 ## stockPickingBatch
 
@@ -5732,8 +5876,13 @@ From `stock_quant`.
 Why:
 - res_company, res_users, stock_location, stock_lot, res_partner, stock_package, product_product → stock_quant: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (stock_quant): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
+Open questions (6):
+- **source_index_not_exercised** (stock_quant): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_quant): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_quant): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_quant): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_quant): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_quant): source index not exercised by any confirmed access pattern; keep or drop
 
 ## stockRule
 
@@ -5785,18 +5934,22 @@ Open questions (3):
 From `stock_warehouse_orderpoint`.
 
 Why:
-- stock_warehouse_orderpoint → purchase_order_line, stock_move: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- stock_warehouse_orderpoint → purchase_order_line: **reference**, it is embedded under another parent; this one is referenced (derived)
+- stock_warehouse_orderpoint → stock_move: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users, stock_location, product_product, uom_uom, stock_route, product_supplierinfo, stock_warehouse → stock_warehouse_orderpoint: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (stock_warehouse_orderpoint): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
+Open questions (3):
+- **source_index_not_exercised** (stock_warehouse_orderpoint): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_warehouse_orderpoint): source index not exercised by any confirmed access pattern; keep or drop
+- **source_index_not_exercised** (stock_warehouse_orderpoint): source index not exercised by any confirmed access pattern; keep or drop
 
 ## uomUom
 
 From `uom_uom`.
 
 Why:
-- uom_uom → account_analytic_line, account_move_line, barcode_rule, product_pricelist_item, product_supplierinfo, product_template, product_uom, purchase_order_line, sale_order_line, stock_move, stock_move_line, stock_warehouse_orderpoint, uom_uom: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- uom_uom → account_analytic_line, barcode_rule, product_pricelist_item, product_supplierinfo, product_template, product_uom, stock_move, stock_move_line, stock_warehouse_orderpoint, uom_uom: **reference**, other tables also point at it, so it keeps its own collection (assumed)
+- uom_uom → account_move_line, purchase_order_line, sale_order_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 - uom_uom → product_product_uom_uom_rel, product_template_uom_uom_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users, stock_package_type → uom_uom: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
