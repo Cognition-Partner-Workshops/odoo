@@ -1,21 +1,25 @@
 """Second half of build_fixture.sh: runs inside the freshly cloned fixture database.
 
 Adds the synthetic outlier (a product template with OUTLIER_FACTOR x the profile max
-of its vendor pricelist lines; product_supplierinfo is a leaf in the in-scope fan-outs,
-so the extra rows do not pull any other fan-out's percentiles below the profile),
-counts every in-scope table, recomputes every in-scope fan-out with the pinned
-profile's query shape and nearest-rank percentiles, fails if the fixture is below
-the profile on p50/p99/max or if a mapping_spec embed has no profile fan-out,
-tags each fan-out with the spec embeds it backs, lists fan-outs skipped for an
-empty parent table and
-writes the manifest accepted by preflight.py::validate_fixture_manifest. Database
+of its vendor pricelist lines; the extra lines have no children of their own, and the
+p50/p99/max check below fails the build if they pull any fan-out under the profile),
+counts every in-scope table (table_buckets.json buckets root_collection + embedded),
+recomputes every in-scope fan-out with the pinned profile's query shape and
+nearest-rank percentiles, fails if the fixture is below the profile on p50/p99/max
+or if a mapping_spec embed has no profile fan-out, tags each fan-out with the spec
+embeds it backs, lists fan-outs skipped for an empty parent table and writes the
+manifest accepted by preflight.py::validate_fixture_manifest, with the spec_version
+of mapping_spec.json and whether it is still a draft (plan.yaml gate g-model-accepted
+not done: the schema sign-off has not happened yet). Database
 ACLs are not part of a template copy, so the source's PUBLIC revoke and odoo_ro
 CONNECT grant are re-applied here.
 Connects with libpq defaults (PGPORT from the caller); never opens the source.
 """
+import hashlib
 import json
 import math
 import os
+import re
 import sys
 from datetime import datetime, timezone
 
@@ -28,19 +32,28 @@ readOnlyRole = os.environ["RO_ROLE"]
 manifestPath = os.environ["MANIFEST"]
 outlierRel = "fanout:product_supplierinfo->product_template(product_tmpl_id)"
 PCTS = ("p50", "p99", "max")
+SCOPE_BUCKETS = ("root_collection", "embedded")
+SPEC_PATH = ".migration/mapping_spec.json"
 OUTLIER_FACTOR = 2
 
 profile = json.load(open(f"{root}/.migration/data_profile.json"))
 buckets = json.load(open(f"{root}/.migration/table_buckets.json"))["tables"]
-inScope = sorted(t for t, v in buckets.items() if v["bucket"] == "in_scope")
+inScope = sorted(t for t, v in buckets.items() if v["bucket"] in SCOPE_BUCKETS)
 fanouts = [s for s in profile["stats"] if s["query_id"] == "fanout"
            and s["subject"]["parent"] in inScope and s["subject"]["child"] in inScope]
 fanoutIds = {s["id"] for s in profile["stats"] if s["query_id"] == "fanout"}
 outlierProfile = next(s["values"] for s in profile["stats"] if s["id"] == outlierRel)
 outlierChildren = OUTLIER_FACTOR * outlierProfile["max"]
 
-# every embed in the signed-off spec must have its fan-out in the table
-spec = json.load(open(f"{root}/.migration/mapping_spec.json"))
+# every embed in the spec must have its fan-out in the table
+specBytes = open(f"{root}/{SPEC_PATH}", "rb").read()
+spec = json.loads(specBytes)
+# the schema sign-off gate in plan.yaml is the record of whether this spec is signed
+signoff = re.findall(r"\{id: g-model-accepted,.*\bdone: (true|false)\}",
+                     open(f"{root}/.migration/plan.yaml").read())
+if len(signoff) != 1:
+    sys.exit("build_fixture: .migration/plan.yaml must carry exactly one g-model-accepted gate")
+specDraft = signoff[0] == "false"
 embedsByFanout, failures = {}, []
 for coll in spec["collections"]:
     for embed in coll.get("embeds") or []:
@@ -195,6 +208,12 @@ manifest = {
     "source": f"{sourceDb} (migration.fixture_source={sourceMarker}, "
               f"row_counts_sha256={sourceSha}, profile census_sha256={profile['census_sha256']})",
     "method": "synthetic",
+    "spec_version": spec["version"],
+    "spec": {"file": SPEC_PATH, "sha256": hashlib.sha256(specBytes).hexdigest(), "draft": specDraft,
+             "note": ("built from a draft (plan gate g-model-accepted not done); "
+                      "rebuild after sign-off if the signed spec_version differs"
+                      if specDraft else "built after schema sign-off (plan gate g-model-accepted done)")},
+    "scope": {"file": ".migration/table_buckets.json", "buckets": list(SCOPE_BUCKETS)},
     "masked_columns": [],
     "produced_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     "produced_by": ".migration/fixtures/build_fixture.sh",
