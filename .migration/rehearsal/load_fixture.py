@@ -35,10 +35,22 @@ import psycopg
 from bson import json_util
 from bson.decimal128 import Decimal128
 from pymongo import MongoClient
-from pymongo.errors import OperationFailure
+from pymongo.errors import InvalidURI, OperationFailure
+from pymongo.uri_parser import parse_uri
 from recon.adapters import parse_postgresql_secret
 
 MAX_BSON = 16 * 1024 * 1024
+LOCAL_MONGO_HOSTS = {"localhost", "127.0.0.1", "::1"}
+
+
+def is_local_target_uri(uri):
+    if not uri.startswith("mongodb://"):
+        return False
+    try:
+        hosts = parse_uri(uri)["nodelist"]
+    except (InvalidURI, TypeError, ValueError):
+        return False
+    return bool(hosts) and all(host.lower() in LOCAL_MONGO_HOSTS for host, _ in hosts)
 
 
 def to_bson(value):
@@ -244,7 +256,7 @@ def main():
     started_at = time.perf_counter()
     spec = json.load(open(a.spec))
     uri = os.environ[a.target_uri_secret]
-    if not (uri.startswith("mongodb://127.0.0.1") or uri.startswith("mongodb://localhost")):
+    if not is_local_target_uri(uri):
         sys.exit("rehearsal target must be the local container (mongodb://127.0.0.1 or localhost)")
     params = parse_postgresql_secret(os.environ[a.source_dsn_secret])
     client = MongoClient(uri)
