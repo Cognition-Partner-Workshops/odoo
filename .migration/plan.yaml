@@ -1,0 +1,218 @@
+version: 1
+title: "UNT15: Odoo PostgreSQL to MongoDB Atlas (odoo_src -> odoo_unt15), bounded to wave-1 close"
+summary: >
+  Prove mongo-migration-plugin main (pinned in .migration/plugin_sha) on Odoo and measure its cost.
+  Source is the run-built, read-only, frozen local PostgreSQL odoo_src; the only target is Atlas database
+  odoo_unt15. Recon is the merge authority; Atlas sees recon plus one loader run per batch, everything else
+  (app tests, browser tours) runs on local MongoDB. Stops for Dhrov: write-scope PR (#164, merged), accepted-empty
+  tolerances, schema sign-off (with d-storage-path), wave-1 close. No video, no cutover, no repoint.
+run:
+  repo: Cognition-Partner-Workshops/odoo
+  branch: mongo-run/unt15
+  board: UNT15O (board-f5d1a041b93543b3a7cc0640a69678a4; plain board, no Plan view -> decisions taken in the manager chat)
+  plugin_sha: df77c830a6f75c3d1d94d04718ad3af98448efd5
+  child_mode: fusion
+  targets_to_beat: {canary_acu: 25, wave1_acu_incl_setup: 120, unt14_per_batch_acu: 32}
+phases:
+  - id: p1-setup
+    title: Setup and access
+    description: Source build, connectivity, write scope, tolerances.
+    blockers:
+      - {id: b-atlas-secret, description: Atlas cluster URI secret, status: resolved, check: {kind: secret, secret: MONGODB_ATLAS_URI}}
+      - {id: b-odoo-ro, description: Source read-only DSN secret (JSON form), status: resolved, check: {kind: secret, secret: ODOO_PG_RO_DSN}}
+      - {id: b-redact-salt, description: Source fingerprint salt (live source probe), status: resolved, check: {kind: secret, secret: RECON_REDACT_SALT}}
+      - {id: b-code-repo, description: Run repo connected, status: resolved, check: {kind: repo, repo: Cognition-Partner-Workshops/odoo}}
+    steps:
+      - id: s1.1-blueprint
+        title: Check the run environment
+        description: >
+          Manager-run, no ticket: odoo venv needed faker==22.0.0 and pymongo==4.10.1; local MongoDB is the rem-mongo docker
+          container (mongo:7, port 27017); recon harness at /home/ubuntu/.venvs/recon. Blueprint change proposed at wave close.
+      - id: s1.3-allowlist
+        title: Commit write scope
+        description: >
+          PR #164 (merged): allowed_targets.json names Atlas database odoo_unt15 only. PR #165: base-code reset
+          (UNT14 opt-ins removed, storage_mongodb.DATABASE read from the allowlist). authorizations.json = [] here.
+      - id: s1.5-source-build
+        title: Build and freeze odoo_src
+        description: >
+          .migration/fixtures/build_source.sh once (marker v4, 70 modules, 521 base tables + 5 views, 169,202 rows, 266 s; fingerprint in source_fingerprint.json). Read-only login odoo_ro.
+          Never modified afterwards; tables still empty after the build go to Dhrov as accepted_empty before wave 1
+          (expected_empty.txt is the build's proposal, not a decision).
+        depends_on: [s1.1-blueprint]
+      - id: s1.2-connectivity
+        title: Run connectivity probe
+        description: >
+          connectivity_probe.py --policy online --family postgresql --frozen --allow-broad-target; .migration/connectivity.json
+          committed: source live (probe_ok, frozen), target migration_cluster (privilege_excess_accepted, rtt 62.5 ms).
+        depends_on: [s1.3-allowlist, s1.5-source-build]
+        gates:
+          - {id: g-doctor-green, description: Probe passes; source principal read-only; target inside allowlist, done: true}
+        decisions:
+          - id: d-connectivity-policy
+            description: Probe policy.
+            options: [{id: auto, label: auto}, {id: online, label: online}, {id: offline, label: offline}]
+            selected: online
+          - id: d-source-mode
+            description: Source mode; --frozen because the source is run-built and never changes.
+            options: [{id: live, label: live (frozen)}, {id: snapshot, label: snapshot}]
+            selected: live
+          - id: d-broad-target
+            description: The shared Atlas user is over-scoped; record it rather than provision a scoped principal.
+            options: [{id: record, label: "--allow-broad-target (mongo_guard is the write fence)"}, {id: scoped, label: provision readWrite@odoo_unt15 principal}]
+            selected: record
+      - id: s1.4-tolerances
+        title: Commit tolerances
+        description: >
+          .migration/recon_tolerances.json: version 1, full_diff_row_threshold 100000, numeric_abs_tol 0, aggregate_rel_tol 1e-9,
+          source_concurrency 1, accepted_empty [] until d-accepted-empty is decided (s3.4).
+        depends_on: [s1.3-allowlist]
+        decisions:
+          - id: d-tolerances
+            description: Row threshold and numeric tolerance presets (correctness contract). Recommended default taken per the brief; Dhrov may override.
+            important: true
+            options:
+              - {id: strict, label: Exact match, threshold 100000}
+              - {id: relaxed, label: "Numeric abs tol 0.01, threshold 100000"}
+            selected: strict
+          - id: d-source-concurrency
+            description: Max parallel recon queries against the source.
+            options: [{id: "1", label: 1 (serial)}, {id: "2", label: 2}, {id: "4", label: 4}]
+            selected: "1"
+          - id: d-legacy-touch
+            description: Grants or writes on the legacy source.
+            options: [{id: none, label: none}]
+            selected: none
+  - id: p2-inventory
+    title: Inventory
+    description: Modeling pipeline, apps.json, co-write observation, dependency register, access review, fixture.
+    steps:
+      - id: s2.1-pipeline
+        title: Run the modeling pipeline
+        description: >
+          skills/schema-modeling/pipeline.py once on odoo_src: census, data profile, access scan, proposal, model_patch --check,
+          spec_diff (none prior). .migration/apps.json first (Odoo is one app: roots odoo-bin / odoo/http.py / odoo/service,
+          session pattern = HTTP session cookie + cron workers). Artifacts committed under .migration/.
+        depends_on: [s1.2-connectivity, s1.4-tolerances]
+        gates:
+          - {id: g-census-complete, description: Every source object bucketed with a cite, done: false}
+        decisions:
+          - id: d-modeling-thresholds
+            description: Embed/reference thresholds.
+            options: [{id: default, label: "2 MiB document, 1000 fan-out"}, {id: custom, label: custom}]
+            selected: default
+      - id: s2.5-observe
+        title: Observe co-writes
+        description: >
+          observe_cowrites.py on odoo_src over one window that spans an ir.cron schedule boundary, into .migration/cowrites.json
+          with the source identity and census hash bound. odoo_src is frozen and odoo_ro is SELECT-only, so no cron can execute
+          there (ir_cron._acquire_one_job needs a row lock): the window is expected to record zero write transactions, which is
+          the evidence that the frozen source has no code-less writers. If preflight treats that as cowrites_idle and refuses a
+          writes slice, that is a plugin gap for frozen sources (logged in NOTES.md) and the slice falls back to static evidence;
+          no writable clone is run, because its identity would not be the source's.
+        depends_on: [s2.1-pipeline]
+      - id: s2.3-dependency-register
+        title: Register other writers and readers
+        description: >
+          dependency_register.py --root . --family postgresql --markdown -> .migration/dependency_register.json; every row
+          dispositioned (storage path / unit / out of estate), no silent exclusions; table in NOTES.md.
+        depends_on: [s2.1-pipeline, s2.5-observe]
+      - id: s2.2-access-review
+        title: Review the hot queries
+        description: Confirm dominant queries and frequencies in access_patterns.json with cites; re-run pipeline.py.
+        depends_on: [s2.1-pipeline]
+      - id: s2.4-fixture
+        title: Build the fixture
+        description: Synthetic fixture sized from the profile's fan-outs; manifest under .migration/fixtures/ with its spec_version.
+        depends_on: [s2.1-pipeline]
+  - id: p3-model
+    title: Data model
+    description: Design decisions, storage path, accepted-empty, unit derivation; schema sign-off stop.
+    steps:
+      - id: s3.1-design-decisions
+        title: Answer open items and sign off
+        description: >
+          Open items answered in .migration/answers.txt; model_patch.py --check exits 0 with no index_uncovered left unexplained;
+          review page, fan-outs, hot queries, local rehearsal and the d-storage-path numbers go to Dhrov before any migration code.
+        depends_on: [s2.2-access-review, s2.3-dependency-register, s2.4-fixture]
+        gates:
+          - {id: g-model-evidence, description: "model_patch.py --check exits 0", done: false}
+          - {id: g-model-accepted, description: Dhrov signs off the schema model (explicit yes in the manager chat) before unit derivation, done: false}
+        decisions:
+          - id: d-storage-path
+            description: How the Odoo ORM reaches MongoDB. Both options costed in ACU and wall time at sign-off; Dhrov picks.
+            important: true
+            options:
+              - {id: orm-storage-path, label: "Shared ORM storage path (storage_mongodb.py kept from unt13; cost = conformance + per-unit opt-ins)"}
+              - {id: repository-layer, label: "Per-model repository layer under the ORM API (cost = new mechanism + per-unit adapters)"}
+            selected: null
+      - id: s3.2-storage-path
+        title: Build the storage mechanism Dhrov picked
+        description: >
+          Runs under either d-storage-path option. orm-storage-path: bring the kept storage_mongodb.py mechanism to the new spec
+          (model-independent work first, spec-specific code after g-model-accepted). repository-layer: build the per-model
+          repository layer under the ORM API with the same contract (opt-in per model, spec-driven layout, undo on rollback).
+          Either way the output is one shared mechanism every unit opts into, with one fix owner.
+        depends_on: [s2.1-pipeline, s3.1-design-decisions]
+      - id: s3.4-accepted-empty
+        title: Settle empty tables with Dhrov
+        description: Census empties vs expected_empty.txt proposal; his decision becomes recon_tolerances.accepted_empty (version bump) before wave-1 preflight.
+        depends_on: [s2.1-pipeline]
+        decisions:
+          - id: d-accepted-empty
+            description: Which still-empty in-scope tables are accepted empty for recon.
+            important: true
+            options:
+              - {id: proposal, label: Accept the build's expected_empty.txt proposal as-is}
+              - {id: edited, label: Accept an edited list}
+            selected: null
+      - id: s3.3-unit-derivation
+        title: Derive units and waves
+        description: derive_units.py with the default batch size; print batch count and assumed per-batch cost; no --batch-max.
+        depends_on: [s3.1-design-decisions, s2.3-dependency-register]
+      - id: s3.5-storage-conformance
+        title: Storage conformance sweep
+        description: >
+          For the mechanism s3.2 delivered (either option): every unit's models on it at once, app tests on local MongoDB under
+          scratch prefixes, prefixes torn down. Gate ticked on the shared fix merged and empty gap lists.
+        depends_on: [s3.2-storage-path, s3.3-unit-derivation]
+        gates:
+          - {id: g-storage-conformance, description: Shared fix merged; gap lists empty; prefixes torn down, done: false}
+  - id: p4-waves
+    title: Migration waves (wave 1 only in this run)
+    description: Preflight with --slice --auto-resolve per slice, canary batch first, one verify per batch, aggregate close.
+    decisions:
+      - id: d-wave-width
+        description: Concurrent batch tickets.
+        options: [{id: "2", label: 2}, {id: "4", label: 4}]
+        selected: "4"
+      - id: d-auto-merge
+        description: auto_merge in the wave spec.
+        options: [{id: "true", label: Merge mergeable_prs at wave close}, {id: "false", label: A human picks}]
+        selected: "true"
+    steps:
+      - id: s4.1.0-preflight
+        title: Wave 1 preflight
+        description: Wave spec from units.json; preflight --slice --auto-resolve on every slice with .resolved.json committed; --emit-tickets.
+        depends_on: [s3.3-unit-derivation, s3.5-storage-conformance, s3.4-accepted-empty]
+        gates:
+          - {id: g-preflight-1, description: preflight exit 0 over the wave 1 spec, done: false}
+      - id: s4.1.canary
+        title: Migrate the canary batch
+        description: Smallest batch first; local tours on both storages, one Atlas loader run, Atlas recon, merge only on graded PASS.
+        depends_on: [s4.1.0-preflight]
+      - id: s4.1.verify.canary
+        title: Verify the canary batch
+        description: Independent wave-verify of the canary.
+        depends_on: [s4.1.canary]
+      - id: s4.1.batches
+        title: Migrate the remaining wave-1 batches
+        description: One step per batch emitted by preflight (added here when the spec exists), width 4.
+        depends_on: [s4.1.verify.canary]
+      - id: s4.1.verify-aggregate
+        title: Wave 1 close
+        description: preflight --grade/--verify aggregate; wave-close card with bill and evidence pack to Dhrov. Run stops here.
+        depends_on: [s4.1.batches]
+        gates:
+          - {id: g-recon-pass-1, description: Every batch graded PASS, done: false}
+          - {id: g-independent-verify-1, description: Independent verify PASS per batch, done: false}

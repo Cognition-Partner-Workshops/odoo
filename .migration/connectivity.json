@@ -1,0 +1,23 @@
+{
+  "policy": "online",
+  "source_access": "live",
+  "target_access": "migration_cluster",
+  "source": {
+    "access": "live",
+    "reason": "probe_ok",
+    "blocked": false,
+    "detail": "",
+    "database": "odoo_src",
+    "server": "hmac-sha256:545efbd0aca82e45",
+    "frozen": true
+  },
+  "target": {
+    "access": "migration_cluster",
+    "reason": "privilege_excess_accepted",
+    "blocked": false,
+    "detail": "over-scoped principal accepted, mongo_guard is the only write fence: readWriteAnyDatabase@admin, dbAdminAnyDatabase@admin",
+    "rtt_ms": 62.5
+  },
+  "blocked": false,
+  "probed_at": "2026-10-30T16:08:34.275792+00:00"
+}
