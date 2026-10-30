@@ -1,5 +1,5 @@
 version: 1
-title: "UNT15: Odoo PostgreSQL to MongoDB Atlas (odoo_src -> odoo_unt15), bounded to wave-1 close"
+title: "UNT15: Odoo PostgreSQL to MongoDB Atlas (odoo_src -> odoo_unt15), bounded to the canary (wave 1) plus the first wave-2 batch"
 summary: >
   Prove mongo-migration-plugin main (pinned in .migration/plugin_sha) on Odoo and measure its cost.
   Source is the run-built, read-only, frozen local PostgreSQL odoo_src; the only target is Atlas database
@@ -12,7 +12,12 @@ run:
   board: UNT15O (board-f5d1a041b93543b3a7cc0640a69678a4; plain board, no Plan view -> decisions taken in the manager chat)
   plugin_sha: df77c830a6f75c3d1d94d04718ad3af98448efd5
   child_mode: fusion
-  targets_to_beat: {canary_acu: 25, wave1_acu_incl_setup: 120, unt14_per_batch_acu: 32}
+  targets_to_beat: {canary_acu: 25, wave1_acu_incl_setup: 120, unt14_per_batch_acu: 32, first_wave2_batch_acu: 32}
+  bound: >
+    Dhrov, 2026-10-30 (manager chat): derive_units defines wave 1 as the canary alone (ormSignalingAssets); the run executes
+    the canary, then exactly ONE wave-2 batch (the first batch derive_units emits for wave 2) with its own recon and verifier
+    and the wave-2 auto-merge rules, then stops with the close card and the bill per ticket covering both. Nothing beyond that batch.
+    The batch is measured against 32 ACU (UNT14's per-batch average); the canary against 25.
 phases:
   - id: p1-setup
     title: Setup and access
@@ -189,6 +194,19 @@ phases:
         title: Derive units and waves
         description: derive_units.py with the default batch size; print batch count and assumed per-batch cost; no --batch-max.
         depends_on: [s3.1-design-decisions, s2.3-dependency-register]
+        decisions:
+          - id: d-cycle-break
+            description: >
+              derive_units refused on one reference cycle of 76 collections (limit 4) once the 280 never-filled references had
+              setter rows. Which nullable reference edges are ordered out as forward references (write_path_setters.json
+              disposition `forward`, citing this decision). Simulated by UNT15O-8: audit columns alone leave a 47-cycle,
+              plus company pointers 45, plus account_account.currency_id 45; set D clears it (no cycle over 4).
+            important: true
+            options:
+              - {id: set-d, label: "D: all 264 create_uid/write_uid -> resUsers edges + the 24 res_company configuration pointers + account_account.currency_id + account_move.tax_cash_basis_rec_id, res_company.account_opening_move_id, res_company.automatic_entry_default_journal_id, stock_route.supplied_wh_id, stock_route.supplier_wh_id (294 edges)"}
+              - {id: model-change, label: Change the signed model instead (re-opens g-model-accepted)}
+            selected: set-d
+            selected_by: "Dhrov, 2026-10-30 (manager chat). Catch accepted: edges 1-3 are app-written and their targets land 2-5 waves after the writer. x_plan1_id..x_plan4_id stay never-filled with an OPEN note (runtime-generated setter names; plugin gap)."
       - id: s3.5-storage-conformance
         title: Storage conformance sweep
         description: >
@@ -198,7 +216,7 @@ phases:
         gates:
           - {id: g-storage-conformance, description: Shared fix merged; gap lists empty; prefixes torn down, done: false}
   - id: p4-waves
-    title: Migration waves (wave 1 only in this run)
+    title: Migration waves (canary + first wave-2 batch in this run)
     description: Preflight with --slice --auto-resolve per slice, canary batch first, one verify per batch, aggregate close.
     decisions:
       - id: d-wave-width
@@ -224,14 +242,24 @@ phases:
         title: Verify the canary batch
         description: Independent wave-verify of the canary.
         depends_on: [s4.1.canary]
-      - id: s4.1.batches
-        title: Migrate the remaining wave-1 batches
-        description: One step per batch emitted by preflight (added here when the spec exists), width 4.
+      - id: s4.2.0-preflight
+        title: Wave 2 preflight (first batch only)
+        description: Wave-2 spec from units.json restricted to its first emitted batch; preflight --slice --auto-resolve with .resolved.json committed.
         depends_on: [s4.1.verify.canary]
+        gates:
+          - {id: g-preflight-2, description: preflight exit 0 over the wave-2 first-batch spec, done: false}
+      - id: s4.2.batch-1
+        title: Migrate the first wave-2 batch
+        description: The one batch run.bound allows; local tours on both storages, one Atlas loader run, Atlas recon, merge only on graded PASS (wave-2 auto-merge rules).
+        depends_on: [s4.2.0-preflight]
+      - id: s4.2.verify.batch-1
+        title: Verify the first wave-2 batch
+        description: Independent wave-verify of that batch.
+        depends_on: [s4.2.batch-1]
       - id: s4.1.verify-aggregate
-        title: Wave 1 close
-        description: preflight --grade/--verify aggregate; wave-close card with bill and evidence pack to Dhrov. Run stops here.
-        depends_on: [s4.1.batches]
+        title: Run close (canary + first wave-2 batch)
+        description: preflight --grade/--verify aggregate over both; close card with bill per ticket and evidence pack to Dhrov. Run stops here.
+        depends_on: [s4.2.verify.batch-1]
         gates:
           - {id: g-recon-pass-1, description: Every batch graded PASS, done: false}
           - {id: g-independent-verify-1, description: Independent verify PASS per batch, done: false}
