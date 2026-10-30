@@ -1,0 +1,7 @@
+{
+ "slice": "w1-b01",
+ "phase": "reads",
+ "tables": [
+  "orm_signaling_assets"
+ ]
+}

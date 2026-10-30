@@ -227,6 +227,16 @@ phases:
         description: auto_merge in the wave spec.
         options: [{id: "true", label: Merge mergeable_prs at wave close}, {id: "false", label: A human picks}]
         selected: "true"
+      - id: d-seam-policy
+        description: How preflight --slice treats seam findings (cross-seam reads/writes, unmoved FKs).
+        options: [{id: refuse, label: Every finding needs a human accepted row}, {id: auto-resolve, label: Route reads to source, expand the slice in the reads phase, write <slice>.resolved.json}]
+        selected: auto-resolve
+        selected_by: "Manager pick 2026-10-30, confirmed by Dhrov's merge of the wave-1 preflight PR; the p4 step descriptions already named --auto-resolve. Inert for this run: the canary and w2-b01 slices have 0 seam findings."
+      - id: d-id-authority
+        description: Which side mints record ids during the waves (preflight --id-authority).
+        options: [{id: source-sequence, label: PostgreSQL sequences stay the id authority; Mongo documents carry the source id}, {id: target, label: The target mints ids}]
+        selected: source-sequence
+        selected_by: "Manager pick 2026-10-30, confirmed by Dhrov's merge of the wave-1 preflight PR; the ORM storage path keeps every id column in PostgreSQL (s3.2)."
     steps:
       - id: s4.1.0-preflight
         title: Wave 1 preflight
