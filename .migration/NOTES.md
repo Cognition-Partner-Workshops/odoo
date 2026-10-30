@@ -4,7 +4,7 @@ Run: Odoo (`mongo-run/unt15`, cut from `mongo-run/unt13`) from local read-only P
 
 ## Run findings (not plugin gaps)
 
-- Runtime `SPEC_SHA256` still pins the UNT14 spec; rebound at `s3.2-storage-path` after schema sign-off (`g-model-accepted`). No installed application model opts into MongoDB before then; the draft is not a signed runtime spec.
+- Runtime `SPEC_SHA256` still pins the UNT14 spec; rebound at `s3.2-storage-path` after schema sign-off (`g-model-accepted`). No installed application model opts into MongoDB before then; the draft is not a signed runtime spec. The MongoDB-stored models in `test_orm_mongodb` would hit the stale pin, so that suite remains red until `s3.2` re-signs the spec; it was not run for this modeling ticket.
 - `build_fixture.py` filters `bucket == 'in_scope'`; UNT15 `table_buckets.json` carries raw proposer buckets, fixture ticket maps `root_collection` + `embedded` to its scope.
 - Base branch `mongo-run/unt13` carried the finished UNT14 migration code (50 `_storage = 'mongodb'` opt-ins, database literal `odoo_unt13`). Reset in PR #165 (Dhrov's option 1): opt-ins removed, storage-path mechanism kept, `storage_mongodb.DATABASE` read from `allowed_targets.json`.
 - Board UNT15O was created as a plain board (identifier UNT15 was taken), so there is no Plan view; `plan.yaml` is committed here and decisions are taken in the manager session chat.
