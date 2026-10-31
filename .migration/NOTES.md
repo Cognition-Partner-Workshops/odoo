@@ -903,8 +903,8 @@ What the storage path cannot do (batches work around it):
 ## s3.5 storage-on conformance (UNT15O-9/-10/-11 gap lists)
 
 Fixed in `odoo/orm/storage_mongodb.py`, one test each in `test_orm_mongodb/tests/test_conformance.py`:
-- Sweep seed skipped many2many link arrays (`_seed_sweep` → new `_seed_links`, :865), so `account.account` had no `companyIds`; the sweep also no longer clears a relation mirror it seeds from.
-- `_condition` inverse lookup assumed records (:2468); a many2one_reference inverse (`res_id`) gives ints.
+- Sweep seed skipped many2many link arrays (`_seed_sweep` → new `_seed_links`, :870), so `account.account` had no `companyIds`; the sweep also no longer clears a relation mirror it seeds from, seeds only the links of records seeded in that pass (junctions from either side), and drops a removed link's PostgreSQL row so no later seed restores it.
+- `_condition` inverse lookup assumed records (:2477); a many2one_reference inverse (`res_id`) gives ints.
 - A stored column against a subquery (`res_id any! <Query|SQL>`) raised NotImplementedError; it now resolves the subquery's ids.
 - Grouped SQL over a MongoDB search ordered by `ordinality` outside the GROUP BY (GroupingError); it now orders by `MIN(ordinality)`.
 
