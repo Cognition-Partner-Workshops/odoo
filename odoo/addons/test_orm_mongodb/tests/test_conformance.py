@@ -26,11 +26,14 @@ class TestConformance(TransactionCase):
         self.assertEqual(template.tag_ids, tag)
         [doc] = storage_mongodb.get_collection(Template).find({'_id': template.id})
         self.assertEqual(len(doc['productTagIds']), 1, "seeded once")
-        template.tag_ids = [Command.unlink(tag.id)]
         with patch.dict(os.environ, {'ODOO_MONGODB_SWEEP': '1'}):
+            template.tag_ids = [Command.unlink(tag.id)]
             storage_mongodb._seed_sweep(Template)
+            storage_mongodb._seed_links(Template, {template.id})
         template.invalidate_recordset()
         self.assertFalse(template.tag_ids, "a removed link is not seeded again")
+        self.env.cr.execute(SQL("SELECT count(*) FROM product_tag_product_template_rel"))
+        self.assertEqual(self.env.cr.fetchone()[0], 0)
 
     def test_sweep_seeds_junction_from_either_side(self):
         Tag, Incoterm = self.env['test_orm_mongodb.tag'], self.env['test_orm_mongodb.incoterm']

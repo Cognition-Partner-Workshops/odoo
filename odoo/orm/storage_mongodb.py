@@ -525,7 +525,7 @@ def relation_layout(field: Field, env) -> dict | None:
         if set(targets) != columns:
             raise StorageError(f"{field}: columns {sorted(columns)} are not the signed key of {field.relation!r}")
         return {'collection': coll['collection'], 'targets': targets, 'indexes': coll['indexes'],
-                'mirror': _mirror_table(field, env)}
+                'mirror': _mirror_table(field, env), 'relation': field.relation}
     owner, other = embed['parent_key'][0], embed['child_fields'][0]['source']
     if {owner, other} != columns:
         raise StorageError(f"{field}: columns {sorted(columns)} are not the signed columns of {field.relation!r}")
@@ -537,7 +537,7 @@ def relation_layout(field: Field, env) -> dict | None:
     return {
         'collection': coll['collection'], 'owner': owner, 'other': other,
         'array': embed['array_path'], 'element': embed['child_fields'][0]['target'],
-        'mirror': _mirror_table(field, env),
+        'mirror': _mirror_table(field, env), 'relation': field.relation,
     }
 
 
@@ -734,6 +734,10 @@ def remove_links(env, layout: dict, links: list[dict]) -> None:
     """ Remove links, like the relation table's DELETE. """
     collection = _relation_collection(env, layout)
     _mirror_links(env, layout, links, add=False)
+    if not layout['mirror'] and os.environ.get('ODOO_MONGODB_SWEEP') and collection_prefix(env.cr.dbname) \
+            and sql.table_exists(env.cr, layout['relation']):
+        # the sweep seeds from these rows: a removed link must not come back
+        _mirror_links(env, {**layout, 'mirror': layout['relation']}, links, add=False)
     if 'owner' in layout:
         _add_undo(env.cr, lambda: _apply_to_arrays(collection, layout, links, add=True))
         _apply_to_arrays(collection, layout, links, add=False)
