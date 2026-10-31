@@ -151,6 +151,7 @@ class MongoQuery(Query):
         limit, offset, order = self.limit, self.offset, self._order
         self.limit, self.offset, self._order = None, 0, None
         self.set_result_ids((doc['_id'] for doc in docs), self._ordered)
+        self._ids_order = self._order
         self.limit, self.offset = limit, offset
         if order is not None:
             # the user's order replaces the search's: the ids come from the SQL
@@ -197,6 +198,13 @@ class MongoQuery(Query):
 
     def select(self, *args) -> SQL:
         self._resolve_first()
+        if self.groupby and self._order is not None and self._order is self.__dict__.get('_ids_order'):
+            # grouped rows keep the order of the found ids by its aggregate
+            order, self._order = self._order, SQL("MIN(%s)", self._order)
+            try:
+                return super().select(*args)
+            finally:
+                self._order = order
         return super().select(*args)
 
     def subselect(self, *args) -> SQL:
@@ -517,7 +525,7 @@ def relation_layout(field: Field, env) -> dict | None:
         if set(targets) != columns:
             raise StorageError(f"{field}: columns {sorted(columns)} are not the signed key of {field.relation!r}")
         return {'collection': coll['collection'], 'targets': targets, 'indexes': coll['indexes'],
-                'mirror': _mirror_table(field, env)}
+                'mirror': _mirror_table(field, env), 'relation': field.relation}
     owner, other = embed['parent_key'][0], embed['child_fields'][0]['source']
     if {owner, other} != columns:
         raise StorageError(f"{field}: columns {sorted(columns)} are not the signed columns of {field.relation!r}")
@@ -529,7 +537,7 @@ def relation_layout(field: Field, env) -> dict | None:
     return {
         'collection': coll['collection'], 'owner': owner, 'other': other,
         'array': embed['array_path'], 'element': embed['child_fields'][0]['target'],
-        'mirror': _mirror_table(field, env),
+        'mirror': _mirror_table(field, env), 'relation': field.relation,
     }
 
 
@@ -575,10 +583,11 @@ def fill_relation_mirror(field: Field, env, layout: dict) -> None:
     writes keep current from then on. """
     table, col1, col2 = (SQL.identifier(name) for name in (field.relation, field.column1, field.column2))
     pairs = _all_links(env, layout, field.column1, field.column2)
-    env.cr.execute(SQL("DELETE FROM %s", table))
+    if not (os.environ.get('ODOO_MONGODB_SWEEP') and collection_prefix(env.cr.dbname)):
+        env.cr.execute(SQL("DELETE FROM %s", table))    # a sweep seeds its links from these rows
     if pairs:
         # two array parameters, whatever the number of links
-        env.cr.execute(SQL("INSERT INTO %s (%s, %s) SELECT * FROM UNNEST(%s::int4[], %s::int4[])",
+        env.cr.execute(SQL("INSERT INTO %s (%s, %s) SELECT * FROM UNNEST(%s::int4[], %s::int4[]) ON CONFLICT DO NOTHING",
                            table, col1, col2, [a for a, _ in pairs], [b for _, b in pairs]))
 
 
@@ -725,6 +734,10 @@ def remove_links(env, layout: dict, links: list[dict]) -> None:
     """ Remove links, like the relation table's DELETE. """
     collection = _relation_collection(env, layout)
     _mirror_links(env, layout, links, add=False)
+    if not layout['mirror'] and os.environ.get('ODOO_MONGODB_SWEEP') and collection_prefix(env.cr.dbname) \
+            and sql.table_exists(env.cr, layout['relation']):
+        # the sweep seeds from these rows: a removed link must not come back
+        _mirror_links(env, {**layout, 'mirror': layout['relation']}, links, add=False)
     if 'owner' in layout:
         _add_undo(env.cr, lambda: _apply_to_arrays(collection, layout, links, add=True))
         _apply_to_arrays(collection, layout, links, add=False)
@@ -848,8 +861,36 @@ def _seed_sweep(model: BaseModel) -> None:
         if skipped := sum(row[embed['parent']] not in present for row in rows):
             _logger.warning("%s: %s rows not seeded, their parent documents are missing", model._name, skipped)
         rows = [row for row in rows if row[embed['parent']] in present]
+    new_ids = {row['id'] for row in rows}
     for chunk in split_every(1000, rows):
         insert(model, [row.pop('id') for row in chunk], list(chunk))
+    _seed_links(model, new_ids)
+
+
+def _seed_links(model: BaseModel, ids: set[int]) -> None:
+    """ Copy the PostgreSQL relation rows of the many2many links of the
+    just seeded records ``ids`` of ``model`` (its owner arrays, or root
+    junctions on either side) into MongoDB. Records seeded before are left
+    alone: their PostgreSQL rows may hold links removed since. """
+    env, seen = model.env, set()
+    if not ids:
+        return
+    for field in _relation_fields(model.pool):
+        if field.relation in seen or not (layout := relation_layout(field, env)):
+            continue
+        sides = [(field.column1, field.model_name), (field.column2, field.comodel_name)]
+        mine = [column for column, model_name in sides if model_name == model._name
+                and column == layout.get('owner', column)]
+        if not mine or not sql.table_exists(env.cr, field.relation):
+            continue
+        seen.add(field.relation)
+        columns = sorted((field.column1, field.column2))
+        env.cr.execute(SQL("SELECT %s, %s FROM %s", *map(SQL.identifier, [*columns, field.relation])))
+        present = set(_all_links(env, layout, *columns))
+        links = [link for row in env.cr.fetchall() if tuple(row) not in present
+                 and any((link := dict(zip(columns, row)))[column] in ids for column in mine)]
+        for chunk in split_every(1000, links):
+            add_links(env, layout, list(chunk))
 
 
 def _new_fields(model: BaseModel) -> list[Field]:
@@ -2409,14 +2450,16 @@ def _condition(model: BaseModel, cond: DomainCondition) -> dict:
             comodel = model.env[field.comodel_name]
         elif field.type == 'one2many':
             comodel, inverse = model.env[field.comodel_name].with_context(**field.context), field.inverse_name
+        elif operator.endswith('!') and isinstance(value, (Query, SQL)) and field.store and field.column_type:
+            comodel = None  # a column against a subquery of ids: PostgreSQL's column IN (subquery)
         else:
             raise unsupported
-        if operator.endswith('!'):
+        if operator.endswith('!') and comodel is not None:
             comodel = comodel.sudo()
         if isinstance(value, Query):
             ids = value.get_result_ids()
         elif isinstance(value, Domain) and inverse:
-            ids = comodel._search(value & Domain(inverse, 'not in', {False})).get_result_ids()
+            ids = comodel._search(value & field.get_comodel_domain(model) & Domain(inverse, 'not in', {False})).get_result_ids()
         elif isinstance(value, Domain):
             ids = comodel.with_context(active_test=False)._search(value).get_result_ids()
         elif isinstance(value, SQL):   # a subquery of comodel ids, as PostgreSQL runs it
@@ -2424,12 +2467,19 @@ def _condition(model: BaseModel, cond: DomainCondition) -> dict:
             ids = [id_ for id_ in rows if id_ is not None]
             if len(ids) < len(rows) and operator.startswith('not') and not inverse:
                 # NOT IN over a NULL is never true; only an empty many2one still matches
-                return {'_id': {'$in': []}} if field.name == 'id' else {_path(model, field): None}
+                return {'_id': {'$in': []}} if field.name == 'id' or comodel is None else {_path(model, field): None}
         else:
             raise unsupported
         if inverse:
-            ids = comodel.sudo().browse(ids)[inverse]._ids
+            corecords = comodel.sudo().browse(ids)
+            if not isinstance(value, Domain) and not (field_domain := field.get_comodel_domain(model)).is_true():
+                corecords = corecords.with_context(active_test=False).filtered_domain(field_domain)
+            # a many2one inverse gives records, a many2one_reference inverse gives ids
+            values = corecords.mapped(inverse)
+            ids = values._ids if hasattr(values, '_ids') else {id_ for id_ in values if id_}
         path = '_id' if inverse or field.name == 'id' else _path(model, field)
+        if comodel is None and operator.startswith('not'):  # column NOT IN (...) is never true for NULL
+            return {path: {'$nin': list(ids), '$ne': None}}
         return {path: {'$nin' if operator.startswith('not') else '$in': list(ids)}}
 
     if field.compute_sql and not field.store:
