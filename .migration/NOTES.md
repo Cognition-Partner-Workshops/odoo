@@ -930,3 +930,7 @@ Known storage-design limits (not bugs; batches route around them):
 Open, storage-only, not yet diagnosed: 37 sale/purchase/account reconcile tests find no `account.full.reconcile` (suspect: raw SQL reads of `account_partial_reconcile` in `addons/account/models/account_move_line.py:1101-1193`), plus ~37 scattered account assertions.
 
 Environment: rem-mongo crashed twice with WiredTiger "Too many open files" (container nofile 1024); recreated on the same volumes with nofile 64000.
+
+## Plugin pin bump (2026-11-02)
+
+Dhrov moved the pin from df77c830 to 1dcb45fb4575b1c04b08aecbe5d4899ee6d32735 (mongo-migration-plugin PR #166: mongo_guard judges a python heredoc as the program it is, so string literals no longer count as database writes — the false positive that caused four halts in p3). Taken between tickets, before the canary; the storage-conformance fix round and the wave-1 preflight re-run on this pin.

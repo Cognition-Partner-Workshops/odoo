@@ -10,7 +10,7 @@ run:
   repo: Cognition-Partner-Workshops/odoo
   branch: mongo-run/unt15
   board: UNT15O (board-f5d1a041b93543b3a7cc0640a69678a4; plain board, no Plan view -> decisions taken in the manager chat)
-  plugin_sha: df77c830a6f75c3d1d94d04718ad3af98448efd5
+  plugin_sha: 1dcb45fb4575b1c04b08aecbe5d4899ee6d32735
   child_mode: fusion
   targets_to_beat: {canary_acu: 25, wave1_acu_incl_setup: 120, unt14_per_batch_acu: 32, first_wave2_batch_acu: 32}
   bound: >
