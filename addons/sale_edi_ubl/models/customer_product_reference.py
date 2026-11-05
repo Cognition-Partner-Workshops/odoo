@@ -6,6 +6,7 @@ from odoo import api, fields, models
 class CustomerProductReference(models.Model):
     _name = 'customer.product.reference'
     _description = "Customer Product Reference"
+    _storage = 'mongodb'      # UNT14 wave 4 w4-b04: embedded as odoo_unt13.productProduct.customerProductReference (signed spec map-draft-5)
 
     product_id = fields.Many2one(
         comodel_name='product.product',

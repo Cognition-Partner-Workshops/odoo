@@ -8,6 +8,8 @@ from odoo.exceptions import ValidationError
 class ProductSupplierinfo(models.Model):
     _name = 'product.supplierinfo'
     _description = "Supplier Pricelist"
+    _storage = 'mongodb'      # UNT14 wave 4 w4-b04: documents in odoo_unt13.productSupplierinfo (signed spec map-draft-5)
+    _shadow_columns = ('product_tmpl_id',)   # read by product.product._search_display_name through subselect over the shadow rows
     _order = 'sequence, min_qty DESC, price, id'
     _rec_name = 'partner_id'
 

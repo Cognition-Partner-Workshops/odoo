@@ -15,6 +15,8 @@ from odoo.tools.sql import SQL
 class ProductProduct(models.Model):
     _name = 'product.product'
     _description = "Product Variant"
+    _storage = 'mongodb'      # UNT14 wave 4 w4-b04: documents in odoo_unt13.productProduct (signed spec map-draft-5)
+    _shadow_columns = ('product_tmpl_id',)   # read by the SQL reports (sale, purchase, invoice, stock quantity, vendor delay, AVCO audit) and account's _check_uom_not_in_invoice
     _explanation = "A specific variant of a product.template (e.g., T-Shirt in size Large and color Red). This is the actual item that is bought, sold, and tracked in inventory."
     _inherits = {'product.template': 'product_tmpl_id'}
     _inherit = ['mail.thread', 'mail.activity.mixin']
