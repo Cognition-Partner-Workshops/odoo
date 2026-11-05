@@ -145,15 +145,21 @@ class ProductProduct(models.Model):
         if not partners:
             return Domain.FALSE
 
-        pricelist_ids = set(self.search([
+        # sets of ids: no ordering, which would rank the records by their
+        # template's and their order's own order (one read each on MongoDB storage)
+        pricelist_ids = set(self._search([
             ('seller_ids.partner_id', 'in', partners.ids),
-        ]).ids)
+        ], order='id').get_result_ids())
 
-        po_product_ids = set(self.env['purchase.order.line'].sudo().search([
-            ('order_id.partner_id', 'child_of', partners.ids),
-            ('order_id.state', '=', 'purchase'),
-            ('order_id.company_id', 'in', self.env.companies.ids),
-        ]).mapped('product_id.id'))
+        po_product_ids = {
+            product.id
+            for [product] in self.env['purchase.order.line'].sudo()._read_group([
+                ('order_id.partner_id', 'child_of', partners.ids),
+                ('order_id.state', '=', 'purchase'),
+                ('order_id.company_id', 'in', self.env.companies.ids),
+            ], ['product_id'])
+            if product
+        }
 
         return [('id', 'in', list(pricelist_ids | po_product_ids))]
 

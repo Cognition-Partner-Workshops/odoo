@@ -67,6 +67,28 @@ class TestOrderpointMongodb(TransactionCase):
             orderpoints.mapped('qty_forecast')
         return counter.count
 
+    def test_sold_by_vendor_search_reads_orders_once(self):
+        """ The vendor filter of the purchase catalog collects the vendor's
+        products as sets: the order lines are grouped by product, not listed
+        in their order's order (a second read of every purchase order). """
+        vendor = self.orderpoints.product_id.seller_ids.partner_id
+        order = self.env['purchase.order'].create({
+            'partner_id': vendor.id,
+            'order_line': [Command.create({'product_id': self.orderpoints.product_id[0].id, 'product_qty': 1})],
+        })
+        order.button_confirm()
+        counter = CommandCounter(storage_mongodb.get_collection(self.env['purchase.order']).name)
+        uri = os.environ.get('ODOO_MONGODB_URI', storage_mongodb.DEFAULT_URI)
+        client = pymongo.MongoClient(uri, tz_aware=False, appname='odoo', connect=False, event_listeners=[counter])
+        self.addCleanup(client.close)
+        self.env.flush_all()
+        self.env.invalidate_all()
+        self.env.cr.cache.pop(storage_mongodb._AGGREGATE_CACHE, None)
+        with patch.object(storage_mongodb, '_client', lambda uri: client):
+            products = self.env['product.product'].search([('sold_by_vendor_id', '=', vendor.id)])
+        self.assertEqual(products, self.orderpoints.product_id)
+        self.assertEqual(counter.count, 1)
+
     def test_forecast_batches_quantities_in_progress(self):
         """ The purchase lines in progress are looked up once for all the
         orderpoints: their domain reaches the picking types once, not once
