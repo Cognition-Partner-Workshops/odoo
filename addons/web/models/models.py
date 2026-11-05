@@ -2096,15 +2096,23 @@ class Base(models.AbstractModel):
         expand = kwargs.get('expand')
 
         if field.type == 'many2many':
+            group_domain = kwargs.get('group_domain')
+            # one grouped count for every value, instead of one search_count per value
+            batch_counters = enable_counters and not (group_by and group_domain)
+            counters = None
             if not expand:
-                domain_image = self._search_panel_domain_image(field_name, model_domain, limit=limit)
+                domain_image = self._search_panel_domain_image(
+                    field_name, model_domain, set_count=batch_counters and extra_domain.is_true(), limit=limit)
+                if batch_counters and extra_domain.is_true():
+                    counters = domain_image
                 comodel_domain &= Domain('id', 'in', list(domain_image))
+            if batch_counters and counters is None:
+                counters = self._search_panel_domain_image(field_name, model_domain & extra_domain, set_count=True)
 
             comodel_records = Comodel.search_read(comodel_domain, field_names, limit=limit)
             if limit and len(comodel_records) == limit:
                 return {'error_msg': str(SEARCH_PANEL_ERROR_MESSAGE)}
 
-            group_domain = kwargs.get('group_domain')
             field_range = []
             for record in comodel_records:
                 record_id = record['id']
@@ -2117,10 +2125,11 @@ class Base(models.AbstractModel):
                     values['group_id'] = group_id
                     values['group_name'] = group_name
 
-                if enable_counters:
+                if counters is not None:
+                    values['__count'] = counters[record_id]['__count'] if record_id in counters else 0
+                elif enable_counters:
                     search_count_domain = model_domain & Domain(field_name, 'in', record_id) & extra_domain
-                    if group_by and group_domain:
-                        search_count_domain &= Domain(group_domain.get(json.dumps(group_id), true))
+                    search_count_domain &= Domain(group_domain.get(json.dumps(group_id), true))
                     values['__count'] = self.search_count(search_count_domain)
                 field_range.append(values)
 
