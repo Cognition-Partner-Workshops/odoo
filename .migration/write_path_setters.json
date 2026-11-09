@@ -1,0 +1,1152 @@
+{
+  "setters": [
+    {
+      "table": "account_account",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 184) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_account",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 184) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_analytic_account",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 34) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_analytic_account",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 34) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_analytic_plan",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_analytic_plan",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_fiscal_position",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_fiscal_position",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_journal",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 15) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_journal",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 15) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_payment_term",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 11) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_payment_term",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 11) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_payment_term_line",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 13) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_payment_term_line",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 13) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_tax",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 57) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_tax",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 57) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_tax_group",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 26) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "account_tax_group",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 26) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "barcode_nomenclature",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "barcode_nomenclature",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "calendar_calendar",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "calendar_calendar",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "clearing_label",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 13) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "clearing_label",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 13) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "crm_lead_scoring_frequency",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 36) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "crm_lead_scoring_frequency",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 36) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "crm_team",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "crm_team",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "event_event",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 8) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "event_event",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 8) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "event_event_ticket",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 10) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "event_event_ticket",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 10) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "event_stage",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "event_stage",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "event_type",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "event_type",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "event_type_mail",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 9) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "event_type_mail",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 9) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "gamification_karma_rank",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 5) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "gamification_karma_rank",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 5) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "hr_department",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 6) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "hr_department",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 6) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "hr_employee",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 25) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "hr_employee",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 25) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "hr_employee_type",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 8) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "hr_employee_type",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 8) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "hr_job",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 9) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "hr_job",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 9) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "hr_payroll_structure_type",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "hr_payroll_structure_type",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "hr_version",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 30) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "hr_version",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 30) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "hr_work_location",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "hr_work_location",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "ir_sequence",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 33) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "ir_sequence",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 33) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "l10n_us_res_county",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 3172) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "l10n_us_res_county",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 3172) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "lunch_location",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "lunch_location",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "mail_alias",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 30) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "mail_alias",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 30) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "mail_template",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 44) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "mail_template",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 44) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "product_category",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 8) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "product_category",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 8) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "product_product",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 77) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "product_product",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 77) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "product_template",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 67) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "product_template",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 67) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "product_value",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 6) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "product_value",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 6) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_collaborator",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 6) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_collaborator",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 6) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_milestone",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 11) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_milestone",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 11) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_project",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 15) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_project",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 15) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_project_stage",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_project_stage",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_sale_line_employee_map",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 6) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_sale_line_employee_map",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 6) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_task",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 164) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_task",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 164) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_task_recurrence",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_task_recurrence",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_task_type",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 33) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_task_type",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 33) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_update",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 11) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "project_update",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 11) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "report_paperformat",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 12) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "report_paperformat",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 12) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "account_default_pos_receivable_account_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountAccount (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "account_fiscal_country_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> resCountry (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "account_journal_early_pay_discount_gain_account_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountAccount (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "account_journal_early_pay_discount_loss_account_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountAccount (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "account_journal_suspense_account_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountAccount (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "account_production_wip_account_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountAccount (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "account_production_wip_overhead_account_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountAccount (filled 1) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "account_purchase_tax_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountTax (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "account_sale_tax_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountTax (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "batch_payment_sequence_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> irSequence (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "currency_exchange_journal_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountJournal (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "default_cash_difference_expense_account_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountAccount (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "default_cash_difference_income_account_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountAccount (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "domestic_fiscal_position_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountFiscalPosition (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "expense_currency_exchange_account_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountAccount (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "income_currency_exchange_account_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountAccount (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "internal_project_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> projectProject (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "internal_transit_location_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> stockLocation (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "leave_timesheet_task_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> projectTask (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "nomenclature_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> barcodeNomenclature (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "paperformat_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> reportPaperformat (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "project_time_mode_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> uomUom (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "resource_calendar_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> resourceCalendar (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "stock_mail_confirmation_template_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> mailTemplate (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "stock_sms_confirmation_template_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> smsTemplate (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "tax_cash_basis_journal_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountJournal (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "timesheet_encode_uom_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> uomUom (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "transfer_account_id",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: res_company config pointer -> accountAccount (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_company",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 3) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_country",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 251) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_country",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 251) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_country_state",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 2130) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_country_state",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 2130) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_currency",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 169) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_currency",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 170) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_partner",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 78) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_partner",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 79) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_partner_bank",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 7) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "res_partner_bank",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 7) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "resource_calendar",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 5) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "resource_calendar",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 5) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "resource_calendar_attendance",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 25) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "resource_calendar_attendance",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 25) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "resource_resource",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 25) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "resource_resource",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 25) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "sale_order",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 58) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "sale_order",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 58) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "sale_order_line",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 149) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "sale_order_line",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 149) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "sms_template",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 5) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "sms_template",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 5) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "stock_location",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 32) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "stock_location",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 32) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "stock_picking_type",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 16) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "stock_picking_type",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 16) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "stock_route",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 6) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "stock_route",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 6) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "stock_rule",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 8) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "stock_rule",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 8) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "stock_warehouse",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "stock_warehouse",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "uom_uom",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 30) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "uom_uom",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 30) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "utm_campaign",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "utm_campaign",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 2) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "utm_medium",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 6) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "utm_medium",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 6) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "utm_source",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 15) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "utm_source",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 15) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "utm_stage",
+      "column": "create_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    },
+    {
+      "table": "utm_stage",
+      "column": "write_uid",
+      "disposition": "forward",
+      "decision": "d-cycle-break",
+      "note": "audit-and-config-pointers: audit pointer -> resUsers (filled 4) ordered out of the Odoo reference cycle; plain id, resolves on the source across the seam"
+    }
+  ]
+}
