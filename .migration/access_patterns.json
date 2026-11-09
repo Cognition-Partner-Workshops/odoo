@@ -4826,7 +4826,8 @@
           162
         ]
       },
-      "statement": "WITH service_costs AS ( SELECT ve.id AS vehicle_id, ve.company_id AS company_id, ve.name AS name, ve.driver_id AS driver_id, ve.fuel_type AS fuel_type, date(date_trunc(?, d)) AS date_start, vem.vehicle_type AS vehicle_type, COALESCE(sum(se.amount), ?) AS COST, ? AS cost_type, se.service_type_id AS s"
+      "statement": "WITH service_costs AS ( SELECT ve.id AS vehicle_id, ve.company_id AS company_id, ve.name AS name, ve.driver_id AS driver_id, ve.fuel_type AS fuel_type, date(date_trunc(?, d)) AS date_start, vem.vehicle_type AS vehicle_type, COALESCE(sum(se.amount), ?) AS COST, ? AS cost_type, se.service_type_id AS s",
+      "note": "reviewed, not confirmed: fleet.report init() creates a SQL view at install time; not a runtime query"
     },
     {
       "id": "ap-6631238cab",
@@ -5314,8 +5315,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/analytic.py",
         "lines": [
@@ -5328,7 +5329,8 @@
         "hr_expense": [
           "id"
         ]
-      }
+      },
+      "note": "reviewed addons/hr_expense/models/analytic.py:34: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-9256914c8a",
@@ -5345,8 +5347,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/hr_expense.py",
         "lines": [
@@ -5359,7 +5361,8 @@
         "hr_expense": [
           "id"
         ]
-      }
+      },
+      "note": "reviewed addons/hr_expense/models/hr_expense.py:898: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-2a947274af",
@@ -8308,8 +8311,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_supplier.py",
         "lines": [
@@ -8324,7 +8327,8 @@
           "state",
           "supplier_id"
         ]
-      }
+      },
+      "note": "reviewed addons/lunch/models/lunch_supplier.py:319: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-9bd5b2907c",
@@ -11458,8 +11462,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_question.py",
         "lines": [
@@ -11473,7 +11477,8 @@
           "id",
           "sequence"
         ]
-      }
+      },
+      "note": "reviewed addons/survey/models/survey_question.py:355: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-bf7ebba018",
@@ -11502,8 +11507,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -11519,7 +11524,8 @@
           "state",
           "survey_id"
         ]
-      }
+      },
+      "note": "reviewed addons/survey/models/survey_survey.py:269: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-3922f088e9",
@@ -11548,8 +11554,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_user_input.py",
         "lines": [
@@ -11565,7 +11571,8 @@
           "state",
           "test_entry"
         ]
-      }
+      },
+      "note": "reviewed addons/survey/models/survey_user_input.py:138: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-1fd842d6b2",
@@ -43723,8 +43730,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -43739,7 +43746,8 @@
         "field": "log_drivers",
         "side": "parent",
         "owns": false
-      }
+      },
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:73: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-2a9699b059",
@@ -43865,8 +43873,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -43882,7 +43890,8 @@
         "side": "junction",
         "owns": false,
         "junction": "fleet_vehicle_vehicle_tag_rel"
-      }
+      },
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:99: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-81ba1e8836",
@@ -69966,8 +69975,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/hr_expense.py",
         "lines": [
@@ -69983,7 +69992,8 @@
         "side": "junction",
         "owns": false,
         "junction": "expense_tax"
-      }
+      },
+      "note": "reviewed addons/hr_expense/models/hr_expense.py:307: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-40a40825f2",
@@ -72714,8 +72724,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/maintenance/models/maintenance.py",
         "lines": [
@@ -72731,7 +72741,8 @@
         "side": "junction",
         "owns": false,
         "junction": "maintenance_request_res_users_rel"
-      }
+      },
+      "note": "reviewed addons/maintenance/models/maintenance.py:287: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-37ac8c0df7",
@@ -73024,8 +73035,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -73040,7 +73051,8 @@
         "field": "question_and_page_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "reviewed addons/survey/models/survey_survey.py:75: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-300e2a0172",
@@ -73530,8 +73542,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_user_input.py",
         "lines": [
@@ -73546,7 +73558,8 @@
         "field": "user_input_line_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "reviewed addons/survey/models/survey_user_input.py:52: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-b1d434ec5e",
@@ -82251,8 +82264,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_alert.py",
         "lines": [
@@ -82268,7 +82281,8 @@
         "side": "junction",
         "owns": false,
         "junction": "lunch_alert_lunch_location_rel"
-      }
+      },
+      "note": "reviewed addons/lunch/models/lunch_alert.py:55: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-350f1a2bef",
@@ -82401,8 +82415,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_order.py",
         "lines": [
@@ -82418,7 +82432,8 @@
         "side": "junction",
         "owns": false,
         "junction": "lunch_order_topping"
-      }
+      },
+      "note": "reviewed addons/lunch/models/lunch_order.py:16: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-557f354805",
@@ -82441,8 +82456,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_order.py",
         "lines": [
@@ -82458,7 +82473,8 @@
         "side": "junction",
         "owns": false,
         "junction": "lunch_order_topping"
-      }
+      },
+      "note": "reviewed addons/lunch/models/lunch_order.py:17: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-0d48bf1155",
@@ -82481,8 +82497,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_order.py",
         "lines": [
@@ -82498,7 +82514,8 @@
         "side": "junction",
         "owns": false,
         "junction": "lunch_order_topping"
-      }
+      },
+      "note": "reviewed addons/lunch/models/lunch_order.py:18: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-037a817570",
@@ -82986,8 +83003,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_supplier.py",
         "lines": [
@@ -83003,7 +83020,8 @@
         "side": "junction",
         "owns": false,
         "junction": "lunch_location_lunch_supplier_rel"
-      }
+      },
+      "note": "reviewed addons/lunch/models/lunch_supplier.py:62: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-90d45120ca",
@@ -83021,8 +83039,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_supplier.py",
         "lines": [
@@ -83037,7 +83055,8 @@
         "field": "topping_ids_1",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "reviewed addons/lunch/models/lunch_supplier.py:79: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-428dafb7e5",
@@ -83055,8 +83074,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_supplier.py",
         "lines": [
@@ -83071,7 +83090,8 @@
         "field": "topping_ids_2",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "reviewed addons/lunch/models/lunch_supplier.py:80: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-b806a63d84",
@@ -83089,8 +83109,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_supplier.py",
         "lines": [
@@ -83105,7 +83125,8 @@
         "field": "topping_ids_3",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "reviewed addons/lunch/models/lunch_supplier.py:81: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-eb92afc5b5",
@@ -85508,8 +85529,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/maintenance/models/maintenance.py",
         "lines": [
@@ -85525,7 +85546,8 @@
         "side": "junction",
         "owns": false,
         "junction": "maintenance_stage_maintenance_team_rel"
-      }
+      },
+      "note": "reviewed addons/maintenance/models/maintenance.py:20: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-5f8793709f",
@@ -99215,8 +99237,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_question.py",
         "lines": [
@@ -99231,7 +99253,8 @@
         "field": "suggested_answer_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "reviewed addons/survey/models/survey_question.py:115: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-9c0ece2d15",
@@ -99253,8 +99276,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_question.py",
         "lines": [
@@ -99269,7 +99292,8 @@
         "field": "matrix_row_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "reviewed addons/survey/models/survey_question.py:122: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-0a5d8acab0",
@@ -99287,8 +99311,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_question.py",
         "lines": [
@@ -99303,7 +99327,8 @@
         "field": "user_input_line_ids",
         "side": "parent",
         "owns": true
-      }
+      },
+      "note": "reviewed addons/survey/models/survey_question.py:160: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-470c61e4b4",
@@ -99326,8 +99351,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_question.py",
         "lines": [
@@ -99343,7 +99368,8 @@
         "side": "junction",
         "owns": false,
         "junction": "survey_question_survey_question_answer_rel"
-      }
+      },
+      "note": "reviewed addons/survey/models/survey_question.py:174: x2many rendered in the app form/list view"
     },
     {
       "id": "ap-64303bd989",
@@ -133943,8 +133969,8 @@
       "sort": [
         "fleet_vehicle_odometer.value"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -133957,7 +133983,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "FleetVehicle._get_odometer"
+      "routine": "FleetVehicle._get_odometer",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:261: transactional: read inside a user action"
     },
     {
       "id": "ap-ee6b1bbfc5",
@@ -133969,8 +133996,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -133984,7 +134011,8 @@
         "method": "create"
       },
       "routine": "FleetVehicle._set_odometer",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:268: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-c3d1627844",
@@ -134001,8 +134029,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134015,7 +134043,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "FleetVehicle._compute_count_all"
+      "routine": "FleetVehicle._compute_count_all",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:282: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-dd44c145ff",
@@ -134032,8 +134061,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134046,7 +134075,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "FleetVehicle._compute_count_all"
+      "routine": "FleetVehicle._compute_count_all",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:283: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-9ef353550a",
@@ -134067,8 +134097,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134081,7 +134111,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "FleetVehicle._compute_count_all"
+      "routine": "FleetVehicle._compute_count_all",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:284: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-cfebb3f8f9",
@@ -134098,8 +134129,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134112,7 +134143,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "FleetVehicle._compute_count_all"
+      "routine": "FleetVehicle._compute_count_all",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:285: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-4557e185ca",
@@ -134137,8 +134169,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134155,7 +134187,8 @@
       "compute_by": [
         "fleet_vehicle_log_contract.vehicle_id",
         "fleet_vehicle_log_contract.state"
-      ]
+      ],
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:312: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-35462799a3",
@@ -134172,8 +134205,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134186,7 +134219,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "FleetVehicle.create"
+      "routine": "FleetVehicle.create",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:390: transactional: read inside a user action"
     },
     {
       "id": "ap-e273a2d4c6",
@@ -134206,8 +134240,8 @@
         "fleet_vehicle.license_plate",
         "fleet_vehicle.acquisition_date"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134220,7 +134254,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "FleetVehicle.create"
+      "routine": "FleetVehicle.create",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:397: transactional: read inside a user action"
     },
     {
       "id": "ap-6aee79499e",
@@ -134240,8 +134275,8 @@
         "fleet_vehicle.license_plate",
         "fleet_vehicle.acquisition_date"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134254,7 +134289,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "FleetVehicle.create"
+      "routine": "FleetVehicle.create",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:402: transactional: read inside a user action"
     },
     {
       "id": "ap-ec1316bfba",
@@ -134275,8 +134311,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134289,7 +134325,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "FleetVehicle.write"
+      "routine": "FleetVehicle.write",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:422: transactional: read inside a user action"
     },
     {
       "id": "ap-0019bf1a23",
@@ -134310,8 +134347,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134324,7 +134361,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "FleetVehicle.write"
+      "routine": "FleetVehicle.write",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:437: transactional: read inside a user action"
     },
     {
       "id": "ap-7a6a098040",
@@ -134412,8 +134450,8 @@
         "fleet_vehicle.license_plate",
         "fleet_vehicle.acquisition_date"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134426,7 +134464,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "FleetVehicle.write"
+      "routine": "FleetVehicle.write",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:473: transactional: read inside a user action"
     },
     {
       "id": "ap-73384ddc09",
@@ -134438,8 +134477,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134453,7 +134492,8 @@
         "method": "write"
       },
       "routine": "FleetVehicle.write",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:474: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-25abaac481",
@@ -134473,8 +134513,8 @@
         "fleet_vehicle_log_contract.state",
         "fleet_vehicle_log_contract.expiration_date"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134487,7 +134527,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "FleetVehicle.write"
+      "routine": "FleetVehicle.write",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:477: transactional: read inside a user action"
     },
     {
       "id": "ap-732fe9e4ea",
@@ -134504,8 +134545,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134518,7 +134559,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "FleetVehicle.write"
+      "routine": "FleetVehicle.write",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:478: transactional: read inside a user action"
     },
     {
       "id": "ap-a30e02772d",
@@ -134530,8 +134572,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134545,7 +134587,8 @@
         "method": "create"
       },
       "routine": "FleetVehicle.create_driver_history",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:495: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-115dcd6330",
@@ -134565,8 +134608,8 @@
         "fleet_vehicle.license_plate",
         "fleet_vehicle.acquisition_date"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134579,7 +134622,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "FleetVehicle.action_accept_driver_change"
+      "routine": "FleetVehicle.action_accept_driver_change",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:502: transactional: read inside a user action"
     },
     {
       "id": "ap-9732917a47",
@@ -134591,8 +134635,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle.py",
         "lines": [
@@ -134606,7 +134650,8 @@
         "method": "write"
       },
       "routine": "FleetVehicle.action_accept_driver_change",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/fleet/models/fleet_vehicle.py:503: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-50e26bb29f",
@@ -134634,8 +134679,8 @@
         "fleet_vehicle_log_contract.state",
         "fleet_vehicle_log_contract.expiration_date"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle_log_contract.py",
         "lines": [
@@ -134648,7 +134693,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "FleetVehicleLogContract._compute_has_open_contract"
+      "routine": "FleetVehicleLogContract._compute_has_open_contract",
+      "note": "reviewed addons/fleet/models/fleet_vehicle_log_contract.py:78: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-41f5f774a6",
@@ -134660,8 +134706,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle_log_contract.py",
         "lines": [
@@ -134675,7 +134721,8 @@
         "method": "write"
       },
       "routine": "FleetVehicleLogContract.action_close",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/fleet/models/fleet_vehicle_log_contract.py:136: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-0062692d64",
@@ -134687,8 +134734,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle_log_contract.py",
         "lines": [
@@ -134702,7 +134749,8 @@
         "method": "write"
       },
       "routine": "FleetVehicleLogContract.action_draft",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/fleet/models/fleet_vehicle_log_contract.py:139: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-b79f1d8be2",
@@ -134714,8 +134762,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle_log_contract.py",
         "lines": [
@@ -134729,7 +134777,8 @@
         "method": "write"
       },
       "routine": "FleetVehicleLogContract.action_open",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/fleet/models/fleet_vehicle_log_contract.py:142: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-8dfa46bbb4",
@@ -134741,8 +134790,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle_log_contract.py",
         "lines": [
@@ -134756,7 +134805,8 @@
         "method": "write"
       },
       "routine": "FleetVehicleLogContract.action_expire",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/fleet/models/fleet_vehicle_log_contract.py:145: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-c2edfbedf3",
@@ -134768,8 +134818,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle_log_contract.py",
         "lines": [
@@ -134783,7 +134833,8 @@
         "method": "write"
       },
       "routine": "FleetVehicleLogContract.action_done",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/fleet/models/fleet_vehicle_log_contract.py:149: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-c43f753d0b",
@@ -134795,8 +134846,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle_log_contract.py",
         "lines": [
@@ -134810,7 +134861,8 @@
         "method": "write"
       },
       "routine": "FleetVehicleLogContract.action_reactivate",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/fleet/models/fleet_vehicle_log_contract.py:154: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-6d2579407a",
@@ -134838,8 +134890,8 @@
         "fleet_vehicle_log_contract.state",
         "fleet_vehicle_log_contract.expiration_date"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle_log_contract.py",
         "lines": [
@@ -134852,7 +134904,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "FleetVehicleLogContract.scheduler_manage_contract_expiration"
+      "routine": "FleetVehicleLogContract.scheduler_manage_contract_expiration",
+      "note": "reviewed addons/fleet/models/fleet_vehicle_log_contract.py:166: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-1d2f62d7a4",
@@ -134876,8 +134929,8 @@
         "fleet_vehicle_log_contract.state",
         "fleet_vehicle_log_contract.expiration_date"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle_log_contract.py",
         "lines": [
@@ -134890,7 +134943,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "FleetVehicleLogContract.scheduler_manage_contract_expiration"
+      "routine": "FleetVehicleLogContract.scheduler_manage_contract_expiration",
+      "note": "reviewed addons/fleet/models/fleet_vehicle_log_contract.py:182: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-75f795036e",
@@ -134914,8 +134968,8 @@
         "fleet_vehicle_log_contract.state",
         "fleet_vehicle_log_contract.expiration_date"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle_log_contract.py",
         "lines": [
@@ -134928,7 +134982,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "FleetVehicleLogContract.scheduler_manage_contract_expiration"
+      "routine": "FleetVehicleLogContract.scheduler_manage_contract_expiration",
+      "note": "reviewed addons/fleet/models/fleet_vehicle_log_contract.py:185: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-e1caf48d86",
@@ -134952,8 +135007,8 @@
         "fleet_vehicle_log_contract.state",
         "fleet_vehicle_log_contract.expiration_date"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle_log_contract.py",
         "lines": [
@@ -134966,7 +135021,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "FleetVehicleLogContract.scheduler_manage_contract_expiration"
+      "routine": "FleetVehicleLogContract.scheduler_manage_contract_expiration",
+      "note": "reviewed addons/fleet/models/fleet_vehicle_log_contract.py:188: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-a8229cedd9",
@@ -134978,8 +135034,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle_log_services.py",
         "lines": [
@@ -134993,7 +135049,8 @@
         "method": "create"
       },
       "routine": "FleetVehicleLogServices._set_odometer",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed addons/fleet/models/fleet_vehicle_log_services.py:65: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-88db91c562",
@@ -135010,8 +135067,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle_model.py",
         "lines": [
@@ -135024,7 +135081,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "FleetVehicleModel._compute_vehicle_count"
+      "routine": "FleetVehicleModel._compute_vehicle_count",
+      "note": "reviewed addons/fleet/models/fleet_vehicle_model.py:88: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-70f8b7b091",
@@ -135038,8 +135096,8 @@
       "sort": [
         "fleet_vehicle_model.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle_model.py",
         "lines": [
@@ -135052,7 +135110,8 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "FleetVehicleModel._search_vehicle_count"
+      "routine": "FleetVehicleModel._search_vehicle_count",
+      "note": "reviewed addons/fleet/models/fleet_vehicle_model.py:105: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-f60b38a285",
@@ -135073,8 +135132,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/fleet_vehicle_model_brand.py",
         "lines": [
@@ -135087,7 +135146,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "FleetVehicleModelBrand._compute_model_count"
+      "routine": "FleetVehicleModelBrand._compute_model_count",
+      "note": "reviewed addons/fleet/models/fleet_vehicle_model_brand.py:20: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-584d3f0c67",
@@ -135104,8 +135164,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/fleet/models/res_partner.py",
         "lines": [
@@ -135118,7 +135178,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "ResPartner._compute_partner_cars_count"
+      "routine": "ResPartner._compute_partner_cars_count",
+      "note": "reviewed addons/fleet/models/res_partner.py:15: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-a16cc8c268",
@@ -143214,8 +143275,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/hr_department.py",
         "lines": [
@@ -143228,7 +143289,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "HrDepartment._compute_expenses_to_approve_count"
+      "routine": "HrDepartment._compute_expenses_to_approve_count",
+      "note": "reviewed addons/hr_expense/models/hr_department.py:12: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-0ec7c70222",
@@ -143279,8 +143341,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/hr_expense.py",
         "lines": [
@@ -143296,7 +143358,8 @@
       "routine": "HrExpense._compute_split_expense_count",
       "compute_by": [
         "hr_expense.split_expense_origin_id"
-      ]
+      ],
+      "note": "reviewed addons/hr_expense/models/hr_expense.py:723: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-7defbe9059",
@@ -143655,8 +143718,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/hr_expense.py",
         "lines": [
@@ -143673,7 +143736,8 @@
       "compute_by": [
         "hr_expense.company_id",
         "hr_expense.manager_id"
-      ]
+      ],
+      "note": "reviewed addons/hr_expense/models/hr_expense.py:1254: transactional: read inside a user action"
     },
     {
       "id": "ap-43bb2a3099",
@@ -143720,8 +143784,8 @@
         "hr_expense.date",
         "hr_expense.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/hr_expense.py",
         "lines": [
@@ -143734,7 +143798,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "HrExpense.action_open_split_expense"
+      "routine": "HrExpense.action_open_split_expense",
+      "note": "reviewed addons/hr_expense/models/hr_expense.py:1392: transactional: read inside a user action"
     },
     {
       "id": "ap-3a4b9ef6ec",
@@ -143781,8 +143846,8 @@
         "hr_expense.date",
         "hr_expense.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/hr_expense.py",
         "lines": [
@@ -143795,7 +143860,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "HrExpense.action_cap_reimbursement_to_policy"
+      "routine": "HrExpense.action_cap_reimbursement_to_policy",
+      "note": "reviewed addons/hr_expense/models/hr_expense.py:1472: transactional: read inside a user action"
     },
     {
       "id": "ap-666ec5ce10",
@@ -143842,8 +143908,8 @@
         "hr_expense.date",
         "hr_expense.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/hr_expense.py",
         "lines": [
@@ -143856,7 +143922,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "HrExpense.action_cap_reimbursement_to_policy"
+      "routine": "HrExpense.action_cap_reimbursement_to_policy",
+      "note": "reviewed addons/hr_expense/models/hr_expense.py:1482: transactional: read inside a user action"
     },
     {
       "id": "ap-a296d54139",
@@ -143930,8 +143997,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/hr_expense.py",
         "lines": [
@@ -143945,7 +144012,8 @@
         "method": "create"
       },
       "routine": "HrExpense.create_expense_from_attachments",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed addons/hr_expense/models/hr_expense.py:1529: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-2285120a52",
@@ -143957,8 +144025,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/hr_expense.py",
         "lines": [
@@ -143971,7 +144039,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "HrExpense.get_expense_dashboard"
+      "routine": "HrExpense.get_expense_dashboard",
+      "note": "reviewed addons/hr_expense/models/hr_expense.py:1584: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-467f33d077",
@@ -144086,7 +144155,8 @@
         "method": "create"
       },
       "routine": "HrExpense._create_move",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed, not confirmed: creates account.move records, not hr_expense"
     },
     {
       "id": "ap-9dbed84788",
@@ -144113,7 +144183,8 @@
         "method": "create"
       },
       "routine": "HrExpense._create_move",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed, not confirmed: creates account.payment records, not hr_expense"
     },
     {
       "id": "ap-c01b0b300b",
@@ -144140,7 +144211,8 @@
         "method": "create"
       },
       "routine": "HrExpense._create_move",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed, not confirmed: creates account.move receipts, not hr_expense"
     },
     {
       "id": "ap-24e1f0091e",
@@ -144152,8 +144224,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/hr_expense.py",
         "lines": [
@@ -144167,7 +144239,8 @@
         "method": "write"
       },
       "routine": "HrExpense._do_reset_approval",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/hr_expense/models/hr_expense.py:1813: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-737c5198bb",
@@ -144304,8 +144377,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/hr_expense.py",
         "lines": [
@@ -144318,7 +144391,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "HrExpense._get_expense_account_destination"
+      "routine": "HrExpense._get_expense_account_destination",
+      "note": "reviewed addons/hr_expense/models/hr_expense.py:2285: transactional: read inside a user action"
     },
     {
       "id": "ap-b39fbca67b",
@@ -144402,8 +144476,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/hr_expense_product_job_position_limit.py",
         "lines": [
@@ -144416,7 +144490,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "HrExpenseProductJobPositionLimit._check_unique_generic_job_position_limit"
+      "routine": "HrExpenseProductJobPositionLimit._check_unique_generic_job_position_limit",
+      "note": "reviewed addons/hr_expense/models/hr_expense_product_job_position_limit.py:34: transactional: read inside a user action"
     },
     {
       "id": "ap-9eb959048c",
@@ -144433,8 +144508,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/ir_actions_report.py",
         "lines": [
@@ -144447,7 +144522,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "IrActionsReport._render_qweb_pdf_prepare_streams"
+      "routine": "IrActionsReport._render_qweb_pdf_prepare_streams",
+      "note": "reviewed addons/hr_expense/models/ir_actions_report.py:18: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-e1f8ba7b3c",
@@ -144502,8 +144578,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/ir_actions_report.py",
         "lines": [
@@ -144516,7 +144592,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "IrActionsReport._render_qweb_html"
+      "routine": "IrActionsReport._render_qweb_html",
+      "note": "reviewed addons/hr_expense/models/ir_actions_report.py:92: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-2b6488b6c4",
@@ -144533,8 +144610,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/ir_attachment.py",
         "lines": [
@@ -144547,7 +144624,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "IrAttachment._prevent_delete_from_submitted_expense"
+      "routine": "IrAttachment._prevent_delete_from_submitted_expense",
+      "note": "reviewed addons/hr_expense/models/ir_attachment.py:13: transactional: read inside a user action"
     },
     {
       "id": "ap-7d06e046aa",
@@ -144564,8 +144642,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/ir_attachment.py",
         "lines": [
@@ -144578,7 +144656,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "IrAttachment._inaccessible_comodel_records"
+      "routine": "IrAttachment._inaccessible_comodel_records",
+      "note": "reviewed addons/hr_expense/models/ir_attachment.py:22: transactional: read inside a user action"
     },
     {
       "id": "ap-996cf8c27a",
@@ -144595,8 +144674,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/ir_attachment.py",
         "lines": [
@@ -144609,7 +144688,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "IrAttachment._has_attachments_ownership"
+      "routine": "IrAttachment._has_attachments_ownership",
+      "note": "reviewed addons/hr_expense/models/ir_attachment.py:42: transactional: read inside a user action"
     },
     {
       "id": "ap-42fa84b957",
@@ -144630,8 +144710,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/product_product.py",
         "lines": [
@@ -144647,7 +144727,8 @@
       "routine": "ProductProduct.get_standard_price_update_warning",
       "compute_by": [
         "hr_expense.price_unit"
-      ]
+      ],
+      "note": "reviewed addons/hr_expense/models/product_product.py:16: transactional: read inside a user action"
     },
     {
       "id": "ap-e7ddb91572",
@@ -144675,8 +144756,8 @@
         "hr_expense.date",
         "hr_expense.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/models/product_product.py",
         "lines": [
@@ -144689,7 +144770,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ProductProduct.write"
+      "routine": "ProductProduct.write",
+      "note": "reviewed addons/hr_expense/models/product_product.py:36: transactional: read inside a user action"
     },
     {
       "id": "ap-9e13249ec5",
@@ -144760,8 +144842,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/wizard/hr_expense_split.py",
         "lines": [
@@ -144774,7 +144856,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "HrExpenseSplit.default_get"
+      "routine": "HrExpenseSplit.default_get",
+      "note": "reviewed addons/hr_expense/wizard/hr_expense_split.py:20: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-97730c8596",
@@ -144786,8 +144869,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/wizard/hr_expense_split_wizard.py",
         "lines": [
@@ -144801,7 +144884,8 @@
         "method": "write"
       },
       "routine": "HrExpenseSplitWizard.action_split_expense",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/hr_expense/wizard/hr_expense_split_wizard.py:47: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-0390830bdf",
@@ -144813,8 +144897,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/wizard/hr_expense_split_wizard.py",
         "lines": [
@@ -144828,7 +144912,8 @@
         "method": "copy"
       },
       "routine": "HrExpenseSplitWizard.action_split_expense",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed addons/hr_expense/wizard/hr_expense_split_wizard.py:52: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-6eb20855ac",
@@ -144885,8 +144970,8 @@
         "hr_expense.date",
         "hr_expense.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/hr_expense/wizard/hr_expense_split_wizard.py",
         "lines": [
@@ -144899,7 +144984,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "HrExpenseSplitWizard.action_split_expense"
+      "routine": "HrExpenseSplitWizard.action_split_expense",
+      "note": "reviewed addons/hr_expense/wizard/hr_expense_split_wizard.py:65: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-966abcf7e2",
@@ -168956,8 +169042,8 @@
       "sort": [
         "lunch_order.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_alert.py",
         "lines": [
@@ -168970,7 +169056,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "LunchAlert._notify_chat"
+      "routine": "LunchAlert._notify_chat",
+      "note": "reviewed addons/lunch/models/lunch_alert.py:182: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-4c088008b6",
@@ -168991,8 +169078,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_order.py",
         "lines": [
@@ -169005,7 +169092,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "LunchOrder._compute_available_toppings"
+      "routine": "LunchOrder._compute_available_toppings",
+      "note": "reviewed addons/lunch/models/lunch_order.py:75: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-f9935e9480",
@@ -169026,8 +169114,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_order.py",
         "lines": [
@@ -169040,7 +169128,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "LunchOrder._compute_available_toppings"
+      "routine": "LunchOrder._compute_available_toppings",
+      "note": "reviewed addons/lunch/models/lunch_order.py:76: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-0eec8e4e73",
@@ -169061,8 +169150,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_order.py",
         "lines": [
@@ -169075,7 +169164,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "LunchOrder._compute_available_toppings"
+      "routine": "LunchOrder._compute_available_toppings",
+      "note": "reviewed addons/lunch/models/lunch_order.py:77: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-9ef7064566",
@@ -169100,8 +169190,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_order.py",
         "lines": [
@@ -169114,7 +169204,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "LunchOrder._compute_display_add_button"
+      "routine": "LunchOrder._compute_display_add_button",
+      "note": "reviewed addons/lunch/models/lunch_order.py:81: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-7297de18c4",
@@ -169145,7 +169236,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "LunchOrder.create"
+      "routine": "LunchOrder.create",
+      "note": "reviewed, not confirmed: empty browse(), issues no query"
     },
     {
       "id": "ap-c52141f1da",
@@ -169157,8 +169249,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_order.py",
         "lines": [
@@ -169172,7 +169264,8 @@
         "method": "write"
       },
       "routine": "LunchOrder.write",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/lunch/models/lunch_order.py:209: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-963020d058",
@@ -169186,8 +169279,8 @@
       "sort": [
         "lunch_order.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_order.py",
         "lines": [
@@ -169200,7 +169293,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "LunchOrder._find_matching_lines"
+      "routine": "LunchOrder._find_matching_lines",
+      "note": "reviewed addons/lunch/models/lunch_order.py:226: transactional: read inside a user action"
     },
     {
       "id": "ap-e0ff98bcbf",
@@ -169212,8 +169306,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_order.py",
         "lines": [
@@ -169227,7 +169321,8 @@
         "method": "write"
       },
       "routine": "LunchOrder.action_order",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/lunch/models/lunch_order.py:268: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-ad449ef6af",
@@ -169239,8 +169334,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_order.py",
         "lines": [
@@ -169254,7 +169349,8 @@
         "method": "copy"
       },
       "routine": "LunchOrder.action_reorder",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed addons/lunch/models/lunch_order.py:277: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-68907d8924",
@@ -169266,8 +169362,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_order.py",
         "lines": [
@@ -169281,7 +169377,8 @@
         "method": "write"
       },
       "routine": "LunchOrder.action_confirm",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/lunch/models/lunch_order.py:285: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-61b7abcb18",
@@ -169293,8 +169390,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_order.py",
         "lines": [
@@ -169308,7 +169405,8 @@
         "method": "write"
       },
       "routine": "LunchOrder.action_cancel",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/lunch/models/lunch_order.py:288: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-5209986e39",
@@ -169320,8 +169418,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_order.py",
         "lines": [
@@ -169335,7 +169433,8 @@
         "method": "write"
       },
       "routine": "LunchOrder.action_reset",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/lunch/models/lunch_order.py:291: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-5c0267ab2f",
@@ -169347,8 +169446,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_order.py",
         "lines": [
@@ -169362,7 +169461,8 @@
         "method": "write"
       },
       "routine": "LunchOrder.action_notify",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/lunch/models/lunch_order.py:320: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-2547b86db0",
@@ -169385,8 +169485,8 @@
       "sort": [
         "lunch_order.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_product.py",
         "lines": [
@@ -169399,7 +169499,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "LunchProduct._compute_last_order_date"
+      "routine": "LunchProduct._compute_last_order_date",
+      "note": "reviewed addons/lunch/models/lunch_product.py:62: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-9ce873f85d",
@@ -169426,7 +169527,8 @@
         "method": "write"
       },
       "routine": "LunchProduct.write",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed, not confirmed: writes res.users favourites (self.env.user), not lunch_product"
     },
     {
       "id": "ap-8783fa0cbc",
@@ -169443,8 +169545,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_product_category.py",
         "lines": [
@@ -169457,7 +169559,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "LunchProductCategory._compute_product_count"
+      "routine": "LunchProductCategory._compute_product_count",
+      "note": "reviewed addons/lunch/models/lunch_product_category.py:26: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-40b5c34d77",
@@ -169476,8 +169579,8 @@
       "sort": [
         "lunch_product.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_product_category.py",
         "lines": [
@@ -169490,7 +169593,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "LunchProductCategory._sync_active_products"
+      "routine": "LunchProductCategory._sync_active_products",
+      "note": "reviewed addons/lunch/models/lunch_product_category.py:34: transactional: read inside a user action"
     },
     {
       "id": "ap-a358a7f304",
@@ -169556,8 +169660,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_supplier.py",
         "lines": [
@@ -169571,7 +169675,8 @@
         "method": "write"
       },
       "routine": "LunchSupplier.write",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/lunch/models/lunch_supplier.py:180: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-67fa15b9ef",
@@ -169585,8 +169690,8 @@
       "sort": [
         "lunch_order.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_supplier.py",
         "lines": [
@@ -169599,7 +169704,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "LunchSupplier.write"
+      "routine": "LunchSupplier.write",
+      "note": "reviewed addons/lunch/models/lunch_supplier.py:180: transactional: read inside a user action"
     },
     {
       "id": "ap-ce48a77df1",
@@ -169611,8 +169717,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_supplier.py",
         "lines": [
@@ -169626,7 +169732,8 @@
         "method": "write"
       },
       "routine": "LunchSupplier.write",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/lunch/models/lunch_supplier.py:186: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-425854595b",
@@ -169645,8 +169752,8 @@
       "sort": [
         "lunch_product.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_supplier.py",
         "lines": [
@@ -169659,7 +169766,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "LunchSupplier.write"
+      "routine": "LunchSupplier.write",
+      "note": "reviewed addons/lunch/models/lunch_supplier.py:186: transactional: read inside a user action"
     },
     {
       "id": "ap-3b382098a1",
@@ -169671,8 +169779,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_supplier.py",
         "lines": [
@@ -169686,7 +169794,8 @@
         "method": "write"
       },
       "routine": "LunchSupplier.write",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/lunch/models/lunch_supplier.py:187: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-c5ab375b4e",
@@ -169705,8 +169814,8 @@
       "sort": [
         "lunch_product.name"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_supplier.py",
         "lines": [
@@ -169719,7 +169828,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "LunchSupplier.write"
+      "routine": "LunchSupplier.write",
+      "note": "reviewed addons/lunch/models/lunch_supplier.py:187: transactional: read inside a user action"
     },
     {
       "id": "ap-37fa0dc984",
@@ -169785,8 +169895,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_supplier.py",
         "lines": [
@@ -169800,7 +169910,8 @@
         "method": "write"
       },
       "routine": "LunchSupplier._cancel_future_days",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/lunch/models/lunch_supplier.py:208: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-44caef3e0d",
@@ -169823,8 +169934,8 @@
       "sort": [
         "lunch_order.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_supplier.py",
         "lines": [
@@ -169837,7 +169948,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "LunchSupplier._cancel_future_days"
+      "routine": "LunchSupplier._cancel_future_days",
+      "note": "reviewed addons/lunch/models/lunch_supplier.py:208: transactional: read inside a user action"
     },
     {
       "id": "ap-681d55d637",
@@ -169861,8 +169973,8 @@
         "lunch_order.user_id",
         "lunch_order.product_id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/lunch/models/lunch_supplier.py",
         "lines": [
@@ -169875,7 +169987,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "LunchSupplier._get_current_orders"
+      "routine": "LunchSupplier._get_current_orders",
+      "note": "reviewed addons/lunch/models/lunch_supplier.py:220: transactional: read inside a user action"
     },
     {
       "id": "ap-5184058646",
@@ -183633,8 +183746,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/maintenance/models/maintenance.py",
         "lines": [
@@ -183647,7 +183760,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "MaintenanceEquipmentCategory._compute_equipment_count"
+      "routine": "MaintenanceEquipmentCategory._compute_equipment_count",
+      "note": "reviewed addons/maintenance/models/maintenance.py:50: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-6ed89d2b4d",
@@ -183664,8 +183778,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/maintenance/models/maintenance.py",
         "lines": [
@@ -183678,7 +183792,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "MaintenanceEquipmentCategory._compute_maintenance_count"
+      "routine": "MaintenanceEquipmentCategory._compute_maintenance_count",
+      "note": "reviewed addons/maintenance/models/maintenance.py:56: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-7e7a8c0bf5",
@@ -183724,8 +183839,8 @@
         "maintenance_stage.sequence",
         "maintenance_stage.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/maintenance/models/maintenance.py",
         "lines": [
@@ -183738,7 +183853,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "MaintenanceRequest._default_stage"
+      "routine": "MaintenanceRequest._default_stage",
+      "note": "reviewed addons/maintenance/models/maintenance.py:249: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-3264d86082",
@@ -183755,8 +183871,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/maintenance/models/maintenance.py",
         "lines": [
@@ -183769,7 +183885,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "MaintenanceRequest._get_default_team_id"
+      "routine": "MaintenanceRequest._get_default_team_id",
+      "note": "reviewed addons/maintenance/models/maintenance.py:265: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-27f32bc52e",
@@ -183786,8 +183903,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/maintenance/models/maintenance.py",
         "lines": [
@@ -183800,7 +183917,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "MaintenanceRequest._get_default_team_id"
+      "routine": "MaintenanceRequest._get_default_team_id",
+      "note": "reviewed addons/maintenance/models/maintenance.py:273: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-61413c0ce8",
@@ -183812,8 +183930,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/maintenance/models/maintenance.py",
         "lines": [
@@ -183826,7 +183944,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "MaintenanceRequest._get_default_team_id"
+      "routine": "MaintenanceRequest._get_default_team_id",
+      "note": "reviewed addons/maintenance/models/maintenance.py:275: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-89d5b31556",
@@ -183838,8 +183957,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/maintenance/models/maintenance.py",
         "lines": [
@@ -183853,7 +183972,8 @@
         "method": "write"
       },
       "routine": "MaintenanceRequest.cancel_equipment_request",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/maintenance/models/maintenance.py:332: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-06637e97e7",
@@ -183867,8 +183987,8 @@
       "sort": [
         "maintenance_stage.sequence"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/maintenance/models/maintenance.py",
         "lines": [
@@ -183881,7 +184001,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "MaintenanceRequest.reset_equipment_request"
+      "routine": "MaintenanceRequest.reset_equipment_request",
+      "note": "reviewed addons/maintenance/models/maintenance.py:336: transactional: read inside a user action"
     },
     {
       "id": "ap-cc21d567b4",
@@ -183893,8 +184014,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/maintenance/models/maintenance.py",
         "lines": [
@@ -183908,7 +184029,8 @@
         "method": "write"
       },
       "routine": "MaintenanceRequest.reset_equipment_request",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/maintenance/models/maintenance.py:337: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-97ab0f0870",
@@ -183920,8 +184042,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/maintenance/models/maintenance.py",
         "lines": [
@@ -183934,7 +184056,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "MaintenanceRequest._compute_stage_id"
+      "routine": "MaintenanceRequest._compute_stage_id",
+      "note": "reviewed addons/maintenance/models/maintenance.py:391: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-a329de93f8",
@@ -183946,8 +184069,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/maintenance/models/maintenance.py",
         "lines": [
@@ -183960,7 +184083,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "MaintenanceRequest._read_group_equipment_id"
+      "routine": "MaintenanceRequest._read_group_equipment_id",
+      "note": "reviewed addons/maintenance/models/maintenance.py:435: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-1bac6ad9b8",
@@ -183983,8 +184107,8 @@
       "sort": [
         "maintenance_request.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/maintenance/models/maintenance.py",
         "lines": [
@@ -183997,7 +184121,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "MaintenanceTeam._compute_todo_requests"
+      "routine": "MaintenanceTeam._compute_todo_requests",
+      "note": "reviewed addons/maintenance/models/maintenance.py:534: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-d90f713fd6",
@@ -184018,8 +184143,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/maintenance/models/maintenance.py",
         "lines": [
@@ -184032,7 +184157,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "MaintenanceTeam._compute_todo_requests"
+      "routine": "MaintenanceTeam._compute_todo_requests",
+      "note": "reviewed addons/maintenance/models/maintenance.py:535: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-6187067aa3",
@@ -247498,8 +247624,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/res_lang.py",
         "lines": [
@@ -247512,7 +247638,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ResLang.write"
+      "routine": "ResLang.write",
+      "note": "reviewed addons/survey/models/res_lang.py:13: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-f9d07f77ef",
@@ -247524,8 +247651,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/res_lang.py",
         "lines": [
@@ -247538,7 +247665,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ResLang.write"
+      "routine": "ResLang.write",
+      "note": "reviewed addons/survey/models/res_lang.py:14: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-99a6192d38",
@@ -247555,8 +247683,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/res_lang.py",
         "lines": [
@@ -247569,7 +247697,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ResLang.write"
+      "routine": "ResLang.write",
+      "note": "reviewed addons/survey/models/res_lang.py:20: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-e0bcf49584",
@@ -247581,8 +247710,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/res_lang.py",
         "lines": [
@@ -247596,7 +247725,8 @@
         "method": "write"
       },
       "routine": "ResLang.write",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/survey/models/res_lang.py:26: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-08f3205703",
@@ -247617,8 +247747,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/res_partner.py",
         "lines": [
@@ -247631,7 +247761,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "ResPartner._compute_certifications_count"
+      "routine": "ResPartner._compute_certifications_count",
+      "note": "reviewed addons/survey/models/res_partner.py:15: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-e18a788fbc",
@@ -247648,8 +247779,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_question.py",
         "lines": [
@@ -247662,7 +247793,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "SurveyQuestion.default_get"
+      "routine": "SurveyQuestion.default_get",
+      "note": "reviewed addons/survey/models/survey_question.py:54: transactional: read inside a user action"
     },
     {
       "id": "ap-ffd1e2183e",
@@ -247690,8 +247822,8 @@
         "survey_question.sequence",
         "survey_question.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_question.py",
         "lines": [
@@ -247704,7 +247836,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "SurveyQuestion._compute_allowed_triggering_question_ids"
+      "routine": "SurveyQuestion._compute_allowed_triggering_question_ids",
+      "note": "reviewed addons/survey/models/survey_question.py:345: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-395b22b340",
@@ -247716,8 +247849,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_question.py",
         "lines": [
@@ -247731,7 +247864,8 @@
         "method": "write"
       },
       "routine": "SurveyQuestion._update_time_limit_from_survey",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/survey/models/survey_question.py:604: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-8c607d8519",
@@ -247756,8 +247890,8 @@
         "survey_question_answer.sequence",
         "survey_question_answer.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_question.py",
         "lines": [
@@ -247770,7 +247904,8 @@
         "framework": "odoo",
         "method": "search_read"
       },
-      "routine": "SurveyQuestion._get_correct_answers"
+      "routine": "SurveyQuestion._get_correct_answers",
+      "note": "reviewed addons/survey/models/survey_question.py:817: transactional: read inside a user action"
     },
     {
       "id": "ap-0b550a2f12",
@@ -247787,8 +247922,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -247801,7 +247936,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "SurveySurvey._compute_survey_statistic"
+      "routine": "SurveySurvey._compute_survey_statistic",
+      "note": "reviewed addons/survey/models/survey_survey.py:247: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-bf40916566",
@@ -247826,8 +247962,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -247840,7 +247976,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "SurveySurvey._compute_session_answer_count"
+      "routine": "SurveySurvey._compute_session_answer_count",
+      "note": "reviewed addons/survey/models/survey_survey.py:306: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-33949c9ba8",
@@ -247857,8 +247994,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -247871,7 +248008,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "SurveySurvey._compute_session_question_answer_count"
+      "routine": "SurveySurvey._compute_session_question_answer_count",
+      "note": "reviewed addons/survey/models/survey_survey.py:322: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-627a84e374",
@@ -247883,8 +248021,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -247898,7 +248036,8 @@
         "method": "write"
       },
       "routine": "SurveySurvey._onchange_survey_type",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/survey/models/survey_survey.py:406: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-59eb117884",
@@ -247910,8 +248049,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -247925,7 +248064,8 @@
         "method": "write"
       },
       "routine": "SurveySurvey._onchange_survey_type",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/survey/models/survey_survey.py:412: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-2b032d4e7f",
@@ -247937,8 +248077,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -247952,7 +248092,8 @@
         "method": "write"
       },
       "routine": "SurveySurvey._onchange_survey_type",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/survey/models/survey_survey.py:423: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-647d37198a",
@@ -247964,8 +248105,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -247979,7 +248120,8 @@
         "method": "create"
       },
       "routine": "SurveySurvey._create_answer",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed addons/survey/models/survey_survey.py:592: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-8f0f1d7278",
@@ -248010,7 +248152,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "SurveySurvey._prepare_user_input_predefined_questions"
+      "routine": "SurveySurvey._prepare_user_input_predefined_questions",
+      "note": "reviewed, not confirmed: empty browse(), issues no query"
     },
     {
       "id": "ap-337e7376f8",
@@ -248022,8 +248165,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -248036,7 +248179,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "SurveySurvey._get_number_of_attempts_lefts"
+      "routine": "SurveySurvey._get_number_of_attempts_lefts",
+      "note": "reviewed addons/survey/models/survey_survey.py:700: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-d41e80bf18",
@@ -248051,8 +248195,8 @@
         "survey_question.sequence",
         "survey_question.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -248065,7 +248209,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "SurveySurvey._get_survey_questions"
+      "routine": "SurveySurvey._get_survey_questions",
+      "note": "reviewed addons/survey/models/survey_survey.py:877: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-bc19ef27fa",
@@ -248082,8 +248227,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "hot",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -248096,7 +248241,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "SurveySurvey._get_survey_questions"
+      "routine": "SurveySurvey._get_survey_questions",
+      "note": "reviewed addons/survey/models/survey_survey.py:883: read_hot: compute/search behind list, form or kanban views"
     },
     {
       "id": "ap-ba92c04e02",
@@ -248108,8 +248254,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -248123,7 +248269,8 @@
         "method": "write"
       },
       "routine": "SurveySurvey._session_open",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/survey/models/survey_survey.py:920: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-63831b604c",
@@ -248142,8 +248289,8 @@
       "sort": [
         "survey_user_input.scoring_total"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -248156,7 +248303,8 @@
         "framework": "odoo",
         "method": "search_read"
       },
-      "routine": "SurveySurvey._prepare_leaderboard_values"
+      "routine": "SurveySurvey._prepare_leaderboard_values",
+      "note": "reviewed addons/survey/models/survey_survey.py:986: transactional: read inside a user action"
     },
     {
       "id": "ap-fed50f8a1a",
@@ -248180,8 +248328,8 @@
         "survey_user_input_line.question_sequence",
         "survey_user_input_line.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -248194,7 +248342,8 @@
         "framework": "odoo",
         "method": "search_read"
       },
-      "routine": "SurveySurvey._prepare_leaderboard_values"
+      "routine": "SurveySurvey._prepare_leaderboard_values",
+      "note": "reviewed addons/survey/models/survey_survey.py:998: transactional: read inside a user action"
     },
     {
       "id": "ap-247867f2b2",
@@ -248206,8 +248355,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -248221,7 +248370,8 @@
         "method": "write"
       },
       "routine": "SurveySurvey.action_start_session",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/survey/models/survey_survey.py:1161: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-4da05b64f7",
@@ -248233,8 +248383,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -248248,7 +248398,8 @@
         "method": "write"
       },
       "routine": "SurveySurvey.action_end_session",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/survey/models/survey_survey.py:1186: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-71339b6115",
@@ -248260,8 +248411,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -248275,7 +248426,8 @@
         "method": "write"
       },
       "routine": "SurveySurvey.action_end_session",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/survey/models/survey_survey.py:1187: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-7e6fcea95c",
@@ -248300,8 +248452,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -248314,7 +248466,8 @@
         "framework": "odoo",
         "method": "_read_group"
       },
-      "routine": "SurveySurvey._prepare_statistics"
+      "routine": "SurveySurvey._prepare_statistics",
+      "note": "reviewed addons/survey/models/survey_survey.py:1217: transactional: read inside a user action"
     },
     {
       "id": "ap-708f14dbdd",
@@ -248326,8 +248479,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -248340,7 +248493,8 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "SurveySurvey._prepare_statistics"
+      "routine": "SurveySurvey._prepare_statistics",
+      "note": "reviewed addons/survey/models/survey_survey.py:1218: transactional: read inside a user action"
     },
     {
       "id": "ap-43dea89321",
@@ -248528,8 +248682,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_survey.py",
         "lines": [
@@ -248542,7 +248696,8 @@
         "framework": "odoo",
         "method": "search_read"
       },
-      "routine": "SurveySurvey._generate_session_codes"
+      "routine": "SurveySurvey._generate_session_codes",
+      "note": "reviewed addons/survey/models/survey_survey.py:1309: transactional: read inside a user action"
     },
     {
       "id": "ap-fa9ca9465a",
@@ -248559,8 +248714,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_user_input.py",
         "lines": [
@@ -248573,7 +248728,8 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "SurveyUser_Input.create"
+      "routine": "SurveyUser_Input.create",
+      "note": "reviewed addons/survey/models/survey_user_input.py:173: transactional: read inside a user action"
     },
     {
       "id": "ap-b76665d888",
@@ -248585,8 +248741,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_user_input.py",
         "lines": [
@@ -248600,7 +248756,8 @@
         "method": "write"
       },
       "routine": "SurveyUser_Input._mark_in_progress",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/survey/models/survey_user_input.py:232: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-d2217cfd38",
@@ -248612,8 +248769,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_user_input.py",
         "lines": [
@@ -248627,7 +248784,8 @@
         "method": "write"
       },
       "routine": "SurveyUser_Input._mark_done",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/survey/models/survey_user_input.py:246: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-1091d5b298",
@@ -248687,8 +248845,8 @@
         "survey_user_input_line.question_sequence",
         "survey_user_input_line.id"
       ],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_user_input.py",
         "lines": [
@@ -248701,7 +248859,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "SurveyUser_Input._save_lines"
+      "routine": "SurveyUser_Input._save_lines",
+      "note": "reviewed addons/survey/models/survey_user_input.py:288: transactional: read inside a user action"
     },
     {
       "id": "ap-2a021ddd48",
@@ -248713,8 +248872,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_user_input.py",
         "lines": [
@@ -248728,7 +248887,8 @@
         "method": "write"
       },
       "routine": "SurveyUser_Input._save_lines",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/survey/models/survey_user_input.py:298: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-6053454431",
@@ -248740,8 +248900,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_user_input.py",
         "lines": [
@@ -248755,7 +248915,8 @@
         "method": "write"
       },
       "routine": "SurveyUser_Input._save_lines",
-      "verb": "update"
+      "verb": "update",
+      "note": "reviewed addons/survey/models/survey_user_input.py:300: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-3f7718281a",
@@ -248767,8 +248928,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_user_input.py",
         "lines": [
@@ -248782,7 +248943,8 @@
         "method": "create"
       },
       "routine": "SurveyUser_Input._save_line_simple_answer",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed addons/survey/models/survey_user_input.py:315: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-fde460b704",
@@ -248794,8 +248956,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_user_input.py",
         "lines": [
@@ -248809,7 +248971,8 @@
         "method": "create"
       },
       "routine": "SurveyUser_Input._save_line_choice",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed addons/survey/models/survey_user_input.py:332: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-20e3bc196d",
@@ -248836,7 +248999,8 @@
         "method": "copy"
       },
       "routine": "SurveyUser_Input._save_line_matrix",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed, not confirmed: dict.copy() of line values, not an ORM write"
     },
     {
       "id": "ap-3b6263a1af",
@@ -248848,8 +249012,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_user_input.py",
         "lines": [
@@ -248863,7 +249027,8 @@
         "method": "create"
       },
       "routine": "SurveyUser_Input._save_line_matrix",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed addons/survey/models/survey_user_input.py:353: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-388ac935ff",
@@ -248875,8 +249040,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "warm",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/survey_user_input.py",
         "lines": [
@@ -248890,7 +249055,8 @@
         "method": "unlink"
       },
       "routine": "SurveyUser_Input._clear_inactive_conditional_answers",
-      "verb": "delete"
+      "verb": "delete",
+      "note": "reviewed addons/survey/models/survey_user_input.py:594: transactional: user-driven create/write/unlink flow"
     },
     {
       "id": "ap-de4b5b2dce",
@@ -248902,8 +249068,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/templates/survey_survey.py",
         "lines": [
@@ -248917,7 +249083,8 @@
         "method": "create"
       },
       "routine": "SurveySurvey.action_load_survey_template_sample",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed addons/survey/models/templates/survey_survey.py:21: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-4367c952a0",
@@ -248929,8 +249096,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/models/templates/survey_survey.py",
         "lines": [
@@ -248944,7 +249111,8 @@
         "method": "create"
       },
       "routine": "SurveySurvey.action_load_sample_custom",
-      "verb": "insert"
+      "verb": "insert",
+      "note": "reviewed addons/survey/models/templates/survey_survey.py:290: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-52db525f44",
@@ -249034,8 +249202,8 @@
         }
       ],
       "sort": [],
-      "frequency": null,
-      "confirmed": false,
+      "frequency": "cold",
+      "confirmed": true,
       "source": {
         "file": "addons/survey/wizard/survey_invite.py",
         "lines": [
@@ -249048,7 +249216,8 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "SurveyInvite._prepare_answers"
+      "routine": "SurveyInvite._prepare_answers",
+      "note": "reviewed addons/survey/wizard/survey_invite.py:192: batch: cron, wizard, report or one-off action"
     },
     {
       "id": "ap-b5194330c9",
