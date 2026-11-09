@@ -1,56 +1,136 @@
 {
  "hrExpense": {
-  "_id": 1,
+  "_id": 25,
   "messageMainAttachmentId": null,
-  "employeeId": null,
-  "departmentId": 8,
+  "employeeId": 19,
+  "departmentId": 20,
   "managerId": null,
   "companyId": null,
-  "productId": null,
-  "productUomId": null,
+  "productId": 25,
+  "productUomId": 8,
   "splitExpenseOriginId": null,
   "currencyId": null,
-  "paymentMethodLineId": 14,
+  "paymentMethodLineId": 20,
   "existingBillId": null,
-  "accountMoveId": 302,
+  "accountMoveId": 313,
   "vendorId": null,
   "accountId": null,
-  "formerSheetId": 1,
-  "createUid": 6,
+  "formerSheetId": 25,
+  "createUid": null,
   "writeUid": null,
-  "name": "synthetic-1",
-  "state": null,
-  "paymentMode": "synthetic-1",
+  "name": null,
+  "state": "synthetic-25",
+  "approvalState": "synthetic-25",
+  "paymentMode": "synthetic-25",
+  "date": {
+   "$date": "2024-01-01T00:00:00Z"
+  },
   "analyticDistribution": {
-   "en_US": "synthetic-1"
+   "en_US": "synthetic-25"
   },
-  "description": "synthetic-1",
+  "description": "synthetic-25",
   "quantity": {
-   "$numberDecimal": "1.25"
+   "$numberDecimal": "25.25"
   },
-  "taxAmountCurrency": {
-   "$numberDecimal": "1.25"
+  "taxAmountCurrency": null,
+  "taxAmount": {
+   "$numberDecimal": "25.25"
   },
-  "taxAmount": null,
-  "totalAmountCurrency": {
-   "$numberDecimal": "1.25"
-  },
-  "totalAmount": {
-   "$numberDecimal": "1.25"
-  },
-  "untaxedAmountCurrency": {
-   "$numberDecimal": "1.25"
+  "totalAmountCurrency": null,
+  "totalAmount": null,
+  "untaxedAmount": {
+   "$numberDecimal": "25.25"
   },
   "priceUnit": {
-   "$numberDecimal": "1.25"
+   "$numberDecimal": "25.25"
   },
-  "approvalDate": null,
-  "createDate": null,
-  "writeDate": {
+  "lastNotificationDate": null,
+  "createDate": {
    "$date": "2024-01-01T00:00:00Z"
   },
   "saleOrderId": null,
   "saleOrderLineId": null,
-  "attachReceiptsToInvoice": null
+  "attachReceiptsToInvoice": true
+ },
+ "ormSignalingAssets": {
+  "_id": 1,
+  "date": {
+   "$date": "2024-01-01T00:00:00Z"
+  }
+ },
+ "accountPaymentTerm": {
+  "_id": 1,
+  "companyId": null,
+  "sequence": 1,
+  "createUid": null,
+  "writeUid": null,
+  "earlyPayDiscountComputation": "synthetic-1",
+  "name": {
+   "en_US": "synthetic-1"
+  },
+  "active": true,
+  "displayOnInvoice": true,
+  "earlyDiscount": true,
+  "discountPercentage": 1.25,
+  "line": [
+   {
+    "id": 2,
+    "nbDays": 2,
+    "createUid": 4,
+    "writeUid": 1,
+    "value": "synthetic-2",
+    "delayType": "synthetic-2",
+    "daysNextMonth": "synthetic-2",
+    "valueAmount": {
+     "$numberDecimal": "2.25"
+    },
+    "createDate": {
+     "$date": "2024-01-01T00:00:00Z"
+    },
+    "writeDate": {
+     "$date": "2024-01-01T00:00:00Z"
+    }
+   }
+  ]
+ },
+ "accountAccount": {
+  "_id": 249,
+  "currencyId": null,
+  "parentId": 73,
+  "accountStockVariationId": null,
+  "accountStockExpenseId": null,
+  "createUid": null,
+  "writeUid": 4,
+  "accountType": "synthetic-249",
+  "parentPath": "synthetic-249",
+  "name": {
+   "en_US": "synthetic-249"
+  },
+  "description": {
+   "en_US": "synthetic-249"
+  },
+  "codeStore": null,
+  "note": "synthetic-249",
+  "active": true,
+  "reconcile": true,
+  "nonTrade": null,
+  "createDate": {
+   "$date": "2024-01-01T00:00:00Z"
+  },
+  "writeDate": {
+   "$date": "2024-01-01T00:00:00Z"
+  },
+  "isVehicleAccount": null,
+  "accountTag": [
+   {
+    "accountAccountTagId": 7
+   }
+  ],
+  "resCompanyRel": [
+   {
+    "resCompanyId": 14
+   }
+  ],
+  "taxDefaultRel": []
  }
 }

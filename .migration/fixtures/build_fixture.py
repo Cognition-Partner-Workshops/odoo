@@ -94,7 +94,7 @@ def repairUnique(documents, collection, roots, sizes, stats):
     fields = {f["target"]: f for f in collection["fields"]}
     references = {column: roots[r["to"]] for r in collection["decision"].get("references", [])
                   for column in r["column"]}
-    for index in collection["indexes"]:
+    for index in collection.get("indexes", []):
         if not index.get("unique"):
             continue
         paths = [key for key, _ in index["keys"]]
@@ -131,7 +131,7 @@ def repairUnique(documents, collection, roots, sizes, stats):
                     raise ValueError(f"Cannot make unique tuple: {collection['collection']} {paths}")
                 repairs.append({"collection": collection["collection"], "id": document["_id"], "paths": paths})
             seen.add(signature())
-    for index in collection["indexes"]:
+    for index in collection.get("indexes", []):
         if index.get("unique"):
             keys = [json_util.dumps([getPath(document, key) for key, _ in index["keys"]], sort_keys=True)
                     for document in documents]
@@ -258,7 +258,7 @@ def build(args):
     rowCounts, files, uniqueRepairs, targetRows = {}, {}, [], {}
     for collection in collections:
         name = collection["collection"]
-        required = {key for index in collection["indexes"] if index.get("unique") for key, _ in index["keys"]}
+        required = {key for index in collection.get("indexes", []) if index.get("unique") for key, _ in index["keys"]}
         documents = [makeDocument(row, collection["fields"], collection["key"], rng, required)
                      for row in rows[collection["root_table"]]]
         uniqueRepairs.extend(repairUnique(documents, collection, byName, sizes, stats))

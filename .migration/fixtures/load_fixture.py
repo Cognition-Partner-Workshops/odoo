@@ -64,7 +64,7 @@ def load(args):
             collection = database.create_collection(name)
             if documents:
                 collection.insert_many(documents)
-            for index in collectionSpecs[name]["indexes"]:
+            for index in collectionSpecs[name].get("indexes", []):
                 options = {key: index[key] for key in ("unique", "sparse", "partialFilterExpression", "name", "expireAfterSeconds") if key in index}
                 collection.create_index([tuple(key) for key in index["keys"]], **options)
             actual = collection.count_documents({})
