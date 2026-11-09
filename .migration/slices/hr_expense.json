@@ -1,0 +1,28 @@
+{
+  "slice": "hr_expense",
+  "phase": "reads",
+  "app": "hr_expense",
+  "writer_apps": ["hr_expense"],
+  "units": ["hrExpense", "hrExpenseProductJobPositionLimit"],
+  "tables": [
+    "hr_expense",
+    "hr_expense_product_job_position_limit",
+    "hr_expense_product_job_position_limit_hr_job_rel"
+  ],
+  "source_rows": 38,
+  "expected_waves": {"canary": ["hrExpense"], "wave_2": ["hrExpenseProductJobPositionLimit"]},
+  "basis": {
+    "base_sha": "ea1e85b92fc",
+    "mapping_spec": ".migration/mapping_spec.proposed.json (map-draft-2)",
+    "write_patterns": ["ap-9cba92b1f5", "ap-24e1f0091e", "ap-97730c8596", "ap-0390830bdf"],
+    "register_writer_row": "hr_expense / writer / hr_expense (suggested migrate-together)"
+  },
+  "unmapped_transient_tables": [
+    "hr_expense_approve_duplicate",
+    "hr_expense_hr_expense_approve_duplicate_rel",
+    "hr_expense_hr_expense_refuse_wizard_rel",
+    "hr_expense_refuse_wizard",
+    "hr_expense_split",
+    "hr_expense_split_wizard"
+  ]
+}
