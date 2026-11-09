@@ -2,11 +2,17 @@
   "database": "odoo_src",
   "built_from": "build_source.sh at mongo-run/unt16 ea1e85b92fcb187d871749c3fa6dd2e7b89c41db",
   "format": "pg_dump -Fc --no-owner --no-acl (PostgreSQL 16)",
-  "release_url": "https://github.com/Cognition-Partner-Workshops/odoo/releases/tag/mongo-run-unt16-odoo-src",
-  "asset_url": "https://github.com/Cognition-Partner-Workshops/odoo/releases/download/mongo-run-unt16-odoo-src/odoo_src-unt16.dump",
+  "repo": "Cognition-Partner-Workshops/odoo",
+  "release_tag": "mongo-run-unt16-odoo-src",
+  "release_id": 439642184,
+  "release_url": "https://api.github.com/repos/Cognition-Partner-Workshops/odoo/releases/439642184",
+  "asset_id": 728975045,
+  "asset_name": "odoo_src-unt16.dump",
   "size_bytes": 8979146,
   "sha256": "6973f4b2281f3f478d725442f413c0134c149dab30ed52b492f5a551b808918c",
   "schema_fingerprint": "sha256:2a6ca3551e0accb2878160a09e1000c1c7644b8fc9313b21fe077ee7be7e8428",
   "content_fingerprint": "sha256:894ab115b5c8540389f266d9bfacfc4cb33bfa419e683f801d1aa483842d4129",
-  "content_excluded_tables": ["bus_bus"]
+  "content_excluded_tables": [
+    "bus_bus"
+  ]
 }
