@@ -1,0 +1,9 @@
+{
+  "databases": ["odoo_unt16"],
+  "mode": "block",
+  "legacy_scratch_prefixes": ["odoo_unt16_"],
+  "target_uri_secret": "MONGODB_ATLAS_URI",
+  "legacy_dsn_secrets": ["ODOO_PG_RO_DSN"],
+  "guard_mode": "warn",
+  "catalogs": ["odoo_unt16"]
+}
