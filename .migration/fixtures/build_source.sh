@@ -140,13 +140,15 @@ SEED
 
 echo "== grant the read-only role"
 "$py" - "$db" <<'GRANT'
-import os, sys
+import json, os, sys
 import psycopg2
 from psycopg2 import sql
 from psycopg2.extensions import parse_dsn
 
 db = sys.argv[1]
-ro = parse_dsn(os.environ['ODOO_PG_RO_DSN'])
+raw = os.environ['ODOO_PG_RO_DSN']
+# the probe's PostgreSQL JSON shape {user, password, host, port, database}, or a libpq DSN
+ro = json.loads(raw) if raw.lstrip().startswith('{') else parse_dsn(raw)
 role = sql.Identifier(ro['user'])
 for target in ('postgres', db):
     conn = psycopg2.connect(dbname=target, host='/var/run/postgresql', port=5433)
