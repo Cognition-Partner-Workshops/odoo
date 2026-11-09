@@ -1,0 +1,357 @@
+[
+  {
+    "op": "accept",
+    "match": {
+      "rule": "junction_array",
+      "child": "hr_expense_product_job_position_limit_hr_job_rel"
+    },
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the ticket 'Settle open modeling items and sign-off PR' (slice hr_expense): take the recommended default, cited. Keep job_ids as the hrJobRel array on hrExpenseProductJobPositionLimit: the model reads line.job_ids with each limit line (hr_expense.py:648-649), and one array element is one int."
+    }
+  },
+  {
+    "op": "resolve",
+    "match": {
+      "kind": "embed_unbounded",
+      "parent": "hrExpenseProductJobPositionLimit",
+      "child": "hr_expense_product_job_position_limit_hr_job_rel"
+    },
+    "resolution": "bounded: one int element per hr_job row (9 measured); 16 MB unreachable; no bucket or reference",
+    "evidence": {
+      "kind": "data_profile",
+      "ref": "row_bytes:hr_job",
+      "note": "array bound = hr_job table size (rows_seen 9)"
+    }
+  },
+  {
+    "op": "resolve",
+    "match": {
+      "kind": "many_to_many_junction",
+      "table": "hr_expense_product_job_position_limit_hr_job_rel"
+    },
+    "resolution": "array on hrExpenseProductJobPositionLimit (the side that declares job_ids); the reverse lookup by job uses the kept multikey index hrJobRel.hrJobId; bounded by the hr_job row count (9 measured), far below 16 MB",
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the ticket 'Settle open modeling items and sign-off PR' (slice hr_expense): take the recommended default, cited. Recommended default: keep the proposed side and add/keep the multikey reverse index."
+    }
+  },
+  {
+    "op": "resolve",
+    "collection": "hrExpenseProductJobPositionLimit",
+    "match": {
+      "kind": "fanout_unmeasured",
+      "child_table": "hr_expense_product_job_position_limit_hr_job_rel"
+    },
+    "resolution": "accept the embed with 0 profiled rows: hrJobRel holds at most one int per hr_job row (9 job positions measured, about 1.8 KB max per job row on the source), so a document cannot approach 16 MB; the empty root and embed go to accepted_empty",
+    "evidence": {
+      "kind": "data_profile",
+      "ref": "row_bytes:hr_job",
+      "note": "the array is bounded by the hr_job table size (rows_seen 9)"
+    }
+  },
+  {
+    "op": "resolve",
+    "collection": "hrExpenseProductJobPositionLimit",
+    "match": {
+      "kind": "cascade_into_embed",
+      "child_table": "hr_expense_product_job_position_limit_hr_job_rel"
+    },
+    "resolution": "keep the embed; deleting an hr_job pulls its id from hrJobRel in every hrExpenseProductJobPositionLimit document (the unit's write path does the pull, using the hrJobRel.hrJobId index)",
+    "evidence": {
+      "file": "addons/hr_expense/models/hr_expense_product_job_position_limit.py:17-21",
+      "quote": "job_ids = fields.Many2many(",
+      "note": "job_ids is an ordinary Many2many to hr.job; the source FK cascade only removes link rows, which is an array pull in the embedded shape"
+    }
+  },
+  {
+    "op": "resolve",
+    "collection": "hrExpenseProductJobPositionLimit",
+    "match": {
+      "kind": "source_index_not_exercised",
+      "table": "hr_expense_product_job_position_limit_hr_job_rel"
+    },
+    "resolution": "keep hrJobRel.hrJobId: it serves the reverse lookup and the hr_job delete pull",
+    "evidence": {
+      "file": "addons/hr_expense/models/hr_expense_product_job_position_limit.py:17-21",
+      "quote": "job_ids = fields.Many2many(",
+      "note": "Recommended default (keep the carried-over index)"
+    }
+  },
+  {
+    "op": "resolve",
+    "collection": "hrExpense",
+    "match": {
+      "kind": "lob",
+      "table": "hr_expense"
+    },
+    "resolution": "keep description as an embedded string field (Text 'Internal Notes'); measured max 0 bytes over 38 rows; the rehearsal checks the largest document against 16 MB",
+    "evidence": {
+      "kind": "data_profile",
+      "ref": "lob_bytes:hr_expense.description",
+      "note": "Recommended default: LOB stays inline when the measured size allows"
+    }
+  },
+  {
+    "op": "resolve",
+    "collection": "hrExpense",
+    "match": {
+      "kind": "source_index_not_exercised",
+      "name": "hr_expense__account_move_id_index"
+    },
+    "resolution": "keep as a plain single-field index (the source btree_not_null partial index becomes a full index: a superset that answers the same queries)",
+    "evidence": {
+      "file": "addons/hr_expense/models/hr_expense.py:280-285",
+      "quote": "index='btree_not_null'",
+      "note": "Recommended default: keep the index the ORM field declares"
+    }
+  },
+  {
+    "op": "resolve",
+    "collection": "hrExpense",
+    "match": {
+      "kind": "source_index_not_exercised",
+      "name": "hr_expense__employee_id_index"
+    },
+    "resolution": "keep as a plain single-field index (the source btree_not_null partial index becomes a full index: a superset that answers the same queries)",
+    "evidence": {
+      "file": "addons/hr_expense/models/hr_expense.py:65-69",
+      "quote": "index=True",
+      "note": "Recommended default: keep the index the ORM field declares"
+    }
+  },
+  {
+    "op": "resolve",
+    "collection": "hrExpense",
+    "match": {
+      "kind": "source_index_not_exercised",
+      "name": "hr_expense__existing_bill_id_index"
+    },
+    "resolution": "keep as a plain single-field index (the source btree_not_null partial index becomes a full index: a superset that answers the same queries)",
+    "evidence": {
+      "file": "addons/hr_expense/models/hr_expense.py:266-269",
+      "quote": "index='btree_not_null'",
+      "note": "Recommended default: keep the index the ORM field declares"
+    }
+  },
+  {
+    "op": "resolve",
+    "collection": "hrExpense",
+    "match": {
+      "kind": "source_index_not_exercised",
+      "name": "hr_expense__message_main_attachment_id_index"
+    },
+    "resolution": "keep as a plain single-field index (the source btree_not_null partial index becomes a full index: a superset that answers the same queries)",
+    "evidence": {
+      "file": "addons/mail/models/mail_thread_main_attachment.py:15",
+      "quote": "index='btree_not_null'",
+      "note": "Recommended default: keep the index the ORM field declares"
+    }
+  },
+  {
+    "op": "resolve",
+    "collection": "hrExpense",
+    "match": {
+      "kind": "source_index_not_exercised",
+      "name": "hr_expense__payment_method_line_id_index"
+    },
+    "resolution": "keep as a plain single-field index (the source btree_not_null partial index becomes a full index: a superset that answers the same queries)",
+    "evidence": {
+      "file": "addons/hr_expense/models/hr_expense.py:253-256",
+      "quote": "index=True",
+      "note": "Recommended default: keep the index the ORM field declares"
+    }
+  },
+  {
+    "op": "resolve",
+    "collection": "hrExpense",
+    "match": {
+      "kind": "source_index_not_exercised",
+      "name": "hr_expense__sale_order_id_index"
+    },
+    "resolution": "keep as a plain single-field index (the source btree_not_null partial index becomes a full index: a superset that answers the same queries)",
+    "evidence": {
+      "file": "addons/sale_expense/models/hr_expense.py:9-15",
+      "quote": "index='btree_not_null'",
+      "note": "Recommended default: keep the index the ORM field declares"
+    }
+  },
+  {
+    "op": "resolve",
+    "collection": "hrExpense",
+    "match": {
+      "kind": "source_index_not_exercised",
+      "name": "hr_expense__sale_order_line_id_index"
+    },
+    "resolution": "keep as a plain single-field index (the source btree_not_null partial index becomes a full index: a superset that answers the same queries)",
+    "evidence": {
+      "file": "addons/sale_expense/models/hr_expense.py:22-27",
+      "quote": "index='btree_not_null'",
+      "note": "Recommended default: keep the index the ORM field declares"
+    }
+  },
+  {
+    "op": "note",
+    "collection": "hrExpense",
+    "subject": "d-storage-path",
+    "decision": "per_batch confirmed for slice hr_expense: each batch rewrites its unit's data-access code on the driver; the slice's confirmed patterns include 2 raw-SQL reads (addons/hr_expense/models/analytic.py:34), which per_batch rewrites in the batch; nothing re-opens the decision",
+    "evidence": {
+      "file": "addons/hr_expense/models/analytic.py:32-38",
+      "quote": "SELECT id FROM hr_expense",
+      "note": "Recommended default"
+    }
+  },
+  {
+    "op": "note",
+    "collection": "hrExpense",
+    "subject": "known_incompatibility: '' and NULL are distinct",
+    "decision": "kept distinct: null_missing_equiv equates NULL with a missing field only; '' stays ''",
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the ticket 'Settle open modeling items and sign-off PR' (slice hr_expense): take the recommended default, cited. Recommended default"
+    }
+  },
+  {
+    "op": "note",
+    "collection": "hrExpense",
+    "subject": "known_incompatibility: timestamp precision is microseconds",
+    "decision": "accepted: create_date/write_date/approval_date/last_notification_date truncate to milliseconds under the proposer's datetime_utc_truncate_ms rule; no tolerance change",
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the ticket 'Settle open modeling items and sign-off PR' (slice hr_expense): take the recommended default, cited. Recommended default"
+    }
+  },
+  {
+    "op": "note",
+    "collection": "hrExpense",
+    "subject": "known_incompatibility: session TimeZone affects timestamptz",
+    "decision": "not hit: slice columns are timestamp without time zone holding UTC (Odoo); source sessions are pinned to UTC",
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the ticket 'Settle open modeling items and sign-off PR' (slice hr_expense): take the recommended default, cited. Recommended default"
+    }
+  },
+  {
+    "op": "note",
+    "collection": "hrExpense",
+    "subject": "known_incompatibility: identity / serial sequences",
+    "decision": "source ids are kept as _id (hr_expense.id, hr_expense_product_job_position_limit.id are nextval serials); allocating new ids after the writes flip is the d-id-authority decision, not the model",
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the ticket 'Settle open modeling items and sign-off PR' (slice hr_expense): take the recommended default, cited. Recommended default"
+    }
+  },
+  {
+    "op": "note",
+    "collection": "hrExpense",
+    "subject": "known_incompatibility: partitioned and inherited tables",
+    "decision": "not hit: census partitioned=false for all 3 slice tables",
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the ticket 'Settle open modeling items and sign-off PR' (slice hr_expense): take the recommended default, cited. Recommended default"
+    }
+  },
+  {
+    "op": "note",
+    "collection": "hrExpense",
+    "subject": "known_incompatibility: lower-case folding and quoted identifiers",
+    "decision": "not hit: all slice names are unquoted lower-case",
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the ticket 'Settle open modeling items and sign-off PR' (slice hr_expense): take the recommended default, cited. Recommended default"
+    }
+  },
+  {
+    "op": "note",
+    "collection": "hrExpense",
+    "subject": "known_incompatibility: deferrable constraints",
+    "decision": "not hit: no deferrable constraint in the census",
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the ticket 'Settle open modeling items and sign-off PR' (slice hr_expense): take the recommended default, cited. Recommended default"
+    }
+  },
+  {
+    "op": "note",
+    "collection": "hrExpense",
+    "subject": "known_incompatibility: partial and expression indexes",
+    "decision": "5 btree_not_null partial indexes kept as full single-field indexes (superset); the GIN expression index hr_expense_analytic_distribution_accounts_gin_index is not carried: its one reader (analytic.py:32-38, ondelete check on analytic accounts, 38 rows) is rewritten in the batch as a query on analytic_distribution keys",
+    "evidence": {
+      "file": "addons/hr_expense/models/analytic.py:32-38",
+      "quote": "WHERE %s && %s",
+      "note": "Recommended default"
+    }
+  },
+  {
+    "op": "note",
+    "collection": "hrExpense",
+    "subject": "known_incompatibility: NULL elements in arrays",
+    "decision": "not hit: hrJobRel elements come from a NOT NULL primary-key column",
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the ticket 'Settle open modeling items and sign-off PR' (slice hr_expense): take the recommended default, cited. Recommended default"
+    }
+  },
+  {
+    "op": "note",
+    "collection": "hrExpense",
+    "subject": "known_incompatibility: C / ICU collations",
+    "decision": "not hit: no column collation on slice tables; recon compares values, not sort order",
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the ticket 'Settle open modeling items and sign-off PR' (slice hr_expense): take the recommended default, cited. Recommended default"
+    }
+  },
+  {
+    "op": "note",
+    "collection": "hrExpense",
+    "subject": "known_incompatibility: PL/pgSQL functions and triggers",
+    "decision": "not hit: census has 0 triggers and 0 routines",
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the ticket 'Settle open modeling items and sign-off PR' (slice hr_expense): take the recommended default, cited. Recommended default"
+    }
+  },
+  {
+    "op": "note",
+    "collection": "hrExpense",
+    "subject": "known_incompatibility: row-level security policies",
+    "decision": "not hit: Odoo uses no RLS; the read-only role sees every row",
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the ticket 'Settle open modeling items and sign-off PR' (slice hr_expense): take the recommended default, cited. Recommended default"
+    }
+  },
+  {
+    "op": "note",
+    "collection": "hrExpense",
+    "subject": "known_incompatibility: materialized views",
+    "decision": "not hit: census has 0 materialized views",
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the ticket 'Settle open modeling items and sign-off PR' (slice hr_expense): take the recommended default, cited. Recommended default"
+    }
+  },
+  {
+    "op": "note",
+    "collection": "hrExpense",
+    "subject": "known_incompatibility: ON CONFLICT upserts",
+    "decision": "not hit: no ON CONFLICT in addons/hr_expense",
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the ticket 'Settle open modeling items and sign-off PR' (slice hr_expense): take the recommended default, cited. Recommended default"
+    }
+  },
+  {
+    "op": "resolve",
+    "match": {
+      "kind": "transient_tables"
+    },
+    "resolution": "UNT16 validation-run request, relayed by the run manager on the sign-off ticket: take the recommended default (TransientModel scratch tables, including the slice's 6 hr_expense wizards, are not migrated)",
+    "evidence": {
+      "source": "customer",
+      "note": "UNT16 validation-run request, relayed by the run manager on the sign-off ticket: take the recommended default (TransientModel scratch tables, including the slice's 6 hr_expense wizards, are not migrated)",
+      "answers_line": 5
+    }
+  }
+]

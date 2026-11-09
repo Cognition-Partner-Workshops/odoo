@@ -4,5 +4,8 @@
   "source_concurrency": 1,
   "numeric_abs_tol": 0,
   "aggregate_rel_tol": 0,
-  "accepted_empty": []
+  "accepted_empty": [
+    "hrExpenseProductJobPositionLimit",
+    "hrExpenseProductJobPositionLimit.hrJobRel"
+  ]
 }

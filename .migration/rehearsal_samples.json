@@ -1,0 +1,56 @@
+{
+ "hrExpense": {
+  "_id": 1,
+  "messageMainAttachmentId": null,
+  "employeeId": null,
+  "departmentId": 8,
+  "managerId": null,
+  "companyId": null,
+  "productId": null,
+  "productUomId": null,
+  "splitExpenseOriginId": null,
+  "currencyId": null,
+  "paymentMethodLineId": 14,
+  "existingBillId": null,
+  "accountMoveId": 302,
+  "vendorId": null,
+  "accountId": null,
+  "formerSheetId": 1,
+  "createUid": 6,
+  "writeUid": null,
+  "name": "synthetic-1",
+  "state": null,
+  "paymentMode": "synthetic-1",
+  "analyticDistribution": {
+   "en_US": "synthetic-1"
+  },
+  "description": "synthetic-1",
+  "quantity": {
+   "$numberDecimal": "1.25"
+  },
+  "taxAmountCurrency": {
+   "$numberDecimal": "1.25"
+  },
+  "taxAmount": null,
+  "totalAmountCurrency": {
+   "$numberDecimal": "1.25"
+  },
+  "totalAmount": {
+   "$numberDecimal": "1.25"
+  },
+  "untaxedAmountCurrency": {
+   "$numberDecimal": "1.25"
+  },
+  "priceUnit": {
+   "$numberDecimal": "1.25"
+  },
+  "approvalDate": null,
+  "createDate": null,
+  "writeDate": {
+   "$date": "2024-01-01T00:00:00Z"
+  },
+  "saleOrderId": null,
+  "saleOrderLineId": null,
+  "attachReceiptsToInvoice": null
+ }
+}

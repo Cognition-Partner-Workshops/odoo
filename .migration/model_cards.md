@@ -1,4 +1,4 @@
-# Model review: map-draft-2
+# Model review: map-draft-3
 
 ## Your data in MongoDB
 
@@ -12,50 +12,106 @@ _No rehearsal sample for Embedded child array: re-render with --samples (schema-
 
 _No rehearsal sample for Link-table array: re-render with --samples (schema-modeling step 7)._
 
-_No rehearsal sample for Reference: re-render with --samples (schema-modeling step 7)._
+**Reference**: `hrExpense.accountMoveId` holds the key of a `accountMove` document; it is looked up, not copied.
+
+```json
+{
+  "_id": 1,
+  "messageMainAttachmentId": null,
+  "employeeId": null,
+  "departmentId": 8,
+  "managerId": null,
+  "companyId": null,
+  "productId": null,
+  "productUomId": null,
+  "splitExpenseOriginId": null,
+  "currencyId": null,
+  "paymentMethodLineId": 14,
+  "existingBillId": null,
+  "accountMoveId": 302,
+  "vendorId": null,
+  "accountId": null,
+  "formerSheetId": 1,
+  "createUid": 6,
+  "writeUid": null,
+  "name": "synthetic-1",
+  "state": null,
+  "paymentMode": "synthetic-1",
+  "analyticDistribution": {
+    "en_US": "synthetic-1"
+  },
+  "description": "synthetic-1",
+  "quantity": {
+    "$numberDecimal": "1.25"
+  },
+  "taxAmountCurrency": {
+    "$numberDecimal": "1.25"
+  },
+  "taxAmount": null,
+  "totalAmountCurrency": {
+    "$numberDecimal": "1.25"
+  },
+  "totalAmount": {
+    "$numberDecimal": "1.25"
+  },
+  "untaxedAmountCurrency": {
+    "$numberDecimal": "1.25"
+  },
+  "priceUnit": {
+    "$numberDecimal": "1.25"
+  },
+  "approvalDate": null,
+  "createDate": null,
+  "writeDate": {
+    "$date": "2024-01-01T00:00:00Z"
+  },
+  "saleOrderId": null,
+  "saleOrderLineId": null,
+  "attachReceiptsToInvoice": null
+}
+```
 
 ### Known limits
 
 - 1915 of 2186 relationship choices follow the schema alone (assumed), not measured data or app code.
 - 205 embedded arrays have no measured size bound (cardinality assumed).
-- 1026 questions are still open; they are listed below.
-- No rehearsal sample yet: examples appear once the page is re-rendered with --samples.
+- 1013 questions are still open; they are listed below.
+- Examples are from the local rehearsal load (fixture data), not production.
 
 ## Review
 
 - **Draft:** 322 collections, 235 embedded tables, 221 tables excluded.
 - **Evidence:** of 2186 relationship choices, 271 rest on measured data or app code and 0 on a recorded decision (`derived`); the rest follow the schema alone (`assumed`).
-- **Decisions:** 16 kinds of question, 1026 items. The draft already applies each proposal; answer each group with one line in `.migration/answers.txt` (template below).
+- **Decisions:** 15 kinds of question, 1013 items. The draft already applies each proposal; answer each group with one line in `.migration/answers.txt` (template below).
 
-1. **many_to_many_junction** (191): proposed as an array in account_account (junction name); confirm the side, that neither side's list grows without bound or past the 16 MB document limit, and add a multikey index for the reverse lookup — or keep a reference  
-   Applies to: account_account_account_tag, account_account_res_company_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_account_tax_default_rel, account_analytic_line_stock_move_rel, account_bank_statement_ir_attachment_rel and 183 more
+1. **many_to_many_junction** (190): proposed as an array in account_account (junction name); confirm the side, that neither side's list grows without bound or past the 16 MB document limit, and add a multikey index for the reverse lookup — or keep a reference  
+   Applies to: account_account_account_tag, account_account_res_company_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_account_tax_default_rel, account_analytic_line_stock_move_rel, account_bank_statement_ir_attachment_rel and 182 more
 2. **embed_unbounded** (22): 1:N embed: confirm the fan-out bound and document size (16 MB) against data, or bucket/reference  
    Applies to: account_fiscal_position_account, account_report_external_value, discuss_channel_last_interest_update, event_registration_answer, hr_leave_accrual_level, hr_time_rule_allocation_log, iap_service_pack, discuss_voice_metadata and 14 more
 3. **embed_null_pointer_rows** (5): rows whose binding_model_id IS NULL or matches no parent row have no parent document and are dropped; scope the embed with child_where (remainder recorded) or keep the table as a collection  
    Applies to: ir_act_client, ir_act_url, ir_actions, ir_model_inherit, survey_question_answer
 4. **date_format_assumed** (3): unmeasurable in this profile  
    Applies to: hr_leave_accrual_plan, hr_leave_accrual_level, mail_template
-5. **transient_tables** (1): 221 table(s) back transient models, scratch state the framework deletes on a timer, so they are not migrated: account_account_account_merge_wizard_rel, account_accrued_orders_wizard, account_automatic_entry_wizard, account_automatic_entry_wizard_account_move_line_rel, account_autopost_bills_wizard, account_financial_year_op, account_merge_wizard, account_merge_wizard_line, account_move_account_move_send_batch_wizard_rel, account_move_account_resequence_wizard_rel, account_move_reversal, account_move_reversal_move, account_move_reversal_new_move, account_move_send_batch_wizard, account_move_send_wizard, account_move_send_wizard_res_partner_rel, account_move_validate_account_move_rel, account_payment_register, account_payment_register_move_line_rel, account_resequence_wizard, account_secure_entries_wizard, account_setup_bank_manual_config, account_tax_hr_expense_split_rel, auth_passkey_key_create, auth_totp_rate_limit_log, auth_totp_wizard, base_document_layout, base_enable_profiling_wizard, base_import_import, base_import_module, base_language_export, base_language_import, base_language_install, base_module_install_request, base_module_install_review, base_module_uninstall, base_module_uninstall_ir_module_module_rel, base_module_update, base_module_upgrade, base_partner_merge_automatic_wizard, base_partner_merge_automatic_wizard_res_partner_rel, base_partner_merge_line, bill_to_po_wizard, calendar_event_archive_or_unlink_wizard, calendar_event_archive_or_unlink_wizard_res_partner_rel, calendar_event_multi_archive_or_unlink_wizard, calendar_event_multi_archive_or_unlink_wizard_rel, change_password_own, change_password_user, change_password_wizard, confirm_stock_sms, crm_convert_lead_mass_lead_rel, crm_lead2opportunity_partner_mass, crm_lead2opportunity_partner_mass_res_users_rel, crm_lead_crm_lead2opportunity_partner_mass_rel, crm_lead_crm_lead_lost_rel, crm_lead_duplicate_domain_rel, crm_lead_lost, crm_lead_pls_update, crm_lead_pls_update_crm_lead_scoring_frequency_field_rel, crm_merge_opportunity, crm_quotation_partner, digest_test, digest_test_res_users_rel, event_event_configurator, expense_attachment_selection_wizard, fleet_vehicle_fleet_vehicle_send_mail_rel, fleet_vehicle_mail_compose_message_ir_attachments_rel, fleet_vehicle_send_mail, gamification_badge_user_wizard, gamification_goal_wizard, homework_location_wizard, hr_bank_account_allocation_wizard, hr_bank_account_allocation_wizard_line, hr_employee_create_version_wizard, hr_employee_cv_wizard, hr_employee_delete_wizard, hr_employee_hr_employee_cv_wizard_rel, hr_employee_hr_employee_delete_wizard_rel, hr_employee_hr_leave_allocation_generate_multi_wizard_rel, hr_employee_hr_leave_generate_multi_wizard_rel, hr_expense_approve_duplicate, hr_expense_hr_expense_approve_duplicate_rel, hr_expense_hr_expense_refuse_wizard_rel, hr_expense_refuse_wizard, hr_expense_split, hr_expense_split_wizard, hr_export_work_entries, hr_export_work_entries_employee, hr_export_work_entries_employee_hr_version_rel, hr_holidays_cancel_leave, hr_holidays_summary_employee, hr_leave_allocation_generate_multi_wizard, hr_leave_generate_multi_wizard, hr_work_entry_type_load_public_holiday_wizard_line_rel, ir_demo, ir_demo_failure, ir_demo_failure_wizard, load_public_holiday_wizard, load_public_holiday_wizard_line, lot_label_layout, lot_label_layout_stock_lot_rel, lot_label_layout_stock_move_line_rel, mail_activity_plan_mail_activity_schedule_rel, mail_activity_schedule, mail_activity_schedule_line, mail_activity_todo_create, mail_blacklist_remove, mail_compose_message, mail_compose_message_ir_attachments_rel, mail_compose_message_res_partner_cc_rel, mail_compose_message_res_partner_rel, mail_followers_edit, mail_followers_edit_res_partner_rel, mail_template_mail_template_reset_rel, mail_template_preview, mail_template_reset, merge_opportunity_rel, payment_capture_wizard, payment_capture_wizard_payment_transaction_rel, payment_link_wizard, payment_refund_wizard, phone_blacklist_remove, picking_label_type, picking_label_type_stock_picking_rel, portal_share, portal_share_res_partner_rel, portal_wizard, portal_wizard_res_partner_rel, portal_wizard_user, privacy_lookup_wizard, privacy_lookup_wizard_line, product_label_layout, product_label_layout_product_product_rel, product_label_layout_product_template_rel, product_label_layout_product_uom_rel, product_label_layout_stock_move_rel, product_replenish, product_supplierinfo_stock_replenishment_info_rel, project_project_project_task_type_delete_wizard_rel, project_project_stage_delete_wizard, project_project_stage_project_project_stage_delete_wizard_rel, project_share_collaborator_wizard, project_share_wizard, project_share_wizard_res_partner_rel, project_task_type_delete_wizard, project_task_type_project_task_type_delete_wizard_rel, project_template_create_wizard, project_template_role_to_users_map, project_template_role_to_users_map_res_users_rel, registration_editor, registration_editor_line, rel_modules_langexport, res_config, res_config_settings, res_lang_install_rel, res_partner_task_share_wizard_rel, res_users_apikeys_description, res_users_identitycheck, reset_view_arch_wizard, sale_advance_payment_inv, sale_advance_payment_inv_sale_order_rel, sale_mass_cancel_orders, sale_order_discount, sale_order_mass_cancel_wizard_rel, server_action_history_wizard, sms_account_code, sms_account_phone, sms_account_sender, sms_composer, sms_template_preview, sms_template_reset, sms_template_sms_template_reset_rel, stock_add_to_wave, stock_add_to_wave_stock_move_line_rel, stock_add_to_wave_stock_picking_rel, stock_backorder_confirmation, stock_backorder_confirmation_line, stock_conflict_quant_rel, stock_inventory_adjustment_name, stock_inventory_adjustment_name_stock_quant_rel, stock_inventory_conflict, stock_inventory_conflict_stock_quant_rel, stock_inventory_warning, stock_inventory_warning_stock_quant_rel, stock_location_label_layout, stock_move_line_stock_package_destination_rel, stock_move_line_stock_put_in_pack_rel, stock_orderpoint_snooze, stock_orderpoint_snooze_stock_warehouse_orderpoint_rel, stock_orderpoint_suggest, stock_orderpoint_suggest_stock_warehouse_orderpoint_rel, stock_package_destination, stock_package_label_layout, stock_package_stock_put_in_pack_rel, stock_picking_backorder_rel, stock_picking_sms_rel, stock_picking_stock_zero_demand_confirmation_rel, stock_picking_to_batch, stock_picking_type_label_layout, stock_put_in_pack, stock_quant_relocate, stock_quant_stock_quant_relocate_rel, stock_quant_stock_request_count_rel, stock_replenishment_info, stock_replenishment_option, stock_request_count, stock_route_stock_rules_report_rel, stock_rules_report, stock_rules_report_stock_warehouse_rel, stock_traceability_report, stock_warn_insufficient_qty_scrap, stock_zero_demand_confirmation, summary_emp_rel, survey_invite, survey_invite_partner_ids, survey_mail_compose_message_ir_attachments_rel, task_share_wizard, update_product_attribute_value, validate_account_move, wizard_ir_model_menu_create; confirm none must survive cutover
-6. **no_access_evidence** (298): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged  
+5. **no_access_evidence** (298): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged  
    Applies to: account_account, account_account_tag, account_analytic_account, account_analytic_applicability, account_analytic_distribution_model, account_analytic_line, account_analytic_plan, account_bank_statement and 290 more
-7. **cascade_into_embed** (175): account_account_res_company_rel is embedded in account_account, but deleting a res_company row cascades to its account_account_res_company_rel: the app must pull them from every account_account document, or keep account_account_res_company_rel separate  
-   Applies to: account_account_res_company_rel, account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_analytic_line_stock_move_rel, account_bank_statement_ir_attachment_rel, account_cash_rounding_account_payment_method_line_rel and 167 more
-8. **fanout_unmeasured** (130): account_account_tax_default_rel has no rows per account_account in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding  
-   Applies to: account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_analytic_line_stock_move_rel, account_cash_rounding_account_payment_method_line_rel, account_cash_rounding_res_currency_rel, account_cash_rounding_res_partner_category_rel and 122 more
-9. **lob** (88): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)  
-   Applies to: account_account, account_analytic_plan, account_journal, account_move, account_move_line, account_report_expression, calendar_alarm, calendar_event and 80 more
-10. **source_index_not_exercised** (57): source index not exercised by any confirmed access pattern; keep or drop  
-   Applies to: account_tax, account_tax_alternatives, account_tax_filiation_rel, account_tax_purchase_order_line_rel, account_tax_sale_order_line_rel, account_tax_sale_order_template_line_rel, expense_tax, product_supplier_taxes_rel and 35 more
-11. **nullable_unique_key** (39): source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-12. **extended_reference_candidate** (9): app reads hr_expense with every expense_tax: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference  
+6. **cascade_into_embed** (174): account_account_res_company_rel is embedded in account_account, but deleting a res_company row cascades to its account_account_res_company_rel: the app must pull them from every account_account document, or keep account_account_res_company_rel separate  
+   Applies to: account_account_res_company_rel, account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_analytic_line_stock_move_rel, account_bank_statement_ir_attachment_rel, account_cash_rounding_account_payment_method_line_rel and 166 more
+7. **fanout_unmeasured** (129): account_account_tax_default_rel has no rows per account_account in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding  
+   Applies to: account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_analytic_line_stock_move_rel, account_cash_rounding_account_payment_method_line_rel, account_cash_rounding_res_currency_rel, account_cash_rounding_res_partner_category_rel and 121 more
+8. **lob** (87): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)  
+   Applies to: account_account, account_analytic_plan, account_journal, account_move, account_move_line, account_report_expression, calendar_alarm, calendar_event and 79 more
+9. **source_index_not_exercised** (49): source index not exercised by any confirmed access pattern; keep or drop  
+   Applies to: account_tax, account_tax_alternatives, account_tax_filiation_rel, account_tax_purchase_order_line_rel, account_tax_sale_order_line_rel, account_tax_sale_order_template_line_rel, expense_tax, product_supplier_taxes_rel and 33 more
+10. **nullable_unique_key** (39): source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
+11. **extended_reference_candidate** (9): app reads hr_expense with every expense_tax: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference  
    Applies to: expense_tax, fleet_vehicle_vehicle_tag_rel, lunch_alert_lunch_location_rel, lunch_location_lunch_supplier_rel, lunch_order_topping, maintenance_request_res_users_rel, maintenance_stage_maintenance_team_rel, survey_question_answer and 1 more
-13. **single_valued_index_key** (3): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan  
+12. **single_valued_index_key** (3): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan  
    Applies to: fleet_vehicle_model, survey_question, survey_question_answer
-14. **date_as_string** (2)  
+13. **date_as_string** (2)  
    Applies to: hr_leave_accrual_plan, mail_template
-15. **repeating_group** (2): collapse each numbered series into one array field; needs app evidence, mapped 1:1 until then  
+14. **repeating_group** (2): collapse each numbered series into one array field; needs app evidence, mapped 1:1 until then  
    Applies to: ir_model_fields, lunch_supplier
-16. **csv_list** (1)  
+15. **csv_list** (1)  
    Applies to: res_company
 
 **Answers template.** Copy it to `.migration/answers.txt` and replace each `<...>` with who decided and why. `accept` keeps the embeds and copied fields a rule proposed (from the schema alone), `reject` makes its embeds references, `except` exempts tables, `close` settles every question of a kind. Delete lines you are not ready to answer.
@@ -63,16 +119,15 @@ _No rehearsal sample for Reference: re-render with --samples (schema-modeling st
 ```
 accept junction_array: <who said so, and why>  # 183 tables: account_account_account_tag, account_account_res_company_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_account_tax_default_rel, account_analytic_line_stock_move_rel, account_bank_statement_ir_attachment_rel and 175 more
 accept ownership: <who said so, and why>  # 22 tables: account_analytic_line_calendar_employee, account_fiscal_position_account, account_report_external_value, auth_totp_device, discuss_channel_last_interest_update, discuss_voice_metadata, event_registration_answer, hr_leave_accrual_level and 14 more
-close many_to_many_junction: <who said so, and why>  # 191 questions
+close many_to_many_junction: <who said so, and why>  # 190 questions
 close embed_unbounded: <who said so, and why>  # 22 questions
 close embed_null_pointer_rows: <who said so, and why>  # 5 questions
 close date_format_assumed: <who said so, and why>  # 3 questions
-close transient_tables: <who said so, and why>  # 1 questions
 close no_access_evidence: <who said so, and why>  # 298 questions
-close cascade_into_embed: <who said so, and why>  # 175 questions
-close fanout_unmeasured: <who said so, and why>  # 130 questions
-close lob: <who said so, and why>  # 88 questions
-close source_index_not_exercised: <who said so, and why>  # 57 questions
+close cascade_into_embed: <who said so, and why>  # 174 questions
+close fanout_unmeasured: <who said so, and why>  # 129 questions
+close lob: <who said so, and why>  # 87 questions
+close source_index_not_exercised: <who said so, and why>  # 49 questions
 close nullable_unique_key: <who said so, and why>  # 39 questions
 close extended_reference_candidate: <who said so, and why>  # 9 questions
 close single_valued_index_key: <who said so, and why>  # 3 questions
@@ -2503,11 +2558,6 @@ Why:
 - res_users, product_product → hr_expense_product_job_position_limit: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - hr_expense_product_job_position_limit → hr_expense_product_job_position_limit_hr_job_rel: **embed**, a link table, kept as an array on this side (assumed)
 - hr_job → hr_expense_product_job_position_limit_hr_job_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (3):
-- **fanout_unmeasured** (hr_expense_product_job_position_limit_hr_job_rel): hr_expense_product_job_position_limit_hr_job_rel has no rows per hr_expense_product_job_position_limit in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (hr_expense_product_job_position_limit_hr_job_rel): hr_expense_product_job_position_limit_hr_job_rel is embedded in hr_expense_product_job_position_limit, but deleting a hr_job row cascades to its hr_expense_product_job_position_limit_hr_job_rel: the app must pull them from every hr_expense_product_job_position_limit document, or keep hr_expense_product_job_position_limit_hr_job_rel separate
-- **source_index_not_exercised** (hr_expense_product_job_position_limit_hr_job_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## hrJob
 
@@ -7588,16 +7638,6 @@ Why:
 - hr_expense → expense_tax: **reference**, a link table, embedded on the other side (assumed)
 - account_account, account_move, res_company, res_users, res_currency, hr_department, hr_employee, ir_attachment, account_payment_method_line, product_product, uom_uom, sale_order, sale_order_line, res_partner → hr_expense: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - hr_expense → hr_expense: **reference**, other tables also point at it, so it keeps its own collection (derived)
-
-Open questions (8):
-- **lob** (hr_expense): LOB column(s) description measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **source_index_not_exercised** (hr_expense): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (hr_expense): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (hr_expense): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (hr_expense): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (hr_expense): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (hr_expense): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (hr_expense): source index not exercised by any confirmed access pattern; keep or drop
 
 ## hrJobSkill
 

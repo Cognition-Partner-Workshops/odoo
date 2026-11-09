@@ -1,0 +1,11 @@
+# Slice hr_expense (hrExpense, hrExpenseProductJobPositionLimit): one line per question group.
+# `close <kind>` settles every question of that kind spec-wide, so only groups whose items all belong to
+# the slice are closed here; the slice's other groups are scoped `accept`/`resolve` decisions in
+# .migration/design_decisions.json (same recommended default, same citation).
+close transient_tables: UNT16 validation-run request, relayed by the run manager on the sign-off ticket: take the recommended default (TransientModel scratch tables, including the slice's 6 hr_expense wizards, are not migrated)
+# accept junction_array (hr_expense_product_job_position_limit_hr_job_rel only): design_decisions.json accept
+# close many_to_many_junction (hr_expense_product_job_position_limit_hr_job_rel only): design_decisions.json resolve
+# close fanout_unmeasured, cascade_into_embed (hrJobRel): design_decisions.json resolve
+# close source_index_not_exercised (7 on hrExpense, 1 on hrJobRel): keep, design_decisions.json resolve
+# close lob (hr_expense.description): design_decisions.json resolve
+# known_incompatibilities (postgresql profile, 14 traps) and d-storage-path per_batch: design_decisions.json notes
