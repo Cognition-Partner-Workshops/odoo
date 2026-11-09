@@ -1,0 +1,2361 @@
+{
+  "apps_version": 1,
+  "apps": [
+    {
+      "id": "account",
+      "roots": [
+        "addons/account"
+      ],
+      "actors": []
+    },
+    {
+      "id": "account_check_printing",
+      "roots": [
+        "addons/account_check_printing"
+      ],
+      "actors": []
+    },
+    {
+      "id": "account_debit_note",
+      "roots": [
+        "addons/account_debit_note"
+      ],
+      "actors": []
+    },
+    {
+      "id": "account_edi",
+      "roots": [
+        "addons/account_edi"
+      ],
+      "actors": []
+    },
+    {
+      "id": "account_edi_ubl_cii",
+      "roots": [
+        "addons/account_edi_ubl_cii"
+      ],
+      "actors": []
+    },
+    {
+      "id": "account_fleet",
+      "roots": [
+        "addons/account_fleet"
+      ],
+      "actors": []
+    },
+    {
+      "id": "account_payment",
+      "roots": [
+        "addons/account_payment"
+      ],
+      "actors": []
+    },
+    {
+      "id": "account_payment_custom",
+      "roots": [
+        "addons/account_payment_custom"
+      ],
+      "actors": []
+    },
+    {
+      "id": "account_payment_interco",
+      "roots": [
+        "addons/account_payment_interco"
+      ],
+      "actors": []
+    },
+    {
+      "id": "account_peppol",
+      "roots": [
+        "addons/account_peppol"
+      ],
+      "actors": []
+    },
+    {
+      "id": "account_qr_code_emv",
+      "roots": [
+        "addons/account_qr_code_emv"
+      ],
+      "actors": []
+    },
+    {
+      "id": "account_test",
+      "roots": [
+        "addons/account_test"
+      ],
+      "actors": []
+    },
+    {
+      "id": "account_update_tax_tags",
+      "roots": [
+        "addons/account_update_tax_tags"
+      ],
+      "actors": []
+    },
+    {
+      "id": "analytic",
+      "roots": [
+        "addons/analytic"
+      ],
+      "actors": []
+    },
+    {
+      "id": "api_doc",
+      "roots": [
+        "addons/api_doc"
+      ],
+      "actors": []
+    },
+    {
+      "id": "auth_ldap",
+      "roots": [
+        "addons/auth_ldap"
+      ],
+      "actors": []
+    },
+    {
+      "id": "auth_oauth",
+      "roots": [
+        "addons/auth_oauth"
+      ],
+      "actors": []
+    },
+    {
+      "id": "auth_passkey",
+      "roots": [
+        "addons/auth_passkey"
+      ],
+      "actors": []
+    },
+    {
+      "id": "auth_passkey_portal",
+      "roots": [
+        "addons/auth_passkey_portal"
+      ],
+      "actors": []
+    },
+    {
+      "id": "auth_signup",
+      "roots": [
+        "addons/auth_signup"
+      ],
+      "actors": []
+    },
+    {
+      "id": "auth_timeout",
+      "roots": [
+        "addons/auth_timeout"
+      ],
+      "actors": []
+    },
+    {
+      "id": "auth_totp",
+      "roots": [
+        "addons/auth_totp"
+      ],
+      "actors": []
+    },
+    {
+      "id": "barcodes",
+      "roots": [
+        "addons/barcodes"
+      ],
+      "actors": []
+    },
+    {
+      "id": "barcodes_gs1_nomenclature",
+      "roots": [
+        "addons/barcodes_gs1_nomenclature"
+      ],
+      "actors": []
+    },
+    {
+      "id": "base_address_extended",
+      "roots": [
+        "addons/base_address_extended"
+      ],
+      "actors": []
+    },
+    {
+      "id": "base_automation",
+      "roots": [
+        "addons/base_automation"
+      ],
+      "actors": []
+    },
+    {
+      "id": "base_geolocalize",
+      "roots": [
+        "addons/base_geolocalize"
+      ],
+      "actors": []
+    },
+    {
+      "id": "base_import",
+      "roots": [
+        "addons/base_import"
+      ],
+      "actors": []
+    },
+    {
+      "id": "base_import_module",
+      "roots": [
+        "addons/base_import_module"
+      ],
+      "actors": []
+    },
+    {
+      "id": "base_install_request",
+      "roots": [
+        "addons/base_install_request"
+      ],
+      "actors": []
+    },
+    {
+      "id": "base_setup",
+      "roots": [
+        "addons/base_setup"
+      ],
+      "actors": []
+    },
+    {
+      "id": "base_sparse_field",
+      "roots": [
+        "addons/base_sparse_field"
+      ],
+      "actors": []
+    },
+    {
+      "id": "board",
+      "roots": [
+        "addons/board"
+      ],
+      "actors": []
+    },
+    {
+      "id": "bus",
+      "roots": [
+        "addons/bus"
+      ],
+      "actors": []
+    },
+    {
+      "id": "calendar",
+      "roots": [
+        "addons/calendar"
+      ],
+      "actors": []
+    },
+    {
+      "id": "calendar_sms",
+      "roots": [
+        "addons/calendar_sms"
+      ],
+      "actors": []
+    },
+    {
+      "id": "certificate",
+      "roots": [
+        "addons/certificate"
+      ],
+      "actors": []
+    },
+    {
+      "id": "cloud_storage",
+      "roots": [
+        "addons/cloud_storage"
+      ],
+      "actors": []
+    },
+    {
+      "id": "cloud_storage_azure",
+      "roots": [
+        "addons/cloud_storage_azure"
+      ],
+      "actors": []
+    },
+    {
+      "id": "cloud_storage_google",
+      "roots": [
+        "addons/cloud_storage_google"
+      ],
+      "actors": []
+    },
+    {
+      "id": "cloud_storage_migration",
+      "roots": [
+        "addons/cloud_storage_migration"
+      ],
+      "actors": []
+    },
+    {
+      "id": "crm",
+      "roots": [
+        "addons/crm"
+      ],
+      "actors": []
+    },
+    {
+      "id": "crm_iap_enrich",
+      "roots": [
+        "addons/crm_iap_enrich"
+      ],
+      "actors": []
+    },
+    {
+      "id": "crm_iap_mine",
+      "roots": [
+        "addons/crm_iap_mine"
+      ],
+      "actors": []
+    },
+    {
+      "id": "crm_livechat",
+      "roots": [
+        "addons/crm_livechat"
+      ],
+      "actors": []
+    },
+    {
+      "id": "crm_sale_project",
+      "roots": [
+        "addons/crm_sale_project"
+      ],
+      "actors": []
+    },
+    {
+      "id": "delivery",
+      "roots": [
+        "addons/delivery"
+      ],
+      "actors": []
+    },
+    {
+      "id": "digest",
+      "roots": [
+        "addons/digest"
+      ],
+      "actors": []
+    },
+    {
+      "id": "event",
+      "roots": [
+        "addons/event"
+      ],
+      "actors": []
+    },
+    {
+      "id": "event_booth_sale",
+      "roots": [
+        "addons/event_booth_sale"
+      ],
+      "actors": []
+    },
+    {
+      "id": "event_crm",
+      "roots": [
+        "addons/event_crm"
+      ],
+      "actors": []
+    },
+    {
+      "id": "event_crm_sale",
+      "roots": [
+        "addons/event_crm_sale"
+      ],
+      "actors": []
+    },
+    {
+      "id": "event_product",
+      "roots": [
+        "addons/event_product"
+      ],
+      "actors": []
+    },
+    {
+      "id": "event_sale",
+      "roots": [
+        "addons/event_sale"
+      ],
+      "actors": []
+    },
+    {
+      "id": "event_sms",
+      "roots": [
+        "addons/event_sms"
+      ],
+      "actors": []
+    },
+    {
+      "id": "fleet",
+      "roots": [
+        "addons/fleet"
+      ],
+      "actors": []
+    },
+    {
+      "id": "fleet_maintenance",
+      "roots": [
+        "addons/fleet_maintenance"
+      ],
+      "actors": []
+    },
+    {
+      "id": "gamification",
+      "roots": [
+        "addons/gamification"
+      ],
+      "actors": []
+    },
+    {
+      "id": "google_address_autocomplete",
+      "roots": [
+        "addons/google_address_autocomplete"
+      ],
+      "actors": []
+    },
+    {
+      "id": "google_calendar",
+      "roots": [
+        "addons/google_calendar"
+      ],
+      "actors": []
+    },
+    {
+      "id": "google_recaptcha",
+      "roots": [
+        "addons/google_recaptcha"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr",
+      "roots": [
+        "addons/hr"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_attendance",
+      "roots": [
+        "addons/hr_attendance"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_calendar",
+      "roots": [
+        "addons/hr_calendar"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_calendar_google",
+      "roots": [
+        "addons/hr_calendar_google"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_expense",
+      "roots": [
+        "addons/hr_expense"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_fleet",
+      "roots": [
+        "addons/hr_fleet"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_gamification",
+      "roots": [
+        "addons/hr_gamification"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_holidays",
+      "roots": [
+        "addons/hr_holidays"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_holidays_attendance",
+      "roots": [
+        "addons/hr_holidays_attendance"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_maintenance",
+      "roots": [
+        "addons/hr_maintenance"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_presence",
+      "roots": [
+        "addons/hr_presence"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_recruitment",
+      "roots": [
+        "addons/hr_recruitment"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_recruitment_skills",
+      "roots": [
+        "addons/hr_recruitment_skills"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_recruitment_survey",
+      "roots": [
+        "addons/hr_recruitment_survey"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_skills",
+      "roots": [
+        "addons/hr_skills"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_skills_event",
+      "roots": [
+        "addons/hr_skills_event"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_skills_slides",
+      "roots": [
+        "addons/hr_skills_slides"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_skills_survey",
+      "roots": [
+        "addons/hr_skills_survey"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_timesheet",
+      "roots": [
+        "addons/hr_timesheet"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_timesheet_attendance",
+      "roots": [
+        "addons/hr_timesheet_attendance"
+      ],
+      "actors": []
+    },
+    {
+      "id": "hr_work_entry",
+      "roots": [
+        "addons/hr_work_entry"
+      ],
+      "actors": []
+    },
+    {
+      "id": "html_builder",
+      "roots": [
+        "addons/html_builder"
+      ],
+      "actors": []
+    },
+    {
+      "id": "html_editor",
+      "roots": [
+        "addons/html_editor"
+      ],
+      "actors": []
+    },
+    {
+      "id": "http_routing",
+      "roots": [
+        "addons/http_routing"
+      ],
+      "actors": []
+    },
+    {
+      "id": "iap",
+      "roots": [
+        "addons/iap"
+      ],
+      "actors": []
+    },
+    {
+      "id": "iap_mail",
+      "roots": [
+        "addons/iap_mail"
+      ],
+      "actors": []
+    },
+    {
+      "id": "im_livechat",
+      "roots": [
+        "addons/im_livechat"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_account_edi_ubl_cii_tests",
+      "roots": [
+        "addons/l10n_account_edi_ubl_cii_tests"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_account_withholding_tax",
+      "roots": [
+        "addons/l10n_account_withholding_tax"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_ar",
+      "roots": [
+        "addons/l10n_ar"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_ar_stock",
+      "roots": [
+        "addons/l10n_ar_stock"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_ar_withholding",
+      "roots": [
+        "addons/l10n_ar_withholding"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_be",
+      "roots": [
+        "addons/l10n_be"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_be_pos",
+      "roots": [
+        "addons/l10n_be_pos"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_be_pos_restaurant",
+      "roots": [
+        "addons/l10n_be_pos_restaurant"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_br",
+      "roots": [
+        "addons/l10n_br"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_ch",
+      "roots": [
+        "addons/l10n_ch"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_cl",
+      "roots": [
+        "addons/l10n_cl"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_cn",
+      "roots": [
+        "addons/l10n_cn"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_cz",
+      "roots": [
+        "addons/l10n_cz"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_de",
+      "roots": [
+        "addons/l10n_de"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_din5008",
+      "roots": [
+        "addons/l10n_din5008"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_dk",
+      "roots": [
+        "addons/l10n_dk"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_ec",
+      "roots": [
+        "addons/l10n_ec"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_ee",
+      "roots": [
+        "addons/l10n_ee"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_eg_edi_eta",
+      "roots": [
+        "addons/l10n_eg_edi_eta"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_eg_edi_pos",
+      "roots": [
+        "addons/l10n_eg_edi_pos"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_es",
+      "roots": [
+        "addons/l10n_es"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_es_edi_facturae",
+      "roots": [
+        "addons/l10n_es_edi_facturae"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_es_edi_sii",
+      "roots": [
+        "addons/l10n_es_edi_sii"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_es_edi_tbai",
+      "roots": [
+        "addons/l10n_es_edi_tbai"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_es_edi_verifactu",
+      "roots": [
+        "addons/l10n_es_edi_verifactu"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_es_website_sale",
+      "roots": [
+        "addons/l10n_es_website_sale"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_eu_account_vies",
+      "roots": [
+        "addons/l10n_eu_account_vies"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_eu_oss",
+      "roots": [
+        "addons/l10n_eu_oss"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_fr",
+      "roots": [
+        "addons/l10n_fr"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_fr_account",
+      "roots": [
+        "addons/l10n_fr_account"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_fr_hr_holidays",
+      "roots": [
+        "addons/l10n_fr_hr_holidays"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_fr_payment",
+      "roots": [
+        "addons/l10n_fr_payment"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_fr_pdp",
+      "roots": [
+        "addons/l10n_fr_pdp"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_fr_pos_cert",
+      "roots": [
+        "addons/l10n_fr_pos_cert"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_gr_edi",
+      "roots": [
+        "addons/l10n_gr_edi"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_gr_edi_delivery_note",
+      "roots": [
+        "addons/l10n_gr_edi_delivery_note"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_gr_edi_e_invoo",
+      "roots": [
+        "addons/l10n_gr_edi_e_invoo"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_hr_edi",
+      "roots": [
+        "addons/l10n_hr_edi"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_hu_edi",
+      "roots": [
+        "addons/l10n_hu_edi"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_id",
+      "roots": [
+        "addons/l10n_id"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_id_efaktur_coretax",
+      "roots": [
+        "addons/l10n_id_efaktur_coretax"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_in",
+      "roots": [
+        "addons/l10n_in"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_in_boe",
+      "roots": [
+        "addons/l10n_in_boe"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_in_edi",
+      "roots": [
+        "addons/l10n_in_edi"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_in_ewaybill",
+      "roots": [
+        "addons/l10n_in_ewaybill"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_in_ewaybill_stock",
+      "roots": [
+        "addons/l10n_in_ewaybill_stock"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_in_hr_holidays",
+      "roots": [
+        "addons/l10n_in_hr_holidays"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_in_pos",
+      "roots": [
+        "addons/l10n_in_pos"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_in_sale",
+      "roots": [
+        "addons/l10n_in_sale"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_it",
+      "roots": [
+        "addons/l10n_it"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_it_edi",
+      "roots": [
+        "addons/l10n_it_edi"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_it_edi_doi",
+      "roots": [
+        "addons/l10n_it_edi_doi"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_it_stock_ddt",
+      "roots": [
+        "addons/l10n_it_stock_ddt"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_jo_edi",
+      "roots": [
+        "addons/l10n_jo_edi"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_jo_edi_pos",
+      "roots": [
+        "addons/l10n_jo_edi_pos"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_jp",
+      "roots": [
+        "addons/l10n_jp"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_ke_edi_tremol",
+      "roots": [
+        "addons/l10n_ke_edi_tremol"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_latam_check",
+      "roots": [
+        "addons/l10n_latam_check"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_latam_invoice_document",
+      "roots": [
+        "addons/l10n_latam_invoice_document"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_lk",
+      "roots": [
+        "addons/l10n_lk"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_lu",
+      "roots": [
+        "addons/l10n_lu"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_mt",
+      "roots": [
+        "addons/l10n_mt"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_mx",
+      "roots": [
+        "addons/l10n_mx"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_my_edi",
+      "roots": [
+        "addons/l10n_my_edi"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_my_edi_pos",
+      "roots": [
+        "addons/l10n_my_edi_pos"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_nl",
+      "roots": [
+        "addons/l10n_nl"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_nz",
+      "roots": [
+        "addons/l10n_nz"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_pe",
+      "roots": [
+        "addons/l10n_pe"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_ph_invoice",
+      "roots": [
+        "addons/l10n_ph_invoice"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_ph_sale",
+      "roots": [
+        "addons/l10n_ph_sale"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_pk_edi",
+      "roots": [
+        "addons/l10n_pk_edi"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_pl",
+      "roots": [
+        "addons/l10n_pl"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_pl_edi",
+      "roots": [
+        "addons/l10n_pl_edi"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_pl_edi_jst",
+      "roots": [
+        "addons/l10n_pl_edi_jst"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_ro",
+      "roots": [
+        "addons/l10n_ro"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_ro_edi",
+      "roots": [
+        "addons/l10n_ro_edi"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_ro_edi_stock",
+      "roots": [
+        "addons/l10n_ro_edi_stock"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_rs_edi",
+      "roots": [
+        "addons/l10n_rs_edi"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_sa",
+      "roots": [
+        "addons/l10n_sa"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_sa_edi",
+      "roots": [
+        "addons/l10n_sa_edi"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_th",
+      "roots": [
+        "addons/l10n_th"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_tr",
+      "roots": [
+        "addons/l10n_tr"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_tw_edi_ecpay",
+      "roots": [
+        "addons/l10n_tw_edi_ecpay"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_us",
+      "roots": [
+        "addons/l10n_us"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_us_account",
+      "roots": [
+        "addons/l10n_us_account"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_vn_edi_viettel",
+      "roots": [
+        "addons/l10n_vn_edi_viettel"
+      ],
+      "actors": []
+    },
+    {
+      "id": "l10n_vn_edi_viettel_stock",
+      "roots": [
+        "addons/l10n_vn_edi_viettel_stock"
+      ],
+      "actors": []
+    },
+    {
+      "id": "link_tracker",
+      "roots": [
+        "addons/link_tracker"
+      ],
+      "actors": []
+    },
+    {
+      "id": "loyalty",
+      "roots": [
+        "addons/loyalty"
+      ],
+      "actors": []
+    },
+    {
+      "id": "lunch",
+      "roots": [
+        "addons/lunch"
+      ],
+      "actors": []
+    },
+    {
+      "id": "mail",
+      "roots": [
+        "addons/mail"
+      ],
+      "actors": []
+    },
+    {
+      "id": "mail_bot",
+      "roots": [
+        "addons/mail_bot"
+      ],
+      "actors": []
+    },
+    {
+      "id": "mail_group",
+      "roots": [
+        "addons/mail_group"
+      ],
+      "actors": []
+    },
+    {
+      "id": "maintenance",
+      "roots": [
+        "addons/maintenance"
+      ],
+      "actors": []
+    },
+    {
+      "id": "marketing_card",
+      "roots": [
+        "addons/marketing_card"
+      ],
+      "actors": []
+    },
+    {
+      "id": "mass_mailing",
+      "roots": [
+        "addons/mass_mailing"
+      ],
+      "actors": []
+    },
+    {
+      "id": "mass_mailing_crm",
+      "roots": [
+        "addons/mass_mailing_crm"
+      ],
+      "actors": []
+    },
+    {
+      "id": "mass_mailing_sale",
+      "roots": [
+        "addons/mass_mailing_sale"
+      ],
+      "actors": []
+    },
+    {
+      "id": "mass_mailing_sms",
+      "roots": [
+        "addons/mass_mailing_sms"
+      ],
+      "actors": []
+    },
+    {
+      "id": "microsoft_account",
+      "roots": [
+        "addons/microsoft_account"
+      ],
+      "actors": []
+    },
+    {
+      "id": "microsoft_calendar",
+      "roots": [
+        "addons/microsoft_calendar"
+      ],
+      "actors": []
+    },
+    {
+      "id": "mrp",
+      "roots": [
+        "addons/mrp"
+      ],
+      "actors": []
+    },
+    {
+      "id": "mrp_account",
+      "roots": [
+        "addons/mrp_account"
+      ],
+      "actors": []
+    },
+    {
+      "id": "mrp_repair",
+      "roots": [
+        "addons/mrp_repair"
+      ],
+      "actors": []
+    },
+    {
+      "id": "mrp_subcontracting",
+      "roots": [
+        "addons/mrp_subcontracting"
+      ],
+      "actors": []
+    },
+    {
+      "id": "mrp_subcontracting_dropshipping",
+      "roots": [
+        "addons/mrp_subcontracting_dropshipping"
+      ],
+      "actors": []
+    },
+    {
+      "id": "mrp_subcontracting_landed_costs",
+      "roots": [
+        "addons/mrp_subcontracting_landed_costs"
+      ],
+      "actors": []
+    },
+    {
+      "id": "mrp_subcontracting_purchase",
+      "roots": [
+        "addons/mrp_subcontracting_purchase"
+      ],
+      "actors": []
+    },
+    {
+      "id": "mysubscription",
+      "roots": [
+        "addons/mysubscription"
+      ],
+      "actors": []
+    },
+    {
+      "id": "onboarding",
+      "roots": [
+        "addons/onboarding"
+      ],
+      "actors": []
+    },
+    {
+      "id": "partner_autocomplete",
+      "roots": [
+        "addons/partner_autocomplete"
+      ],
+      "actors": []
+    },
+    {
+      "id": "partnership",
+      "roots": [
+        "addons/partnership"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment",
+      "roots": [
+        "addons/payment"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_adyen",
+      "roots": [
+        "addons/payment_adyen"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_aps",
+      "roots": [
+        "addons/payment_aps"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_asiapay",
+      "roots": [
+        "addons/payment_asiapay"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_authorize",
+      "roots": [
+        "addons/payment_authorize"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_buckaroo",
+      "roots": [
+        "addons/payment_buckaroo"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_dpo",
+      "roots": [
+        "addons/payment_dpo"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_ecpay",
+      "roots": [
+        "addons/payment_ecpay"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_flutterwave",
+      "roots": [
+        "addons/payment_flutterwave"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_iyzico",
+      "roots": [
+        "addons/payment_iyzico"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_mercado_pago",
+      "roots": [
+        "addons/payment_mercado_pago"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_mollie",
+      "roots": [
+        "addons/payment_mollie"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_nuvei",
+      "roots": [
+        "addons/payment_nuvei"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_paymob",
+      "roots": [
+        "addons/payment_paymob"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_paypal",
+      "roots": [
+        "addons/payment_paypal"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_payu",
+      "roots": [
+        "addons/payment_payu"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_razorpay",
+      "roots": [
+        "addons/payment_razorpay"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_redsys",
+      "roots": [
+        "addons/payment_redsys"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_stripe",
+      "roots": [
+        "addons/payment_stripe"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_toss_payments",
+      "roots": [
+        "addons/payment_toss_payments"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_worldline",
+      "roots": [
+        "addons/payment_worldline"
+      ],
+      "actors": []
+    },
+    {
+      "id": "payment_xendit",
+      "roots": [
+        "addons/payment_xendit"
+      ],
+      "actors": []
+    },
+    {
+      "id": "phone_validation",
+      "roots": [
+        "addons/phone_validation"
+      ],
+      "actors": []
+    },
+    {
+      "id": "point_of_sale",
+      "roots": [
+        "addons/point_of_sale"
+      ],
+      "actors": []
+    },
+    {
+      "id": "portal",
+      "roots": [
+        "addons/portal"
+      ],
+      "actors": []
+    },
+    {
+      "id": "portal_discuss",
+      "roots": [
+        "addons/portal_discuss"
+      ],
+      "actors": []
+    },
+    {
+      "id": "portal_rating",
+      "roots": [
+        "addons/portal_rating"
+      ],
+      "actors": []
+    },
+    {
+      "id": "pos_discount",
+      "roots": [
+        "addons/pos_discount"
+      ],
+      "actors": []
+    },
+    {
+      "id": "pos_event",
+      "roots": [
+        "addons/pos_event"
+      ],
+      "actors": []
+    },
+    {
+      "id": "pos_hr",
+      "roots": [
+        "addons/pos_hr"
+      ],
+      "actors": []
+    },
+    {
+      "id": "pos_loyalty",
+      "roots": [
+        "addons/pos_loyalty"
+      ],
+      "actors": []
+    },
+    {
+      "id": "pos_online_payment",
+      "roots": [
+        "addons/pos_online_payment"
+      ],
+      "actors": []
+    },
+    {
+      "id": "pos_restaurant",
+      "roots": [
+        "addons/pos_restaurant"
+      ],
+      "actors": []
+    },
+    {
+      "id": "pos_sale",
+      "roots": [
+        "addons/pos_sale"
+      ],
+      "actors": []
+    },
+    {
+      "id": "pos_sale_stock",
+      "roots": [
+        "addons/pos_sale_stock"
+      ],
+      "actors": []
+    },
+    {
+      "id": "pos_self_order",
+      "roots": [
+        "addons/pos_self_order"
+      ],
+      "actors": []
+    },
+    {
+      "id": "pos_self_order_event",
+      "roots": [
+        "addons/pos_self_order_event"
+      ],
+      "actors": []
+    },
+    {
+      "id": "pos_sms",
+      "roots": [
+        "addons/pos_sms"
+      ],
+      "actors": []
+    },
+    {
+      "id": "pos_stock",
+      "roots": [
+        "addons/pos_stock"
+      ],
+      "actors": []
+    },
+    {
+      "id": "pos_stripe",
+      "roots": [
+        "addons/pos_stripe"
+      ],
+      "actors": []
+    },
+    {
+      "id": "privacy_lookup",
+      "roots": [
+        "addons/privacy_lookup"
+      ],
+      "actors": []
+    },
+    {
+      "id": "product",
+      "roots": [
+        "addons/product"
+      ],
+      "actors": []
+    },
+    {
+      "id": "product_expiry",
+      "roots": [
+        "addons/product_expiry"
+      ],
+      "actors": []
+    },
+    {
+      "id": "product_margin",
+      "roots": [
+        "addons/product_margin"
+      ],
+      "actors": []
+    },
+    {
+      "id": "product_matrix",
+      "roots": [
+        "addons/product_matrix"
+      ],
+      "actors": []
+    },
+    {
+      "id": "project",
+      "roots": [
+        "addons/project"
+      ],
+      "actors": []
+    },
+    {
+      "id": "project_hr_expense",
+      "roots": [
+        "addons/project_hr_expense"
+      ],
+      "actors": []
+    },
+    {
+      "id": "project_mail_plugin",
+      "roots": [
+        "addons/project_mail_plugin"
+      ],
+      "actors": []
+    },
+    {
+      "id": "project_purchase",
+      "roots": [
+        "addons/project_purchase"
+      ],
+      "actors": []
+    },
+    {
+      "id": "project_sale_expense",
+      "roots": [
+        "addons/project_sale_expense"
+      ],
+      "actors": []
+    },
+    {
+      "id": "project_sms",
+      "roots": [
+        "addons/project_sms"
+      ],
+      "actors": []
+    },
+    {
+      "id": "project_stock",
+      "roots": [
+        "addons/project_stock"
+      ],
+      "actors": []
+    },
+    {
+      "id": "project_timesheet_holidays",
+      "roots": [
+        "addons/project_timesheet_holidays"
+      ],
+      "actors": []
+    },
+    {
+      "id": "project_todo",
+      "roots": [
+        "addons/project_todo"
+      ],
+      "actors": []
+    },
+    {
+      "id": "purchase",
+      "roots": [
+        "addons/purchase"
+      ],
+      "actors": []
+    },
+    {
+      "id": "purchase_alternative",
+      "roots": [
+        "addons/purchase_alternative"
+      ],
+      "actors": []
+    },
+    {
+      "id": "purchase_mrp",
+      "roots": [
+        "addons/purchase_mrp"
+      ],
+      "actors": []
+    },
+    {
+      "id": "purchase_product_matrix",
+      "roots": [
+        "addons/purchase_product_matrix"
+      ],
+      "actors": []
+    },
+    {
+      "id": "purchase_requisition",
+      "roots": [
+        "addons/purchase_requisition"
+      ],
+      "actors": []
+    },
+    {
+      "id": "purchase_requisition_stock",
+      "roots": [
+        "addons/purchase_requisition_stock"
+      ],
+      "actors": []
+    },
+    {
+      "id": "purchase_stock",
+      "roots": [
+        "addons/purchase_stock"
+      ],
+      "actors": []
+    },
+    {
+      "id": "rating",
+      "roots": [
+        "addons/rating"
+      ],
+      "actors": []
+    },
+    {
+      "id": "repair",
+      "roots": [
+        "addons/repair"
+      ],
+      "actors": []
+    },
+    {
+      "id": "resource",
+      "roots": [
+        "addons/resource"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale",
+      "roots": [
+        "addons/sale"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_crm",
+      "roots": [
+        "addons/sale_crm"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_edi_ubl",
+      "roots": [
+        "addons/sale_edi_ubl"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_expense",
+      "roots": [
+        "addons/sale_expense"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_expense_margin",
+      "roots": [
+        "addons/sale_expense_margin"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_gelato",
+      "roots": [
+        "addons/sale_gelato"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_loyalty",
+      "roots": [
+        "addons/sale_loyalty"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_loyalty_delivery",
+      "roots": [
+        "addons/sale_loyalty_delivery"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_management",
+      "roots": [
+        "addons/sale_management"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_margin",
+      "roots": [
+        "addons/sale_margin"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_mrp",
+      "roots": [
+        "addons/sale_mrp"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_pdf_quote_builder",
+      "roots": [
+        "addons/sale_pdf_quote_builder"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_product_matrix",
+      "roots": [
+        "addons/sale_product_matrix"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_project",
+      "roots": [
+        "addons/sale_project"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_project_stock",
+      "roots": [
+        "addons/sale_project_stock"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_purchase",
+      "roots": [
+        "addons/sale_purchase"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_purchase_stock",
+      "roots": [
+        "addons/sale_purchase_stock"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_service",
+      "roots": [
+        "addons/sale_service"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_stock",
+      "roots": [
+        "addons/sale_stock"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_stock_margin",
+      "roots": [
+        "addons/sale_stock_margin"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_stock_product_expiry",
+      "roots": [
+        "addons/sale_stock_product_expiry"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_timesheet",
+      "roots": [
+        "addons/sale_timesheet"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sale_timesheet_margin",
+      "roots": [
+        "addons/sale_timesheet_margin"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sales_team",
+      "roots": [
+        "addons/sales_team"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sms",
+      "roots": [
+        "addons/sms"
+      ],
+      "actors": []
+    },
+    {
+      "id": "sms_twilio",
+      "roots": [
+        "addons/sms_twilio"
+      ],
+      "actors": []
+    },
+    {
+      "id": "snailmail",
+      "roots": [
+        "addons/snailmail"
+      ],
+      "actors": []
+    },
+    {
+      "id": "spreadsheet",
+      "roots": [
+        "addons/spreadsheet"
+      ],
+      "actors": []
+    },
+    {
+      "id": "spreadsheet_account",
+      "roots": [
+        "addons/spreadsheet_account"
+      ],
+      "actors": []
+    },
+    {
+      "id": "spreadsheet_dashboard",
+      "roots": [
+        "addons/spreadsheet_dashboard"
+      ],
+      "actors": []
+    },
+    {
+      "id": "stock",
+      "roots": [
+        "addons/stock"
+      ],
+      "actors": []
+    },
+    {
+      "id": "stock_account",
+      "roots": [
+        "addons/stock_account"
+      ],
+      "actors": []
+    },
+    {
+      "id": "stock_delivery",
+      "roots": [
+        "addons/stock_delivery"
+      ],
+      "actors": []
+    },
+    {
+      "id": "stock_dropshipping",
+      "roots": [
+        "addons/stock_dropshipping"
+      ],
+      "actors": []
+    },
+    {
+      "id": "stock_fleet",
+      "roots": [
+        "addons/stock_fleet"
+      ],
+      "actors": []
+    },
+    {
+      "id": "stock_landed_costs",
+      "roots": [
+        "addons/stock_landed_costs"
+      ],
+      "actors": []
+    },
+    {
+      "id": "stock_maintenance",
+      "roots": [
+        "addons/stock_maintenance"
+      ],
+      "actors": []
+    },
+    {
+      "id": "stock_sms",
+      "roots": [
+        "addons/stock_sms"
+      ],
+      "actors": []
+    },
+    {
+      "id": "survey",
+      "roots": [
+        "addons/survey"
+      ],
+      "actors": []
+    },
+    {
+      "id": "survey_crm",
+      "roots": [
+        "addons/survey_crm"
+      ],
+      "actors": []
+    },
+    {
+      "id": "test_mail",
+      "roots": [
+        "addons/test_mail"
+      ],
+      "actors": []
+    },
+    {
+      "id": "test_mass_mailing",
+      "roots": [
+        "addons/test_mass_mailing"
+      ],
+      "actors": []
+    },
+    {
+      "id": "test_translation_mode",
+      "roots": [
+        "addons/test_translation_mode"
+      ],
+      "actors": []
+    },
+    {
+      "id": "uom",
+      "roots": [
+        "addons/uom"
+      ],
+      "actors": []
+    },
+    {
+      "id": "utm",
+      "roots": [
+        "addons/utm"
+      ],
+      "actors": []
+    },
+    {
+      "id": "web",
+      "roots": [
+        "addons/web"
+      ],
+      "actors": []
+    },
+    {
+      "id": "web_tour",
+      "roots": [
+        "addons/web_tour"
+      ],
+      "actors": []
+    },
+    {
+      "id": "web_unsplash",
+      "roots": [
+        "addons/web_unsplash"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website",
+      "roots": [
+        "addons/website"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_address_autocomplete",
+      "roots": [
+        "addons/website_address_autocomplete"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_blog",
+      "roots": [
+        "addons/website_blog"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_cf_turnstile",
+      "roots": [
+        "addons/website_cf_turnstile"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_crm",
+      "roots": [
+        "addons/website_crm"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_crm_iap_reveal",
+      "roots": [
+        "addons/website_crm_iap_reveal"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_crm_partner_assign",
+      "roots": [
+        "addons/website_crm_partner_assign"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_event",
+      "roots": [
+        "addons/website_event"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_event_booth_sale",
+      "roots": [
+        "addons/website_event_booth_sale"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_event_sale",
+      "roots": [
+        "addons/website_event_sale"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_forum",
+      "roots": [
+        "addons/website_forum"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_hr_recruitment",
+      "roots": [
+        "addons/website_hr_recruitment"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_livechat",
+      "roots": [
+        "addons/website_livechat"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_partner",
+      "roots": [
+        "addons/website_partner"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_profile",
+      "roots": [
+        "addons/website_profile"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_sale",
+      "roots": [
+        "addons/website_sale"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_sale_collect",
+      "roots": [
+        "addons/website_sale_collect"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_sale_gelato",
+      "roots": [
+        "addons/website_sale_gelato"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_sale_loyalty",
+      "roots": [
+        "addons/website_sale_loyalty"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_sale_project",
+      "roots": [
+        "addons/website_sale_project"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_sale_slides",
+      "roots": [
+        "addons/website_sale_slides"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_sale_stock",
+      "roots": [
+        "addons/website_sale_stock"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_slides",
+      "roots": [
+        "addons/website_slides"
+      ],
+      "actors": []
+    },
+    {
+      "id": "website_slides_survey",
+      "roots": [
+        "addons/website_slides_survey"
+      ],
+      "actors": []
+    }
+  ],
+  "libraries": [
+    "odoo"
+  ],
+  "deploy_actors": []
+}
