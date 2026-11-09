@@ -1,84 +1,171 @@
-# Model review: map-draft-2
+# Model review: map-draft-3
 
 ## Your data in MongoDB
 
-557 source tables become 322 collections: 197 hold one table each, and 125 also carry 235 smaller tables embedded inside their documents (234 as arrays, 1 as one subdocument; 191 of the arrays are link tables). The most common reason a table keeps its own collection: other tables also point at it, so it keeps its own collection (1617 of 1648 references). The most common reason a table is embedded: a link table, kept as an array on this side (191 of 235 embeds). 221 tables stay on the source and are not migrated: account_account_account_merge_wizard_rel, account_accrued_orders_wizard, account_automatic_entry_wizard, account_automatic_entry_wizard_account_move_line_rel, account_autopost_bills_wizard, account_financial_year_op, account_merge_wizard, account_merge_wizard_line and 213 more.
+557 source tables become 327 collections: 202 hold one table each, and 125 also carry 230 smaller tables embedded inside their documents (229 as arrays, 1 as one subdocument; 191 of the arrays are link tables). The most common reason a table keeps its own collection: other tables also point at it, so it keeps its own collection (1617 of 1663 references). The most common reason a table is embedded: a link table, kept as an array on this side (191 of 231 embeds). 221 tables stay on the source and are not migrated: account_account_account_merge_wizard_rel, account_accrued_orders_wizard, account_automatic_entry_wizard, account_automatic_entry_wizard_account_move_line_rel, account_autopost_bills_wizard, account_financial_year_op, account_merge_wizard, account_merge_wizard_line and 213 more.
 
 ### Examples
 
-_No rehearsal sample for Root document: re-render with --samples (schema-modeling step 7)._
+**Root document**: `ormSignalingAssets` is one `orm_signaling_assets` row per document.
 
-_No rehearsal sample for Embedded child array: re-render with --samples (schema-modeling step 7)._
+```json
+{
+  "_id": 1,
+  "date": {
+    "$date": "2024-01-01T00:00:00Z"
+  }
+}
+```
 
-_No rehearsal sample for Link-table array: re-render with --samples (schema-modeling step 7)._
+**Embedded child array**: each `accountPaymentTerm` document carries its `account_payment_term_line` rows in `line`.
 
-_No rehearsal sample for Reference: re-render with --samples (schema-modeling step 7)._
+```json
+{
+  "_id": 1,
+  "companyId": null,
+  "sequence": 1,
+  "createUid": null,
+  "writeUid": null,
+  "earlyPayDiscountComputation": "synthetic-1",
+  "name": {
+    "en_US": "synthetic-1"
+  },
+  "active": true,
+  "displayOnInvoice": true,
+  "earlyDiscount": true,
+  "discountPercentage": 1.25,
+  "line": [
+    {
+      "id": 2,
+      "nbDays": 2,
+      "createUid": 4,
+      "writeUid": 1,
+      "value": "synthetic-2",
+      "delayType": "synthetic-2",
+      "daysNextMonth": "synthetic-2",
+      "valueAmount": {
+        "$numberDecimal": "2.25"
+      },
+      "createDate": {
+        "$date": "2024-01-01T00:00:00Z"
+      },
+      "writeDate": {
+        "$date": "2024-01-01T00:00:00Z"
+      }
+    }
+  ]
+}
+```
+
+**Link-table array**: `accountAccount` keeps its `account_account_account_tag` links as the `accountTag` array.
+
+```json
+{
+  "_id": 249,
+  "currencyId": null,
+  "parentId": 73,
+  "accountStockVariationId": null,
+  "accountStockExpenseId": null,
+  "createUid": null,
+  "writeUid": 4,
+  "accountType": "synthetic-249",
+  "parentPath": "synthetic-249",
+  "name": {
+    "en_US": "synthetic-249"
+  },
+  "description": {
+    "en_US": "synthetic-249"
+  },
+  "codeStore": null,
+  "note": "synthetic-249",
+  "active": true,
+  "reconcile": true,
+  "nonTrade": null,
+  "createDate": {
+    "$date": "2024-01-01T00:00:00Z"
+  },
+  "writeDate": {
+    "$date": "2024-01-01T00:00:00Z"
+  },
+  "isVehicleAccount": null,
+  "accountTag": [
+    {
+      "accountAccountTagId": 7
+    }
+  ],
+  "resCompanyRel": [
+    {
+      "resCompanyId": 14
+    }
+  ],
+  "taxDefaultRel": []
+}
+```
+
+**Reference**: `accountAccount.parentId` holds the key of a `accountAccount` document; it is looked up, not copied.
+
+```json
+{
+  "_id": 249,
+  "currencyId": null,
+  "parentId": 73,
+  "accountStockVariationId": null,
+  "accountStockExpenseId": null,
+  "createUid": null,
+  "writeUid": 4,
+  "accountType": "synthetic-249",
+  "parentPath": "synthetic-249",
+  "name": {
+    "en_US": "synthetic-249"
+  },
+  "description": {
+    "en_US": "synthetic-249"
+  },
+  "codeStore": null,
+  "note": "synthetic-249",
+  "active": true,
+  "reconcile": true,
+  "nonTrade": null,
+  "createDate": {
+    "$date": "2024-01-01T00:00:00Z"
+  },
+  "writeDate": {
+    "$date": "2024-01-01T00:00:00Z"
+  },
+  "isVehicleAccount": null,
+  "accountTag": [
+    {
+      "accountAccountTagId": 7
+    }
+  ],
+  "resCompanyRel": [
+    {
+      "resCompanyId": 14
+    }
+  ],
+  "taxDefaultRel": []
+}
+```
 
 ### Known limits
 
-- 1915 of 2186 relationship choices follow the schema alone (assumed), not measured data or app code.
-- 205 embedded arrays have no measured size bound (cardinality assumed).
-- 1026 questions are still open; they are listed below.
-- No rehearsal sample yet: examples appear once the page is re-rendered with --samples.
+- 1913 of 2186 relationship choices follow the schema alone (assumed), not measured data or app code.
+- 203 embedded arrays have no measured size bound (cardinality assumed).
+- 0 questions are still open; they are listed below.
+- Examples are from the local rehearsal load (fixture data), not production.
 
 ## Review
 
-- **Draft:** 322 collections, 235 embedded tables, 221 tables excluded.
-- **Evidence:** of 2186 relationship choices, 271 rest on measured data or app code and 0 on a recorded decision (`derived`); the rest follow the schema alone (`assumed`).
-- **Decisions:** 16 kinds of question, 1026 items. The draft already applies each proposal; answer each group with one line in `.migration/answers.txt` (template below).
+- **Draft:** 327 collections, 230 embedded tables, 221 tables excluded.
+- **Evidence:** of 2186 relationship choices, 273 rest on measured data or app code and 0 on a recorded decision (`derived`); the rest follow the schema alone (`assumed`).
+- **Decisions:** 0 kinds of question, 0 items. The draft already applies each proposal; answer each group with one line in `.migration/answers.txt` (template below).
 
-1. **many_to_many_junction** (191): proposed as an array in account_account (junction name); confirm the side, that neither side's list grows without bound or past the 16 MB document limit, and add a multikey index for the reverse lookup — or keep a reference  
-   Applies to: account_account_account_tag, account_account_res_company_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_account_tax_default_rel, account_analytic_line_stock_move_rel, account_bank_statement_ir_attachment_rel and 183 more
-2. **embed_unbounded** (22): 1:N embed: confirm the fan-out bound and document size (16 MB) against data, or bucket/reference  
-   Applies to: account_fiscal_position_account, account_report_external_value, discuss_channel_last_interest_update, event_registration_answer, hr_leave_accrual_level, hr_time_rule_allocation_log, iap_service_pack, discuss_voice_metadata and 14 more
-3. **embed_null_pointer_rows** (5): rows whose binding_model_id IS NULL or matches no parent row have no parent document and are dropped; scope the embed with child_where (remainder recorded) or keep the table as a collection  
-   Applies to: ir_act_client, ir_act_url, ir_actions, ir_model_inherit, survey_question_answer
-4. **date_format_assumed** (3): unmeasurable in this profile  
-   Applies to: hr_leave_accrual_plan, hr_leave_accrual_level, mail_template
-5. **transient_tables** (1): 221 table(s) back transient models, scratch state the framework deletes on a timer, so they are not migrated: account_account_account_merge_wizard_rel, account_accrued_orders_wizard, account_automatic_entry_wizard, account_automatic_entry_wizard_account_move_line_rel, account_autopost_bills_wizard, account_financial_year_op, account_merge_wizard, account_merge_wizard_line, account_move_account_move_send_batch_wizard_rel, account_move_account_resequence_wizard_rel, account_move_reversal, account_move_reversal_move, account_move_reversal_new_move, account_move_send_batch_wizard, account_move_send_wizard, account_move_send_wizard_res_partner_rel, account_move_validate_account_move_rel, account_payment_register, account_payment_register_move_line_rel, account_resequence_wizard, account_secure_entries_wizard, account_setup_bank_manual_config, account_tax_hr_expense_split_rel, auth_passkey_key_create, auth_totp_rate_limit_log, auth_totp_wizard, base_document_layout, base_enable_profiling_wizard, base_import_import, base_import_module, base_language_export, base_language_import, base_language_install, base_module_install_request, base_module_install_review, base_module_uninstall, base_module_uninstall_ir_module_module_rel, base_module_update, base_module_upgrade, base_partner_merge_automatic_wizard, base_partner_merge_automatic_wizard_res_partner_rel, base_partner_merge_line, bill_to_po_wizard, calendar_event_archive_or_unlink_wizard, calendar_event_archive_or_unlink_wizard_res_partner_rel, calendar_event_multi_archive_or_unlink_wizard, calendar_event_multi_archive_or_unlink_wizard_rel, change_password_own, change_password_user, change_password_wizard, confirm_stock_sms, crm_convert_lead_mass_lead_rel, crm_lead2opportunity_partner_mass, crm_lead2opportunity_partner_mass_res_users_rel, crm_lead_crm_lead2opportunity_partner_mass_rel, crm_lead_crm_lead_lost_rel, crm_lead_duplicate_domain_rel, crm_lead_lost, crm_lead_pls_update, crm_lead_pls_update_crm_lead_scoring_frequency_field_rel, crm_merge_opportunity, crm_quotation_partner, digest_test, digest_test_res_users_rel, event_event_configurator, expense_attachment_selection_wizard, fleet_vehicle_fleet_vehicle_send_mail_rel, fleet_vehicle_mail_compose_message_ir_attachments_rel, fleet_vehicle_send_mail, gamification_badge_user_wizard, gamification_goal_wizard, homework_location_wizard, hr_bank_account_allocation_wizard, hr_bank_account_allocation_wizard_line, hr_employee_create_version_wizard, hr_employee_cv_wizard, hr_employee_delete_wizard, hr_employee_hr_employee_cv_wizard_rel, hr_employee_hr_employee_delete_wizard_rel, hr_employee_hr_leave_allocation_generate_multi_wizard_rel, hr_employee_hr_leave_generate_multi_wizard_rel, hr_expense_approve_duplicate, hr_expense_hr_expense_approve_duplicate_rel, hr_expense_hr_expense_refuse_wizard_rel, hr_expense_refuse_wizard, hr_expense_split, hr_expense_split_wizard, hr_export_work_entries, hr_export_work_entries_employee, hr_export_work_entries_employee_hr_version_rel, hr_holidays_cancel_leave, hr_holidays_summary_employee, hr_leave_allocation_generate_multi_wizard, hr_leave_generate_multi_wizard, hr_work_entry_type_load_public_holiday_wizard_line_rel, ir_demo, ir_demo_failure, ir_demo_failure_wizard, load_public_holiday_wizard, load_public_holiday_wizard_line, lot_label_layout, lot_label_layout_stock_lot_rel, lot_label_layout_stock_move_line_rel, mail_activity_plan_mail_activity_schedule_rel, mail_activity_schedule, mail_activity_schedule_line, mail_activity_todo_create, mail_blacklist_remove, mail_compose_message, mail_compose_message_ir_attachments_rel, mail_compose_message_res_partner_cc_rel, mail_compose_message_res_partner_rel, mail_followers_edit, mail_followers_edit_res_partner_rel, mail_template_mail_template_reset_rel, mail_template_preview, mail_template_reset, merge_opportunity_rel, payment_capture_wizard, payment_capture_wizard_payment_transaction_rel, payment_link_wizard, payment_refund_wizard, phone_blacklist_remove, picking_label_type, picking_label_type_stock_picking_rel, portal_share, portal_share_res_partner_rel, portal_wizard, portal_wizard_res_partner_rel, portal_wizard_user, privacy_lookup_wizard, privacy_lookup_wizard_line, product_label_layout, product_label_layout_product_product_rel, product_label_layout_product_template_rel, product_label_layout_product_uom_rel, product_label_layout_stock_move_rel, product_replenish, product_supplierinfo_stock_replenishment_info_rel, project_project_project_task_type_delete_wizard_rel, project_project_stage_delete_wizard, project_project_stage_project_project_stage_delete_wizard_rel, project_share_collaborator_wizard, project_share_wizard, project_share_wizard_res_partner_rel, project_task_type_delete_wizard, project_task_type_project_task_type_delete_wizard_rel, project_template_create_wizard, project_template_role_to_users_map, project_template_role_to_users_map_res_users_rel, registration_editor, registration_editor_line, rel_modules_langexport, res_config, res_config_settings, res_lang_install_rel, res_partner_task_share_wizard_rel, res_users_apikeys_description, res_users_identitycheck, reset_view_arch_wizard, sale_advance_payment_inv, sale_advance_payment_inv_sale_order_rel, sale_mass_cancel_orders, sale_order_discount, sale_order_mass_cancel_wizard_rel, server_action_history_wizard, sms_account_code, sms_account_phone, sms_account_sender, sms_composer, sms_template_preview, sms_template_reset, sms_template_sms_template_reset_rel, stock_add_to_wave, stock_add_to_wave_stock_move_line_rel, stock_add_to_wave_stock_picking_rel, stock_backorder_confirmation, stock_backorder_confirmation_line, stock_conflict_quant_rel, stock_inventory_adjustment_name, stock_inventory_adjustment_name_stock_quant_rel, stock_inventory_conflict, stock_inventory_conflict_stock_quant_rel, stock_inventory_warning, stock_inventory_warning_stock_quant_rel, stock_location_label_layout, stock_move_line_stock_package_destination_rel, stock_move_line_stock_put_in_pack_rel, stock_orderpoint_snooze, stock_orderpoint_snooze_stock_warehouse_orderpoint_rel, stock_orderpoint_suggest, stock_orderpoint_suggest_stock_warehouse_orderpoint_rel, stock_package_destination, stock_package_label_layout, stock_package_stock_put_in_pack_rel, stock_picking_backorder_rel, stock_picking_sms_rel, stock_picking_stock_zero_demand_confirmation_rel, stock_picking_to_batch, stock_picking_type_label_layout, stock_put_in_pack, stock_quant_relocate, stock_quant_stock_quant_relocate_rel, stock_quant_stock_request_count_rel, stock_replenishment_info, stock_replenishment_option, stock_request_count, stock_route_stock_rules_report_rel, stock_rules_report, stock_rules_report_stock_warehouse_rel, stock_traceability_report, stock_warn_insufficient_qty_scrap, stock_zero_demand_confirmation, summary_emp_rel, survey_invite, survey_invite_partner_ids, survey_mail_compose_message_ir_attachments_rel, task_share_wizard, update_product_attribute_value, validate_account_move, wizard_ir_model_menu_create; confirm none must survive cutover
-6. **no_access_evidence** (298): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged  
-   Applies to: account_account, account_account_tag, account_analytic_account, account_analytic_applicability, account_analytic_distribution_model, account_analytic_line, account_analytic_plan, account_bank_statement and 290 more
-7. **cascade_into_embed** (175): account_account_res_company_rel is embedded in account_account, but deleting a res_company row cascades to its account_account_res_company_rel: the app must pull them from every account_account document, or keep account_account_res_company_rel separate  
-   Applies to: account_account_res_company_rel, account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_analytic_line_stock_move_rel, account_bank_statement_ir_attachment_rel, account_cash_rounding_account_payment_method_line_rel and 167 more
-8. **fanout_unmeasured** (130): account_account_tax_default_rel has no rows per account_account in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding  
-   Applies to: account_account_tax_default_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_analytic_line_stock_move_rel, account_cash_rounding_account_payment_method_line_rel, account_cash_rounding_res_currency_rel, account_cash_rounding_res_partner_category_rel and 122 more
-9. **lob** (88): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)  
-   Applies to: account_account, account_analytic_plan, account_journal, account_move, account_move_line, account_report_expression, calendar_alarm, calendar_event and 80 more
-10. **source_index_not_exercised** (57): source index not exercised by any confirmed access pattern; keep or drop  
-   Applies to: account_tax, account_tax_alternatives, account_tax_filiation_rel, account_tax_purchase_order_line_rel, account_tax_sale_order_line_rel, account_tax_sale_order_template_line_rel, expense_tax, product_supplier_taxes_rel and 35 more
-11. **nullable_unique_key** (39): source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-12. **extended_reference_candidate** (9): app reads hr_expense with every expense_tax: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference  
-   Applies to: expense_tax, fleet_vehicle_vehicle_tag_rel, lunch_alert_lunch_location_rel, lunch_location_lunch_supplier_rel, lunch_order_topping, maintenance_request_res_users_rel, maintenance_stage_maintenance_team_rel, survey_question_answer and 1 more
-13. **single_valued_index_key** (3): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan  
-   Applies to: fleet_vehicle_model, survey_question, survey_question_answer
-14. **date_as_string** (2)  
-   Applies to: hr_leave_accrual_plan, mail_template
-15. **repeating_group** (2): collapse each numbered series into one array field; needs app evidence, mapped 1:1 until then  
-   Applies to: ir_model_fields, lunch_supplier
-16. **csv_list** (1)  
-   Applies to: res_company
 
 **Answers template.** Copy it to `.migration/answers.txt` and replace each `<...>` with who decided and why. `accept` keeps the embeds and copied fields a rule proposed (from the schema alone), `reject` makes its embeds references, `except` exempts tables, `close` settles every question of a kind. Delete lines you are not ready to answer.
 
 ```
 accept junction_array: <who said so, and why>  # 183 tables: account_account_account_tag, account_account_res_company_rel, account_account_tag_account_move_line_rel, account_account_tag_account_tax_repartition_line_rel, account_account_tag_product_template_rel, account_account_tax_default_rel, account_analytic_line_stock_move_rel, account_bank_statement_ir_attachment_rel and 175 more
-accept ownership: <who said so, and why>  # 22 tables: account_analytic_line_calendar_employee, account_fiscal_position_account, account_report_external_value, auth_totp_device, discuss_channel_last_interest_update, discuss_voice_metadata, event_registration_answer, hr_leave_accrual_level and 14 more
-close many_to_many_junction: <who said so, and why>  # 191 questions
-close embed_unbounded: <who said so, and why>  # 22 questions
-close embed_null_pointer_rows: <who said so, and why>  # 5 questions
-close date_format_assumed: <who said so, and why>  # 3 questions
-close transient_tables: <who said so, and why>  # 1 questions
-close no_access_evidence: <who said so, and why>  # 298 questions
-close cascade_into_embed: <who said so, and why>  # 175 questions
-close fanout_unmeasured: <who said so, and why>  # 130 questions
-close lob: <who said so, and why>  # 88 questions
-close source_index_not_exercised: <who said so, and why>  # 57 questions
-close nullable_unique_key: <who said so, and why>  # 39 questions
-close extended_reference_candidate: <who said so, and why>  # 9 questions
-close single_valued_index_key: <who said so, and why>  # 3 questions
-close date_as_string: <who said so, and why>  # 2 questions
-close repeating_group: <who said so, and why>  # 2 questions
-close csv_list: <who said so, and why>  # 1 questions
+accept ownership: <who said so, and why>  # 20 tables: account_analytic_line_calendar_employee, account_fiscal_position_account, account_report_external_value, auth_totp_device, discuss_channel_last_interest_update, discuss_voice_metadata, event_registration_answer, hr_leave_accrual_level and 12 more
 ```
 
 ## accountAccount
@@ -128,13 +215,6 @@ Why:
 - account_account → account_fiscal_position_account: **reference**, it is embedded under another parent; this one is referenced (derived)
 - account_account → hr_expense: **reference**, other tables also point at it, so it keeps its own collection (derived)
 
-Open questions (5):
-- **fanout_unmeasured** (account_account_tax_default_rel): account_account_tax_default_rel has no rows per account_account in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (account_account_res_company_rel): account_account_res_company_rel is embedded in account_account, but deleting a res_company row cascades to its account_account_res_company_rel: the app must pull them from every account_account document, or keep account_account_res_company_rel separate
-- **cascade_into_embed** (account_account_tax_default_rel): account_account_tax_default_rel is embedded in account_account, but deleting a account_tax row cascades to its account_account_tax_default_rel: the app must pull them from every account_account document, or keep account_account_tax_default_rel separate
-- **no_access_evidence** (account_account): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (account_account): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## accountAccountTag
 
 From `account_account_tag` with `account_account_tag_account_move_line_rel`, `account_account_tag_account_tax_repartition_line_rel`, `account_account_tag_product_template_rel` embedded.
@@ -170,16 +250,6 @@ Why:
 - account_move_line → account_account_tag_account_move_line_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_tax_repartition_line → account_account_tag_account_tax_repartition_line_rel: **reference**, a link table, embedded on the other side (assumed)
 - product_template → account_account_tag_product_template_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (8):
-- **fanout_unmeasured** (account_account_tag_account_move_line_rel): account_account_tag_account_move_line_rel has no rows per account_account_tag in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (account_account_tag_account_tax_repartition_line_rel): account_account_tag_account_tax_repartition_line_rel has no rows per account_account_tag in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (account_account_tag_product_template_rel): account_account_tag_product_template_rel has no rows per account_account_tag in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (account_account_tag_account_move_line_rel): account_account_tag_account_move_line_rel is embedded in account_account_tag, but deleting a account_move_line row cascades to its account_account_tag_account_move_line_rel: the app must pull them from every account_account_tag document, or keep account_account_tag_account_move_line_rel separate
-- **cascade_into_embed** (account_account_tag_account_tax_repartition_line_rel): account_account_tag_account_tax_repartition_line_rel is embedded in account_account_tag, but deleting a account_tax_repartition_line row cascades to its account_account_tag_account_tax_repartition_line_rel: the app must pull them from every account_account_tag document, or keep account_account_tag_account_tax_repartition_line_rel separate
-- **cascade_into_embed** (account_account_tag_product_template_rel): account_account_tag_product_template_rel is embedded in account_account_tag, but deleting a product_template row cascades to its account_account_tag_product_template_rel: the app must pull them from every account_account_tag document, or keep account_account_tag_product_template_rel separate
-- **no_access_evidence** (account_account_tag): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
 
 ## accountAnalyticLine
 
@@ -238,11 +308,6 @@ Why:
 - account_analytic_line → account_analytic_line_stock_move_rel: **embed**, a link table, kept as an array on this side (assumed)
 - stock_move → account_analytic_line_stock_move_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (3):
-- **fanout_unmeasured** (account_analytic_line_stock_move_rel): account_analytic_line_stock_move_rel has no rows per account_analytic_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (account_analytic_line_stock_move_rel): account_analytic_line_stock_move_rel is embedded in account_analytic_line, but deleting a stock_move row cascades to its account_analytic_line_stock_move_rel: the app must pull them from every account_analytic_line document, or keep account_analytic_line_stock_move_rel separate
-- **no_access_evidence** (account_analytic_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## accountBankStatement
 
 From `account_bank_statement` with `account_bank_statement_ir_attachment_rel` embedded.
@@ -277,10 +342,6 @@ Why:
 - account_bank_statement → account_bank_statement_ir_attachment_rel: **embed**, a link table, kept as an array on this side (assumed)
 - ir_attachment → account_bank_statement_ir_attachment_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_bank_statement → account_bank_statement_line, account_move_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (2):
-- **cascade_into_embed** (account_bank_statement_ir_attachment_rel): account_bank_statement_ir_attachment_rel is embedded in account_bank_statement, but deleting a ir_attachment row cascades to its account_bank_statement_ir_attachment_rel: the app must pull them from every account_bank_statement document, or keep account_bank_statement_ir_attachment_rel separate
-- **no_access_evidence** (account_bank_statement): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## accountCashRounding
 
@@ -321,15 +382,6 @@ Why:
 - res_currency → account_cash_rounding_res_currency_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_partner_category → account_cash_rounding_res_partner_category_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_cash_rounding → account_move: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (7):
-- **fanout_unmeasured** (account_cash_rounding_account_payment_method_line_rel): account_cash_rounding_account_payment_method_line_rel has no rows per account_cash_rounding in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (account_cash_rounding_res_currency_rel): account_cash_rounding_res_currency_rel has no rows per account_cash_rounding in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (account_cash_rounding_res_partner_category_rel): account_cash_rounding_res_partner_category_rel has no rows per account_cash_rounding in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (account_cash_rounding_account_payment_method_line_rel): account_cash_rounding_account_payment_method_line_rel is embedded in account_cash_rounding, but deleting a account_payment_method_line row cascades to its account_cash_rounding_account_payment_method_line_rel: the app must pull them from every account_cash_rounding document, or keep account_cash_rounding_account_payment_method_line_rel separate
-- **cascade_into_embed** (account_cash_rounding_res_currency_rel): account_cash_rounding_res_currency_rel is embedded in account_cash_rounding, but deleting a res_currency row cascades to its account_cash_rounding_res_currency_rel: the app must pull them from every account_cash_rounding document, or keep account_cash_rounding_res_currency_rel separate
-- **cascade_into_embed** (account_cash_rounding_res_partner_category_rel): account_cash_rounding_res_partner_category_rel is embedded in account_cash_rounding, but deleting a res_partner_category row cascades to its account_cash_rounding_res_partner_category_rel: the app must pull them from every account_cash_rounding document, or keep account_cash_rounding_res_partner_category_rel separate
-- **no_access_evidence** (account_cash_rounding): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## accountFiscalPosition
 
@@ -383,13 +435,6 @@ Why:
 - res_country_state → account_fiscal_position_res_country_state_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_fiscal_position → account_move, purchase_order, res_company, sale_order: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (5):
-- **fanout_unmeasured** (account_fiscal_position_account): account_fiscal_position_account has no rows per account_fiscal_position in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (account_fiscal_position_res_country_state_rel): account_fiscal_position_res_country_state_rel has no rows per account_fiscal_position in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (account_fiscal_position_account_tax_rel): account_fiscal_position_account_tax_rel is embedded in account_fiscal_position, but deleting a account_tax row cascades to its account_fiscal_position_account_tax_rel: the app must pull them from every account_fiscal_position document, or keep account_fiscal_position_account_tax_rel separate
-- **cascade_into_embed** (account_fiscal_position_res_country_state_rel): account_fiscal_position_res_country_state_rel is embedded in account_fiscal_position, but deleting a res_country_state row cascades to its account_fiscal_position_res_country_state_rel: the app must pull them from every account_fiscal_position document, or keep account_fiscal_position_res_country_state_rel separate
-- **no_access_evidence** (account_fiscal_position): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## accountJournal
 
 From `account_journal` with `account_journal_account_reconcile_model_rel` embedded.
@@ -441,12 +486,6 @@ Why:
 - mail_alias, res_partner_bank, res_company, res_users, res_currency, account_account, ir_act_report_xml, account_journal_group → account_journal: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_reconcile_model → account_journal_account_reconcile_model_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_journal → account_journal_account_reconcile_model_rel: **embed**, a link table, kept as an array on this side (assumed)
-
-Open questions (4):
-- **fanout_unmeasured** (account_journal_account_reconcile_model_rel): account_journal_account_reconcile_model_rel has no rows per account_journal in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (account_journal_account_reconcile_model_rel): account_journal_account_reconcile_model_rel is embedded in account_journal, but deleting a account_reconcile_model row cascades to its account_journal_account_reconcile_model_rel: the app must pull them from every account_journal document, or keep account_journal_account_reconcile_model_rel separate
-- **no_access_evidence** (account_journal): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (account_journal): LOB column(s) sequence_override_regex measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
 
 ## accountMove
 
@@ -558,17 +597,6 @@ Why:
 - account_move → hr_expense: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - account_move → product_value: **reference**, it is embedded under another parent; this one is referenced (derived)
 
-Open questions (9):
-- **fanout_unmeasured** (account_invoice_transaction_rel): account_invoice_transaction_rel has no rows per account_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (account_move__account_payment): account_move__account_payment has no rows per account_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (account_move_purchase_order_rel): account_move_purchase_order_rel has no rows per account_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (adjusting_entries__account_move): adjusting_entries__account_move has no rows per account_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (account_invoice_transaction_rel): account_invoice_transaction_rel is embedded in account_move, but deleting a payment_transaction row cascades to its account_invoice_transaction_rel: the app must pull them from every account_move document, or keep account_invoice_transaction_rel separate
-- **cascade_into_embed** (account_move__account_payment): account_move__account_payment is embedded in account_move, but deleting a account_payment row cascades to its account_move__account_payment: the app must pull them from every account_move document, or keep account_move__account_payment separate
-- **cascade_into_embed** (account_move_purchase_order_rel): account_move_purchase_order_rel is embedded in account_move, but deleting a purchase_order row cascades to its account_move_purchase_order_rel: the app must pull them from every account_move document, or keep account_move_purchase_order_rel separate
-- **no_access_evidence** (account_move): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (account_move): LOB column(s) narration measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## accountMoveLine
 
 From `account_move_line` with `account_move_line_account_tax_rel` embedded.
@@ -652,11 +680,6 @@ Why:
 - account_tax → account_move_line_account_tax_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_move_line → fleet_vehicle_log_services: **reference**, it is embedded under another parent; this one is referenced (derived)
 
-Open questions (3):
-- **cascade_into_embed** (account_move_line_account_tax_rel): account_move_line_account_tax_rel is embedded in account_move_line, but deleting a account_tax row cascades to its account_move_line_account_tax_rel: the app must pull them from every account_move_line document, or keep account_move_line_account_tax_rel separate
-- **no_access_evidence** (account_move_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (account_move_line): LOB column(s) name measured max 56 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## accountPayment
 
 From `account_payment` with `account_payment_account_bank_statement_line_rel` embedded.
@@ -711,11 +734,6 @@ Why:
 - account_bank_statement_line → account_payment_account_bank_statement_line_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_payment → account_payment_account_bank_statement_line_rel: **embed**, a link table, kept as an array on this side (assumed)
 
-Open questions (3):
-- **fanout_unmeasured** (account_payment_account_bank_statement_line_rel): account_payment_account_bank_statement_line_rel has no rows per account_payment in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (account_payment_account_bank_statement_line_rel): account_payment_account_bank_statement_line_rel is embedded in account_payment, but deleting a account_bank_statement_line row cascades to its account_payment_account_bank_statement_line_rel: the app must pull them from every account_payment document, or keep account_payment_account_bank_statement_line_rel separate
-- **no_access_evidence** (account_payment): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## accountPaymentMethodLine
 
 From `account_payment_method_line` with `account_payment_method_line_res_company_rel` embedded.
@@ -746,11 +764,6 @@ Why:
 - account_payment_method_line → account_payment_method_line_res_company_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_company → account_payment_method_line_res_company_rel: **reference**, a link table, embedded on the other side (assumed)
 - account_payment_method_line → hr_expense: **reference**, other tables also point at it, so it keeps its own collection (derived)
-
-Open questions (3):
-- **fanout_unmeasured** (account_payment_method_line_res_company_rel): account_payment_method_line_res_company_rel has no rows per account_payment_method_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (account_payment_method_line_res_company_rel): account_payment_method_line_res_company_rel is embedded in account_payment_method_line, but deleting a res_company row cascades to its account_payment_method_line_res_company_rel: the app must pull them from every account_payment_method_line document, or keep account_payment_method_line_res_company_rel separate
-- **no_access_evidence** (account_payment_method_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## accountPaymentTerm
 
@@ -794,9 +807,6 @@ Why:
 - res_users → account_payment_term_line: **reference**, it is embedded under another parent; this one is referenced (derived)
 - account_payment_term → account_payment_term_line: **embed**, owned by its parent (cascade delete or ordinal key) (derived)
 
-Open questions (1):
-- **no_access_evidence** (account_payment_term): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## accountReconcileModel
 
 From `account_reconcile_model` with `account_reconcile_model_res_partner_rel` embedded.
@@ -838,11 +848,6 @@ Why:
 - account_reconcile_model → account_reconcile_model_res_partner_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_partner → account_reconcile_model_res_partner_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (3):
-- **fanout_unmeasured** (account_reconcile_model_res_partner_rel): account_reconcile_model_res_partner_rel has no rows per account_reconcile_model in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (account_reconcile_model_res_partner_rel): account_reconcile_model_res_partner_rel is embedded in account_reconcile_model, but deleting a res_partner row cascades to its account_reconcile_model_res_partner_rel: the app must pull them from every account_reconcile_model document, or keep account_reconcile_model_res_partner_rel separate
-- **no_access_evidence** (account_reconcile_model): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## accountReconcileModelLine
 
 From `account_reconcile_model_line` with `account_reconcile_model_line_account_tax_rel` embedded.
@@ -874,11 +879,6 @@ Why:
 - account_account, res_company, res_users, account_reconcile_model, res_partner → account_reconcile_model_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_reconcile_model_line → account_reconcile_model_line_account_tax_rel: **embed**, a link table, kept as an array on this side (assumed)
 - account_tax → account_reconcile_model_line_account_tax_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (3):
-- **fanout_unmeasured** (account_reconcile_model_line_account_tax_rel): account_reconcile_model_line_account_tax_rel has no rows per account_reconcile_model_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (account_reconcile_model_line_account_tax_rel): account_reconcile_model_line_account_tax_rel is embedded in account_reconcile_model_line, but deleting a account_tax row cascades to its account_reconcile_model_line_account_tax_rel: the app must pull them from every account_reconcile_model_line document, or keep account_reconcile_model_line_account_tax_rel separate
-- **no_access_evidence** (account_reconcile_model_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## accountReport
 
@@ -954,10 +954,6 @@ Why:
 - account_report → account_report_section_rel: **embed**, a link table, kept as an array on this side (assumed)
 - account_report → account_report_section_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (2):
-- **fanout_unmeasured** (account_report_section_rel): account_report_section_rel has no rows per account_report in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **no_access_evidence** (account_report): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## accountReportExpression
 
 From `account_report_expression` with `account_report_external_value` embedded.
@@ -1001,11 +997,6 @@ Why:
 - res_users, account_report_line → account_report_expression: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_report_line, res_company, res_users → account_report_external_value: **reference**, it is embedded under another parent; this one is referenced (derived)
 - account_report_expression → account_report_external_value: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
-
-Open questions (3):
-- **fanout_unmeasured** (account_report_external_value): account_report_external_value has no rows per account_report_expression in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **no_access_evidence** (account_report_expression): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (account_report_expression): LOB column(s) formula, subformula: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
 
 ## accountTax
 
@@ -1087,27 +1078,6 @@ Why:
 - product_template → product_supplier_taxes_rel: **reference**, a link table, embedded on the other side (assumed)
 - product_template → product_taxes_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (19):
-- **fanout_unmeasured** (account_tax_filiation_rel): account_tax_filiation_rel has no rows per account_tax in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (account_tax_sale_order_template_line_rel): account_tax_sale_order_template_line_rel has no rows per account_tax in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (expense_tax): app reads hr_expense with every expense_tax: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (account_tax_purchase_order_line_rel): account_tax_purchase_order_line_rel is embedded in account_tax, but deleting a purchase_order_line row cascades to its account_tax_purchase_order_line_rel: the app must pull them from every account_tax document, or keep account_tax_purchase_order_line_rel separate
-- **cascade_into_embed** (account_tax_sale_order_line_rel): account_tax_sale_order_line_rel is embedded in account_tax, but deleting a sale_order_line row cascades to its account_tax_sale_order_line_rel: the app must pull them from every account_tax document, or keep account_tax_sale_order_line_rel separate
-- **cascade_into_embed** (account_tax_sale_order_template_line_rel): account_tax_sale_order_template_line_rel is embedded in account_tax, but deleting a sale_order_template_line row cascades to its account_tax_sale_order_template_line_rel: the app must pull them from every account_tax document, or keep account_tax_sale_order_template_line_rel separate
-- **cascade_into_embed** (expense_tax): expense_tax is embedded in account_tax, but deleting a hr_expense row cascades to its expense_tax: the app must pull them from every account_tax document, or keep expense_tax separate
-- **cascade_into_embed** (product_supplier_taxes_rel): product_supplier_taxes_rel is embedded in account_tax, but deleting a product_template row cascades to its product_supplier_taxes_rel: the app must pull them from every account_tax document, or keep product_supplier_taxes_rel separate
-- **cascade_into_embed** (product_taxes_rel): product_taxes_rel is embedded in account_tax, but deleting a product_template row cascades to its product_taxes_rel: the app must pull them from every account_tax document, or keep product_taxes_rel separate
-- **source_index_not_exercised** (account_tax): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_tax): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_tax_alternatives): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_tax_filiation_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_tax_purchase_order_line_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_tax_sale_order_line_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (account_tax_sale_order_template_line_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (expense_tax): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_supplier_taxes_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (product_taxes_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## calendarAlarm
 
 From `calendar_alarm` with `calendar_alarm_calendar_event_rel` embedded.
@@ -1138,11 +1108,6 @@ Why:
 - res_users, mail_template, sms_template → calendar_alarm: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - calendar_alarm → calendar_alarm_calendar_event_rel: **embed**, a link table, kept as an array on this side (assumed)
 - calendar_event → calendar_alarm_calendar_event_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (3):
-- **cascade_into_embed** (calendar_alarm_calendar_event_rel): calendar_alarm_calendar_event_rel is embedded in calendar_alarm, but deleting a calendar_event row cascades to its calendar_alarm_calendar_event_rel: the app must pull them from every calendar_alarm document, or keep calendar_alarm_calendar_event_rel separate
-- **no_access_evidence** (calendar_alarm): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (calendar_alarm): LOB column(s) body measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
 
 ## calendarEvent
 
@@ -1198,13 +1163,6 @@ Why:
 - res_partner → calendar_event_res_partner_rel: **reference**, a link table, embedded on the other side (assumed)
 - calendar_event_type → meeting_category_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (5):
-- **cascade_into_embed** (calendar_event_res_partner_rel): calendar_event_res_partner_rel is embedded in calendar_event, but deleting a res_partner row cascades to its calendar_event_res_partner_rel: the app must pull them from every calendar_event document, or keep calendar_event_res_partner_rel separate
-- **cascade_into_embed** (meeting_category_rel): meeting_category_rel is embedded in calendar_event, but deleting a calendar_event_type row cascades to its meeting_category_rel: the app must pull them from every calendar_event document, or keep meeting_category_rel separate
-- **no_access_evidence** (calendar_event): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (calendar_event): LOB column(s) description, notes measured max 438 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## crmIapLeadIndustry
 
 From `crm_iap_lead_industry` with `crm_iap_lead_industry_crm_iap_lead_mining_request_rel` embedded.
@@ -1231,11 +1189,6 @@ Why:
 - res_users, crm_iap_lead_industry_division → crm_iap_lead_industry: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - crm_iap_lead_mining_request → crm_iap_lead_industry_crm_iap_lead_mining_request_rel: **reference**, a link table, embedded on the other side (assumed)
 - crm_iap_lead_industry → crm_iap_lead_industry_crm_iap_lead_mining_request_rel: **embed**, a link table, kept as an array on this side (assumed)
-
-Open questions (3):
-- **fanout_unmeasured** (crm_iap_lead_industry_crm_iap_lead_mining_request_rel): crm_iap_lead_industry_crm_iap_lead_mining_request_rel has no rows per crm_iap_lead_industry in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (crm_iap_lead_industry_crm_iap_lead_mining_request_rel): crm_iap_lead_industry_crm_iap_lead_mining_request_rel is embedded in crm_iap_lead_industry, but deleting a crm_iap_lead_mining_request row cascades to its crm_iap_lead_industry_crm_iap_lead_mining_request_rel: the app must pull them from every crm_iap_lead_industry document, or keep crm_iap_lead_industry_crm_iap_lead_mining_request_rel separate
-- **no_access_evidence** (crm_iap_lead_industry): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## crmIapLeadMiningRequest
 
@@ -1278,15 +1231,6 @@ Why:
 - res_country → crm_iap_lead_mining_request_res_country_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_country_state → crm_iap_lead_mining_request_res_country_state_rel: **reference**, a link table, embedded on the other side (assumed)
 - crm_iap_lead_mining_request → crm_lead: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (7):
-- **fanout_unmeasured** (crm_iap_lead_mining_request_crm_tag_rel): crm_iap_lead_mining_request_crm_tag_rel has no rows per crm_iap_lead_mining_request in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (crm_iap_lead_mining_request_res_country_rel): crm_iap_lead_mining_request_res_country_rel has no rows per crm_iap_lead_mining_request in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (crm_iap_lead_mining_request_res_country_state_rel): crm_iap_lead_mining_request_res_country_state_rel has no rows per crm_iap_lead_mining_request in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (crm_iap_lead_mining_request_crm_tag_rel): crm_iap_lead_mining_request_crm_tag_rel is embedded in crm_iap_lead_mining_request, but deleting a crm_tag row cascades to its crm_iap_lead_mining_request_crm_tag_rel: the app must pull them from every crm_iap_lead_mining_request document, or keep crm_iap_lead_mining_request_crm_tag_rel separate
-- **cascade_into_embed** (crm_iap_lead_mining_request_res_country_rel): crm_iap_lead_mining_request_res_country_rel is embedded in crm_iap_lead_mining_request, but deleting a res_country row cascades to its crm_iap_lead_mining_request_res_country_rel: the app must pull them from every crm_iap_lead_mining_request document, or keep crm_iap_lead_mining_request_res_country_rel separate
-- **cascade_into_embed** (crm_iap_lead_mining_request_res_country_state_rel): crm_iap_lead_mining_request_res_country_state_rel is embedded in crm_iap_lead_mining_request, but deleting a res_country_state row cascades to its crm_iap_lead_mining_request_res_country_state_rel: the app must pull them from every crm_iap_lead_mining_request document, or keep crm_iap_lead_mining_request_res_country_state_rel separate
-- **no_access_evidence** (crm_iap_lead_mining_request): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## crmLead
 
@@ -1374,11 +1318,6 @@ Why:
 - crm_lead → crm_tag_rel: **reference**, a link table, embedded on the other side (assumed)
 - crm_lead → survey_user_input: **reference**, other tables also point at it, so it keeps its own collection (derived)
 
-Open questions (3):
-- **cascade_into_embed** (crm_lead_event_registration_rel): crm_lead_event_registration_rel is embedded in crm_lead, but deleting a event_registration row cascades to its crm_lead_event_registration_rel: the app must pull them from every crm_lead document, or keep crm_lead_event_registration_rel separate
-- **no_access_evidence** (crm_lead): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (crm_lead): LOB column(s) description measured max 106 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## crmStage
 
 From `crm_stage` with `crm_stage_crm_team_rel` embedded.
@@ -1408,11 +1347,6 @@ Why:
 - crm_stage → crm_stage_crm_team_rel: **embed**, a link table, kept as an array on this side (assumed)
 - crm_team → crm_stage_crm_team_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (3):
-- **fanout_unmeasured** (crm_stage_crm_team_rel): crm_stage_crm_team_rel has no rows per crm_stage in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **no_access_evidence** (crm_stage): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (crm_stage): LOB column(s) requirements measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## crmTag
 
 From `crm_tag` with `crm_tag_event_lead_rule_rel`, `crm_tag_rel` embedded.
@@ -1441,11 +1375,6 @@ Why:
 - crm_tag → crm_tag_event_lead_rule_rel, crm_tag_rel: **embed**, a link table, kept as an array on this side (assumed)
 - event_lead_rule → crm_tag_event_lead_rule_rel: **reference**, a link table, embedded on the other side (assumed)
 - crm_lead → crm_tag_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (3):
-- **cascade_into_embed** (crm_tag_event_lead_rule_rel): crm_tag_event_lead_rule_rel is embedded in crm_tag, but deleting a event_lead_rule row cascades to its crm_tag_event_lead_rule_rel: the app must pull them from every crm_tag document, or keep crm_tag_event_lead_rule_rel separate
-- **cascade_into_embed** (crm_tag_rel): crm_tag_rel is embedded in crm_tag, but deleting a crm_lead row cascades to its crm_tag_rel: the app must pull them from every crm_tag document, or keep crm_tag_rel separate
-- **no_access_evidence** (crm_tag): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## crmTeam
 
@@ -1501,12 +1430,6 @@ Why:
 - crm_team → survey_survey: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - res_users → team_favorite_user_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (4):
-- **fanout_unmeasured** (crm_team_sale_order_template_rel): crm_team_sale_order_template_rel has no rows per crm_team in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (crm_team_sale_order_template_rel): crm_team_sale_order_template_rel is embedded in crm_team, but deleting a sale_order_template row cascades to its crm_team_sale_order_template_rel: the app must pull them from every crm_team document, or keep crm_team_sale_order_template_rel separate
-- **cascade_into_embed** (team_favorite_user_rel): team_favorite_user_rel is embedded in crm_team, but deleting a res_users row cascades to its team_favorite_user_rel: the app must pull them from every crm_team document, or keep team_favorite_user_rel separate
-- **no_access_evidence** (crm_team): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## digestDigest
 
 From `digest_digest` with `digest_digest_res_users_rel` embedded.
@@ -1546,10 +1469,6 @@ Why:
 - digest_digest → digest_digest_res_users_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_users → digest_digest_res_users_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (2):
-- **cascade_into_embed** (digest_digest_res_users_rel): digest_digest_res_users_rel is embedded in digest_digest, but deleting a res_users row cascades to its digest_digest_res_users_rel: the app must pull them from every digest_digest document, or keep digest_digest_res_users_rel separate
-- **no_access_evidence** (digest_digest): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## digestTip
 
 From `digest_tip` with `digest_tip_res_users_rel` embedded.
@@ -1575,11 +1494,6 @@ Why:
 - res_users, res_groups → digest_tip: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - digest_tip → digest_tip_res_users_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_users → digest_tip_res_users_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (3):
-- **fanout_unmeasured** (digest_tip_res_users_rel): digest_tip_res_users_rel has no rows per digest_tip in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (digest_tip_res_users_rel): digest_tip_res_users_rel is embedded in digest_tip, but deleting a res_users row cascades to its digest_tip_res_users_rel: the app must pull them from every digest_tip document, or keep digest_tip_res_users_rel separate
-- **no_access_evidence** (digest_tip): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## discussCallHistory
 
@@ -1614,10 +1528,6 @@ Why:
 - discuss_channel, res_users, mail_message → discuss_call_history: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → mail_call_artifact: **reference**, it is embedded under another parent; this one is referenced (derived)
 - discuss_call_history → mail_call_artifact: **embed**, owned by its parent (cascade delete or ordinal key) (derived)
-
-Open questions (2):
-- **no_access_evidence** (discuss_call_history): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
 
 ## discussChannel
 
@@ -1665,16 +1575,6 @@ Why:
 - hr_department → discuss_channel_hr_department_rel: **reference**, a link table, embedded on the other side (assumed)
 - discuss_channel → discuss_channel_last_interest_update: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 - res_groups → discuss_channel_res_groups_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (8):
-- **fanout_unmeasured** (discuss_channel_last_interest_update): discuss_channel_last_interest_update has no rows per discuss_channel in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (discuss_channel_hr_department_rel): discuss_channel_hr_department_rel has no rows per discuss_channel in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (discuss_channel_hr_department_rel): discuss_channel_hr_department_rel is embedded in discuss_channel, but deleting a hr_department row cascades to its discuss_channel_hr_department_rel: the app must pull them from every discuss_channel document, or keep discuss_channel_hr_department_rel separate
-- **cascade_into_embed** (discuss_channel_res_groups_rel): discuss_channel_res_groups_rel is embedded in discuss_channel, but deleting a res_groups row cascades to its discuss_channel_res_groups_rel: the app must pull them from every discuss_channel document, or keep discuss_channel_res_groups_rel separate
-- **no_access_evidence** (discuss_channel): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (discuss_channel): LOB column(s) description measured max 76 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
 
 ## eventEvent
 
@@ -1726,12 +1626,6 @@ Why:
 - event_question → event_event_event_question_rel: **reference**, a link table, embedded on the other side (assumed)
 - event_tag → event_event_event_tag_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (4):
-- **cascade_into_embed** (event_event_event_question_rel): event_event_event_question_rel is embedded in event_event, but deleting a event_question row cascades to its event_event_event_question_rel: the app must pull them from every event_event document, or keep event_event_event_question_rel separate
-- **cascade_into_embed** (event_event_event_tag_rel): event_event_event_tag_rel is embedded in event_event, but deleting a event_tag row cascades to its event_event_event_tag_rel: the app must pull them from every event_event document, or keep event_event_event_tag_rel separate
-- **no_access_evidence** (event_event): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (event_event): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## eventEventTicket
 
 From `event_event_ticket` with `event_event_ticket_product_product_rel` embedded.
@@ -1769,11 +1663,6 @@ Why:
 - product_product → event_event_ticket_product_product_rel: **reference**, a link table, embedded on the other side (assumed)
 - event_event_ticket → event_registration, sale_order_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (3):
-- **fanout_unmeasured** (event_event_ticket_product_product_rel): event_event_ticket_product_product_rel has no rows per event_event_ticket in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (event_event_ticket_product_product_rel): event_event_ticket_product_product_rel is embedded in event_event_ticket, but deleting a product_product row cascades to its event_event_ticket_product_product_rel: the app must pull them from every event_event_ticket document, or keep event_event_ticket_product_product_rel separate
-- **no_access_evidence** (event_event_ticket): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## eventLeadRequest
 
 From `event_lead_request` with `event_lead_request_event_lead_rule_rel` embedded.
@@ -1793,11 +1682,6 @@ Why:
 - event_event → event_lead_request: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - event_lead_request → event_lead_request_event_lead_rule_rel: **embed**, a link table, kept as an array on this side (assumed)
 - event_lead_rule → event_lead_request_event_lead_rule_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (3):
-- **fanout_unmeasured** (event_lead_request_event_lead_rule_rel): event_lead_request_event_lead_rule_rel has no rows per event_lead_request in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (event_lead_request_event_lead_rule_rel): event_lead_request_event_lead_rule_rel is embedded in event_lead_request, but deleting a event_lead_rule row cascades to its event_lead_request_event_lead_rule_rel: the app must pull them from every event_lead_request document, or keep event_lead_request_event_lead_rule_rel separate
-- **no_access_evidence** (event_lead_request): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## eventLeadRule
 
@@ -1833,12 +1717,6 @@ Why:
 - event_lead_rule → event_lead_rule_event_type_rel: **embed**, a link table, kept as an array on this side (assumed)
 - event_type → event_lead_rule_event_type_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (4):
-- **fanout_unmeasured** (event_lead_rule_event_type_rel): event_lead_rule_event_type_rel has no rows per event_lead_rule in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (event_lead_rule_event_type_rel): event_lead_rule_event_type_rel is embedded in event_lead_rule, but deleting a event_type row cascades to its event_lead_rule_event_type_rel: the app must pull them from every event_lead_rule document, or keep event_lead_rule_event_type_rel separate
-- **no_access_evidence** (event_lead_rule): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (event_lead_rule): LOB column(s) event_registration_filter measured max 35 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## eventQuestion
 
 From `event_question` with `event_question_event_type_rel` embedded.
@@ -1871,10 +1749,6 @@ Why:
 - event_question → event_question_event_type_rel: **embed**, a link table, kept as an array on this side (assumed)
 - event_type → event_question_event_type_rel: **reference**, a link table, embedded on the other side (assumed)
 - event_question → event_registration_answer: **reference**, it is embedded under another parent; this one is referenced (derived)
-
-Open questions (2):
-- **cascade_into_embed** (event_question_event_type_rel): event_question_event_type_rel is embedded in event_question, but deleting a event_type row cascades to its event_question_event_type_rel: the app must pull them from every event_question document, or keep event_question_event_type_rel separate
-- **no_access_evidence** (event_question): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## eventRegistration
 
@@ -1929,12 +1803,6 @@ Why:
 - res_users, event_question, event_question_answer → event_registration_answer: **reference**, it is embedded under another parent; this one is referenced (derived)
 - event_registration → event_registration_answer: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 
-Open questions (4):
-- **fanout_unmeasured** (event_registration_answer): event_registration_answer has no rows per event_registration in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **no_access_evidence** (event_registration): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (event_registration_answer): LOB column(s) value_text_box: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## eventTag
 
 From `event_tag` with `event_tag_event_type_rel` embedded.
@@ -1962,11 +1830,6 @@ Why:
 - event_tag_category, res_users → event_tag: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - event_tag → event_tag_event_type_rel: **embed**, a link table, kept as an array on this side (assumed)
 - event_type → event_tag_event_type_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (3):
-- **fanout_unmeasured** (event_tag_event_type_rel): event_tag_event_type_rel has no rows per event_tag in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (event_tag_event_type_rel): event_tag_event_type_rel is embedded in event_tag, but deleting a event_type row cascades to its event_tag_event_type_rel: the app must pull them from every event_tag document, or keep event_tag_event_type_rel separate
-- **no_access_evidence** (event_tag): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## eventType
 
@@ -2007,10 +1870,6 @@ Why:
 - res_users → event_type_mail: **reference**, it is embedded under another parent; this one is referenced (derived)
 - event_type → event_type_mail: **embed**, owned by its parent (cascade delete or ordinal key) (derived)
 
-Open questions (2):
-- **no_access_evidence** (event_type): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (event_type): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## eventTypeTicket
 
 From `event_type_ticket` with `event_type_ticket_product_product_rel` embedded.
@@ -2041,11 +1900,6 @@ Why:
 - event_type_ticket → event_type_ticket_product_product_rel: **embed**, a link table, kept as an array on this side (assumed)
 - product_product → event_type_ticket_product_product_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (3):
-- **fanout_unmeasured** (event_type_ticket_product_product_rel): event_type_ticket_product_product_rel has no rows per event_type_ticket in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (event_type_ticket_product_product_rel): event_type_ticket_product_product_rel is embedded in event_type_ticket, but deleting a product_product row cascades to its event_type_ticket_product_product_rel: the app must pull them from every event_type_ticket document, or keep event_type_ticket_product_product_rel separate
-- **no_access_evidence** (event_type_ticket): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## fleetServiceType
 
 From `fleet_service_type` with `fleet_service_type_fleet_vehicle_log_contract_rel` embedded.
@@ -2072,10 +1926,6 @@ Why:
 - fleet_service_type → fleet_service_type_fleet_vehicle_log_contract_rel: **embed**, a link table, kept as an array on this side (assumed)
 - fleet_service_type → fleet_vehicle_log_contract: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - fleet_service_type → fleet_vehicle_log_services: **reference**, it is embedded under another parent; this one is referenced (derived)
-
-Open questions (2):
-- **cascade_into_embed** (fleet_service_type_fleet_vehicle_log_contract_rel): fleet_service_type_fleet_vehicle_log_contract_rel is embedded in fleet_service_type, but deleting a fleet_vehicle_log_contract row cascades to its fleet_service_type_fleet_vehicle_log_contract_rel: the app must pull them from every fleet_service_type document, or keep fleet_service_type_fleet_vehicle_log_contract_rel separate
-- **no_access_evidence** (fleet_service_type): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## fleetVehicle
 
@@ -2174,18 +2024,6 @@ Why:
 - fleet_vehicle_tag → fleet_vehicle_vehicle_tag_rel: **reference**, a link table, embedded on the other side (assumed)
 - fleet_vehicle → fleet_vehicle_vehicle_tag_rel: **embed**, a link table, kept as an array on this side (derived)
 
-Open questions (10):
-- **extended_reference_candidate** (fleet_vehicle_vehicle_tag_rel): app reads fleet_vehicle_tag with every fleet_vehicle_vehicle_tag_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (fleet_vehicle_vehicle_tag_rel): fleet_vehicle_vehicle_tag_rel is embedded in fleet_vehicle, but deleting a fleet_vehicle_tag row cascades to its fleet_vehicle_vehicle_tag_rel: the app must pull them from every fleet_vehicle document, or keep fleet_vehicle_vehicle_tag_rel separate
-- **lob** (fleet_vehicle): LOB column(s) description measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **lob** (fleet_vehicle_log_services): LOB column(s) notes measured max 24 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **source_index_not_exercised** (fleet_vehicle): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (fleet_vehicle): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (fleet_vehicle_log_services): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (fleet_vehicle_log_services): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (fleet_vehicle_vehicle_tag_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## fleetVehicleModel
 
 From `fleet_vehicle_model` with `fleet_vehicle_model_vendors` embedded.
@@ -2231,12 +2069,6 @@ Why:
 - fleet_vehicle_model → fleet_vehicle_model_vendors: **embed**, a link table, kept as an array on this side (assumed)
 - res_partner → fleet_vehicle_model_vendors: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (4):
-- **fanout_unmeasured** (fleet_vehicle_model_vendors): fleet_vehicle_model_vendors has no rows per fleet_vehicle_model in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (fleet_vehicle_model_vendors): fleet_vehicle_model_vendors is embedded in fleet_vehicle_model, but deleting a res_partner row cascades to its fleet_vehicle_model_vendors: the app must pull them from every fleet_vehicle_model document, or keep fleet_vehicle_model_vendors separate
-- **single_valued_index_key** (fleet_vehicle_model): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan
-- **source_index_not_exercised** (fleet_vehicle_model_vendors): source index not exercised by any confirmed access pattern; keep or drop
-
 ## gamificationBadge
 
 From `gamification_badge` with `badge_unlocked_definition_rel`, `gamification_badge_rule_badge_rel`, `rel_badge_auth_users` embedded.
@@ -2276,14 +2108,6 @@ Why:
 - gamification_badge → gamification_badge_user, gamification_challenge: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → rel_badge_auth_users: **reference**, a link table, embedded on the other side (assumed)
 - gamification_badge → survey_survey: **reference**, other tables also point at it, so it keeps its own collection (derived)
-
-Open questions (6):
-- **fanout_unmeasured** (badge_unlocked_definition_rel): badge_unlocked_definition_rel has no rows per gamification_badge in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (gamification_badge_rule_badge_rel): gamification_badge_rule_badge_rel has no rows per gamification_badge in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (rel_badge_auth_users): rel_badge_auth_users has no rows per gamification_badge in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (badge_unlocked_definition_rel): badge_unlocked_definition_rel is embedded in gamification_badge, but deleting a gamification_goal_definition row cascades to its badge_unlocked_definition_rel: the app must pull them from every gamification_badge document, or keep badge_unlocked_definition_rel separate
-- **cascade_into_embed** (rel_badge_auth_users): rel_badge_auth_users is embedded in gamification_badge, but deleting a res_users row cascades to its rel_badge_auth_users: the app must pull them from every gamification_badge document, or keep rel_badge_auth_users separate
-- **no_access_evidence** (gamification_badge): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## gamificationChallenge
 
@@ -2334,12 +2158,6 @@ Why:
 - res_users → gamification_challenge_users_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users → gamification_invited_user_ids_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (4):
-- **fanout_unmeasured** (gamification_invited_user_ids_rel): gamification_invited_user_ids_rel has no rows per gamification_challenge in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (gamification_challenge_users_rel): gamification_challenge_users_rel is embedded in gamification_challenge, but deleting a res_users row cascades to its gamification_challenge_users_rel: the app must pull them from every gamification_challenge document, or keep gamification_challenge_users_rel separate
-- **cascade_into_embed** (gamification_invited_user_ids_rel): gamification_invited_user_ids_rel is embedded in gamification_challenge, but deleting a res_users row cascades to its gamification_invited_user_ids_rel: the app must pull them from every gamification_challenge document, or keep gamification_invited_user_ids_rel separate
-- **no_access_evidence** (gamification_challenge): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## hrDepartment
 
 From `hr_department` with `hr_department_hr_leave_mandatory_day_rel` embedded.
@@ -2373,12 +2191,6 @@ Why:
 - hr_department → hr_department_hr_leave_mandatory_day_rel: **embed**, a link table, kept as an array on this side (assumed)
 - hr_leave_mandatory_day → hr_department_hr_leave_mandatory_day_rel: **reference**, a link table, embedded on the other side (assumed)
 - hr_department → hr_expense, maintenance_equipment: **reference**, other tables also point at it, so it keeps its own collection (derived)
-
-Open questions (4):
-- **fanout_unmeasured** (hr_department_hr_leave_mandatory_day_rel): hr_department_hr_leave_mandatory_day_rel has no rows per hr_department in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (hr_department_hr_leave_mandatory_day_rel): hr_department_hr_leave_mandatory_day_rel is embedded in hr_department, but deleting a hr_leave_mandatory_day row cascades to its hr_department_hr_leave_mandatory_day_rel: the app must pull them from every hr_department document, or keep hr_department_hr_leave_mandatory_day_rel separate
-- **no_access_evidence** (hr_department): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (hr_department): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
 
 ## hrEmployee
 
@@ -2469,16 +2281,6 @@ Why:
 - hr_skill → hr_employee_hr_skill_rel: **reference**, a link table, embedded on the other side (assumed)
 - hr_employee → hr_employee_location: **reference**, no evidence either way (assumed)
 
-Open questions (8):
-- **fanout_unmeasured** (employee_bank_account_rel): employee_bank_account_rel has no rows per hr_employee in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (employee_bank_account_rel): employee_bank_account_rel is embedded in hr_employee, but deleting a res_partner_bank row cascades to its employee_bank_account_rel: the app must pull them from every hr_employee document, or keep employee_bank_account_rel separate
-- **cascade_into_embed** (employee_category_rel): employee_category_rel is embedded in hr_employee, but deleting a hr_employee_category row cascades to its employee_category_rel: the app must pull them from every hr_employee document, or keep employee_category_rel separate
-- **cascade_into_embed** (hr_employee_hr_skill_rel): hr_employee_hr_skill_rel is embedded in hr_employee, but deleting a hr_skill row cascades to its hr_employee_hr_skill_rel: the app must pull them from every hr_employee document, or keep hr_employee_hr_skill_rel separate
-- **no_access_evidence** (hr_employee): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (hr_employee): LOB column(s) additional_note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## hrExpenseProductJobPositionLimit
 
 From `hr_expense_product_job_position_limit` with `hr_expense_product_job_position_limit_hr_job_rel` embedded.
@@ -2503,11 +2305,6 @@ Why:
 - res_users, product_product → hr_expense_product_job_position_limit: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - hr_expense_product_job_position_limit → hr_expense_product_job_position_limit_hr_job_rel: **embed**, a link table, kept as an array on this side (assumed)
 - hr_job → hr_expense_product_job_position_limit_hr_job_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (3):
-- **fanout_unmeasured** (hr_expense_product_job_position_limit_hr_job_rel): hr_expense_product_job_position_limit_hr_job_rel has no rows per hr_expense_product_job_position_limit in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (hr_expense_product_job_position_limit_hr_job_rel): hr_expense_product_job_position_limit_hr_job_rel is embedded in hr_expense_product_job_position_limit, but deleting a hr_job row cascades to its hr_expense_product_job_position_limit_hr_job_rel: the app must pull them from every hr_expense_product_job_position_limit document, or keep hr_expense_product_job_position_limit_hr_job_rel separate
-- **source_index_not_exercised** (hr_expense_product_job_position_limit_hr_job_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## hrJob
 
@@ -2546,14 +2343,6 @@ Why:
 - hr_job → hr_job_hr_leave_mandatory_day_rel, hr_job_hr_skill_rel: **embed**, a link table, kept as an array on this side (assumed)
 - hr_skill → hr_job_hr_skill_rel: **reference**, a link table, embedded on the other side (assumed)
 - hr_job → hr_job_skill, hr_version: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (6):
-- **fanout_unmeasured** (hr_job_hr_leave_mandatory_day_rel): hr_job_hr_leave_mandatory_day_rel has no rows per hr_job in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (hr_job_hr_leave_mandatory_day_rel): hr_job_hr_leave_mandatory_day_rel is embedded in hr_job, but deleting a hr_leave_mandatory_day row cascades to its hr_job_hr_leave_mandatory_day_rel: the app must pull them from every hr_job document, or keep hr_job_hr_leave_mandatory_day_rel separate
-- **cascade_into_embed** (hr_job_hr_skill_rel): hr_job_hr_skill_rel is embedded in hr_job, but deleting a hr_skill row cascades to its hr_job_hr_skill_rel: the app must pull them from every hr_job document, or keep hr_job_hr_skill_rel separate
-- **no_access_evidence** (hr_job): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (hr_job): LOB column(s) description, requirements measured max 1184 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
 
 ## hrLeaveAccrualPlan
 
@@ -2620,11 +2409,6 @@ Why:
 - res_company, res_users, hr_work_entry_type → hr_leave_accrual_plan: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - hr_leave_accrual_plan → hr_leave_allocation, resource_calendar: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (3):
-- **fanout_unmeasured** (hr_leave_accrual_level): hr_leave_accrual_level has no rows per hr_leave_accrual_plan in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **no_access_evidence** (hr_leave_accrual_plan): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **date_as_string** (hr_leave_accrual_plan)
-
 ## hrLeaveAllocation
 
 From `hr_leave_allocation` with `hr_time_rule_allocation_log` embedded.
@@ -2675,11 +2459,6 @@ Why:
 - hr_leave_allocation → hr_time_rule_allocation_log: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 - res_users → hr_time_rule_allocation_log: **reference**, it is embedded under another parent; this one is referenced (derived)
 - hr_leave_allocation → hr_version: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (3):
-- **fanout_unmeasured** (hr_time_rule_allocation_log): hr_time_rule_allocation_log has no rows per hr_leave_allocation in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **no_access_evidence** (hr_leave_allocation): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (hr_leave_allocation): LOB column(s) notes measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
 
 ## hrTimeRule
 
@@ -2734,11 +2513,6 @@ Why:
 - hr_work_entry_type → hr_time_rule_condition_work_entry_type_rel: **reference**, a link table, embedded on the other side (assumed)
 - hr_time_rule → hr_time_rule_condition_work_entry_type_rel: **embed**, a link table, kept as an array on this side (assumed)
 
-Open questions (3):
-- **cascade_into_embed** (hr_time_rule_condition_work_entry_type_rel): hr_time_rule_condition_work_entry_type_rel is embedded in hr_time_rule, but deleting a hr_work_entry_type row cascades to its hr_time_rule_condition_work_entry_type_rel: the app must pull them from every hr_time_rule document, or keep hr_time_rule_condition_work_entry_type_rel separate
-- **no_access_evidence** (hr_time_rule): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (hr_time_rule): LOB column(s) description measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## iapAccount
 
 From `iap_account` with `iap_account_res_company_rel`, `iap_account_res_users_rel` embedded.
@@ -2772,13 +2546,6 @@ Why:
 - iap_account → iap_account_res_company_rel, iap_account_res_users_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_company → iap_account_res_company_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users → iap_account_res_users_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (5):
-- **fanout_unmeasured** (iap_account_res_company_rel): iap_account_res_company_rel has no rows per iap_account in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (iap_account_res_users_rel): iap_account_res_users_rel has no rows per iap_account in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (iap_account_res_company_rel): iap_account_res_company_rel is embedded in iap_account, but deleting a res_company row cascades to its iap_account_res_company_rel: the app must pull them from every iap_account document, or keep iap_account_res_company_rel separate
-- **cascade_into_embed** (iap_account_res_users_rel): iap_account_res_users_rel is embedded in iap_account, but deleting a res_users row cascades to its iap_account_res_users_rel: the app must pull them from every iap_account document, or keep iap_account_res_users_rel separate
-- **no_access_evidence** (iap_account): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## iapService
 
@@ -2816,10 +2583,6 @@ Why:
 - res_users → iap_service: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → iap_service_pack: **reference**, it is embedded under another parent; this one is referenced (derived)
 - iap_service → iap_service_pack: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
-
-Open questions (2):
-- **fanout_unmeasured** (iap_service_pack): iap_service_pack has no rows per iap_service in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **no_access_evidence** (iap_service): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## irActServer
 
@@ -2913,18 +2676,6 @@ Why:
 - ir_act_server → ir_actions_server_history: **embed**, owned by its parent (cascade delete or ordinal key) (derived)
 - res_users → ir_actions_server_history: **reference**, it is embedded under another parent; this one is referenced (derived)
 
-Open questions (10):
-- **fanout_unmeasured** (ir_act_server_res_partner_rel): ir_act_server_res_partner_rel has no rows per ir_act_server in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (ir_act_server_webhook_field_rel): ir_act_server_webhook_field_rel has no rows per ir_act_server in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (ir_act_server_group_rel): ir_act_server_group_rel is embedded in ir_act_server, but deleting a res_groups row cascades to its ir_act_server_group_rel: the app must pull them from every ir_act_server document, or keep ir_act_server_group_rel separate
-- **cascade_into_embed** (ir_act_server_mail_message_subtype_rel): ir_act_server_mail_message_subtype_rel is embedded in ir_act_server, but deleting a mail_message_subtype row cascades to its ir_act_server_mail_message_subtype_rel: the app must pull them from every ir_act_server document, or keep ir_act_server_mail_message_subtype_rel separate
-- **cascade_into_embed** (ir_act_server_res_partner_rel): ir_act_server_res_partner_rel is embedded in ir_act_server, but deleting a res_partner row cascades to its ir_act_server_res_partner_rel: the app must pull them from every ir_act_server document, or keep ir_act_server_res_partner_rel separate
-- **cascade_into_embed** (ir_act_server_webhook_field_rel): ir_act_server_webhook_field_rel is embedded in ir_act_server, but deleting a ir_model_fields row cascades to its ir_act_server_webhook_field_rel: the app must pull them from every ir_act_server document, or keep ir_act_server_webhook_field_rel separate
-- **no_access_evidence** (ir_act_server): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (ir_act_server): LOB column(s) explanation, code, value, html_value, activity_note measured max 865 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **lob** (ir_actions_server_history): LOB column(s) code measured max 865 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## irActWindow
 
 From `ir_act_window` with `ir_act_window_view`, `ir_act_window_group_rel` embedded.
@@ -2982,12 +2733,6 @@ Why:
 - res_groups → ir_act_window_group_rel: **reference**, a link table, embedded on the other side (assumed)
 - ir_act_window → ir_act_window_view: **embed**, owned by its parent (cascade delete or ordinal key) (derived)
 - res_users, ir_ui_view → ir_act_window_view: **reference**, it is embedded under another parent; this one is referenced (derived)
-
-Open questions (4):
-- **cascade_into_embed** (ir_act_window_group_rel): ir_act_window_group_rel is embedded in ir_act_window, but deleting a res_groups row cascades to its ir_act_window_group_rel: the app must pull them from every ir_act_window document, or keep ir_act_window_group_rel separate
-- **no_access_evidence** (ir_act_window): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (ir_act_window): LOB column(s) explanation measured max 180 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
 
 ## irAttachment
 
@@ -3052,18 +2797,6 @@ Why:
 - mail_message → message_attachment_rel: **reference**, a link table, embedded on the other side (assumed)
 - mail_scheduled_message → scheduled_message_attachment_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (10):
-- **fanout_unmeasured** (discuss_voice_metadata): discuss_voice_metadata has no rows per ir_attachment in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (activity_attachment_rel): activity_attachment_rel has no rows per ir_attachment in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (email_template_attachment_rel): email_template_attachment_rel has no rows per ir_attachment in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (scheduled_message_attachment_rel): scheduled_message_attachment_rel has no rows per ir_attachment in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (activity_attachment_rel): activity_attachment_rel is embedded in ir_attachment, but deleting a mail_activity row cascades to its activity_attachment_rel: the app must pull them from every ir_attachment document, or keep activity_attachment_rel separate
-- **cascade_into_embed** (email_template_attachment_rel): email_template_attachment_rel is embedded in ir_attachment, but deleting a mail_template row cascades to its email_template_attachment_rel: the app must pull them from every ir_attachment document, or keep email_template_attachment_rel separate
-- **cascade_into_embed** (message_attachment_rel): message_attachment_rel is embedded in ir_attachment, but deleting a mail_message row cascades to its message_attachment_rel: the app must pull them from every ir_attachment document, or keep message_attachment_rel separate
-- **cascade_into_embed** (scheduled_message_attachment_rel): scheduled_message_attachment_rel is embedded in ir_attachment, but deleting a mail_scheduled_message row cascades to its scheduled_message_attachment_rel: the app must pull them from every ir_attachment document, or keep scheduled_message_attachment_rel separate
-- **no_access_evidence** (ir_attachment): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (ir_attachment): LOB column(s) description, index_content measured max 8509 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## irCron
 
 From `ir_cron` with `ir_cron_progress` embedded.
@@ -3106,10 +2839,6 @@ Why:
 - ir_cron → ir_cron_progress: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 - ir_cron → ir_cron_trigger, lunch_alert, lunch_supplier: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **fanout_unmeasured** (ir_cron_progress): ir_cron_progress has no rows per ir_cron in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **no_access_evidence** (ir_cron): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## irEmbeddedActions
 
 From `ir_embedded_actions` with `ir_embedded_actions_res_groups_rel` embedded.
@@ -3143,10 +2872,6 @@ Why:
 - ir_embedded_actions → ir_embedded_actions_res_groups_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_groups → ir_embedded_actions_res_groups_rel: **reference**, a link table, embedded on the other side (assumed)
 - ir_embedded_actions → ir_filters: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (2):
-- **cascade_into_embed** (ir_embedded_actions_res_groups_rel): ir_embedded_actions_res_groups_rel is embedded in ir_embedded_actions, but deleting a res_groups row cascades to its ir_embedded_actions_res_groups_rel: the app must pull them from every ir_embedded_actions document, or keep ir_embedded_actions_res_groups_rel separate
-- **no_access_evidence** (ir_embedded_actions): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## irExports
 
@@ -3183,11 +2908,6 @@ Why:
 - ir_exports → ir_exports_res_lang_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_lang → ir_exports_res_lang_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (3):
-- **fanout_unmeasured** (ir_exports_res_lang_rel): ir_exports_res_lang_rel has no rows per ir_exports in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (ir_exports_res_lang_rel): ir_exports_res_lang_rel is embedded in ir_exports, but deleting a res_lang row cascades to its ir_exports_res_lang_rel: the app must pull them from every ir_exports document, or keep ir_exports_res_lang_rel separate
-- **no_access_evidence** (ir_exports): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## irFilters
 
 From `ir_filters` with `ir_filters_res_users_rel` embedded.
@@ -3220,15 +2940,9 @@ Why:
 - ir_filters → ir_filters_res_users_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_users → ir_filters_res_users_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (4):
-- **fanout_unmeasured** (ir_filters_res_users_rel): ir_filters_res_users_rel has no rows per ir_filters in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (ir_filters_res_users_rel): ir_filters_res_users_rel is embedded in ir_filters, but deleting a res_users row cascades to its ir_filters_res_users_rel: the app must pull them from every ir_filters document, or keep ir_filters_res_users_rel separate
-- **no_access_evidence** (ir_filters): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (ir_filters): LOB column(s) domain, context measured max 213 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## irModel
 
-From `ir_model` with `ir_act_client`, `ir_act_url`, `ir_actions`, `ir_model_spreadsheet_dashboard_rel` embedded.
+From `ir_model` with `ir_model_spreadsheet_dashboard_rel` embedded.
 
 ```js
 {
@@ -3249,55 +2963,6 @@ From `ir_model` with `ir_act_client`, `ir_act_url`, `ir_actions`, `ir_model_spre
   isMailThread: bool,  // is_mail_thread
   isMailActivity: bool,  // is_mail_activity
   isMailBlacklist: bool,  // is_mail_blacklist
-  irActClient: [{  // ir_act_client, 1:N assumed
-    id: int,  // id
-    createUid: int,  // create_uid
-    writeUid: int,  // write_uid
-    type: string,  // type
-    path: string,  // path
-    bindingType: string,  // binding_type
-    bindingViewTypes: string,  // binding_view_types
-    name: object,  // name
-    help: object,  // help
-    explanation: string,  // explanation
-    createDate: date,  // create_date
-    writeDate: date,  // write_date
-    tag: string,  // tag
-    target: string,  // target
-    resModel: string,  // res_model
-    context: string,  // context
-    paramsStore: string,  // params_store
-  }],
-  irActUrl: [{  // ir_act_url, 1:N assumed
-    id: int,  // id
-    createUid: int,  // create_uid
-    writeUid: int,  // write_uid
-    type: string,  // type
-    path: string,  // path
-    bindingType: string,  // binding_type
-    bindingViewTypes: string,  // binding_view_types
-    name: object,  // name
-    help: object,  // help
-    explanation: string,  // explanation
-    createDate: date,  // create_date
-    writeDate: date,  // write_date
-    target: string,  // target
-    url: string,  // url
-  }],
-  irActions: [{  // ir_actions, 1:N derived
-    id: int,  // id
-    createUid: int,  // create_uid
-    writeUid: int,  // write_uid
-    type: string,  // type
-    path: string,  // path
-    bindingType: string,  // binding_type
-    bindingViewTypes: string,  // binding_view_types
-    name: object,  // name
-    help: object,  // help
-    explanation: string,  // explanation
-    createDate: date,  // create_date
-    writeDate: date,  // write_date
-  }],
   spreadsheetDashboardRel: [{  // ir_model_spreadsheet_dashboard_rel, 1:N assumed
     spreadsheetDashboardId: int,  // spreadsheet_dashboard_id
   }],
@@ -3306,29 +2971,15 @@ From `ir_model` with `ir_act_client`, `ir_act_url`, `ir_actions`, `ir_model_spre
 
 Why:
 - ir_model → calendar_event, fetchmail_server, gamification_goal_definition, ir_access, ir_act_report_xml, ir_act_server, ir_act_window, ir_model_constraint, ir_model_fields, ir_model_relation, mail_activity, mail_activity_plan, mail_alias, mail_template, rating_rating, sms_template: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- ir_model → ir_act_client, ir_act_url: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
-- res_users → ir_act_client: **reference**, it is embedded under another parent; this one is referenced (derived)
-- res_users → ir_act_url: **reference**, it is embedded under another parent; this one is referenced (derived)
-- ir_model → ir_actions: **embed**, owned by its parent (cascade delete or ordinal key) (derived)
-- res_users → ir_actions: **reference**, it is embedded under another parent; this one is referenced (derived)
+- ir_model → ir_act_client, ir_act_url, ir_actions: **reference**, owned by its parent (cascade delete or ordinal key) (derived)
 - res_users → ir_model: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- ir_model → ir_model_inherit: **reference**, it is embedded under another parent; this one is referenced (derived)
+- ir_model → ir_model_inherit: **reference**, another parent owns it; this one is referenced (derived)
 - spreadsheet_dashboard → ir_model_spreadsheet_dashboard_rel: **reference**, a link table, embedded on the other side (assumed)
 - ir_model → ir_model_spreadsheet_dashboard_rel: **embed**, a link table, kept as an array on this side (assumed)
 
-Open questions (8):
-- **fanout_unmeasured** (ir_act_client): ir_act_client has no rows per ir_model in the profiled source (child_rows=12); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (ir_act_url): ir_act_url has no rows per ir_model in the profiled source (child_rows=4); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (ir_model_spreadsheet_dashboard_rel): ir_model_spreadsheet_dashboard_rel is embedded in ir_model, but deleting a spreadsheet_dashboard row cascades to its ir_model_spreadsheet_dashboard_rel: the app must pull them from every ir_model document, or keep ir_model_spreadsheet_dashboard_rel separate
-- **no_access_evidence** (ir_model): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (ir_model): LOB column(s) info, explanation measured max 1976 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **lob** (ir_act_client): LOB column(s) explanation, params_store measured max 42 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **lob** (ir_act_url): LOB column(s) explanation, url measured max 35 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **lob** (ir_actions): LOB column(s) explanation measured max 180 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## irModelFields
 
-From `ir_model_fields` with `crm_lead_scoring_frequency_field`, `ir_model_inherit`, `properties_base_definition`, `ir_model_fields_group_rel` embedded.
+From `ir_model_fields` with `crm_lead_scoring_frequency_field`, `properties_base_definition`, `ir_model_fields_group_rel` embedded.
 
 ```js
 {
@@ -3385,11 +3036,6 @@ From `ir_model_fields` with `crm_lead_scoring_frequency_field`, `ir_model_inheri
     createDate: date,  // create_date
     writeDate: date,  // write_date
   }],
-  irModelInherit: [{  // ir_model_inherit, 1:N derived
-    id: int,  // id
-    modelId: int,  // model_id
-    parentId: int,  // parent_id
-  }],
   propertiesBaseDefinition: {  // properties_base_definition, 1:1 derived
     id: int,  // id
     createUid: int,  // create_uid
@@ -3406,22 +3052,15 @@ From `ir_model_fields` with `crm_lead_scoring_frequency_field`, `ir_model_inheri
 
 Why:
 - res_users → crm_lead_scoring_frequency_field: **reference**, it is embedded under another parent; this one is referenced (derived)
-- ir_model_fields → crm_lead_scoring_frequency_field, ir_model_inherit: **embed**, owned by its parent (cascade delete or ordinal key) (derived)
+- ir_model_fields → crm_lead_scoring_frequency_field: **embed**, owned by its parent (cascade delete or ordinal key) (derived)
 - ir_model_fields → gamification_goal_definition, ir_act_server, ir_default, ir_model_fields, ir_model_fields_selection: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - ir_model_fields → ir_act_server_webhook_field_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users, ir_model → ir_model_fields: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - ir_model_fields → ir_model_fields_group_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_groups → ir_model_fields_group_rel: **reference**, a link table, embedded on the other side (assumed)
-- ir_model → ir_model_inherit: **reference**, it is embedded under another parent; this one is referenced (derived)
+- ir_model_fields → ir_model_inherit: **reference**, owned by its parent (cascade delete or ordinal key) (derived)
 - res_users → properties_base_definition: **reference**, it is embedded under another parent; this one is referenced (derived)
 - ir_model_fields → properties_base_definition: **embed**, one-to-one with its parent (derived)
-
-Open questions (5):
-- **cascade_into_embed** (ir_model_fields_group_rel): ir_model_fields_group_rel is embedded in ir_model_fields, but deleting a res_groups row cascades to its ir_model_fields_group_rel: the app must pull them from every ir_model_fields document, or keep ir_model_fields_group_rel separate
-- **cascade_into_embed** (ir_model_inherit): ir_model_inherit is embedded in ir_model_fields, but deleting a ir_model row cascades to its ir_model_inherit: the app must pull them from every ir_model_fields document, or keep ir_model_inherit separate
-- **no_access_evidence** (ir_model_fields): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **repeating_group** (ir_model_fields): collapse each numbered series into one array field; needs app evidence, mapped 1:1 until then
-- **lob** (ir_model_fields): LOB column(s) compute measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
 
 ## irModuleModule
 
@@ -3490,12 +3129,6 @@ Why:
 - res_country → module_country: **reference**, a link table, embedded on the other side (assumed)
 - ir_module_module → module_country: **embed**, a link table, kept as an array on this side (assumed)
 
-Open questions (4):
-- **fanout_unmeasured** (ir_module_module_exclusion): ir_module_module_exclusion has no rows per ir_module_module in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (module_country): module_country is embedded in ir_module_module, but deleting a res_country row cascades to its module_country: the app must pull them from every ir_module_module document, or keep module_country separate
-- **no_access_evidence** (ir_module_module): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (ir_module_module): LOB column(s) contributors, menus_by_module, reports_by_module, views_by_module measured max 2124 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## irProfile
 
 From `ir_profile` with `ir_profile_query` embedded.
@@ -3528,12 +3161,6 @@ From `ir_profile` with `ir_profile_query` embedded.
 Why:
 - ir_profile → ir_profile_query: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 
-Open questions (4):
-- **fanout_unmeasured** (ir_profile_query): ir_profile_query has no rows per ir_profile in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **no_access_evidence** (ir_profile): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (ir_profile): LOB column(s) init_stack_trace, sql, traces_async, others, qweb: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
-- **lob** (ir_profile_query): LOB column(s) query, full_query, plan: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
-
 ## irUiMenu
 
 From `ir_ui_menu` with `ir_ui_menu_group_rel` embedded.
@@ -3563,10 +3190,6 @@ Why:
 - ir_ui_menu → ir_ui_menu: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_groups → ir_ui_menu_group_rel: **reference**, a link table, embedded on the other side (assumed)
 - ir_ui_menu → ir_ui_menu_group_rel: **embed**, a link table, kept as an array on this side (assumed)
-
-Open questions (2):
-- **cascade_into_embed** (ir_ui_menu_group_rel): ir_ui_menu_group_rel is embedded in ir_ui_menu, but deleting a res_groups row cascades to its ir_ui_menu_group_rel: the app must pull them from every ir_ui_menu document, or keep ir_ui_menu_group_rel separate
-- **no_access_evidence** (ir_ui_menu): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## irUiView
 
@@ -3607,11 +3230,6 @@ Why:
 - res_groups → ir_ui_view_group_rel: **reference**, a link table, embedded on the other side (assumed)
 - ir_ui_view → ir_ui_view_group_rel: **embed**, a link table, kept as an array on this side (assumed)
 
-Open questions (3):
-- **cascade_into_embed** (ir_ui_view_group_rel): ir_ui_view_group_rel is embedded in ir_ui_view, but deleting a res_groups row cascades to its ir_ui_view_group_rel: the app must pull them from every ir_ui_view document, or keep ir_ui_view_group_rel separate
-- **no_access_evidence** (ir_ui_view): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (ir_ui_view): LOB column(s) arch_prev, notes measured max 14368 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## lunchAlert
 
 From `lunch_alert` with `lunch_alert_lunch_location_rel` embedded.
@@ -3650,11 +3268,6 @@ Why:
 - lunch_alert → lunch_alert_lunch_location_rel: **embed**, a link table, kept as an array on this side (derived)
 - lunch_location → lunch_alert_lunch_location_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (3):
-- **extended_reference_candidate** (lunch_alert_lunch_location_rel): app reads lunch_location with every lunch_alert_lunch_location_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (lunch_alert_lunch_location_rel): lunch_alert_lunch_location_rel is embedded in lunch_alert, but deleting a lunch_location row cascades to its lunch_alert_lunch_location_rel: the app must pull them from every lunch_alert document, or keep lunch_alert_lunch_location_rel separate
-- **source_index_not_exercised** (lunch_alert_lunch_location_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## lunchLocation
 
 From `lunch_location` with `lunch_location_lunch_supplier_rel` embedded.
@@ -3682,12 +3295,6 @@ Why:
 - lunch_supplier → lunch_location_lunch_supplier_rel: **reference**, a link table, embedded on the other side (assumed)
 - lunch_location → lunch_order: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - lunch_location → res_users: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (4):
-- **extended_reference_candidate** (lunch_location_lunch_supplier_rel): app reads lunch_supplier with every lunch_location_lunch_supplier_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (lunch_location_lunch_supplier_rel): lunch_location_lunch_supplier_rel is embedded in lunch_location, but deleting a lunch_supplier row cascades to its lunch_location_lunch_supplier_rel: the app must pull them from every lunch_location document, or keep lunch_location_lunch_supplier_rel separate
-- **lob** (lunch_location): LOB column(s) address measured max 42 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **source_index_not_exercised** (lunch_location_lunch_supplier_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## lunchOrder
 
@@ -3726,14 +3333,6 @@ Why:
 - lunch_order → lunch_order_topping: **embed**, a link table, kept as an array on this side (derived)
 - lunch_topping → lunch_order_topping: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (6):
-- **fanout_unmeasured** (lunch_order_topping): lunch_order_topping has no rows per lunch_order in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (lunch_order_topping): app reads lunch_topping with every lunch_order_topping: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (lunch_order_topping): lunch_order_topping is embedded in lunch_order, but deleting a lunch_topping row cascades to its lunch_order_topping: the app must pull them from every lunch_order document, or keep lunch_order_topping separate
-- **lob** (lunch_order): LOB column(s) note, display_toppings measured max 1 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **source_index_not_exercised** (lunch_order): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (lunch_order_topping): source index not exercised by any confirmed access pattern; keep or drop
-
 ## lunchProduct
 
 From `lunch_product` with `lunch_product_favorite_user_rel` embedded.
@@ -3764,12 +3363,6 @@ Why:
 - lunch_product_category, res_company, res_users, lunch_supplier → lunch_product: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - lunch_product → lunch_product_favorite_user_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_users → lunch_product_favorite_user_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (4):
-- **fanout_unmeasured** (lunch_product_favorite_user_rel): lunch_product_favorite_user_rel has no rows per lunch_product in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (lunch_product_favorite_user_rel): lunch_product_favorite_user_rel is embedded in lunch_product, but deleting a res_users row cascades to its lunch_product_favorite_user_rel: the app must pull them from every lunch_product document, or keep lunch_product_favorite_user_rel separate
-- **source_index_not_exercised** (lunch_product): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (lunch_product_favorite_user_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## mailActivityType
 
@@ -3814,12 +3407,6 @@ Why:
 - res_users, res_role → mail_activity_type: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - mail_template → mail_activity_type_mail_template_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (4):
-- **fanout_unmeasured** (mail_activity_rel): mail_activity_rel has no rows per mail_activity_type in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (mail_activity_type_mail_template_rel): mail_activity_type_mail_template_rel has no rows per mail_activity_type in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (mail_activity_type_mail_template_rel): mail_activity_type_mail_template_rel is embedded in mail_activity_type, but deleting a mail_template row cascades to its mail_activity_type_mail_template_rel: the app must pull them from every mail_activity_type document, or keep mail_activity_type_mail_template_rel separate
-- **no_access_evidence** (mail_activity_type): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## mailCannedResponse
 
 From `mail_canned_response` with `mail_canned_response_res_groups_rel` embedded.
@@ -3846,11 +3433,6 @@ Why:
 - mail_canned_response → mail_canned_response_res_groups_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_groups → mail_canned_response_res_groups_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (3):
-- **cascade_into_embed** (mail_canned_response_res_groups_rel): mail_canned_response_res_groups_rel is embedded in mail_canned_response, but deleting a res_groups row cascades to its mail_canned_response_res_groups_rel: the app must pull them from every mail_canned_response document, or keep mail_canned_response_res_groups_rel separate
-- **no_access_evidence** (mail_canned_response): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (mail_canned_response): LOB column(s) substitution measured max 35 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## mailFollowers
 
 From `mail_followers` with `mail_followers_mail_message_subtype_rel` embedded.
@@ -3875,11 +3457,6 @@ Why:
 - res_users, res_partner → mail_followers: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - mail_message_subtype → mail_followers_mail_message_subtype_rel: **reference**, a link table, embedded on the other side (assumed)
 - mail_followers → mail_followers_mail_message_subtype_rel: **embed**, a link table, kept as an array on this side (assumed)
-
-Open questions (3):
-- **cascade_into_embed** (mail_followers_mail_message_subtype_rel): mail_followers_mail_message_subtype_rel is embedded in mail_followers, but deleting a mail_message_subtype row cascades to its mail_followers_mail_message_subtype_rel: the app must pull them from every mail_followers document, or keep mail_followers_mail_message_subtype_rel separate
-- **no_access_evidence** (mail_followers): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
 
 ## mailMail
 
@@ -3920,13 +3497,6 @@ Why:
 - res_partner → mail_mail_res_partner_cc_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_partner → mail_mail_res_partner_rel: **reference**, a link table, embedded on the other side (assumed)
 - mail_mail → mail_notification: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (5):
-- **fanout_unmeasured** (mail_mail_res_partner_cc_rel): mail_mail_res_partner_cc_rel has no rows per mail_mail in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (mail_mail_res_partner_cc_rel): mail_mail_res_partner_cc_rel is embedded in mail_mail, but deleting a res_partner row cascades to its mail_mail_res_partner_cc_rel: the app must pull them from every mail_mail document, or keep mail_mail_res_partner_cc_rel separate
-- **cascade_into_embed** (mail_mail_res_partner_rel): mail_mail_res_partner_rel is embedded in mail_mail, but deleting a res_partner row cascades to its mail_mail_res_partner_rel: the app must pull them from every mail_mail document, or keep mail_mail_res_partner_rel separate
-- **no_access_evidence** (mail_mail): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (mail_mail): LOB column(s) body_html, references, headers, email_to, failure_reason measured max 2839 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
 
 ## mailMessage
 
@@ -4008,18 +3578,6 @@ Why:
 - mail_message → mail_message_translation: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 - mail_message → message_attachment_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (10):
-- **fanout_unmeasured** (mail_message_translation): mail_message_translation has no rows per mail_message in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (mail_message_res_partner_bookmarked_rel): mail_message_res_partner_bookmarked_rel has no rows per mail_message in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (mail_message_res_partner_cc_rel): mail_message_res_partner_cc_rel has no rows per mail_message in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (mail_message_res_partner_bookmarked_rel): mail_message_res_partner_bookmarked_rel is embedded in mail_message, but deleting a res_partner row cascades to its mail_message_res_partner_bookmarked_rel: the app must pull them from every mail_message document, or keep mail_message_res_partner_bookmarked_rel separate
-- **cascade_into_embed** (mail_message_res_partner_cc_rel): mail_message_res_partner_cc_rel is embedded in mail_message, but deleting a res_partner row cascades to its mail_message_res_partner_cc_rel: the app must pull them from every mail_message document, or keep mail_message_res_partner_cc_rel separate
-- **cascade_into_embed** (mail_message_res_partner_rel): mail_message_res_partner_rel is embedded in mail_message, but deleting a res_partner row cascades to its mail_message_res_partner_rel: the app must pull them from every mail_message document, or keep mail_message_res_partner_rel separate
-- **no_access_evidence** (mail_message): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (mail_message): LOB column(s) body, incoming_email_to measured max 1763 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **lob** (mail_message_schedule): LOB column(s) notification_parameters measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **lob** (mail_message_translation): LOB column(s) body: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
-
 ## mailNotification
 
 From `mail_notification` with `sms_tracker` embedded.
@@ -4056,11 +3614,6 @@ Why:
 - res_users → sms_tracker: **reference**, it is embedded under another parent; this one is referenced (derived)
 - mail_notification → sms_tracker: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 
-Open questions (3):
-- **fanout_unmeasured** (sms_tracker): sms_tracker has no rows per mail_notification in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **no_access_evidence** (mail_notification): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (mail_notification): LOB column(s) failure_reason measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## mailPushDevice
 
 From `mail_push_device` with `mail_push` embedded.
@@ -4091,11 +3644,6 @@ Why:
 - res_users → mail_push: **reference**, it is embedded under another parent; this one is referenced (derived)
 - mail_push_device → mail_push: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 - res_users, res_partner → mail_push_device: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (3):
-- **fanout_unmeasured** (mail_push): mail_push has no rows per mail_push_device in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **no_access_evidence** (mail_push_device): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (mail_push): LOB column(s) payload: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
 
 ## mailScheduledMessage
 
@@ -4134,14 +3682,6 @@ Why:
 - res_partner → mail_scheduled_message_res_partner_cc_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_partner → mail_scheduled_message_res_partner_rel: **reference**, a link table, embedded on the other side (assumed)
 - mail_scheduled_message → scheduled_message_attachment_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (6):
-- **fanout_unmeasured** (mail_scheduled_message_res_partner_cc_rel): mail_scheduled_message_res_partner_cc_rel has no rows per mail_scheduled_message in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (mail_scheduled_message_res_partner_rel): mail_scheduled_message_res_partner_rel has no rows per mail_scheduled_message in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (mail_scheduled_message_res_partner_cc_rel): mail_scheduled_message_res_partner_cc_rel is embedded in mail_scheduled_message, but deleting a res_partner row cascades to its mail_scheduled_message_res_partner_cc_rel: the app must pull them from every mail_scheduled_message document, or keep mail_scheduled_message_res_partner_cc_rel separate
-- **cascade_into_embed** (mail_scheduled_message_res_partner_rel): mail_scheduled_message_res_partner_rel is embedded in mail_scheduled_message, but deleting a res_partner row cascades to its mail_scheduled_message_res_partner_rel: the app must pull them from every mail_scheduled_message document, or keep mail_scheduled_message_res_partner_rel separate
-- **no_access_evidence** (mail_scheduled_message): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (mail_scheduled_message): LOB column(s) body, notification_parameters: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
 
 ## mailTemplate
 
@@ -4192,11 +3732,6 @@ Why:
 - mail_template → mail_template_ir_actions_report_rel: **embed**, a link table, kept as an array on this side (assumed)
 - mail_template → survey_survey: **reference**, other tables also point at it, so it keeps its own collection (derived)
 
-Open questions (3):
-- **cascade_into_embed** (mail_template_ir_actions_report_rel): mail_template_ir_actions_report_rel is embedded in mail_template, but deleting a ir_act_report_xml row cascades to its mail_template_ir_actions_report_rel: the app must pull them from every mail_template document, or keep mail_template_ir_actions_report_rel separate
-- **no_access_evidence** (mail_template): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **date_as_string** (mail_template)
-
 ## maintenanceRequest
 
 From `maintenance_request` with `maintenance_request_res_users_rel` embedded.
@@ -4243,13 +3778,6 @@ Why:
 - maintenance_request → maintenance_request_res_users_rel: **embed**, a link table, kept as an array on this side (derived)
 - res_users → maintenance_request_res_users_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (5):
-- **extended_reference_candidate** (maintenance_request_res_users_rel): app reads res_users with every maintenance_request_res_users_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (maintenance_request_res_users_rel): maintenance_request_res_users_rel is embedded in maintenance_request, but deleting a res_users row cascades to its maintenance_request_res_users_rel: the app must pull them from every maintenance_request document, or keep maintenance_request_res_users_rel separate
-- **lob** (maintenance_request): LOB column(s) description, instruction_text measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **source_index_not_exercised** (maintenance_request): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (maintenance_request_res_users_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## maintenanceStage
 
 From `maintenance_stage` with `maintenance_stage_maintenance_team_rel` embedded.
@@ -4275,12 +3803,6 @@ Why:
 - res_users → maintenance_stage: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - maintenance_stage → maintenance_stage_maintenance_team_rel: **embed**, a link table, kept as an array on this side (derived)
 - maintenance_team → maintenance_stage_maintenance_team_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (4):
-- **fanout_unmeasured** (maintenance_stage_maintenance_team_rel): maintenance_stage_maintenance_team_rel has no rows per maintenance_stage in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **extended_reference_candidate** (maintenance_stage_maintenance_team_rel): app reads maintenance_team with every maintenance_stage_maintenance_team_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (maintenance_stage_maintenance_team_rel): maintenance_stage_maintenance_team_rel is embedded in maintenance_stage, but deleting a maintenance_team row cascades to its maintenance_stage_maintenance_team_rel: the app must pull them from every maintenance_stage document, or keep maintenance_stage_maintenance_team_rel separate
-- **source_index_not_exercised** (maintenance_stage_maintenance_team_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## maintenanceTeam
 
@@ -4312,12 +3834,6 @@ Why:
 - maintenance_team → maintenance_team_users_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_users → maintenance_team_users_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (4):
-- **fanout_unmeasured** (maintenance_team_users_rel): maintenance_team_users_rel has no rows per maintenance_team in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (maintenance_team_users_rel): maintenance_team_users_rel is embedded in maintenance_team, but deleting a res_users row cascades to its maintenance_team_users_rel: the app must pull them from every maintenance_team document, or keep maintenance_team_users_rel separate
-- **source_index_not_exercised** (maintenance_team): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (maintenance_team_users_rel): source index not exercised by any confirmed access pattern; keep or drop
-
 ## onboardingOnboarding
 
 From `onboarding_onboarding` with `onboarding_onboarding_onboarding_onboarding_step_rel` embedded.
@@ -4346,10 +3862,6 @@ Why:
 - onboarding_onboarding → onboarding_onboarding_onboarding_onboarding_step_rel: **embed**, a link table, kept as an array on this side (assumed)
 - onboarding_onboarding → onboarding_progress: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **cascade_into_embed** (onboarding_onboarding_onboarding_onboarding_step_rel): onboarding_onboarding_onboarding_onboarding_step_rel is embedded in onboarding_onboarding, but deleting a onboarding_onboarding_step row cascades to its onboarding_onboarding_onboarding_onboarding_step_rel: the app must pull them from every onboarding_onboarding document, or keep onboarding_onboarding_onboarding_onboarding_step_rel separate
-- **no_access_evidence** (onboarding_onboarding): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## onboardingProgress
 
 From `onboarding_progress` with `onboarding_progress_onboarding_progress_step_rel` embedded.
@@ -4375,11 +3887,6 @@ Why:
 - res_company, res_users, onboarding_onboarding → onboarding_progress: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - onboarding_progress_step → onboarding_progress_onboarding_progress_step_rel: **reference**, a link table, embedded on the other side (assumed)
 - onboarding_progress → onboarding_progress_onboarding_progress_step_rel: **embed**, a link table, kept as an array on this side (assumed)
-
-Open questions (3):
-- **fanout_unmeasured** (onboarding_progress_onboarding_progress_step_rel): onboarding_progress_onboarding_progress_step_rel has no rows per onboarding_progress in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (onboarding_progress_onboarding_progress_step_rel): onboarding_progress_onboarding_progress_step_rel is embedded in onboarding_progress, but deleting a onboarding_progress_step row cascades to its onboarding_progress_onboarding_progress_step_rel: the app must pull them from every onboarding_progress document, or keep onboarding_progress_onboarding_progress_step_rel separate
-- **no_access_evidence** (onboarding_progress): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## paymentMethod
 
@@ -4418,13 +3925,6 @@ Why:
 - payment_method → payment_method_res_country_rel, payment_method_res_currency_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_country → payment_method_res_country_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_currency → payment_method_res_currency_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (5):
-- **fanout_unmeasured** (payment_method_res_country_rel): payment_method_res_country_rel has no rows per payment_method in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (payment_method_res_currency_rel): payment_method_res_currency_rel has no rows per payment_method in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (payment_method_res_country_rel): payment_method_res_country_rel is embedded in payment_method, but deleting a res_country row cascades to its payment_method_res_country_rel: the app must pull them from every payment_method document, or keep payment_method_res_country_rel separate
-- **cascade_into_embed** (payment_method_res_currency_rel): payment_method_res_currency_rel is embedded in payment_method, but deleting a res_currency row cascades to its payment_method_res_currency_rel: the app must pull them from every payment_method document, or keep payment_method_res_currency_rel separate
-- **no_access_evidence** (payment_method): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## paymentProvider
 
@@ -4480,15 +3980,6 @@ Why:
 - res_company, res_users, ir_ui_view, ir_module_module → payment_provider: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - product_pricelist → payment_provider_product_pricelist_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (7):
-- **fanout_unmeasured** (payment_country_rel): payment_country_rel has no rows per payment_provider in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (payment_currency_rel): payment_currency_rel has no rows per payment_provider in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (payment_provider_product_pricelist_rel): payment_provider_product_pricelist_rel has no rows per payment_provider in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (payment_country_rel): payment_country_rel is embedded in payment_provider, but deleting a res_country row cascades to its payment_country_rel: the app must pull them from every payment_provider document, or keep payment_country_rel separate
-- **cascade_into_embed** (payment_currency_rel): payment_currency_rel is embedded in payment_provider, but deleting a res_currency row cascades to its payment_currency_rel: the app must pull them from every payment_provider document, or keep payment_currency_rel separate
-- **cascade_into_embed** (payment_provider_product_pricelist_rel): payment_provider_product_pricelist_rel is embedded in payment_provider, but deleting a product_pricelist row cascades to its payment_provider_product_pricelist_rel: the app must pull them from every payment_provider document, or keep payment_provider_product_pricelist_rel separate
-- **no_access_evidence** (payment_provider): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## productAttribute
 
 From `product_attribute` with `product_attribute_product_template_rel` embedded.
@@ -4516,10 +4007,6 @@ Why:
 - product_attribute → product_attribute_product_template_rel: **embed**, a link table, kept as an array on this side (assumed)
 - product_template → product_attribute_product_template_rel: **reference**, a link table, embedded on the other side (assumed)
 - product_attribute → product_attribute_value, product_template_attribute_line, product_template_attribute_value: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (2):
-- **cascade_into_embed** (product_attribute_product_template_rel): product_attribute_product_template_rel is embedded in product_attribute, but deleting a product_template row cascades to its product_attribute_product_template_rel: the app must pull them from every product_attribute document, or keep product_attribute_product_template_rel separate
-- **no_access_evidence** (product_attribute): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## productAttributeValue
 
@@ -4551,10 +4038,6 @@ Why:
 - product_template_attribute_line → product_attribute_value_product_template_attribute_line_rel: **reference**, a link table, embedded on the other side (assumed)
 - product_attribute_value → product_attribute_value_product_template_attribute_line_rel: **embed**, a link table, kept as an array on this side (assumed)
 - product_attribute_value → product_template_attribute_value: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (2):
-- **cascade_into_embed** (product_attribute_value_product_template_attribute_line_rel): product_attribute_value_product_template_attribute_line_rel is embedded in product_attribute_value, but deleting a product_template_attribute_line row cascades to its product_attribute_value_product_template_attribute_line_rel: the app must pull them from every product_attribute_value document, or keep product_attribute_value_product_template_attribute_line_rel separate
-- **no_access_evidence** (product_attribute_value): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## productCategory
 
@@ -4598,11 +4081,6 @@ Why:
 - product_category → product_category_stock_picking_type_rel: **embed**, a link table, kept as an array on this side (assumed)
 - product_category → stock_route_categ: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (3):
-- **fanout_unmeasured** (product_category_stock_picking_type_rel): product_category_stock_picking_type_rel has no rows per product_category in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (product_category_stock_picking_type_rel): product_category_stock_picking_type_rel is embedded in product_category, but deleting a stock_picking_type row cascades to its product_category_stock_picking_type_rel: the app must pull them from every product_category document, or keep product_category_stock_picking_type_rel separate
-- **no_access_evidence** (product_category): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## productCombo
 
 From `product_combo` with `product_combo_product_template_rel` embedded.
@@ -4628,10 +4106,6 @@ Why:
 - product_combo → product_combo_item: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - product_combo → product_combo_product_template_rel: **embed**, a link table, kept as an array on this side (assumed)
 - product_template → product_combo_product_template_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (2):
-- **cascade_into_embed** (product_combo_product_template_rel): product_combo_product_template_rel is embedded in product_combo, but deleting a product_template row cascades to its product_combo_product_template_rel: the app must pull them from every product_combo document, or keep product_combo_product_template_rel separate
-- **no_access_evidence** (product_combo): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## productDocument
 
@@ -4659,10 +4133,6 @@ Why:
 - sale_pdf_form_field → product_document_sale_pdf_form_field_rel: **reference**, a link table, embedded on the other side (assumed)
 - product_document → product_document_sale_pdf_form_field_rel: **embed**, a link table, kept as an array on this side (assumed)
 - product_document → sale_order_line_product_document_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (2):
-- **cascade_into_embed** (product_document_sale_pdf_form_field_rel): product_document_sale_pdf_form_field_rel is embedded in product_document, but deleting a sale_pdf_form_field row cascades to its product_document_sale_pdf_form_field_rel: the app must pull them from every product_document document, or keep product_document_sale_pdf_form_field_rel separate
-- **no_access_evidence** (product_document): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## productProduct
 
@@ -4730,11 +4200,6 @@ Why:
 - product_product → product_value: **embed**, owned by its parent (cascade delete or ordinal key) (derived)
 - product_template_attribute_value → product_variant_combination: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (3):
-- **fanout_unmeasured** (product_product_uom_uom_rel): product_product_uom_uom_rel has no rows per product_product in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (product_product_uom_uom_rel): product_product_uom_uom_rel is embedded in product_product, but deleting a uom_uom row cascades to its product_product_uom_uom_rel: the app must pull them from every product_product document, or keep product_product_uom_uom_rel separate
-- **no_access_evidence** (product_product): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## productTag
 
 From `product_tag` with `product_tag_product_product_rel`, `product_tag_product_template_rel` embedded.
@@ -4764,13 +4229,6 @@ Why:
 - product_product → product_tag_product_product_rel: **reference**, a link table, embedded on the other side (assumed)
 - product_tag → product_tag_product_product_rel, product_tag_product_template_rel: **embed**, a link table, kept as an array on this side (assumed)
 - product_template → product_tag_product_template_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (5):
-- **fanout_unmeasured** (product_tag_product_product_rel): product_tag_product_product_rel has no rows per product_tag in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (product_tag_product_template_rel): product_tag_product_template_rel has no rows per product_tag in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (product_tag_product_product_rel): product_tag_product_product_rel is embedded in product_tag, but deleting a product_product row cascades to its product_tag_product_product_rel: the app must pull them from every product_tag document, or keep product_tag_product_product_rel separate
-- **cascade_into_embed** (product_tag_product_template_rel): product_tag_product_template_rel is embedded in product_tag, but deleting a product_template row cascades to its product_tag_product_template_rel: the app must pull them from every product_tag document, or keep product_tag_product_template_rel separate
-- **no_access_evidence** (product_tag): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## productTemplate
 
@@ -4848,12 +4306,6 @@ Why:
 - product_base_unit, product_category, res_company, res_users, ir_sequence, uom_uom → product_template: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - uom_uom → product_template_uom_uom_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (4):
-- **fanout_unmeasured** (product_template_uom_uom_rel): product_template_uom_uom_rel has no rows per product_template in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (product_template_uom_uom_rel): product_template_uom_uom_rel is embedded in product_template, but deleting a uom_uom row cascades to its product_template_uom_uom_rel: the app must pull them from every product_template document, or keep product_template_uom_uom_rel separate
-- **no_access_evidence** (product_template): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (product_template): LOB column(s) purchase_line_warn_msg, sale_line_warn_msg measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## productTemplateAttributeValue
 
 From `product_template_attribute_value` with `product_template_attribute_excluded_value_ids_rel`, `product_template_attribute_value_purchase_order_line_rel`, `product_template_attribute_value_sale_order_line_rel`, `product_template_attribute_value_sale_order_template_line_rel`, `template_attribute_value_stock_move_rel` embedded.
@@ -4901,17 +4353,6 @@ Why:
 - sale_order_line → product_template_attribute_value_sale_order_line_rel: **reference**, a link table, embedded on the other side (assumed)
 - sale_order_template_line → product_template_attribute_value_sale_order_template_line_rel: **reference**, a link table, embedded on the other side (assumed)
 - stock_move → template_attribute_value_stock_move_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (9):
-- **fanout_unmeasured** (product_template_attribute_value_purchase_order_line_rel): product_template_attribute_value_purchase_order_line_rel has no rows per product_template_attribute_value in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (product_template_attribute_value_sale_order_line_rel): product_template_attribute_value_sale_order_line_rel has no rows per product_template_attribute_value in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (product_template_attribute_value_sale_order_template_line_rel): product_template_attribute_value_sale_order_template_line_rel has no rows per product_template_attribute_value in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (template_attribute_value_stock_move_rel): template_attribute_value_stock_move_rel has no rows per product_template_attribute_value in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (product_template_attribute_value_purchase_order_line_rel): product_template_attribute_value_purchase_order_line_rel is embedded in product_template_attribute_value, but deleting a purchase_order_line row cascades to its product_template_attribute_value_purchase_order_line_rel: the app must pull them from every product_template_attribute_value document, or keep product_template_attribute_value_purchase_order_line_rel separate
-- **cascade_into_embed** (product_template_attribute_value_sale_order_line_rel): product_template_attribute_value_sale_order_line_rel is embedded in product_template_attribute_value, but deleting a sale_order_line row cascades to its product_template_attribute_value_sale_order_line_rel: the app must pull them from every product_template_attribute_value document, or keep product_template_attribute_value_sale_order_line_rel separate
-- **cascade_into_embed** (product_template_attribute_value_sale_order_template_line_rel): product_template_attribute_value_sale_order_template_line_rel is embedded in product_template_attribute_value, but deleting a sale_order_template_line row cascades to its product_template_attribute_value_sale_order_template_line_rel: the app must pull them from every product_template_attribute_value document, or keep product_template_attribute_value_sale_order_template_line_rel separate
-- **cascade_into_embed** (template_attribute_value_stock_move_rel): template_attribute_value_stock_move_rel is embedded in product_template_attribute_value, but deleting a stock_move row cascades to its template_attribute_value_stock_move_rel: the app must pull them from every product_template_attribute_value document, or keep template_attribute_value_stock_move_rel separate
-- **no_access_evidence** (product_template_attribute_value): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## projectProject
 
@@ -5005,13 +4446,6 @@ Why:
 - res_users, res_currency, hr_employee, sale_order_line → project_sale_line_employee_map: **reference**, it is embedded under another parent; this one is referenced (derived)
 - project_project → project_task_type_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (5):
-- **cascade_into_embed** (project_allowed_internal_users_rel): project_allowed_internal_users_rel is embedded in project_project, but deleting a res_users row cascades to its project_allowed_internal_users_rel: the app must pull them from every project_project document, or keep project_allowed_internal_users_rel separate
-- **cascade_into_embed** (project_favorite_user_rel): project_favorite_user_rel is embedded in project_project, but deleting a res_users row cascades to its project_favorite_user_rel: the app must pull them from every project_project document, or keep project_favorite_user_rel separate
-- **cascade_into_embed** (project_project_project_tags_rel): project_project_project_tags_rel is embedded in project_project, but deleting a project_tags row cascades to its project_project_project_tags_rel: the app must pull them from every project_project document, or keep project_project_project_tags_rel separate
-- **no_access_evidence** (project_project): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (project_project): LOB column(s) description measured max 146 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## projectRole
 
 From `project_role` with `project_role_project_task_rel`, `project_role_res_users_rel` embedded.
@@ -5042,12 +4476,6 @@ Why:
 - project_task → project_role_project_task_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users → project_role_res_users_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (4):
-- **fanout_unmeasured** (project_role_res_users_rel): project_role_res_users_rel has no rows per project_role in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (project_role_project_task_rel): project_role_project_task_rel is embedded in project_role, but deleting a project_task row cascades to its project_role_project_task_rel: the app must pull them from every project_role document, or keep project_role_project_task_rel separate
-- **cascade_into_embed** (project_role_res_users_rel): project_role_res_users_rel is embedded in project_role, but deleting a res_users row cascades to its project_role_res_users_rel: the app must pull them from every project_role document, or keep project_role_res_users_rel separate
-- **no_access_evidence** (project_role): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## projectTags
 
 From `project_tags` with `project_tags_project_task_rel` embedded.
@@ -5072,10 +4500,6 @@ Why:
 - res_users → project_tags: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - project_tags → project_tags_project_task_rel: **embed**, a link table, kept as an array on this side (assumed)
 - project_task → project_tags_project_task_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (2):
-- **cascade_into_embed** (project_tags_project_task_rel): project_tags_project_task_rel is embedded in project_tags, but deleting a project_task row cascades to its project_tags_project_task_rel: the app must pull them from every project_tags document, or keep project_tags_project_task_rel separate
-- **no_access_evidence** (project_tags): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## projectTask
 
@@ -5143,10 +4567,6 @@ Why:
 - res_company, res_users, ir_attachment, project_milestone, res_partner, project_project, project_task_recurrence, sale_order_line, sale_order, project_task_type → project_task: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - project_task → task_dependencies_rel: **embed**, a link table, kept as an array on this side (assumed)
 
-Open questions (2):
-- **no_access_evidence** (project_task): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (project_task): LOB column(s) description measured max 2322 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## projectTaskType
 
 From `project_task_type` with `project_task_type_rel` embedded.
@@ -5183,10 +4603,6 @@ Why:
 - res_users, mail_template, sms_template → project_task_type: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - project_project → project_task_type_rel: **reference**, a link table, embedded on the other side (assumed)
 - project_task_type → project_task_type_rel: **embed**, a link table, kept as an array on this side (assumed)
-
-Open questions (2):
-- **cascade_into_embed** (project_task_type_rel): project_task_type_rel is embedded in project_task_type, but deleting a project_project row cascades to its project_task_type_rel: the app must pull them from every project_task_type document, or keep project_task_type_rel separate
-- **no_access_evidence** (project_task_type): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## purchaseOrder
 
@@ -5249,11 +4665,6 @@ Why:
 - purchase_order → purchase_order_stock_picking_rel: **embed**, a link table, kept as an array on this side (assumed)
 - stock_picking → purchase_order_stock_picking_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (3):
-- **cascade_into_embed** (purchase_order_stock_picking_rel): purchase_order_stock_picking_rel is embedded in purchase_order, but deleting a stock_picking row cascades to its purchase_order_stock_picking_rel: the app must pull them from every purchase_order document, or keep purchase_order_stock_picking_rel separate
-- **no_access_evidence** (purchase_order): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (purchase_order): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## purchaseOrderLine
 
 From `purchase_order_line` with `purchase_order_line_accrual_move_rel` embedded.
@@ -5311,12 +4722,6 @@ Why:
 - account_move → purchase_order_line_accrual_move_rel: **reference**, a link table, embedded on the other side (assumed)
 - purchase_order_line → purchase_order_line_accrual_move_rel: **embed**, a link table, kept as an array on this side (assumed)
 
-Open questions (4):
-- **fanout_unmeasured** (purchase_order_line_accrual_move_rel): purchase_order_line_accrual_move_rel has no rows per purchase_order_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (purchase_order_line_accrual_move_rel): purchase_order_line_accrual_move_rel is embedded in purchase_order_line, but deleting a account_move row cascades to its purchase_order_line_accrual_move_rel: the app must pull them from every purchase_order_line document, or keep purchase_order_line_accrual_move_rel separate
-- **no_access_evidence** (purchase_order_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (purchase_order_line): LOB column(s) name measured max 25 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## quotationDocument
 
 From `quotation_document` with `header_footer_quotation_template_rel`, `quotation_document_sale_order_rel`, `quotation_document_sale_pdf_form_field_rel` embedded.
@@ -5351,13 +4756,6 @@ Why:
 - res_users, ir_attachment → quotation_document: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - sale_order → quotation_document_sale_order_rel: **reference**, a link table, embedded on the other side (assumed)
 - sale_pdf_form_field → quotation_document_sale_pdf_form_field_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (5):
-- **fanout_unmeasured** (quotation_document_sale_order_rel): quotation_document_sale_order_rel has no rows per quotation_document in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (header_footer_quotation_template_rel): header_footer_quotation_template_rel is embedded in quotation_document, but deleting a sale_order_template row cascades to its header_footer_quotation_template_rel: the app must pull them from every quotation_document document, or keep header_footer_quotation_template_rel separate
-- **cascade_into_embed** (quotation_document_sale_order_rel): quotation_document_sale_order_rel is embedded in quotation_document, but deleting a sale_order row cascades to its quotation_document_sale_order_rel: the app must pull them from every quotation_document document, or keep quotation_document_sale_order_rel separate
-- **cascade_into_embed** (quotation_document_sale_pdf_form_field_rel): quotation_document_sale_pdf_form_field_rel is embedded in quotation_document, but deleting a sale_pdf_form_field row cascades to its quotation_document_sale_pdf_form_field_rel: the app must pull them from every quotation_document document, or keep quotation_document_sale_pdf_form_field_rel separate
-- **no_access_evidence** (quotation_document): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## resCompany
 
@@ -5527,13 +4925,6 @@ Why:
 - spreadsheet_dashboard → res_company_spreadsheet_dashboard_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users → res_company_users_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (5):
-- **fanout_unmeasured** (res_company_spreadsheet_dashboard_rel): res_company_spreadsheet_dashboard_rel has no rows per res_company in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (res_company_spreadsheet_dashboard_rel): res_company_spreadsheet_dashboard_rel is embedded in res_company, but deleting a spreadsheet_dashboard row cascades to its res_company_spreadsheet_dashboard_rel: the app must pull them from every res_company document, or keep res_company_spreadsheet_dashboard_rel separate
-- **cascade_into_embed** (res_company_users_rel): res_company_users_rel is embedded in res_company, but deleting a res_users row cascades to its res_company_users_rel: the app must pull them from every res_company document, or keep res_company_users_rel separate
-- **no_access_evidence** (res_company): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **csv_list** (res_company)
-
 ## resCountry
 
 From `res_country` with `res_country_res_country_group_rel` embedded.
@@ -5569,11 +4960,6 @@ Why:
 - res_country_group → res_country_res_country_group_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_country → res_country_res_country_group_rel: **embed**, a link table, kept as an array on this side (assumed)
 
-Open questions (3):
-- **cascade_into_embed** (res_country_res_country_group_rel): res_country_res_country_group_rel is embedded in res_country, but deleting a res_country_group row cascades to its res_country_res_country_group_rel: the app must pull them from every res_country document, or keep res_country_res_country_group_rel separate
-- **no_access_evidence** (res_country): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (res_country): LOB column(s) address_format measured max 87 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## resCountryGroup
 
 From `res_country_group` with `res_country_group_pricelist_rel`, `res_country_group_res_country_state_rel` embedded.
@@ -5603,13 +4989,6 @@ Why:
 - res_country_group → res_country_group_pricelist_rel, res_country_group_res_country_state_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_country_state → res_country_group_res_country_state_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_country_group → res_country_res_country_group_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (5):
-- **fanout_unmeasured** (res_country_group_pricelist_rel): res_country_group_pricelist_rel has no rows per res_country_group in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (res_country_group_pricelist_rel): res_country_group_pricelist_rel is embedded in res_country_group, but deleting a product_pricelist row cascades to its res_country_group_pricelist_rel: the app must pull them from every res_country_group document, or keep res_country_group_pricelist_rel separate
-- **cascade_into_embed** (res_country_group_res_country_state_rel): res_country_group_res_country_state_rel is embedded in res_country_group, but deleting a res_country_state row cascades to its res_country_group_res_country_state_rel: the app must pull them from every res_country_group document, or keep res_country_group_res_country_state_rel separate
-- **no_access_evidence** (res_country_group): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
 
 ## resGroups
 
@@ -5652,12 +5031,6 @@ Why:
 - spreadsheet_dashboard → res_groups_spreadsheet_dashboard_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users → res_groups_users_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (4):
-- **cascade_into_embed** (res_groups_report_rel): res_groups_report_rel is embedded in res_groups, but deleting a ir_act_report_xml row cascades to its res_groups_report_rel: the app must pull them from every res_groups document, or keep res_groups_report_rel separate
-- **cascade_into_embed** (res_groups_spreadsheet_dashboard_rel): res_groups_spreadsheet_dashboard_rel is embedded in res_groups, but deleting a spreadsheet_dashboard row cascades to its res_groups_spreadsheet_dashboard_rel: the app must pull them from every res_groups document, or keep res_groups_spreadsheet_dashboard_rel separate
-- **cascade_into_embed** (res_groups_users_rel): res_groups_users_rel is embedded in res_groups, but deleting a res_users row cascades to its res_groups_users_rel: the app must pull them from every res_groups document, or keep res_groups_users_rel separate
-- **no_access_evidence** (res_groups): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## resLang
 
 From `res_lang` with `res_lang_survey_survey_rel` embedded.
@@ -5694,11 +5067,6 @@ Why:
 - res_lang → res_lang_survey_survey_rel: **embed**, a link table, kept as an array on this side (assumed)
 - survey_survey → res_lang_survey_survey_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_lang → survey_user_input: **reference**, other tables also point at it, so it keeps its own collection (derived)
-
-Open questions (3):
-- **fanout_unmeasured** (res_lang_survey_survey_rel): res_lang_survey_survey_rel has no rows per res_lang in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (res_lang_survey_survey_rel): res_lang_survey_survey_rel is embedded in res_lang, but deleting a survey_survey row cascades to its res_lang_survey_survey_rel: the app must pull them from every res_lang document, or keep res_lang_survey_survey_rel separate
-- **no_access_evidence** (res_lang): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## resPartner
 
@@ -5813,13 +5181,6 @@ Why:
 - res_partner → res_partner_res_partner_category_rel, res_partner_stock_lot_rel: **embed**, a link table, kept as an array on this side (assumed)
 - stock_lot → res_partner_stock_lot_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (5):
-- **fanout_unmeasured** (res_partner_stock_lot_rel): res_partner_stock_lot_rel has no rows per res_partner in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (res_partner_res_partner_category_rel): res_partner_res_partner_category_rel is embedded in res_partner, but deleting a res_partner_category row cascades to its res_partner_res_partner_category_rel: the app must pull them from every res_partner document, or keep res_partner_res_partner_category_rel separate
-- **cascade_into_embed** (res_partner_stock_lot_rel): res_partner_stock_lot_rel is embedded in res_partner, but deleting a stock_lot row cascades to its res_partner_stock_lot_rel: the app must pull them from every res_partner document, or keep res_partner_stock_lot_rel separate
-- **no_access_evidence** (res_partner): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (res_partner): LOB column(s) comment, picking_warn_msg, purchase_warn_msg, sale_warn_msg measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## resRole
 
 From `res_role` with `res_role_res_users_rel` embedded.
@@ -5844,10 +5205,6 @@ Why:
 - res_users → res_role: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_role → res_role_res_users_rel: **embed**, a link table, kept as an array on this side (assumed)
 - res_users → res_role_res_users_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (2):
-- **cascade_into_embed** (res_role_res_users_rel): res_role_res_users_rel is embedded in res_role, but deleting a res_users row cascades to its res_role_res_users_rel: the app must pull them from every res_role document, or keep res_role_res_users_rel separate
-- **no_access_evidence** (res_role): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## resUsers
 
@@ -5966,14 +5323,14 @@ From `res_users` with `account_analytic_line_calendar_employee`, `auth_totp_devi
 
 Why:
 - res_users → account_account, account_account_tag, account_analytic_account, account_analytic_applicability, account_analytic_distribution_model, account_analytic_line, account_analytic_plan, account_bank_statement, account_bank_statement_line, account_cash_rounding, account_fiscal_position, account_full_reconcile, account_incoterms, account_journal, account_journal_group, account_lock_exception, account_move, account_move_line, account_partial_reconcile, account_payment, account_payment_method, account_payment_method_line, account_payment_term, account_reconcile_model, account_reconcile_model_line, account_report, account_report_expression, account_report_line, account_tax, account_tax_group, account_tax_repartition_line, auth_passkey_key, barcode_nomenclature, barcode_rule, base_import_mapping, bus_bus, calendar_alarm, calendar_attendee, calendar_calendar, calendar_event, calendar_event_type, calendar_recurrence, calendar_user, clearing_label, crm_iap_lead_helpers, crm_iap_lead_industry, crm_iap_lead_industry_division, crm_iap_lead_mining_request, crm_iap_lead_role, crm_iap_lead_seniority, crm_lead, crm_lost_reason, crm_recurring_plan, crm_stage, crm_tag, crm_team, crm_team_member, customer_product_reference, decimal_precision, digest_digest, digest_tip, discuss_call_history, discuss_category, discuss_channel, discuss_channel_member, discuss_channel_rtc_session, discuss_gif_favorite, event_event, event_event_ticket, event_lead_rule, event_mail, event_mail_registration, event_mail_slot, event_question, event_question_answer, event_registration, event_slot, event_stage, event_tag, event_tag_category, event_type, event_type_ticket, fetchmail_server, fleet_service_type, fleet_vehicle_model_brand, fleet_vehicle_model_category, fleet_vehicle_state, fleet_vehicle_tag, gamification_badge, gamification_badge_user, gamification_challenge, gamification_challenge_line, gamification_goal, gamification_goal_definition, gamification_karma_rank, hr_department, hr_departure_reason, hr_employee, hr_employee_category, hr_employee_departure, hr_employee_skill, hr_employee_type, hr_job, hr_job_skill, hr_leave, hr_leave_accrual_plan, hr_leave_allocation, hr_leave_mandatory_day, hr_payroll_structure_type, hr_resume_line, hr_resume_line_type, hr_skill, hr_skill_level, hr_skill_type, hr_time_rule, hr_version, hr_work_entry_type, hr_work_location, html_editor_converter_test, html_editor_converter_test_sub, iap_account, iap_service, ir_access, ir_act_report_xml, ir_act_server, ir_act_window, ir_actions_todo, ir_asset, ir_attachment, ir_config_parameter, ir_cron, ir_cron_trigger, ir_default, ir_embedded_actions, ir_exports, ir_filters, ir_mail_server, ir_model, ir_model_constraint, ir_model_data, ir_model_fields, ir_model_fields_selection, ir_model_relation, ir_module_category, ir_module_module, ir_sequence, ir_ui_menu, ir_ui_view, ir_ui_view_custom, l10n_us_res_county, lunch_alert, lunch_cashmove, lunch_location, lunch_product_category, lunch_supplier, mail_activity, mail_activity_plan, mail_activity_plan_template, mail_activity_type, mail_alias, mail_alias_domain, mail_blacklist, mail_canned_response, mail_followers, mail_gateway_allowed, mail_guest, mail_ice_server, mail_link_preview, mail_mail, mail_message, mail_message_link_preview, mail_message_subtype, mail_poll, mail_poll_option, mail_poll_vote, mail_presence, mail_push_device, mail_scheduled_message, mail_template, maintenance_equipment_category, onboarding_onboarding, onboarding_onboarding_step, onboarding_progress, onboarding_progress_step, payment_data, payment_method, payment_provider, payment_token, payment_transaction, phone_blacklist, portal_entry, privacy_log, product_attribute, product_attribute_custom_value, product_attribute_value, product_base_unit, product_category, product_combo, product_combo_item, product_document, product_pricelist, product_pricelist_item, product_product, product_removal, product_supplierinfo, product_tag, product_template, product_template_attribute_line, product_template_attribute_value, product_uom, project_milestone, project_project, project_project_stage, project_role, project_tags, project_task, project_task_recurrence, project_task_type, project_task_user_rel, project_update, purchase_order, purchase_order_line, quotation_document, rating_rating, report_layout, report_paperformat, res_city, res_company, res_country, res_country_group, res_country_state, res_currency, res_device_log, res_groups, res_groups_privilege, res_lang, res_partner, res_partner_bank, res_partner_category, res_partner_industry, res_role, res_users, res_users_deletion, res_users_log, res_users_settings, res_users_settings_embedded_action, res_users_settings_volumes, resource_calendar, resource_calendar_leaves, resource_resource, return_reason, sale_order, sale_order_line, sale_order_template, sale_order_template_line, sale_pdf_form_field, sms_sms, sms_template, spreadsheet_dashboard, spreadsheet_dashboard_favorite_filters, spreadsheet_dashboard_group, stock_location, stock_lot, stock_move, stock_move_line, stock_package, stock_package_history, stock_package_type, stock_picking, stock_picking_batch, stock_picking_type, stock_putaway_rule, stock_quant, stock_reference, stock_route, stock_rule, stock_scrap_reason_tag, stock_storage_category, stock_storage_category_capacity, stock_warehouse, stock_warehouse_orderpoint, uom_uom, utm_campaign, utm_medium, utm_source, utm_stage, utm_tag, web_tour_tour, website: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-- res_users → account_analytic_line_calendar_employee, account_fiscal_position_account, account_payment_term_line, account_report_column, account_report_external_value, calendar_filters, crm_lead_scoring_frequency, crm_lead_scoring_frequency_field, discuss_voice_metadata, event_registration_answer, event_type_mail, fleet_vehicle_log_services, gamification_karma_tracking, hr_leave_accrual_level, hr_time_rule_allocation_log, hr_user_work_entry_employee, iap_service_pack, ir_act_client, ir_act_url, ir_act_window_view, ir_actions, ir_actions_server_history, ir_cron_progress, ir_exports_line, ir_module_module_exclusion, mail_call_artifact, mail_message_schedule, mail_message_translation, mail_push, product_value, project_collaborator, project_sale_line_employee_map, properties_base_definition, resource_calendar_attendance, sms_tracker, spreadsheet_dashboard_share, survey_question_answer, web_tour_tour_step: **reference**, it is embedded under another parent; this one is referenced (derived)
+- res_users → account_analytic_line_calendar_employee, account_fiscal_position_account, account_payment_term_line, account_report_column, account_report_external_value, calendar_filters, crm_lead_scoring_frequency, crm_lead_scoring_frequency_field, discuss_voice_metadata, event_registration_answer, event_type_mail, fleet_vehicle_log_services, gamification_karma_tracking, hr_leave_accrual_level, hr_time_rule_allocation_log, hr_user_work_entry_employee, iap_service_pack, ir_act_window_view, ir_actions_server_history, ir_cron_progress, ir_exports_line, ir_module_module_exclusion, mail_call_artifact, mail_message_schedule, mail_message_translation, mail_push, product_value, project_collaborator, project_sale_line_employee_map, properties_base_definition, resource_calendar_attendance, sms_tracker, spreadsheet_dashboard_share, web_tour_tour_step: **reference**, it is embedded under another parent; this one is referenced (derived)
 - hr_employee → account_analytic_line_calendar_employee: **reference**, it is embedded under another parent; this one is referenced (derived)
 - res_users → account_analytic_line_calendar_employee, auth_totp_device, hr_user_work_entry_employee, res_users_apikeys: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 - res_partner → calendar_filters: **reference**, it is embedded under another parent; this one is referenced (derived)
 - res_users → calendar_filters, gamification_karma_tracking: **embed**, owned by its parent (cascade delete or ordinal key) (derived)
 - res_users → digest_digest_res_users_rel, digest_tip_res_users_rel, gamification_challenge_users_rel, gamification_invited_user_ids_rel, iap_account_res_users_rel, ir_filters_res_users_rel, lunch_product_favorite_user_rel, maintenance_request_res_users_rel, maintenance_team_users_rel, project_allowed_internal_users_rel, project_favorite_user_rel, project_role_res_users_rel, rel_badge_auth_users, res_company_users_rel, res_groups_users_rel, res_role_res_users_rel, spreadsheet_dashboard_allowed_users_rel, team_favorite_user_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users → fleet_vehicle, fleet_vehicle_log_contract, fleet_vehicle_model, fleet_vehicle_odometer, hr_expense, hr_expense_product_job_position_limit, lunch_order, lunch_product, maintenance_equipment, maintenance_request, maintenance_stage, maintenance_team, survey_survey, survey_user_input: **reference**, other tables also point at it, so it keeps its own collection (derived)
-- res_users → fleet_vehicle_assignation_log, hr_employee_location, ir_sequence_date_range, lunch_topping, res_currency_rate, survey_question, survey_user_input_line: **reference**, another parent owns it; this one is referenced (derived)
+- res_users → fleet_vehicle_assignation_log, hr_employee_location, ir_act_client, ir_act_url, ir_actions, ir_sequence_date_range, lunch_topping, res_currency_rate, survey_question, survey_question_answer, survey_user_input_line: **reference**, another parent owns it; this one is referenced (derived)
 - hr_employee → hr_user_work_entry_employee: **reference**, it is embedded under another parent; this one is referenced (derived)
 - stock_picking_type → picking_type_favorite_user_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users → picking_type_favorite_user_rel, res_users_spreadsheet_dashboard_favorite_filters_rel, res_users_spreadsheet_dashboard_rel, res_users_survey_survey_rel, res_users_web_tour_tour_rel: **embed**, a link table, kept as an array on this side (assumed)
@@ -5982,35 +5339,6 @@ Why:
 - spreadsheet_dashboard → res_users_spreadsheet_dashboard_rel: **reference**, a link table, embedded on the other side (assumed)
 - survey_survey → res_users_survey_survey_rel: **reference**, a link table, embedded on the other side (assumed)
 - web_tour_tour → res_users_web_tour_tour_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (27):
-- **fanout_unmeasured** (account_analytic_line_calendar_employee): account_analytic_line_calendar_employee has no rows per res_users in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (auth_totp_device): auth_totp_device has no rows per res_users in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (hr_user_work_entry_employee): hr_user_work_entry_employee has no rows per res_users in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (res_users_apikeys): res_users_apikeys has no rows per res_users in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (picking_type_favorite_user_rel): picking_type_favorite_user_rel has no rows per res_users in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (res_users_spreadsheet_dashboard_favorite_filters_rel): res_users_spreadsheet_dashboard_favorite_filters_rel has no rows per res_users in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (res_users_spreadsheet_dashboard_rel): res_users_spreadsheet_dashboard_rel has no rows per res_users in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (res_users_survey_survey_rel): res_users_survey_survey_rel has no rows per res_users in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (res_users_web_tour_tour_rel): res_users_web_tour_tour_rel has no rows per res_users in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (picking_type_favorite_user_rel): picking_type_favorite_user_rel is embedded in res_users, but deleting a stock_picking_type row cascades to its picking_type_favorite_user_rel: the app must pull them from every res_users document, or keep picking_type_favorite_user_rel separate
-- **cascade_into_embed** (res_users_spreadsheet_dashboard_favorite_filters_rel): res_users_spreadsheet_dashboard_favorite_filters_rel is embedded in res_users, but deleting a spreadsheet_dashboard_favorite_filters row cascades to its res_users_spreadsheet_dashboard_favorite_filters_rel: the app must pull them from every res_users document, or keep res_users_spreadsheet_dashboard_favorite_filters_rel separate
-- **cascade_into_embed** (res_users_spreadsheet_dashboard_rel): res_users_spreadsheet_dashboard_rel is embedded in res_users, but deleting a spreadsheet_dashboard row cascades to its res_users_spreadsheet_dashboard_rel: the app must pull them from every res_users document, or keep res_users_spreadsheet_dashboard_rel separate
-- **cascade_into_embed** (res_users_survey_survey_rel): res_users_survey_survey_rel is embedded in res_users, but deleting a survey_survey row cascades to its res_users_survey_survey_rel: the app must pull them from every res_users document, or keep res_users_survey_survey_rel separate
-- **cascade_into_embed** (res_users_web_tour_tour_rel): res_users_web_tour_tour_rel is embedded in res_users, but deleting a web_tour_tour row cascades to its res_users_web_tour_tour_rel: the app must pull them from every res_users document, or keep res_users_web_tour_tour_rel separate
-- **lob** (res_users): LOB column(s) signature, out_of_office_message measured max 26 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **lob** (gamification_karma_tracking): LOB column(s) reason measured max 15 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **source_index_not_exercised** (auth_totp_device): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (calendar_filters): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (gamification_karma_tracking): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (picking_type_favorite_user_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (res_users): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (res_users): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (res_users_apikeys): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (res_users_spreadsheet_dashboard_favorite_filters_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (res_users_spreadsheet_dashboard_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (res_users_survey_survey_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (res_users_web_tour_tour_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## resourceCalendar
 
@@ -6065,9 +5393,6 @@ Why:
 - res_company, res_users, hr_leave_accrual_plan → resource_calendar: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - resource_calendar → resource_calendar_attendance: **embed**, owned by its parent (cascade delete or ordinal key) (derived)
 - res_users, hr_work_entry_type → resource_calendar_attendance: **reference**, it is embedded under another parent; this one is referenced (derived)
-
-Open questions (1):
-- **no_access_evidence** (resource_calendar): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## saleOrder
 
@@ -6151,13 +5476,6 @@ Why:
 - sale_order → sale_order_tag_rel, sale_order_transaction_rel: **embed**, a link table, kept as an array on this side (assumed)
 - crm_tag → sale_order_tag_rel: **reference**, a link table, embedded on the other side (assumed)
 - payment_transaction → sale_order_transaction_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (5):
-- **fanout_unmeasured** (sale_order_transaction_rel): sale_order_transaction_rel has no rows per sale_order in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (sale_order_tag_rel): sale_order_tag_rel is embedded in sale_order, but deleting a crm_tag row cascades to its sale_order_tag_rel: the app must pull them from every sale_order document, or keep sale_order_tag_rel separate
-- **cascade_into_embed** (sale_order_transaction_rel): sale_order_transaction_rel is embedded in sale_order, but deleting a payment_transaction row cascades to its sale_order_transaction_rel: the app must pull them from every sale_order document, or keep sale_order_transaction_rel separate
-- **no_access_evidence** (sale_order): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (sale_order): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
 
 ## saleOrderLine
 
@@ -6252,16 +5570,6 @@ Why:
 - product_document → sale_order_line_product_document_rel: **reference**, a link table, embedded on the other side (assumed)
 - stock_route → sale_order_line_stock_route_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (8):
-- **fanout_unmeasured** (sale_order_line_accrual_move_rel): sale_order_line_accrual_move_rel has no rows per sale_order_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (sale_order_line_product_document_rel): sale_order_line_product_document_rel has no rows per sale_order_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (sale_order_line_stock_route_rel): sale_order_line_stock_route_rel has no rows per sale_order_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (sale_order_line_accrual_move_rel): sale_order_line_accrual_move_rel is embedded in sale_order_line, but deleting a account_move row cascades to its sale_order_line_accrual_move_rel: the app must pull them from every sale_order_line document, or keep sale_order_line_accrual_move_rel separate
-- **cascade_into_embed** (sale_order_line_invoice_rel): sale_order_line_invoice_rel is embedded in sale_order_line, but deleting a account_move_line row cascades to its sale_order_line_invoice_rel: the app must pull them from every sale_order_line document, or keep sale_order_line_invoice_rel separate
-- **cascade_into_embed** (sale_order_line_product_document_rel): sale_order_line_product_document_rel is embedded in sale_order_line, but deleting a product_document row cascades to its sale_order_line_product_document_rel: the app must pull them from every sale_order_line document, or keep sale_order_line_product_document_rel separate
-- **no_access_evidence** (sale_order_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (sale_order_line): LOB column(s) name measured max 53 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## spreadsheetDashboard
 
 From `spreadsheet_dashboard` with `spreadsheet_dashboard_share`, `spreadsheet_dashboard_allowed_users_rel` embedded.
@@ -6303,12 +5611,6 @@ Why:
 - res_users → spreadsheet_dashboard_share: **reference**, it is embedded under another parent; this one is referenced (derived)
 - spreadsheet_dashboard → spreadsheet_dashboard_share: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 
-Open questions (4):
-- **fanout_unmeasured** (spreadsheet_dashboard_share): spreadsheet_dashboard_share has no rows per spreadsheet_dashboard in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (spreadsheet_dashboard_allowed_users_rel): spreadsheet_dashboard_allowed_users_rel has no rows per spreadsheet_dashboard in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (spreadsheet_dashboard_allowed_users_rel): spreadsheet_dashboard_allowed_users_rel is embedded in spreadsheet_dashboard, but deleting a res_users row cascades to its spreadsheet_dashboard_allowed_users_rel: the app must pull them from every spreadsheet_dashboard document, or keep spreadsheet_dashboard_allowed_users_rel separate
-- **no_access_evidence** (spreadsheet_dashboard): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## stockLocation
 
 From `stock_location` with `stock_location_stock_picking_type_rel` embedded.
@@ -6348,12 +5650,6 @@ Why:
 - res_company, res_users, product_removal, stock_storage_category, account_account, stock_warehouse → stock_location: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - stock_picking_type → stock_location_stock_picking_type_rel: **reference**, a link table, embedded on the other side (assumed)
 - stock_location → stock_location_stock_picking_type_rel: **embed**, a link table, kept as an array on this side (assumed)
-
-Open questions (4):
-- **fanout_unmeasured** (stock_location_stock_picking_type_rel): stock_location_stock_picking_type_rel has no rows per stock_location in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (stock_location_stock_picking_type_rel): stock_location_stock_picking_type_rel is embedded in stock_location, but deleting a stock_picking_type row cascades to its stock_location_stock_picking_type_rel: the app must pull them from every stock_location document, or keep stock_location_stock_picking_type_rel separate
-- **no_access_evidence** (stock_location): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
 
 ## stockMove
 
@@ -6436,15 +5732,6 @@ Why:
 - stock_move → stock_move_created_purchase_line_rel, stock_move_move_rel, stock_move_stock_scrap_reason_tag_rel: **embed**, a link table, kept as an array on this side (assumed)
 - stock_scrap_reason_tag → stock_move_stock_scrap_reason_tag_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (7):
-- **fanout_unmeasured** (stock_move_created_purchase_line_rel): stock_move_created_purchase_line_rel has no rows per stock_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (stock_move_move_rel): stock_move_move_rel has no rows per stock_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (stock_move_stock_scrap_reason_tag_rel): stock_move_stock_scrap_reason_tag_rel has no rows per stock_move in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (stock_move_created_purchase_line_rel): stock_move_created_purchase_line_rel is embedded in stock_move, but deleting a purchase_order_line row cascades to its stock_move_created_purchase_line_rel: the app must pull them from every stock_move document, or keep stock_move_created_purchase_line_rel separate
-- **cascade_into_embed** (stock_move_stock_scrap_reason_tag_rel): stock_move_stock_scrap_reason_tag_rel is embedded in stock_move, but deleting a stock_scrap_reason_tag row cascades to its stock_move_stock_scrap_reason_tag_rel: the app must pull them from every stock_move document, or keep stock_move_stock_scrap_reason_tag_rel separate
-- **no_access_evidence** (stock_move): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (stock_move): LOB column(s) description_picking_manual measured max 49 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## stockMoveLine
 
 From `stock_move_line` with `stock_move_line_consume_rel` embedded.
@@ -6486,10 +5773,6 @@ Why:
 - stock_move_line → stock_move_line_consume_rel: **embed**, a link table, kept as an array on this side (assumed)
 - stock_move_line → stock_move_line_consume_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (2):
-- **fanout_unmeasured** (stock_move_line_consume_rel): stock_move_line_consume_rel has no rows per stock_move_line in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **no_access_evidence** (stock_move_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## stockPackageHistory
 
 From `stock_package_history` with `stock_package_history_stock_picking_rel` embedded.
@@ -6522,11 +5805,6 @@ Why:
 - res_company, res_users, stock_location, stock_package → stock_package_history: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - stock_package_history → stock_package_history_stock_picking_rel: **embed**, a link table, kept as an array on this side (assumed)
 - stock_picking → stock_package_history_stock_picking_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (3):
-- **fanout_unmeasured** (stock_package_history_stock_picking_rel): stock_package_history_stock_picking_rel has no rows per stock_package_history in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (stock_package_history_stock_picking_rel): stock_package_history_stock_picking_rel is embedded in stock_package_history, but deleting a stock_picking row cascades to its stock_package_history_stock_picking_rel: the app must pull them from every stock_package_history document, or keep stock_package_history_stock_picking_rel separate
-- **no_access_evidence** (stock_package_history): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## stockPackageType
 
@@ -6566,14 +5844,6 @@ Why:
 - stock_putaway_rule → stock_package_type_stock_putaway_rule_rel: **reference**, a link table, embedded on the other side (assumed)
 - stock_route → stock_package_type_stock_route_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (6):
-- **fanout_unmeasured** (stock_package_type_stock_putaway_rule_rel): stock_package_type_stock_putaway_rule_rel has no rows per stock_package_type in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (stock_package_type_stock_route_rel): stock_package_type_stock_route_rel has no rows per stock_package_type in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (stock_package_type_stock_putaway_rule_rel): stock_package_type_stock_putaway_rule_rel is embedded in stock_package_type, but deleting a stock_putaway_rule row cascades to its stock_package_type_stock_putaway_rule_rel: the app must pull them from every stock_package_type document, or keep stock_package_type_stock_putaway_rule_rel separate
-- **cascade_into_embed** (stock_package_type_stock_route_rel): stock_package_type_stock_route_rel is embedded in stock_package_type, but deleting a stock_route row cascades to its stock_package_type_stock_route_rel: the app must pull them from every stock_package_type document, or keep stock_package_type_stock_route_rel separate
-- **no_access_evidence** (stock_package_type): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## stockReference
 
 From `stock_reference` with `stock_reference_move_rel`, `stock_reference_purchase_rel`, `stock_reference_sale_rel` embedded.
@@ -6604,12 +5874,6 @@ Why:
 - stock_reference → stock_reference_move_rel, stock_reference_purchase_rel, stock_reference_sale_rel: **embed**, a link table, kept as an array on this side (assumed)
 - purchase_order → stock_reference_purchase_rel: **reference**, a link table, embedded on the other side (assumed)
 - sale_order → stock_reference_sale_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (4):
-- **cascade_into_embed** (stock_reference_move_rel): stock_reference_move_rel is embedded in stock_reference, but deleting a stock_move row cascades to its stock_reference_move_rel: the app must pull them from every stock_reference document, or keep stock_reference_move_rel separate
-- **cascade_into_embed** (stock_reference_purchase_rel): stock_reference_purchase_rel is embedded in stock_reference, but deleting a purchase_order row cascades to its stock_reference_purchase_rel: the app must pull them from every stock_reference document, or keep stock_reference_purchase_rel separate
-- **cascade_into_embed** (stock_reference_sale_rel): stock_reference_sale_rel is embedded in stock_reference, but deleting a sale_order row cascades to its stock_reference_sale_rel: the app must pull them from every stock_reference document, or keep stock_reference_sale_rel separate
-- **no_access_evidence** (stock_reference): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## stockRoute
 
@@ -6657,16 +5921,6 @@ Why:
 - product_template → stock_route_product: **reference**, a link table, embedded on the other side (assumed)
 - stock_warehouse → stock_route_warehouse: **reference**, a link table, embedded on the other side (assumed)
 - stock_route → stock_rule, stock_warehouse, stock_warehouse_orderpoint: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (8):
-- **fanout_unmeasured** (stock_route_categ): stock_route_categ has no rows per stock_route in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (stock_route_move): stock_route_move has no rows per stock_route in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **fanout_unmeasured** (stock_route_product): stock_route_product has no rows per stock_route in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (stock_route_categ): stock_route_categ is embedded in stock_route, but deleting a product_category row cascades to its stock_route_categ: the app must pull them from every stock_route document, or keep stock_route_categ separate
-- **cascade_into_embed** (stock_route_move): stock_route_move is embedded in stock_route, but deleting a stock_move row cascades to its stock_route_move: the app must pull them from every stock_route document, or keep stock_route_move separate
-- **cascade_into_embed** (stock_route_product): stock_route_product is embedded in stock_route, but deleting a product_template row cascades to its stock_route_product: the app must pull them from every stock_route document, or keep stock_route_product separate
-- **cascade_into_embed** (stock_route_warehouse): stock_route_warehouse is embedded in stock_route, but deleting a stock_warehouse row cascades to its stock_route_warehouse: the app must pull them from every stock_route document, or keep stock_route_warehouse separate
-- **no_access_evidence** (stock_route): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## stockWarehouse
 
@@ -6717,13 +5971,9 @@ Why:
 - stock_rule, res_company, res_users, stock_route, stock_picking_type, stock_location, res_partner → stock_warehouse: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - stock_warehouse → stock_wh_resupply_table: **embed**, a link table, kept as an array on this side (assumed)
 
-Open questions (2):
-- **fanout_unmeasured** (stock_wh_resupply_table): stock_wh_resupply_table has no rows per stock_warehouse in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **no_access_evidence** (stock_warehouse): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## surveyQuestion
 
-From `survey_question` with `survey_question_answer`, `survey_question_survey_question_answer_rel`, `survey_question_survey_user_input_rel` embedded.
+From `survey_question` with `survey_question_survey_question_answer_rel`, `survey_question_survey_user_input_rel` embedded.
 
 ```js
 {
@@ -6772,20 +6022,6 @@ From `survey_question` with `survey_question_answer`, `survey_question_survey_qu
   answerScore: double,  // answer_score
   validationMinFloatValue: double,  // validation_min_float_value
   validationMaxFloatValue: double,  // validation_max_float_value
-  answer: [{  // survey_question_answer, 1:N derived
-    id: int,  // id
-    matrixQuestionId: int,  // matrix_question_id
-    sequence: int,  // sequence
-    createUid: int,  // create_uid
-    writeUid: int,  // write_uid
-    valueImageFilename: string,  // value_image_filename
-    value: object,  // value
-    isCorrect: bool,  // is_correct
-    createDate: date,  // create_date
-    writeDate: date,  // write_date
-    answerScore: double,  // answer_score
-    generateLead: bool,  // generate_lead
-  }],
   surveyQuestionAnswerRel: [{  // survey_question_survey_question_answer_rel, 1:N derived
     surveyQuestionAnswerId: int,  // survey_question_answer_id
   }],
@@ -6797,27 +6033,14 @@ From `survey_question` with `survey_question_answer`, `survey_question_survey_qu
 
 Why:
 - res_users → survey_question: **reference**, another parent owns it; this one is referenced (derived)
-- survey_question → survey_question, survey_user_input_line: **reference**, another parent owns it; this one is referenced (derived)
+- survey_question → survey_question, survey_question_answer, survey_user_input_line: **reference**, another parent owns it; this one is referenced (derived)
 - survey_survey → survey_question: **reference**, the app reads it on its own (derived)
-- res_users → survey_question_answer: **reference**, it is embedded under another parent; this one is referenced (derived)
-- survey_question → survey_question_answer: **reference**, it is embedded under another parent; this one is referenced (derived)
 - survey_question → survey_question_answer: **embed**, the app reads it with its parent (derived)
 - survey_question_answer → survey_question_survey_question_answer_rel: **reference**, a link table, embedded on the other side (assumed)
 - survey_question → survey_question_survey_question_answer_rel: **embed**, a link table, kept as an array on this side (derived)
 - survey_question → survey_question_survey_user_input_rel: **embed**, a link table, kept as an array on this side (assumed)
 - survey_user_input → survey_question_survey_user_input_rel: **reference**, a link table, embedded on the other side (assumed)
 - survey_question → survey_survey, survey_user_input: **reference**, other tables also point at it, so it keeps its own collection (derived)
-
-Open questions (9):
-- **extended_reference_candidate** (survey_question_answer): app reads survey_question with every survey_question_answer: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **extended_reference_candidate** (survey_question_survey_question_answer_rel): app reads survey_question_answer with every survey_question_survey_question_answer_rel: copy up to 5 read fields into each element (needs embed-level extended reference; record with resolve until supported) or keep the reference
-- **cascade_into_embed** (survey_question_survey_question_answer_rel): survey_question_survey_question_answer_rel is embedded in survey_question, but deleting a survey_question_answer row cascades to its survey_question_survey_question_answer_rel: the app must pull them from every survey_question document, or keep survey_question_survey_question_answer_rel separate
-- **cascade_into_embed** (survey_question_survey_user_input_rel): survey_question_survey_user_input_rel is embedded in survey_question, but deleting a survey_user_input row cascades to its survey_question_survey_user_input_rel: the app must pull them from every survey_question document, or keep survey_question_survey_user_input_rel separate
-- **single_valued_index_key** (survey_question): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan
-- **single_valued_index_key** (survey_question_answer): profile shows one non-null value; confirm the domain on the real estate before relying on this access-index plan
-- **source_index_not_exercised** (survey_question_answer): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (survey_question_survey_question_answer_rel): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (survey_question_survey_user_input_rel): source index not exercised by any confirmed access pattern; keep or drop
 
 ## utmTag
 
@@ -6842,11 +6065,6 @@ Why:
 - res_users → utm_tag: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - utm_tag → utm_tag_rel: **embed**, a link table, kept as an array on this side (assumed)
 - utm_campaign → utm_tag_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (3):
-- **fanout_unmeasured** (utm_tag_rel): utm_tag_rel has no rows per utm_tag in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **cascade_into_embed** (utm_tag_rel): utm_tag_rel is embedded in utm_tag, but deleting a utm_campaign row cascades to its utm_tag_rel: the app must pull them from every utm_tag document, or keep utm_tag_rel separate
-- **no_access_evidence** (utm_tag): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## webTourTour
 
@@ -6886,10 +6104,6 @@ Why:
 - res_users → web_tour_tour_step: **reference**, it is embedded under another parent; this one is referenced (derived)
 - web_tour_tour → web_tour_tour_step: **embed**, owned by its parent (cascade delete or ordinal key) (assumed)
 
-Open questions (2):
-- **fanout_unmeasured** (web_tour_tour_step): web_tour_tour_step has no rows per web_tour_tour in the profiled source (child_rows=0); fan-out is unmeasured — profile a representative source or confirm a bound before embedding
-- **no_access_evidence** (web_tour_tour): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## accountAnalyticAccount
 
 From `account_analytic_account`.
@@ -6898,18 +6112,12 @@ Why:
 - res_company, res_users, res_partner, account_analytic_plan → account_analytic_account: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_analytic_account → account_analytic_line, project_project, sale_order: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (account_analytic_account): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## accountAnalyticApplicability
 
 From `account_analytic_applicability`.
 
 Why:
 - account_analytic_plan, res_company, res_users, product_category → account_analytic_applicability: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (account_analytic_applicability): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## accountAnalyticDistributionModel
 
@@ -6918,9 +6126,6 @@ From `account_analytic_distribution_model`.
 Why:
 - res_company, res_users, res_partner_category, res_partner, product_category, product_product → account_analytic_distribution_model: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (account_analytic_distribution_model): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## accountAnalyticPlan
 
 From `account_analytic_plan`.
@@ -6928,10 +6133,6 @@ From `account_analytic_plan`.
 Why:
 - account_analytic_plan → account_analytic_account, account_analytic_applicability, account_analytic_plan: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → account_analytic_plan: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (2):
-- **no_access_evidence** (account_analytic_plan): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (account_analytic_plan): LOB column(s) description measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
 
 ## accountBankStatementLine
 
@@ -6942,9 +6143,6 @@ Why:
 - account_bank_statement_line → account_move, account_move_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_bank_statement_line → account_payment_account_bank_statement_line_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (1):
-- **no_access_evidence** (account_bank_statement_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## accountFullReconcile
 
 From `account_full_reconcile`.
@@ -6952,9 +6150,6 @@ From `account_full_reconcile`.
 Why:
 - res_users → account_full_reconcile: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_full_reconcile → account_move_line, account_partial_reconcile: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (account_full_reconcile): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## accountIncoterms
 
@@ -6964,9 +6159,6 @@ Why:
 - res_users → account_incoterms: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_incoterms → account_move, purchase_order, res_company, res_partner, sale_order: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (account_incoterms): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## accountJournalGroup
 
 From `account_journal_group`.
@@ -6975,18 +6167,12 @@ Why:
 - account_journal_group → account_journal: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → account_journal_group: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (account_journal_group): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## accountLockException
 
 From `account_lock_exception`.
 
 Why:
 - res_company, res_users → account_lock_exception: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (account_lock_exception): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## accountPartialReconcile
 
@@ -6996,9 +6182,6 @@ Why:
 - account_partial_reconcile → account_move: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users, res_currency, account_move_line, account_move, account_full_reconcile → account_partial_reconcile: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (account_partial_reconcile): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## accountPaymentMethod
 
 From `account_payment_method`.
@@ -7006,9 +6189,6 @@ From `account_payment_method`.
 Why:
 - account_payment_method → account_payment, account_payment_method_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → account_payment_method: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (account_payment_method): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## accountReportLine
 
@@ -7019,10 +6199,6 @@ Why:
 - account_report_line → account_report_external_value: **reference**, it is embedded under another parent; this one is referenced (derived)
 - res_users, account_report → account_report_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (account_report_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## accountTaxGroup
 
 From `account_tax_group`.
@@ -7030,9 +6206,6 @@ From `account_tax_group`.
 Why:
 - account_tax_group → account_move_line, account_tax: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_country, res_users → account_tax_group: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (account_tax_group): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## accountTaxRepartitionLine
 
@@ -7043,18 +6216,12 @@ Why:
 - account_tax_repartition_line → account_move_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - account_account, res_company, res_users, account_tax → account_tax_repartition_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (account_tax_repartition_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## authPasskeyKey
 
 From `auth_passkey_key`.
 
 Why:
 - res_users → auth_passkey_key: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (auth_passkey_key): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## barcodeNomenclature
 
@@ -7064,18 +6231,12 @@ Why:
 - res_users → barcode_nomenclature: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - barcode_nomenclature → barcode_rule, res_company: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (barcode_nomenclature): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## barcodeRule
 
 From `barcode_rule`.
 
 Why:
 - uom_uom, barcode_nomenclature, res_users → barcode_rule: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (barcode_rule): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## baseImportMapping
 
@@ -7084,9 +6245,6 @@ From `base_import_mapping`.
 Why:
 - res_users → base_import_mapping: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (base_import_mapping): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## busBus
 
 From `bus_bus`.
@@ -7094,18 +6252,12 @@ From `bus_bus`.
 Why:
 - res_users → bus_bus: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (bus_bus): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## calendarAttendee
 
 From `calendar_attendee`.
 
 Why:
 - res_users, calendar_event, res_partner → calendar_attendee: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (calendar_attendee): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## calendarCalendar
 
@@ -7115,9 +6267,6 @@ Why:
 - res_users → calendar_calendar: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - calendar_calendar → calendar_event, calendar_user, res_users: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (calendar_calendar): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## calendarEventType
 
 From `calendar_event_type`.
@@ -7125,9 +6274,6 @@ From `calendar_event_type`.
 Why:
 - res_users → calendar_event_type: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - calendar_event_type → meeting_category_rel: **reference**, a link table, embedded on the other side (assumed)
-
-Open questions (1):
-- **no_access_evidence** (calendar_event_type): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## calendarRecurrence
 
@@ -7137,18 +6283,12 @@ Why:
 - calendar_recurrence → calendar_event: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - calendar_event, res_users, ir_cron_trigger → calendar_recurrence: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (calendar_recurrence): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## calendarUser
 
 From `calendar_user`.
 
 Why:
 - calendar_calendar, res_users → calendar_user: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (calendar_user): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## clearingLabel
 
@@ -7158,18 +6298,12 @@ Why:
 - res_country, res_users → clearing_label: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - clearing_label → res_partner_bank: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (clearing_label): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## crmIapLeadHelpers
 
 From `crm_iap_lead_helpers`.
 
 Why:
 - res_users → crm_iap_lead_helpers: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (crm_iap_lead_helpers): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## crmIapLeadIndustryDivision
 
@@ -7179,9 +6313,6 @@ Why:
 - crm_iap_lead_industry_division → crm_iap_lead_industry: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → crm_iap_lead_industry_division: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (crm_iap_lead_industry_division): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## crmIapLeadRole
 
 From `crm_iap_lead_role`.
@@ -7189,18 +6320,12 @@ From `crm_iap_lead_role`.
 Why:
 - res_users → crm_iap_lead_role: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (crm_iap_lead_role): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## crmIapLeadSeniority
 
 From `crm_iap_lead_seniority`.
 
 Why:
 - res_users → crm_iap_lead_seniority: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (crm_iap_lead_seniority): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## crmLostReason
 
@@ -7210,9 +6335,6 @@ Why:
 - crm_lost_reason → crm_lead: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → crm_lost_reason: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (crm_lost_reason): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## crmRecurringPlan
 
 From `crm_recurring_plan`.
@@ -7221,18 +6343,12 @@ Why:
 - crm_recurring_plan → crm_lead: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → crm_recurring_plan: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (crm_recurring_plan): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## crmTeamMember
 
 From `crm_team_member`.
 
 Why:
 - res_users, crm_team → crm_team_member: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (crm_team_member): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## customerProductReference
 
@@ -7241,18 +6357,12 @@ From `customer_product_reference`.
 Why:
 - res_users, res_partner, product_product → customer_product_reference: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (customer_product_reference): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## decimalPrecision
 
 From `decimal_precision`.
 
 Why:
 - res_users → decimal_precision: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (decimal_precision): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## discussCategory
 
@@ -7262,9 +6372,6 @@ Why:
 - res_users → discuss_category: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - discuss_category → discuss_channel: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (discuss_category): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## discussChannelMember
 
 From `discuss_channel_member`.
@@ -7272,9 +6379,6 @@ From `discuss_channel_member`.
 Why:
 - discuss_channel, res_users, mail_guest, res_partner, discuss_channel_rtc_session, mail_message → discuss_channel_member: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - discuss_channel_member → discuss_channel_rtc_session: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (discuss_channel_member): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## discussChannelRtcSession
 
@@ -7284,19 +6388,12 @@ Why:
 - discuss_channel_rtc_session → discuss_channel_member: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - discuss_channel, discuss_channel_member, res_users, res_partner → discuss_channel_rtc_session: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (discuss_channel_rtc_session): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## discussGifFavorite
 
 From `discuss_gif_favorite`.
 
 Why:
 - res_users → discuss_gif_favorite: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (2):
-- **no_access_evidence** (discuss_gif_favorite): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
 
 ## eventMail
 
@@ -7306,9 +6403,6 @@ Why:
 - res_users, event_event, event_registration → event_mail: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - event_mail → event_mail_registration, event_mail_slot: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (event_mail): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## eventMailRegistration
 
 From `event_mail_registration`.
@@ -7316,18 +6410,12 @@ From `event_mail_registration`.
 Why:
 - res_users, event_registration, event_mail → event_mail_registration: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (event_mail_registration): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## eventMailSlot
 
 From `event_mail_slot`.
 
 Why:
 - res_users, event_slot, event_registration, event_mail → event_mail_slot: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (event_mail_slot): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## eventQuestionAnswer
 
@@ -7337,9 +6425,6 @@ Why:
 - res_users, event_question → event_question_answer: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - event_question_answer → event_registration_answer: **reference**, it is embedded under another parent; this one is referenced (derived)
 
-Open questions (1):
-- **no_access_evidence** (event_question_answer): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## eventSlot
 
 From `event_slot`.
@@ -7347,9 +6432,6 @@ From `event_slot`.
 Why:
 - event_slot → event_mail_slot, event_registration, sale_order_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users, event_event → event_slot: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (event_slot): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## eventStage
 
@@ -7359,9 +6441,6 @@ Why:
 - event_stage → event_event: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → event_stage: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (event_stage): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## eventTagCategory
 
 From `event_tag_category`.
@@ -7370,9 +6449,6 @@ Why:
 - event_tag_category → event_tag: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → event_tag_category: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (event_tag_category): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## fetchmailServer
 
 From `fetchmail_server`.
@@ -7380,10 +6456,6 @@ From `fetchmail_server`.
 Why:
 - res_users, ir_model → fetchmail_server: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - fetchmail_server → mail_mail: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (2):
-- **no_access_evidence** (fetchmail_server): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (fetchmail_server): LOB column(s) error_message, configuration: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
 
 ## fleetVehicleAssignationLog
 
@@ -7401,10 +6473,6 @@ Why:
 - fleet_vehicle_log_contract → fleet_service_type_fleet_vehicle_log_contract_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_company, fleet_service_type, res_users, res_partner, fleet_vehicle → fleet_vehicle_log_contract: **reference**, other tables also point at it, so it keeps its own collection (derived)
 
-Open questions (2):
-- **lob** (fleet_vehicle_log_contract): LOB column(s) notes measured max 32 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **source_index_not_exercised** (fleet_vehicle_log_contract): source index not exercised by any confirmed access pattern; keep or drop
-
 ## fleetVehicleModelBrand
 
 From `fleet_vehicle_model_brand`.
@@ -7414,9 +6482,6 @@ Why:
 - fleet_vehicle_model_brand → fleet_vehicle_log_services: **reference**, it is embedded under another parent; this one is referenced (derived)
 - res_users → fleet_vehicle_model_brand: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (fleet_vehicle_model_brand): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## fleetVehicleModelCategory
 
 From `fleet_vehicle_model_category`.
@@ -7424,9 +6489,6 @@ From `fleet_vehicle_model_category`.
 Why:
 - fleet_vehicle_model_category → fleet_vehicle, fleet_vehicle_model: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - res_users → fleet_vehicle_model_category: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (fleet_vehicle_model_category): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## fleetVehicleOdometer
 
@@ -7445,9 +6507,6 @@ Why:
 - fleet_vehicle_state → fleet_vehicle: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - res_users → fleet_vehicle_state: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (fleet_vehicle_state): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## fleetVehicleTag
 
 From `fleet_vehicle_tag`.
@@ -7463,10 +6522,6 @@ From `gamification_badge_user`.
 Why:
 - gamification_badge, gamification_challenge, res_users, hr_employee → gamification_badge_user: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (gamification_badge_user): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (gamification_badge_user): LOB column(s) comment: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
-
 ## gamificationChallengeLine
 
 From `gamification_challenge_line`.
@@ -7475,18 +6530,12 @@ Why:
 - gamification_challenge, res_users, gamification_goal_definition → gamification_challenge_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - gamification_challenge_line → gamification_goal: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (gamification_challenge_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## gamificationGoal
 
 From `gamification_goal`.
 
 Why:
 - gamification_challenge, res_users, gamification_goal_definition, gamification_challenge_line → gamification_goal: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (gamification_goal): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## gamificationGoalDefinition
 
@@ -7497,10 +6546,6 @@ Why:
 - gamification_goal_definition → gamification_challenge_line, gamification_goal: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - ir_act_window, ir_model_fields, res_users, ir_model → gamification_goal_definition: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (gamification_goal_definition): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (gamification_goal_definition): LOB column(s) description, compute_code measured max 88 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## gamificationKarmaRank
 
 From `gamification_karma_rank`.
@@ -7508,9 +6553,6 @@ From `gamification_karma_rank`.
 Why:
 - res_users → gamification_karma_rank: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - gamification_karma_rank → res_users: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (gamification_karma_rank): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## hrDepartureReason
 
@@ -7520,9 +6562,6 @@ Why:
 - res_country, res_users → hr_departure_reason: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - hr_departure_reason → hr_employee_departure: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (hr_departure_reason): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## hrEmployeeCategory
 
 From `hr_employee_category`.
@@ -7530,9 +6569,6 @@ From `hr_employee_category`.
 Why:
 - hr_employee_category → employee_category_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users → hr_employee_category: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (hr_employee_category): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## hrEmployeeDeparture
 
@@ -7542,10 +6578,6 @@ Why:
 - res_users, hr_departure_reason, hr_employee → hr_employee_departure: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - hr_employee_departure → hr_version: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (hr_employee_departure): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (hr_employee_departure): LOB column(s) departure_description: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
-
 ## hrEmployeeLocation
 
 From `hr_employee_location`.
@@ -7554,19 +6586,12 @@ Why:
 - res_users, hr_work_location → hr_employee_location: **reference**, another parent owns it; this one is referenced (derived)
 - hr_employee → hr_employee_location: **reference**, no evidence either way (assumed)
 
-Open questions (2):
-- **no_access_evidence** (hr_employee_location): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## hrEmployeeSkill
 
 From `hr_employee_skill`.
 
 Why:
 - res_users, hr_employee, hr_skill, hr_skill_level, hr_skill_type → hr_employee_skill: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (hr_employee_skill): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## hrEmployeeType
 
@@ -7575,9 +6600,6 @@ From `hr_employee_type`.
 Why:
 - res_company, res_country, res_users → hr_employee_type: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - hr_employee_type → hr_job, hr_version: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (hr_employee_type): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## hrExpense
 
@@ -7589,25 +6611,12 @@ Why:
 - account_account, account_move, res_company, res_users, res_currency, hr_department, hr_employee, ir_attachment, account_payment_method_line, product_product, uom_uom, sale_order, sale_order_line, res_partner → hr_expense: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - hr_expense → hr_expense: **reference**, other tables also point at it, so it keeps its own collection (derived)
 
-Open questions (8):
-- **lob** (hr_expense): LOB column(s) description measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **source_index_not_exercised** (hr_expense): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (hr_expense): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (hr_expense): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (hr_expense): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (hr_expense): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (hr_expense): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (hr_expense): source index not exercised by any confirmed access pattern; keep or drop
-
 ## hrJobSkill
 
 From `hr_job_skill`.
 
 Why:
 - res_users, hr_job, hr_skill, hr_skill_level, hr_skill_type → hr_job_skill: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (hr_job_skill): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## hrLeave
 
@@ -7617,10 +6626,6 @@ Why:
 - hr_leave → account_analytic_line, hr_leave, resource_calendar_leaves: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users, hr_department, hr_employee, calendar_event, ir_attachment, resource_calendar, hr_time_rule, hr_work_entry_type → hr_leave: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (hr_leave): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (hr_leave): LOB column(s) notes measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## hrLeaveMandatoryDay
 
 From `hr_leave_mandatory_day`.
@@ -7628,9 +6633,6 @@ From `hr_leave_mandatory_day`.
 Why:
 - hr_leave_mandatory_day → hr_department_hr_leave_mandatory_day_rel, hr_job_hr_leave_mandatory_day_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_company, res_users, resource_calendar → hr_leave_mandatory_day: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (hr_leave_mandatory_day): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## hrPayrollStructureType
 
@@ -7640,18 +6642,12 @@ Why:
 - res_country, res_users, resource_calendar → hr_payroll_structure_type: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - hr_payroll_structure_type → hr_version: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (hr_payroll_structure_type): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## hrResumeLine
 
 From `hr_resume_line`.
 
 Why:
 - res_users, hr_department, hr_employee, event_event, hr_resume_line_type, survey_survey → hr_resume_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (hr_resume_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## hrResumeLineType
 
@@ -7660,9 +6656,6 @@ From `hr_resume_line_type`.
 Why:
 - hr_resume_line_type → hr_resume_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → hr_resume_line_type: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (hr_resume_line_type): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## hrSkill
 
@@ -7673,9 +6666,6 @@ Why:
 - hr_skill → hr_employee_skill, hr_job_skill: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users, hr_skill_type → hr_skill: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (hr_skill): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## hrSkillLevel
 
 From `hr_skill_level`.
@@ -7683,9 +6673,6 @@ From `hr_skill_level`.
 Why:
 - hr_skill_level → hr_employee_skill, hr_job_skill: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users, hr_skill_type → hr_skill_level: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (hr_skill_level): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## hrSkillType
 
@@ -7695,9 +6682,6 @@ Why:
 - hr_skill_type → hr_employee_skill, hr_job_skill, hr_skill, hr_skill_level: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → hr_skill_type: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (hr_skill_type): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## hrVersion
 
 From `hr_version`.
@@ -7705,9 +6689,6 @@ From `hr_version`.
 Why:
 - hr_version → hr_employee, hr_version: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_partner, hr_leave_allocation, res_company, res_country, res_users, hr_department, hr_employee_departure, hr_employee, hr_employee_type, hr_job, res_country_state, resource_calendar, hr_payroll_structure_type, hr_work_location → hr_version: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (hr_version): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## hrWorkEntryType
 
@@ -7719,9 +6700,6 @@ Why:
 - mail_message_subtype, res_country, res_users → hr_work_entry_type: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - hr_work_entry_type → resource_calendar_attendance: **reference**, it is embedded under another parent; this one is referenced (derived)
 
-Open questions (1):
-- **no_access_evidence** (hr_work_entry_type): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## hrWorkLocation
 
 From `hr_work_location`.
@@ -7731,19 +6709,12 @@ Why:
 - hr_work_location → hr_employee_location: **reference**, another parent owns it; this one is referenced (derived)
 - res_partner, res_company, res_users → hr_work_location: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (hr_work_location): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## htmlEditorConverterTest
 
 From `html_editor_converter_test`.
 
 Why:
 - res_users, html_editor_converter_test_sub → html_editor_converter_test: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (2):
-- **no_access_evidence** (html_editor_converter_test): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (html_editor_converter_test): LOB column(s) html, text: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
 
 ## htmlEditorConverterTestSub
 
@@ -7753,19 +6724,12 @@ Why:
 - html_editor_converter_test_sub → html_editor_converter_test: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → html_editor_converter_test_sub: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (html_editor_converter_test_sub): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## irAccess
 
 From `ir_access`.
 
 Why:
 - res_users, res_groups, ir_model → ir_access: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (2):
-- **no_access_evidence** (ir_access): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (ir_access): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
 
 ## irActReportXml
 
@@ -7776,20 +6740,12 @@ Why:
 - ir_model, res_users, report_paperformat → ir_act_report_xml: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - ir_act_report_xml → mail_template_ir_actions_report_rel, res_groups_report_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (3):
-- **no_access_evidence** (ir_act_report_xml): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (ir_act_report_xml): LOB column(s) explanation measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## irActionsTodo
 
 From `ir_actions_todo`.
 
 Why:
 - res_users → ir_actions_todo: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (ir_actions_todo): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## irAsset
 
@@ -7798,19 +6754,12 @@ From `ir_asset`.
 Why:
 - res_users → ir_asset: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (ir_asset): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## irConfigParameter
 
 From `ir_config_parameter`.
 
 Why:
 - res_users → ir_config_parameter: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (2):
-- **no_access_evidence** (ir_config_parameter): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (ir_config_parameter): LOB column(s) value measured max 70 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
 
 ## irCronTrigger
 
@@ -7820,9 +6769,6 @@ Why:
 - ir_cron_trigger → calendar_recurrence: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users, ir_cron → ir_cron_trigger: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (ir_cron_trigger): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## irDefault
 
 From `ir_default`.
@@ -7830,16 +6776,9 @@ From `ir_default`.
 Why:
 - res_company, res_users, ir_model_fields → ir_default: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (ir_default): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## irLogging
 
 From `ir_logging`.
-
-Open questions (2):
-- **no_access_evidence** (ir_logging): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (ir_logging): LOB column(s) message: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
 
 ## irMailServer
 
@@ -7849,10 +6788,6 @@ Why:
 - res_users → ir_mail_server: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - ir_mail_server → mail_message, mail_template: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (ir_mail_server): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## irModelConstraint
 
 From `ir_model_constraint`.
@@ -7860,18 +6795,12 @@ From `ir_model_constraint`.
 Why:
 - res_users, ir_model, ir_module_module → ir_model_constraint: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (ir_model_constraint): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## irModelData
 
 From `ir_model_data`.
 
 Why:
 - res_users → ir_model_data: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (ir_model_data): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## irModelFieldsSelection
 
@@ -7881,18 +6810,12 @@ Why:
 - ir_model_fields_selection → ir_act_server: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users, ir_model_fields → ir_model_fields_selection: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (ir_model_fields_selection): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## irModelRelation
 
 From `ir_model_relation`.
 
 Why:
 - res_users, ir_model, ir_module_module → ir_model_relation: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (ir_model_relation): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## irModuleCategory
 
@@ -7901,9 +6824,6 @@ From `ir_module_category`.
 Why:
 - res_users → ir_module_category: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - ir_module_category → ir_module_category, ir_module_module, res_groups_privilege: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (ir_module_category): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## irSequence
 
@@ -7914,9 +6834,6 @@ Why:
 - res_company, res_users → ir_sequence: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - ir_sequence → ir_sequence_date_range: **reference**, no evidence either way (assumed)
 
-Open questions (1):
-- **no_access_evidence** (ir_sequence): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## irSequenceDateRange
 
 From `ir_sequence_date_range`.
@@ -7925,19 +6842,12 @@ Why:
 - res_users → ir_sequence_date_range: **reference**, another parent owns it; this one is referenced (derived)
 - ir_sequence → ir_sequence_date_range: **reference**, no evidence either way (assumed)
 
-Open questions (1):
-- **no_access_evidence** (ir_sequence_date_range): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## irUiViewCustom
 
 From `ir_ui_view_custom`.
 
 Why:
 - res_users, ir_ui_view → ir_ui_view_custom: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (2):
-- **no_access_evidence** (ir_ui_view_custom): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (ir_ui_view_custom): LOB column(s) arch: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
 
 ## l10nUsResCounty
 
@@ -7947,19 +6857,12 @@ Why:
 - l10n_us_res_county → account_tax, res_city: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users, res_country_state → l10n_us_res_county: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (l10n_us_res_county): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## lunchCashmove
 
 From `lunch_cashmove`.
 
 Why:
 - res_users, res_currency → lunch_cashmove: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (2):
-- **no_access_evidence** (lunch_cashmove): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (lunch_cashmove): LOB column(s) description measured max 32 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
 
 ## lunchProductCategory
 
@@ -7968,9 +6871,6 @@ From `lunch_product_category`.
 Why:
 - lunch_product_category → lunch_order, lunch_product: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - res_company, res_users → lunch_product_category: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (lunch_product_category): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## lunchSupplier
 
@@ -7981,9 +6881,6 @@ Why:
 - lunch_supplier → lunch_order, lunch_product: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - res_company, res_users, ir_cron, res_partner → lunch_supplier: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - lunch_supplier → lunch_topping: **reference**, the app reads it on its own (derived)
-
-Open questions (1):
-- **repeating_group** (lunch_supplier): collapse each numbered series into one array field; needs app evidence, mapped 1:1 until then
 
 ## lunchTopping
 
@@ -8002,10 +6899,6 @@ Why:
 - mail_activity → activity_attachment_rel: **reference**, a link table, embedded on the other side (assumed)
 - mail_activity_plan, mail_activity_plan_template, mail_activity_type, calendar_event, res_users, ir_model, res_role → mail_activity: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (mail_activity): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (mail_activity): LOB column(s) note, feedback measured max 179 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## mailActivityPlan
 
 From `mail_activity_plan`.
@@ -8014,9 +6907,6 @@ Why:
 - mail_activity_plan → ir_act_server, mail_activity, mail_activity_plan_template: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users, hr_department, ir_model → mail_activity_plan: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (mail_activity_plan): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## mailActivityPlanTemplate
 
 From `mail_activity_plan_template`.
@@ -8024,10 +6914,6 @@ From `mail_activity_plan_template`.
 Why:
 - mail_activity_plan_template → mail_activity: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - mail_activity_type, res_users, mail_activity_plan, res_role → mail_activity_plan_template: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (2):
-- **no_access_evidence** (mail_activity_plan_template): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (mail_activity_plan_template): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
 
 ## mailAlias
 
@@ -8038,10 +6924,6 @@ Why:
 - mail_alias_domain, ir_model, res_users → mail_alias: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - mail_alias → maintenance_team: **reference**, other tables also point at it, so it keeps its own collection (derived)
 
-Open questions (2):
-- **no_access_evidence** (mail_alias): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (mail_alias): LOB column(s) alias_defaults measured max 63 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## mailAliasDomain
 
 From `mail_alias_domain`.
@@ -8050,9 +6932,6 @@ Why:
 - mail_alias_domain → mail_alias, mail_message, res_company: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → mail_alias_domain: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (mail_alias_domain): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## mailBlacklist
 
 From `mail_blacklist`.
@@ -8060,18 +6939,12 @@ From `mail_blacklist`.
 Why:
 - res_users → mail_blacklist: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (mail_blacklist): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## mailGatewayAllowed
 
 From `mail_gateway_allowed`.
 
 Why:
 - res_users → mail_gateway_allowed: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (mail_gateway_allowed): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## mailGuest
 
@@ -8081,18 +6954,12 @@ Why:
 - mail_guest → discuss_channel_member, mail_message, mail_message_reaction, mail_poll_vote, mail_presence: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_country, res_users → mail_guest: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (mail_guest): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## mailIceServer
 
 From `mail_ice_server`.
 
 Why:
 - res_users → mail_ice_server: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (mail_ice_server): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## mailLinkPreview
 
@@ -8102,10 +6969,6 @@ Why:
 - res_users → mail_link_preview: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - mail_link_preview → mail_message_link_preview: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (mail_link_preview): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (mail_link_preview): LOB column(s) og_description: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
-
 ## mailMessageLinkPreview
 
 From `mail_message_link_preview`.
@@ -8113,18 +6976,12 @@ From `mail_message_link_preview`.
 Why:
 - res_users, mail_link_preview, mail_message → mail_message_link_preview: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (mail_message_link_preview): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## mailMessageReaction
 
 From `mail_message_reaction`.
 
 Why:
 - mail_guest, mail_message, res_partner → mail_message_reaction: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (mail_message_reaction): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## mailMessageSubtype
 
@@ -8135,9 +6992,6 @@ Why:
 - mail_message_subtype → ir_act_server_mail_message_subtype_rel, mail_followers_mail_message_subtype_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users → mail_message_subtype: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (mail_message_subtype): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## mailPoll
 
 From `mail_poll`.
@@ -8145,10 +6999,6 @@ From `mail_poll`.
 Why:
 - res_users, mail_message → mail_poll: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - mail_poll → mail_poll_option: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (2):
-- **no_access_evidence** (mail_poll): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
 
 ## mailPollOption
 
@@ -8158,9 +7008,6 @@ Why:
 - res_users, mail_poll → mail_poll_option: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - mail_poll_option → mail_poll_vote: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (mail_poll_option): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## mailPollVote
 
 From `mail_poll_vote`.
@@ -8168,20 +7015,12 @@ From `mail_poll_vote`.
 Why:
 - res_users, mail_guest, mail_poll_option → mail_poll_vote: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (3):
-- **no_access_evidence** (mail_poll_vote): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## mailPresence
 
 From `mail_presence`.
 
 Why:
 - mail_guest, res_users → mail_presence: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (mail_presence): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## maintenanceEquipment
 
@@ -8192,14 +7031,6 @@ Why:
 - res_company, res_users, hr_department, hr_employee, stock_location, maintenance_team, res_partner, fleet_vehicle → maintenance_equipment: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - maintenance_equipment → maintenance_request: **reference**, other tables also point at it, so it keeps its own collection (derived)
 
-Open questions (6):
-- **lob** (maintenance_equipment): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **source_index_not_exercised** (maintenance_equipment): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (maintenance_equipment): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (maintenance_equipment): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (maintenance_equipment): source index not exercised by any confirmed access pattern; keep or drop
-
 ## maintenanceEquipmentCategory
 
 From `maintenance_equipment_category`.
@@ -8208,9 +7039,6 @@ Why:
 - maintenance_equipment_category → maintenance_equipment: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users → maintenance_equipment_category: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - maintenance_equipment_category → maintenance_request: **reference**, other tables also point at it, so it keeps its own collection (derived)
-
-Open questions (1):
-- **no_access_evidence** (maintenance_equipment_category): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## onboardingOnboardingStep
 
@@ -8221,9 +7049,6 @@ Why:
 - res_users → onboarding_onboarding_step: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - onboarding_onboarding_step → onboarding_progress_step: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (onboarding_onboarding_step): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## onboardingProgressStep
 
 From `onboarding_progress_step`.
@@ -8232,57 +7057,33 @@ Why:
 - onboarding_progress_step → onboarding_progress_onboarding_progress_step_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_company, res_users, onboarding_onboarding_step → onboarding_progress_step: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (onboarding_progress_step): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## ormSignalingAssets
 
 From `orm_signaling_assets`.
-
-Open questions (1):
-- **no_access_evidence** (orm_signaling_assets): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## ormSignalingDefault
 
 From `orm_signaling_default`.
 
-Open questions (1):
-- **no_access_evidence** (orm_signaling_default): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## ormSignalingGroups
 
 From `orm_signaling_groups`.
-
-Open questions (1):
-- **no_access_evidence** (orm_signaling_groups): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## ormSignalingRegistry
 
 From `orm_signaling_registry`.
 
-Open questions (1):
-- **no_access_evidence** (orm_signaling_registry): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## ormSignalingRouting
 
 From `orm_signaling_routing`.
-
-Open questions (1):
-- **no_access_evidence** (orm_signaling_routing): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## ormSignalingStable
 
 From `orm_signaling_stable`.
 
-Open questions (1):
-- **no_access_evidence** (orm_signaling_stable): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## ormSignalingTemplates
 
 From `orm_signaling_templates`.
-
-Open questions (1):
-- **no_access_evidence** (orm_signaling_templates): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## paymentData
 
@@ -8291,10 +7092,6 @@ From `payment_data`.
 Why:
 - res_users, payment_transaction → payment_data: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (payment_data): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (payment_data): LOB column(s) error_traceback: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
-
 ## paymentToken
 
 From `payment_token`.
@@ -8302,9 +7099,6 @@ From `payment_token`.
 Why:
 - payment_token → account_payment, payment_transaction: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users, res_partner, payment_method, payment_provider → payment_token: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (payment_token): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## paymentTransaction
 
@@ -8315,19 +7109,12 @@ Why:
 - payment_transaction → account_payment, payment_data, payment_transaction: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users, res_currency, res_country, res_partner, res_country_state, account_payment, payment_method, payment_provider, payment_token → payment_transaction: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (payment_transaction): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (payment_transaction): LOB column(s) state_message: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
-
 ## phoneBlacklist
 
 From `phone_blacklist`.
 
 Why:
 - res_users → phone_blacklist: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (phone_blacklist): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## portalEntry
 
@@ -8336,9 +7123,6 @@ From `portal_entry`.
 Why:
 - res_users → portal_entry: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (portal_entry): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## privacyLog
 
 From `privacy_log`.
@@ -8346,21 +7130,12 @@ From `privacy_log`.
 Why:
 - res_users → privacy_log: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (privacy_log): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (privacy_log): LOB column(s) execution_details, records_description, additional_note: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
-
 ## productAttributeCustomValue
 
 From `product_attribute_custom_value`.
 
 Why:
 - product_template_attribute_value, res_users, sale_order_line, sale_order_template_line → product_attribute_custom_value: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (3):
-- **no_access_evidence** (product_attribute_custom_value): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
 
 ## productBaseUnit
 
@@ -8370,9 +7145,6 @@ Why:
 - res_users → product_base_unit: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - product_base_unit → product_product, product_template: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (product_base_unit): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## productComboItem
 
 From `product_combo_item`.
@@ -8380,9 +7152,6 @@ From `product_combo_item`.
 Why:
 - product_combo, res_company, res_users, product_product → product_combo_item: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - product_combo_item → sale_order_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (product_combo_item): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## productPricelist
 
@@ -8393,18 +7162,12 @@ Why:
 - res_company, res_users, res_currency → product_pricelist: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - product_pricelist → product_pricelist_item, sale_order: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (product_pricelist): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## productPricelistItem
 
 From `product_pricelist_item`.
 
 Why:
 - product_pricelist, product_category, res_company, res_users, res_currency, product_product, product_template, uom_uom → product_pricelist_item: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (product_pricelist_item): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## productRemoval
 
@@ -8414,9 +7177,6 @@ Why:
 - product_removal → product_category, stock_location: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → product_removal: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (product_removal): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## productSupplierinfo
 
 From `product_supplierinfo`.
@@ -8424,9 +7184,6 @@ From `product_supplierinfo`.
 Why:
 - res_company, res_users, res_currency, res_partner, product_product, product_template, uom_uom → product_supplierinfo: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - product_supplierinfo → stock_warehouse_orderpoint: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (product_supplierinfo): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## productTemplateAttributeLine
 
@@ -8437,18 +7194,12 @@ Why:
 - product_attribute, res_users, product_template → product_template_attribute_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - product_template_attribute_line → product_template_attribute_value: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (product_template_attribute_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## productUom
 
 From `product_uom`.
 
 Why:
 - res_company, res_users, product_product, uom_uom → product_uom: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (product_uom): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## projectMilestone
 
@@ -8458,9 +7209,6 @@ Why:
 - res_users, project_project, sale_order_line → project_milestone: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - project_milestone → project_task: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (project_milestone): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## projectProjectStage
 
 From `project_project_stage`.
@@ -8468,9 +7216,6 @@ From `project_project_stage`.
 Why:
 - project_project_stage → project_project: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users, mail_template, sms_template → project_project_stage: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (project_project_stage): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## projectTaskRecurrence
 
@@ -8480,18 +7225,12 @@ Why:
 - project_task_recurrence → project_task: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → project_task_recurrence: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (project_task_recurrence): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## projectTaskUserRel
 
 From `project_task_user_rel`.
 
 Why:
 - res_users, project_task_type, project_task → project_task_user_rel: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (project_task_user_rel): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## projectUpdate
 
@@ -8501,10 +7240,6 @@ Why:
 - project_update → project_project: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users, project_project, uom_uom → project_update: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (project_update): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (project_update): LOB column(s) description measured max 1209 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## ratingRating
 
 From `rating_rating`.
@@ -8512,19 +7247,12 @@ From `rating_rating`.
 Why:
 - res_users, mail_message, ir_model, res_partner → rating_rating: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (rating_rating): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (rating_rating): LOB column(s) feedback, publisher_comment measured max 142 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## reportLayout
 
 From `report_layout`.
 
 Why:
 - res_users, ir_ui_view → report_layout: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (report_layout): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## reportPaperformat
 
@@ -8534,9 +7262,6 @@ Why:
 - report_paperformat → ir_act_report_xml, res_company: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → report_paperformat: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (report_paperformat): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## resCity
 
 From `res_city`.
@@ -8544,9 +7269,6 @@ From `res_city`.
 Why:
 - res_city → account_tax, res_partner: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_country, res_users, l10n_us_res_county, res_country_state → res_city: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (res_city): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## resCountryState
 
@@ -8556,9 +7278,6 @@ Why:
 - res_country_state → account_fiscal_position_res_country_state_rel, crm_iap_lead_mining_request_res_country_state_rel, res_country_group_res_country_state_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_country_state → account_tax, crm_lead, hr_version, l10n_us_res_county, payment_transaction, res_city, res_partner, res_partner_bank: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_country, res_users → res_country_state: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (res_country_state): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## resCurrency
 
@@ -8572,9 +7291,6 @@ Why:
 - res_users → res_currency: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_currency → res_currency_rate: **reference**, no evidence either way (assumed)
 
-Open questions (1):
-- **no_access_evidence** (res_currency): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## resCurrencyRate
 
 From `res_currency_rate`.
@@ -8583,19 +7299,12 @@ Why:
 - res_company, res_users → res_currency_rate: **reference**, another parent owns it; this one is referenced (derived)
 - res_currency → res_currency_rate: **reference**, no evidence either way (assumed)
 
-Open questions (2):
-- **no_access_evidence** (res_currency_rate): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## resDeviceLog
 
 From `res_device_log`.
 
 Why:
 - res_users → res_device_log: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (res_device_log): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## resGroupsPrivilege
 
@@ -8604,9 +7313,6 @@ From `res_groups_privilege`.
 Why:
 - res_groups_privilege → res_groups: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - ir_module_category, res_users → res_groups_privilege: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (res_groups_privilege): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## resPartnerBank
 
@@ -8617,11 +7323,6 @@ Why:
 - res_partner_bank → employee_bank_account_rel: **reference**, a link table, embedded on the other side (assumed)
 - clearing_label, res_company, res_country, res_users, res_partner, res_country_state → res_partner_bank: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (3):
-- **no_access_evidence** (res_partner_bank): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (res_partner_bank): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## resPartnerCategory
 
 From `res_partner_category`.
@@ -8631,9 +7332,6 @@ Why:
 - res_partner_category → account_cash_rounding_res_partner_category_rel, res_partner_res_partner_category_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users → res_partner_category: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (res_partner_category): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## resPartnerIndustry
 
 From `res_partner_industry`.
@@ -8642,9 +7340,6 @@ Why:
 - res_partner_industry → res_partner: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → res_partner_industry: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (res_partner_industry): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## resUsersDeletion
 
 From `res_users_deletion`.
@@ -8652,18 +7347,12 @@ From `res_users_deletion`.
 Why:
 - res_users → res_users_deletion: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (res_users_deletion): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## resUsersLog
 
 From `res_users_log`.
 
 Why:
 - res_users → res_users_log: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (res_users_log): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## resUsersSettings
 
@@ -8673,9 +7362,6 @@ Why:
 - res_users → res_users_settings: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users_settings → res_users_settings_embedded_action, res_users_settings_volumes: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (res_users_settings): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## resUsersSettingsEmbeddedAction
 
 From `res_users_settings_embedded_action`.
@@ -8683,19 +7369,12 @@ From `res_users_settings_embedded_action`.
 Why:
 - ir_act_window, res_users, res_users_settings → res_users_settings_embedded_action: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (res_users_settings_embedded_action): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## resUsersSettingsVolumes
 
 From `res_users_settings_volumes`.
 
 Why:
 - res_users, res_partner, res_users_settings → res_users_settings_volumes: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (res_users_settings_volumes): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## resourceCalendarLeaves
 
@@ -8705,9 +7384,6 @@ Why:
 - resource_calendar_leaves → account_analytic_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - resource_calendar, res_company, res_users, hr_leave, resource_resource, hr_work_entry_type → resource_calendar_leaves: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (resource_calendar_leaves): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## resourceResource
 
 From `resource_resource`.
@@ -8716,9 +7392,6 @@ Why:
 - resource_resource → hr_employee, resource_calendar_leaves: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - resource_calendar, res_company, res_users → resource_resource: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (resource_resource): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## returnReason
 
 From `return_reason`.
@@ -8726,9 +7399,6 @@ From `return_reason`.
 Why:
 - res_users → return_reason: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - return_reason → stock_picking: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (return_reason): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## saleOrderTemplate
 
@@ -8739,9 +7409,6 @@ Why:
 - sale_order_template → sale_order, sale_order_template_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users, res_currency, mail_template → sale_order_template: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (sale_order_template): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## saleOrderTemplateLine
 
 From `sale_order_template_line`.
@@ -8751,9 +7418,6 @@ Why:
 - sale_order_template_line → product_attribute_custom_value: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users, product_product, uom_uom, sale_order_template → sale_order_template_line: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (sale_order_template_line): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## salePdfFormField
 
 From `sale_pdf_form_field`.
@@ -8762,20 +7426,12 @@ Why:
 - sale_pdf_form_field → product_document_sale_pdf_form_field_rel, quotation_document_sale_pdf_form_field_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users → sale_pdf_form_field: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (sale_pdf_form_field): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## smsSms
 
 From `sms_sms`.
 
 Why:
 - res_users, mail_message, res_partner → sms_sms: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (3):
-- **no_access_evidence** (sms_sms): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (sms_sms): LOB column(s) body: measure row_bytes/embed_bytes before embedding this table or embedding it into a parent; keep large bodies in a separate collection (or GridFS) if they approach the 16 MB document limit
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
 
 ## smsTemplate
 
@@ -8785,9 +7441,6 @@ Why:
 - sms_template → calendar_alarm, ir_act_server, project_project_stage, project_task_type, res_company: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users, ir_model, ir_act_window → sms_template: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (sms_template): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## spreadsheetDashboardFavoriteFilters
 
 From `spreadsheet_dashboard_favorite_filters`.
@@ -8796,9 +7449,6 @@ Why:
 - spreadsheet_dashboard_favorite_filters → res_users_spreadsheet_dashboard_favorite_filters_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users, spreadsheet_dashboard → spreadsheet_dashboard_favorite_filters: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (spreadsheet_dashboard_favorite_filters): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## spreadsheetDashboardGroup
 
 From `spreadsheet_dashboard_group`.
@@ -8806,9 +7456,6 @@ From `spreadsheet_dashboard_group`.
 Why:
 - spreadsheet_dashboard_group → spreadsheet_dashboard: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → spreadsheet_dashboard_group: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (spreadsheet_dashboard_group): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## stockLot
 
@@ -8820,10 +7467,6 @@ Why:
 - res_company, res_users, stock_location, product_product → stock_lot: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - stock_lot → stock_move_line, stock_quant: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (stock_lot): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (stock_lot): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-
 ## stockPackage
 
 From `stock_package`.
@@ -8831,9 +7474,6 @@ From `stock_package`.
 Why:
 - stock_package → stock_move_line, stock_package, stock_package_history, stock_quant: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users, stock_location, stock_package_type → stock_package: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (stock_package): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## stockPicking
 
@@ -8844,11 +7484,6 @@ Why:
 - stock_picking → stock_move, stock_move_line, stock_picking: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - stock_picking_batch, res_company, res_users, stock_location, res_partner, stock_picking_type, project_project, return_reason, sale_order → stock_picking: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (3):
-- **no_access_evidence** (stock_picking): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **lob** (stock_picking): LOB column(s) note measured max 0 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## stockPickingBatch
 
 From `stock_picking_batch`.
@@ -8856,9 +7491,6 @@ From `stock_picking_batch`.
 Why:
 - stock_picking_batch → stock_picking: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users, stock_picking_type → stock_picking_batch: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (stock_picking_batch): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## stockPickingType
 
@@ -8869,9 +7501,6 @@ Why:
 - stock_picking_type → purchase_order, stock_move, stock_picking, stock_picking_batch, stock_picking_type, stock_rule, stock_warehouse: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - stock_location, res_company, res_users, ir_sequence, stock_warehouse → stock_picking_type: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (stock_picking_type): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## stockPutawayRule
 
 From `stock_putaway_rule`.
@@ -8880,18 +7509,12 @@ Why:
 - stock_putaway_rule → stock_package_type_stock_putaway_rule_rel: **reference**, a link table, embedded on the other side (assumed)
 - product_category, res_company, res_users, stock_location, product_product, stock_storage_category → stock_putaway_rule: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (stock_putaway_rule): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## stockQuant
 
 From `stock_quant`.
 
 Why:
 - res_company, res_users, stock_location, stock_lot, res_partner, stock_package, product_product → stock_quant: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (stock_quant): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## stockRule
 
@@ -8901,9 +7524,6 @@ Why:
 - stock_rule → stock_move, stock_warehouse: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users, stock_location, res_partner, stock_picking_type, stock_route, stock_warehouse → stock_rule: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (stock_rule): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## stockScrapReasonTag
 
 From `stock_scrap_reason_tag`.
@@ -8911,9 +7531,6 @@ From `stock_scrap_reason_tag`.
 Why:
 - stock_scrap_reason_tag → stock_move_stock_scrap_reason_tag_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users → stock_scrap_reason_tag: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (stock_scrap_reason_tag): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## stockStorageCategory
 
@@ -8923,20 +7540,12 @@ Why:
 - stock_storage_category → stock_location, stock_putaway_rule, stock_storage_category_capacity: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users → stock_storage_category: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (stock_storage_category): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## stockStorageCategoryCapacity
 
 From `stock_storage_category_capacity`.
 
 Why:
 - res_users, stock_package_type, product_product, stock_storage_category → stock_storage_category_capacity: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (3):
-- **no_access_evidence** (stock_storage_category_capacity): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
 
 ## stockWarehouseOrderpoint
 
@@ -8945,9 +7554,6 @@ From `stock_warehouse_orderpoint`.
 Why:
 - stock_warehouse_orderpoint → purchase_order_line, stock_move: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_company, res_users, stock_location, product_product, uom_uom, stock_route, product_supplierinfo, stock_warehouse → stock_warehouse_orderpoint: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (stock_warehouse_orderpoint): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## surveySurvey
 
@@ -8961,13 +7567,6 @@ Why:
 - survey_survey → survey_user_input: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - survey_survey → survey_user_input_line: **reference**, another parent owns it; this one is referenced (derived)
 
-Open questions (5):
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-- **source_index_not_exercised** (survey_survey): source index not exercised by any confirmed access pattern; keep or drop
-- **source_index_not_exercised** (survey_survey): source index not exercised by any confirmed access pattern; keep or drop
-
 ## surveyUserInput
 
 From `survey_user_input`.
@@ -8977,9 +7576,6 @@ Why:
 - res_users, res_lang, survey_question, crm_lead, res_partner, survey_survey → survey_user_input: **reference**, other tables also point at it, so it keeps its own collection (derived)
 - survey_user_input → survey_user_input_line: **reference**, the app reads it on its own (derived)
 
-Open questions (1):
-- **source_index_not_exercised** (survey_user_input): source index not exercised by any confirmed access pattern; keep or drop
-
 ## surveyUserInputLine
 
 From `survey_user_input_line`.
@@ -8987,9 +7583,6 @@ From `survey_user_input_line`.
 Why:
 - res_users, survey_question_answer, survey_question, survey_survey → survey_user_input_line: **reference**, another parent owns it; this one is referenced (derived)
 - survey_user_input → survey_user_input_line: **reference**, the app reads it on its own (derived)
-
-Open questions (1):
-- **lob** (survey_user_input_line): LOB column(s) value_text_box measured max 123 bytes on this data: size allows embedding, but confirm the bound on the real estate (profile is a sample)
 
 ## uomUom
 
@@ -9001,10 +7594,6 @@ Why:
 - uom_uom → product_product_uom_uom_rel, product_template_uom_uom_rel: **reference**, a link table, embedded on the other side (assumed)
 - res_users, stock_package_type → uom_uom: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (uom_uom): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
-
 ## utmCampaign
 
 From `utm_campaign`.
@@ -9014,9 +7603,6 @@ Why:
 - res_users, utm_stage → utm_campaign: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - utm_campaign → utm_tag_rel: **reference**, a link table, embedded on the other side (assumed)
 
-Open questions (1):
-- **no_access_evidence** (utm_campaign): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## utmMedium
 
 From `utm_medium`.
@@ -9024,9 +7610,6 @@ From `utm_medium`.
 Why:
 - utm_medium → account_move, crm_lead, event_registration, sale_order: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → utm_medium: **reference**, other tables also point at it, so it keeps its own collection (assumed)
-
-Open questions (1):
-- **no_access_evidence** (utm_medium): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
 
 ## utmSource
 
@@ -9036,9 +7619,6 @@ Why:
 - utm_source → account_move, crm_lead, event_registration, sale_order: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → utm_source: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (utm_source): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## utmStage
 
 From `utm_stage`.
@@ -9047,9 +7627,6 @@ Why:
 - utm_stage → utm_campaign: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 - res_users → utm_stage: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (1):
-- **no_access_evidence** (utm_stage): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-
 ## website
 
 From `website`.
@@ -9057,6 +7634,44 @@ From `website`.
 Why:
 - res_company, res_users → website: **reference**, other tables also point at it, so it keeps its own collection (assumed)
 
-Open questions (2):
-- **no_access_evidence** (website): no confirmed non-deploy application pattern touches this collection or its embedded tables; review these pointer/FK columns as index candidates, but do not create indexes without workload evidence; any source_indexes listed are carried over unchanged
-- **nullable_unique_key**: source UNIQUE admits repeated NULLs, a MongoDB unique index does not: confirm no NULLs and add an index decision, or keep it unenforced
+## irActClient
+
+From `ir_act_client`.
+
+Why:
+- ir_model → ir_act_client: **reference**, owned by its parent (cascade delete or ordinal key) (derived)
+- res_users → ir_act_client: **reference**, another parent owns it; this one is referenced (derived)
+
+## irActUrl
+
+From `ir_act_url`.
+
+Why:
+- ir_model → ir_act_url: **reference**, owned by its parent (cascade delete or ordinal key) (derived)
+- res_users → ir_act_url: **reference**, another parent owns it; this one is referenced (derived)
+
+## irActions
+
+From `ir_actions`.
+
+Why:
+- ir_model → ir_actions: **reference**, owned by its parent (cascade delete or ordinal key) (derived)
+- res_users → ir_actions: **reference**, another parent owns it; this one is referenced (derived)
+
+## irModelInherit
+
+From `ir_model_inherit`.
+
+Why:
+- ir_model → ir_model_inherit: **reference**, another parent owns it; this one is referenced (derived)
+- ir_model_fields → ir_model_inherit: **reference**, owned by its parent (cascade delete or ordinal key) (derived)
+
+## surveyQuestionAnswer
+
+From `survey_question_answer`.
+
+Why:
+- res_users, survey_question → survey_question_answer: **reference**, another parent owns it; this one is referenced (derived)
+- survey_question → survey_question_answer: **embed**, the app reads it with its parent (derived)
+- survey_question_answer → survey_question_survey_question_answer_rel: **reference**, a link table, embedded on the other side (assumed)
+- survey_question_answer → survey_user_input_line: **reference**, another parent owns it; this one is referenced (derived)

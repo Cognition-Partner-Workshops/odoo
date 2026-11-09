@@ -13,7 +13,7 @@
   "expected_waves": {"canary": ["hrExpense"], "wave_2": ["hrExpenseProductJobPositionLimit"]},
   "basis": {
     "base_sha": "ea1e85b92fc",
-    "mapping_spec": ".migration/mapping_spec.proposed.json (map-draft-2)",
+    "mapping_spec": ".migration/mapping_spec.json (map-draft-3: map-draft-2 plus the slice decisions)",
     "write_patterns": ["ap-9cba92b1f5", "ap-24e1f0091e", "ap-97730c8596", "ap-0390830bdf"],
     "register_writer_row": "hr_expense / writer / hr_expense (suggested migrate-together)"
   },

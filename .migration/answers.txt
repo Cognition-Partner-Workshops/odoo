@@ -1,0 +1,31 @@
+# Slice hr_expense (hrExpense, hrExpenseProductJobPositionLimit): one line per question group.
+# `close <kind>` settles every question of that kind spec-wide, so only groups whose items all belong to
+# the slice are closed here; the slice's other groups are scoped `accept`/`resolve` decisions in
+# .migration/design_decisions.json (same recommended default, same citation).
+close transient_tables: UNT16 validation-run request, relayed by the run manager on the sign-off ticket: take the recommended default (TransientModel scratch tables, including the slice's 6 hr_expense wizards, are not migrated)
+# accept junction_array (hr_expense_product_job_position_limit_hr_job_rel only): design_decisions.json accept
+# close many_to_many_junction (hr_expense_product_job_position_limit_hr_job_rel only): design_decisions.json resolve
+# close fanout_unmeasured, cascade_into_embed (hrJobRel): design_decisions.json resolve
+# close source_index_not_exercised (7 on hrExpense, 1 on hrJobRel): keep, design_decisions.json resolve
+# close lob (hr_expense.description): design_decisions.json resolve
+# known_incompatibilities (postgresql profile, 14 traps) and d-storage-path per_batch: design_decisions.json notes
+
+# Off-slice groups (every collection outside slice hr_expense): one line per group, recommended default, bulk.
+accept junction_array except hr_expense_product_job_position_limit_hr_job_rel: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+accept ownership: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+close many_to_many_junction: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+close embed_unbounded: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+close embed_null_pointer_rows: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+close date_format_assumed: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+close no_access_evidence: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+close cascade_into_embed: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+close fanout_unmeasured: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+close lob: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+close source_index_not_exercised: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+close nullable_unique_key: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+close extended_reference_candidate: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+close single_valued_index_key: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+close date_as_string: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+close repeating_group: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+close csv_list: recommended default, run request (relayed by the run manager on the sign-off ticket); off-slice: these collections are not migrated in this run (slice hr_expense), revisit before their own slice
+# index_uncovered (fleetVehicleModel ap-f60b38a285, surveyQuestion ap-ffd1e2183e, ap-8c607d8519): design_decisions.json index, same citation
