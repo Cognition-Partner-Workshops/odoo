@@ -360,6 +360,8 @@ def cmdVerify(args, entries):
         cur.execute("SELECT token FROM standin_relay_ledger WHERE relay = %s ORDER BY cluster_time_t, cluster_time_i, token",
                     [args.relay])
         ledger = [r[0] for r in cur.fetchall()]
+    if not checkpoint["resume_token"]:
+        raise SystemExit("no committed checkpoint yet: nothing to verify")
     endToken = checkpoint["resume_token"]["_data"]
     stream = []
     with openStream(client, entries, maxAwaitMs=1000, start_at_operation_time=checkpoint["started"]) as cs:
