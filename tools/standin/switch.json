@@ -1,0 +1,8 @@
+{
+  "default": "source",
+  "slices": {
+    "accountAccount": {"collection": "accountAccount", "model": "account.account", "position": "source"}
+  },
+  "mongo_uri_env": "STANDIN_MONGO_URI",
+  "audit_log": "~/standin-run/switch_audit.log"
+}
