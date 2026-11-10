@@ -31,6 +31,7 @@ from odoo.tools import (
     sql,
 )
 from odoo.tools.func import locked, reset_cached_properties
+from odoo.tools import mongo_storage
 from odoo.tools.lru import LRU
 from odoo.tools.misc import Collector
 from odoo.tools.version_tag_reset import reset_classes_tp_versions_used
@@ -70,6 +71,11 @@ _CACHES_BY_KEY = {
     'templates': ('templates', 'templates.cached_values'),
     'routing': ('routing', 'routing.rewrites', 'templates.cached_values'),
     'groups': ('groups', 'default', 'templates', 'templates.cached_values'),  # The processing of groups is saved in the view
+}
+
+# signaling caches whose `orm_signaling_<name>` table is a migration unit
+SIGNALING_UNITS = {
+    'assets': 'ormSignalingAssets',
 }
 
 _REPLICA_RETRY_TIME = 20 * 60  # 20 minutes
@@ -1125,6 +1131,9 @@ class Registry(Mapping[str, type["BaseModel"]]):
         assert row is not None, "No result when reading signaling sequences"
         now, registry_sequence, *cache_sequences_values = row
         cache_sequences = dict(zip(_CACHES_BY_KEY, cache_sequences_values))
+        for cache_name, unit in SIGNALING_UNITS.items():
+            if mongo_storage.reads_target(unit):
+                cache_sequences[cache_name] = mongo_storage.signal_max_id(unit)
         if cr._now is None:
             cr._now = now
         return registry_sequence, cache_sequences
@@ -1147,7 +1156,15 @@ class Registry(Mapping[str, type["BaseModel"]]):
         # will actually be out-of-date, and the next call to
         # _check_signaling() will detect use the new sequence.
         for cache_name in names:
+            unit = SIGNALING_UNITS.get(cache_name)
+            mode = mongo_storage.unit_mode(unit) if unit else mongo_storage.SOURCE
+            if mode == mongo_storage.WRITES:
+                # applied only once the request's source transaction commits
+                cr.postcommit.add(partial(mongo_storage.signal_append, unit))
+                continue
             cr.execute(SQL("INSERT INTO %s DEFAULT VALUES", SQL.identifier(f'orm_signaling_{cache_name}')))
+            if mode == mongo_storage.READS:
+                mongo_storage.record_source_write(cr, unit)
 
     def cursor(self, /, readonly: bool = False) -> BaseCursor:
         """ Return a new cursor for the database. The cursor itself may be used

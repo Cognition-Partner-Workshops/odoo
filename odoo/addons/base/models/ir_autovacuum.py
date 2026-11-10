@@ -5,11 +5,12 @@ import inspect
 import logging
 import random
 import time
+from functools import partial
 
 from odoo import api, models
 from odoo.exceptions import AccessDenied
-from odoo.modules.registry import _CACHES_BY_KEY
-from odoo.tools import SQL
+from odoo.modules.registry import _CACHES_BY_KEY, SIGNALING_UNITS
+from odoo.tools import SQL, mongo_storage
 
 _logger = logging.getLogger(__name__)
 
@@ -64,6 +65,10 @@ class IrAutovacuum(models.AbstractModel):
     @api.autovacuum
     def _gc_orm_signaling(self):
         for signal in ['registry', *_CACHES_BY_KEY]:
+            unit = SIGNALING_UNITS.get(signal)
+            if unit and mongo_storage.unit_mode(unit) == mongo_storage.WRITES:
+                self.env.cr.postcommit.add(partial(mongo_storage.signal_prune, unit))
+                continue
             table = f'orm_signaling_{signal}'
             # keep the last 10 entries for each signal, and all entries from the last
             # hour. This keeps the signaling tables small enough for performance, but
