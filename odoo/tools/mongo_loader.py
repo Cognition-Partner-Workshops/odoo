@@ -3,10 +3,12 @@
 
 Every batch loads its units through this entry point::
 
-    python -m odoo.tools.mongo_loader --mapping .migration/mapping_spec.json \\
+    python -I odoo/tools/mongo_loader.py --mapping .migration/mapping_spec.json \\
         --collections ormSignalingAssets --source-dsn-secret ODOO_PG_RO_DSN \\
         --target-uri-secret MONGO_LOCAL_URI --target-db odoo_unt16
 
+It needs only pymongo and psycopg2 or psycopg, so it also runs outside the
+Odoo environment (``-I`` keeps ``odoo/tools`` off ``sys.path``).
 ``--fixture-manifest`` loads the shared synthetic fixture instead of the source.
 Each run drops and recreates the selected collections, creates their declared
 indexes and checks the loaded counts. The source is read in a read-only
@@ -16,6 +18,7 @@ import argparse
 import datetime
 import decimal
 import gzip
+import importlib
 import hashlib
 import json
 import os
@@ -91,8 +94,16 @@ def _check_supported(spec_collection):
             raise LoadError(f"{name}.{embed['array_path']}: {bad or embed.get('shape')} is not supported by the loader yet")
 
 
+def _pg_driver():
+    try:
+        import psycopg2 as driver  # noqa: PLC0415
+    except ImportError:
+        import psycopg as driver  # noqa: PLC0415
+    return driver
+
+
 def _select(cr, table, columns, order):
-    from psycopg2 import sql  # noqa: PLC0415
+    sql = importlib.import_module(_pg_driver().__name__ + '.sql')
 
     query = sql.SQL("SELECT {} FROM {} ORDER BY {}").format(
         sql.SQL(', ').join(map(sql.Identifier, columns)), sql.Identifier(table),
@@ -203,11 +214,15 @@ def load(args):
                 raise LoadError("fixture is stale against the mapping spec")
             prepared[name] = documents
     else:
-        import psycopg2  # noqa: PLC0415
-
+        driver = _pg_driver()
         params, schema = source_connect_params(_secret(args.source_dsn_secret))
-        with psycopg2.connect(**params) as conn:
-            conn.set_session(readonly=True)
+        if 'dsn' in params and driver.__name__ == 'psycopg':
+            params = {'conninfo': params['dsn']}
+        with driver.connect(**params) as conn:
+            if driver.__name__ == 'psycopg':
+                conn.read_only = True
+            else:
+                conn.set_session(readonly=True)
             with conn.cursor() as cr:
                 if schema:
                     cr.execute("SELECT set_config('search_path', %s, true)", [schema])
