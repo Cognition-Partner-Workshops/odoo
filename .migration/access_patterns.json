@@ -2249,8 +2249,8 @@
         }
       ],
       "sort": [],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/partner.py",
         "lines": [
@@ -2263,8 +2263,7 @@
         "account_account": [
           "account_type"
         ]
-      },
-      "note": "reviewed addons/account/models/partner.py:404: read_hot: compute/search behind list, form or kanban views (partner receivable/payable totals)"
+      }
     },
     {
       "id": "ap-82a0dfa223",
@@ -2663,8 +2662,8 @@
         }
       ],
       "sort": [],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/wizard/account_merge_wizard.py",
         "lines": [
@@ -2672,8 +2671,7 @@
           190
         ]
       },
-      "statement": "UPDATE account_account SET name = %(account_name_json)s WHERE id = %(account_to_merge_into_id)s",
-      "note": "reviewed addons/account/wizard/account_merge_wizard.py:186: transactional: user-driven create/write/unlink flow (Merge accounts wizard)"
+      "statement": "UPDATE account_account SET name = %(account_name_json)s WHERE id = %(account_to_merge_into_id)s"
     },
     {
       "id": "ap-3beb7783a5",
@@ -2690,8 +2688,8 @@
         }
       ],
       "sort": [],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/wizard/account_merge_wizard.py",
         "lines": [
@@ -2699,8 +2697,7 @@
           201
         ]
       },
-      "statement": "DELETE FROM account_account WHERE id IN %(account_ids_to_delete)s",
-      "note": "reviewed addons/account/wizard/account_merge_wizard.py:198: transactional: user-driven create/write/unlink flow (Merge accounts wizard)"
+      "statement": "DELETE FROM account_account WHERE id IN %(account_ids_to_delete)s"
     },
     {
       "id": "ap-72d64f6304",
@@ -2717,8 +2714,8 @@
         }
       ],
       "sort": [],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/wizard/account_merge_wizard.py",
         "lines": [
@@ -2726,8 +2723,7 @@
           214
         ]
       },
-      "statement": "UPDATE account_account SET code_store = %(code_by_company_json)s WHERE id = %(account_to_merge_into_id)s",
-      "note": "reviewed addons/account/wizard/account_merge_wizard.py:210: transactional: user-driven create/write/unlink flow (Merge accounts wizard)"
+      "statement": "UPDATE account_account SET code_store = %(code_by_company_json)s WHERE id = %(account_to_merge_into_id)s"
     },
     {
       "id": "ap-7371c3cd92",
@@ -18175,8 +18171,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_account.py",
         "lines": [
@@ -18191,8 +18187,7 @@
         "field": "currency_id",
         "side": "child",
         "owns": false
-      },
-      "note": "reviewed addons/account/models/account_account.py:42: x2many rendered in the app form/list view: account.account.currency_id"
+      }
     },
     {
       "id": "ap-24c8717b3c",
@@ -18249,8 +18244,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_account.py",
         "lines": [
@@ -18266,8 +18261,7 @@
         "side": "junction",
         "owns": false,
         "junction": "account_account_tax_default_rel"
-      },
-      "note": "reviewed addons/account/models/account_account.py:115: x2many rendered in the app form/list view: account.account.tax_ids"
+      }
     },
     {
       "id": "ap-8e8e767269",
@@ -18290,8 +18284,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_account.py",
         "lines": [
@@ -18307,8 +18301,7 @@
         "side": "junction",
         "owns": false,
         "junction": "account_account_res_company_rel"
-      },
-      "note": "reviewed addons/account/models/account_account.py:120: x2many rendered in the app form/list view: account.account.company_ids"
+      }
     },
     {
       "id": "ap-0ba99c17e0",
@@ -18331,8 +18324,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_account.py",
         "lines": [
@@ -18348,8 +18341,7 @@
         "side": "junction",
         "owns": false,
         "junction": "account_account_account_tag"
-      },
-      "note": "reviewed addons/account/models/account_account.py:123: x2many rendered in the app form/list view: account.account.tag_ids"
+      }
     },
     {
       "id": "ap-43239dc76f",
@@ -23317,8 +23309,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_journal.py",
         "lines": [
@@ -23334,8 +23326,7 @@
         "side": "child",
         "owns": false,
         "ondelete": "restrict"
-      },
-      "note": "reviewed addons/account/models/account_journal.py:114: x2many rendered in the app form/list view: account_journal.default_account_id"
+      }
     },
     {
       "id": "ap-07b8e1c1af",
@@ -24111,8 +24102,8 @@
       ],
       "filter": [],
       "sort": [],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_move_line.py",
         "lines": [
@@ -24128,8 +24119,7 @@
         "side": "child",
         "owns": false,
         "ondelete": "restrict"
-      },
-      "note": "reviewed addons/account/models/account_move_line.py:104: x2many rendered in the app form/list view: account_move_line.account_id"
+      }
     },
     {
       "id": "ap-4921ee56b8",
@@ -102999,8 +102989,8 @@
         }
       ],
       "sort": [],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_account.py",
         "lines": [
@@ -103013,8 +103003,7 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "AccountAccount._compute_parent_ids",
-      "note": "reviewed addons/account/models/account_account.py:408: read_hot: compute/search behind list, form or kanban views (parent_ids compute)"
+      "routine": "AccountAccount._compute_parent_ids"
     },
     {
       "id": "ap-3d15cb49a3",
@@ -103026,8 +103015,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_account.py",
         "lines": [
@@ -103040,8 +103029,7 @@
         "framework": "odoo",
         "method": "search_count"
       },
-      "routine": "AccountAccount._search_new_account_code",
-      "note": "reviewed addons/account/models/account_account.py:562: transactional: user-driven create/write/unlink flow (new account code lookup)"
+      "routine": "AccountAccount._search_new_account_code"
     },
     {
       "id": "ap-79bddd3503",
@@ -103159,8 +103147,8 @@
         }
       ],
       "sort": [],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_account.py",
         "lines": [
@@ -103173,8 +103161,7 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "AccountAccount.name_search",
-      "note": "reviewed addons/account/models/account_account.py:848: read_hot: compute/search behind list, form or kanban views (suggested accounts in name_search)"
+      "routine": "AccountAccount.name_search"
     },
     {
       "id": "ap-f3f25a7e09",
@@ -103188,8 +103175,8 @@
       "sort": [
         "account_account.account_type"
       ],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_account.py",
         "lines": [
@@ -103202,8 +103189,7 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "AccountAccount.name_search",
-      "note": "reviewed addons/account/models/account_account.py:860: read_hot: compute/search behind list, form or kanban views (account name_search on move lines)"
+      "routine": "AccountAccount.name_search"
     },
     {
       "id": "ap-a08aa69e86",
@@ -103339,8 +103325,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": "cold",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_account.py",
         "lines": [
@@ -103354,8 +103340,7 @@
         "method": "create"
       },
       "routine": "AccountAccount.name_create",
-      "verb": "insert",
-      "note": "reviewed addons/account/models/account_account.py:1009: batch: file import of accounts (import_file context)"
+      "verb": "insert"
     },
     {
       "id": "ap-1606a46b87",
@@ -103429,8 +103414,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_account.py",
         "lines": [
@@ -103444,8 +103429,7 @@
         "method": "write"
       },
       "routine": "AccountAccount.write",
-      "verb": "update",
-      "note": "reviewed addons/account/models/account_account.py:1061: transactional: user-driven create/write/unlink flow"
+      "verb": "update"
     },
     {
       "id": "ap-2bcb7132b6",
@@ -103559,8 +103543,8 @@
         }
       ],
       "sort": [],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_account.py",
         "lines": [
@@ -103573,8 +103557,7 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "AccountAccount._ensure_code_is_unique",
-      "note": "reviewed addons/account/models/account_account.py:1104: transactional: user-driven create/write/unlink flow (account code uniqueness check)"
+      "routine": "AccountAccount._ensure_code_is_unique"
     },
     {
       "id": "ap-c65a3a0b5c",
@@ -103593,8 +103576,8 @@
       "sort": [
         "account_account.account_type"
       ],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_account.py",
         "lines": [
@@ -103607,8 +103590,7 @@
         "framework": "odoo",
         "method": "search_fetch"
       },
-      "routine": "AccountAccount._ensure_code_is_unique",
-      "note": "reviewed addons/account/models/account_account.py:1113: transactional: user-driven create/write/unlink flow (account code uniqueness check)"
+      "routine": "AccountAccount._ensure_code_is_unique"
     },
     {
       "id": "ap-982167fe95",
@@ -103819,8 +103801,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_account.py",
         "lines": [
@@ -103834,8 +103816,7 @@
         "method": "copy"
       },
       "routine": "AccountAccount._action_unmerge",
-      "verb": "insert",
-      "note": "reviewed addons/account/models/account_account.py:1299: transactional: user-driven create/write/unlink flow (Unmerge action on a shared account)"
+      "verb": "insert"
     },
     {
       "id": "ap-ef5a10260a",
@@ -103969,8 +103950,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_account.py",
         "lines": [
@@ -103984,8 +103965,7 @@
         "method": "write"
       },
       "routine": "AccountAccount._action_unmerge",
-      "verb": "update",
-      "note": "reviewed addons/account/models/account_account.py:1518: transactional: user-driven create/write/unlink flow (Unmerge action on a shared account)"
+      "verb": "update"
     },
     {
       "id": "ap-0080d1349d",
@@ -105930,8 +105910,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_journal.py",
         "lines": [
@@ -105945,8 +105925,7 @@
         "method": "create"
       },
       "routine": "AccountJournal._create_default_account",
-      "verb": "insert",
-      "note": "reviewed addons/account/models/account_journal.py:972: transactional: user-driven create/write/unlink flow (new bank/cash/credit journal creates its default account)"
+      "verb": "insert"
     },
     {
       "id": "ap-453d07e331",
@@ -105996,8 +105975,8 @@
       "sort": [
         "account_account.account_type"
       ],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_journal.py",
         "lines": [
@@ -106010,8 +105989,7 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "AccountJournal._fill_missing_values",
-      "note": "reviewed addons/account/models/account_journal.py:1023: transactional: user-driven create/write/unlink flow (journal creation picks default account)"
+      "routine": "AccountJournal._fill_missing_values"
     },
     {
       "id": "ap-51670d373a",
@@ -110427,8 +110405,8 @@
         }
       ],
       "sort": [],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_move_line.py",
         "lines": [
@@ -110441,8 +110419,7 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "AccountMoveLine._compute_account_id",
-      "note": "reviewed addons/account/models/account_move_line.py:777: read_hot: compute/search behind list, form or kanban views (move line account_id compute)"
+      "routine": "AccountMoveLine._compute_account_id"
     },
     {
       "id": "ap-af6165f1a0",
@@ -110878,8 +110855,8 @@
         }
       ],
       "sort": [],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_move_line.py",
         "lines": [
@@ -110892,8 +110869,7 @@
         "framework": "odoo",
         "method": "browse"
       },
-      "routine": "AccountMoveLine.write",
-      "note": "reviewed addons/account/models/account_move_line.py:2190: transactional: user-driven create/write/unlink flow (move line write reads the new account)"
+      "routine": "AccountMoveLine.write"
     },
     {
       "id": "ap-8af43ac11f",
@@ -111892,8 +111868,8 @@
       "sort": [
         "account_account.account_type"
       ],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_payment.py",
         "lines": [
@@ -111906,8 +111882,7 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "AccountPayment._compute_destination_account_id",
-      "note": "reviewed addons/account/models/account_payment.py:700: read_hot: compute/search behind list, form or kanban views (payment destination account)"
+      "routine": "AccountPayment._compute_destination_account_id"
     },
     {
       "id": "ap-f44302c9b4",
@@ -111926,8 +111901,8 @@
       "sort": [
         "account_account.account_type"
       ],
-      "frequency": "hot",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/account_payment.py",
         "lines": [
@@ -111940,8 +111915,7 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "AccountPayment._compute_destination_account_id",
-      "note": "reviewed addons/account/models/account_payment.py:709: read_hot: compute/search behind list, form or kanban views (payment destination account)"
+      "routine": "AccountPayment._compute_destination_account_id"
     },
     {
       "id": "ap-77330a4eff",
@@ -113945,8 +113919,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": "cold",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/chart_template.py",
         "lines": [
@@ -113960,8 +113934,7 @@
         "method": "create"
       },
       "routine": "AccountChartTemplate._create_foreign_account",
-      "verb": "insert",
-      "note": "reviewed addons/account/models/chart_template.py:981: batch: chart template loading for a company (foreign tax accounts)"
+      "verb": "insert"
     },
     {
       "id": "ap-1732332479",
@@ -114698,8 +114671,8 @@
       "sort": [
         "account_account.account_type"
       ],
-      "frequency": "warm",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/account/models/company.py",
         "lines": [
@@ -114712,8 +114685,7 @@
         "framework": "odoo",
         "method": "search"
       },
-      "routine": "ResCompany.get_unaffected_earnings_account",
-      "note": "reviewed addons/account/models/company.py:982: transactional: user-driven create/write/unlink flow (unaffected earnings account lookup)"
+      "routine": "ResCompany.get_unaffected_earnings_account"
     },
     {
       "id": "ap-562f884727",
@@ -160024,8 +159996,8 @@
       "join_edges": [],
       "filter": [],
       "sort": [],
-      "frequency": "cold",
-      "confirmed": true,
+      "frequency": null,
+      "confirmed": false,
       "source": {
         "file": "addons/l10n_eu_oss/models/res_company.py",
         "lines": [
@@ -160039,8 +160011,7 @@
         "method": "create"
       },
       "routine": "ResCompany._create_oss_account",
-      "verb": "insert",
-      "note": "reviewed addons/l10n_eu_oss/models/res_company.py:185: batch: OSS tax setup creates the OSS account"
+      "verb": "insert"
     },
     {
       "id": "ap-0aa1e07dd7",

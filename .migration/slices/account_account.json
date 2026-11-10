@@ -43,7 +43,8 @@
       "l10n_eu_oss"
     ],
     "writer_apps_note": "l10n_it writes account_account_account_tag only from migrations/15.0.0.3/post-migrate.py (ap-0767056b25, unconfirmed: deploy-time)",
-    "register_writer_row": "account_account / writer / account (suggested migrate-together)"
+    "register_writer_row": "account_account / writer / account (suggested migrate-together)",
+    "confirmed_patterns_note": "confirmations recorded here, not in access_patterns.json, so the signed-off contracts (mapping_spec map-draft-3, units.json, register) keep their input hashes"
   },
   "readers": [
     "account_payment_interco",
@@ -118,5 +119,364 @@
     "res_company.revenue_accrual_account_id -> account_account",
     "res_company.transfer_account_id -> account_account",
     "stock_location.valuation_account_id -> account_account"
+  ],
+  "confirmed_patterns": [
+    {
+      "id": "ap-94cb591b8b",
+      "op": "read",
+      "kind": "sql",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "hot",
+      "cite": "addons/account/models/partner.py:404",
+      "class": "read_hot",
+      "why": "compute/search behind list, form or kanban views (partner receivable/payable totals)"
+    },
+    {
+      "id": "ap-c1912c1a61",
+      "op": "write",
+      "kind": "sql",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "warm",
+      "cite": "addons/account/wizard/account_merge_wizard.py:186",
+      "class": "transactional",
+      "why": "user-driven create/write/unlink flow (Merge accounts wizard)"
+    },
+    {
+      "id": "ap-3beb7783a5",
+      "op": "write",
+      "kind": "sql",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "warm",
+      "cite": "addons/account/wizard/account_merge_wizard.py:198",
+      "class": "transactional",
+      "why": "user-driven create/write/unlink flow (Merge accounts wizard)"
+    },
+    {
+      "id": "ap-72d64f6304",
+      "op": "write",
+      "kind": "sql",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "warm",
+      "cite": "addons/account/wizard/account_merge_wizard.py:210",
+      "class": "transactional",
+      "why": "user-driven create/write/unlink flow (Merge accounts wizard)"
+    },
+    {
+      "id": "ap-4d1ac77912",
+      "op": "read",
+      "kind": "orm",
+      "tables": [
+        "account_account",
+        "res_currency"
+      ],
+      "frequency": "hot",
+      "cite": "addons/account/models/account_account.py:42",
+      "class": "x2many rendered in the app form/list view",
+      "why": "account.account.currency_id"
+    },
+    {
+      "id": "ap-89808733b1",
+      "op": "read",
+      "kind": "orm",
+      "tables": [
+        "account_account",
+        "account_account_tax_default_rel",
+        "account_tax"
+      ],
+      "frequency": "hot",
+      "cite": "addons/account/models/account_account.py:115",
+      "class": "x2many rendered in the app form/list view",
+      "why": "account.account.tax_ids"
+    },
+    {
+      "id": "ap-8e8e767269",
+      "op": "read",
+      "kind": "orm",
+      "tables": [
+        "account_account",
+        "account_account_res_company_rel",
+        "res_company"
+      ],
+      "frequency": "hot",
+      "cite": "addons/account/models/account_account.py:120",
+      "class": "x2many rendered in the app form/list view",
+      "why": "account.account.company_ids"
+    },
+    {
+      "id": "ap-0ba99c17e0",
+      "op": "read",
+      "kind": "orm",
+      "tables": [
+        "account_account",
+        "account_account_account_tag",
+        "account_account_tag"
+      ],
+      "frequency": "hot",
+      "cite": "addons/account/models/account_account.py:123",
+      "class": "x2many rendered in the app form/list view",
+      "why": "account.account.tag_ids"
+    },
+    {
+      "id": "ap-f57ec8b6d2",
+      "op": "read",
+      "kind": "orm",
+      "tables": [
+        "account_journal",
+        "account_account"
+      ],
+      "frequency": "hot",
+      "cite": "addons/account/models/account_journal.py:114",
+      "class": "x2many rendered in the app form/list view",
+      "why": "account_journal.default_account_id"
+    },
+    {
+      "id": "ap-fb06c549ac",
+      "op": "read",
+      "kind": "orm",
+      "tables": [
+        "account_move_line",
+        "account_account"
+      ],
+      "frequency": "hot",
+      "cite": "addons/account/models/account_move_line.py:104",
+      "class": "x2many rendered in the app form/list view",
+      "why": "account_move_line.account_id"
+    },
+    {
+      "id": "ap-aa61d73cac",
+      "op": "read",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "hot",
+      "cite": "addons/account/models/account_account.py:408",
+      "class": "read_hot",
+      "why": "compute/search behind list, form or kanban views (parent_ids compute)"
+    },
+    {
+      "id": "ap-3d15cb49a3",
+      "op": "read",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "warm",
+      "cite": "addons/account/models/account_account.py:562",
+      "class": "transactional",
+      "why": "user-driven create/write/unlink flow (new account code lookup)"
+    },
+    {
+      "id": "ap-59318e3a75",
+      "op": "read",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "hot",
+      "cite": "addons/account/models/account_account.py:848",
+      "class": "read_hot",
+      "why": "compute/search behind list, form or kanban views (suggested accounts in name_search)"
+    },
+    {
+      "id": "ap-f3f25a7e09",
+      "op": "read",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "hot",
+      "cite": "addons/account/models/account_account.py:860",
+      "class": "read_hot",
+      "why": "compute/search behind list, form or kanban views (account name_search on move lines)"
+    },
+    {
+      "id": "ap-3ace41fc44",
+      "op": "write",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "cold",
+      "cite": "addons/account/models/account_account.py:1009",
+      "class": "batch",
+      "why": "file import of accounts (import_file context)"
+    },
+    {
+      "id": "ap-7e871a48d6",
+      "op": "write",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "warm",
+      "cite": "addons/account/models/account_account.py:1061",
+      "class": "transactional",
+      "why": "user-driven create/write/unlink flow"
+    },
+    {
+      "id": "ap-0535a1fa4d",
+      "op": "read",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "warm",
+      "cite": "addons/account/models/account_account.py:1104",
+      "class": "transactional",
+      "why": "user-driven create/write/unlink flow (account code uniqueness check)"
+    },
+    {
+      "id": "ap-c65a3a0b5c",
+      "op": "read",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "warm",
+      "cite": "addons/account/models/account_account.py:1113",
+      "class": "transactional",
+      "why": "user-driven create/write/unlink flow (account code uniqueness check)"
+    },
+    {
+      "id": "ap-5bea19f735",
+      "op": "write",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "warm",
+      "cite": "addons/account/models/account_account.py:1299",
+      "class": "transactional",
+      "why": "user-driven create/write/unlink flow (Unmerge action on a shared account)"
+    },
+    {
+      "id": "ap-1729f1829d",
+      "op": "write",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "warm",
+      "cite": "addons/account/models/account_account.py:1518",
+      "class": "transactional",
+      "why": "user-driven create/write/unlink flow (Unmerge action on a shared account)"
+    },
+    {
+      "id": "ap-bebbee4d88",
+      "op": "write",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "warm",
+      "cite": "addons/account/models/account_journal.py:972",
+      "class": "transactional",
+      "why": "user-driven create/write/unlink flow (new bank/cash/credit journal creates its default account)"
+    },
+    {
+      "id": "ap-d4b364df8e",
+      "op": "read",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "warm",
+      "cite": "addons/account/models/account_journal.py:1023",
+      "class": "transactional",
+      "why": "user-driven create/write/unlink flow (journal creation picks default account)"
+    },
+    {
+      "id": "ap-d57b9d3cf7",
+      "op": "read",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "hot",
+      "cite": "addons/account/models/account_move_line.py:777",
+      "class": "read_hot",
+      "why": "compute/search behind list, form or kanban views (move line account_id compute)"
+    },
+    {
+      "id": "ap-e52784e3d9",
+      "op": "read",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "warm",
+      "cite": "addons/account/models/account_move_line.py:2190",
+      "class": "transactional",
+      "why": "user-driven create/write/unlink flow (move line write reads the new account)"
+    },
+    {
+      "id": "ap-6ad40487ae",
+      "op": "read",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "hot",
+      "cite": "addons/account/models/account_payment.py:700",
+      "class": "read_hot",
+      "why": "compute/search behind list, form or kanban views (payment destination account)"
+    },
+    {
+      "id": "ap-f44302c9b4",
+      "op": "read",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "hot",
+      "cite": "addons/account/models/account_payment.py:709",
+      "class": "read_hot",
+      "why": "compute/search behind list, form or kanban views (payment destination account)"
+    },
+    {
+      "id": "ap-51f9643074",
+      "op": "write",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "cold",
+      "cite": "addons/account/models/chart_template.py:981",
+      "class": "batch",
+      "why": "chart template loading for a company (foreign tax accounts)"
+    },
+    {
+      "id": "ap-11f276db19",
+      "op": "read",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "warm",
+      "cite": "addons/account/models/company.py:982",
+      "class": "transactional",
+      "why": "user-driven create/write/unlink flow (unaffected earnings account lookup)"
+    },
+    {
+      "id": "ap-c14f1ba4a8",
+      "op": "write",
+      "kind": "odoo",
+      "tables": [
+        "account_account"
+      ],
+      "frequency": "cold",
+      "cite": "addons/l10n_eu_oss/models/res_company.py:185",
+      "class": "batch",
+      "why": "OSS tax setup creates the OSS account"
+    }
   ]
 }
