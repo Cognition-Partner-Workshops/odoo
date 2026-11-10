@@ -9,7 +9,8 @@ from functools import partial
 
 from odoo import api, models
 from odoo.exceptions import AccessDenied
-from odoo.modules.registry import _CACHES_BY_KEY, SIGNALING_UNITS
+from odoo.modules.registry import _CACHES_BY_KEY
+from odoo.orm.registry import SIGNALING_UNITS
 from odoo.tools import SQL, mongo_storage
 
 _logger = logging.getLogger(__name__)
