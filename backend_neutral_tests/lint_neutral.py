@@ -27,10 +27,17 @@ QUERY_ASSERT_CALLS = {"assertQueryCount", "assertQueries", "_patchExecute", "war
 QUERY_BUILDER_CALLS = {"SQL", "Query", "_as_query", "_where_calc", "_flush_search"}
 CURSOR_ATTRS = {"cr", "_cr", "registry"}
 SCHEMA_ATTRS = {"_table", "_table_sql", "_table_objects", "_auto", "_sql_constraints"}
-SQL_TEXT = re.compile(
-    r"\bselect\b.*\bfrom\s+(\w+_\w+|\w+\s+\w+\s+(where|join|left|inner|group|order|limit)\b)"
-    r"|\binsert\s+into\s+\w+|\bupdate\s+\w+\s+set\s+\w+\s*=|\bdelete\s+from\s+\w+\s+where\b"
-    r"|\bfor\s+(no\s+key\s+)?update\b|\bsavepoint\s+\w+|\bnextval\(|\bon\s+conflict\b|\bwith\s+recursive\b",
+# Upper-case keywords (how SQL is written in Odoo) match on shape alone; lower/mixed case must also
+# name a table-like identifier so prose such as "Select a product from the list" is not flagged.
+SQL_TEXT_UPPER = re.compile(
+    r"\bSELECT\b.*\bFROM\s+\S|\bINSERT\s+INTO\b|\bUPDATE\s+\S+\s+SET\b|\bDELETE\s+FROM\b"
+    r"|\bFOR\s+(NO\s+KEY\s+)?UPDATE\b|\bSAVEPOINT\b|\bnextval\(|\bON\s+CONFLICT\b|\bWITH\s+RECURSIVE\b",
+    re.DOTALL,
+)
+SQL_TEXT_ANYCASE = re.compile(
+    r"\bselect\b.*\bfrom\s+(\"\w+\"|\w+_\w+|\w+\s+\w+\s+(where|join|left|inner|group|order|limit)\b)"
+    r"|\binsert\s+into\s+(\"\w+\"|\w+_\w+)|\bupdate\s+(\"\w+\"|\w+_\w+)\s+set\b|\bdelete\s+from\s+(\"\w+\"|\w+_\w+)"
+    r"|\bfor\s+(no\s+key\s+)?update\s+(nowait|skip|of)\b|\bsavepoint\s+\w+\s*;|\bnextval\(|\bon\s+conflict\s*\(|\bwith\s+recursive\s+\w+",
     re.IGNORECASE | re.DOTALL,
 )
 BACKEND_WORDS = re.compile(r"postgres|psycopg|mongo", re.IGNORECASE)
@@ -131,7 +138,7 @@ class Checker(ast.NodeVisitor):
 
     def visit_Constant(self, node: ast.Constant) -> None:
         if isinstance(node.value, str):
-            if SQL_TEXT.search(node.value):
+            if SQL_TEXT_UPPER.search(node.value) or SQL_TEXT_ANYCASE.search(node.value):
                 self.report(node, "BN009", "SQL text in a string literal")
             if BACKEND_WORDS.search(node.value):
                 self.report(node, "BN011", "backend name in a string literal (review: no backend branching)")

@@ -384,7 +384,7 @@ AST-based, no Odoo import needed, Python 3.10+. A finding is `path:line: BNxxx m
 | BN006 | attribute access `.cr`, `._cr`, `.registry` on any object | F3 |
 | BN007 | `mute_logger(...)` whose argument starts with `odoo.sql_db` | F6 |
 | BN008 | attribute access `._table`, `._table_sql`, `._table_objects`, `._auto`, `._sql_constraints`, `.init(` on a model | F5 |
-| BN009 | string literal that looks like SQL, case-insensitive (`select .. from <table>`, `insert into`, `update <t> set x =`, `delete from .. where`, `for update`, `savepoint <name>`, `nextval(`, `on conflict`, `with recursive`) | F1 |
+| BN009 | string literal that looks like SQL: upper-case keywords on shape alone (`SELECT .. FROM`, `INSERT INTO`, `UPDATE .. SET`, `DELETE FROM`, `FOR UPDATE`, `SAVEPOINT`, `nextval(`, `ON CONFLICT`, `WITH RECURSIVE`); lower/mixed case only when a table-like identifier follows, so prose is not flagged | F1 |
 | BN010 | arithmetic (`+`, `-`) with an operand that is `.id` or `.ids[...]`, or `max(...ids) + n` | A5 |
 | BN011 | string literal containing `postgres`, `psycopg`, `mongo` (review prompt, not a hard rule) | F7 |
 
