@@ -376,15 +376,15 @@ AST-based, no Odoo import needed, Python 3.10+. A finding is `path:line: BNxxx m
 
 | Code | Detects | Contract rule |
 |---|---|---|
-| BN001 | `import psycopg2`, `from psycopg2...`, `odoo.sql_db`, `odoo.tools.sql`, attribute chains rooted at `psycopg2`, `.pgcode`/`.pgerror`/`.diag` | F4 |
+| BN001 | any import of or attribute chain into `psycopg2`, `odoo.sql_db`, `odoo.tools.sql` (incl. `from odoo import sql_db`, `from odoo.tools import sql`), `.pgcode`/`.pgerror`/`.diag` | F4 |
 | BN002 | calls to `.execute`, `.executemany`, `.execute_values`, `.execute_query`, `.execute_query_dict`, `.fetchone/fetchall/fetchmany/dictfetchall` | F1 |
-| BN003 | calls to `.savepoint`, `.cursor`, `.commit`, `.rollback`, `.registry_test_mode`, `.enter_registry_test_mode`, `.flush` on `cr` | F3 |
+| BN003 | calls to `.savepoint()`, `.cursor()`, `.registry_test_mode()`, `.enter_registry_test_mode()`; `.commit()`/`.rollback()`/`.flush()` when the receiver is a cursor (`cr`, `env.cr`, `registry.cursor()`); the same methods on a harness `Transaction` (`tx.commit()`) are allowed | F3 |
 | BN004 | `assertQueryCount`, `assertQueries`, `_patchExecute`, `warmup`, `profile` | F2 |
 | BN005 | calls to `SQL(`, `Query(`, `_as_query(`, `_where_calc(`, `_flush_search(` | F1 |
 | BN006 | attribute access `.cr`, `._cr`, `.registry` on any object | F3 |
 | BN007 | `mute_logger(...)` whose argument starts with `odoo.sql_db` | F6 |
 | BN008 | attribute access `._table`, `._table_sql`, `._table_objects`, `._auto`, `._sql_constraints`, `.init(` on a model | F5 |
-| BN009 | string literal that looks like SQL (`SELECT .. FROM`, `INSERT INTO`, `UPDATE .. SET`, `DELETE FROM`, `FOR UPDATE`, `SAVEPOINT`, `nextval(`) | F1 |
+| BN009 | string literal that looks like SQL, case-insensitive (`select .. from <table>`, `insert into`, `update <t> set x =`, `delete from .. where`, `for update`, `savepoint <name>`, `nextval(`, `on conflict`, `with recursive`) | F1 |
 | BN010 | arithmetic (`+`, `-`) with an operand that is `.id` or `.ids[...]`, or `max(...ids) + n` | A5 |
 | BN011 | string literal containing `postgres`, `psycopg`, `mongo` (review prompt, not a hard rule) | F7 |
 

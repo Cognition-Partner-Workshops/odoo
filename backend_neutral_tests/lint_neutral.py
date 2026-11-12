@@ -21,24 +21,42 @@ FORBIDDEN_MODULES = ("psycopg2", "odoo.sql_db", "odoo.tools.sql")
 BACKEND_EXC_ATTRS = {"pgcode", "pgerror", "diag"}
 EXECUTE_CALLS = {"execute", "executemany", "execute_values", "execute_query", "execute_query_dict",
                  "fetchone", "fetchall", "fetchmany", "dictfetchall", "dictfetchone", "dictfetchmany"}
-TRANSACTION_CALLS = {"savepoint", "cursor", "commit", "rollback", "registry_test_mode", "enter_registry_test_mode"}
+TRANSACTION_CALLS = {"savepoint", "cursor", "registry_test_mode", "enter_registry_test_mode"}
+CURSOR_ONLY_CALLS = {"commit", "rollback", "flush"}   # forbidden on a cursor, allowed on a harness Transaction
 QUERY_ASSERT_CALLS = {"assertQueryCount", "assertQueries", "_patchExecute", "warmup", "profile"}
 QUERY_BUILDER_CALLS = {"SQL", "Query", "_as_query", "_where_calc", "_flush_search"}
 CURSOR_ATTRS = {"cr", "_cr", "registry"}
 SCHEMA_ATTRS = {"_table", "_table_sql", "_table_objects", "_auto", "_sql_constraints"}
 SQL_TEXT = re.compile(
-    r"\bSELECT\b.*\bFROM\b|\bINSERT\s+INTO\b|\bUPDATE\s+\S+\s+SET\b|\bDELETE\s+FROM\b"
-    r"|\bFOR\s+(NO\s+KEY\s+)?UPDATE\b|\bSAVEPOINT\b|\bnextval\(|\bON\s+CONFLICT\b|\bWITH\s+RECURSIVE\b",
-    re.DOTALL,
+    r"\bselect\b.*\bfrom\s+(\w+_\w+|\w+\s+\w+\s+(where|join|left|inner|group|order|limit)\b)"
+    r"|\binsert\s+into\s+\w+|\bupdate\s+\w+\s+set\s+\w+\s*=|\bdelete\s+from\s+\w+\s+where\b"
+    r"|\bfor\s+(no\s+key\s+)?update\b|\bsavepoint\s+\w+|\bnextval\(|\bon\s+conflict\b|\bwith\s+recursive\b",
+    re.IGNORECASE | re.DOTALL,
 )
 BACKEND_WORDS = re.compile(r"postgres|psycopg|mongo", re.IGNORECASE)
 ALLOW = re.compile(r"#\s*neutral:\s*allow\s+(BN\d{3}(?:\s*,?\s*BN\d{3})*)")
 
 
-def _root_name(node: ast.AST) -> str | None:
+def _dotted(node: ast.AST) -> str | None:
+    parts = []
     while isinstance(node, ast.Attribute):
+        parts.append(node.attr)
         node = node.value
-    return node.id if isinstance(node, ast.Name) else None
+    if not isinstance(node, ast.Name):
+        return None
+    parts.append(node.id)
+    return ".".join(reversed(parts))
+
+
+def _is_cursor(node: ast.AST) -> bool:
+    """`cr`, `self.cr`, `env.cr`, `self.env.cr`, `registry.cursor()`, ... but not `tx` / `t0`."""
+    if isinstance(node, ast.Name):
+        return node.id in {"cr", "_cr"}
+    if isinstance(node, ast.Attribute):
+        return node.attr in {"cr", "_cr"}
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+        return node.func.attr == "cursor"
+    return False
 
 
 def _is_id_operand(node: ast.AST) -> bool:
@@ -72,13 +90,16 @@ class Checker(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
-        if node.module and node.module.startswith(FORBIDDEN_MODULES):
-            self.report(node, "BN001", f"import from backend module {node.module!r}")
+        if node.module:
+            for alias in node.names:
+                if node.module.startswith(FORBIDDEN_MODULES) or f"{node.module}.{alias.name}".startswith(FORBIDDEN_MODULES):
+                    self.report(node, "BN001", f"import of backend module {node.module}.{alias.name!s}")
         self.generic_visit(node)
 
     def visit_Attribute(self, node: ast.Attribute) -> None:
-        if _root_name(node) == "psycopg2":
-            self.report(node, "BN001", "psycopg2 attribute chain")
+        dotted = _dotted(node)
+        if dotted and dotted.startswith(FORBIDDEN_MODULES):
+            self.report(node, "BN001", f"backend module reference {dotted}")
         if node.attr in BACKEND_EXC_ATTRS:
             self.report(node, "BN001", f"backend exception attribute .{node.attr}")
         if node.attr in CURSOR_ATTRS:
@@ -94,9 +115,8 @@ class Checker(ast.NodeVisitor):
             self.report(node, "BN002", f"raw SQL execution .{name}()")
         if name in TRANSACTION_CALLS:
             self.report(node, "BN003", f"transaction control .{name}()")
-        if name == "flush" and isinstance(func, ast.Attribute) and isinstance(func.value, ast.Attribute | ast.Name) \
-                and (getattr(func.value, "attr", None) or getattr(func.value, "id", None)) in {"cr", "_cr"}:
-            self.report(node, "BN003", "cursor flush; use env.flush_all()")
+        if name in CURSOR_ONLY_CALLS and isinstance(func, ast.Attribute) and _is_cursor(func.value):
+            self.report(node, "BN003", f"cursor .{name}(); use the harness Transaction or env.flush_all()")
         if name in QUERY_ASSERT_CALLS:
             self.report(node, "BN004", f"query-count/text assertion {name}()")
         if name in QUERY_BUILDER_CALLS:
