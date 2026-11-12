@@ -1,0 +1,76 @@
+{
+  "unit": "ormSignalingAssets",
+  "mode": "live",
+  "target_class": "migration_cluster",
+  "mapping_version": "map-draft-3",
+  "mapping_sha256": "f1f72a0107c098fb2236187ab13b656a2fdb029b657544fe1a33e45160c1025b",
+  "tolerance_version": "2",
+  "tolerance_sha256": "62d5a8ce4e40ddadf9bb7480cabf7cb3656f94e172f5e25ed6bd4069dce3ec80",
+  "git_head": "4b9b336288743ce6de201d461ebcd071bb07bd76",
+  "git_dirty": false,
+  "source_db": "odoo_src",
+  "source_server": "hmac-sha256:0f95230fa7038f9e",
+  "ops_sha256": "aa4cfeb4017a49a34a872775ba5629638fb98851224f6319d21e87e7d18c283e",
+  "collections": [
+    "ormSignalingAssets"
+  ],
+  "seed": 1,
+  "params": {},
+  "snapshot": null,
+  "generated_at": "2026-11-12T08:34:35.171443+00:00",
+  "redacted": true,
+  "redaction_salted": true,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "counts_through_mapping",
+      "passed": true,
+      "checks_run": 1,
+      "stats": {
+        "source_counts": {
+          "ormSignalingAssets": 1
+        },
+        "embed_source_counts": {}
+      },
+      "findings": []
+    },
+    {
+      "tier": 2,
+      "name": "per_field_aggregates",
+      "passed": true,
+      "checks_run": 0,
+      "stats": {
+        "deferred_to_tier3": [
+          "ormSignalingAssets.date"
+        ],
+        "fields_fully_deferred": 1
+      },
+      "findings": []
+    },
+    {
+      "tier": 3,
+      "name": "keyed_diffs",
+      "passed": true,
+      "checks_run": 1,
+      "stats": {
+        "ormSignalingAssets": {
+          "mode": "full_diff",
+          "population": 1,
+          "duplicate_source_key_count": 0
+        }
+      },
+      "findings": []
+    },
+    {
+      "tier": 4,
+      "name": "app_level_parity",
+      "passed": true,
+      "checks_run": 2,
+      "stats": {},
+      "findings": []
+    }
+  ],
+  "warnings": [],
+  "verdict": "PASS",
+  "error": null
+}
