@@ -22,8 +22,9 @@ import odoo.exceptions
 from odoo import api
 from odoo.modules.registry import Registry
 from odoo.orm.environments import CacheLayer
-from odoo.sql_db import PG_CONCURRENCY_EXCEPTIONS_TO_RETRY, Cursor
+from odoo.sql_db import PG_CONCURRENCY_EXCEPTIONS_TO_RETRY
 from odoo.tests.common import _registry_test_lock
+from odoo.tests.test_cursor import TestCursor
 from odoo.tools import mute_logger
 
 from .isolation import Transaction
@@ -33,6 +34,7 @@ if typing.TYPE_CHECKING:
 
     from odoo.api import Environment
     from odoo.models import BaseModel
+    from odoo.sql_db import Cursor
 
 _logger = logging.getLogger(__name__)
 
@@ -126,7 +128,7 @@ class PostgresqlIsolation:
             stack.callback(self._remove_committed, self._classFixtures)
 
             cr = registry.cursor()
-            assert isinstance(cr, Cursor), "the class cursor must be a real cursor"
+            assert not isinstance(cr, TestCursor), "the class cursor must be a real cursor"
             stack.callback(cr.close)
             self._set_lock_timeout(cr, local=True)
 
@@ -234,7 +236,7 @@ class PostgresqlIsolation:
         try:
             # inside `registry_test_mode` this would be a TestCursor that
             # wraps the connection of the class cursor: no real transaction
-            assert isinstance(cr, Cursor), "an explicit transaction needs a real cursor"
+            assert not isinstance(cr, TestCursor), "an explicit transaction needs a real cursor"
             self._openCursors.append(cr)
             self._set_lock_timeout(cr)
             env = api.Environment(cr, api.SUPERUSER_ID, {})
