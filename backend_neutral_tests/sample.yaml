@@ -1,0 +1,529 @@
+# Machine-readable sample manifest (scan_counts: grep over odoo/ and addons/ *.py excluding tests/, static/, node_modules/) for the backend-neutral ORM test suite.
+# Human-readable companion: SAMPLE.md. Validate with: python3 backend_neutral_tests/check_sample.py
+# Every `file` is relative to the repo root; every `symbols` entry must appear in that file
+# (checked as a whole-word regex); `line` is the line of the first symbol at `commit` (checked too).
+version: 1
+commit: 63446015e3c
+repo: Cognition-Partner-Workshops/odoo
+branch: "20.0"
+
+addons:
+  core: [odoo/orm, odoo/addons/base]
+  spread: [account, stock, sale, mail, website, hr_holidays, point_of_sale, project]
+  supporting: [product]   # pulled in by stock/sale/point_of_sale; used only for product.category hierarchy
+
+selection_criteria:
+  - id: C1
+    rule: The target contains the category's pattern per the static scan (grep patterns listed in SAMPLE.md), not just a mention in a comment.
+  - id: C2
+    rule: The behaviour is reachable through a public ORM entry point (create/write/unlink/search/search_fetch/_read_group/flush) so an assertion can be written on records, values or a raised exception class only.
+  - id: C3
+    rule: Each category has targets in core plus at least two addons from the spread, so a backend bug is caught from more than one data shape.
+  - id: C4
+    rule: Prefer models whose fixtures are cheap (no chart of accounts, no POS session) unless the category is concentrated in that addon (account for raw SQL, point_of_sale for its own report).
+  - id: C5
+    rule: Prefer targets that an existing test already exercises, so the neutral test can reuse its data setup and the two can be diffed later.
+  - id: C6
+    rule: Prefer stable, named symbols (class attribute, method) over anonymous inline SQL so the manifest survives refactors; the checker verifies the symbol still exists.
+
+categories:
+  - id: integrity
+    name: DB-enforced integrity (SQL constraints, unique indexes, FK ondelete)
+    scan: "models.Constraint( | models.UniqueIndex( | ondelete="
+    scan_counts: {constraint_files_non_test: 249, ondelete_files_non_test: 531, ondelete_restrict_sites: 170, ondelete_cascade_sites: 455, ondelete_set_null_sites: 93}
+    targets:
+      - id: integrity.res_users
+        addon: base
+        model: res.users / res.partner
+        file: odoo/addons/base/models/res_users.py
+        symbols: [_login_key, partner_id]
+        line: 267
+        also:
+          - {file: odoo/addons/base/models/res_partner.py, symbols: [_check_name], line: 418}
+        pattern: UNIQUE(login); CHECK on partner type/name; Many2one partner_id ondelete='restrict'
+        reason: The simplest core unique constraint, a CHECK constraint, and a 'restrict' FK on the two models every other test touches.
+        existing_tests: [addons/website/tests/test_website_reset_password.py]
+        neutral_assertion: create two users with the same login -> integrity-violation exception; create contact without name -> integrity violation; unlink a partner that has a user -> integrity violation, partner still exists.
+      - id: integrity.account_move
+        addon: account
+        model: account.move / account.move.line
+        file: addons/account/models/account_move.py
+        symbols: [_unique_name, _check_document_tax_mode_set]
+        line: 825
+        also:
+          - {file: addons/account/models/account_move_line.py, symbols: [_check_credit_debit, _check_accountable_required_fields, move_id], line: 549}
+        pattern: partial UniqueIndex "(name, journal_id) WHERE state='posted' AND name != '/'"; CHECK credit*debit=0; move_id ondelete='cascade'
+        reason: Partial (conditional) unique index is the hardest integrity shape to emulate on a non-SQL backend; account is the largest constraint user outside core.
+        existing_tests: [addons/account/tests/test_sequence_mixin.py::test_journal_sequence]
+        neutral_assertion: two posted moves with same name+journal -> integrity violation, but two drafts named '/' are fine; a line with debit and credit both > 0 -> integrity violation; unlinking a move leaves zero lines for it.
+      - id: integrity.hr_leave
+        addon: hr_holidays
+        model: hr.leave
+        file: addons/hr_holidays/models/hr_leave.py
+        symbols: [_date_check2, _date_check3, _duration_check, employee_id]
+        line: 307
+        pattern: three CHECK constraints on date order / non-negative duration; employee_id ondelete='restrict'
+        reason: Plain CHECK constraints that an application layer could also enforce; the neutral test must fail identically whichever layer enforces them.
+        existing_tests: [addons/hr_holidays/tests/test_holidays_flow.py::test_sql_constraint_dates]
+        neutral_assertion: create/write with request_date_from > request_date_to -> integrity violation and no record persisted; unlink employee with leaves -> integrity violation.
+      - id: integrity.mail_followers
+        addon: mail
+        model: mail.followers / discuss.channel.member
+        file: addons/mail/models/mail_followers.py
+        symbols: [_mail_followers_res_partner_res_model_id_uniq, partner_id]
+        line: 39
+        also:
+          - {file: addons/mail/models/discuss/discuss_channel_member.py, symbols: [_partner_unique, _guest_unique, _partner_or_guest_exists], line: 251}
+        pattern: composite unique (res_model,res_id,partner_id); partner_id ondelete='cascade'; partial UniqueIndex WHERE partner_id IS NOT NULL; XOR CHECK partner/guest
+        reason: Composite uniqueness on a polymorphic (model,res_id) key plus cascade on partner delete is how every chatter-enabled model behaves; channel member adds the partial-unique + XOR shape.
+        existing_tests: [addons/test_mail/tests/test_mail_followers.py::test_followers_multiple_subscription_force]
+        neutral_assertion: subscribing the same partner twice to one record keeps exactly one follower (ORM path) and direct double create raises integrity violation; unlinking the partner removes its follower rows; a member with neither partner nor guest -> integrity violation.
+      - id: integrity.stock_location
+        addon: stock
+        model: stock.location / stock.quant
+        file: addons/stock/models/stock_location.py
+        symbols: [_barcode_company_uniq, _inventory_freq_nonneg]
+        line: 94
+        also:
+          - {file: addons/stock/models/stock_quant.py, symbols: [product_id, location_id], line: 47}
+          - {file: addons/stock/models/stock_orderpoint.py, symbols: [_product_location_check], line: 127}
+        pattern: unique(barcode,company_id) with NULL barcodes allowed; CHECK >= 0; quant product_id/location_id ondelete='restrict'; orderpoint unique(product_id,location_id,company_id)
+        reason: Unique constraint where NULLs must not collide (SQL NULL semantics vs document-store null) and 'restrict' FKs protecting stock quantities.
+        existing_tests: [addons/stock/tests/test_stock_location_search.py::test_10_location_search_by_barcode]
+        neutral_assertion: two locations with same barcode in one company -> integrity violation; two locations with barcode False are fine; unlink a product that has quants -> integrity violation.
+      - id: integrity.sale_order_line
+        addon: sale
+        model: sale.order / sale.order.line
+        file: addons/sale/models/sale_order_line.py
+        symbols: [_accountable_required_fields, _non_accountable_null_fields, order_id]
+        line: 24
+        also:
+          - {file: addons/sale/models/sale_order.py, symbols: [_date_order_conditional_required, campaign_id], line: 51}
+        pattern: CHECK constraints keyed on display_type; order_id ondelete='cascade'; campaign_id ondelete='set null'
+        reason: Covers all three ondelete modes on one document (cascade lines, set-null UTM fields, restrict partner) plus state-dependent CHECK.
+        existing_tests: [addons/sale/tests/test_sale_order.py]
+        neutral_assertion: section line with a product -> integrity violation; unlink order -> its lines are gone; unlink utm.campaign -> order.campaign_id is False and order survives.
+
+  - id: concurrency
+    name: Concurrency and locking (FOR UPDATE / NOWAIT / SKIP LOCKED, serialization retry)
+    scan: "FOR UPDATE | NOWAIT | SKIP LOCKED | FOR NO KEY UPDATE | lock_for_update | OperationalError | SerializationFailure"
+    scan_counts: {lock_files_non_test: 44, retry_files_non_test: 19}
+    targets:
+      - id: concurrency.ir_sequence
+        addon: base
+        model: ir.sequence
+        file: odoo/addons/base/models/ir_sequence.py
+        symbols: [_update_nogap, _select_nextval, _predict_nextval]
+        line: 57
+        pattern: >-
+          "SELECT ... FOR UPDATE NOWAIT" on no-gap sequences; PG sequences (nextval) for standard ones
+        reason: The canonical "two transactions want the next number" problem; standard vs no_gap implementations have different backend expectations.
+        existing_tests: [odoo/addons/base/tests/test_ir_sequence.py::TestIrSequenceNoGap]
+        neutral_assertion: N concurrent cursors each drawing from one no_gap sequence produce N distinct, contiguous numbers once all commit; a second cursor drawing while the first holds the row raises a lock/concurrency exception class (not a hang).
+      - id: concurrency.ir_cron
+        addon: base
+        model: ir.cron
+        file: odoo/addons/base/models/ir_cron.py
+        symbols: [_acquire_one_job, _get_all_ready_jobs, _process_job]
+        line: 311
+        pattern: >-
+          "FOR NO KEY UPDATE SKIP LOCKED" job acquisition; TransactionRollbackError handling
+        reason: Work-queue semantics (exactly one worker gets a job) are the behaviour a backend must preserve regardless of how locking is spelled.
+        existing_tests: [odoo/addons/base/tests/test_ir_cron.py::test_cron_process_jobs_locked, odoo/addons/base/tests/test_ir_cron.py::test_acquire_processed_job]
+        neutral_assertion: with the job row held by cursor A, _acquire_one_job on cursor B returns None; after A commits, B acquires it; a job is never run twice.
+      - id: concurrency.lock_for_update
+        addon: core
+        model: BaseModel
+        file: odoo/orm/models.py
+        symbols: [lock_for_update, try_lock_for_update]
+        line: 5056
+        pattern: generic row locks (FOR [NO KEY] UPDATE SKIP LOCKED) used by payment, account_edi, base_automation, point_of_sale
+        reason: The ORM-level locking API every addon is being migrated to; a backend only has to implement these two methods correctly.
+        existing_tests: [odoo/addons/test_base/tests/test_orm/test_models.py, addons/payment/tests/test_payment_transaction.py]
+        neutral_assertion: try_lock_for_update on cursor B returns the subset not locked by cursor A (empty when all are locked); lock_for_update on locked rows raises a concurrency exception class; records remain unchanged.
+      - id: concurrency.discuss_channel
+        addon: mail
+        model: discuss.channel / mail.guest
+        file: addons/mail/models/discuss/discuss_channel.py
+        symbols: [_sync_last_interest_dt, _update_last_interest_dt]
+        line: 770
+        also:
+          - {file: addons/mail/models/discuss/mail_guest.py, symbols: [_update_timezone], line: 129}
+        pattern: try_lock_for_update(allow_referencing=True) + psycopg2.OperationalError swallowed; raw "FOR NO KEY UPDATE SKIP LOCKED"
+        reason: >-
+          "Best-effort update" pattern - a lost lock must degrade silently, not raise - which is the opposite expectation from ir_sequence.
+        existing_tests: [addons/mail/tests/discuss/test_discuss_channel_last_interest.py]
+        neutral_assertion: concurrent _sync_last_interest_dt on a channel locked elsewhere does not raise and leaves last_interest_dt either old or new (never corrupt); later call converges to the newest value.
+      - id: concurrency.website_visitor
+        addon: website
+        model: website.visitor
+        file: addons/website/models/website_visitor.py
+        symbols: [_update_visitor_last_visit, _update_visitor_timezone, _upsert_visitor]
+        line: 361
+        pattern: >-
+          "UPDATE ... WHERE id IN (SELECT ... FOR NO KEY UPDATE SKIP LOCKED)"; INSERT ... ON CONFLICT upsert
+        reason: High-frequency, contention-tolerant update plus an upsert keyed on a unique access_token.
+        existing_tests: [addons/website/tests/test_website_visitor.py::test_visitor_creation_on_tracked_page]
+        neutral_assertion: two upserts with the same token yield one visitor; last_visit update under a concurrent lock is skipped without error and applied on the next call.
+      - id: concurrency.stock_orderpoint_retry
+        addon: stock
+        model: stock.warehouse.orderpoint
+        file: addons/stock/models/stock_orderpoint.py
+        symbols: [_procure_orderpoint_confirm]
+        line: 728
+        also:
+          - {file: addons/account/models/partner.py, symbols: [_increase_rank], line: 891}
+        pattern: savepoint + except psycopg2.OperationalError -> retry/skip loop; separate registry cursor + OperationalError swallow
+        reason: Application-level serialization retry; the neutral test only cares that the end state is correct after the retry, whichever error class triggered it.
+        existing_tests: [addons/stock/tests/test_stock_order_point.py, addons/website_sale_loyalty/tests/test_concurrent_promo_code.py]
+        neutral_assertion: running the procurement twice concurrently creates exactly one replenishment per orderpoint; partner rank increments by the number of successful calls and never raises to the caller.
+
+  - id: raw_sql
+    name: Raw SQL bypassing the ORM (cr.execute / SQL())
+    scan: "cr.execute( | SQL("
+    scan_counts: {call_sites_non_test: 2026, top: {odoo/orm: 297, account: 265, odoo/addons/base: 200, odoo/tools: 129, mass_mailing: 63, mail: 59, website: 53}}
+    targets:
+      - id: raw_sql.orm_core
+        addon: core
+        model: BaseModel / Many2many
+        file: odoo/orm/models.py
+        symbols: [_read_group, _write_multi, _create, exists, _parent_store_compute]
+        line: 1996
+        also:
+          - {file: odoo/orm/fields_relational.py, symbols: [read, write_batch, relation_delete], line: 1428}
+        pattern: hand-built SELECT/UPDATE/INSERT; INSERT ... ON CONFLICT DO NOTHING for m2m relation tables
+        reason: The ORM's own SQL is the minimum any backend must replace; m2m relation writes have set semantics (no duplicates, idempotent link/unlink).
+        existing_tests: [odoo/addons/test_base/tests/test_orm/test_read_group_private.py, odoo/addons/test_base/tests/test_orm/test_many2many.py, odoo/addons/test_base/tests/test_orm/test_create.py]
+        neutral_assertion: create/write/exists round-trips through the public API; linking the same m2m pair twice yields one link; unlink of a non-linked pair is a no-op.
+      - id: raw_sql.account_move
+        addon: account
+        model: account.move / account.account / res.partner
+        file: addons/account/models/account_move.py
+        symbols: [_fetch_duplicate_reference, _get_last_sequence_domain]
+        line: 2182
+        also:
+          - {file: addons/account/models/account_account.py, symbols: [_search, _compute_sql_placeholder_code], line: 974}
+          - {file: addons/account/models/partner.py, symbols: [_credit_debit_get, _invoice_total], line: 391}
+        pattern: multi-join SELECT with GROUP BY / regexp_replace / LATERAL to detect duplicate bills, compute partner credit/debit, order accounts by code
+        reason: account is the heaviest raw-SQL addon (265 sites); these three methods feed stored/computed fields whose values are directly observable.
+        existing_tests: [addons/account/tests/test_account_move_in_invoice.py, addons/account/tests/test_account_account.py]
+        neutral_assertion: two vendor bills with same ref+partner -> duplicated_ref_ids populated; partner.credit/debit equal the sum of its posted receivable/payable lines; account search ordered by code matches Python sort.
+      - id: raw_sql.mail_followers
+        addon: mail
+        model: mail.followers / mail.message / mail.thread
+        file: addons/mail/models/mail_followers.py
+        symbols: [_get_recipient_data, _get_subscription_data]
+        line: 91
+        also:
+          - {file: addons/mail/models/mail_message.py, symbols: [_filter_accessible_from_query], line: 568}
+          - {file: addons/mail/models/mail_thread.py, symbols: [_search_message_is_follower, _search_message_partner_ids], line: 252}
+        pattern: 4 LATERAL subqueries building recipient lists; access filtering via subquery; custom _search_* on non-stored fields
+        reason: Notification routing and message access are security-relevant behaviours implemented in raw SQL; mistakes are silent.
+        existing_tests: [addons/test_mail/tests/test_mail_followers.py, addons/test_mail/tests/test_mail_thread_internals.py]
+        neutral_assertion: message_post on a record notifies exactly the followers subscribed to that subtype (compare notification partner set); search on message_is_follower / message_partner_ids matches a Python-side filter.
+      - id: raw_sql.website
+        addon: website
+        model: website / website.visitor
+        file: addons/website/models/website.py
+        symbols: [_is_snippet_used, get_similarity_subquery]
+        line: 2122
+        also:
+          - {file: addons/website/models/website_visitor.py, symbols: [_upsert_visitor, _get_additional_track_query_parts], line: 220}
+        pattern: full-text / similarity search (pg_trgm style) over html fields; INSERT ... ON CONFLICT upsert for visitor tracking
+        reason: Text-search SQL is the most backend-specific SQL in the repo; the neutral test asserts result sets, not ranking internals.
+        existing_tests: [addons/website/tests/test_website_visitor.py, addons/website/tests/test_fuzzy.py]
+        neutral_assertion: a page containing a snippet is reported as used after save and not after removal; visitor upsert is idempotent per token.
+      - id: raw_sql.stock_quant
+        addon: stock
+        model: stock.quant
+        file: addons/stock/models/stock_quant.py
+        symbols: [_merge_quants, _unlink_zero_quants, _run_least_packages_removal_strategy_astar]
+        line: 1210
+        pattern: UPDATE/DELETE with GROUP BY to merge duplicate quants and drop zero quants
+        reason: Inventory correctness depends on these clean-up queries; observable through quant counts and quantities.
+        existing_tests: [addons/stock/tests/test_quant.py]
+        neutral_assertion: after two moves into the same location/lot, exactly one quant exists with the summed quantity; quants at 0 are removed after _unlink_zero_quants.
+      - id: raw_sql.sale_project
+        addon: sale
+        model: sale.order / project.task
+        file: addons/sale/models/sale_order.py
+        symbols: [_fetch_duplicate_orders, _search_invoice_ids]
+        line: 1042
+        also:
+          - {file: addons/project/models/project_task.py, symbols: [_search_portal_user_names], line: 737}
+          - {file: addons/point_of_sale/models/pos_order.py, symbols: [search_order_ids], line: 1131}
+        pattern: raw SELECT behind non-stored searchable fields and duplicate detection; POS order search with raw SQL
+        reason: Spreads the category over sale/project/point_of_sale with small, independently testable queries.
+        existing_tests: [addons/sale/tests/test_sale_order.py, addons/project/tests/test_project_sharing.py, addons/point_of_sale/tests/test_point_of_sale_flow.py]
+        neutral_assertion: search([('invoice_ids','in',..)]) returns the same set as filtering in Python; duplicate orders are flagged symmetric and never include self.
+
+  - id: sql_views
+    name: SQL-view reporting models (_auto = False) and recursive CTE / window / LATERAL
+    scan: "_auto = False | WITH RECURSIVE | OVER ( | LATERAL"
+    scan_counts: {auto_false_files_non_test: 43, cte_window_lateral_files_non_test: 49}
+    targets:
+      - id: sql_views.account_invoice_report
+        addon: account
+        model: account.invoice.report
+        file: addons/account/report/account_invoice_report.py
+        symbols: [AccountInvoiceReport, _table_sql, _read_group_select]
+        line: 8
+        pattern: _auto = False with _table_sql() subquery and a custom _read_group_select for price averages
+        reason: The newer "_table_sql" style of SQL view with an aggregate override; tested at result level already.
+        existing_tests: [addons/account/tests/test_account_invoice_report.py::test_invoice_report_multiple_types]
+        neutral_assertion: _read_group on the report for one invoice equals the invoice's untaxed total / quantity; grouping by month puts the invoice in its invoice_date month.
+      - id: sql_views.sale_report
+        addon: sale
+        model: sale.report
+        file: addons/sale/report/sale_report.py
+        symbols: [SaleReport, _table_sql, _select_dict]
+        line: 11
+        pattern: _auto = False, _table_sql built from a dict of SELECT expressions; extended by many addons
+        reason: Most-extended report in the repo; its sum/avg semantics are the contract downstream addons rely on.
+        existing_tests: [addons/sale/tests/test_sale_report.py::test_sale_report_with_downpayment]
+        neutral_assertion: price_subtotal grouped by order equals order.amount_untaxed; a productless line contributes a row with product False.
+      - id: sql_views.report_pos_order
+        addon: point_of_sale
+        model: report.pos.order
+        file: addons/point_of_sale/report/pos_order_report.py
+        symbols: [ReportPosOrder, _select, _from, _group_by, init]
+        line: 7
+        pattern: legacy init()/drop_view_if_exists style; date_trunc arithmetic (delay_validation)
+        reason: The older SQL-view style (init creates the view) and date arithmetic in SQL.
+        existing_tests: [addons/point_of_sale/tests/test_report_session.py]
+        neutral_assertion: one paid order -> one report row per line with matching qty/price_total; delay_validation is 0 for same-day orders.
+      - id: sql_views.project_reports
+        addon: project
+        model: report.project.task.user / project.task.burndown.chart.report / project.task.stage.report
+        file: addons/project/report/project_task_burndown_chart_report.py
+        symbols: [ProjectTaskBurndownChartReport, _read_group]
+        line: 10
+        also:
+          - {file: addons/project/report/project_report.py, symbols: [ReportProjectTaskUser, _select, _group_by], line: 9}
+          - {file: addons/project/report/project_time_by_stage_report.py, symbols: [ReportProjectTaskStage, _from], line: 5}
+        pattern: window functions (SUM OVER, LAG OVER), UNION, CROSS JOIN LATERAL jsonb_each, a _read_group override on an AbstractModel view
+        reason: Window functions and LATERAL over JSON are the SQL features least likely to map 1:1; the burndown report is fully behaviour-tested already.
+        existing_tests: [addons/project/tests/test_burndown_chart.py::test_burndown_chart, addons/project/tests/test_project_report.py::test_avg_rating_measure]
+        neutral_assertion: burndown counts per stage per day equal a Python replay of the task's stage history; task analysis avg rating equals the mean of its ratings.
+      - id: sql_views.hr_leave_reports
+        addon: hr_holidays
+        model: hr.leave.employee.type.report / hr.leave.report
+        file: addons/hr_holidays/report/hr_leave_employee_type_report.py
+        symbols: [HrLeaveEmployeeTypeReport, init]
+        line: 7
+        also:
+          - {file: addons/hr_holidays/report/hr_leave_report.py, symbols: [HrLeaveReport, init], line: 5}
+        pattern: window functions (MAX/SUM/ROW_NUMBER OVER PARTITION) plus UNION ALL of leaves and allocations
+        reason: Overlapping-allocation arithmetic done in window functions; tested on balances today.
+        existing_tests: [addons/hr_holidays/tests/test_hr_leave_report.py::test_overlapping_allocations_leaves_balance]
+        neutral_assertion: for an employee with two overlapping allocations and one leave, the report balance equals allocated - taken computed in Python.
+      - id: sql_views.stock_quantity_report
+        addon: stock
+        model: report.stock.quantity
+        file: addons/stock/report/report_stock_quantity.py
+        symbols: [ReportStockQuantity, init]
+        line: 7
+        pattern: UNION ALL of quants and forecasted moves over a generated date series
+        reason: Date-series generation inside the view; forecast rows are derived, not stored.
+        existing_tests: [addons/stock/tests/test_report_stock_quantity.py::test_report_stock_quantity]
+        neutral_assertion: for a product with 10 on hand and an outgoing move of 3 tomorrow, rows show 10 today and 7 tomorrow for state 'forecast'.
+      - id: sql_views.recursive_cte
+        addon: core
+        model: BaseModel / project.task / product.product / ir.ui.view
+        file: odoo/orm/models.py
+        symbols: [_parent_store_compute, _has_cycle]
+        line: 2423
+        also:
+          - {file: addons/project/models/project_task.py, symbols: [_get_subtask_ids_per_task_id], line: 1839}
+          - {file: addons/stock/models/product.py, symbols: [_get_domain_locations_new], line: 404}
+          - {file: odoo/addons/base/models/ir_ui_view.py, symbols: [_get_inheriting_views], line: 734}
+        pattern: WITH RECURSIVE for parent_path rebuild, cycle detection, subtask trees, location descendants, view inheritance
+        reason: Recursive CTEs have no direct equivalent in a document store ($graphLookup differs); all four have observable results (paths, booleans, id sets).
+        existing_tests: [odoo/addons/test_base/tests/test_orm/test_parent_store.py, odoo/addons/base/tests/test_res_partner.py, addons/project/tests/test_project_subtasks.py]
+        neutral_assertion: after re-parenting, every record's parent_path lists its ancestors in order; _has_cycle is True iff a Python DFS finds a cycle; subtask ids per task equal a Python tree walk.
+      - id: sql_views.lateral_rates
+        addon: base
+        model: res.currency
+        file: odoo/addons/base/models/res_currency.py
+        symbols: [_get_rates, _current_rate_sql]
+        line: 171
+        also:
+          - {file: addons/mail/models/discuss/discuss_channel.py, symbols: [_get_last_messages, _get_last_needaction_messages], line: 1957}
+        pattern: LEFT JOIN LATERAL "latest row per key" queries
+        reason: The "latest rate / last message per parent" idiom appears in 20+ files; its result is a plain value per record.
+        existing_tests: [odoo/addons/base/tests/test_res_currency.py, addons/mail/tests/discuss/test_discuss_channel.py]
+        neutral_assertion: _get_rates returns the rate dated on or before the asked date (not the newest); channel last message equals max(id) of its messages.
+
+  - id: aggregation_hierarchy
+    name: Aggregation (_read_group) and hierarchy (child_of / parent_of / parent_path)
+    scan: "_read_group( | read_group( | 'child_of' | 'parent_of' | parent_path"
+    scan_counts: {read_group_files_non_test: 312, hierarchy_files_non_test: 190, parent_store_models: 15}
+    targets:
+      - id: aggregation.read_group_core
+        addon: core
+        model: BaseModel
+        file: odoo/orm/models.py
+        symbols: [_read_group, _read_group_orderby, _read_group_having]
+        line: 1996
+        pattern: groupby on char/m2o/date parts/m2m, aggregates (sum/avg/count/array_agg/count_distinct), having, limit/offset
+        reason: Everything else in this category is a caller of this method; the private test file already asserts on returned tuples.
+        existing_tests: [odoo/addons/test_base/tests/test_orm/test_read_group_private.py::test_simple_private_read_group, odoo/addons/test_base/tests/test_orm/test_read_group_private.py::test_groupby_date]
+        neutral_assertion: for a fixed dataset, _read_group output tuples equal a Python itertools.groupby replay for every groupby/aggregate combination in the private tests.
+      - id: aggregation.stock_product_quantities
+        addon: stock
+        model: product.product / stock.location
+        file: addons/stock/models/product.py
+        symbols: [_compute_quantities_dict, _search_field_by_quants]
+        line: 156
+        also:
+          - {file: addons/stock/models/stock_location.py, symbols: [_compute_child_internal_location_ids, _child_of, unlink], line: 180}
+          - {file: addons/stock/models/stock_quant.py, symbols: [_gather, _get_gather_domain], line: 803}
+        pattern: _read_group over quants/moves with ('location_id','child_of',...) domains; parent_path string comparisons
+        reason: Combines aggregation and hierarchy in the hottest business path (qty_available); stock is the top read_group user (14 files).
+        existing_tests: [addons/stock/tests/test_quant.py, addons/stock/tests/test_auto_waving.py]
+        neutral_assertion: qty_available of a product equals the sum of its quants in the warehouse view location's subtree only; searching qty_available > 0 returns exactly those products; unlinking a parent location removes its children.
+      - id: aggregation.account_account_hierarchy
+        addon: account
+        model: account.account / res.partner
+        file: addons/account/models/account_account.py
+        symbols: [_compute_current_balance, _compute_parent_ids, _search]
+        line: 588
+        also:
+          - {file: addons/account/models/partner.py, symbols: [_compute_account_move_count, _increase_rank], line: 1208}
+        pattern: _read_group with ('company_id','child_of',root) domains; parent_path-based parent_ids; partner ('id','child_of',self.ids)
+        reason: Hierarchy over companies (multi-company branches) and accounts; balance aggregation is the accounting invariant.
+        existing_tests: [addons/account/tests/test_account_account.py, addons/account/tests/test_account_move_out_invoice.py]
+        neutral_assertion: current_balance of an account equals sum(balance) of posted lines across the company and its branches; partner invoice counts include child contacts' moves.
+      - id: aggregation.project_task_subtasks
+        addon: project
+        model: project.task / project.project
+        file: addons/project/models/project_task.py
+        symbols: [_compute_subtask_count, _read_group, _read_grouping_sets]
+        line: 659
+        also:
+          - {file: addons/project/models/project_project.py, symbols: [__compute_task_count, _compute_milestone_count], line: 38}
+        pattern: _read_group with __count on parent_id; _read_group override injecting personal-stage grouping
+        reason: A model-level _read_group override is the main extension point a backend must respect; subtask counts are a plain integer to assert.
+        existing_tests: [addons/project/tests/test_project_subtasks.py::test_subtask_project, addons/project/tests/test_project_flow.py]
+        neutral_assertion: subtask_count equals len(child_ids) after create/write/unlink of children; project task_count excludes closed tasks consistently with a Python filter; grouping tasks by personal stage returns every stage even when empty (group_expand).
+      - id: aggregation.hr_leave_mail_pos
+        addon: hr_holidays
+        model: hr.leave.allocation / discuss.channel / pos.session
+        file: addons/hr_holidays/models/hr_leave_allocation.py
+        symbols: [_check_negative_allocation]
+        line: 352
+        also:
+          - {file: addons/mail/models/discuss/discuss_channel.py, symbols: [_compute_member_count, _compute_message_count], line: 480}
+          - {file: addons/point_of_sale/models/pos_session.py, symbols: [_compute_order_count, _compute_total_payments_amount], line: 361}
+        pattern: _read_group with sum/count used inside constraints and computes
+        reason: Spreads the category over three addons with trivially checkable counts and sums.
+        existing_tests: [addons/hr_holidays/tests/test_allocations.py, addons/mail/tests/discuss/test_discuss_channel.py, addons/point_of_sale/tests/test_point_of_sale_flow.py]
+        neutral_assertion: member_count/message_count equal len() of the relation; total_payments_amount equals sum of payment amounts; an allocation below taken leaves raises ValidationError.
+      - id: hierarchy.parent_store_models
+        addon: base
+        model: res.partner / res.company / product.category / hr.department / website.menu
+        file: odoo/addons/base/models/res_partner.py
+        symbols: [_parent_store, _search_display_name, _compute_same_vat_partner_id]
+        line: 231
+        also:
+          - {file: odoo/addons/base/models/res_company.py, symbols: [_parent_store, _all_branches_selected], line: 66}
+          - {file: addons/product/models/product_category.py, symbols: [_parent_store, _compute_product_count], line: 13}
+          - {file: addons/website/models/website_menu.py, symbols: [_parent_store, parent_id], line: 20}
+        pattern: _parent_store = True models with child_of/parent_of domains in searches and computes
+        reason: 15 models declare _parent_store; these four cover partner, company, catalog and website trees with existing child_of call sites.
+        existing_tests: [odoo/addons/test_base/tests/test_orm/test_parent_store.py, odoo/addons/test_base/tests/test_orm/test_fields.py::TestParentStore, odoo/addons/base/tests/test_res_partner.py]
+        neutral_assertion: search([('id','child_of',root)]) equals a Python descent over parent_id/child_ids; parent_of is its inverse; moving a subtree updates both; creating a cycle raises UserError.
+
+  - id: core_semantics
+    name: Core ORM semantics already tested in odoo/addons/test_base/tests/test_orm
+    scan: "assertQueryCount | assertQueries | cr.execute | SQL( | psycopg2 | registry | _as_query | flush_all/invalidate_all (allowed)"
+    note: Classification by static scan of each file; counts are test methods. 'as-is' = zero backend-specific lines; 'edit' = neutral after removing or skipping the listed assertions; 'split' = reuse only the listed classes; 'exclude' = measures PostgreSQL itself.
+    targets:
+      - id: core.reuse_as_is
+        addon: test_base
+        model: various test_orm.* models
+        file: odoo/addons/test_base/tests/test_orm/test_access.py
+        symbols: [TestAccess]
+        line: 11
+        also:
+          - {file: odoo/addons/test_base/tests/test_orm/test_acl.py, symbols: [test_field_visibility_restriction]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_copy.py, symbols: [TestCopyTranslations]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_create.py, symbols: [TestCreate]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_prefetch.py, symbols: [TestPrefecth]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_views.py, symbols: [TestDefaultView, TestViewGroups]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_check_access.py, symbols: [test_check_access]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_config_settings.py, symbols: [TestConfigSettings]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_json_field.py, symbols: [JsonFieldTest]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_ir_qweb_fields.py, symbols: [TestExport]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_action_bindings.py, symbols: [TestActionBindings]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_autovacuum.py, symbols: [TestAutovacuum]}
+        pattern: no SQL text, no query counts, no cursor/savepoint use
+        reason: 13 files / ~80 tests are already backend-neutral and can be collected unchanged.
+        existing_tests: [odoo/addons/test_base/tests/test_orm/test_access.py, odoo/addons/test_base/tests/test_orm/test_acl.py, odoo/addons/test_base/tests/test_orm/test_copy.py, odoo/addons/test_base/tests/test_orm/test_create.py, odoo/addons/test_base/tests/test_orm/test_prefetch.py, odoo/addons/test_base/tests/test_orm/test_views.py]
+        neutral_assertion: run as-is; they assert on record values, access errors (AccessError) and view structure only.
+      - id: core.reuse_with_edits
+        addon: test_base
+        model: test_orm.* models
+        file: odoo/addons/test_base/tests/test_orm/test_domain.py
+        symbols: [TestDomain, TestDomainComplement, TestDomainOptimize]
+        line: 15
+        also:
+          - {file: odoo/addons/test_base/tests/test_orm/test_parent_store.py, symbols: [TestParentStore]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_many2many.py, symbols: [test_not_in_relation_as_query]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_one2many.py, symbols: [assertQueryCount]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_inherits.py, symbols: [assertQueries]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_ir_rules.py, symbols: [assertQueryCount]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_company_checks.py, symbols: [assertQueryCount]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_search_order.py, symbols: [assertQueries]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_sort.py, symbols: [assertQueryCount]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_access_feedback.py, symbols: [flush_all]}
+        pattern: a handful of assertQueryCount/assertQueries/SQL() lines inside otherwise behavioural tests
+        reason: ~160 tests whose only backend-specific lines are query-count guards or a raw SELECT used to double-check a value; the behavioural asserts next to them are the ones to keep.
+        existing_tests: [odoo/addons/test_base/tests/test_orm/test_domain.py, odoo/addons/test_base/tests/test_orm/test_one2many.py, odoo/addons/test_base/tests/test_orm/test_inherits.py]
+        neutral_assertion: copy the test with assertQueryCount/assertQueries replaced by a no-op context and raw SQL cross-checks replaced by .read(); keep every value/exception assertion.
+      - id: core.reuse_split_by_class
+        addon: test_base
+        model: test_orm.* models
+        file: odoo/addons/test_base/tests/test_orm/test_fields.py
+        symbols: [TestParentStore, TestSelectionOndelete, TestUnlinkConstraints, TestRequiredMany2one, TestCompanyDependent, TestComputeQueries, TestModifiedPerformance]
+        line: 4104
+        also:
+          - {file: odoo/addons/test_base/tests/test_orm/test_search.py, symbols: [TestSearch, TestSearchAny, TestSearchRelated, TestSubqueries]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_domain_expression.py, symbols: [TestExpression, TestMany2one, TestOne2many, TestMany2many, TestQueries]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_read_group_private.py, symbols: [TestPrivateReadGroup, TestPublicReadGroup]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_properties.py, symbols: [PropertiesCase, PropertiesSearchCase]}
+          - {file: odoo/addons/test_base/tests/test_orm/test_models.py, symbols: [TestORM, TestRecordset]}
+        pattern: files mixing behavioural classes with SQL-asserting classes (TestComputeQueries, TestModifiedPerformance, TestSubqueries, TestQueries)
+        reason: test_fields (219 tests), test_search (67), test_domain_expression (86), test_read_group_private (29), test_properties (44) hold the bulk of ORM semantics; reusing by class keeps the neutral ones.
+        existing_tests: [odoo/addons/test_base/tests/test_orm/test_fields.py, odoo/addons/test_base/tests/test_orm/test_search.py, odoo/addons/test_base/tests/test_orm/test_domain_expression.py]
+        neutral_assertion: include classes TestParentStore, TestSelectionOndelete, TestUnlinkConstraints, TestRequiredMany2one, TestCompanyDependent, TestSearch, TestSearchAny, TestSearchRelated, TestExpression, TestMany2one/One2many/Many2many, TestPrivateReadGroup, PropertiesCase, TestORM, TestRecordset; exclude TestComputeQueries, TestModifiedPerformance, TestSubqueries, TestQueries, TestFlushSearch.
+
+excluded:
+  - item: odoo/addons/test_base/tests/test_orm/test_performance.py, test_timeit.py, test_query.py, test_registry.py, test_registry_signaling.py, test_schema.py, test_index_method.py, test_indexed_translation.py, test_read_grouping_sets.py, test_read_group_override.py, test_modules_db.py, test_uninstall.py, test_all_models.py, test_cache.py
+    why: They measure PostgreSQL itself (query counts, SQL text, schema/DDL reflection, registry signalling via DB sequences, psycopg2 error classes). Not expressible as ORM-observable behaviour.
+  - item: Schema management - odoo/tools/sql.py, odoo/modules/db.py, odoo/addons/base/models/ir_model.py (_reflect_constraint, query_insert/query_update), BaseModel._auto_init/_check_removed_columns
+    why: DDL/reflection is a backend implementation concern, not ORM behaviour; a document store has no columns to reflect. Covered by backend-specific tests instead.
+  - item: Country-specific EDI locking - addons/l10n_*_edi*/ (11 files with FOR UPDATE)
+    why: Localisation addons; the same lock_for_update API is covered by the core/payment targets.
+  - item: payment, resource, base_automation, account_edi, mrp, purchase locking call sites
+    why: All call BaseModel.lock_for_update / try_lock_for_update (covered by concurrency.lock_for_update); listed as extension candidates, not primary targets, to keep the spread at eight addons.
+  - item: mass_mailing (63 raw SQL sites), gamification (22), crm (19), analytic (17), pos_sale (27)
+    why: Outside the agreed spread; their SQL shapes (bulk stats, leaderboards) repeat account/mail patterns. Extension candidates.
+  - item: Downstream report views - website_crm_partner_assign, purchase_stock vendor_delay_report, hr_timesheet, hr_skills, fleet, lunch, event_sale, im_livechat reports
+    why: Same two SQL-view styles as the selected reports; adding them adds fixtures, not new backend behaviour.
+  - item: BaseModel._sql_error_to_message_generic and psycopg2.errors.* branches (odoo/orm/models.py)
+    why: Translates PG error classes into messages; the neutral suite asserts on the raised exception class, not on message text.
+  - item: HttpCase / JS tours, populate, cli, profiler
+    why: Not ORM behaviour.
+  - item: Query-count and SQL-text assertions anywhere (assertQueryCount, assertQueries, SQL(), cr.execute in tests)
+    why: Ruled out by the board's definition of backend-neutral.
+
+open_decisions:
+  - id: D1
+    question: Which exception class does the neutral suite assert for DB-enforced integrity violations?
+    context: At flush time the ORM raises psycopg2.IntegrityError (see addons/hr_holidays/tests/test_holidays_flow.py::test_sql_constraint_dates); only the RPC layer (odoo/http/retrying.py, BaseModel._sql_error_to_message_generic) turns it into ValidationError.
+    proposal: Define one backend-neutral alias (e.g. odoo.exceptions.IntegrityViolation or a tuple exported by the suite) that maps to psycopg2.IntegrityError on PG and to the future backend's class; tests import only the alias.
+  - id: D2
+    question: Same for lock / serialization failures.
+    context: odoo/sql_db.py exports PG_CONCURRENCY_ERRORS_TO_RETRY (LockNotAvailable, SerializationFailure); callers catch psycopg2.OperationalError.
+    proposal: Suite-level ConcurrencyError alias mapped the same way; multi-cursor tests use registry.cursor() only through a helper so the cursor type is swappable.
