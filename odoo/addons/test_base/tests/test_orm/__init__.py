@@ -25,6 +25,7 @@ from . import (
     test_many2many,
     test_models,
     test_modules_db,
+    test_mongo_signaling_assets,
     test_one2many,
     test_parent_store,
     test_performance,

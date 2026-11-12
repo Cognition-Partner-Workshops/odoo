@@ -1,0 +1,24 @@
+[
+  {
+    "name": "assets_cache_sequence",
+    "collection": "ormSignalingAssets",
+    "description": "Registry.get_sequences: the assets cache sequence is max(id) of the signaling table",
+    "source_sql": "SELECT max(id) AS seq FROM orm_signaling_assets",
+    "target_pipeline": [
+      {"$group": {"_id": null, "seq": {"$max": "$_id"}}},
+      {"$project": {"_id": 0, "seq": 1}}
+    ]
+  },
+  {
+    "name": "assets_signals_retained",
+    "collection": "ormSignalingAssets",
+    "description": "ir.autovacuum._gc_orm_signaling: the latest signals kept by the retention rule",
+    "source_sql": "SELECT id, date FROM orm_signaling_assets ORDER BY id DESC LIMIT 10",
+    "target_pipeline": [
+      {"$sort": {"_id": -1}},
+      {"$limit": 10},
+      {"$project": {"_id": 0, "id": "$_id", "date": 1}}
+    ],
+    "rules": ["datetime_utc_truncate_ms", "null_missing_equiv"]
+  }
+]
