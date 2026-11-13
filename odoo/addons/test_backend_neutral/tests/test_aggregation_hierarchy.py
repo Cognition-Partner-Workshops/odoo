@@ -921,6 +921,7 @@ class TestParentStoreHierarchy(HierarchyCase):
         Company = self.env['res.company']
         ProductCategory = self.env['product.category']
         Location = self.env['stock.location']
+        Department = self.env['hr.department']
 
         def parent(record):
             return record.id if record else False
@@ -929,6 +930,7 @@ class TestParentStoreHierarchy(HierarchyCase):
             'res.partner.category': ('parent_id', lambda name, p: Category.create({'name': name, 'parent_id': parent(p)})),
             'product.category': ('parent_id', lambda name, p: ProductCategory.create({'name': name, 'parent_id': parent(p)})),
             'stock.location': ('location_id', lambda name, p: Location.create({'name': name, 'usage': 'internal', 'location_id': parent(p)})),
+            'hr.department': ('parent_id', lambda name, p: Department.create({'name': name, 'parent_id': parent(p)})),
         }
         if not reparentable:
             # the parent of a company is fixed once created, see test_company_hierarchy_is_fixed
