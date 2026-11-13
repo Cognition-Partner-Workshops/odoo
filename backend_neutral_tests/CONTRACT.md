@@ -323,8 +323,9 @@ class IsolationBackend(Protocol):
     # explicit transactions
     @contextmanager
     def independent_transaction(self) -> Transaction    # a *real* new transaction on the same database;
-                                                        # .env, .commit(), .rollback(); rolled back on exit
-                                                        # unless committed; sees only committed data
+                                                        # .env, .commit_transaction(), .rollback_transaction();
+                                                        # rolled back on exit unless committed; sees only
+                                                        # committed data
     @contextmanager
     def concurrent_session(self) -> Transaction         # like independent_transaction but guaranteed to run
                                                         # *concurrently* with the test's own transaction
@@ -340,33 +341,40 @@ class IsolationBackend(Protocol):
     # fixtures that must survive rollback (needed by concurrency tests, see below)
     def committed_fixture(self, make: Callable[[Environment], Recordset]) -> Recordset
                                                         # runs `make` in an independent transaction, commits,
-                                                        # registers unlink-and-commit for class_teardown
+                                                        # registers unlink-and-commit: at the end of the test
+                                                        # when called from a test, at class_teardown when
+                                                        # called from setUpClass
+    def track_committed(self, records: Recordset) -> None
+                                                        # same cleanup for records a test committed itself
+                                                        # through an explicit transaction
 ```
 
-`NeutralCase(TransactionCase)` delegates `setUpClass`/`setUp`/cleanup to the active backend's `class_setup`/`test_setup`/`test_teardown`, exposes `independent_transaction()`, `concurrent_session()`, `committed_fixture()`, `assertIntegrityError()`, `assertConcurrencyError()`, and removes `cr`, `registry` and `assertQueryCount`/`assertQueries` from the public surface (they raise `NotImplementedError('not available in a neutral test')`, so a stray use fails even if the lint is skipped). `NeutralConcurrencyCase(NeutralCase)` is the same but its own transaction is also an `independent_transaction` so that `concurrent_session()` data can be seen after commit; it is for the six `concurrency.*` targets only.
+Tests call `commit_transaction()` / `rollback_transaction()` on a `Transaction`: lint rule BN003 flags every call named `commit` or `rollback` whatever the receiver, so those two names are the test-facing ones (the harness keeps `commit()` / `rollback()` for its own use). A `committed_fixture()` made inside a test is removed at the end of that test, not at class teardown, so one test's committed rows are never visible to the next test; one made in `setUpClass` lives until class teardown. Records a test commits itself (through `independent_transaction()` or `concurrent_session()`) are registered with `track_committed(records)` and get the same cleanup.
+
+`NeutralCase(TransactionCase)` delegates `setUpClass`/`setUp`/cleanup to the active backend's `class_setup`/`test_setup`/`test_teardown`, exposes `independent_transaction()`, `concurrent_session()`, `committed_fixture()`, `track_committed()`, `assertIntegrityError()`, `assertConcurrencyError()`, and removes `cr`, `registry` and `assertQueryCount`/`assertQueries` from the public surface (they raise `NotImplementedError('not available in a neutral test')`, so a stray use fails even if the lint is skipped). `NeutralConcurrencyCase(NeutralCase)` is the same but its own transaction is also an `independent_transaction` so that `concurrent_session()` data can be seen after commit; it is for the six `concurrency.*` targets only.
 
 ### PostgreSQL adapter
 
-- `class_setup` / `test_setup` / `test_teardown`: exactly today's `TransactionCase` code (class cursor, flushing savepoint, rollback, `CacheLayer`), moved behind the interface. No change in behaviour for PostgreSQL.
+- `class_setup` / `test_setup` / `test_teardown`: today's `TransactionCase` code (class cursor, flushing savepoint, rollback, `CacheLayer`), moved behind the interface, with one addition: the class cursor gets the same bounded `lock_timeout` (`SET LOCAL`) as every other transaction the harness opens. Without it a write from `self.env` on a row held by a `concurrent_session()` blocks forever instead of raising `ConcurrencyError`. That is the only behavioural difference from `TransactionCase` on PostgreSQL.
 - `independent_transaction`: `Registry(dbname).cursor()` *outside* `registry_test_mode`, wrapped in an `Environment` with the test's uid/context; `rollback()` on exit unless `commit()` was called (the `environment()` helper in `test_ir_sequence.py:21-27` is this, minus the auto-commit).
-- `concurrent_session`: same as above; a PostgreSQL connection is already an independent session, so locks held by the test's cursor are visible to it. The adapter sets `lock_timeout` on that connection (e.g. 2 s) so a wrong backend answer is a `ConcurrencyError`, not a hang.
+- `concurrent_session`: same as above; a PostgreSQL connection is already an independent session, so locks held by the test's cursor are visible to it. The adapter sets `lock_timeout` (2 s) on every transaction it opens, this one, `independent_transaction` and the class cursor alike, so a wrong backend answer is a `ConcurrencyError`, not a hang.
 - `integrity_errors = psycopg2.IntegrityError`; `concurrency_errors = PG_CONCURRENCY_EXCEPTIONS_TO_RETRY + (odoo.exceptions.ConcurrencyError,)`; `mute_backend_logs = mute_logger('odoo.sql_db')`.
 - `committed_fixture`: run `make`, `commit()`, record `(model, ids)`; `class_teardown` unlinks them in a fresh committed transaction (what `drop_sequence` does in `test_ir_sequence.py:30`).
 
-What the interface deliberately does **not** promise: isolation level, whether uncommitted writes of the test transaction are visible to `concurrent_session` (they are not on PostgreSQL and tests must not rely on either answer), savepoint nesting depth, or that `independent_transaction` is cheap. Concurrency tests therefore create the records both sessions touch with `committed_fixture`, and assert the *end state* through a third `independent_transaction` after both have committed or rolled back.
+What the interface deliberately does **not** promise: isolation level, whether uncommitted writes of the test transaction are visible to `concurrent_session` (they are not on PostgreSQL and tests must not rely on either answer), savepoint nesting depth, or that `independent_transaction` is cheap. Concurrency tests therefore create the records both sessions touch with `committed_fixture`, and assert the *end state* through a third `independent_transaction` after both have committed or rolled back. Note that `self.env` of a plain `NeutralCase` runs inside the class transaction, which on PostgreSQL does not see rows a `committed_fixture()` created after it started (measured in the harness smoke tests): committed fixtures are shared between explicit transactions, or with `self.env` of a `NeutralConcurrencyCase`, whose own transaction is opened per test; a `NeutralCase` reads them through `independent_transaction()`, never through `self.env`.
 
 ## 5. Selecting and running the suite
 
 - **Tag**: every neutral class is decorated `@tagged('backend_neutral', 'post_install', '-at_install')` (tags inherit, so putting it on `NeutralCase` is enough; `odoo/tests/common.py:3137`). `standard` stays, so the suite also runs in the normal full run on PostgreSQL.
-- **Location (proposal, see Q3)**: a test addon `odoo/addons/test_backend_neutral/` holding `harness/` (interface, PostgreSQL adapter, `errors.py`) and `tests/` grouped by `SAMPLE.md` category (`test_integrity.py`, `test_concurrency.py`, `test_raw_sql.py`, `test_sql_views.py`, `test_aggregation_hierarchy.py`, `test_core_reuse.py`). It `depends` on the sample spread (`account`, `stock`, `sale`, `mail`, `website`, `hr_holidays`, `point_of_sale`, `project`, `test_base`) so one install gives every fixture. `backend_neutral_tests/` at the repo root keeps the documents, the manifest and the lint; it is not importable by Odoo on purpose.
+- **Location (proposal, see Q3)**: a test addon `odoo/addons/test_backend_neutral/` holding `harness/` (interface, PostgreSQL adapter, `errors.py`) and `tests/` grouped by `SAMPLE.md` category (`test_integrity.py`, `test_concurrency.py`, `test_raw_sql.py`, `test_sql_views.py`, `test_aggregation_hierarchy.py`, `test_core_reuse.py`). Its `depends` is the minimal set the tests in it need: the harness alone depends on `base` only, and each category adds the sample addons its fixtures use (the combined suite today: `account`, `hr_holidays`, `mail`, `point_of_sale`, `project`, `sale`, `stock`, `web`, `website`); `test_base` is not a dependency. `backend_neutral_tests/` at the repo root keeps the documents, the manifest and the lint; it is not importable by Odoo on purpose.
 - **Run on PostgreSQL** (from the repo root, after `sudo pg_ctlcluster 16 main start`):
 
   ```sh
   /home/ubuntu/.venvs/odoo/bin/python odoo-bin -d neutral --db_port=5433 --stop-after-init \
-      -i test_backend_neutral --with-demo --test-enable --test-tags backend_neutral
+      -i test_backend_neutral --test-enable --test-tags backend_neutral
   ```
 
-  Subsequent runs on the built database: replace `-i ... --with-demo` with `-u test_backend_neutral`. One category: `--test-tags backend_neutral/test_backend_neutral:TestIntegrity`. Another backend runs the identical command with its own database options; the tag spec, the test files and the assertions do not change.
+  The suite builds its own fixtures and does not need demo data (`--with-demo` is not required). Subsequent runs on the built database: replace `-i` with `-u test_backend_neutral`. `backend_neutral_tests/run_neutral_suite.sh` runs the lint, this command on a fresh database and the contract self-test in one go; `BASELINE.md` records the PostgreSQL 16 baseline. One category: `--test-tags backend_neutral/test_backend_neutral:TestIntegrity`. Another backend runs the identical command with its own database options; the tag spec, the test files and the assertions do not change.
 - **Reuse of `test_orm` tests** (`core.*` in `SAMPLE.md`): the neutral addon *subclasses* the kept classes (`class TestAccessNeutral(TestAccess)` with the tag) for `reuse_as_is`, and *copies* the method bodies for `reuse_with_edits`/`reuse_split_by_class` with the query guards removed; `test_base` itself is not edited (see Q4).
 - **Lint gate**: `python3 backend_neutral_tests/lint_neutral.py <paths>` exits non-zero on any finding; it runs on the neutral addon's `tests/` (never on `harness/`, which is the one place allowed to name psycopg2). Suggested wiring: a `test_lint`-style test in the neutral addon (`odoo/addons/test_lint/tests/test_sql_injection.py` is the precedent for an AST checker run as a test) and/or a CI step on the PR; the first test ticket picks one (Q5).
 

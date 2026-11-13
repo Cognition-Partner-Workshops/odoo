@@ -9,12 +9,18 @@ behind). What is asserted after a refused write is re-read after
 """
 from datetime import date, timedelta
 
-from odoo.addons.test_backend_neutral.harness import NeutralCase
+from odoo.addons.test_backend_neutral.harness import NeutralCase, errors
 
 
 class TestIntegrityResUsers(NeutralCase):
     """ integrity.res_users: UNIQUE(login), CHECK on partner type/name,
-    Many2one partner_id ondelete='restrict'. """
+    Many2one partner_id ondelete='restrict'.
+
+    A duplicate login is refused by the unique index, or earlier by the
+    Python constraint ``_check_login`` when ``website`` is installed with
+    the combined suite; both refusals are asserted. """
+
+    DUPLICATE_LOGIN_REFUSED = (errors.IntegrityError, errors.ValidationError)
 
     @classmethod
     def setUpClass(cls):
@@ -30,14 +36,14 @@ class TestIntegrityResUsers(NeutralCase):
         self.assertEqual(self.Users.search([('login', 'in', ['neutral_user', 'neutral_other'])]), self.user + other)
 
     def test_login_unique_duplicate_create_refused(self):
-        with self.assertIntegrityError():
+        with self.assertRaises(self.DUPLICATE_LOGIN_REFUSED):
             self.Users.create({'name': 'Duplicate User', 'login': 'neutral_user'})
         self.env.invalidate_all()
         self.assertEqual(self.Users.search([('login', '=', 'neutral_user')]), self.user)
 
     def test_login_unique_duplicate_write_refused(self):
         other = self.Users.create({'name': 'Other User', 'login': 'neutral_other'})
-        with self.assertIntegrityError():
+        with self.assertRaises(self.DUPLICATE_LOGIN_REFUSED):
             other.login = 'neutral_user'
         self.env.invalidate_all()
         self.assertEqual(other.login, 'neutral_other')
