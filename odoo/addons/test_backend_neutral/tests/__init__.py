@@ -1,4 +1,5 @@
 from . import (
+    test_concurrency,
     test_integrity,
     test_lint,
     test_raw_sql,
