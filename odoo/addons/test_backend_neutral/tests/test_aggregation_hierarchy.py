@@ -901,11 +901,12 @@ class HierarchyCase(NeutralCase):
             search([('id', 'child_of', [a.id, b.id])]),
             _descendants(a, parentField, universe) | _descendants(b, parentField, universe),
         )
+        leaf = nodes.get('a1x', nodes['a1'])
         self.assertEqual(
-            search([('id', 'child_of', nodes['root'].id), ('id', 'parent_of', nodes['a1x'].id)]),
-            Model.concat(_ancestors(nodes['a1x'], parentField)) & _descendants(nodes['root'], parentField, universe),
+            search([('id', 'child_of', nodes['root'].id), ('id', 'parent_of', leaf.id)]),
+            Model.concat(_ancestors(leaf, parentField)) & _descendants(nodes['root'], parentField, universe),
         )
-        self.assertEqual(search([('id', 'child_of', nodes['a1x'].id)]), nodes['a1x'])
+        self.assertEqual(search([('id', 'child_of', leaf.id)]), leaf)
 
 
 class TestParentStoreHierarchy(HierarchyCase):
@@ -1006,6 +1007,64 @@ class TestParentStoreHierarchy(HierarchyCase):
         self.env.invalidate_all()
         self.assertEqual(branch.parent_id, root)
         self.assertFalse(other.parent_id)
+
+
+class TestWebsiteMenuHierarchy(HierarchyCase):
+    """ ``website.menu`` is a parent-store model that allows two levels below a
+    root menu: same ``child_of`` / ``parent_of`` / ``parent_path`` checks on a
+    tree of that depth, plus the depth rule itself. """
+
+    def setUp(self):
+        super().setUp()
+        self.Menu = self.env['website.menu']
+        self.website = self.env['website'].search([], limit=1)
+
+    def _create(self, name, parent):
+        # with a website_id the menu is created once, not once per website
+        return self.Menu.create({
+            'name': name, 'website_id': self.website.id, 'url': '/neutral', 'parent_id': parent.id if parent else False,
+        })
+
+    def _menu_tree(self):
+        """ root -> (a -> (a1, a2), b) """
+        nodes = {}
+        nodes['root'] = self._create('Neutral root', None)
+        nodes['a'] = self._create('Neutral a', nodes['root'])
+        nodes['b'] = self._create('Neutral b', nodes['root'])
+        nodes['a1'] = self._create('Neutral a1', nodes['a'])
+        nodes['a2'] = self._create('Neutral a2', nodes['a'])
+        self.env.flush_all()
+        self.env.invalidate_all()
+        return nodes
+
+    def test_child_of_parent_of_and_parent_path(self):
+        nodes = self._menu_tree()
+        self._check_against_python(self.Menu, 'parent_id', nodes)
+        self.Menu._parent_store_compute()
+        self.env.invalidate_all()
+        self._check_against_python(self.Menu, 'parent_id', nodes)
+
+    def test_reparenting_and_depth_limit(self):
+        nodes = self._menu_tree()
+        root, a, b, a1 = nodes['root'], nodes['a'], nodes['b'], nodes['a1']
+        a1.parent_id = b
+        self.env.flush_all()
+        self.env.invalidate_all()
+        self._check_against_python(self.Menu, 'parent_id', nodes)
+        self.assertEqual(self.Menu.search([('id', 'child_of', b.id)]), b + a1)
+        self.assertEqual(a1.parent_path, f'{root.id}/{b.id}/{a1.id}/')
+        with self.assertRaises(UserError):
+            self._create('Neutral too deep', a1)
+            self.env.flush_all()
+        self.env.invalidate_all()
+        self.assertEqual(self.Menu.search([('id', 'child_of', root.id)]), self.Menu.concat(nodes.values()))
+        for node, newParent in ((root, a1), (a, a), (root, root)):
+            with self.assertRaises((UserError, ValidationError)):
+                node.parent_id = newParent
+                self.env.flush_all()
+        self.env.invalidate_all()
+        self.assertFalse(root.parent_id)
+        self._check_against_python(self.Menu, 'parent_id', nodes)
 
 
 class TestHierarchyWithoutParentStore(HierarchyCase):
@@ -1310,6 +1369,113 @@ class TestLatestRowPerKey(NeutralCase):
         self.env.invalidate_all()
         self.assertEqual(busy._get_last_messages(), expectedLast(busy))
         self.assertEqual(busy._get_last_messages().body, '<p>three</p>')
+
+    def test_channel_last_needaction_message(self):
+        user = self.env['res.users'].create({
+            'name': 'Neutral Needaction', 'login': 'neutral_needaction',
+            'group_ids': [Command.set(self.env.ref('base.group_user').ids)],
+        })
+        channel = self.env['discuss.channel'].create({'name': 'Neutral Needaction', 'channel_type': 'channel'})
+        channel._add_members(users=user)
+        messages = self.env['mail.message']
+        for body in ('first', 'second', 'third'):
+            messages += channel.message_post(body=body, message_type='comment', subtype_xmlid='mail.mt_comment')
+        # a channel notifies its members over the bus, not with inbox notifications: make the
+        # unread inbox notifications of the user on the first two messages explicitly
+        self.env['mail.notification'].create([
+            {'mail_message_id': message.id, 'res_partner_id': user.partner_id.id, 'notification_type': 'inbox', 'is_read': False}
+            for message in messages[:2]
+        ])
+        self.env.flush_all()
+        self.env.invalidate_all()
+        asUser = channel.with_user(user)
+
+        def expectedLastNeedaction():
+            pending = [message for message in channel.message_ids if message.with_user(user).needaction]
+            return max(pending, key=lambda message: message.id, default=self.env['mail.message'])
+
+        self.assertEqual([message.with_user(user).needaction for message in messages], [True, True, False])
+        self.assertEqual(expectedLastNeedaction(), messages[1])
+        self.assertEqual(asUser._get_last_needaction_messages(), messages[1])
+        self.assertEqual(
+            self.env['mail.message'].with_user(user).search([('needaction', '=', True), ('model', '=', 'discuss.channel'), ('res_id', '=', channel.id)]),
+            messages[:2],
+        )
+        self.assertFalse(channel._get_last_needaction_messages(), "nothing is pending for the superuser")
+
+        self.env['mail.notification'].search([('mail_message_id', '=', messages[1].id)]).write({'is_read': True})
+        self.env.flush_all()
+        self.env.invalidate_all()
+        self.assertEqual(expectedLastNeedaction(), messages[0])
+        self.assertEqual(asUser._get_last_needaction_messages(), messages[0])
+        self.env['mail.notification'].search([('mail_message_id', '=', messages[0].id)]).write({'is_read': True})
+        self.env.flush_all()
+        self.env.invalidate_all()
+        self.assertFalse(expectedLastNeedaction())
+        self.assertFalse(asUser._get_last_needaction_messages())
+
+
+# ----------------------------------------------------------------------
+# website fuzzy search (left to this ticket by the raw-SQL PR)
+# ----------------------------------------------------------------------
+
+class TestWebsiteFuzzySearch(NeutralCase):
+    """ ``website._search_with_fuzzy``: a misspelled term still finds the page,
+    an unrelated term does not. The resembling word is found with the
+    database's trigram word similarity when the database provides it, and with
+    a Python comparison of the words otherwise; the outcomes asserted here
+    hold either way. """
+
+    OPTIONS = {'displayDescription': False, 'displayDetail': False, 'displayExtraLink': False, 'displayImage': False, 'allowFuzzy': True}
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        website = cls.env['website'].search([], limit=1)
+        cls.website = website.with_context(website_id=website.id)
+        Page = cls.env['website.page']
+        cls.banana, cls.carrot = Page.create([
+            {
+                'name': name, 'url': url, 'type': 'qweb', 'key': key, 'website_id': website.id, 'is_published': True,
+                'arch': f'<t t-name="{key}"><t t-call="website.layout"><div>{name}</div></t></t>',
+            }
+            for name, url, key in (
+                ('Neutral Banana Smoothie', '/neutral-banana', 'website.neutral_banana'),
+                ('Neutral Carrot Juice', '/neutral-carrot', 'website.neutral_carrot'),
+            )
+        ])
+
+    def _search(self, term, **options):
+        count, results, fuzzyTerm = self.website._search_with_fuzzy('pages', term, 0, 20, None, {**self.OPTIONS, **options})
+        found = self.env['website.page']
+        for result in results:
+            found |= result['results']
+        return count, found, fuzzyTerm
+
+    def test_exact_term(self):
+        for term, expected in (('banana', self.banana), ('Banana Smoothie', self.banana), ('carrot', self.carrot), ('neutral', self.banana + self.carrot)):
+            with self.subTest(term=term):
+                count, found, fuzzyTerm = self._search(term)
+                self.assertFalse(fuzzyTerm, "no other word was needed")
+                self.assertEqual(found & (self.banana + self.carrot), expected)
+                self.assertGreaterEqual(count, len(expected))
+
+    def test_misspelled_term_finds_the_page(self):
+        for term, word, expected in (('bananna', 'banana', self.banana), ('smothie', 'smoothie', self.banana), ('carot', 'carrot', self.carrot)):
+            with self.subTest(term=term):
+                count, found, fuzzyTerm = self._search(term)
+                self.assertEqual(fuzzyTerm, word, "the search was done on the resembling word")
+                self.assertIn(expected, found)
+                self.assertNotIn((self.banana + self.carrot) - expected, found)
+                self.assertGreaterEqual(count, 1)
+
+    def test_unrelated_term_finds_nothing(self):
+        count, found, fuzzyTerm = self._search('zzqqxx')
+        self.assertEqual((count, found, fuzzyTerm), (0, self.env['website.page'], None))
+
+    def test_fuzzy_matching_can_be_disabled(self):
+        count, found, fuzzyTerm = self._search('bananna', allowFuzzy=False)
+        self.assertEqual((count, found, fuzzyTerm), (0, self.env['website.page'], False))
 
 
 # ----------------------------------------------------------------------

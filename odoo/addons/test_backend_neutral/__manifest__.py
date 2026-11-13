@@ -12,6 +12,7 @@ See backend_neutral_tests/CONTRACT.md at the repository root.""",
         'project',
         'stock',
         'web',
+        'website',
     ],
     'data': [
         'security/ir.access.csv',
