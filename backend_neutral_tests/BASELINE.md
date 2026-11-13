@@ -3,8 +3,9 @@
 This file records the state of the backend-neutral ORM test suite
 (`odoo/addons/test_backend_neutral`, tag `backend_neutral`) when the five
 category test sets were first combined on top of the harness, and run on
-PostgreSQL 16. It is the reference another backend has to match: the same
-command, the same tests, the same counts.
+PostgreSQL 16, then re-recorded when the three `core.*` targets (reuse of
+`test_base/tests/test_orm`) were added. It is the reference another backend
+has to match: the same command, the same tests, the same counts.
 
 - Contract: `backend_neutral_tests/CONTRACT.md`; sample: `backend_neutral_tests/sample.yaml` (`SAMPLE.md`).
 - Gate script: `backend_neutral_tests/run_neutral_suite.sh` (lint, contract self-test, coverage reconciliation, suite on a fresh database).
@@ -14,17 +15,21 @@ command, the same tests, the same counts.
 
 | File | Classes | Test methods | Origin |
 |---|---|---|---|
-| `tests/test_smoke_orm.py`, `test_smoke_integrity.py`, `test_smoke_transactions.py`, `test_lint.py` | 5 | 24 | harness (23 smoke tests on the addon's own `test_backend_neutral.item` model + the lint run as a test) |
+| `tests/test_smoke_orm.py`, `test_smoke_integrity.py`, `test_smoke_transactions.py`, `test_lint.py` | 5 | 25 | harness (23 smoke tests on the addon's own `test_backend_neutral.item` model + the lint run as a test, on the addon's tests and on the inherited `test_orm` code) |
 | `tests/test_sql_views.py` | 8 | 39 | SQL-view parity |
 | `tests/test_raw_sql.py` | 6 | 25 | raw-SQL characterisation (its PR description says 26; the file has 25 `test_` methods and its own standalone run reported `49 tests` = 24 + 25) |
 | `tests/test_integrity.py` | 6 | 57 | DB-enforced integrity |
 | `tests/test_concurrency.py` | 7 | 31 | concurrency |
 | `tests/test_aggregation_hierarchy.py` | 17 | 67 | aggregation / hierarchy |
-| **total** | **49** | **243** | expected "about 244 (24 + 220)"; the one missing test is the raw-SQL miscount above |
+| `tests/test_core_reuse_as_is.py` | 24 | 71 | `core.reuse_as_is`: subclasses of 12 `test_orm` files (+ the `HttpCase` of `test_check_access.py` copied onto `NeutralCase`) |
+| `tests/test_core_reuse_with_edits.py` | 16 | 157 | `core.reuse_with_edits`: subclasses of 10 `test_orm` files, 16 methods overridden with their query guard removed, 4 left out |
+| `tests/test_core_reuse_split_by_class.py` | 16 | 179 | `core.reuse_split_by_class`: the behavioural classes of 6 `test_orm` files, 38 methods overridden, 19 left out, `TestSearchAny` / `TestSearchRelated` left out as classes |
+| **total** | **105** | **651** | 243 before the `core.*` targets (expected "about 244 (24 + 220)"; the one missing test is the raw-SQL miscount above) + 407 reused `test_orm` tests + the inherited-code lint test |
 
 Odoo prints two counts per run: `odoo.tests.result: ... of N tests` counts test methods
-(243) and `odoo.tests.stats: test_backend_neutral: M tests` also counts `subTest`
-blocks (341). The baseline figure is the result line.
+(651) and `odoo.tests.stats: test_backend_neutral: M tests` also counts `subTest`
+blocks (861). The baseline figure is the result line. Before the `core.*` targets the
+two figures were 243 and 341.
 
 ## Baseline runs (PostgreSQL 16, port 5433)
 
@@ -34,6 +39,23 @@ Each run: new, empty database (`createdb`), then
 /home/ubuntu/.venvs/odoo/bin/python odoo-bin -d bn_baseline_runN --db_port=5433 --stop-after-init \
     -i test_backend_neutral --test-enable --test-tags backend_neutral
 ```
+
+### With the `core.*` targets (current baseline)
+
+Three consecutive runs of `backend_neutral_tests/run_neutral_suite.sh` (lint, inherited-code
+lint, contract self-test, coverage reconciliation, then the command above on a fresh
+database; the addon now installs `test_base` too, 103 modules):
+
+| Run | Database | Tests (result line) | Tests incl. subtests (stats line) | Test time (post-tests) | Wall time incl. install | Exit |
+|---|---|---|---|---|---|---|
+| 1 | `bn_baseline_core1` | 0 failed, 0 error(s) of 651 tests | 861 tests | 651 post-tests in 66.28s | 138s | 0 |
+| 2 | `bn_baseline_core2` | 0 failed, 0 error(s) of 651 tests | 861 tests | 651 post-tests in 75.99s | 164s | 0 |
+| 3 | `bn_baseline_core3` | 0 failed, 0 error(s) of 651 tests | 861 tests | 651 post-tests in 63.74s | 139s | 0 |
+
+Lint: `python3 backend_neutral_tests/lint_neutral.py odoo/addons/test_backend_neutral/tests` → `0 finding(s)`.
+Inherited code: `/home/ubuntu/.venvs/odoo/bin/python backend_neutral_tests/lint_reused.py` → `56 neutral classes, 64 inherited upstream classes`, `0 finding(s) in inherited code`, 8 module-level findings in the upstream files listed for review (the `psycopg2` imports of `test_fields.py`, `test_properties.py` and `base/tests/test_ir_ui_view.py`, and the module-level `insert`/`select`/`update` SQL helpers of `test_fields.py`, used only by classes that are not reused).
+
+### Before the `core.*` targets (243 tests)
 
 | Run | Database | Tests (result line) | Failed | Errors | Tests incl. subtests (stats line) | Test time (post-tests) | Wall time incl. install of 102 modules | Exit |
 |---|---|---|---|---|---|---|---|---|
@@ -45,6 +67,35 @@ Runs 1 and 2 shared the machine with the `base` / `test_base` regression runs; r
 
 Lint: `python3 backend_neutral_tests/lint_neutral.py odoo/addons/test_backend_neutral/tests` → `0 finding(s)`.
 Contract self-test: `python3 backend_neutral_tests/lint_neutral.py --self-test` → `24 example blocks checked, 0 failures`.
+
+### How the reused `TransactionCase` classes run under the contract
+
+Every reused class is `class <Upstream>Neutral(<Upstream>, NeutralCase)` with
+`allow_inherited_tests_method = True`, decorated with the neutral tag. In that MRO the
+upstream `setUpClass`/`setUp` call `super()`, which reaches `NeutralCase` instead of
+`TransactionCase`: the fixtures are built on the environment the backend adapter
+provides, and each test runs in the adapter's undoable unit. `cr`, `registry`,
+`assertQueryCount`, `assertQueries` stay unavailable (`NotImplementedError`), so an
+upstream method that reaches them fails even if the lint is skipped. Methods the lint
+flags upstream are overridden in the neutral file (query guard removed, raw SQL
+cross-check replaced, `self.registry[model]` replaced by `type(self.env[model])`) or set
+to `None`, which Odoo's loader does not collect; the per-method list and reasons are in
+the three `test_core_reuse_*.py` files and in the PR that added them.
+
+Harness changes made for this: `_NotNeutral.__get__` returns the descriptor on class
+access (Odoo's loader calls `inspect.getmembers(cls)` for `allow_inherited_tests_method`
+and must not raise), `NeutralCase.patch_registry(attribute, value)` patches a flag of the
+ORM's model registry for the test (`ready`, `uninstalling_modules`; two upstream classes
+patch `self.registry` directly), and `harness/lint.py` gained `lint_inherited()`, which
+lints the upstream class bodies a neutral class inherits and runs (overridden and
+left-out methods excluded); it runs as `TestNeutralLint.test_reused_code_is_neutral`
+and as `backend_neutral_tests/lint_reused.py` in the gate script.
+
+One reused test needed an environment edit, for the same reason as the two `res.users`
+tests below: `TestRecordset.test_recordset_environment` compares `records.with_user(demo).env`
+with `self.env(user=demo)`, and `mail` (installed by the combined addon) overrides
+`with_user` to add a context key, so the expected environment is built with
+`with_user` too.
 
 ### Change needed to make the combined suite green
 
@@ -101,9 +152,9 @@ integrity, #203 concurrency, #204 aggregation / hierarchy).
 | `aggregation.project_task_subtasks` | covered | `TestReadGroupProjectTask` | `subtask_count`, project counts, the `_read_group` override, `group_expand` of personal stages |
 | `aggregation.hr_leave_mail_pos` | partly covered | `TestLeaveAllocationNegativeSum`, `TestDiscussChannelCounts` | allocation below taken leaves raises `ValidationError`; `member_count` / `message_count` equal the relation length. Not covered: `pos.session._compute_order_count` / `_compute_total_payments_amount`, which need the POS session fixture ruled out above (#204); the sum-per-parent shape is the one tested on `discuss.channel` and `account.move.line` |
 | `hierarchy.parent_store_models` | covered | `TestParentStoreHierarchy`, `TestWebsiteMenuHierarchy`, `TestHierarchyWithoutParentStore` | `res.partner.category`, `res.company`, `product.category`, `stock.location`, `hr.department`, `website.menu`; `child_of` on `res.partner` and `project.task`, which have no parent store (the sample's `res_partner.py:231` `_parent_store` belongs to `res.partner.category`) |
-| `core.reuse_as_is` | not covered | — | no category ticket has taken the `core.*` reuse of `test_base/tests/test_orm`; `CONTRACT.md` section 5 proposes subclassing the kept classes with the neutral tag (open decision Q4). The harness smoke tests exercise create / write / search / unlink on the addon's own model but do not collect `test_orm` |
-| `core.reuse_with_edits` | not covered | — | same: the copies with `assertQueryCount` / `assertQueries` removed are not written yet |
-| `core.reuse_split_by_class` | not covered | — | same: the per-class selection (`TestParentStore`, `TestSearch`, `TestExpression`, ...) is not written yet |
+| `core.reuse_as_is` | covered | `TestAccessNeutral`, `TestACLNeutral`, `TestCopyTranslationsNeutral`, `TestCreateNeutral`, `TestPrefetchNeutral`, `TestDefaultViewNeutral`, `TestViewGroupsNeutral`, `TestCheckAccessNeutral`, `TestConfigSettingsNeutral`, `TestJsonFieldNeutral`, `TestCharExportNeutral`, `TestIntegerExportNeutral`, `TestFloatExportNeutral`, `TestCurrencyExportNeutral`, `TestTextExportNeutral`, `TestMany2OneExportNeutral`, `TestImageExportNeutral`, `TestSelectionExportNeutral`, `TestHTMLExportNeutral`, `TestDateExportNeutral`, `TestDatetimeExportNeutral`, `TestDurationExportNeutral`, `TestRelativeDatetimeNeutral`, `TestActionBindingsNeutral` | 71 tests of 12 files collected unchanged by subclassing (`TestACL`: the one test the sample names; `TestExport`: its 13 concrete subclasses); `test_check_access.py` is an `HttpCase`, its fixture and two tests are copied onto `NeutralCase`; left out: `TestAutovacuum.test_api_autovacuum` (runs the cron in `registry_test_mode()`) |
+| `core.reuse_with_edits` | covered | `TestDomainNeutral`, `TestDomainComplementNeutral`, `TestDomainOptimizeNeutral`, `TestParentStoreNeutral`, `TestMany2manyCaseNeutral`, `TestOne2manyCaseNeutral`, `TestInheritsLegacyNeutral`, `TestInheritsNeutral`, `TestRulesNeutral`, `TestCompanyCheckNeutral`, `TestSearchOrderNeutral`, `TestSortNeutral`, `TestSudoNeutral`, `TestACLFeedbackNeutral`, `TestIRRuleFeedbackNeutral`, `TestFieldGroupFeedbackNeutral` | 157 tests of all 10 files; 16 methods overridden (query guards removed, the raw `SELECT` cross-checks of `test_empty_int` / `test_empty_char` dropped, `Domain.custom(to_sql=...)` case dropped, registry accesses replaced); left out: `test_inherits.test_access_rights_on_parent`, `TestSearch.test_22_like_folding` (only assertion is the SQL text), `TestRules.test_access_rule_performance`, `TestSort.test_prefetch` (only assertion is a query count) |
+| `core.reuse_split_by_class` | partly covered | `TestFieldsParentStoreNeutral`, `TestSelectionOndeleteNeutral`, `TestUnlinkConstraintsNeutral`, `TestRequiredMany2oneNeutral`, `TestCompanyDependentNeutral`, `TestSearchNeutral`, `TestExpressionNeutral`, `TestMany2oneNeutral`, `TestOne2manyNeutral`, `TestMany2manyNeutral`, `TestPrivateReadGroupNeutral`, `TestPublicReadGroupNeutral`, `TestPropertiesCaseNeutral`, `TestPropertiesSearchCaseNeutral`, `TestORMNeutral`, `TestRecordsetNeutral` | 179 tests; the SQL-asserting classes named in the sample (`TestComputeQueries`, `TestModifiedPerformance`, `TestSubqueries`, `TestQueries`, `TestFlushSearch`) are not imported. Not covered: `TestSearchAny` (3 tests) and `TestSearchRelated` (11 tests), every test of theirs asserts the SQL text of a search only; 13 `assertQueries`-only tests of `TestMany2one` / `TestOne2many` / `TestMany2many`; `TestExpression.test_accent`, `PropertiesSearchCase.test_properties_field_search_unaccent` (branch on `registry.has_unaccent`); 4 `test_properties` tests that write invalid documents behind the ORM with a raw `UPDATE`. `TestORM.test_lock_for_update` / `test_try_lock_for_update` use `concurrent_session()` for the second transaction; `TestRecordset.check_cache_consistency` reads the stored values back with `_read_group` instead of one `SELECT` per field |
 
 Classes not attached to a target: the harness smoke classes (`TestSmokeOrm`,
 `TestSmokeIntegrity`, `TestSmokeIndependentTransaction`, `TestSmokeConcurrency`,
