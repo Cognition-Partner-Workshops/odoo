@@ -4,7 +4,16 @@
     'description': """Backend-neutral ORM test suite and its harness.
 
 See backend_neutral_tests/CONTRACT.md at the repository root.""",
-    'depends': ['base'],
+    'depends': [
+        'base',
+        'account',
+        'mail',
+        'point_of_sale',
+        'project',
+        'sale',
+        'stock',
+        'website',
+    ],
     'data': [
         'security/ir.access.csv',
     ],
