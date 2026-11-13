@@ -1,4 +1,5 @@
 from . import (
+    test_aggregation_hierarchy,
     test_concurrency,
     test_integrity,
     test_lint,
