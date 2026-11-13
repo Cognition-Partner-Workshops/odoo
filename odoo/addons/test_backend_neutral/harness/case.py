@@ -46,6 +46,10 @@ class _NotNeutral:
         self.name = name
 
     def __get__(self, instance, owner=None):
+        if instance is None:
+            # class-level access: `inspect.getmembers(cls)`, used by Odoo's
+            # loader for `allow_inherited_tests_method`, must not raise
+            return self
         raise NotImplementedError(f"{self.name}: not available in a neutral test")
 
 
@@ -125,6 +129,17 @@ class NeutralCase(TransactionCase):
         """ Register records that were created and committed through an
         explicit transaction, to have them unlinked like committed fixtures. """
         self.backend.track_committed(records)
+
+    # ------------------------------------------------------------------
+    # Model registry
+    # ------------------------------------------------------------------
+
+    def patch_registry(self, attribute: str, value) -> None:
+        """ Patch an attribute of the ORM's model registry (``ready``,
+        ``uninstalling_modules``, ...) for the duration of the test. The
+        registry is an ORM object, not a backend one, but tests may not reach
+        it themselves (rule F3): they ask the harness. """
+        self.patch(self.env.registry, attribute, value)
 
     # ------------------------------------------------------------------
     # Error surfacing
