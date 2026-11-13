@@ -1,4 +1,5 @@
 from . import (
+    test_integrity,
     test_lint,
     test_raw_sql,
     test_smoke_integrity,
