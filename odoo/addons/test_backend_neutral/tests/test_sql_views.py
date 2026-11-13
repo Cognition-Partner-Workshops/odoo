@@ -663,3 +663,298 @@ class TestProjectTaskReport(NeutralCase):
         for task in self.tasks:
             expected[task.is_closed] = expected.get(task.is_closed, 0) + 1
         self.assertEqual(dict(groups), expected)
+
+
+class TestProjectBurndownReport(NeutralCase):
+    """``project.task.burndown.chart.report``: +1 for the stage a task enters
+    and -1 for the stage it leaves, dated by the stage change; grouping must
+    include a date part and the stage."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.todo, cls.doing, cls.done = cls.env['project.task.type'].create([
+            {'name': 'Neutral BD Todo', 'sequence': 1},
+            {'name': 'Neutral BD Doing', 'sequence': 2},
+            {'name': 'Neutral BD Done', 'sequence': 3, 'fold': True},
+        ])
+        cls.stages = cls.todo + cls.doing + cls.done
+        cls.project = cls.env['project.project'].create({
+            'name': 'Neutral Burndown Project',
+            'company_id': cls.env.company.id,
+            'type_ids': [Command.set(cls.stages.ids)],
+        })
+        cls.tasks = cls.env['project.task'].create([
+            {'name': f'Neutral BD {i}', 'project_id': cls.project.id,
+             'stage_id': cls.todo.id, 'allocated_hours': 2.0}
+            for i in range(4)
+        ])
+        cls.history = {task: [cls.todo] for task in cls.tasks}
+        cls._move(cls.tasks[1] + cls.tasks[2] + cls.tasks[3], cls.doing)
+        cls._move(cls.tasks[3], cls.done, state='1_done')
+        cls.env.flush_all()
+
+    @classmethod
+    def _move(cls, tasks, stage, state=None):
+        vals = {'stage_id': stage.id}
+        if state:
+            vals['state'] = state
+        tasks.write(vals)
+        cls.env.flush_all()
+        for task in tasks:
+            cls.history[task].append(stage)
+
+    def _expected_net_by_stage(self, tasks):
+        expected = {}
+        for task in tasks:
+            visited = self.history[task]
+            for previous, entered in zip([None] + visited[:-1], visited):
+                expected[entered] = expected.get(entered, 0) + 1
+                if previous is not None:
+                    expected[previous] = expected.get(previous, 0) - 1
+        return expected
+
+    def _grouped(self, domain, groupby):
+        return self.env['project.task.burndown.chart.report']._read_group(
+            domain, groupby=groupby, aggregates=['__count'])
+
+    def test_grouped_count_by_month_and_stage(self):
+        groups = self._grouped([('project_id', '=', self.project.id)], ['date:month', 'stage_id'])
+        self.assertEqual({g[0].date().replace(day=1) for g in groups}, {fields.Date.today().replace(day=1)})
+        self.assertEqual({stage: count for _month, stage, count in groups},
+                         self._expected_net_by_stage(self.tasks))
+        self.assertEqual(sum(count for *_rest, count in groups), len(self.tasks))
+
+    def test_task_domain_filters_source_tasks(self):
+        groups = self._grouped(
+            [('project_id', '=', self.project.id), ('stage_id', 'in', self.stages.ids),
+             ('state', '!=', '1_done')],
+            ['date:day', 'stage_id'])
+        open_tasks = self.tasks.filtered(lambda t: t.state != '1_done')
+        self.assertEqual({g[0].date() for g in groups}, {fields.Date.today()})
+        self.assertEqual({stage: count for _day, stage, count in groups},
+                         self._expected_net_by_stage(open_tasks))
+
+    def test_allocated_hours_follow_the_task(self):
+        groups = self.env['project.task.burndown.chart.report']._read_group(
+            [('project_id', '=', self.project.id)],
+            groupby=['date:month', 'stage_id'],
+            aggregates=['allocated_hours:sum'])
+        expected = {stage: count * 2.0 for stage, count in self._expected_net_by_stage(self.tasks).items()}
+        self.assertEqual({stage: hours for _month, stage, hours in groups}, expected)
+
+    def test_grouping_requires_date_and_stage(self):
+        from odoo.exceptions import UserError
+        with self.assertRaises(UserError):
+            self._grouped([('project_id', '=', self.project.id)], ['stage_id'])
+        with self.assertRaises(UserError):
+            self._grouped([('project_id', '=', self.project.id)], ['date:month'])
+
+
+class TestProjectTaskStageReport(NeutralCase):
+    """``project.task.stage.report``: one row per stage a task has been in,
+    with the time spent there taken from the task's ``duration_tracking``."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.company = cls.env.company
+        cls.other_company = cls.env['res.company'].create({'name': 'Neutral Stage Co 2'})
+        cls.env.user.write({'company_ids': [Command.link(cls.other_company.id)]})
+        cls.todo, cls.doing, cls.done = cls.env['project.task.type'].create([
+            {'name': 'Neutral ST Todo', 'sequence': 1},
+            {'name': 'Neutral ST Doing', 'sequence': 2},
+            {'name': 'Neutral ST Done', 'sequence': 3, 'fold': True},
+        ])
+        stages = cls.todo + cls.doing + cls.done
+        cls.project = cls.env['project.project'].create({
+            'name': 'Neutral Stage Project', 'company_id': cls.company.id,
+            'type_ids': [Command.set(stages.ids)],
+        })
+        cls.other_project = cls.env['project.project'].with_company(cls.other_company).create({
+            'name': 'Neutral Stage Project 2', 'company_id': cls.other_company.id,
+            'type_ids': [Command.set(stages.ids)],
+        })
+        cls.task_a, cls.task_b = cls.env['project.task'].create([
+            {'name': 'Neutral ST A', 'project_id': cls.project.id, 'stage_id': cls.todo.id, 'priority': '1'},
+            {'name': 'Neutral ST B', 'project_id': cls.project.id, 'stage_id': cls.todo.id},
+        ])
+        cls.other_task = cls.env['project.task'].with_company(cls.other_company).create({
+            'name': 'Neutral ST C', 'project_id': cls.other_project.id, 'stage_id': cls.todo.id})
+        cls.env.flush_all()
+        (cls.task_a + cls.task_b).write({'stage_id': cls.doing.id})
+        cls.env.flush_all()
+        cls.task_a.write({'stage_id': cls.done.id, 'state': '1_done'})
+        cls.tasks = cls.task_a + cls.task_b + cls.other_task
+        cls.visited = {
+            cls.task_a: cls.todo + cls.doing + cls.done,
+            cls.task_b: cls.todo + cls.doing,
+            cls.other_task: cls.todo,
+        }
+        cls.env.flush_all()
+
+    def _rows(self, tasks):
+        return self.env['project.task.stage.report'].search([('task_id', 'in', tasks.ids)])
+
+    def test_one_row_per_task_and_visited_stage(self):
+        rows = self._rows(self.tasks)
+        self.assertEqual(
+            {(row.task_id, row.stage_id) for row in rows},
+            {(task, stage) for task, stages in self.visited.items() for stage in stages})
+        for row in rows:
+            task = row.task_id
+            self.assertEqual(row.name, task.name)
+            self.assertEqual(row.project_id, task.project_id)
+            self.assertEqual(row.company_id, task.project_id.company_id)
+            self.assertEqual(row.priority, task.priority)
+            self.assertEqual(row.is_closed, task.state in ('1_done', '1_canceled'))
+            self.assertEqual(row.sequence, row.stage_id.sequence)
+            self.assertEqual(row.date_last_stage_update, task.date_last_stage_update)
+
+    def test_time_spent_matches_duration_tracking(self):
+        for row in self._rows(self.tasks):
+            task = row.task_id
+            tracked_minutes = task.duration_tracking.get(str(row.stage_id.id), 0)
+            if row.stage_id == task.stage_id:
+                self.assertGreaterEqual(row.time_spent, tracked_minutes / 60)
+                self.assertLess(row.time_spent, tracked_minutes / 60 + 1.0)
+            else:
+                self.assertAlmostEqual(row.time_spent, tracked_minutes / 60)
+
+    def test_grouped_counts_by_stage_and_company(self):
+        groups = self.env['project.task.stage.report']._read_group(
+            [('task_id', 'in', self.tasks.ids)],
+            groupby=['company_id', 'stage_id'],
+            aggregates=['__count'])
+        expected = {}
+        for task, stages in self.visited.items():
+            for stage in stages:
+                key = (task.project_id.company_id, stage)
+                expected[key] = expected.get(key, 0) + 1
+        self.assertEqual({(c, s): n for c, s, n in groups}, expected)
+
+    def test_grouped_average_time_spent_by_stage(self):
+        groups = self.env['project.task.stage.report']._read_group(
+            [('task_id', 'in', self.tasks.ids), ('stage_id', '!=', self.todo.id)],
+            groupby=['stage_id'],
+            aggregates=['time_spent:avg'])
+        rows = self._rows(self.tasks).filtered(lambda r: r.stage_id != self.todo)
+        for stage, average in groups:
+            stage_rows = rows.filtered(lambda r: r.stage_id == stage)
+            self.assertAlmostEqual(average, sum(stage_rows.mapped('time_spent')) / len(stage_rows), places=4)
+
+
+class TestHrLeaveEmployeeTypeReport(NeutralCase):
+    """``hr.leave.employee.type.report``: FIFO remaining balance per allocation
+    ('left'), validated requests ('taken') and pending ones ('planned')."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.company = cls.env.company
+        cls.auto_type, cls.manual_type = cls.env['hr.work.entry.type'].create([{
+            'name': 'Neutral Auto Leave', 'code': 'NAL', 'requires_allocation': True,
+            'leave_validation_type': 'no_validation', 'allocation_validation_type': 'no_validation',
+            'request_unit': 'day',
+        }, {
+            'name': 'Neutral Manual Leave', 'code': 'NML', 'requires_allocation': True,
+            'leave_validation_type': 'hr', 'allocation_validation_type': 'hr',
+            'request_unit': 'day',
+        }])
+        cls.employee = cls.env['hr.employee'].create({
+            'name': 'Neutral Balance Employee', 'company_id': cls.company.id})
+        cls.first_allocation, cls.second_allocation, cls.manual_allocation = cls.env['hr.leave.allocation'].create([
+            cls._allocation_vals(cls.auto_type, 10.0, date(2025, 1, 1)),
+            cls._allocation_vals(cls.auto_type, 5.0, date(2025, 2, 1)),
+            cls._allocation_vals(cls.manual_type, 4.0, date(2025, 1, 1)),
+        ])
+        cls.allocations = cls.first_allocation + cls.second_allocation + cls.manual_allocation
+        cls.allocations.filtered(lambda a: a.state != 'validate').action_approve()
+        monday = _next_weekday(date(2025, 3, 3), 0)
+        cls.taken_leave = cls.env['hr.leave'].create({
+            'name': 'Neutral taken', 'employee_id': cls.employee.id,
+            'work_entry_type_id': cls.auto_type.id,
+            'request_date_from': monday, 'request_date_to': monday + timedelta(days=1),
+        })
+        cls.planned_leave = cls.env['hr.leave'].create({
+            'name': 'Neutral planned', 'employee_id': cls.employee.id,
+            'work_entry_type_id': cls.manual_type.id,
+            'request_date_from': monday + timedelta(days=7), 'request_date_to': monday + timedelta(days=7),
+        })
+        if cls.planned_leave.state != 'confirm':
+            cls.planned_leave.action_back_to_approval()
+        cls.env.flush_all()
+
+    @classmethod
+    def _allocation_vals(cls, leave_type, days, date_from):
+        return {
+            'name': f'Allocation {leave_type.name} {days}',
+            'employee_id': cls.employee.id,
+            'work_entry_type_id': leave_type.id,
+            'number_of_days': days,
+            'date_from': date_from,
+        }
+
+    def _rows(self, domain=()):
+        return self.env['hr.leave.employee.type.report'].search(
+            [('employee_id', '=', self.employee.id)] + list(domain))
+
+    def test_fixture_states(self):
+        self.assertEqual(set(self.allocations.mapped('state')), {'validate'})
+        self.assertEqual(self.taken_leave.state, 'validate')
+        self.assertEqual(self.planned_leave.state, 'confirm')
+        self.assertAlmostEqual(self.taken_leave.number_of_days, 2.0)
+        self.assertAlmostEqual(self.planned_leave.number_of_days, 1.0)
+
+    def test_one_left_row_per_allocation_with_fifo_balance(self):
+        rows = self._rows([('holiday_status', '=', 'left')])
+        self.assertEqual(len(rows), len(self.allocations))
+        expected = {
+            self.first_allocation: 10.0 - self.taken_leave.number_of_days,
+            self.second_allocation: 5.0,
+            self.manual_allocation: 4.0,
+        }
+        by_key = {(row.work_entry_type_id, row.date_from.date()): row for row in rows}
+        for allocation, days_left in expected.items():
+            row = by_key[(allocation.work_entry_type_id, allocation.date_from)]
+            self.assertAlmostEqual(row.number_of_days, days_left)
+            self.assertEqual(row.state, 'validate')
+            self.assertEqual(row.company_id, self.company)
+            self.assertTrue(row.active_employee)
+
+    def test_one_row_per_request(self):
+        taken = self._rows([('holiday_status', '=', 'taken')])
+        planned = self._rows([('holiday_status', '=', 'planned')])
+        self.assertEqual(len(taken), 1)
+        self.assertEqual(len(planned), 1)
+        self.assertAlmostEqual(taken.number_of_days, self.taken_leave.number_of_days)
+        self.assertEqual(taken.state, 'validate')
+        self.assertEqual(taken.work_entry_type_id, self.auto_type)
+        self.assertEqual(taken.date_from, self.taken_leave.date_from)
+        self.assertAlmostEqual(planned.number_of_days, self.planned_leave.number_of_days)
+        self.assertEqual(planned.state, 'confirm')
+        self.assertEqual(planned.work_entry_type_id, self.manual_type)
+
+    def test_grouped_totals_by_status_and_type(self):
+        groups = self.env['hr.leave.employee.type.report']._read_group(
+            [('employee_id', '=', self.employee.id)],
+            groupby=['work_entry_type_id', 'holiday_status'],
+            aggregates=['number_of_days:sum', '__count'])
+        self.assertEqual(
+            {(t, s): (round(d, 6), n) for t, s, d, n in groups},
+            {
+                (self.auto_type, 'left'): (13.0, 2),
+                (self.auto_type, 'taken'): (2.0, 1),
+                (self.manual_type, 'left'): (4.0, 1),
+                (self.manual_type, 'planned'): (1.0, 1),
+            })
+
+    def test_approving_planned_leave_moves_it_to_taken_and_reduces_left(self):
+        self.planned_leave.action_approve()
+        self.env.flush_all()
+        self.assertEqual(self.planned_leave.state, 'validate')
+        groups = self.env['hr.leave.employee.type.report']._read_group(
+            [('employee_id', '=', self.employee.id), ('work_entry_type_id', '=', self.manual_type.id)],
+            groupby=['holiday_status'],
+            aggregates=['number_of_days:sum'])
+        self.assertEqual({s: round(d, 6) for s, d in groups}, {'left': 3.0, 'taken': 1.0})
