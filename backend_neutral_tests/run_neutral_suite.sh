@@ -23,6 +23,9 @@ step() {
 step "lint: python3 backend_neutral_tests/lint_neutral.py odoo/addons/test_backend_neutral/tests"
 python3 backend_neutral_tests/lint_neutral.py odoo/addons/test_backend_neutral/tests || status=1
 
+step "lint of inherited test_orm code: $odooPython backend_neutral_tests/lint_reused.py"
+"$odooPython" backend_neutral_tests/lint_reused.py || status=1
+
 step "contract self-test: python3 backend_neutral_tests/lint_neutral.py --self-test"
 python3 backend_neutral_tests/lint_neutral.py --self-test || status=1
 
