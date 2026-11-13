@@ -8,12 +8,13 @@ locks is never observed.
 
 Sampled targets (``backend_neutral_tests/sample.yaml``, category
 ``concurrency``): ``concurrency.lock_for_update``, ``concurrency.ir_sequence``,
-``concurrency.ir_cron``, ``concurrency.discuss_channel``, plus the stock quant
-reservation and the "concurrent write to the same record" hypotheses of the
+``concurrency.ir_cron``, ``concurrency.discuss_channel``,
+``concurrency.website_visitor``, plus the stock quant reservation and the "concurrent write to the same record" hypotheses of the
 ticket.
 """
 from contextlib import contextmanager
 from datetime import timedelta
+from uuid import uuid4
 
 from odoo import fields
 
@@ -605,3 +606,127 @@ class TestDiscussChannelLastInterest(ConcurrencyCase):
             second.rollback_transaction()
 
         self.assertEqual(self.read_committed(self.channel, 'last_interest_dt'), [newest])
+
+
+class TestWebsiteVisitorUpsert(ConcurrencyCase):
+    """ concurrency.website_visitor: two sessions upserting the same access
+    token end up with one visitor; the contention-tolerant updates of a held
+    visitor are skipped without error and applied on the next call. """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.website = cls.env.ref('base.default_website')
+
+    def upsert(self, transaction, token, url=None):
+        """ Upsert ``token`` in ``transaction``; return the visitor and
+        whether it was inserted or updated. """
+        Visitor = transaction.env['website.visitor']
+        visitor_id, result = Visitor._upsert_visitor(token, self.website.id, url=url)
+        return Visitor.browse(visitor_id), result
+
+    def visitors(self, env, token):
+        return env['website.visitor'].search([('access_token', '=', token)])
+
+    def test_concurrent_upserts_keep_one_visitor(self):
+        token = uuid4().hex
+        with self.concurrent_session() as first, self.concurrent_session() as second:
+            visitor, result = self.upsert(first, token, url='/first')
+            self.assertEqual(result, 'inserted')
+            # the same token is being inserted by the first session: the
+            # second one cannot decide between insert and update yet
+            with self.assertConcurrencyError():
+                self.upsert(second, token, url='/second')
+            second.rollback_transaction()
+            first.commit_transaction()
+            self.track_committed(visitor)
+
+            retried, result = self.upsert(second, token, url='/second')
+            self.assertEqual(result, 'updated')
+            self.assertEqual(retried.id, visitor.id)
+            second.commit_transaction()
+
+        with self.independent_transaction() as transaction:
+            found = self.visitors(transaction.env, token)
+            self.assertEqual(found.ids, visitor.ids)
+            self.assertEqual(found.visit_count, 1)
+            self.assertEqual(found.website_id.id, self.website.id)
+            # both page views are kept, on that one visitor
+            self.assertEqual(
+                sorted(found.website_track_ids.mapped('url')), ['/first', '/second'])
+
+    def test_upsert_of_a_committed_token_updates(self):
+        token = uuid4().hex
+        with self.concurrent_session() as first:
+            visitor, result = self.upsert(first, token)
+            self.assertEqual(result, 'inserted')
+            first.commit_transaction()
+            self.track_committed(visitor)
+
+        with self.concurrent_session() as second, self.concurrent_session() as third:
+            # two sessions updating the same visitor: the second one waits
+            # for the first and is refused by the backend's timeout
+            again, result = self.upsert(second, token, url='/second')
+            self.assertEqual((again.id, result), (visitor.id, 'updated'))
+            with self.assertConcurrencyError():
+                self.upsert(third, token, url='/third')
+            third.rollback_transaction()
+            second.commit_transaction()
+            again, result = self.upsert(third, token, url='/third')
+            self.assertEqual((again.id, result), (visitor.id, 'updated'))
+            third.commit_transaction()
+
+        with self.independent_transaction() as transaction:
+            found = self.visitors(transaction.env, token)
+            self.assertEqual(found.ids, visitor.ids)
+            self.assertEqual(found.visit_count, 1)
+            self.assertEqual(sorted(found.website_track_ids.mapped('url')), ['/second', '/third'])
+
+    def test_different_tokens_never_contend(self):
+        tokens = [uuid4().hex, uuid4().hex]
+        with self.concurrent_session() as first, self.concurrent_session() as second:
+            mine, result_mine = self.upsert(first, tokens[0])
+            theirs, result_theirs = self.upsert(second, tokens[1])
+            self.assertEqual((result_mine, result_theirs), ('inserted', 'inserted'))
+            first.commit_transaction()
+            second.commit_transaction()
+            self.track_committed(mine | theirs)
+        with self.independent_transaction() as transaction:
+            found = transaction.env['website.visitor'].search([('access_token', 'in', tokens)])
+            self.assertEqual(set(found.ids), set((mine | theirs).ids))
+
+    def test_updates_of_a_held_visitor_are_skipped_then_applied(self):
+        token = uuid4().hex
+        long_ago = fields.Datetime.now() - timedelta(hours=9)
+
+        def make_visitor(env):
+            visitor_id, _result = env['website.visitor']._upsert_visitor(token, self.website.id)
+            visitor = env['website.visitor'].browse(visitor_id)
+            visitor.write({'last_connection_datetime': long_ago, 'timezone': 'Europe/Brussels'})
+            return visitor
+
+        visitor = self.committed_fixture(make_visitor)
+
+        with self.concurrent_session() as first, self.concurrent_session() as second:
+            held = visitor.with_env(first.env)
+            held._update_visitor_timezone('Europe/Paris')
+
+            # the second session skips the held row: no error, nothing changed
+            contender = visitor.with_env(second.env)
+            contender._update_visitor_last_visit()
+            contender._update_visitor_timezone('Asia/Tokyo')
+            second.commit_transaction()
+            self.assertEqual(self.read_committed(visitor, 'visit_count'), [1])
+            self.assertEqual(self.read_committed(visitor, 'last_connection_datetime'), [long_ago])
+            self.assertEqual(self.read_committed(visitor, 'timezone'), ['Europe/Brussels'])
+
+            first.commit_transaction()
+            # released: the next call applies the update on top of the holder's
+            contender._update_visitor_last_visit()
+            second.commit_transaction()
+
+        with self.independent_transaction() as transaction:
+            stored = visitor.with_env(transaction.env)
+            self.assertEqual(stored.visit_count, 2)
+            self.assertGreater(stored.last_connection_datetime, long_ago)
+            self.assertEqual(stored.timezone, 'Europe/Paris')
